@@ -9,6 +9,7 @@ dashboard/frontend/src/auth/config.js
 /data/*
 !data/macro_data.pkl
 !data/sector_intelligence.pkl
+!data/fundamentals_pit_screener.pkl
 !data/fundamentals.json
 !data/earnings_calendar.json
 !data/tracking_error_baseline.json
@@ -100,10 +101,12 @@ Thumbs.db
 *.swp
 data/delivery_pct.json
 
-# Screener scrape scratch (one-time research build; pkl is the artifact)
+# Screener scrape scratch (one-time research build; the pkl below is the artifact)
 diagnostics/_screener_cache/
 diagnostics/_screener_spike/
-data/fundamentals_pit_screener.pkl
+# NOTE: data/fundamentals_pit_screener.pkl is a CARRIED IRREPLACEABLE (BUILD_SPEC §2 — the
+# deep Screener PIT D/E scrape; the solvency filter depends on it and it cannot be regenerated).
+# It is force-tracked below, so it must NOT be ignored here.
 
 # ── Consolidation hygiene (2026-06-12) ──
 # SECURITY: these audit working files QUOTE real secret values (Anthropic key,
