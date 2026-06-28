@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nifty-satvik"
+version = "0.1.0"
+description = "Long-horizon (3-month cross-sectional trend-momentum) signals for Nifty-500 — clean rebuild."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = { text = "Proprietary" }
+authors = [{ name = "Kreesh Patel", email = "kreeshvasistha@gmail.com" }]
+
+# Deliberately lean. NO shap / statsmodels / lightgbm — those native libs caused
+# the import-time segfault on the CI runner in the old repo, and the long-horizon
+# path doesn't use them.
+dependencies = [
+    "pandas>=2.2",
+    "numpy>=1.26",
+    "scipy>=1.13",
+    "yfinance>=0.2.40",
+    "pyyaml>=6.0",
+    "python-dateutil>=2.9",
+    "requests>=2.32",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    # Available for isolating any native crash (`pytest --forked`); not on by
+    # default since nq/ carries no shap/lightgbm, so the crash source is absent.
+    "pytest-forked>=1.6",
+    "hypothesis>=6.100",
+    "ruff>=0.5",
+    "mypy>=1.10",
+]
+
+[tool.setuptools.packages.find]
+include = ["nq*"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = ["-ra", "--strict-markers", "--strict-config"]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = ["slow: tests that take noticeable time (end-to-end backtests)"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.mypy]
+python_version = "3.12"
+warn_unused_ignores = true
