@@ -26,6 +26,22 @@ def ensure_dirs() -> None:
         d.mkdir(parents=True, exist_ok=True)
 
 
+def load_frozen_cfg() -> dict:
+    """Return the FROZEN production strategy cfg the engine + live scanner trade — the ``cfg``
+    block of the carried ``models/long_horizon/config.json`` (the single source of truth, derived
+    once on the pre-2017 slice and never re-derived at scan). Carries the keys ``simulate`` /
+    ``decide_exit`` / the live scanner consume: ``gate_quantile, stop_atr_mult, target_pct,
+    trailing_activate_pct, trailing_pct, min_hold_days, max_hold_days, risk_per_trade_pct,
+    max_position_pct, max_adv_participation_pct, max_positions``."""
+    import json
+
+    path = MODELS_DIR / "long_horizon" / "config.json"
+    cfg = json.loads(path.read_text(encoding="utf-8")).get("cfg", {})
+    if not cfg.get("stop_atr_mult"):
+        raise ValueError(f"frozen cfg missing/invalid at {path}")
+    return cfg
+
+
 # ── Cost model — delivery equity, charged on BOTH legs ────
 # brokerage 0.03%/leg + STT 0.10%/leg (delivery STT is per-leg, buy AND sell).
 BROKERAGE_PCT = 0.0003
