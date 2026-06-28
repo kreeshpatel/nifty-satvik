@@ -1,0 +1,52 @@
+{
+  "model_version": "long-horizon-63d",
+  "strategy": "LONG_HORIZON",
+  "horizon_days": 63,
+  "description": "3-month cross-sectional trend-momentum. Signal = 200-day SMA slope over 63 sessions (sma200_slope_63); top-15 by cross-sectional rank.",
+  "universe": "PIT index-membership-masked Nifty-500, restricted to large+mid (trailing rolling-median 20d rupee ADV >= 5cr) and solvent low-debt (0 <= D/E < 1.5).",
+  "params_derived_through": "2017-01-01 (stop/target/trailing/hold/sizing derived on the pre-2017 train slice; frozen thereafter)",
+  "provenance": "long_horizon/results/cpcv_long_horizon_final_682.json — 682-name corrected universe; params re-derived per fold in the walk-forward and confirmed stable.",
+  "cfg": {
+    "signal": "sma200_slope_63",
+    "gate_quantile": 0.5,
+    "stop_atr_mult": 3.67,
+    "target_pct": 22.52,
+    "trailing_activate_pct": 4.0,
+    "trailing_pct": 4.27,
+    "min_hold_days": 10,
+    "max_hold_days": 63,
+    "risk_per_trade_pct": 3.0,
+    "max_position_pct": 15.0,
+    "max_adv_participation_pct": 5.0,
+    "max_positions": 15,
+    "expected_win_rate": 0.6297,
+    "expected_rr": 1.94
+  },
+  "live_overlays": {
+    "_note": "Applied by long_horizon_cron to the paper-book sizing equity. NOT part of the frozen `cfg` block (load_frozen_cfg returns `cfg` only), so the research backtest baselines + golden master are unaffected. The backtest VALIDATED the vol-target via pre-reg 0068 (arm V2, the best-Calmar arm); the live scanner applies the IDENTICAL shared formula (portfolio.vol_target_scalar) to the trailing paper-portfolio equity (results/portfolio_history.csv). Shipped 2026-06-26 to the paper path; remove this block or set vol_target_annual=0 to disable.",
+    "vol_target_annual": 0.15,
+    "vol_window": 42,
+    "vol_floor": 0.40,
+    "provenance": "pre-reg 0068 V2 (target_vol 0.15 / floor 0.40); CAGR-neutral DD reduction (~-45 -> -39 in-backtest); 0070 confirmed sizing/market-state overlays plateau ~-38 (a dependable -30 needs the deferred tail hedge)."
+  },
+  "expected_portfolio_metrics": {
+    "note": "HONEST reproducible anchor = baseline_v0 (2026-06-27): the FROZEN cfg run through the research harness on the corrected-682 universe (397 solvent names, 2017-2026), current exit-parity-unified engine. See research/baseline_v0.json. The prior 30.3% / 1.15 was the OPTIMISTIC target-fill figure (pre exit-parity unification; STRATEGY_FULL section 6 flagged it needed CPCV re-confirmation); baseline_v0 IS that re-confirmation (exit-parity costs ~4pp; after-tax STCG a further ~3pp). Stage-B survivorship re-derivation will produce baseline_v1, likely lower. NOT live-validated.",
+    "cagr_pct": 26.11,
+    "sharpe": 1.02,
+    "max_drawdown_pct": -41.87,
+    "calmar": 0.62,
+    "trades_per_year": 152,
+    "win_rate_pct": 59.72,
+    "after_tax_stcg20": {
+      "cagr_pct": 23.13,
+      "sharpe": 0.83,
+      "max_drawdown_pct": -45.59,
+      "calmar": 0.51
+    },
+    "prior_optimistic_headline": {
+      "cagr_pct": 30.3,
+      "sharpe": 1.15,
+      "note": "pre exit-parity fix; superseded by baseline_v0 2026-06-27"
+    }
+  }
+}

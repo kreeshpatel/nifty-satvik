@@ -1,0 +1,96 @@
+{
+  "_doc": "Curated problem->sector knowledge base for the AI Sector-Regime Analyst (Phase 2B S2). Owner-extensible. Each theme maps a structural or cyclical PROBLEM / shift to the Indian sectors it HELPS (up) or HURTS (down), with the observable drivers that signal it forming. The analyst uses this to GROUND its problem->solution->sector reasoning; it may also reason to NEW mappings not listed here (and should flag when it does). Sector names match config.py SECTOR_MAP: Banking, IT, Energy, Auto, FMCG, Pharma, Finance_NBFC, Metals, Cement, Telecom, Infrastructure, Consumer, Chemicals, Realty, Diversified, Paints, Media, Industrials.",
+  "version": "2026-06-13",
+  "themes": [
+    {
+      "theme": "fuel_import_dependency",
+      "type": "india_domestic",
+      "problem": "India imports ~85% of crude; elevated crude + a weak rupee widen the import bill and fiscal/CAD pressure.",
+      "up": ["Energy", "Auto"],
+      "down": ["Paints", "Chemicals", "Cement"],
+      "drivers": ["crude_trend rising", "usd_inr weakening", "ethanol/E20 blending policy push"],
+      "example": "2022-24: E20 ethanol mandate + elevated crude re-rated sugar/ethanol (Consumer/Energy) names."
+    },
+    {
+      "theme": "china_plus_one_supply_chain",
+      "type": "global_to_india",
+      "problem": "Global supply chains diversify away from China; India captures manufacturing, electronics and specialty-chemical share.",
+      "up": ["Industrials", "Chemicals", "Auto", "Metals"],
+      "down": [],
+      "drivers": ["PLI scheme outlays", "export order growth", "global tariff/geopolitics on China"],
+      "example": "2023-25: electronics/contract-manufacturing + specialty chemicals re-rated on China+1."
+    },
+    {
+      "theme": "generative_ai_disruption",
+      "type": "global_to_india",
+      "problem": "Generative AI compresses demand for traditional Indian IT services (commoditised coding/BPO) while lifting data-centre / power demand.",
+      "up": ["Energy", "Infrastructure"],
+      "down": ["IT"],
+      "drivers": ["global IT-services deal-TCV decline", "AI-capex headlines", "US discretionary-tech slowdown"],
+      "example": "2023-25: Indian IT services de-rated on AI-substitution fears + weak US discretionary spend."
+    },
+    {
+      "theme": "domestic_rate_cycle",
+      "type": "india_domestic",
+      "problem": "RBI rate cuts lower funding cost and revive credit-sensitive demand (housing, autos, capex).",
+      "up": ["Banking", "Finance_NBFC", "Realty", "Auto"],
+      "down": [],
+      "drivers": ["RBI repo cut", "falling 10y yield", "cooling CPI inflation"],
+      "example": "Rate-cut cycles historically lift NBFCs/realty as funding cost + EMI fall."
+    },
+    {
+      "theme": "geopolitics_defence_security",
+      "type": "global_to_india",
+      "problem": "War / border tension / energy-security shocks drive defence indigenisation and safe-haven flows.",
+      "up": ["Industrials", "Energy", "Metals"],
+      "down": [],
+      "drivers": ["conflict escalation headlines", "defence order pipeline", "gold/crude spikes"],
+      "example": "Conflict episodes lift defence-industrials, energy security and gold-linked names."
+    },
+    {
+      "theme": "government_capex_infrastructure",
+      "type": "india_domestic",
+      "problem": "Large public capex (roads, rail, power, water) drives an infra + cement + capital-goods upcycle.",
+      "up": ["Infrastructure", "Cement", "Industrials", "Metals"],
+      "down": [],
+      "drivers": ["Budget capex allocation", "order-book growth", "central-scheme disbursal"],
+      "example": "Pre-election + Budget capex pushes lift infra/cement/cap-goods order books."
+    },
+    {
+      "theme": "rural_consumption_revival",
+      "type": "india_domestic",
+      "problem": "A good monsoon + rural income support revives mass FMCG and two-wheeler / entry-auto demand.",
+      "up": ["FMCG", "Auto", "Consumer"],
+      "down": [],
+      "drivers": ["normal/above-normal monsoon", "MSP hikes", "rural wage growth"],
+      "example": "Good-monsoon years revive rural FMCG volumes + two-wheeler sales."
+    },
+    {
+      "theme": "global_commodity_supercycle",
+      "type": "global_to_india",
+      "problem": "Global metal/commodity price upcycles lift Indian producers' realisations; downcycles compress them.",
+      "up": ["Metals", "Energy"],
+      "down": ["Auto", "Consumer", "Cement"],
+      "drivers": ["LME metal prices rising", "China stimulus / demand", "global growth surprise"],
+      "example": "2021 commodity supercycle drove a sharp metals re-rating."
+    },
+    {
+      "theme": "healthcare_pharma_demand",
+      "type": "global_to_india",
+      "problem": "US generics pricing, specialty/CDMO shift, and domestic healthcare demand drive pharma cycles.",
+      "up": ["Pharma"],
+      "down": [],
+      "drivers": ["US generic price stabilisation", "CDMO order wins", "USFDA resolution"],
+      "example": "Pharma re-rates when US price erosion stabilises + CDMO/specialty momentum builds."
+    },
+    {
+      "theme": "housing_realty_upcycle",
+      "type": "india_domestic",
+      "problem": "Affordability + low rates + inventory drawdown drive a multi-year residential realty upcycle that pulls cement, financiers, and building materials.",
+      "up": ["Realty", "Cement", "Finance_NBFC", "Paints"],
+      "down": [],
+      "drivers": ["falling home-loan rates", "inventory months declining", "registration volume growth"],
+      "example": "Post-2021 housing upcycle lifted realty, cement, home-financiers and paints together."
+    }
+  ]
+}

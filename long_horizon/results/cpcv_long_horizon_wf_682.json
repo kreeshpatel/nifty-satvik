@@ -1,0 +1,122 @@
+{
+  "universe": 682,
+  "solvent_low_debt": 397,
+  "folds": {
+    "2017": {
+      "return_pct": 80.8,
+      "sharpe": 3.01,
+      "max_dd_pct": -11.6,
+      "n_trades": 118,
+      "win_rate_pct": 70.34,
+      "end_equity": 1807576.0,
+      "derived_target": 21.9,
+      "derived_stop_mult": 3.67
+    },
+    "2018": {
+      "return_pct": 3.9,
+      "sharpe": 0.28,
+      "max_dd_pct": -24.2,
+      "n_trades": 127,
+      "win_rate_pct": 49.61,
+      "end_equity": 1038610.0,
+      "derived_target": 22.6,
+      "derived_stop_mult": 4.05
+    },
+    "2019": {
+      "return_pct": 9.8,
+      "sharpe": 0.68,
+      "max_dd_pct": -11.8,
+      "n_trades": 98,
+      "win_rate_pct": 54.08,
+      "end_equity": 1098375.0,
+      "derived_target": 20.7,
+      "derived_stop_mult": 4.23
+    },
+    "2020": {
+      "return_pct": 65.3,
+      "sharpe": 1.68,
+      "max_dd_pct": -32.9,
+      "n_trades": 133,
+      "win_rate_pct": 62.41,
+      "end_equity": 1652866.0,
+      "derived_target": 19.5,
+      "derived_stop_mult": 4.21
+    },
+    "2021": {
+      "return_pct": 75.8,
+      "sharpe": 2.54,
+      "max_dd_pct": -9.6,
+      "n_trades": 135,
+      "win_rate_pct": 58.52,
+      "end_equity": 1757884.0,
+      "derived_target": 21.1,
+      "derived_stop_mult": 4.18
+    },
+    "2022": {
+      "return_pct": 2.3,
+      "sharpe": 0.23,
+      "max_dd_pct": -34.8,
+      "n_trades": 143,
+      "win_rate_pct": 47.55,
+      "end_equity": 1023361.0,
+      "derived_target": 24.0,
+      "derived_stop_mult": 3.92
+    },
+    "2023": {
+      "return_pct": 92.7,
+      "sharpe": 3.06,
+      "max_dd_pct": -11.0,
+      "n_trades": 96,
+      "win_rate_pct": 66.67,
+      "end_equity": 1926787.0,
+      "derived_target": 23.5,
+      "derived_stop_mult": 3.98
+    },
+    "2024": {
+      "return_pct": 14.1,
+      "sharpe": 0.59,
+      "max_dd_pct": -22.1,
+      "n_trades": 143,
+      "win_rate_pct": 48.25,
+      "end_equity": 1140655.0,
+      "derived_target": 23.3,
+      "derived_stop_mult": 3.95
+    },
+    "2025": {
+      "return_pct": 16.6,
+      "sharpe": 0.69,
+      "max_dd_pct": -21.9,
+      "n_trades": 111,
+      "win_rate_pct": 48.65,
+      "end_equity": 1165883.0,
+      "derived_target": 24.5,
+      "derived_stop_mult": 4.07
+    },
+    "2026": {
+      "return_pct": 11.8,
+      "sharpe": 1.04,
+      "max_dd_pct": -10.7,
+      "n_trades": 53,
+      "win_rate_pct": 58.49,
+      "end_equity": 1118440.0,
+      "derived_target": 23.4,
+      "derived_stop_mult": 4.12
+    }
+  },
+  "all_2017_2026": {
+    "n_years": 10,
+    "cagr_pct": 33.2,
+    "mean_year_ret": 37.3,
+    "mean_sharpe": 1.38,
+    "worst_year": 2.3,
+    "neg_years": 0
+  },
+  "trustworthy_2019plus": {
+    "n_years": 8,
+    "cagr_pct": 32.2,
+    "mean_year_ret": 36.0,
+    "mean_sharpe": 1.31,
+    "worst_year": 2.3,
+    "neg_years": 0
+  }
+}

@@ -1,0 +1,22 @@
+# NiftyQuant — DEMERGER / spin-off reference for the CA-aware OHLCV cleaner (B1).
+#
+# These are VALUE-LEAVING corporate events (a business is carved out of the listed
+# entity), NOT share splits. On the demerger date the price re-bases DOWN by the
+# value of the spun-off business and continues from there — there is no lost value
+# to "adjust away". The default cleaner (src/data/data_store.clean_ohlcv_for_features)
+# treats any >50% non-reversing single-session drop as an unadjusted SPLIT and
+# back-adjusts the prior bars to a continuous series; doing that to a demerger
+# FABRICATES a soaring trend slope (e.g. VEDL: raw sma200_slope_63 2.16 -> 24.94).
+# Listing a (ticker,date) here tells the cleaner to LEAVE the honest discontinuity.
+#
+# Selection rule (be conservative): a single-session NON-REVERSING close drop > 50%
+# that is clearly a value-leaving event and is NOT a clean integer-ratio split
+# (e.g. exactly -50% for 1:2, -80% for 1:5). All rows below were scanned from
+# results/ohlcv_cache_lh.json and confirmed as 2025-2026 NSE demergers.
+#
+# ticker,date,raw_drop_pct,note
+ticker,date
+VEDL,2026-04-30        # Vedanta demerger (multiple businesses spun off); 773.6 -> 271.6 = -64.9%
+ABFRL,2025-05-22       # Aditya Birla Fashion & Retail — Madura (ABLBL) spin-off; 268.95 -> 89.85 = -66.6%
+RAYMOND,2025-05-14     # Raymond lifestyle/realty demerger; 1564.3 -> 551.2 = -64.8%
+SKFINDIA,2025-10-15    # SKF India industrial/automotive demerger; 5008.4 -> 2266.1 = -54.8%

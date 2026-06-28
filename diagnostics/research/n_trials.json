@@ -1,0 +1,180 @@
+{
+  "_doc": "Cumulative trial count for the family-wise Deflated-Sharpe correction (AUD-003). Every diagnostic that computes deflated_sharpe_ratio MUST read cumulative_n_trials from here instead of passing a per-run/guessed value, otherwise DSR overstates significance (it deflates as if only the current run's arms were tried). A 'trial' = one independent strategy configuration evaluated for a PROMOTE/KILL decision against the locked honest base. Pure measurement diagnostics that make no trade decision (e.g. 0021 IC, 0003 forward-wall) are NOT trials. This file is reconciled + finalized in Phase 5 of the wiring audit; until then treat cumulative_n_trials as a working lower bound.",
+  "finalized": true,
+  "finalized_note": "2026-06-12 — denominator = ARM-LEVEL (conservative; family-level 23 recorded as the alternative). Owner sign-off via the approved post-0028 path-forward plan (Phase 1a). Loader (validation.overfitting.cumulative_n_trials) wired into run_sleeve_walkforward / run_balanced_scorecard / run_weighting_ablation / run_overfitting as the --n-trials default; score_0025_gate + score_0025b_gate already read this file. Arm counts spot-checked against prereg docs during the 2026-06-12 prereg sweep. Open follow-up (not blocking): re-state 0020/0022 + locked-base DSR under this denominator.",
+  "methodology": "arm-level count of trade-bearing strategy configs evaluated on the locked honest base (each multi-arm ablation contributes its arm count). Family-level count (~20) is a less-conservative alternative; the arm-level count deflates more and is the safer denominator.",
+  "cumulative_n_trials": 79,
+  "family_level_count": 42,
+  "_increment_log": "2026-06-12: 43->44 — 0031 7d-horizon step-0 readout (counted before results). 44->45 — 0034 partial-exit parity 0.4 arm (AUD-029 gate). 45->46 — 0035 calibration-refit not-worse arm (AUD-038; frozen rule in the approved plan M0-4 BEFORE the run; verdict REVERT — refit failed the bar, builtin retained). family_level 23->26. 2026-06-18: 46->47 — 0046 LTR ranker engine (top-K-per-day cross-sectional selection vs the 0.92 cliff; one pinned-K arm, counted BEFORE the CPCV A/B run per the frozen 0046 rule; VERDICT KILL — trade-IR 0.055 vs base 0.191, DSR 0.53). 47->48 — 0044 deja_vu sleeve (orthogonal pattern-fingerprint sleeve; one arm, counted BEFORE the sleeve walk-forward run). 48->50 — 0047 let-winners-run CPCV confirmation (trailing_off + trailing_8_4 arms, counted BEFORE the run). 50->51 — 0048 RS-01 capital reallocation (realloc_on arm, paired CPCV A/B vs base, counted BEFORE the run). 51->52 — 0051 short-horizon 7d engine (clean labels, paired CPCV portfolio Sharpe+CAGR vs 14d, counted BEFORE the run). family_level 27->31. 2026-06-19: 52->53 — 0056 regime-conditional entry gate (B2; one arm CHOPPY conf 0.92->0.94, paired CPCV portfolio Sharpe vs base, counted BEFORE the run; skeptical prior). VERDICT KILL (dSharpe -0.16 CI entirely<0, cut 24.7% of trades>15% guard). family_level 31->32. 2026-06-20: 53->55 — 0058 clean 2x2 decomposition of the 0051 7d-engine win (gate x horizon): arms B (14d@loose-gate) + C (7d@tight-gate) NEW; A=base, D=already-counted-0051. Isolates horizon from the gate confound the skeptics caught in 0051; primary = C-A (7d vs 14d at SAME 0.92/8.0 gate), DSR on EMPIRICAL skew/kurt. Counted BEFORE the run. family_level 32->33. 2026-06-23: 55->56 — 0063 gate-loosening (min_confidence sweep, single-knob isolation of 0058's gate component B-A). ONE cell; adversarially hardened (group-bootstrap CI, 7/9, incremental-band EV existence gate, drop-{2020,2021} joint + non-bull EV, tail floor); DSR at RAISED bar 0.99 + +3 band-retest penalty (eff n=59). Counted BEFORE the run per the frozen 0063 rule; re-opens the 0.92 lock w/ owner sign-off. family_level 33->34. 2026-06-23: 56->57 — 0065 volume-pullback selection tilt (Build A from the 0064 sweep: additive rank-norm tilt by the pullback_volume_ratio sidecar, lambda=0.10; paired CPCV A/B base vs tilt; sidecar not feature so model stays 79f, golden-master byte-identical off). Counted BEFORE the run. family_level 34->35. 2026-06-24: 57->58 — 0066 v2_long PARALLEL long-horizon (20-63d) position model: a NEW 25-feature horizon-matched model (NOT a v1 variant) vs the 14d base, paired CPCV portfolio Sharpe, empirical-skew DSR, embargo=63, 7 paths. ONE trade-bearing arm at a single pre-registered operating gate (LONG_GATE 0.50/10.0). Counted BEFORE the run. family_level 35->36. 2026-06-25: 58->59 — 0067 long-horizon capital reallocation (Top-K-Drop on the 15-slot long-horizon book vs base; ONE realloc_on arm, walk-forward A/B; counted BEFORE the cloud run per the frozen 0067 rule). family_level 36->37. 2026-06-26: 59->63 — 0068 portfolio vol-targeting on the long-horizon 63d J-T book (scale deployable equity by min(1,target_vol/realized_book_vol), floored; flag-gated in portfolio.simulate, golden byte-identical when off). FOUR pre-declared grid arms V1-V4 (target_vol {0.12,0.15,0.18} x floor {0.40,0.50}), counted BEFORE the cloud CPCV run per the frozen 0068 rule. DISTINCT from 0013 (which ran on the retired v1 14d model WITH bear-block, making exposure mgmt redundant); long-horizon has no regime gate + a real -40% DD. family_level 37->38. 2026-06-26: 63->68 — 0069 breadth/position-size confirmation of the 0068 mechanism. 0068 PROMOTED on shape but instrumentation showed deploy% barely fell + avg_positions ROSE (redistribution, not de-gross) -> the lever looked like under-diversification, not vol-timing. FIVE new arms: CONCENTRATE_8 (opposite-direction control), BREADTH_RISK_25 (constant-aggregate-risk path), BREADTH_CAP_25 + BREADTH_CAP_30 (cap path via the newly-honored cfg max_position_pct = a live/backtest parity fix), COMBO_25_vol (breadth+vol probe). V2_vol_ref re-run as in-run reference (already counted under 0068). Continuous-curve, frozen cfg, same SHAPE gates. Counted BEFORE the cloud run. family_level 38->39. 2026-06-26: 68->73 — 0070 systematic-crash EXPOSURE overlay (the road to -30 after 0069 proved COVID-2020 is the binding systematic floor that breadth can't move CAGR-free). One new mechanism: a per-date market-state exposure scalar in [floor,1], computed TRAILING-ONLY from an equal-weight universe index, LAGGED one day (single lag point _lh_overlay_core.lag_exposure), multiplied into simulate sizing equity alongside the 0068 vol_scalar; None -> golden byte-identical. FIVE new arms across THREE signals (design-panel consensus, all fast-re-engage fixes to the KILLED binary 200DMA gate): SEMIDEV + SEMIDEV_AGGR (index downside-semideviation, short window), MKTDD (index peak-drawdown circuit-breaker), BREADTH_REG (continuous breadth+index-trend), SEMIDEV_x_VOL68 (semidev stacked on the 0068 book-vol target). VOL68_ref re-run as in-run reference (counted under 0068). DD/CAGR FRONTIER verdict (which signal pushes the 2020 floor furthest toward -30 at least CAGR cost), SHAPE gates on the best overlay. Tail-hedge route deferred (needs the options backtester / vol-carry program). Counted BEFORE the cloud run. family_level 39->40. 2026-06-28: 73->76 — C4 momentum horse-race (Entry-Signal Arc Phase 1 Tier 1; answers G2 = was the sole-ranker pick deflation-tested?). THREE alt sole-ranker SWAP arms vs the sma200_slope_63 base: mom_252_21 (12-1), mom_126 (6m), donchian_pos_126 (126d channel) — each ranks the SAME canonical universe, run through BOTH the frozen full strategy AND the entry-only book, PAIRED same-cache. Rule-only (fixed factors, no fit) -> no CPCV embargo. DSR at cumulative 76. Counted BEFORE the run per the frozen C4 rule. family_level 40->41.",
+  "families": {
+    "0001-different-universe-oos": {
+      "arms": 2,
+      "note": "single-model + corrected ensemble"
+    },
+    "0002-sector-rotation-activation": {
+      "arms": 1
+    },
+    "0004-chart-structure-features": {
+      "arms": 1,
+      "note": "84f retrain"
+    },
+    "0005-signal-persistence-latch": {
+      "arms": 2,
+      "note": "latch + latch-only-bleed"
+    },
+    "0006-earnings-proximity-gate": {
+      "arms": 1
+    },
+    "0007-target-calibration-headroom": {
+      "arms": 1
+    },
+    "0008-sector-rotation-overlay": {
+      "arms": 1
+    },
+    "0010-delivery-pct-feature": {
+      "arms": 1,
+      "note": "82f candidate"
+    },
+    "0011-triple-barrier-win-label": {
+      "arms": 1
+    },
+    "0011b-triple-barrier-7pct-threshold": {
+      "arms": 1
+    },
+    "0012-balanced-program": {
+      "arms": 3,
+      "note": "P1 regime/vol exposure, P2 MR sleeve, P3 delivery"
+    },
+    "0013-vol-managed-exposure": {
+      "arms": 3,
+      "note": "exposure-sweep arms"
+    },
+    "0014-mean-reversion-sleeve": {
+      "arms": 1
+    },
+    "0015-mr-thin-book-gating": {
+      "arms": 1
+    },
+    "0016-institutional-portfolio": {
+      "arms": 2,
+      "note": "MV + HRP optimizer"
+    },
+    "0017-pit-fundamentals-value-quality": {
+      "arms": 1,
+      "note": "Stage-1 IC"
+    },
+    "0018-fundamentals-value-sleeve": {
+      "arms": 3,
+      "note": "ep 126d / 60d / sector-neutral"
+    },
+    "0020-weighting-vs-selection": {
+      "arms": 3,
+      "note": "A_live / B_flat / C_nocap"
+    },
+    "0022-exit-hold-ablation": {
+      "arms": 3,
+      "note": "base / let_run / let_mid"
+    },
+    "0025-meta-labeling": {
+      "arms": 3,
+      "note": "B direction-only / C meta-labeling / D meta+weighting (forward-registered; D NOT run â€” C failed the gate 2026-06-10, KILL. Count kept at 3, conservative)"
+    },
+    "0026-sweep-override-parity": {
+      "arms": 1,
+      "note": "live-parity band-EV measurement (sweep arm vs base); counted conservatively though it is a correctness fix with a disable-by-default rule, not an alpha bet"
+    },
+    "0025b-state-meta": {
+      "arms": 1,
+      "note": "B state-feature meta head; the 3 ablation arms are attributions of B (same trained heads under REPRODUCIBLE_MODE), not independent trials"
+    },
+    "0031-7d-horizon-readout": {
+      "arms": 1,
+      "note": "v1_7d (7d return head, 14d conf label per AUD-041) walk-forward vs the 14d base; build/no-build gate for the 5d line. Counted before results."
+    },
+    "0034-partial-exit-parity": {
+      "arms": 1,
+      "note": "partial_exit_qty=0.4 arm (current live behavior) vs the committed 0.0 base (0032); AUD-029 adopt-if-not-worse gate. Counted before the 0.4 arm ran. VERDICT: ADOPT 0.0."
+    },
+    "0035-calibration-refit": {
+      "arms": 1,
+      "note": "refit target_calibration (top-bucket k 0.848->0.557, fit on 617 de-leaked OOS trades) vs builtin; AUD-038 not-worse gate, rule frozen in the approved plan. VERDICT: REVERT (dSharpe -0.26 CI[-0.63,+0.02], 2026 fold -1.40; median-k over-shrinks targets and clips the right-tail harvest). Builtin retained; AUD-038 stays open."
+    },
+    "0046-ltr-ranker-engine": {
+      "arms": 1,
+      "note": "Learning-to-Rank engine: top-K-per-day cross-sectional selection (V1RankerStrategy grade_fn) replacing the 0.92 confidence cliff, vs the locked CPCV base 0.191. One PINNED-K arm (no sweep). run_cpcv_ranker.py retrains all heads per split (no frozen-head leak). Counted BEFORE the run per the frozen 0046 rule. VERDICT: KILL (trade-IR 0.0555 CI[0.048,0.063] vs base 0.191, uplift -0.136 < floor 0.041; DSR 0.534). Real but far-less-selective edge — top-20/day ~1700 trades dilutes the 0.92-cliff quality; ranking extracted no new info. Do not revisit without a NEW pre-registered portfolio-level trial.)"
+    },
+    "0044-deja-vu-sleeve": {
+      "arms": 1,
+      "note": "deja_vu orthogonal pattern-fingerprint sleeve (BallTree) vs the locked base; embargo'd exclude_after lookahead guard. One arm, counted BEFORE the sleeve walk-forward run. DEFERRED 2026-06-19: OOM on the 1.13M x 160 fingerprint matrix; needs a float32/streaming footprint fix before it can run."
+    },
+    "0047-let-winners-run": {
+      "arms": 2,
+      "note": "CPCV confirmation of the 0042 surface (trailing cuts winners). Arms trailing_off + trailing_8_4 vs live 6/3, paired per-path delta on shared per-split models. Counted BEFORE the run per the frozen 0047 rule. VERDICT: KEEP live 6/3 (both fail; trailing raises raw expectancy but lowers risk-adjusted IR)."
+    },
+    "0048-capital-reallocation-rs01": {
+      "arms": 1,
+      "note": "RS-01 Top-K-Drop capital reallocation (Stage-3 headline, clean rebuild NOT #124). realloc_on arm vs base, paired CPCV A/B, after-cost; flag-gated in backtest_engine (golden-master byte-identical when off). Counted BEFORE the run per the frozen 0048 rule. VERDICT: KILL (structurally inert) — 0 reallocations across 4429 trades; book never full (cap 30 never binds, ~27% deployed, 0028) so the evict-when-full premise is falsified. Constraint is signal scarcity, not slot scarcity."
+    },
+    "0051-short-horizon-7d-engine": {
+      "arms": 1,
+      "note": "Clean 7d engine (fwd_max_7d return + hit_4pct_7d conf, AUD-041 fixed) vs 14d base, paired CPCV on PORTFOLIO Sharpe+CAGR (not per-trade IR). The #1 forward lever (0031: 7d +33% CAGR via 2.42x recycling) + answer to the opportunity-cost/idle-capital problem. Counted BEFORE the run per the frozen 0051 rule."
+    },
+    "0056-regime-conditional-entry-gate": {
+      "arms": 1,
+      "note": "B2. Per-regime SIGNAL confidence bar in the shared admission kernel (golden-master byte-identical when off); ONE arm = CHOPPY conf 0.92->0.94 (BEAR/BULL unchanged). Paired CPCV portfolio Sharpe vs base. Counted BEFORE the run. VERDICT KILL — dSharpe -0.16 (CI [-0.27,-0.05] entirely negative), dCAGR -4.71, DSR 0.86, cut 24.7% of trades (>15% guard). Raising the bar starved the under-deployed book; the RS-01 deployment tension confirmed."
+    },
+    "0058-7d-horizon-clean-2x2": {
+      "arms": 2,
+      "note": "Clean 2x2 (gate x horizon) decomposition of the 0051 7d-engine win that the skeptics overturned as gate-confounded. NEW arms: B (14d@0.88/5.0 loose-gate control) + C (7d@0.92/8.0 tight-gate, the PRIMARY clean candidate). A=locked base, D=original-0051-arm (already counted). Primary = C-A (7d vs 14d at the SAME 0.92/8.0 gate); DSR on EMPIRICAL skew/kurt at n_trials>=53; degeneracy guard (fill_ratio>=0.5); drop-2021 robustness. Runner backtest-validator-cleared. Counted BEFORE the run per the frozen 0058 rule."
+    },
+    "0063-gate-loosening-min-confidence": {
+      "arms": 1,
+      "note": "Single-knob min_confidence sweep {0.92,0.91,0.90,0.89,0.88} (min_predicted_return FIXED 8.0) isolating 0058's gate component B-A. ONE registered cell (sweep points = plateau samples; SHIP = loosest arm clearing every gate). Adversarially hardened: GROUP-level bootstrap primary CI (not normal-approx on correlated paths), 7/9 per-fold, incremental-band per-trade EV existence gate, drop-{2020,2021} JOINT + non-bull EV, tail floor. DSR at a RAISED bar 0.99 + a +3 band-retest penalty (effective n=59 — Nth probe of the [0.88,0.92) cell: 0026/0026b/0056/0058-B). Counted BEFORE the run; re-opens the 0.92 lock w/ owner sign-off."
+    },
+    "0065-volume-pullback-tilt": {
+      "arms": 1,
+      "note": "Build A from the 0064 full sweep — additive rank-norm SELECTION TILT (lambda=0.10) on the daily candidate sort by the pullback_volume_ratio SIDECAR. Paired CPCV A/B (base lambda=0 vs tilt). NOT a feature/retrain (sidecar; model stays frozen 79f; golden-master byte-identical when off). Re-orders slots only, admits no new trades. Gate: full dSharpe CI-low>-0.3 (not-worse) AND recent-5y dSharpe CI-low>0. PASS authorizes only the forward-wall WR test, never a live flip on the in-sample run. Counted BEFORE the run."
+    },
+    "0066-v2-long-horizon": {
+      "arms": 1,
+      "note": "PARALLEL long-horizon (20-63d) position model — a NEW 25-feature horizon-matched model (12-1 & 6mo momentum, 200d trend, 126d Donchian+RS, 63d vol), NOT a v1 variant. fwd_max_63d return head + √t-scaled triple-barrier tb_hit_63d conf head; min-hold 20 / max 63 / √t ATR stop exit. Paired CPCV portfolio Sharpe vs the 14d base, N_GROUPS=8 (embargo=63 -> 7 paths), empirical-skew DSR, drop-best-group jackknife, min-detectable-effect (3-way PROMOTE/UNDERPOWERED/KILL classification — long horizon is HARDER to prove). ONE arm at a single pre-registered gate (0.50/10.0). Live v1 + ensemble + golden master untouched. Phase 1 (OHLCV+macro only); fundamentals = separate Phase 2. Counted BEFORE the run."
+    },
+    "0067-long-horizon-reallocation": {
+      "arms": 1,
+      "note": "Long-horizon Top-K-Drop reallocation (forward-plan Phase 4). When the 15-slot book is FULL, evict the weakest soured holding (re-scored on TODAY trend_rank) for a materially-stronger candidate. Flag-gated in portfolio.simulate (golden byte-identical when off). One realloc_on arm vs base, walk-forward A/B on the corrected 682-name universe (local cache degenerate: 13<15 names => cap inert). Distinct from v1 0048 (30-slot cap never bound, INERT) because the 15-slot cap binds here. Counted BEFORE the run."
+    },
+    "0068-vol-target-long-horizon": {
+      "arms": 4,
+      "note": "Portfolio volatility targeting on the long-horizon 63d J-T book: scale deployable equity (hence the 15%-cap-bound size) by min(1,target_vol/realized_book_vol), floored; flag-gated in portfolio.simulate, golden byte-identical when off. FOUR pre-declared grid arms V1-V4 (target_vol {0.12,0.15,0.18} x vol_floor {0.40,0.50}). Judge on SHAPE (Calmar/Sharpe/DD) not CAGR; DSR>0.95 @ n_trials 63; >=2-crash-fold robustness. DISTINCT from 0013 (retired v1 14d WITH bear-block -> exposure redundant there); long-horizon has no regime gate + a real -40% DD, untested. Continuous realized-vol mechanism, NOT the binary index-200DMA gate killed in STRATEGY_FULL.md §11. Counted BEFORE the cloud run per the frozen 0068 rule. Benign-window local read (2017-19) mildly shape-positive; crash-fold walk-forward decisive."
+    },
+    "0069-breadth-position-size": {
+      "arms": 5,
+      "note": "Breadth/position-size confirmation of the 0068 mechanism. 0068 PROMOTED on shape but deploy% barely fell + avg_positions ROSE -> the benefit looked like under-diversification (concentrated ~13.4/15-name book), not vol-targeting de-gross. Tests that DIRECTLY with a frozen-cfg continuous-curve grid: CONCENTRATE_8 (opposite-direction control: fewer names should DEEPEN DD), BREADTH_RISK_25 (constant-aggregate-risk path: lower risk_per_trade + more slots), BREADTH_CAP_25 + BREADTH_CAP_30 (cap path: lower max_position_pct + more slots — needs the cfg max_position_pct now honored by portfolio.simulate, a live/backtest parity fix; golden byte-identical at cfg=15), COMBO_25_vol (breadth+vol stacked, best-achievable probe). V2_vol_ref re-run as an in-run same-data reference (counted under 0068, not re-counted). Same SHAPE gates (Calmar up / paired-Sharpe-CI / MaxDD<=0.9xOFF / >=2-crash-spread) on the best breadth arm; the attribution block names breadth-vs-de-gross-vs-vol and verifies the levers ENGAGED (avg_positions). DSR informational. Counted BEFORE the cloud run. VERDICT: KILL — breadth IS real diversification (names 13.5->24-29 at maintained ~95% deploy) and cuts MaxDD (-45.6->-37) but COSTS 4-6pp CAGR (edge concentrated in top names); CONCENTRATE_8 keeps highest CAGR at same DD; -45 floor is the COVID-2020 SYSTEMATIC crash, not concentration."
+    },
+    "0070-crash-overlay": {
+      "arms": 5,
+      "note": "Systematic-crash EXPOSURE overlay — the road to -30 after 0069 proved COVID-2020 is the binding systematic floor. New mechanism: a per-date market-state exposure scalar in [floor,1] from an equal-weight universe index, TRAILING-ONLY, LAGGED one day (single lag point _lh_overlay_core.lag_exposure), multiplied into simulate sizing equity alongside the 0068 vol_scalar (None -> golden byte-identical). FIVE new arms / THREE signals (design-panel consensus, all CONTINUOUS + FAST-RE-ENGAGE fixes to the KILLED binary 200DMA gate which stayed in cash for months during the V-recovery): SEMIDEV + SEMIDEV_AGGR (index downside-semideviation, short window — leads on the down-leg, decays fast as up-days contribute 0), MKTDD (index peak-drawdown circuit-breaker — 1.0 within X% of peak, fires only in deep market drawdowns), BREADTH_REG (continuous breadth + index-trend), SEMIDEV_x_VOL68 (semidev stacked on the 0068 book-vol target). VOL68_ref re-run as in-run reference (counted under 0068). DD/CAGR FRONTIER verdict (which signal pushes the 2020 floor furthest toward -30 at least CAGR cost; beats 0068?), SHAPE gates on the best overlay; DSR informational. Tail-hedge route to -30 (defined-risk index puts) DEFERRED — needs the options backtester / vol-carry program. Counted BEFORE the cloud run."
+    },
+    "C4-momentum-horse-race": {
+      "arms": 3,
+      "note": "Entry-Signal Arc Phase 1 Tier 1 — answers G2 (was sma200_slope_63 deflation-tested as a sole entry ranker?). THREE alternative sole-ranker SWAP arms vs the sma200_slope_63 base: mom_252_21 (12-1 momentum), mom_126 (6-month), donchian_pos_126 (126d channel position). Each re-ranks the SAME canonical universe and runs through BOTH the frozen full strategy AND the entry-only book; PAIRED same-cache (the cache-vintage ±4pp lesson). Rule-only (fixed factors, no learned weights) -> standard paired walk-forward, no CPCV embargo (P6). DSR at cumulative 76. Pre-reg: long_horizon/research/preregistry/C4-momentum-horse-race.md. Counted BEFORE the run. Predicted: alternatives tie-or-lose, none clears the bar -> entry pick CONFIRMED (success retires G2)."
+    },
+    "0071-let-winners-run": {
+      "arms": 3,
+      "note": "Stage-D exit machinery (Entry-Signal Arc, owner-chosen after C4 confirmed the entry). From Phase-0 ARM C/D in-sample finding (stop_only 38.5/1.381 vs production 26.9/1.046; target+trailing subtract -0.34 Sharpe). THREE candidate exit-config arms vs the production base, rank by the confirmed sma200_slope_63, paired same-cache: B stop_only (no target/trailing, parameter-free, PRIMARY), C no-trailing (trailing_activate_pct=9999), D no-target (target_pct=9999). 9999 = OFF sentinel (not a tuned threshold). SKEPTICAL prior: v1-era 0047 found trailing-off raised raw EV but LOWERED risk-adjusted IR -> the in-sample +0.34 Sharpe must survive the block-bootstrap CI + >=2019 fold-pass. FROZEN-cfg change class -> a PROMOTE is the heavy path (walk-forward + golden-master regen + owner sign-off); this run produces EVIDENCE only. Pre-reg: long_horizon/research/preregistry/0071-let-winners-run.md. Counted BEFORE the run. family_level 41->42."
+    }
+  },
+  "excluded_non_trials": {
+    "0003-forward-wall-live-expectancy": "live accrual, not a backtest trial",
+    "0021-base-selection-quality": "rank-IC measurement, no trade/PROMOTE decision",
+    "0028-cagr-bridge": "CAGR decomposition of the base; no candidate, no PROMOTE/KILL decision",
+    "0029-pre-giveback": "counterfactual measurement on existing trade log; rule said DO-NOT-REGISTER (no trial spent)",
+    "0030-sector-surplus": "sector-concentration + candidate-surplus measurement; reproduces base exactly, no candidate"
+  },
+  "reconciliation_todo_phase5": [
+    "confirm each family's true arm count against its prereg .md",
+    "decide arm-level vs family-level denominator with the owner",
+    "re-run 0020/0022 + locked base DSR with this cumulative_n_trials",
+    "set finalized:true"
+  ]
+}
