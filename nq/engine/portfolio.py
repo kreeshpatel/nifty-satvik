@@ -60,6 +60,14 @@ def _slip(adv_rupees: float, notional: float) -> float:
     return s
 
 
+def leg_slippage(adv_rupees: float, notional: float = 0.0) -> float:
+    """Public per-leg slippage (liquidity-tier rate + 0.1% impact above 0.5% ADV). The live
+    scan's indicative entry uses ``leg_slippage(adv)`` (notional 0 → tier rate only), matching
+    the backtest's first-pass fill — the single source of truth so live and backtest cannot
+    drift on cost."""
+    return _slip(adv_rupees, notional)
+
+
 def base_risk_qty(
     equity: float, fill: float, risk_per_share: float, adv: float, risk_pct: float,
     *, max_position_pct: float = 15.0, max_adv_participation: float = MAX_ADV_PARTICIPATION,

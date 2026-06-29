@@ -10,11 +10,12 @@ from .portfolio import (
     Position,
     base_risk_qty,
     compute_metrics,
+    leg_slippage,
     simulate,
 )
 
 __all__ = [
     "decide_exit", "ExitDecision",
-    "simulate", "compute_metrics", "base_risk_qty", "Position",
+    "simulate", "compute_metrics", "base_risk_qty", "leg_slippage", "Position",
     "build_ohlc_panel", "compose_ranked_panel",
 ]
