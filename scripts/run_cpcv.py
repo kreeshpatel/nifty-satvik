@@ -82,6 +82,31 @@ def _anchor() -> dict:
         return {}
 
 
+def _recorded_pin() -> dict:
+    """The dataset pin recorded in research/baseline_v1.json (``{ohlcv_sha256, release_tag, ...}``).
+    A pinned run with no explicit ``--expect-sha256`` verifies against this so baseline_v1 stays
+    byte-reproducible. Empty mapping if the file/field is absent."""
+    try:
+        doc = json.loads((ROOT / "research" / "baseline_v1.json").read_text(encoding="utf-8"))
+        return doc.get("pin", {}) or {}
+    except Exception:
+        return {}
+
+
+def _fetch_pinned_release(tag: str, dest: Path) -> None:
+    """Download the pinned OHLCV snapshot (release asset ``ohlcv.pkl``) from GitHub release
+    ``tag`` into ``dest`` via the ``gh`` CLI — the fixed byte-identical input behind a
+    reproducible baseline. Raises if gh is unavailable or the asset is missing (a pinned run
+    must fail loud rather than silently fall back to a live yfinance download)."""
+    import subprocess
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run(
+        ["gh", "release", "download", tag, "--pattern", dest.name,
+         "--dir", str(dest.parent), "--clobber"],
+        check=True,
+    )
+
+
 def _universe_diagnostics(panel, trades: list) -> dict:
     """Per-year breadth of the eligible (post-solvency) ranked panel vs the names actually traded —
     the A4 probe for the survivor-thin-historical-universe hypothesis (is 2017-2019 starved of
@@ -110,13 +135,20 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--end", default=None, help="default: today")
     ap.add_argument("--out", default=str(RESULTS_DIR / "cpcv_long.json"))
     ap.add_argument("--cache", default=None, help="OHLCV pickle cache path (download if absent)")
+    ap.add_argument("--pinned-release", default=None,
+                    help="GitHub release tag to fetch the pinned ohlcv.pkl snapshot from "
+                         "(byte-reproducible run; needs the gh CLI)")
+    ap.add_argument("--expect-sha256", default=None,
+                    help="abort unless the OHLCV cache file matches this sha256 (defaults to the "
+                         "pin recorded in research/baseline_v1.json when --pinned-release is set)")
     ap.add_argument("--quick", action="store_true", help="fewer bootstrap resamples (smoke)")
     args = ap.parse_args(argv)
 
     # Heavy imports deferred so build_universe stays unit-testable without the data stack.
     from nq.data.features import compute_all_features
     from nq.data.fundamentals import load_fund_store
-    from nq.data.ohlcv import OHLCV_CACHE, download_ohlcv, load_ohlcv_cache, save_ohlcv_cache
+    from nq.data.ohlcv import (OHLCV_CACHE, download_ohlcv, file_sha256, load_ohlcv_cache,
+                               save_ohlcv_cache)
     from nq.engine.panel import compose_ranked_panel
     from nq.runner.research import _daily_returns, _dsr_from_bootstrap, run_backtest
     from nq.validation.bootstrap import block_bootstrap_metric
@@ -128,12 +160,36 @@ def main(argv: list[str] | None = None) -> int:
     end = args.end or date.today().isoformat()
     cache = Path(args.cache) if args.cache else OHLCV_CACHE
 
+    # Dataset pin: a pinned run loads a FIXED snapshot (the release asset) instead of hitting
+    # yfinance, and verifies its sha256 — byte-identical input => byte-reproducible baseline.
+    pinned = bool(args.pinned_release or args.expect_sha256)
+    expect = args.expect_sha256
+    if args.pinned_release:
+        if expect is None:
+            expect = _recorded_pin().get("ohlcv_sha256")
+        if not cache.exists():
+            print(f"fetching pinned snapshot from release {args.pinned_release!r} -> {cache}",
+                  flush=True)
+            _fetch_pinned_release(args.pinned_release, cache)
+
     ohlcv = load_ohlcv_cache(cache)
     if not ohlcv:
+        if pinned:
+            print(f"ERROR: pinned run but no OHLCV snapshot at {cache}", flush=True)
+            return 2
         print(f"downloading OHLCV for {len(universe)} names ({args.start}..{end}) ...", flush=True)
         ohlcv = download_ohlcv(universe, start=args.start, end=end)
         save_ohlcv_cache(ohlcv, cache)
-    print(f"universe={args.mode} requested={len(universe)} with-data={len(ohlcv)}", flush=True)
+
+    ohlcv_sha256 = file_sha256(cache)
+    if expect:
+        if ohlcv_sha256 != expect:
+            print(f"ERROR: OHLCV snapshot sha256 mismatch\n  expected {expect}\n"
+                  f"  got      {ohlcv_sha256}", flush=True)
+            return 2
+        print(f"pin OK: OHLCV sha256 matches expected ({ohlcv_sha256[:16]}...)", flush=True)
+    print(f"universe={args.mode} requested={len(universe)} with-data={len(ohlcv)} "
+          f"ohlcv_sha256={ohlcv_sha256[:16] or 'n/a'}...", flush=True)
 
     features = compute_all_features(ohlcv)
     panel = compose_ranked_panel(features, ohlcv, fund_store=load_fund_store(),
@@ -160,6 +216,8 @@ def main(argv: list[str] | None = None) -> int:
         "config": {"mode": args.mode, "start": args.start, "end": end,
                    "n_requested": len(universe), "n_with_data": len(ohlcv),
                    "frozen_cfg": dict(cfg)},
+        "pin": {"pinned": pinned, "ohlcv_sha256": ohlcv_sha256,
+                "release_tag": args.pinned_release},
         "baseline": m,
         "sharpe_point": round(ci.point, 3) if ci else None,
         "sharpe_ci_95": [round(ci.lower, 3), round(ci.upper, 3)] if ci else None,

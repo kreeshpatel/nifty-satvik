@@ -17,6 +17,9 @@ on:
       end:
         description: "backtest end (YYYY-MM-DD; blank = today)"
         default: ""
+      pin_tag:
+        description: "release tag to fetch the PINNED ohlcv.pkl snapshot from (blank = fresh yfinance download; a fresh run's ohlcv.pkl artifact is what you later promote to a release)"
+        default: ""
 
 concurrency:
   group: cpcv-research
@@ -43,11 +46,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
       - name: Run canonical CPCV research
+        env:
+          GH_TOKEN: ${{ github.token }}     # lets --pinned-release fetch the snapshot via gh
         run: |
           python scripts/run_cpcv.py \
             --mode "${{ github.event.inputs.mode }}" \
             --start "${{ github.event.inputs.start }}" \
-            ${{ github.event.inputs.end != '' && format('--end {0}', github.event.inputs.end) || '' }}
+            ${{ github.event.inputs.end != '' && format('--end {0}', github.event.inputs.end) || '' }} \
+            ${{ github.event.inputs.pin_tag != '' && format('--pinned-release {0}', github.event.inputs.pin_tag) || '' }}
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4

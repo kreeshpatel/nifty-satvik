@@ -40,7 +40,12 @@
     "fundamentals": "augmented store 654 names (185 delisted D/E scraped from Screener 2026-07-01)",
     "frozen_cfg": "models/long_horizon/config.json"
   },
-  "pin_status": "PENDING (A2 half-2): the OHLCV snapshot is 64 MB (> git limit) — promote the run artifact to a release asset + wire run_cpcv --pinned-release for byte-reproducibility. Until pinned, the number drifts ~1-2pp run-to-run (yfinance revisions: 14.2/15.6/16.25 observed).",
+  "pin": {
+    "status": "PENDING — plumbing wired (run_cpcv --pinned-release / --expect-sha256); awaiting the cloud run that mints the canonical OHLCV snapshot, then promote that artifact to a release asset and fill ohlcv_sha256 + release_tag below.",
+    "ohlcv_sha256": null,
+    "release_tag": null,
+    "rationale": "The OHLCV snapshot is 64 MB (> git limit) so it lives as a GitHub release asset, identified by the sha256 of its exact pickle bytes. A pinned run loads that fixed blob instead of yfinance, making baseline_v1 byte-reproducible. Until pinned, the number drifts ~1-2pp run-to-run (yfinance revisions: 14.2/15.6/16.25 observed)."
+  },
   "caveats": [
     "IN-SAMPLE + dev-contaminated (diagnostics/research/HOLDOUT.md) — the trustworthy number is the forward wall (post-2026-05-30), not this. Trust >=2019 folds most (pre-2018 membership survivor-biased).",
     "~28/213 recoverable-delisted names still lack D/E; ~114 hard-bankruptcy delistings unrecoverable from yfinance (residual survivorship).",

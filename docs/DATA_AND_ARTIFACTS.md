@@ -67,10 +67,31 @@ verdict**, so we never re-run a dead lever and significance math stays honest:
 **Revisit recipe:** memory → `docs/ROADMAP.md` → `research/overlay_registry.md` + `findings/` →
 pre-register a trial → cloud run → record verdict + bump `n_trials`.
 
+## 4a. Dataset pin — how baseline_v1 becomes byte-reproducible
+
+yfinance drifts run-to-run, so a headline is only reproducible against a **fixed OHLCV snapshot**.
+The snapshot is identified by the **sha256 of its exact pickle bytes** — a pinned run loads that
+blob (a GitHub release asset, since 64 MB > git limit) instead of hitting yfinance, so the input
+is byte-identical and (with the pinned deps) the baseline is byte-reproducible.
+
+Plumbing (wired, code-complete): `nq.data.ohlcv.file_sha256` + `run_cpcv --pinned-release <tag>`
+(fetches the asset via `gh`) + `--expect-sha256 <hex>` (aborts on mismatch; defaults to the pin
+recorded in `research/baseline_v1.json`). Every run records `pin.ohlcv_sha256` in `cpcv_long.json`.
+
+**Mint-the-pin recipe (one cloud action, then it's permanent):**
+1. Trigger `cpcv-research.yml` with `mode=corrected`, `pin_tag` **blank** (fresh yfinance) — this
+   produces the canonical `data/ohlcv.pkl` and uploads it as the `cpcv-research-corrected` artifact.
+   Note `pin.ohlcv_sha256` printed in the run / `cpcv_long.json`.
+2. Download that artifact, create a release (e.g. `gh release create dataset-pin-YYYYMMDD ohlcv.pkl`),
+   so the snapshot lives as a release asset.
+3. Write `ohlcv_sha256` + `release_tag` into `research/baseline_v1.json` `pin` block; flip status.
+4. Verify: re-trigger with `pin_tag=dataset-pin-YYYYMMDD` → it fetches the asset, the sha256 gate
+   passes, and the baseline reproduces byte-for-byte. From then on every quote is pinned.
+
 ## 5. Known gaps / TODO (so they're not lost)
-- **Dataset pin (A2 half-2):** the 64 MB OHLCV snapshot exceeds git limits — pin via a **release
-  asset** (or gzip ~40 MB) + a committed content-hash; wire `run_cpcv --pinned-release` for
-  byte-reproducibility. Until then headline numbers drift ~1-2pp.
+- **Dataset pin (A2 half-2):** plumbing is wired (§4a); the remaining step is the **mint cloud
+  action** — produce the snapshot, promote it to a release asset, and fill `pin.ohlcv_sha256` in
+  `baseline_v1.json`. Until minted, headline numbers drift ~1-2pp.
 - **Live cron not built:** the incremental yfinance downloader + `cron-scanner.yml` (live signals).
 - **`.gitignore` is being de-crufted** from the old monorepo (dashboard/v1/AI whitelist entries
   removed); keep it to only what the LH rebuild emits.

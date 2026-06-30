@@ -20,6 +20,7 @@ reproduces; the only changes are import paths (``nq`` / root ``config``) and doc
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import pickle
 from collections.abc import Mapping
@@ -315,6 +316,25 @@ def load_ohlcv_cache(path: Path | None = None) -> dict[str, pd.DataFrame]:
         return {}
     with open(p, "rb") as f:
         return pickle.load(f)
+
+
+def file_sha256(path: Path | None = None, *, chunk_size: int = 1 << 20) -> str:
+    """SHA-256 hex digest of a cache file's raw bytes (default ``data/ohlcv.pkl``).
+
+    The dataset-pin primitive. yfinance history drifts run-to-run (observed CAGR
+    14.2/15.6/16.25 on identical commands), so a headline number is only reproducible against a
+    FIXED OHLCV snapshot. We identify that snapshot by the sha256 of its exact pickle bytes: a
+    pinned run that loads the same blob is guaranteed byte-identical INPUT, which (with the
+    pinned deps) makes the baseline byte-reproducible. Returns ``''`` if the file is absent.
+    """
+    p = path or OHLCV_CACHE
+    if not p.exists():
+        return ""
+    h = hashlib.sha256()
+    with open(p, "rb") as f:
+        for chunk in iter(lambda: f.read(chunk_size), b""):
+            h.update(chunk)
+    return h.hexdigest()
 
 
 def load_ohlcv_json(path: Path | None = None) -> dict[str, pd.DataFrame]:
