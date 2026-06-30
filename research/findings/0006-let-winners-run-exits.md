@@ -30,8 +30,24 @@ strategy — here removing the target is clearly positive. The research edge is 
 conviction/sizing (both dead).
 
 ## Disposition + next (autonomous)
-**SHADOW** the let-winners-run family; flag for the forward wall (the only thing that can power it up).
-DIG DEEPER (overnight): **target sweep** target_pct ∈ {15, 22.52, 30, 40, OFF} to map the give-back
-curve — momentum decays hyperbolically (external #6), so a higher FINITE target may dominate OFF
-(capturing most of the right tail while still banking some). If a finite target Pareto-dominates the
-base on Sharpe+Calmar+after-tax, that's a stronger, possibly-promotable candidate than pure no-target.
+**SHADOW** the let-winners-run family; flag for the forward wall.
+
+## UPDATE — give-back sweep + finer grid (2026-07-01, autonomous; runs 28481542316 + local)
+Give-back sweep {15,30,40,OFF} (mechanized bar): target=30 UNDERPOWERED ΔSharpe +0.116, **Calmar +0.14
+(best), fold 87.5% (best), maxDD −46→−41, after-tax 16.1%**; OFF +0.138 but **maxDD −51 (worse)**; 15 & 40
+KILL. **Mechanism (local):** the base clips **17.7% of trades at exactly +22.5%** (right tail
+truncated); target=30 captures that tail AND *reduces* maxDD to −40.9 (banks before give-back); OFF
+over-rides into lumpy tail risk (a +125% winner, maxDD −51).
+
+**Then I QUESTIONED it (finer local grid {20,25,28,30,32,35,40,50}):** the Sharpe surface is **SPIKY,
+not a plateau** (0.66–0.88; 32 & 40 are dips between higher neighbours) — classic in-sample-peak
+overfitting (backtest-rigor C1b). **The base 22.52 itself sits at a local DIP (0.667)**, suggesting the
+frozen target is mildly **vintage-overfit** (cfg derived on the old vintage; cf. baseline_v0→v1 vintage
+swing).
+
+**Refined conclusion (honest):** "loosen the target from 22.52" is a REAL, DIRECTIONAL edge —
+consistent across 87.5% of years (so not pure noise), improving return + after-tax + (at ~30) drawdown.
+But the surface is too spiky to pick a specific replacement value in-sample without overfitting. **Do
+NOT change target_pct off this sweep.** The defensible fix is a **walk-forward re-derivation of
+target_pct (and the cfg) on the corrected vintage** (LOCK_PLAN D2), confirmed on the forward wall —
+NOT an in-sample max-pick. SHADOW stands; this is the strongest lead + the #1 morning item.
