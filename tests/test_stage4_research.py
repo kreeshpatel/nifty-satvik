@@ -1,9 +1,11 @@
-"""F4 gate (hermetic) — the research-run harness (backtest + CPCV-over-time + paired verdict).
+"""F4 gate (hermetic) — the research-run harness (backtest + block-bootstrap robustness + overlay).
 
-Structure-level checks on a synthetic universe: the harness runs end to end, reconstructs the
-right number of LdP paths, produces finite path metrics + a DSR, and the paired verdict logic is
-sound (identical arms → no edge → not PROMOTE). The CANONICAL numbers come from the cloud run on
-the corrected universe."""
+Structure-level checks on a synthetic universe: the harness runs end to end, produces a
+block-bootstrap Sharpe CI + a DSR at the carried n_trials, and the overlay verdict logic is sound
+(identical arms → no edge → not PROMOTE; a degrading candidate → not PROMOTE). The canonical
+numbers come from the cloud run on the corrected universe. (The frozen LH rule makes CPCV's path
+distribution degenerate — the block bootstrap is the correct OOS-robustness tool; CPCV's splitter
+is retained in nq.validation for Stage-B re-derived arms.)"""
 from __future__ import annotations
 
 import numpy as np
@@ -12,8 +14,7 @@ import pandas as pd
 from config import load_frozen_cfg
 from nq.data.features import compute_all_features
 from nq.engine.panel import compose_ranked_panel
-from nq.runner.research import cpcv_evaluate, paired_cpcv, run_backtest
-from nq.validation.cpcv import n_backtest_paths
+from nq.runner.research import evaluate, evaluate_overlay, run_backtest
 
 CFG = load_frozen_cfg()
 
@@ -37,36 +38,26 @@ def _panel():
     return compose_ranked_panel(feats, ohlcv, fund_store=fund, membership=None)
 
 
-def test_lh_cpcv_path_count():
-    assert n_backtest_paths(8, 2) == 7      # the long-horizon default partition
-
-
 def test_run_backtest_matches_simulate():
-    panel = _panel()
-    res = run_backtest(panel, CFG)
+    res = run_backtest(_panel(), CFG)
     assert res["equity_curve"] and "metrics" in res and res["metrics"]["n_trades"] >= 0
 
 
-def test_cpcv_evaluate_structure():
-    panel = _panel()
-    # small partition so the ~1.3y synthetic panel supports the groups (canonical run uses 8/2/63)
-    out = cpcv_evaluate(panel, CFG, n_groups=4, n_test_groups=2, horizon=5, embargo=5)
-    assert out["n_paths"] == n_backtest_paths(4, 2) == 3
-    assert len(out["path_sharpes"]) == 3 and np.isfinite(out["mean_sharpe"])
-    assert out["n_trials"] == 79            # deflates at the carried cumulative count
+def test_evaluate_structure():
+    out = evaluate(_panel(), CFG, n_samples=500)
+    assert "metrics" in out and out["n_trials"] == 79      # deflates at the carried count
+    assert out["sharpe_ci"] is None or (
+        len(out["sharpe_ci"]) == 2 and out["sharpe_ci"][0] <= out["sharpe_point"] <= out["sharpe_ci"][1])
     assert (0.0 <= out["dsr"] <= 1.0) or np.isnan(out["dsr"])
 
 
-def test_paired_cpcv_identical_arms_no_edge():
-    panel = _panel()
-    res = paired_cpcv(panel, CFG, CFG, n_groups=4, n_test_groups=2, horizon=5, embargo=5)
-    assert res["dSharpe"] == 0.0            # same cfg on the same blocks -> exact zero delta
-    assert res["verdict"] != "PROMOTE-CANDIDATE"   # no edge can never promote
+def test_evaluate_overlay_identical_arms_no_edge():
+    res = evaluate_overlay(_panel(), CFG, CFG, n_samples=500)
+    assert res["dSharpe"] == 0.0                            # same cfg -> exact zero delta
+    assert res["verdict"] != "PROMOTE-CANDIDATE"           # no edge can never promote
 
 
-def test_paired_cpcv_degrading_candidate_not_promoted():
-    panel = _panel()
-    # a candidate with a near-zero ATR stop knocks every position out immediately -> strictly worse
-    bad = {**CFG, "stop_atr_mult": 0.05}
-    res = paired_cpcv(panel, CFG, bad, n_groups=4, n_test_groups=2, horizon=5, embargo=5)
+def test_evaluate_overlay_degrading_candidate_not_promoted():
+    bad = {**CFG, "stop_atr_mult": 0.05}                    # near-zero ATR stop -> strictly worse
+    res = evaluate_overlay(_panel(), CFG, bad, n_samples=500)
     assert res["verdict"] != "PROMOTE-CANDIDATE"

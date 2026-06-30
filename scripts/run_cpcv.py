@@ -48,9 +48,10 @@ def build_universe(mode: str, ref_date: date | None = None) -> list[str]:
 
 
 def _anchor() -> dict:
-    """baseline_v0 anchor (the reproduction target)."""
+    """baseline_v0 gross anchor (the reproduction target): {cagr_pct, sharpe}."""
     try:
-        return json.loads((ROOT / "research" / "baseline_v0.json").read_text(encoding="utf-8"))
+        g = json.loads((ROOT / "research" / "baseline_v0.json").read_text(encoding="utf-8"))["gross"]
+        return {"cagr_pct": g.get("cagr_pct"), "sharpe": g.get("sharpe")}
     except Exception:
         return {}
 
@@ -62,7 +63,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--end", default=None, help="default: today")
     ap.add_argument("--out", default=str(RESULTS_DIR / "cpcv_long.json"))
     ap.add_argument("--cache", default=None, help="OHLCV pickle cache path (download if absent)")
-    ap.add_argument("--skip-cpcv", action="store_true", help="reproduction only (no CPCV)")
+    ap.add_argument("--quick", action="store_true", help="fewer bootstrap resamples (smoke)")
     args = ap.parse_args(argv)
 
     # Heavy imports deferred so build_universe stays unit-testable without the data stack.
@@ -70,7 +71,7 @@ def main(argv: list[str] | None = None) -> int:
     from nq.data.fundamentals import load_fund_store
     from nq.data.ohlcv import OHLCV_CACHE, download_ohlcv, load_ohlcv_cache, save_ohlcv_cache
     from nq.engine.panel import compose_ranked_panel
-    from nq.runner.research import cpcv_evaluate, run_backtest
+    from nq.runner.research import evaluate
 
     cfg = load_frozen_cfg()
     universe = build_universe(args.mode)
@@ -91,8 +92,10 @@ def main(argv: list[str] | None = None) -> int:
         print("ERROR: composed panel is empty — check data/membership/fundamentals", flush=True)
         return 1
 
-    bt = run_backtest(panel, cfg, start=args.start, end=end)
-    m = bt["metrics"]
+    print("running backtest + block-bootstrap Sharpe CI + DSR ...", flush=True)
+    ev = evaluate(panel, cfg, start=args.start, end=end,
+                  n_samples=(1000 if args.quick else 5000))
+    m = ev["metrics"]
     anchor = _anchor()
     anchor_cagr = anchor.get("cagr_pct")
     repro_delta = (round(abs(m.get("cagr_pct", 0.0) - anchor_cagr), 3)
@@ -103,16 +106,15 @@ def main(argv: list[str] | None = None) -> int:
                    "n_requested": len(universe), "n_with_data": len(ohlcv),
                    "frozen_cfg": dict(cfg)},
         "baseline": m,
+        "sharpe_point": ev["sharpe_point"], "sharpe_ci_95": ev["sharpe_ci"],
+        "dsr": ev["dsr"], "n_trials": ev["n_trials"], "n_obs": ev["n_obs"],
         "anchor_baseline_v0": {"cagr_pct": anchor_cagr, "sharpe": anchor.get("sharpe")},
         "reproduction_cagr_abs_delta_pp": repro_delta,
         "reproduction_within_1pp": (repro_delta is not None and repro_delta <= 1.0),
         "caveats": ["yfinance floors ~2015; pre-2018 membership survivor-biased (trust >=2019)",
                     "~114 hard-bankruptcy delisted names unrecoverable (survivorship gap)",
-                    "corrected-universe baseline_v1 is Stage B"],
+                    "current-universe run is survivor-biased; corrected baseline_v1 is Stage B"],
     }
-    if not args.skip_cpcv:
-        print("running CPCV path distribution ...", flush=True)
-        out["cpcv"] = cpcv_evaluate(panel, cfg)
 
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
