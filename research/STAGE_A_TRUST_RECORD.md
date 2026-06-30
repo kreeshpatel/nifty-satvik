@@ -1,6 +1,8 @@
 # Stage A — Trust Record (for owner sign-off)
 
-**Date:** 2026-07-01 · **Status:** trustworthy-ground established, with 3 scoped follow-ups open.
+**Date:** 2026-07-01 · **Status:** trust thesis established; both load-bearing follow-ups CLOSED
+(#1 dataset pin → byte-reproducible; #2 A5 harness-trust → KILL). Only the deferred after-tax/
+sub-period (#3) remains. **Ready for owner sign-off.**
 See `docs/STAGE_A_PLAN.md` for the plan and `research/baseline_v1.json` for the anchor.
 
 ## The trust thesis (what we can stand behind)
@@ -38,7 +40,8 @@ See `docs/STAGE_A_PLAN.md` for the plan and `research/baseline_v1.json` for the 
 [~] C4 robustness — block-bootstrap CI given (CPCV path-distribution is degenerate for a frozen
         rule; block bootstrap is the correct tool per §E2)
 [x] D1 golden master GREEN (byte-for-byte)
-[ ] D2 harness re-derives a §11 KILL as KILL — needs the regime-gate overlay (A5)  (FOLLOW-UP)
+[x] D2 harness re-derives a §11 KILL as KILL — A5 regime-to-cash overlay → KILL (ΔSharpe −0.047,
+        CI [−0.478,0.408], DSR 0.20), reproducing the O-001 REJECT (run 28472608257)
 [x] D3 CI/cloud-produced (not a local smoke)
 [x] E1 >=100 trades (1279)
 [x] E2 block bootstrap block_size=63, CI lower bound reported
@@ -51,10 +54,16 @@ See `docs/STAGE_A_PLAN.md` for the plan and `research/baseline_v1.json` for the 
    it reproduces CAGR 15.46% / Sharpe 0.667 / 1279 trades / WR 60.36% byte-identically (no yfinance).
    The fresh mint matched the recorded baseline_v1 exactly (no drift this run). baseline_v1 is now
    byte-reproducible on demand. Mint run 28471557396; verify run 28471952660.
-2. **A5 harness-trust gate:** build the regime-gate overlay (a known §11 KILL) and confirm
-   `evaluate_overlay` returns KILL — proves the harness won't false-promote. (Pulls Stage-C mechanism forward.)
+2. **A5 harness-trust gate: ✅ DONE (2026-07-01).** Built the regime-to-cash overlay
+   (`nq/research/overlays.py` + a cfg-gated, golden-inert engine branch) and ran it through the REAL
+   harness on the pinned universe (`scripts/run_overlay_a5.py`, workflow `overlay-a5.yml`, run
+   28472608257): **verdict KILL** (ΔSharpe −0.047, CI [−0.478, 0.408] straddles 0; DSR(cand) 0.20 ≪
+   0.95), `gate_pass=true`. The harness independently reproduced the carried **O-001 REJECT** — it
+   does not false-promote a no-edge overlay, so the promotion machinery is trustworthy for Stage-C.
+   Logged as registry row A5.
 3. **After-tax + 2022-26 sub-period** in the cloud run; residual: n_trades 1279 vs 1445 (~11%,
    likely fewer eligible bars on current yfinance) — confirmable with a price-level diff vs source.
+   (Deferred — a cheap add to the next cloud run; not load-bearing for the trust thesis.)
 
 ## Residual data caveats (carried into every quote)
 - ~28/213 recoverable-delisted names still lack D/E; ~114 hard-bankruptcy delistings unrecoverable.
@@ -62,6 +71,13 @@ See `docs/STAGE_A_PLAN.md` for the plan and `research/baseline_v1.json` for the 
 - baseline_v1 is **in-sample, NOT live-validated**.
 
 ---
-**Sign-off:** Stage A's trust thesis (1-4) is established and evidence-backed. The 3 follow-ups are
-quality hardening, not correctness gaps. Owner: approve to (a) close Stage A with follow-ups
-tracked, or (b) require follow-up #1/#2 before close.
+**Sign-off:** Stage A's trust thesis (1-4) is established and evidence-backed, and both load-bearing
+follow-ups are now CLOSED with cloud evidence:
+- **#1 dataset pin** — `baseline_v1` is byte-reproducible from release `dataset-pin-20260701`
+  (sha256 `f8625a8f…52142`); pinned re-run 28471952660 reproduced 15.46% byte-identically.
+- **#2 A5 harness-trust** — the promotion harness returned **KILL** on the regime overlay
+  (run 28472608257), reproducing the O-001 REJECT → it will not false-promote.
+
+Only **#3 (after-tax STCG + 2022-26 sub-period)** remains, and it is a cheap add to the next cloud
+run, not a correctness gap. **Owner: approve to close Stage A and proceed to Stage C (conviction
+model), with #3 tracked.**
