@@ -1,0 +1,53 @@
+name: target-sweep
+
+# 0071 follow-up — target_pct give-back sweep {15, 30, 40, OFF} vs base (22.52), trailing ON, through
+# the mechanized bar on the PINNED universe. Exploratory (map the give-back curve). Manual dispatch.
+on:
+  workflow_dispatch:
+    inputs:
+      pin_tag:
+        description: "release tag of the pinned ohlcv.pkl snapshot"
+        default: "dataset-pin-20260701"
+      start:
+        description: "backtest start (YYYY-MM-DD)"
+        default: "2017-01-01"
+
+concurrency:
+  group: target-sweep
+  cancel-in-progress: false
+
+jobs:
+  sweep:
+    name: target sweep (Python 3.12, Ubuntu)
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Run target sweep
+        run: |
+          python scripts/run_target_sweep.py \
+            --mode corrected \
+            --start "${{ github.event.inputs.start }}" \
+            --pinned-release "${{ github.event.inputs.pin_tag }}"
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: target-sweep
+          path: results/target_sweep.json
+          if-no-files-found: warn
+          retention-days: 30
