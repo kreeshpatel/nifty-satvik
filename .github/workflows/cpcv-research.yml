@@ -1,0 +1,60 @@
+name: cpcv-research
+
+# Canonical research run — baseline_v0 reproduction + CPCV path distribution on the cloud.
+# Manual dispatch only (it downloads the universe from yfinance + runs the full backtest). The
+# LOCAL universe is a degenerate survivor subset, so headline numbers come ONLY from this run.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "universe (current = NIFTY_500 snapshot; union = + current index members)"
+        type: choice
+        options: [current, union]
+        default: current
+      start:
+        description: "backtest start (YYYY-MM-DD)"
+        default: "2017-01-01"
+      end:
+        description: "backtest end (YYYY-MM-DD; blank = today)"
+        default: ""
+
+concurrency:
+  group: cpcv-research
+  cancel-in-progress: false
+
+jobs:
+  research:
+    name: CPCV research (Python 3.12, Ubuntu)
+    runs-on: ubuntu-latest
+    timeout-minutes: 330          # generous: yfinance download of the full universe + CPCV
+    env:
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Run canonical CPCV research
+        run: |
+          python scripts/run_cpcv.py \
+            --mode "${{ github.event.inputs.mode }}" \
+            --start "${{ github.event.inputs.start }}" \
+            ${{ github.event.inputs.end != '' && format('--end {0}', github.event.inputs.end) || '' }}
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cpcv-research-${{ github.event.inputs.mode }}
+          path: |
+            results/cpcv_long.json
+            data/ohlcv.pkl
+          if-no-files-found: warn
+          retention-days: 30
