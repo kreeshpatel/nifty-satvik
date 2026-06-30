@@ -169,7 +169,8 @@
     "0021-base-selection-quality": "rank-IC measurement, no trade/PROMOTE decision",
     "0028-cagr-bridge": "CAGR decomposition of the base; no candidate, no PROMOTE/KILL decision",
     "0029-pre-giveback": "counterfactual measurement on existing trade log; rule said DO-NOT-REGISTER (no trial spent)",
-    "0030-sector-surplus": "sector-concentration + candidate-surplus measurement; reproduces base exactly, no candidate"
+    "0030-sector-surplus": "sector-concentration + candidate-surplus measurement; reproduces base exactly, no candidate",
+    "0072-conviction-within-top15-c2": "Stage-C C2 conviction rank-IC vs realised per-trade P&L (matched-permutation null); pure measurement, no trade/PROMOTE decision. The C3 conviction-weighted SIZING application is the trial (will increment n_trials when run)."
   },
   "reconciliation_todo_phase5": [
     "confirm each family's true arm count against its prereg .md",
