@@ -246,8 +246,15 @@ def simulate(
                 p.last_mark = c
 
         # ── 3. Selection: fill free slots with the top-ranked non-held names ─────
+        # Regime-to-cash overlay (cfg-gated, OFF on the golden path): suppress NEW entries on
+        # risk-off market dates; held positions still exit on the normal rules. A no-op unless
+        # cfg["regime_gate"] is set AND the panel carries the regime column — so the Stage-2
+        # byte-for-byte golden master (neither present) is untouched.
+        risk_off = (bool(cfg.get("regime_gate"))
+                    and "regime_risk_off" in day.columns
+                    and bool(day["regime_risk_off"].iloc[0]))
         free = max_pos - len(positions)
-        if free > 0 and rank_col in day.columns:
+        if free > 0 and not risk_off and rank_col in day.columns:
             elig = day[day[rank_col] >= (1.0 - q)]
             elig = elig[~elig.index.isin(positions.keys())]
             if min_adv_rs > 0 and "adv_rupees_20d" in elig.columns:
