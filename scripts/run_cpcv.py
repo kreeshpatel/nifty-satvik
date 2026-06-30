@@ -206,6 +206,20 @@ def main(argv: list[str] | None = None) -> int:
     ci = (block_bootstrap_metric(rets, sharpe, n_samples=(1000 if args.quick else 5000))
           if rets.size > 63 else None)
     dsr = _dsr_from_bootstrap(rets, nt, (ci.lower, ci.upper) if ci else None)
+    # single-strategy certification (per-window basis): PSR(>0) + MinTRL(95%) — is the Sharpe real,
+    # and is the record long enough? Independent of the n_trials-deflated DSR.
+    from nq.runner.research import _window_sig
+    from nq.validation.dsr import min_track_record_length, probabilistic_sharpe_ratio
+    _sig = _window_sig(rets)
+    if _sig is not None:
+        _srw, _nw, _sk, _ku = _sig
+        psr = round(probabilistic_sharpe_ratio(_srw, _nw, skewness=_sk, kurtosis=_ku), 4)
+        _mtrl = min_track_record_length(_srw, skewness=_sk, kurtosis=_ku)
+        min_trl_years = round(_mtrl * 63.0 / 252.0, 2) if _mtrl != float("inf") else None
+        n_eff_windows = _nw
+    else:
+        psr = min_trl_years = None
+        n_eff_windows = 0
     diag = _universe_diagnostics(panel, bt["trades"])
     anchor = _anchor()
     anchor_cagr = anchor.get("cagr_pct")
@@ -221,6 +235,7 @@ def main(argv: list[str] | None = None) -> int:
         "baseline": m,
         "sharpe_point": round(ci.point, 3) if ci else None,
         "sharpe_ci_95": [round(ci.lower, 3), round(ci.upper, 3)] if ci else None,
+        "psr": psr, "min_trl_years": min_trl_years, "n_eff_windows": n_eff_windows,
         "dsr": dsr, "n_trials": nt, "n_obs": int(rets.size),
         "diagnostics": diag,
         "anchor_baseline_v0": {"cagr_pct": anchor_cagr, "sharpe": anchor.get("sharpe")},

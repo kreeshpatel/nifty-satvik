@@ -73,3 +73,19 @@ v1 paths). Full agent briefs: workflow run wf_fa141676-4c6.
   See finding 0002 CORRECTION. 89 tests green.
 - Still open (P1+, not done): PSR + MinTRL; DSR `sharpe_variance` proxy; mechanize the 7-gate bar;
   jackknife module; randomized-entry null; refresh the stale rigor skills.
+
+## F. P1 (partial) DONE (2026-07-01) — PSR/MinTRL + DSR basis correction
+- **`nq/validation/dsr.probabilistic_sharpe_ratio` + `min_track_record_length`** (Bailey-LdP 2012);
+  `nq/runner/research.block_returns` + `_window_sig` = the autocorrelation-robust per-window
+  (non-overlapping 63d) basis. `evaluate` + `run_cpcv` now emit `psr` / `min_trl_years` / `n_eff_windows`.
+- **Corrected the P0 DSR basis:** the per-day-Sharpe × √(n/63) hack (§E) was over-conservative and
+  INCONSISTENT with the block bootstrap (implied PSR ~0.60 vs the bootstrap's CI-lower ~0). Routed the
+  DSR through the per-WINDOW basis, which agrees with the bootstrap. (The `sharpe_variance` cross-trial
+  proxy remains a documented P1 item.)
+- **THE ANSWER — is 9 years enough to certify Sharpe 0.667? YES.** baseline_v1: PSR(>0)=**0.974**,
+  MinTRL(95%)=**6.2y** < our ~9.5y, n_eff=34 windows. DSR=**0.287** @ 82 trials (real, not a
+  multiple-testing standout — expected for a 0.667 Sharpe). Recorded in `baseline_v1.json` robustness.
+- A5/C3 recorded DSRs (0.20/0.155) were on the ORIGINAL daily-n basis; they shift under the per-window
+  basis but verdicts are unaffected (KILLs; ΔSharpe<0). 89 tests green.
+- Still open (P1+): DSR `sharpe_variance` proxy; mechanize the 7-gate bar; jackknife; randomized-entry
+  null; refresh the stale rigor skills.

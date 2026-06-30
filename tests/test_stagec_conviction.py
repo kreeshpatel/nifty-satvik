@@ -69,10 +69,16 @@ def test_block_permutation_more_conservative_than_iid():
     assert blk["p_value"] >= iid["p_value"]
 
 
-def test_effective_n_deflates_overlap():
-    from nq.runner.research import effective_n
-    assert effective_n(2520) == pytest.approx(40.0)   # ~10y daily / 63 = 40 independent windows
-    assert effective_n(10) == 2.0                      # floored at 2 for tiny samples
+def test_block_returns_psr_mintrl():
+    # the per-window significance basis: ~n/63 non-overlapping windows, PSR/MinTRL sane
+    from nq.runner.research import block_returns
+    from nq.validation.dsr import min_track_record_length, probabilistic_sharpe_ratio
+    rng = np.random.default_rng(1)
+    daily = rng.normal(0.0006, 0.01, 2520)             # ~10y daily returns
+    assert block_returns(daily, 63).size == 40         # 2520/63 = 40 independent windows
+    assert 0.9 < probabilistic_sharpe_ratio(0.4, 40) <= 1.0     # strong per-window SR -> high PSR
+    assert np.isfinite(min_track_record_length(0.4))            # certifiable
+    assert min_track_record_length(0.0) == float("inf")        # SR <= 0 never certifiable
 
 
 # ── conviction score ────────────────────────────────────────────────────────
