@@ -1,6 +1,8 @@
 # 0006 — Let winners run (0071): removing the profit target IMPROVES the 63d strategy (SHADOW)
 
-- Status: **SHADOW** (positive but UNDERPOWERED — log, watch the forward wall, do NOT promote to cfg).
+- Status: **DOWNGRADED to WEAK-SHADOW / no-robust-edge** (2026-07-01) — the full-period improvement is
+  REGIME-SELECTION BIAS: strong in 2017-21 (bull), weak/negative in 2022-26 (live-relevant). See the
+  regime-robustness reversal at the bottom. Do NOT change target_pct.
 - Date: 2026-07-01 (autonomous). Pre-reg: 0071 (carried, re-run on baseline_v1, mechanized bar).
 - Type: TRIAL (sunk — already in n_trials). Cloud run 28481282947 (== local --quick, pinned).
 
@@ -51,3 +53,28 @@ But the surface is too spiky to pick a specific replacement value in-sample with
 NOT change target_pct off this sweep.** The defensible fix is a **walk-forward re-derivation of
 target_pct (and the cfg) on the corrected vintage** (LOCK_PLAN D2), confirmed on the forward wall —
 NOT an in-sample max-pick. SHADOW stands; this is the strongest lead + the #1 morning item.
+
+## REVERSAL — regime-robustness check fails (2026-07-01, autonomous; local 2017-21 vs 2022-26 split)
+Sharpe by target, each half independently:
+
+| target | 2017-21 | 2022-26 (live-relevant) |
+|---|---|---|
+| 22.52 (base) | 0.77 | **0.762** |
+| 25 | 0.828 | 0.848 |
+| 28 | 0.93 | 0.80 |
+| 30 | 0.838 | **0.58** |
+| 35 | 0.81 | 0.784 |
+| OFF | 0.815 | **0.643** |
+
+**The loosen-target edge is a 2017-21 (bull) artifact.** target=30 and OFF — the full-period "winners" —
+are WORSE than the base in 2022-26 (0.58/0.64 vs the base's 0.762). The two halves disagree on the
+optimum (28 early, 25 late). The base 22.52 holds up fine in the recent regime (0.762), so it is NOT
+clearly vintage-overfit. This is exactly the regime-selection bias backtest-rigor §C3 warns about: a
+result strong in 2017-21 and weak in 2022-26 is NOT a positive result.
+
+**FINAL DISPOSITION: WEAK-SHADOW → effectively no robust promotable edge.** Do NOT change target_pct.
+A faint signal remains (25/28/35 marginally beat the base in BOTH halves — a *mild* "the base target is
+slightly tight" hint), worth a forward-wall watch only. The strongest lead of the arc, rigorously
+stress-tested, does not earn a cfg change — which REINFORCES the LOCK STOP rule (the base is the model).
+Lesson logged: always regime-split a full-period "improvement" before believing it (the v1 graveyard +
+this both teach the same thing).
