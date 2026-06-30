@@ -1,0 +1,15 @@
+#!/bin/sh
+# Keep docs/DEPENDENCY_MAP.md current with the nq/ import graph.
+# When any nq/**.py or config.py is staged, regenerate the map and re-stage it.
+#
+# Enable once per clone:  git config core.hooksPath .githooks
+
+changed=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^(nq/.*\.py|config\.py)$')
+[ -z "$changed" ] && exit 0
+
+python scripts/gen_depgraph.py || {
+    echo "pre-commit: gen_depgraph.py failed" >&2
+    exit 1
+}
+git add docs/DEPENDENCY_MAP.md
+exit 0
