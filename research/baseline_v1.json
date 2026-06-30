@@ -1,0 +1,51 @@
+{
+  "label": "baseline_v1 — clean rebuild, corrected universe, current yfinance vintage",
+  "as_of": "2026-07-01",
+  "status": "fresh pinned anchor (per docs/STAGE_A_PLAN.md decision D-A1); NOT live-validated",
+  "gross": {
+    "cagr_pct": 15.46,
+    "sharpe": 0.667,
+    "max_drawdown_pct": -46.26,
+    "calmar": 0.33,
+    "n_trades": 1279,
+    "win_rate_pct": 60.36
+  },
+  "robustness": {
+    "block_bootstrap_sharpe_ci_95": [-0.022, 1.428],
+    "block_size": 63,
+    "dsr": 0.246,
+    "n_trials": 79
+  },
+  "universe": {
+    "mode": "corrected",
+    "n_requested": 716,
+    "n_with_data": 710,
+    "distinct_names_traded": 225,
+    "window": ["2017-01-01", "2026-06-30"]
+  },
+  "anchor_baseline_v0": {
+    "cagr_pct": 26.1088,
+    "sharpe": 1.0155,
+    "n_trades": 1445,
+    "win_rate_pct": 59.72
+  },
+  "delta_vs_v0": {
+    "cagr_pp": -10.65,
+    "explanation": "DATA VINTAGE, not engine. Selection (225 vs 223 distinct names), win-rate (60.4 vs 59.7), n_trades (1279 vs 1445), and the byte-identical engine (golden master) ALL match baseline_v0. With selection + WR + engine equal, the only remaining variable is the per-trade return MAGNITUDE = OHLCV price-vintage differences (current yfinance != baseline_v0's vintage, whose cache is gone). The rebuild is faithful; 26.1% was a vintage-favorable in-sample headline."
+  },
+  "provenance": {
+    "run": "github-actions cpcv-research run 28467819423",
+    "command": "scripts/run_cpcv.py --mode corrected --start 2017-01-01",
+    "engine_equivalence": "tests/test_stage2_golden.py (byte-for-byte vs lh_golden_panel.csv)",
+    "fundamentals": "augmented store 654 names (185 delisted D/E scraped from Screener 2026-07-01)",
+    "frozen_cfg": "models/long_horizon/config.json"
+  },
+  "pin_status": "PENDING (A2 half-2): the OHLCV snapshot is 64 MB (> git limit) — promote the run artifact to a release asset + wire run_cpcv --pinned-release for byte-reproducibility. Until pinned, the number drifts ~1-2pp run-to-run (yfinance revisions: 14.2/15.6/16.25 observed).",
+  "caveats": [
+    "IN-SAMPLE + dev-contaminated (diagnostics/research/HOLDOUT.md) — the trustworthy number is the forward wall (post-2026-05-30), not this. Trust >=2019 folds most (pre-2018 membership survivor-biased).",
+    "~28/213 recoverable-delisted names still lack D/E; ~114 hard-bankruptcy delistings unrecoverable from yfinance (residual survivorship).",
+    "ex-financials: the solvency screen drops banks/NBFCs until the W-04 capital-adequacy proxy is adopted.",
+    "after-tax (STCG 20%) not yet computed by the cloud run (TODO).",
+    "residual: n_trades 1279 vs v0 1445 (~11%) — likely fewer eligible bars on current yfinance; a deeper full-universe pipeline-vs-source dig could confirm."
+  ]
+}
