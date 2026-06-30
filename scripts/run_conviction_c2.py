@@ -96,12 +96,20 @@ def main(argv: list[str] | None = None) -> int:
         k = f"{str(t['entry_date'])[:10]}|{t['ticker']}"
         c = conv_by_key.get(k, np.nan)
         if c is not None and np.isfinite(c):
-            rows.append((float(c), float(t["return_pct"]), quint_by_key.get(k, np.nan)))
-    conv = np.array([r[0] for r in rows], dtype=float)
-    ret = np.array([r[1] for r in rows], dtype=float)
-    quint = np.array([r[2] for r in rows], dtype=float)
+            rows.append((str(t["entry_date"])[:10], float(c), float(t["return_pct"]),
+                         quint_by_key.get(k, np.nan)))
+    rows.sort(key=lambda r: r[0])                       # TIME-ORDER for the block permutation null
+    conv = np.array([r[1] for r in rows], dtype=float)
+    ret = np.array([r[2] for r in rows], dtype=float)
+    quint = np.array([r[3] for r in rows], dtype=float)
 
-    ic = permutation_ic_pvalue(conv, ret, n_perm=args.n_perm)
+    # block ~ trades per 63-day window: the permutation null then preserves the co-movement of
+    # overlapping 63-day-hold returns (an IID shuffle treats them as independent -> p too small).
+    dates = pd.to_datetime([r[0] for r in rows])
+    span_td = max(1.0, (dates.max() - dates.min()).days * (252.0 / 365.0))
+    block = int(max(5, round(conv.size * 63.0 / span_td)))
+    ic = permutation_ic_pvalue(conv, ret, n_perm=args.n_perm, block=block)        # CORRECT null
+    ic_iid = permutation_ic_pvalue(conv, ret, n_perm=args.n_perm, block=None)     # old anti-conservative
 
     # per-quintile mean return (the inspectable read: does mean P&L rise with conviction?)
     q_means = {}
@@ -122,7 +130,9 @@ def main(argv: list[str] | None = None) -> int:
         "pin": {"ohlcv_sha256": ohlcv_sha256, "release_tag": args.pinned_release},
         "config": {"mode": args.mode, "start": args.start, "end": end,
                    "n_trades_with_conviction": int(conv.size)},
-        "ic": ic,
+        "ic": ic,                       # PRIMARY — block permutation null (correct for overlap)
+        "ic_iid_anticonservative": ic_iid,   # old IID null, kept for comparison only
+        "block": block,
         "quintile_mean_return": q_means,
         "verdict": verdict,
         "skeptical_prior": "finding 0021 — technical base has ~0 directional IC; conviction must "
@@ -131,7 +141,8 @@ def main(argv: list[str] | None = None) -> int:
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(out, indent=2, default=str), encoding="utf-8")
-    print(f"C2 verdict={verdict} | IC={icv:.4f} p={p:.4f} n={ic.get('n')} "
+    print(f"C2 verdict={verdict} | IC={icv:.4f} p_block={p:.4f} (block={block}) "
+          f"p_iid={ic_iid.get('p_value'):.4f} n={ic.get('n')} "
           f"null=[{ic.get('null_p05'):.3f},{ic.get('null_p95'):.3f}] -> {out_path}", flush=True)
     for q, v in q_means.items():
         print(f"  {q}: n={v['n']:4d} mean_ret={v['mean_return_pct']:+.2f}% WR={v['win_rate_pct']}%",

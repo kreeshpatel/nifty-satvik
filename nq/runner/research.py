@@ -68,11 +68,23 @@ def run_backtest(
 _Z95 = 1.959963984540054   # Φ⁻¹(0.975)
 
 
+def effective_n(n_obs: int, block: int = DEFAULT_BLOCK) -> float:
+    """Effective independent sample size of the OVERLAPPING equity-return series.
+
+    The book holds ~one 63-day cycle, so daily equity returns are autocorrelated over ``block``
+    days; the number of effectively-independent observations is ~``n_obs / block`` (the same
+    63-day block the bootstrap treats as exchangeable), NOT the raw daily count. The DSR z-stat
+    scales by √(n−1), so feeding the daily count (~2300) instead of the effective count (~30-40)
+    badly OVERSTATES significance. Floored at 2."""
+    return max(2.0, n_obs / float(block))
+
+
 def _dsr_from_bootstrap(rets: np.ndarray, n_trials: int, sharpe_ci: tuple[float, float] | None) -> float:
     """DSR of a single equity-return series' Sharpe, deflated at ``n_trials``. All in PER-PERIOD
     units: SR = annualized/√252, and the cross-trial SR variance is estimated from the block-
-    bootstrap Sharpe CI (sd_annual ≈ (hi−lo)/2z → var_pp = (sd_annual/√252)²). Passing the default
-    variance=1.0 with a per-period SR would make the deflation benchmark absurd (DSR≈0 always)."""
+    bootstrap Sharpe CI (sd_annual ≈ (hi−lo)/2z → var_pp = (sd_annual/√252)²). The candidate
+    Sharpe's own SE uses the EFFECTIVE sample size (:func:`effective_n`), not the raw daily count
+    — overlapping 63-day-hold returns carry far fewer than ``rets.size`` independent observations."""
     if rets.size <= 1:
         return float("nan")
     ann = sharpe(rets)
@@ -81,7 +93,7 @@ def _dsr_from_bootstrap(rets: np.ndarray, n_trials: int, sharpe_ci: tuple[float,
     sd_ann = max((sharpe_ci[1] - sharpe_ci[0]) / (2.0 * _Z95), 1e-9)
     var_pp = (sd_ann / math.sqrt(TRADING_DAYS)) ** 2
     skew, kurt = _skew_kurt(rets)
-    return deflated_sharpe_ratio(ann / math.sqrt(TRADING_DAYS), n_observations=rets.size,
+    return deflated_sharpe_ratio(ann / math.sqrt(TRADING_DAYS), n_observations=effective_n(rets.size),
                                  skewness=skew, kurtosis=kurt, n_trials=n_trials,
                                  sharpe_variance=var_pp)
 

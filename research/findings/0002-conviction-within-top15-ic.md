@@ -42,3 +42,14 @@ direction — exactly the pre-registered mechanism. BUT:
 **Implication for C3:** the lead justifies a pre-registered conviction-weighted **sizing** trial
 (mean-preserved: overweight high-conviction within the 15% cap), but with low expectation of clearing
 the 7-criterion promotion bar given the tiny IC. KILL/UNDERPOWERED at C3 remains the honest base case.
+
+## CORRECTION (2026-07-01) — status downgraded SUPPORT → INCONCLUSIVE under the corrected null
+The original p=0.043 used an **IID** permutation null (`factor_ic.py` shuffled per-trade pairs as if
+independent — anti-conservative for overlapping 63-day-hold trades whose returns co-move). The
+backtest-rigor audit (finding 0005) caught this. Re-run with a **block permutation null** (block ≈
+trades per 63-day window = 38; preserves the serial structure): **IC 0.0559, p_block = 0.058** — no
+longer significant at 0.05. Status: **INCONCLUSIVE**, not SUPPORT. The Q1→Q5 monotonicity (52%→62% WR)
+survives as a descriptive pattern, but the formal edge does not clear the bar under a correct null.
+This **reinforces** the C3 KILL (finding 0004): conviction barely carries signal and cannot be sized
+on. (Effective-N DSR fix does not affect C2 — C2 uses the permutation p, not DSR.) Net: conviction is
+a weaker lead than first recorded; the base ships flat-sized + flat-conviction.

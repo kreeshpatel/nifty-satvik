@@ -55,6 +55,26 @@ def test_permutation_null_detects_signal_and_noise():
     assert noise["p_value"] > 0.05                   # random → indistinguishable from chance
 
 
+def test_block_permutation_more_conservative_than_iid():
+    # x and y share a slow common trend (autocorrelated/time-clustered) -> the IID shuffle breaks
+    # that structure and gives a too-narrow null (spuriously small p). The block permutation
+    # preserves it, so its p must be >= the IID p.
+    rng = np.random.default_rng(3)
+    common = np.cumsum(rng.normal(size=600))         # random walk = strong serial correlation
+    x = common + rng.normal(size=600)
+    y = common + rng.normal(size=600)
+    iid = permutation_ic_pvalue(x, y, n_perm=400, block=None)
+    blk = permutation_ic_pvalue(x, y, n_perm=400, block=40)
+    assert blk["block"] == 40
+    assert blk["p_value"] >= iid["p_value"]
+
+
+def test_effective_n_deflates_overlap():
+    from nq.runner.research import effective_n
+    assert effective_n(2520) == pytest.approx(40.0)   # ~10y daily / 63 = 40 independent windows
+    assert effective_n(10) == 2.0                      # floored at 2 for tiny samples
+
+
 # ── conviction score ────────────────────────────────────────────────────────
 
 def test_conviction_columns_and_pool_only():

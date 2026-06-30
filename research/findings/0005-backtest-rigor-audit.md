@@ -59,3 +59,17 @@ Fix P0 first — effective-N + the block-grouped IC null — then **re-run C2**:
 IC 0.0559 survives a CORRECT null before any further conviction work leans on it. Then refresh the
 stale `skills/backtest-rigor` to long-horizon-only + baseline_v1 (it still anchors baseline_v0 26.1% +
 v1 paths). Full agent briefs: workflow run wf_fa141676-4c6.
+
+## E. P0 DONE (2026-07-01) — and it changed a result
+- **`nq/runner/research.effective_n`** = max(2, n_days/63); `_dsr_from_bootstrap` now feeds the DSR
+  the EFFECTIVE sample (~34), not the raw daily count (~2162). Lowers every DSR (more conservative);
+  verdicts unchanged (A5/C3 KILLs stay KILL; baseline_v1's recorded DSR 0.246 was optimistic and is
+  now lower — it was never a promote decision).
+- **`nq/validation/factor_ic.permutation_ic_pvalue(block=…)`** = block permutation preserving the
+  serial structure of overlapping trades; `run_conviction_c2.py` time-orders trades + passes
+  block ≈ trades/63d-window and reports both nulls.
+- **OUTCOME: C2 downgraded SUPPORT → INCONCLUSIVE** (p_block 0.058 vs the old anti-conservative IID
+  0.043/0.051). The audit's #1 fix immediately corrected a borderline result — exactly its purpose.
+  See finding 0002 CORRECTION. 89 tests green.
+- Still open (P1+, not done): PSR + MinTRL; DSR `sharpe_variance` proxy; mechanize the 7-gate bar;
+  jackknife module; randomized-entry null; refresh the stale rigor skills.
