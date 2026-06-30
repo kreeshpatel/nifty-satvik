@@ -453,9 +453,9 @@ fold-pass ≥ 60%, bootstrap CI excludes 0, turnover ≤ +30%, mechanism explain
 | Stage | Title | Status |
 |---|---|---|
 | Phase 1 | Audit & Safe Hardening | **DONE** (2026-06-27; commits `ab585c3`, `b653f52`; golden master byte-identical) |
-| A | Trustworthy ground (harness + reproduce baseline + KILLs) | **IN PROGRESS** — A2 cloud re-derivation COMPLETE (baseline_v0: gross 26.1%/1.02 Sharpe, after-tax 23.1%/0.83); §11 KILLs re-verification pending; gated on owner sign-off |
-| B | Corrected universe + re-derived base (`baseline_v1`, ADR-0003) | NOT STARTED — blocked on A |
-| C | Conviction model (within top-15) | NOT STARTED — blocked on B |
+| A | Trustworthy ground (harness + reproduce baseline + KILLs) | **DONE — owner signed off 2026-07-01.** Absorbed the corrected-universe build (old Stage B). `baseline_v1` = **15.46% gross CAGR / 0.667 Sharpe** (pinned `dataset-pin-20260701`, byte-reproducible); engine≡strategy (golden); §11 KILL re-derived via the A5 harness-trust gate (regime overlay → KILL, run 28472608257). See `research/STAGE_A_TRUST_RECORD.md`. The 26.1% baseline_v0 was a vintage-favorable in-sample headline; the honest pinned anchor is 15.46% (Δ = data vintage). |
+| B | Corrected universe + re-derived base (`baseline_v1`) | **FOLDED INTO STAGE A** (owner decision 2026-06-30) — the corrected universe + delisted-D/E rehydration + `baseline_v1` were built within Stage A. Note: the frozen cfg was NOT re-derived (kept the carried frozen cfg; reproduction proved engine fidelity). |
+| C | Conviction model (within top-15) | **IN PROGRESS (started 2026-07-01)** — measured against the pinned `baseline_v1` (15.46% / 0.667). |
 | D | Conviction-driven hybrid (sizing / exit / risk) | NOT STARTED — blocked on C |
 | E | Paper-revalidate full system (≥30 trades, observe→enforce) | NOT STARTED — blocked on D |
 | F | Live capital (kill switch + decay monitor) | NOT STARTED — the pre-committed real-capital gate |
@@ -466,21 +466,19 @@ fold-pass ≥ 60%, bootstrap CI excludes 0, turnover ≤ +30%, mechanism explain
 
 ## Immediate next action
 
-**Stage A — §11 KILLs re-verification (A2 cloud re-derivation is DONE).**
+**Stage C — Conviction model (within top-15).** Stage A is signed off (2026-07-01); the pinned
+`baseline_v1` (15.46% gross CAGR / 0.667 Sharpe, `dataset-pin-20260701`) is the yardstick, the
+harness is calibrated (A5 KILL), and the research OS is seeded (`overlay_registry.md`,
+`nq/research/`). Per Owner Decision 2, conviction is a score **among the already-selected top-15
+names** — it does not change which names are selected.
 
-Stage A2 is complete: the harness ran on the frozen cfg + corrected-682 universe +
-exit-parity-unified engine and established **baseline_v0** (`research/baseline_v0.json`):
-- Gross: **26.1% CAGR / 1.02 Sharpe / −41.9% DD / Calmar 0.62 / ~152 trades/yr / WR 59.7%**
-- After-tax STCG 20%: **23.1% CAGR / 0.83 Sharpe / −45.6% DD / Calmar 0.51**
+**Stage C sub-steps (governance: pre-register BEFORE any cloud run; bump `n_trials`):**
+1. **C1 — Build `nq/research/conviction.py`** — an INSPECTABLE composite of PIT-safe features
+   (z-score blend / ranked composite; explainable in one sentence; NO opaque ML).
+2. **C2 — Is the score real?** Conviction IC/IR on per-trade forward returns vs a
+   matched-permutation null (the AUD-022 lesson). KILL if IC ≈ null. This is the first gate.
+3. **C3 — Minimal application** (bridges to Stage D): conviction-weighted sizing within top-15
+   (mean-preserved) vs rank-only through the harness → 7-criterion promotion bar on `baseline_v1`.
 
-The previously reported 30.26% / 1.15 headline (optimistic-exit, superseded 2026-06-27) is
-HISTORICAL PROVENANCE ONLY. Exit-parity unification cost ~4 pp CAGR; after-tax a further ~3 pp.
-
-**Remaining A-gate item:**
-1. Re-run killed §11 levers through the harness against baseline_v0; confirm all still KILL.
-
-Then STOP for owner confirmation before Stage B.
-
-**Stage B reminder:** the survivorship re-derivation (+284 delisted names → baseline_v1)
-will likely move the baseline further DOWN — survivor-only data flatters returns. Accept the
-honest new number.
+UNDERPOWERED and KILL are acceptable outcomes (tradeoff 4). STOP for owner confirmation at the
+Stage C gate.
