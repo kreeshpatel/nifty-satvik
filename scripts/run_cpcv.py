@@ -35,16 +35,42 @@ from config import NIFTY_500, RESULTS_DIR, load_frozen_cfg  # noqa: E402
 from nq.data.membership import current_members, load_membership  # noqa: E402
 
 
+def _recoverable_delisted() -> set[str]:
+    """Dropped-from-index tickers whose history yfinance can still serve (the survivorship
+    rehydration set) — ``data/nse_circulars/dropped_available.csv`` rows with status OK. PIT
+    membership later masks each to its real in-index dates. ~114 hard-bankruptcy names are NOT
+    in here (yfinance 404) — the documented unrecoverable survivorship gap."""
+    import csv
+    from config import DATA_DIR
+    out: set[str] = set()
+    p = DATA_DIR / "nse_circulars" / "dropped_available.csv"
+    if not p.exists():
+        return out
+    with open(p, encoding="utf-8", newline="") as f:
+        for row in csv.DictReader(f):
+            if (row.get("status") or "").strip().upper() == "OK":
+                t = (row.get("ticker") or "").strip().upper()
+                if t:
+                    out.add(t)
+    return out
+
+
 def build_universe(mode: str, ref_date: date | None = None) -> list[str]:
-    """The scan/backtest universe. ``current`` = the carried NIFTY_500 snapshot; ``union`` =
-    NIFTY_500 ∪ current index members (the AUD-007 fix — names that joined since the snapshot).
-    Stage B additionally rehydrates ~247 delisted names; not included here."""
+    """The download/backtest universe (PIT membership masks each name's in-index dates later).
+      * ``current``   — the carried NIFTY_500 snapshot.
+      * ``union``     — NIFTY_500 ∪ current index members (the AUD-007 fix).
+      * ``corrected`` — union ∪ recoverable delisted names (the survivorship correction → the
+                        Stage-A baseline_v1 universe). Financials are still dropped by the solvency
+                        mask downstream (baseline_v0-consistent) until the capital-adequacy proxy
+                        (W-04) is adopted as a separate, decided change."""
     if mode == "current":
         return list(NIFTY_500)
+    members = current_members(load_membership(), ref_date)
     if mode == "union":
-        members = current_members(load_membership(), ref_date)
         return sorted(set(NIFTY_500) | members)
-    raise ValueError(f"unknown universe mode: {mode!r} (use 'current' or 'union')")
+    if mode == "corrected":
+        return sorted(set(NIFTY_500) | members | _recoverable_delisted())
+    raise ValueError(f"unknown universe mode: {mode!r} (use current/union/corrected)")
 
 
 def _anchor() -> dict:
@@ -58,7 +84,7 @@ def _anchor() -> dict:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Canonical cloud CPCV research run")
-    ap.add_argument("--mode", choices=["current", "union"], default="current")
+    ap.add_argument("--mode", choices=["current", "union", "corrected"], default="current")
     ap.add_argument("--start", default="2017-01-01")
     ap.add_argument("--end", default=None, help="default: today")
     ap.add_argument("--out", default=str(RESULTS_DIR / "cpcv_long.json"))

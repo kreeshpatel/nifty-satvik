@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "universe (current = NIFTY_500 snapshot; union = + current index members)"
+        description: "universe (current=NIFTY_500; union=+current members; corrected=+recoverable delisted)"
         type: choice
-        options: [current, union]
+        options: [current, union, corrected]
         default: current
       start:
         description: "backtest start (YYYY-MM-DD)"

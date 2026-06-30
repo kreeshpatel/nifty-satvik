@@ -20,6 +20,15 @@ def test_universe_union_is_superset_with_members():
     assert len(union) >= len(NIFTY_500)             # adds current members joined since the snapshot
 
 
+def test_universe_corrected_adds_recoverable_delisted():
+    union = set(build_universe("union"))
+    corrected = set(build_universe("corrected"))
+    assert union.issubset(corrected)                # never drops a union name
+    extra = corrected - union                       # the rehydrated delisted names
+    assert len(extra) >= 50                          # carried dropped_available.csv has ~248 OK rows
+    assert all(t == t.upper() for t in extra)
+
+
 def test_universe_unknown_mode_raises():
     with pytest.raises(ValueError):
         build_universe("delisted-too")
