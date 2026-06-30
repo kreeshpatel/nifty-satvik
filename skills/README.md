@@ -13,6 +13,7 @@ Each skill is a `SKILL.md` with frontmatter (`name`, `description` with trigger 
 | Skill | Use when… | Borrowed from |
 |---|---|---|
 | [skills-first](skills-first/SKILL.md) | **at the START of every task** — check what skills/agents already exist before any command or plan (don't reinvent) | project (owner meta-rule) |
+| [karpathy-guidelines](karpathy-guidelines/SKILL.md) | writing / reviewing / refactoring **any** code — think-before-coding, simplicity-first, surgical changes, goal-driven execution | Andrej Karpathy (MIT, via multica-ai/andrej-karpathy-skills) |
 | [repo-map](repo-map/SKILL.md) | **before changing any value/formula/file** — find its single source, blast radius, and live-vs-backtest parity points | project (Phase-1 audit) |
 | [methodology-synthesis](methodology-synthesis/SKILL.md) | you need to know *which* borrowed method applies / what we adopted vs rejected | all 6 sources (master index) |
 | [backtest-rigor](backtest-rigor/SKILL.md) | before trusting **any** harness/backtest number — the red-flag checklist | claude-trading-skills `backtest-expert` (MIT) |
