@@ -17,11 +17,15 @@ authors = [{ name = "Kreesh Patel", email = "kreeshvasistha@gmail.com" }]
 # pickle (data/fundamentals_pit_screener.pkl) has Arrow-backed columns, so unpickling
 # it needs pyarrow installed (W-09). pyarrow is the Apache Arrow binding — not an
 # OpenMP/BLAS-threaded ML lib, so it does not reintroduce the import-time segfault.
+# Stage-A2 reproducibility: the numerically-sensitive libs are MAJOR-CAPPED so a resolver can't
+# jump to an untested major and silently break the byte-for-byte golden master. Current tested
+# band: pandas 3.0.x / numpy 2.5.x / scipy 1.18.x (golden green in CI). Widen a cap only with a
+# golden re-verification in the same change.
 dependencies = [
-    "pandas>=2.2",
-    "numpy>=1.26",
-    "scipy>=1.13",
-    "pyarrow>=15",
+    "pandas>=2.2,<3.1",
+    "numpy>=1.26,<2.6",
+    "scipy>=1.13,<2",
+    "pyarrow>=15,<22",
     "yfinance>=0.2.40",
     "pyyaml>=6.0",
     "python-dateutil>=2.9",
