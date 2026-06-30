@@ -42,6 +42,13 @@ LEG_COST = BROKERAGE_PCT + STT_PCT     # per-leg brokerage + STT (delivery, both
 TRADING_DAYS = 252
 STALE_ABSENT_DAYS = 10                 # force-close a held name absent this many sessions
 
+# Stage-C/C3 conviction-sizing overlay (cfg-gated). Per-name risk multiplier by conviction
+# quintile (1=low … 5=high). Applied ONLY when cfg["conviction_size"] is set AND the panel carries
+# a "conviction_quintile" column; the multipliers are renormalised across each day's NEW entries to
+# mean 1.0, so aggregate deployed risk is MEAN-PRESERVED by construction (a redistribution, not a
+# size-up — the Kelly/Stage-D charter). Inert (golden byte-identical) when the flag/column is absent.
+DEFAULT_CONVICTION_MULT = {1: 0.6, 2: 0.8, 3: 1.0, 4: 1.2, 5: 1.4}
+
 
 def _tier(adv_rupees: float) -> str:
     if adv_rupees >= ADV_LARGE_CAP_RS:
@@ -169,9 +176,13 @@ def simulate(
     by_date: dict[Any, Any] = {d: g.set_index("ticker") for d, g in df.groupby(date_col, sort=True)}
     dates = sorted(by_date.keys())
 
+    conv_size = bool(cfg.get("conviction_size"))
+    conv_mult_map = cfg.get("conviction_size_mult") or DEFAULT_CONVICTION_MULT
+
     cash = float(initial_capital)
     positions: dict[str, Position] = {}
     pending: list[str] = []                 # tickers selected at t-1, fill at t's open
+    pending_mult: dict[str, float] = {}     # conviction risk multiplier per pending name (mean 1.0)
     equity_curve: list[dict[str, Any]] = []
     trades: list[dict[str, Any]] = []
 
@@ -195,7 +206,8 @@ def simulate(
             if risk_per_share <= 0:
                 continue
             equity = cash + sum(p.qty * _mark(p, day) for p in positions.values())
-            qty = base_risk_qty(equity, fill, risk_per_share, adv, risk_pct,
+            eff_risk_pct = risk_pct * pending_mult.get(tkr, 1.0)   # conviction tilt (mean-preserved)
+            qty = base_risk_qty(equity, fill, risk_per_share, adv, eff_risk_pct,
                                 max_position_pct=max_position_pct, max_adv_participation=max_adv_part)
             if qty <= 0:
                 continue
@@ -214,6 +226,7 @@ def simulate(
                 target=fill * (1 + target_pct / 100.0), peak=fill, atr_pct=atr_pct, adv=adv,
                 last_mark=fill)
         pending = []
+        pending_mult = {}
 
         # ── 2. Exit evaluation on open positions (today's OHLC) ──────────────────
         for tkr in list(positions.keys()):
@@ -263,6 +276,17 @@ def simulate(
                 elig = elig.dropna(subset=["close", "atr_pct_63"])
             elig = elig.sort_values(rank_col, ascending=False)
             pending = list(elig.index[:free])
+            # Conviction sizing: per-name risk multiplier by quintile, renormalised across THIS
+            # day's new entries to mean 1.0 — a mean-preserved redistribution (aggregate new risk
+            # unchanged vs flat sizing). Inert unless the flag + the quintile column are present.
+            if conv_size and pending and "conviction_quintile" in day.columns:
+                raw = {}
+                for tkr in pending:
+                    qv = day.loc[tkr, "conviction_quintile"]
+                    raw[tkr] = conv_mult_map.get(int(qv), 1.0) if pd.notna(qv) else 1.0
+                mbar = sum(raw.values()) / len(raw)
+                if mbar > 0:
+                    pending_mult = {tkr: m / mbar for tkr, m in raw.items()}
 
         # ── 4. Mark-to-market equity (last-mark fallback for names absent today) ──
         mtm = sum(p.qty * _mark(p, day) for p in positions.values())

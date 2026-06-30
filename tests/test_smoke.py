@@ -37,7 +37,7 @@ def test_baseline_v0_anchor_carried() -> None:
 
 def test_n_trials_carried() -> None:
     nt = json.loads((ROOT / "diagnostics/research/n_trials.json").read_text(encoding="utf-8"))
-    assert nt["cumulative_n_trials"] == 79, "DSR denominator must be the carried 79"
+    assert nt["cumulative_n_trials"] >= 79, "DSR denominator is the governance count (>= the carried 79; grows per trial)"
 
 
 def test_golden_fixture_carried() -> None:

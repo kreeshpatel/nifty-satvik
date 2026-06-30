@@ -63,7 +63,7 @@ def test_contiguous_blocks():
 # ── DSR ─────────────────────────────────────────────────────────────────────────────
 
 def test_dsr_reads_carried_n_trials():
-    assert cumulative_n_trials() == 79          # the carried governance denominator
+    assert cumulative_n_trials() >= 79          # the governance denominator (>= carried 79; grows per trial)
 
 
 def test_dsr_monotonic_in_trials_and_bounds():

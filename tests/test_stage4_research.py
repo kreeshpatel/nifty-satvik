@@ -44,8 +44,9 @@ def test_run_backtest_matches_simulate():
 
 
 def test_evaluate_structure():
+    from nq.validation.dsr import cumulative_n_trials
     out = evaluate(_panel(), CFG, n_samples=500)
-    assert "metrics" in out and out["n_trials"] == 79      # deflates at the carried count
+    assert "metrics" in out and out["n_trials"] == cumulative_n_trials()   # deflates at the live count
     assert out["sharpe_ci"] is None or (
         len(out["sharpe_ci"]) == 2 and out["sharpe_ci"][0] <= out["sharpe_point"] <= out["sharpe_ci"][1])
     assert (0.0 <= out["dsr"] <= 1.0) or np.isnan(out["dsr"])
