@@ -84,3 +84,116 @@ def value_quality_series(
     out["roe"] = roe
     out["low_debt"] = -de   # higher = less leverage
     return out
+
+
+# ── Screener.in deep-history PIT-frame builder (Stage-A survivorship fundamentals) ──
+# yfinance carries only ~5 recent quarters; Screener company pages carry ~10-12 fiscal years of
+# annual P&L + Balance Sheet — the depth needed to give DELISTED / historical index members the
+# point-in-time D/E they lack in the carried store (the survivorship blocker). This is the pure,
+# testable HTML-table → PIT-frame derivation (the network scrape lives in scripts/scrape_screener.py).
+# Ported verbatim from the validated source ``fundamentals_pit.build_pit_frame_from_screener``.
+
+ANNUAL_REPORTING_LAG_DAYS = 90   # filing date unknown → conservative annual lag after period-end
+
+
+def available_date_from_period_end(period_end, lag_days: int = ANNUAL_REPORTING_LAG_DAYS) -> pd.Timestamp:
+    """Conservative public-availability date = period-end + lag (over-estimating the lag is safe)."""
+    return pd.Timestamp(period_end) + pd.Timedelta(days=lag_days)
+
+
+def _ok(v) -> bool:
+    try:
+        return v is not None and not np.isnan(float(v))
+    except (TypeError, ValueError):
+        return False
+
+
+def _screener_num(v) -> float:
+    """Parse a Screener cell ('1,234', '12.3%', '', '-') → float or NaN."""
+    if v is None:
+        return float("nan")
+    s = str(v).replace(",", "").replace("%", "").replace("\xa0", "").strip()
+    if s in ("", "-", "nan", "NaN"):
+        return float("nan")
+    try:
+        return float(s)
+    except (TypeError, ValueError):
+        return float("nan")
+
+
+def _norm_label(s) -> str:
+    """Normalise a Screener row label: strip the '+' expander and nbsp/space."""
+    return str(s).replace("\xa0", "").replace("+", "").strip()
+
+
+def _screener_row(table: pd.DataFrame, candidates: tuple[str, ...]) -> pd.Series | None:
+    """The period→value Series for the first row whose normalised label matches a candidate
+    (case-insensitive). col 0 = line-item labels; remaining cols = period labels ('Mar 2024')."""
+    if table is None or table.empty or table.shape[1] < 2:
+        return None
+    label_col = table.columns[0]
+    wanted = {c.lower() for c in candidates}
+    for _, row in table.iterrows():
+        if _norm_label(row[label_col]).lower() in wanted:
+            return row.drop(labels=[label_col])
+    return None
+
+
+def _period_end_from_label(label: str) -> pd.Timestamp | None:
+    """'Mar 2024' → 2024-03-31 (fiscal-month end). Non-period labels (TTM, blanks) → None."""
+    try:
+        ts = pd.to_datetime(str(label).strip(), format="%b %Y")
+    except (ValueError, TypeError):
+        return None
+    return pd.Timestamp(ts) + pd.offsets.MonthEnd(0)
+
+
+def build_pit_frame_from_screener(
+    profit_loss: pd.DataFrame | None, balance_sheet: pd.DataFrame | None,
+    *, lag_days: int = ANNUAL_REPORTING_LAG_DAYS,
+) -> pd.DataFrame:
+    """Build one ticker's PIT frame from Screener annual P&L + Balance Sheet tables. Per fiscal
+    year: ``eps_ttm`` = annual EPS; net worth = Equity Capital + Reserves; ``roe`` = Net Profit /
+    net worth × 100; ``debt_equity`` = Borrowings / net worth; shares = Net Profit / EPS;
+    ``book_value_ps`` = net worth / shares. ``available_date = period_end + lag_days``. Returns the
+    SAME schema as the carried store (index=available_date; cols period_end/eps_ttm/book_value_ps/
+    roe/debt_equity); empty frame when nothing parses. Lookahead-safe by construction."""
+    eps_row = _screener_row(profit_loss, ("EPS in Rs", "EPS", "Adjusted EPS in Rs"))
+    np_row = _screener_row(profit_loss, ("Net Profit", "Profit after tax"))
+    eq_row = _screener_row(balance_sheet, ("Equity Capital", "Share Capital"))
+    res_row = _screener_row(balance_sheet, ("Reserves", "Reserves and Surplus"))
+    borr_row = _screener_row(balance_sheet, ("Borrowings", "Total Debt"))
+
+    labels: list[str] = []
+    for r in (eps_row, np_row, eq_row, res_row, borr_row):
+        if r is not None:
+            for lbl in r.index:
+                if lbl not in labels:
+                    labels.append(str(lbl))
+
+    rows: list[dict] = []
+    for lbl in labels:
+        pe = _period_end_from_label(lbl)
+        if pe is None:
+            continue
+        eps = _screener_num(eps_row[lbl]) if eps_row is not None and lbl in eps_row else float("nan")
+        net_profit = _screener_num(np_row[lbl]) if np_row is not None and lbl in np_row else float("nan")
+        eq = _screener_num(eq_row[lbl]) if eq_row is not None and lbl in eq_row else float("nan")
+        res = _screener_num(res_row[lbl]) if res_row is not None and lbl in res_row else float("nan")
+        borr = _screener_num(borr_row[lbl]) if borr_row is not None and lbl in borr_row else float("nan")
+        net_worth = eq + res if _ok(eq) and _ok(res) else float("nan")
+        roe = (net_profit / net_worth * 100.0
+               if _ok(net_profit) and _ok(net_worth) and net_worth != 0 else float("nan"))
+        de = borr / net_worth if _ok(borr) and _ok(net_worth) and net_worth != 0 else float("nan")
+        shares = net_profit / eps if _ok(net_profit) and _ok(eps) and eps != 0 else float("nan")
+        bvps = net_worth / shares if _ok(net_worth) and _ok(shares) and shares != 0 else float("nan")
+        rows.append({"available_date": available_date_from_period_end(pe, lag_days),
+                     "period_end": pe, "eps_ttm": eps, "book_value_ps": bvps,
+                     "roe": roe, "debt_equity": de})
+
+    if not rows:
+        return pd.DataFrame(
+            columns=["period_end", "eps_ttm", "book_value_ps", "roe", "debt_equity"]
+        ).set_axis(pd.DatetimeIndex([], name="available_date"))
+    frame = pd.DataFrame(rows).set_index("available_date").sort_index()
+    return frame[~frame.index.duplicated(keep="last")]
