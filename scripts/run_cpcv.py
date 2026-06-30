@@ -82,6 +82,27 @@ def _anchor() -> dict:
         return {}
 
 
+def _universe_diagnostics(panel, trades: list) -> dict:
+    """Per-year breadth of the eligible (post-solvency) ranked panel vs the names actually traded —
+    the A4 probe for the survivor-thin-historical-universe hypothesis (is 2017-2019 starved of
+    names vs baseline_v0's ~397 solvent / corrected-682?)."""
+    import pandas as pd
+
+    p = panel.copy()
+    p["year"] = pd.to_datetime(p["date"]).dt.year
+    per_year_universe = {int(y): int(n) for y, n in p.groupby("year")["ticker"].nunique().items()}
+    traded: dict[int, set] = {}
+    for t in trades:
+        y = int(str(t["entry_date"])[:4])
+        traded.setdefault(y, set()).add(t["ticker"])
+    return {
+        "n_panel_names_total": int(p["ticker"].nunique()),
+        "per_year_eligible_universe": per_year_universe,
+        "per_year_distinct_names_traded": {y: len(s) for y, s in sorted(traded.items())},
+        "total_distinct_names_traded": len({t["ticker"] for t in trades}),
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Canonical cloud CPCV research run")
     ap.add_argument("--mode", choices=["current", "union", "corrected"], default="current")
@@ -97,7 +118,10 @@ def main(argv: list[str] | None = None) -> int:
     from nq.data.fundamentals import load_fund_store
     from nq.data.ohlcv import OHLCV_CACHE, download_ohlcv, load_ohlcv_cache, save_ohlcv_cache
     from nq.engine.panel import compose_ranked_panel
-    from nq.runner.research import evaluate
+    from nq.runner.research import _daily_returns, _dsr_from_bootstrap, run_backtest
+    from nq.validation.bootstrap import block_bootstrap_metric
+    from nq.validation.dsr import cumulative_n_trials
+    from nq.validation.metrics import sharpe
 
     cfg = load_frozen_cfg()
     universe = build_universe(args.mode)
@@ -119,9 +143,14 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     print("running backtest + block-bootstrap Sharpe CI + DSR ...", flush=True)
-    ev = evaluate(panel, cfg, start=args.start, end=end,
-                  n_samples=(1000 if args.quick else 5000))
-    m = ev["metrics"]
+    bt = run_backtest(panel, cfg, start=args.start, end=end)
+    m = bt["metrics"]
+    rets = _daily_returns(bt["equity_curve"]).to_numpy(dtype=float)
+    nt = cumulative_n_trials()
+    ci = (block_bootstrap_metric(rets, sharpe, n_samples=(1000 if args.quick else 5000))
+          if rets.size > 63 else None)
+    dsr = _dsr_from_bootstrap(rets, nt, (ci.lower, ci.upper) if ci else None)
+    diag = _universe_diagnostics(panel, bt["trades"])
     anchor = _anchor()
     anchor_cagr = anchor.get("cagr_pct")
     repro_delta = (round(abs(m.get("cagr_pct", 0.0) - anchor_cagr), 3)
@@ -132,8 +161,10 @@ def main(argv: list[str] | None = None) -> int:
                    "n_requested": len(universe), "n_with_data": len(ohlcv),
                    "frozen_cfg": dict(cfg)},
         "baseline": m,
-        "sharpe_point": ev["sharpe_point"], "sharpe_ci_95": ev["sharpe_ci"],
-        "dsr": ev["dsr"], "n_trials": ev["n_trials"], "n_obs": ev["n_obs"],
+        "sharpe_point": round(ci.point, 3) if ci else None,
+        "sharpe_ci_95": [round(ci.lower, 3), round(ci.upper, 3)] if ci else None,
+        "dsr": dsr, "n_trials": nt, "n_obs": int(rets.size),
+        "diagnostics": diag,
         "anchor_baseline_v0": {"cagr_pct": anchor_cagr, "sharpe": anchor.get("sharpe")},
         "reproduction_cagr_abs_delta_pp": repro_delta,
         "reproduction_within_1pp": (repro_delta is not None and repro_delta <= 1.0),
