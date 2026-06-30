@@ -29,6 +29,10 @@
 | 2c | **Finer plateau-vs-peak grid** {20,25,28,30,32,35,40,50} (local, no bootstrap) — QUESTIONING the optimum | local | **SPIKY surface** (Sharpe 0.66–0.88, no plateau; 32 & 40 are dips). **Base 22.52 is a local DIP (0.667)** — possibly vintage-overfit. | direction robust, value NOT — see conclusion |
 
 | 2d | **Regime-robustness split** (local): Sharpe by target on 2017-21 vs 2022-26 independently — does the edge generalize? | local | **NO** — target=30/OFF strong in 2017-21 but WORSE than base in 2022-26 (0.58/0.64 vs 0.762); halves disagree on optimum (28 vs 25). Regime-selection bias (§C3). | **REVERSAL → downgrade 0071 to no-robust-edge** |
+| 3 | **Quality/value IC** (Step 4, 0-trial): ROE / earnings-yield / book-yield IC on per-trade P&L vs block null | local | ROE +0.078 (p.015) full-period; EY +0.046 (p.21), BY ~0. ROE looked significant. | dig → leak + regime checks |
+| 3b | **ROE stress test**: 90d announcement-lag + regime split | local | **KILL** — 90d lag drops to p.053 (leakage); 2022-26 p.32 (bull artifact). Corrected ROE IC ≈ +0.037 (p.38) ≈ 0. Found a latent ~quarter fundamentals-lookahead in the store (immaterial to base). | finding 0007; orthogonal-predictor component CLOSED |
+| 4 | **0074 vol-scaled DD overlay** | NOT RUN (judgment call) | DEFERRED — 4th swing at book-risk scaling; 0068 (PROMOTED) + 0070 (plateaued −38) already mapped this space; building a new engine overlay for a likely-KILL overnight is poor token value. DD is structural → Stage-G tail hedge or accept −39% (D1). | reopen only with the D-M forecast asymmetry as a distinct, owner-approved arm |
+| 5 | **Randomized-entry null** (rigor P2, 0-trial): does slope beat random top-15 (same universe/exits/turnover)? 12 seeds | local | **Base VALIDATED but MODERATE:** slope CAGR 15.46 vs random mean 7.90 (DOUBLE; 92nd pct), Sharpe 0.667 vs 0.474 (+0.19, 83rd pct). ~half the return is structural (universe+exits). | finding 0008; explains why all overlays fail (no headroom) |
 
 **Finding (rigorous): "loosen the target" is REAL + DIRECTIONAL but no in-sample optimum is trustworthy.** Almost every target in [20,50] beats the base 22.52; the effect is consistent across years (target=30 fold-pass 87.5%, so not pure noise) AND improves after-tax + DD. BUT the surface is spiky (overfitting; backtest-rigor C1b peak-not-plateau) so NO specific replacement value can be picked from this in-sample sweep. The base 22.52 sitting at a local dip suggests the frozen cfg may be mildly **vintage-overfit** (connects to LOCK_PLAN D2: walk-forward re-derive the cfg). **Disposition: SHADOW the directional finding; do NOT change target_pct off in-sample; the real fix is a walk-forward re-derivation of target_pct (+ the cfg) on the corrected vintage, confirmed on the forward wall.** This is the #1 morning-discussion item.
 
@@ -51,10 +55,31 @@ honest arc:
 (targets 25/28/35 marginally beat the base in BOTH halves) is a weak "the base target is *slightly*
 tight" hint — forward-wall watch only, not actionable now.
 
-**What this means:** conviction (dead), sizing (dead), regime (dead), and now the exit-target lead
-(regime-dependent, not robust) — **every alpha/exit lever has failed the bar.** This is the §11
-graveyard confirming the base is near its ceiling. Per the LOCK STOP rule, **the base IS the model.**
-The binding constraint (−46% DD) remains unsolved by any tested lever — the only real options are the
-deferred Stage-G tail hedge or accepting ~−39% via the vol-target (LOCK_PLAN D1). **#1 morning
-decision: D1 (accept ~−39% DD → LOCK soon) vs Stage-G; the research has run its course on alpha.**
-Process lesson logged: regime-split EVERY full-period "improvement" before believing it.
+**What this means:** conviction (dead), sizing (dead), regime (dead), exit-target (regime-dependent),
+quality/ROE (leak + regime KILL) — **every alpha/exit/predictor lever has failed the bar.** And the
+randomized-entry null (finding 0008) explains WHY: the slope is a **real but MODERATE** edge (doubles
+random's CAGR, +0.19 Sharpe) on top of a large **structural** return (universe quality + exit discipline
+earn ~half the CAGR even with random selection). A moderate edge with the structural part already
+captured leaves **almost no headroom** for marginal overlays — so they all KILL, exactly as observed.
+
+**RESEARCH HAS CONVERGED. Recommendation: LOCK — the base IS the model.** It's a genuine, validated,
+modest-edge strategy (PSR 0.974, certifiable; slope beats random) at its ceiling. Further alpha mining
+is −EV (every lever dead + it inflates the DSR bar). The only open question is the binding constraint,
+the **−46% drawdown**, which is STRUCTURAL (0070 proved sizing/exposure overlays plateau at −38%; the
+COVID-2020 systematic floor). It is NOT an alpha problem.
+
+**THE ONE DECISION FOR THE MORNING — LOCK_PLAN D1 (DD risk profile):**
+- **(a) Accept ~−39% DD** → promote the O-009 vol-target into the frozen cfg, regenerate golden, write
+  baseline_v2, restart the ≥30-trade paper book. LOCK in days. The base is real + certified; ship it.
+- **(b) Block lock on Stage-G** (defined-risk tail hedge → dependable −30%) — the only lever that
+  structurally fixes the DD, but heavy: needs an options/vol backtester + PIT F&O data (months).
+My professional lean: **(a)** — the base is validated and the DD is operationally manageable with the
+vol-target + kill-switch; ship to paper and build Stage-G in parallel as the scaling gate, not a launch
+blocker. But it's your fiduciary call for the ~10 clients.
+
+**Secondary (non-blocking) flags:** (1) fundamentals store has a latent ~quarter announcement-lag
+lookahead — immaterial to the base (solvency screen only), fix before any fundamental-driven feature.
+(2) target_pct may be *mildly* tight (25/28/35 marginally beat it in both halves) — a walk-forward cfg
+re-derivation (D2) is optional polish, NOT a blocker (the base 22.52 holds up in 2022-26).
+**Process lesson: regime-split + leak-test EVERY full-period "edge" before believing it — it killed
+both the exit-target and the ROE leads tonight.**
