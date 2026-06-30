@@ -65,17 +65,25 @@ def run_backtest(
     return simulate(panel, cfg, start=start, end=end, initial_capital=initial_capital)
 
 
-def _baseline_dsr(rets: np.ndarray, n_trials: int) -> float:
-    """DSR of a single equity-return series' Sharpe, deflated at ``n_trials`` (per-period SR =
-    annualized / √252; empirical skew/kurt)."""
+_Z95 = 1.959963984540054   # Φ⁻¹(0.975)
+
+
+def _dsr_from_bootstrap(rets: np.ndarray, n_trials: int, sharpe_ci: tuple[float, float] | None) -> float:
+    """DSR of a single equity-return series' Sharpe, deflated at ``n_trials``. All in PER-PERIOD
+    units: SR = annualized/√252, and the cross-trial SR variance is estimated from the block-
+    bootstrap Sharpe CI (sd_annual ≈ (hi−lo)/2z → var_pp = (sd_annual/√252)²). Passing the default
+    variance=1.0 with a per-period SR would make the deflation benchmark absurd (DSR≈0 always)."""
     if rets.size <= 1:
         return float("nan")
     ann = sharpe(rets)
-    if not np.isfinite(ann):
+    if not np.isfinite(ann) or sharpe_ci is None:
         return float("nan")
+    sd_ann = max((sharpe_ci[1] - sharpe_ci[0]) / (2.0 * _Z95), 1e-9)
+    var_pp = (sd_ann / math.sqrt(TRADING_DAYS)) ** 2
     skew, kurt = _skew_kurt(rets)
     return deflated_sharpe_ratio(ann / math.sqrt(TRADING_DAYS), n_observations=rets.size,
-                                 skewness=skew, kurtosis=kurt, n_trials=n_trials)
+                                 skewness=skew, kurtosis=kurt, n_trials=n_trials,
+                                 sharpe_variance=var_pp)
 
 
 def evaluate(
@@ -92,11 +100,12 @@ def evaluate(
     nt = cumulative_n_trials() if n_trials is None else n_trials
     ci = (block_bootstrap_metric(rets, sharpe, block_size=block_size, n_samples=n_samples, seed=seed)
           if rets.size > block_size else None)
+    ci_tuple = (ci.lower, ci.upper) if ci else None
     return {
         "metrics": bt["metrics"], "n_obs": int(rets.size), "n_trials": nt,
         "sharpe_point": round(ci.point, 3) if ci else None,
         "sharpe_ci": [round(ci.lower, 3), round(ci.upper, 3)] if ci else None,
-        "dsr": _baseline_dsr(rets, nt),
+        "dsr": _dsr_from_bootstrap(rets, nt, ci_tuple),
     }
 
 
@@ -124,7 +133,8 @@ def evaluate_overlay(
         return {"verdict": "UNDERPOWERED", "reason": "too few aligned observations",
                 "n_obs": int(a.size), "n_trials": nt}
     delta = bootstrap_delta(a, b, sharpe, block_size=block_size, n_samples=n_samples, seed=seed)
-    dsr = _baseline_dsr(a, nt)
+    cand_ci = block_bootstrap_metric(a, sharpe, block_size=block_size, n_samples=n_samples, seed=seed)
+    dsr = _dsr_from_bootstrap(a, nt, (cand_ci.lower, cand_ci.upper))
     clean = bool(delta.lower > 0 and delta.point > noise_floor)
     dsr_ok = bool(np.isfinite(dsr) and dsr > 0.95)
     underpowered = bool(not (clean and dsr_ok) and delta.point > 0 and delta.lower <= 0)
