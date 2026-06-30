@@ -41,10 +41,13 @@
     "frozen_cfg": "models/long_horizon/config.json"
   },
   "pin": {
-    "status": "PENDING — plumbing wired (run_cpcv --pinned-release / --expect-sha256); awaiting the cloud run that mints the canonical OHLCV snapshot, then promote that artifact to a release asset and fill ohlcv_sha256 + release_tag below.",
-    "ohlcv_sha256": null,
-    "release_tag": null,
-    "rationale": "The OHLCV snapshot is 64 MB (> git limit) so it lives as a GitHub release asset, identified by the sha256 of its exact pickle bytes. A pinned run loads that fixed blob instead of yfinance, making baseline_v1 byte-reproducible. Until pinned, the number drifts ~1-2pp run-to-run (yfinance revisions: 14.2/15.6/16.25 observed)."
+    "status": "PINNED (2026-07-01) — the canonical OHLCV snapshot is a release asset; baseline_v1 is byte-reproducible. The fresh mint reproduced these exact metrics (no drift this run).",
+    "ohlcv_sha256": "f8625a8ff6abae06baf4d5c3c10eef2c9bbe98df785248a2b360d7d2a3c52142",
+    "release_tag": "dataset-pin-20260701",
+    "asset": "ohlcv.pkl (64,297,056 bytes)",
+    "minted_by": "github-actions cpcv-research run 28471557396 (mode=corrected, fresh yfinance)",
+    "reproduce": "scripts/run_cpcv.py --mode corrected --start 2017-01-01 --pinned-release dataset-pin-20260701",
+    "rationale": "The OHLCV snapshot is 64 MB (> git limit) so it lives as a GitHub release asset, identified by the sha256 of its exact pickle bytes. A pinned run loads that fixed blob instead of yfinance, making baseline_v1 byte-reproducible. Unpinned, the number drifts ~1-2pp run-to-run (yfinance revisions: 14.2/15.6/16.25 observed)."
   },
   "caveats": [
     "IN-SAMPLE + dev-contaminated (diagnostics/research/HOLDOUT.md) — the trustworthy number is the forward wall (post-2026-05-30), not this. Trust >=2019 folds most (pre-2018 membership survivor-biased).",
