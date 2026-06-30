@@ -45,9 +45,12 @@ See `docs/STAGE_A_PLAN.md` for the plan and `research/baseline_v1.json` for the 
 ```
 
 ## Open follow-ups (scoped; none block the trust thesis)
-1. **Dataset pin (A2 half-2):** the 64 MB OHLCV snapshot → a release asset + `run_cpcv
-   --pinned-release` + content-hash in baseline_v1.json, so the number is byte-reproducible
-   (it currently drifts ~1-2pp on yfinance revisions).
+1. **Dataset pin (A2 half-2): ✅ DONE (2026-07-01).** OHLCV snapshot promoted to release
+   `dataset-pin-20260701` (sha256 `f8625a8f…52142`); `run_cpcv --pinned-release` + `--expect-sha256`
+   wired and **verified on the cloud** — the pinned run fetches the asset, the sha gate passes, and
+   it reproduces CAGR 15.46% / Sharpe 0.667 / 1279 trades / WR 60.36% byte-identically (no yfinance).
+   The fresh mint matched the recorded baseline_v1 exactly (no drift this run). baseline_v1 is now
+   byte-reproducible on demand. Mint run 28471557396; verify run 28471952660.
 2. **A5 harness-trust gate:** build the regime-gate overlay (a known §11 KILL) and confirm
    `evaluate_overlay` returns KILL — proves the harness won't false-promote. (Pulls Stage-C mechanism forward.)
 3. **After-tax + 2022-26 sub-period** in the cloud run; residual: n_trades 1279 vs 1445 (~11%,
