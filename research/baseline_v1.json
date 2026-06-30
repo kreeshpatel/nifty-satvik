@@ -57,7 +57,7 @@
     "IN-SAMPLE + dev-contaminated (diagnostics/research/HOLDOUT.md) — the trustworthy number is the forward wall (post-2026-05-30), not this. Trust >=2019 folds most (pre-2018 membership survivor-biased).",
     "~28/213 recoverable-delisted names still lack D/E; ~114 hard-bankruptcy delistings unrecoverable from yfinance (residual survivorship).",
     "ex-financials: the solvency screen drops banks/NBFCs until the W-04 capital-adequacy proxy is adopted.",
-    "after-tax (STCG 20%) not yet computed by the cloud run (TODO).",
+    "after-tax (STCG 20%) ~12.76% CAGR (approx: per-calendar-year net-gain STCG via the mechanized evaluate_overlay; ~2.7pp drag vs 15.46% gross). Micro-costs (~3.5 bps) still excluded -> the true after-tax-after-cost number is slightly lower; a cloud run with both is the lock-gate cost/tax item.",
     "residual: n_trades 1279 vs v0 1445 (~11%) — likely fewer eligible bars on current yfinance; a deeper full-universe pipeline-vs-source dig could confirm."
   ]
 }

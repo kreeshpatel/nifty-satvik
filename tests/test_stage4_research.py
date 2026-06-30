@@ -62,3 +62,16 @@ def test_evaluate_overlay_degrading_candidate_not_promoted():
     bad = {**CFG, "stop_atr_mult": 0.05}                    # near-zero ATR stop -> strictly worse
     res = evaluate_overlay(_panel(), CFG, bad, n_samples=500)
     assert res["verdict"] != "PROMOTE-CANDIDATE"
+
+
+def test_evaluate_overlay_gates_mechanized_and_fail_closed():
+    res = evaluate_overlay(_panel(), CFG, {**CFG, "stop_atr_mult": 0.05}, n_samples=300)
+    g = res["gates"]
+    assert set(g) == {"dSharpe_meaningful", "dCalmar_ge_0.05", "subperiod_2022_positive",
+                      "fold_pass_ge_60pct", "turnover_le_30pct", "dsr_gt_0.95", "n_eff_ge_20"}
+    assert res["gate_pass"] is all(g.values())             # gate_pass = AND of every gate
+    assert res["gate_pass"] is False                        # a strictly-worse candidate fails the bar
+    assert res["verdict"] != "PROMOTE-CANDIDATE"
+    for k in ("dCalmar", "subperiod_2022_dCAGR", "fold_pass_frac", "turnover_delta",
+              "after_tax_cagr_base", "after_tax_cagr_cand"):     # mechanized fields are emitted
+        assert k in res

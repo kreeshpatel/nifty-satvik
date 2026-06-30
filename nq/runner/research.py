@@ -143,18 +143,70 @@ def evaluate(
     }
 
 
+def _subperiod_cagr(equity_curve: list[dict[str, Any]], start: str | None, end: str | None) -> float | None:
+    """CAGR (%) over the [start, end] slice of an equity curve. None if the slice is too short."""
+    sub_start = pd.to_datetime(start) if start else None
+    sub_end = pd.to_datetime(end) if end else None
+    pts = [(pd.to_datetime(e["date"]), float(e["equity"])) for e in equity_curve]
+    sl = [(d, v) for d, v in pts
+          if (sub_start is None or d >= sub_start) and (sub_end is None or d <= sub_end)]
+    if len(sl) < 2 or sl[0][1] <= 0:
+        return None
+    yrs = (sl[-1][0] - sl[0][0]).days / 365.25
+    return round(((sl[-1][1] / sl[0][1]) ** (1.0 / yrs) - 1.0) * 100.0, 3) if yrs > 0 else None
+
+
+def _fold_pass(index: pd.Index, a: np.ndarray, b: np.ndarray, since_year: int) -> tuple[float, int]:
+    """Walk-forward fold-pass: fraction of years (>= since_year, >=20 obs) where the candidate's
+    Sharpe beats the base's, on the aligned daily returns. Returns (fraction, n_folds_counted)."""
+    yr = pd.DatetimeIndex(index).year.to_numpy()
+    wins = total = 0
+    for y in sorted(set(int(v) for v in yr)):
+        if y < since_year:
+            continue
+        m = yr == y
+        if int(m.sum()) < 20:
+            continue
+        total += 1
+        if sharpe(a[m]) > sharpe(b[m]):
+            wins += 1
+    return (wins / total if total else float("nan")), total
+
+
+def _after_tax_cagr(bt: dict[str, Any], initial_capital: float, stcg: float = 0.20) -> float | None:
+    """Approximate after-tax CAGR (%): per-calendar-year STCG (20%) on each year's NET realized
+    gain (losses offset within the year). Approximate (calendar ≠ Apr-Mar FY; no path compounding
+    of the tax drag) — a reported figure so the post-tax axis is never silently skipped."""
+    trades = bt.get("trades", [])
+    ec = bt.get("equity_curve", [])
+    if not ec:
+        return None
+    by_yr: dict[int, float] = {}
+    for t in trades:
+        by_yr[int(str(t["exit_date"])[:4])] = by_yr.get(int(str(t["exit_date"])[:4]), 0.0) + float(t["pnl"])
+    tax = sum(stcg * max(0.0, g) for g in by_yr.values())
+    final = initial_capital + sum(float(t["pnl"]) for t in trades) - tax
+    if final <= 0:
+        return None
+    yrs = (pd.to_datetime(ec[-1]["date"]) - pd.to_datetime(ec[0]["date"])).days / 365.25
+    return round(((final / initial_capital) ** (1.0 / yrs) - 1.0) * 100.0, 3) if yrs > 0 else None
+
+
 def evaluate_overlay(
     panel: pd.DataFrame, base_cfg: Mapping[str, Any], candidate_cfg: Mapping[str, Any], *,
     start: str | None = None, end: str | None = None, initial_capital: float = 1_000_000.0,
     n_trials: int | None = None, block_size: int = DEFAULT_BLOCK, n_samples: int = 5000,
     seed: int | None = 12345, noise_floor: float = NOISE_FLOOR,
+    sub_start: str = "2022-01-01", fold_since_year: int = 2019,
+    calmar_min: float = 0.05, turnover_max_increase: float = 0.30, n_eff_min: int = 20,
 ) -> dict[str, Any]:
-    """BASE vs CANDIDATE significance via the **paired block bootstrap** on the two equity-return
-    series (date-aligned, same resampled blocks each draw) → ΔSharpe CI + DSR(candidate) → verdict.
-    PROMOTE-CANDIDATE needs ΔSharpe CI-low > 0 AND point > noise_floor AND DSR > 0.95; a positive
-    point with CI-low ≤ 0 is UNDERPOWERED; otherwise KILL. (The full 7-gate promotion bar —
-    ΔCalmar, 2022-26 sub-period, fold-pass, turnover, mechanism — is applied on top per
-    overlay-testing.)"""
+    """BASE vs CANDIDATE through the **mechanized promotion bar**: the paired block bootstrap
+    (ΔSharpe CI + DSR) PLUS the gates that used to be applied by hand — ΔCalmar, 2022-26 sub-period
+    ΔCAGR, ≥2019 walk-forward fold-pass, turnover-Δ, and effective-sample size. ``gate_pass`` is the
+    AND of all auto-computable gates and is **fail-closed** (an uncomputable gate cannot PROMOTE).
+    PROMOTE-CANDIDATE iff every gate passes; a positive ΔSharpe with CI-low ≤ 0 is UNDERPOWERED;
+    else KILL. (Mechanism-explainable-in-one-sentence stays a human gate; after-tax CAGR is reported.)
+    """
     base_bt = run_backtest(panel, base_cfg, start=start, end=end, initial_capital=initial_capital)
     cand_bt = run_backtest(panel, candidate_cfg, start=start, end=end, initial_capital=initial_capital)
     base_r = _daily_returns(base_bt["equity_curve"])
@@ -169,14 +221,39 @@ def evaluate_overlay(
     delta = bootstrap_delta(a, b, sharpe, block_size=block_size, n_samples=n_samples, seed=seed)
     cand_ci = block_bootstrap_metric(a, sharpe, block_size=block_size, n_samples=n_samples, seed=seed)
     dsr = _dsr_from_bootstrap(a, nt, (cand_ci.lower, cand_ci.upper))
-    clean = bool(delta.lower > 0 and delta.point > noise_floor)
-    dsr_ok = bool(np.isfinite(dsr) and dsr > 0.95)
-    underpowered = bool(not (clean and dsr_ok) and delta.point > 0 and delta.lower <= 0)
-    verdict = ("PROMOTE-CANDIDATE" if (clean and dsr_ok)
-               else "UNDERPOWERED" if underpowered else "KILL")
+    bm, cm = base_bt["metrics"], cand_bt["metrics"]
+
+    # ── the mechanized gates (each fail-closed: None/NaN => False) ──────────────
+    d_calmar = (cm.get("calmar", float("nan")) - bm.get("calmar", float("nan")))
+    sub_b = _subperiod_cagr(base_bt["equity_curve"], sub_start, end)
+    sub_c = _subperiod_cagr(cand_bt["equity_curve"], sub_start, end)
+    d_sub = (round(sub_c - sub_b, 3) if (sub_b is not None and sub_c is not None) else None)
+    fold_frac, n_folds = _fold_pass(common, a, b, fold_since_year)
+    base_to, cand_to = bm.get("turnover_per_year"), cm.get("turnover_per_year")
+    d_turn = (round((cand_to - base_to) / base_to, 4)
+              if (base_to and base_to > 0 and cand_to is not None) else None)
+    n_eff = int(block_returns(a).size)
+    gates = {
+        "dSharpe_meaningful": bool(delta.lower > 0 and delta.point > noise_floor),
+        "dCalmar_ge_0.05": bool(np.isfinite(d_calmar) and d_calmar >= calmar_min),
+        "subperiod_2022_positive": bool(d_sub is not None and d_sub > 0),
+        "fold_pass_ge_60pct": bool(n_folds > 0 and fold_frac >= 0.60),
+        "turnover_le_30pct": bool(d_turn is not None and d_turn <= turnover_max_increase),
+        "dsr_gt_0.95": bool(np.isfinite(dsr) and dsr > 0.95),
+        "n_eff_ge_20": bool(n_eff >= n_eff_min),
+    }
+    gate_pass = all(gates.values())
+    underpowered = bool(not gate_pass and delta.point > 0 and delta.lower <= 0)
+    verdict = "PROMOTE-CANDIDATE" if gate_pass else "UNDERPOWERED" if underpowered else "KILL"
     return {
-        "n_obs": int(a.size), "n_trials": nt,
+        "n_obs": int(a.size), "n_eff_windows": n_eff, "n_trials": nt,
         "base_sharpe": round(float(sharpe(b)), 3), "candidate_sharpe": round(float(sharpe(a)), 3),
         "dSharpe": round(delta.point, 3), "dSharpe_ci": [round(delta.lower, 3), round(delta.upper, 3)],
-        "dsr_candidate": dsr, "verdict": verdict,
+        "dsr_candidate": dsr,
+        "dCalmar": round(float(d_calmar), 4) if np.isfinite(d_calmar) else None,
+        "subperiod_2022_dCAGR": d_sub, "fold_pass_frac": round(fold_frac, 3) if n_folds else None,
+        "n_folds": n_folds, "turnover_delta": d_turn,
+        "after_tax_cagr_base": _after_tax_cagr(base_bt, initial_capital),
+        "after_tax_cagr_cand": _after_tax_cagr(cand_bt, initial_capital),
+        "gates": gates, "gate_pass": gate_pass, "verdict": verdict,
     }
