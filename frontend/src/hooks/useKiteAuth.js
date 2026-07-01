@@ -14,7 +14,9 @@ export const useKiteAuth = () => {
   const checkSession = async () => {
     try {
       const status = await kiteSessionStatus();
-      setIsLoggedIn(status.logged_in || false);
+      // Backend GET /api/kite/session/status returns {connected, user_id} (NOT logged_in);
+      // read `connected` first so this reports the real state if ever wired into the live app.
+      setIsLoggedIn(status.connected ?? status.logged_in ?? false);
       setUserId(status.user_id || null);
     } catch (error) {
       console.error('Failed to check Kite session:', error);

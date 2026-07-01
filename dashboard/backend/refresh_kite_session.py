@@ -17,6 +17,13 @@ Required env vars:
   KITE_API_SECRET      — Kite Connect app API secret
   ENCRYPTION_KEY       — Fernet key for encrypting tokens at rest
   DATABASE_URL         — PostgreSQL connection string
+Optional:
+  KITE_PROXY_URL       — http://USER:PASS@HOST:PORT forward proxy with the SEBI-whitelisted
+                         static IP. Zerodha enforces static-IP login, so when this runs from a
+                         non-whitelisted host (a GitHub-Actions runner, the Fly web dyno, a
+                         laptop) it MUST tunnel the Zerodha login + token exchange through the
+                         droplet's proxy or Zerodha will IP-block it. Unset = direct calls
+                         (only works when already on the whitelisted IP, e.g. the droplet itself).
 
 Run manually: python refresh_kite_session.py
 """
@@ -45,6 +52,19 @@ KITE_TWOFA_URL = "https://kite.zerodha.com/api/twofa"
 KITE_CONNECT_LOGIN_URL = "https://kite.zerodha.com/connect/login"
 
 
+def _proxies():
+    """`requests`-style proxies dict for the SEBI static-IP forward proxy, or None.
+
+    Same env var + shape as routers/kite.py::_kite_proxies so a single KITE_PROXY_URL
+    configures both the live REST path and this refresh. Zerodha's login/2FA/OAuth AND the
+    token exchange must all egress from the whitelisted IP, so every network call below routes
+    through it when set."""
+    url = os.getenv("KITE_PROXY_URL", "").strip()
+    if not url:
+        return None
+    return {"http": url, "https": url}
+
+
 def get_request_token() -> str:
     """
     Programmatically log into Zerodha to get a fresh request_token.
@@ -67,6 +87,12 @@ def get_request_token() -> str:
                       "AppleWebKit/537.36 (KHTML, like Gecko) "
                       "Chrome/120.0.0.0 Safari/537.36",
     })
+    # Tunnel the whole Zerodha login through the static-IP proxy when configured — every
+    # request on this session (login, 2FA, OAuth redirect walk) inherits session.proxies.
+    proxies = _proxies()
+    if proxies:
+        session.proxies.update(proxies)
+        logger.info("  (routing Zerodha login through KITE_PROXY_URL static-IP proxy)")
 
     # Step 1: Login with username + password → get request_id
     logger.info("Step 1: POST /api/login")
@@ -161,9 +187,10 @@ def refresh_admin_session() -> dict:
     # Step 1-3: Get fresh request_token
     request_token = get_request_token()
 
-    # Step 4: Exchange request_token for access_token
+    # Step 4: Exchange request_token for access_token — also through the static-IP proxy,
+    # since generate_session hits api.kite.trade which is subject to the same IP rule.
     logger.info("Step 4: Exchanging request_token for access_token")
-    kite = KiteConnect(api_key=api_key)
+    kite = KiteConnect(api_key=api_key, proxies=_proxies())
     session_data = kite.generate_session(request_token, api_secret=api_secret)
     access_token = session_data["access_token"]
     kite_user_id = session_data.get("user_id")

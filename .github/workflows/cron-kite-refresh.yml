@@ -1,0 +1,83 @@
+name: cron-kite-refresh
+
+# W-16 closer — auto-refresh the OWNER's Zerodha Kite access token each weekday morning.
+# Kite tokens expire at 06:00 IST; without a refresh the owner session 503s and ALL users'
+# live market data (quotes/LTP/holdings/margins) goes dark until someone reconnects by hand.
+#
+# IMPORTANT — static IP: Zerodha enforces a SEBI-whitelisted static IP for login. A GitHub
+# Actions runner has a random egress IP, so this job MUST tunnel Zerodha traffic through the
+# droplet's forward proxy (KITE_PROXY_URL). refresh_kite_session.py routes both the login and
+# the token exchange through it. Without KITE_PROXY_URL pointing at the whitelisted IP, Zerodha
+# will IP-block the login and this will fail — that is expected, not a bug.
+#
+# INERT until secrets are set: the preflight step skips the run cleanly if the Kite secrets are
+# absent, so enabling this is purely "add the repo secrets below". No secret values live here.
+#
+# Required repo secrets (Settings -> Secrets and variables -> Actions):
+#   ZERODHA_USER_ID, ZERODHA_PASSWORD, ZERODHA_TOTP_SECRET,
+#   KITE_API_KEY, KITE_API_SECRET, ENCRYPTION_KEY (must match Fly), DATABASE_URL (Supabase),
+#   KITE_PROXY_URL (http://user:pass@<whitelisted-static-ip>:port)
+
+on:
+  workflow_dispatch: {}          # manual "refresh now"
+  schedule:
+    - cron: "45 0 * * 1-5"       # 00:45 UTC = 06:15 IST, weekdays (after the 06:00 IST expiry)
+
+concurrency:
+  group: cron-kite-refresh
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  refresh:
+    name: refresh owner Kite session
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Preflight — skip cleanly if not configured
+        id: pre
+        env:
+          ZUID: ${{ secrets.ZERODHA_USER_ID }}
+          PROXY: ${{ secrets.KITE_PROXY_URL }}
+        run: |
+          if [ -z "$ZUID" ]; then
+            echo "::notice::Kite refresh secrets not set — skipping. Add ZERODHA_*/KITE_*/ENCRYPTION_KEY/DATABASE_URL/KITE_PROXY_URL to enable."
+            echo "go=false" >> "$GITHUB_OUTPUT"
+          elif [ -z "$PROXY" ]; then
+            echo "::warning::KITE_PROXY_URL is not set — Zerodha will IP-block a GitHub-Actions runner's login. Set it to the whitelisted static-IP proxy, or run the refresh from the droplet instead."
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "go=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.pre.outputs.go == 'true'
+
+      - uses: actions/setup-python@v5
+        if: steps.pre.outputs.go == 'true'
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: dashboard/backend/requirements.txt
+
+      - name: Install backend deps
+        if: steps.pre.outputs.go == 'true'
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r dashboard/backend/requirements.txt
+
+      - name: Refresh Kite session
+        if: steps.pre.outputs.go == 'true'
+        working-directory: dashboard/backend
+        env:
+          ZERODHA_USER_ID: ${{ secrets.ZERODHA_USER_ID }}
+          ZERODHA_PASSWORD: ${{ secrets.ZERODHA_PASSWORD }}
+          ZERODHA_TOTP_SECRET: ${{ secrets.ZERODHA_TOTP_SECRET }}
+          KITE_API_KEY: ${{ secrets.KITE_API_KEY }}
+          KITE_API_SECRET: ${{ secrets.KITE_API_SECRET }}
+          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          KITE_PROXY_URL: ${{ secrets.KITE_PROXY_URL }}
+        run: python refresh_kite_session.py
