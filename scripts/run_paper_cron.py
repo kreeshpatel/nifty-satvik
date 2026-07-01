@@ -100,17 +100,24 @@ def main(argv: list[str] | None = None) -> int:
     # stop/target). signals_today.json uses the niftyquant backend's envelope shape.
     from nq.engine.portfolio import leg_slippage
     last_day = df[df["date"] == df["date"].max()].set_index("ticker") if not df.empty else None
+    hold_days = int(cfg["max_hold_days"]); target_pct = float(cfg["target_pct"])
     signals = []
     for tkr in book.pending:
         if last_day is not None and tkr in last_day.index:
             row = last_day.loc[tkr]
             close = float(row["close"]); atr = float(row.get("atr_pct_63", 0) or 0)
             entry = round(close * (1 + leg_slippage(float(row.get("adv_rupees_20d", 0) or 0))), 2)
+            stop = round(entry * (1 - float(cfg["stop_atr_mult"]) * atr / 100.0), 2) if atr > 0 else None
+            # field names match the frontend contract (SignalsV3.enrichSignal + SignalCard):
+            # entry/stop/target/current_price drive the numbers; tier/grade/signal_date/hold_days
+            # drive the chips. indicative_* kept as legacy aliases.
             signals.append({
-                "ticker": tkr, "indicative_close": round(close, 2), "indicative_entry": entry,
-                "stop": round(entry * (1 - float(cfg["stop_atr_mult"]) * atr / 100.0), 2) if atr > 0 else None,
-                "target": round(entry * (1 + float(cfg["target_pct"]) / 100.0), 2),
-                "buy_window": "T+1..T+3 at open",
+                "ticker": tkr, "entry": entry, "stop": stop,
+                "target": round(entry * (1 + target_pct / 100.0), 2), "target_pct": round(target_pct, 2),
+                "current_price": round(close, 2), "close": round(close, 2),
+                "signal_date": end, "hold_days": hold_days, "grade": "B", "tier": "signal",
+                "status": "FRESH", "buy_window": "T+1..T+3 at open",
+                "indicative_close": round(close, 2), "indicative_entry": entry,
             })
     Path(args.state_dir).mkdir(parents=True, exist_ok=True)
     (Path(args.state_dir) / "signals_today.json").write_text(json.dumps({

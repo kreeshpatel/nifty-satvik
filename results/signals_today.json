@@ -4,27 +4,77 @@
     {
       "ticker": "KIRLOSENG",
       "indicative_close": 2364.0,
-      "buy_window": "T+1..T+3 at open"
+      "buy_window": "T+1..T+3 at open",
+      "entry": 2364.0,
+      "close": 2364.0,
+      "current_price": 2364.0,
+      "target": 2896.37,
+      "target_pct": 22.52,
+      "signal_date": "2026-07-01",
+      "hold_days": 63,
+      "grade": "B",
+      "tier": "signal",
+      "status": "FRESH"
     },
     {
       "ticker": "VEDL",
       "indicative_close": 280.75,
-      "buy_window": "T+1..T+3 at open"
+      "buy_window": "T+1..T+3 at open",
+      "entry": 280.75,
+      "close": 280.75,
+      "current_price": 280.75,
+      "target": 343.97,
+      "target_pct": 22.52,
+      "signal_date": "2026-07-01",
+      "hold_days": 63,
+      "grade": "B",
+      "tier": "signal",
+      "status": "FRESH"
     },
     {
       "ticker": "APARINDS",
       "indicative_close": 15695.0,
-      "buy_window": "T+1..T+3 at open"
+      "buy_window": "T+1..T+3 at open",
+      "entry": 15695.0,
+      "close": 15695.0,
+      "current_price": 15695.0,
+      "target": 19229.51,
+      "target_pct": 22.52,
+      "signal_date": "2026-07-01",
+      "hold_days": 63,
+      "grade": "B",
+      "tier": "signal",
+      "status": "FRESH"
     },
     {
       "ticker": "GESHIP",
       "indicative_close": 1483.1,
-      "buy_window": "T+1..T+3 at open"
+      "buy_window": "T+1..T+3 at open",
+      "entry": 1483.1,
+      "close": 1483.1,
+      "current_price": 1483.1,
+      "target": 1817.09,
+      "target_pct": 22.52,
+      "signal_date": "2026-07-01",
+      "hold_days": 63,
+      "grade": "B",
+      "tier": "signal",
+      "status": "FRESH"
     },
     {
       "ticker": "BHARATFORG",
       "indicative_close": 2144.1,
-      "buy_window": "T+1..T+3 at open"
+      "buy_window": "T+1..T+3 at open",
+      "entry": 2144.1,
+      "close": 2144.1,
+      "current_price": 2144.1,
+      "target": 2626.95,
+      "target_pct": 22.52,
+      "signal_date": "2026-07-01",
+      "hold_days": 63,
+      "grade": "B",
+      "tier": "signal",
+      "status": "FRESH"
     }
   ],
   "regime": {
