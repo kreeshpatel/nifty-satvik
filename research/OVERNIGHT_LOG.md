@@ -33,6 +33,7 @@
 | 3b | **ROE stress test**: 90d announcement-lag + regime split | local | **KILL** — 90d lag drops to p.053 (leakage); 2022-26 p.32 (bull artifact). Corrected ROE IC ≈ +0.037 (p.38) ≈ 0. Found a latent ~quarter fundamentals-lookahead in the store (immaterial to base). | finding 0007; orthogonal-predictor component CLOSED |
 | 4 | **0074 vol-scaled DD overlay** | NOT RUN (judgment call) | DEFERRED — 4th swing at book-risk scaling; 0068 (PROMOTED) + 0070 (plateaued −38) already mapped this space; building a new engine overlay for a likely-KILL overnight is poor token value. DD is structural → Stage-G tail hedge or accept −39% (D1). | reopen only with the D-M forecast asymmetry as a distinct, owner-approved arm |
 | 5 | **Randomized-entry null** (rigor P2, 0-trial): does slope beat random top-15 (same universe/exits/turnover)? 12 seeds | local | **Base VALIDATED but MODERATE:** slope CAGR 15.46 vs random mean 7.90 (DOUBLE; 92nd pct), Sharpe 0.667 vs 0.474 (+0.19, 83rd pct). ~half the return is structural (universe+exits). | finding 0008; explains why all overlays fail (no headroom) |
+| 6 | **Base per-year stability + all-in net** (rigor C4, cost/tax lock item, 0-trial) | local | **Bull-concentrated:** 3 years (2020 +29%, 2021 +65%, 2023 +72%) drive the entire 15.46% CAGR; 5/9 tradeable years positive; recent 2024/2025 modest (+3.5/+1.6%). **All-in net ≈ 12.2% CAGR** (after STCG + 3.5bps/leg micro-costs). | finding 0009; sharpens D1 (lumpiness+DD = the real product risk) — cost/tax lock item CLOSED |
 
 **Finding (rigorous): "loosen the target" is REAL + DIRECTIONAL but no in-sample optimum is trustworthy.** Almost every target in [20,50] beats the base 22.52; the effect is consistent across years (target=30 fold-pass 87.5%, so not pure noise) AND improves after-tax + DD. BUT the surface is spiky (overfitting; backtest-rigor C1b peak-not-plateau) so NO specific replacement value can be picked from this in-sample sweep. The base 22.52 sitting at a local dip suggests the frozen cfg may be mildly **vintage-overfit** (connects to LOCK_PLAN D2: walk-forward re-derive the cfg). **Disposition: SHADOW the directional finding; do NOT change target_pct off in-sample; the real fix is a walk-forward re-derivation of target_pct (+ the cfg) on the corrected vintage, confirmed on the forward wall.** This is the #1 morning-discussion item.
 
@@ -67,6 +68,13 @@ modest-edge strategy (PSR 0.974, certifiable; slope beats random) at its ceiling
 is −EV (every lever dead + it inflates the DSR bar). The only open question is the binding constraint,
 the **−46% drawdown**, which is STRUCTURAL (0070 proved sizing/exposure overlays plateau at −38%; the
 COVID-2020 systematic floor). It is NOT an alpha problem.
+
+**Honest client-facing numbers (finding 0009):** the all-in net is **~12.2% CAGR** (after STCG-20% + all
+costs incl. micro-costs), not the 15.46% gross — and it's delivered **LUMPILY**: three trend years
+(2020 +29%, 2021 +65%, 2023 +72%) drive the entire return, with multi-year flat/negative stretches
+(2018-19, 2022, 2024-25) and a −46% DD; only 5/9 tradeable years positive. This convex momentum profile
+is inherent (it's why the exit-target + ROE leads were bull-artifacts). Set client expectations to
+**~12% net / lumpy / −46% DD**, not a smooth 15%. Sharpens (doesn't change) the LOCK + D1 calls.
 
 **THE ONE DECISION FOR THE MORNING — LOCK_PLAN D1 (DD risk profile):**
 - **(a) Accept ~−39% DD** → promote the O-009 vol-target into the frozen cfg, regenerate golden, write
