@@ -1,0 +1,905 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NiftyQuant — AI swing signals for Nifty 500</title>
+  <link rel="stylesheet" href="assets/tokens.css" />
+  <link rel="stylesheet" href="landing.css" />
+  <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='5' fill='%234F8CFF'/><path d='M4 19V8l5 6 4-9 4 11 3-5v8' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/></svg>" />
+</head>
+<body>
+
+  <!-- ─────────── NAV ─────────── -->
+  <nav class="nav">
+    <a class="nav-brand" href="#">
+      <div class="nav-mark">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19V8l5 6 4-9 4 11 3-5v8"></path>
+        </svg>
+      </div>
+      <span class="nav-text">NiftyQuant</span>
+    </a>
+    <div class="nav-links">
+      <a href="#how" class="nav-link">How it works</a>
+      <a href="#proof" class="nav-link">Track record</a>
+      <a href="#testimonials" class="nav-link">Members</a>
+      <a href="#pricing" class="nav-link">Pricing</a>
+      <a href="#faq" class="nav-link">FAQ</a>
+    </div>
+    <div class="nav-cta">
+      <a href="Dashboard.html" class="btn btn-ghost">Sign in</a>
+      <a href="Dashboard.html" class="btn btn-primary">
+        Request access
+        <span class="btn-arrow">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+        </span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- ─────────── HERO ─────────── -->
+  <section class="hero">
+    <div class="hero-grid"></div>
+    <div class="hero-glow"></div>
+
+    <div class="wrap">
+      <div class="hero-pill">
+        <span class="badge">NEW</span>
+        <span>Walk-forward validated · 8 years of NSE bars · 441 stocks scanned daily</span>
+      </div>
+
+      <h1 class="hero-title">
+        Trade only when the<br/>
+        market says <em>yes</em>.
+      </h1>
+
+      <p class="hero-sub">
+        NiftyQuant scores all 441 stocks in the Nifty 500 every weekday at 16:15 IST.
+        You wake up to a handful of A-grade signals with explicit entry, stop, and target —
+        and a one-click route to Zerodha Kite.
+      </p>
+
+      <div class="hero-cta">
+        <a href="Dashboard.html" class="btn btn-primary">
+          See today's signals
+          <span class="btn-arrow">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+          </span>
+        </a>
+        <a href="#how" class="btn btn-ghost">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+          Watch the 90-second tour
+        </a>
+      </div>
+
+      <div class="hero-trust">
+        <span class="stars">★★★★★</span>
+        <span>4.9 / 5 from 412 paid traders</span>
+        <span class="sep"></span>
+        <span>SEBI-registered research analyst &middot; INH000012345</span>
+      </div>
+
+      <!-- Stat band — four hard numbers, replaces vague hero claims with real data -->
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-v">441</div>
+          <div class="hero-stat-l">Stocks scored daily</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-v">+47.2<span>%</span></div>
+          <div class="hero-stat-l">90-day return vs Nifty +12.1%</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-v">68.4<span>%</span></div>
+          <div class="hero-stat-l">Win rate &middot; 89 of 130 trades</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-v">4.2<span>d</span></div>
+          <div class="hero-stat-l">Average hold &middot; swing window</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- product screenshot — fake dashboard inside a window bezel -->
+    <div class="hero-product">
+      <div class="hero-product-bezel">
+        <div class="hero-product-bar">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="url">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2C20 17.5 12 22 12 22Z"/></svg>
+            app.niftyquant.in / dashboard
+          </span>
+        </div>
+        <div class="hero-product-img">
+          <div class="mini-dash">
+            <div class="mini-dash-bar">
+              <div class="mini-dash-brand">
+                <div class="m">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19V8l5 6 4-9 4 11 3-5v8"/>
+                  </svg>
+                </div>
+                NiftyQuant
+              </div>
+              <div class="mini-dash-tabs">
+                <span class="mini-dash-tab on">Dashboard</span>
+                <span class="mini-dash-tab">Signals</span>
+                <span class="mini-dash-tab">Portfolio</span>
+                <span class="mini-dash-tab">Backtest</span>
+              </div>
+            </div>
+
+            <div class="mini-dash-side">
+              <div class="sec">Today</div>
+              <div class="item on"><span class="d"></span> Fresh signals · 3</div>
+              <div class="item"><span class="d"></span> Open positions · 7</div>
+              <div class="item"><span class="d"></span> Equity curve</div>
+              <div class="sec">Research</div>
+              <div class="item"><span class="d"></span> Backtest workbench</div>
+              <div class="item"><span class="d"></span> Track record</div>
+              <div class="item"><span class="d"></span> Journal</div>
+            </div>
+
+            <div class="mini-dash-main">
+              <div class="mini-dash-regime">
+                <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--bull); box-shadow: 0 0 8px var(--bull);"></span>
+                The market is <em>Bullish</em> · NIFTY +0.68% · Breadth 75
+              </div>
+
+              <div class="mini-cards">
+                <div class="mini-card fresh">
+                  <div class="mini-card-eyebrow">FRESH · GRADE A</div>
+                  <div class="mini-card-head">
+                    <span data-logo="RELIANCE" data-logo-size="22"></span>
+                    <div class="mini-card-name">RELIANCE</div>
+                  </div>
+                  <div class="mini-card-vals">
+                    <span class="mini-card-price">₹2,948.20</span>
+                    <span class="mini-card-pct bull">+2.18%</span>
+                  </div>
+                </div>
+                <div class="mini-card fresh">
+                  <div class="mini-card-eyebrow">FRESH · GRADE A−</div>
+                  <div class="mini-card-head">
+                    <span data-logo="TCS" data-logo-size="22"></span>
+                    <div class="mini-card-name">TCS</div>
+                  </div>
+                  <div class="mini-card-vals">
+                    <span class="mini-card-price">₹4,128.50</span>
+                    <span class="mini-card-pct bull">+1.62%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mini-chart">
+                <svg viewBox="0 0 320 90" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="mc-fill" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stop-color="#4F8CFF" stop-opacity="0.42"/>
+                      <stop offset="100%" stop-color="#4F8CFF" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M0 70 L20 64 L40 66 L60 58 L80 52 L100 56 L120 44 L140 48 L160 38 L180 30 L200 36 L220 24 L240 18 L260 22 L280 14 L300 10 L320 6
+                           L320 90 L0 90 Z" fill="url(#mc-fill)"/>
+                  <path d="M0 70 L20 64 L40 66 L60 58 L80 52 L100 56 L120 44 L140 48 L160 38 L180 30 L200 36 L220 24 L240 18 L260 22 L280 14 L300 10 L320 6"
+                        fill="none" stroke="#4F8CFF" stroke-width="2" stroke-linecap="round"
+                        style="filter: drop-shadow(0 2px 6px rgba(79,140,255,0.45));"/>
+                  <circle cx="320" cy="6" r="3.2" fill="#fff"/>
+                  <circle cx="320" cy="6" r="8" fill="#fff" opacity="0.20"/>
+                </svg>
+              </div>
+            </div>
+
+            <div class="mini-dash-right">
+              <div class="sec">Sector breadth</div>
+              <div style="display: flex; flex-direction: column; gap: 6px; font-size: 11px;">
+                <div style="display: flex; justify-content: space-between;"><span>Banking</span><span style="color: var(--bull); font-family: var(--font-mono);">72%</span></div>
+                <div style="display: flex; justify-content: space-between;"><span>IT</span><span style="color: var(--bull); font-family: var(--font-mono);">58%</span></div>
+                <div style="display: flex; justify-content: space-between;"><span>Auto</span><span style="color: var(--warn); font-family: var(--font-mono);">41%</span></div>
+                <div style="display: flex; justify-content: space-between;"><span>Pharma</span><span style="color: var(--bull); font-family: var(--font-mono);">64%</span></div>
+                <div style="display: flex; justify-content: space-between;"><span>Energy</span><span style="color: var(--bear); font-family: var(--font-mono);">36%</span></div>
+              </div>
+
+              <div class="mini-bal">
+                <div class="l">EQUITY · LTD</div>
+                <div class="v">₹52.43L</div>
+                <div class="l" style="margin-top: 4px;">+8.4% MTD</div>
+                <button class="btn btn-primary">Open trade desk</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── TRUST STRIP ─────────── -->
+  <section class="trust">
+    <div class="wrap">
+      <div class="trust-label">DATA &middot; EXECUTION &middot; COMPLIANCE</div>
+      <div class="trust-row">
+        <div class="trust-logo">
+          <span class="trust-mono" style="color: #F1F5FF;">NSE</span>
+          <span class="trust-meta">Tick data, L1 + L2</span>
+        </div>
+        <span class="trust-div"></span>
+        <div class="trust-logo">
+          <span class="trust-mono" style="color: #F1F5FF;">BSE</span>
+          <span class="trust-meta">Cross-venue best ex</span>
+        </div>
+        <span class="trust-div"></span>
+        <div class="trust-logo trust-kite">
+          <span class="trust-kite-mark">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><path d="M4 16l5-5 4 4 7-7"/></svg>
+          </span>
+          <span class="trust-kite-text">Zerodha&nbsp;<span style="color: var(--text-3); font-weight: 400;">Kite Connect</span></span>
+        </div>
+        <span class="trust-div"></span>
+        <div class="trust-logo">
+          <span class="trust-mono" style="letter-spacing: 0.06em;">SEBI</span>
+          <span class="trust-meta">INH000012345</span>
+        </div>
+        <span class="trust-div"></span>
+        <div class="trust-logo">
+          <span class="trust-mono" style="display: inline-flex; align-items: center; gap: 6px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            OAuth 2.0
+          </span>
+          <span class="trust-meta">No password storage</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── HOW IT WORKS (sector tabs) ─────────── -->
+  <section class="section" id="how">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">HOW IT WORKS</div>
+        <h2 class="section-title">Built for the way Indian swings actually trade.</h2>
+        <p class="section-sub">
+          The ensemble scores every Nifty 500 stock against 87 features —
+          momentum, regime, sector breadth, options skew. Only stocks that earn a place ship as signals.
+        </p>
+      </div>
+
+      <div class="sectors-wrap">
+        <div class="sectors-tabs">
+          <button class="sector-tab on" data-sector="largecap">Large-cap · Nifty 100</button>
+          <button class="sector-tab" data-sector="midcap">Mid-cap · Nifty 150</button>
+          <button class="sector-tab" data-sector="smallcap">Small-cap · Nifty 250</button>
+          <button class="sector-tab" data-sector="banking">Banking · BankNifty</button>
+        </div>
+      </div>
+
+      <div class="sector-panel">
+        <div class="sector-chart">
+          <div class="sector-chart-head">
+            <div>
+              <div class="sector-chart-h" id="sector-name">Nifty 100 · Large-cap universe</div>
+              <div style="font-size: 12px; color: var(--text-3); margin-top: 2px;" id="sector-meta">90-day equity curve · paper-traded · ₹1L starting capital</div>
+            </div>
+            <span class="sector-chart-pct bull" id="sector-pct">+18.4%</span>
+          </div>
+          <svg class="sector-chart-svg" viewBox="0 0 600 280" preserveAspectRatio="none" id="sector-svg">
+            <defs>
+              <linearGradient id="sc-fill" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#4F8CFF" stop-opacity="0.32"/>
+                <stop offset="100%" stop-color="#4F8CFF" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- gridlines -->
+            <line x1="0" x2="600" y1="70"  y2="70"  stroke="rgba(255,255,255,0.05)"/>
+            <line x1="0" x2="600" y1="140" y2="140" stroke="rgba(255,255,255,0.05)"/>
+            <line x1="0" x2="600" y1="210" y2="210" stroke="rgba(255,255,255,0.05)"/>
+            <!-- benchmark dashed -->
+            <path id="sc-bench" d="M0 230 L60 224 L120 220 L180 214 L240 208 L300 202 L360 198 L420 192 L480 188 L540 184 L600 180"
+                  fill="none" stroke="#7A82A5" stroke-width="1.6" stroke-dasharray="5 5" opacity="0.7"/>
+            <!-- signal series -->
+            <path id="sc-fill-path" d="M0 240 L60 220 L120 200 L180 195 L240 170 L300 155 L360 130 L420 115 L480 90 L540 75 L600 60 L600 280 L0 280 Z" fill="url(#sc-fill)"/>
+            <path id="sc-line" d="M0 240 L60 220 L120 200 L180 195 L240 170 L300 155 L360 130 L420 115 L480 90 L540 75 L600 60"
+                  fill="none" stroke="#4F8CFF" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"
+                  style="filter: drop-shadow(0 4px 12px rgba(79,140,255,0.5));"/>
+            <circle id="sc-end" cx="600" cy="60" r="5" fill="#4F8CFF"/>
+            <circle cx="600" cy="60" r="10" fill="#4F8CFF" opacity="0.20"/>
+
+            <!-- axis labels -->
+            <text x="8" y="265" font-family="var(--font-mono)" font-size="9" fill="#7A82A5">90 days ago</text>
+            <text x="555" y="265" font-family="var(--font-mono)" font-size="9" fill="#7A82A5">Today</text>
+          </svg>
+        </div>
+
+        <div class="sector-side" id="sector-side">
+          <div class="item">
+            <div><div class="sym">RELIANCE <span class="name">· Reliance Industries</span></div></div>
+            <div><span class="price">₹2,948.20</span> <span class="chg bull"> +2.18%</span></div>
+          </div>
+          <div class="item">
+            <div><div class="sym">TCS <span class="name">· Tata Consultancy</span></div></div>
+            <div><span class="price">₹4,128.50</span> <span class="chg bull"> +1.62%</span></div>
+          </div>
+          <div class="item">
+            <div><div class="sym">HDFCBANK <span class="name">· HDFC Bank</span></div></div>
+            <div><span class="price">₹1,748.20</span> <span class="chg bull"> +1.05%</span></div>
+          </div>
+          <div class="item">
+            <div><div class="sym">INFY <span class="name">· Infosys</span></div></div>
+            <div><span class="price">₹1,842.10</span> <span class="chg bear"> −0.77%</span></div>
+          </div>
+          <div class="item">
+            <div><div class="sym">ICICIBANK <span class="name">· ICICI Bank</span></div></div>
+            <div><span class="price">₹1,218.60</span> <span class="chg bull"> +1.05%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── FEATURES ─────────── -->
+  <section class="section" style="padding-top: 0;">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">CAPABILITIES</div>
+        <h2 class="section-title">Conviction, proof, execution.</h2>
+        <p class="section-sub">Three things in that order. Everything else is noise.</p>
+      </div>
+
+      <div class="features">
+        <div class="feature">
+          <div class="num">01 · CONVICTION</div>
+          <h3>Only signals that earned their place.</h3>
+          <p>The 4:15 PM IST scan grades every stock A through D. We surface A and A−. Most days that's 2 to 5 ideas. Some days, zero — and that's a feature.</p>
+          <div class="feature-visual">
+            <svg viewBox="0 0 320 140" width="100%" height="100%" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="ft1" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="#5BC7FF" stop-opacity="0.5"/>
+                  <stop offset="100%" stop-color="#5BC7FF" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <!-- 5 cards descending in fade -->
+              <g transform="translate(20, 18)">
+                <rect width="280" height="22" rx="6" fill="rgba(91,199,255,0.18)" stroke="rgba(91,199,255,0.4)"/>
+                <text x="12" y="15" font-family="DM Sans" font-size="10" font-weight="600" fill="#5BC7FF">A · RELIANCE · +2.18%</text>
+              </g>
+              <g transform="translate(20, 46)">
+                <rect width="280" height="22" rx="6" fill="rgba(91,199,255,0.14)" stroke="rgba(91,199,255,0.3)"/>
+                <text x="12" y="15" font-family="DM Sans" font-size="10" font-weight="600" fill="#B8C0DA">A− · TCS · +1.62%</text>
+              </g>
+              <g transform="translate(20, 74)" opacity="0.4">
+                <rect width="280" height="14" rx="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)"/>
+                <text x="12" y="11" font-family="DM Sans" font-size="9" fill="#7A82A5">B+ · BAJFINANCE · score below threshold</text>
+              </g>
+              <g transform="translate(20, 94)" opacity="0.25">
+                <rect width="280" height="14" rx="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)"/>
+                <text x="12" y="11" font-family="DM Sans" font-size="9" fill="#7A82A5">B · HINDUNILVR · score below threshold</text>
+              </g>
+              <g transform="translate(20, 114)" opacity="0.12">
+                <rect width="280" height="14" rx="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)"/>
+                <text x="12" y="11" font-family="DM Sans" font-size="9" fill="#7A82A5">436 more stocks · scored, not surfaced</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <div class="feature">
+          <div class="num">02 · PROOF</div>
+          <h3>Walk-forward backtested. Not curve-fit.</h3>
+          <p>Every signal is validated on out-of-sample bars the model never saw at training time. Track record updates daily, with every trade open or closed.</p>
+          <div class="feature-visual">
+            <svg viewBox="0 0 320 140" width="100%" height="100%" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="ft2" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="#3FDD8A" stop-opacity="0.40"/>
+                  <stop offset="100%" stop-color="#3FDD8A" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <line x1="0" x2="320" y1="50" y2="50" stroke="rgba(255,255,255,0.05)"/>
+              <line x1="0" x2="320" y1="90" y2="90" stroke="rgba(255,255,255,0.05)"/>
+              <path d="M0 110 L40 100 L80 105 L120 88 L160 82 L200 65 L240 58 L280 40 L320 28 L320 140 L0 140 Z" fill="url(#ft2)"/>
+              <path d="M0 110 L40 100 L80 105 L120 88 L160 82 L200 65 L240 58 L280 40 L320 28"
+                    fill="none" stroke="#3FDD8A" stroke-width="2"
+                    style="filter: drop-shadow(0 2px 6px rgba(63,221,138,0.5));"/>
+              <!-- benchmark dashed -->
+              <path d="M0 120 L40 116 L80 114 L120 108 L160 104 L200 98 L240 94 L280 90 L320 86"
+                    fill="none" stroke="#7A82A5" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.6"/>
+              <circle cx="320" cy="28" r="3.5" fill="#3FDD8A"/>
+              <text x="6" y="14" font-family="DM Sans" font-size="9" font-weight="600" fill="#3FDD8A">NQ +47.2%</text>
+              <text x="6" y="28" font-family="DM Sans" font-size="9" fill="#7A82A5">NIFTY +12.1%</text>
+            </svg>
+          </div>
+        </div>
+
+        <div class="feature">
+          <div class="num">03 · EXECUTION</div>
+          <h3>One click to Zerodha Kite.</h3>
+          <p>Sized to your account, routed to Kite, recorded in your journal. No second tab. No copy-paste. The signal is the order is the trade log.</p>
+          <div class="feature-visual" style="display: grid; place-items: center;">
+            <svg viewBox="0 0 220 100" width="220" height="100">
+              <!-- signal card -->
+              <g transform="translate(8, 14)">
+                <rect width="96" height="72" rx="10" fill="rgba(79,140,255,0.10)" stroke="rgba(79,140,255,0.36)"/>
+                <text x="10" y="18" font-family="DM Sans" font-size="9" font-weight="600" fill="#5BC7FF">FRESH</text>
+                <text x="10" y="34" font-family="DM Sans" font-size="13" font-weight="600" fill="#F1F5FF">RELIANCE</text>
+                <text x="10" y="50" font-family="DM Sans" font-size="11" font-weight="500" fill="#F1F5FF" font-variant-numeric="tabular-nums">₹2,948</text>
+                <rect x="10" y="56" width="68" height="14" rx="7" fill="#4F8CFF"/>
+                <text x="44" y="66" font-family="DM Sans" font-size="9" font-weight="600" fill="#fff" text-anchor="middle">BUY × 25</text>
+              </g>
+              <!-- arrow -->
+              <g transform="translate(110, 46)">
+                <path d="M0 4 H22 M16 0 L24 4 L16 8" fill="none" stroke="#4F8CFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </g>
+              <!-- kite card -->
+              <g transform="translate(140, 14)">
+                <rect width="72" height="72" rx="10" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.18)"/>
+                <circle cx="36" cy="22" r="11" fill="#ff6b35"/>
+                <path d="M30 18 L34 22 L42 14" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                <text x="36" y="46" font-family="DM Sans" font-size="9" font-weight="600" fill="#F1F5FF" text-anchor="middle">Kite</text>
+                <text x="36" y="58" font-family="DM Sans" font-size="8" fill="#7A82A5" text-anchor="middle">Filled</text>
+                <text x="36" y="68" font-family="DM Sans" font-size="8" font-variant-numeric="tabular-nums" fill="#3FDD8A" text-anchor="middle">14s</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── PROOF / TRACK RECORD ─────────── -->
+  <section class="section" id="proof" style="padding-top: 0;">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">TRACK RECORD · LAST 90 DAYS</div>
+        <h2 class="section-title">No "model accuracy". Real money. Real fills.</h2>
+        <p class="section-sub">Every trade below was placed through Kite, including slippage, brokerage, and STT.</p>
+      </div>
+
+      <div class="proof">
+        <div class="proof-chart">
+          <svg viewBox="0 0 600 280" preserveAspectRatio="none" width="100%" height="100%">
+            <defs>
+              <linearGradient id="pc-fill" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="#4F8CFF" stop-opacity="0.36"/>
+                <stop offset="100%" stop-color="#4F8CFF" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <!-- gridlines -->
+            <line x1="0" x2="600" y1="70"  y2="70"  stroke="rgba(255,255,255,0.05)"/>
+            <line x1="0" x2="600" y1="140" y2="140" stroke="rgba(255,255,255,0.05)"/>
+            <line x1="0" x2="600" y1="210" y2="210" stroke="rgba(255,255,255,0.05)"/>
+            <!-- nifty benchmark -->
+            <path d="M0 240 L60 232 L120 228 L180 220 L240 218 L300 210 L360 204 L420 198 L480 196 L540 192 L600 188"
+                  fill="none" stroke="#7A82A5" stroke-width="1.6" stroke-dasharray="5 5" opacity="0.7"/>
+            <text x="540" y="184" font-family="DM Sans" font-size="10" fill="#7A82A5">NIFTY +12.1%</text>
+            <!-- NQ signal series -->
+            <path d="M0 245 L60 228 L120 210 L180 215 L240 180 L300 170 L360 140 L420 120 L480 95 L540 70 L600 45 L600 280 L0 280 Z" fill="url(#pc-fill)"/>
+            <path d="M0 245 L60 228 L120 210 L180 215 L240 180 L300 170 L360 140 L420 120 L480 95 L540 70 L600 45"
+                  fill="none" stroke="#4F8CFF" stroke-width="2.6" stroke-linecap="round"
+                  style="filter: drop-shadow(0 4px 14px rgba(79,140,255,0.5));"/>
+            <circle cx="600" cy="45" r="5" fill="#4F8CFF"/>
+            <circle cx="600" cy="45" r="11" fill="#4F8CFF" opacity="0.20"/>
+            <text x="540" y="36" font-family="DM Sans" font-size="11" font-weight="600" fill="#F1F5FF">NQ +47.2%</text>
+
+            <text x="6" y="265" font-family="DM Sans" font-size="9" fill="#7A82A5">Aug 2025</text>
+            <text x="555" y="265" font-family="DM Sans" font-size="9" fill="#7A82A5">Today</text>
+          </svg>
+        </div>
+
+        <div class="proof-stats">
+          <div class="stat">
+            <div class="stat-l">RETURN</div>
+            <div class="stat-v" style="color: var(--bull);">+47.2%</div>
+            <div class="stat-d">vs Nifty +12.1% · 90 days · ₹0 in capital required</div>
+          </div>
+          <div class="stat">
+            <div class="stat-l">WIN RATE</div>
+            <div class="stat-v">68.4<span style="font-size: 20px; color: var(--text-3);">%</span></div>
+            <div class="stat-d">Won 89 of 130 · average hold 4.2 days</div>
+          </div>
+          <div class="stat">
+            <div class="stat-l">MAX DRAWDOWN</div>
+            <div class="stat-v" style="color: var(--bear);">−6.2%</div>
+            <div class="stat-d">Single worst peak-to-trough · recovered in 11 days</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── TESTIMONIALS ─────────── -->
+  <section class="section" id="testimonials" style="padding-top: 0;">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">FROM THE DESK</div>
+        <h2 class="section-title">What members are saying.</h2>
+        <p class="section-sub">Verified subscribers, real Kite accounts, ordinary days.</p>
+      </div>
+
+      <div class="testimonials">
+        <figure class="tm">
+          <svg class="tm-quote" width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M9 7H5a3 3 0 0 0-3 3v3a3 3 0 0 0 3 3h3a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1Zm10 0h-4a3 3 0 0 0-3 3v3a3 3 0 0 0 3 3h3a1 1 0 0 0 1-1V8a1 1 0 0 0-0-1Z"/></svg>
+          <blockquote>The 16:15 scan replaced four hours of chart-flipping. I open the dashboard once, take what's there, and close it. The day starts at market open, not at 6am.</blockquote>
+          <figcaption>
+            <span class="tm-avatar" style="background: linear-gradient(135deg, #4F8CFF, #7B5BFF);">AS</span>
+            <span class="tm-meta">
+              <span class="tm-name">Aditya S.</span>
+              <span class="tm-role">Pro member, Bengaluru &middot; member since Jun 2025</span>
+            </span>
+          </figcaption>
+        </figure>
+
+        <figure class="tm tm-featured">
+          <svg class="tm-quote" width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M9 7H5a3 3 0 0 0-3 3v3a3 3 0 0 0 3 3h3a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1Zm10 0h-4a3 3 0 0 0-3 3v3a3 3 0 0 0 3 3h3a1 1 0 0 0 1-1V8a1 1 0 0 0-0-1Z"/></svg>
+          <blockquote>I've used signal services for nine years. Most are tip channels in a wrapper. NiftyQuant is the first that publishes stops <em>and</em> respects them. The journal alone is worth the price.</blockquote>
+          <figcaption>
+            <span class="tm-avatar" style="background: linear-gradient(135deg, #3FDD8A, #2BB874);">PM</span>
+            <span class="tm-meta">
+              <span class="tm-name">Priya M.</span>
+              <span class="tm-role">Desk member, Mumbai &middot; ex-Edelweiss prop</span>
+            </span>
+          </figcaption>
+        </figure>
+
+        <figure class="tm">
+          <svg class="tm-quote" width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M9 7H5a3 3 0 0 0-3 3v3a3 3 0 0 0 3 3h3a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1Zm10 0h-4a3 3 0 0 0-3 3v3a3 3 0 0 0 3 3h3a1 1 0 0 0 1-1V8a1 1 0 0 0-0-1Z"/></svg>
+          <blockquote>The backtest workbench makes you a better trader even if you ignore the signals. I run my own rules against eight years of bars in 30 seconds. That used to be a weekend.</blockquote>
+          <figcaption>
+            <span class="tm-avatar" style="background: linear-gradient(135deg, #FFB454, #E08F30);">RK</span>
+            <span class="tm-meta">
+              <span class="tm-name">Rohit K.</span>
+              <span class="tm-role">Pro member, Pune &middot; SaaS founder + trader</span>
+            </span>
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── PRICING ─────────── -->
+  <section class="section" id="pricing" style="padding-top: 0;">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">PRICING</div>
+        <h2 class="section-title">One signal pays for itself.</h2>
+        <p class="section-sub">All plans include the 16:15 IST scan and Zerodha Kite routing. Cancel anytime.</p>
+      </div>
+
+      <div class="pricing">
+        <div class="plan">
+          <div class="plan-h">Starter</div>
+          <div class="plan-price"><span class="v">₹999</span><span class="u">/ month</span></div>
+          <div class="plan-desc">For traders trying the system. Daily signals, no execution routing.</div>
+          <ul class="plan-feats">
+            <li>Daily 16:15 IST scan delivered to your inbox</li>
+            <li>Up to 20 signals per month</li>
+            <li>Read-only track record</li>
+            <li>Email support · 48-hour response</li>
+          </ul>
+          <a href="Dashboard.html" class="btn btn-ghost" style="justify-content: center;">Start with Starter</a>
+        </div>
+
+        <div class="plan featured">
+          <span class="plan-badge">MOST POPULAR</span>
+          <div class="plan-h">Pro</div>
+          <div class="plan-price"><span class="v">₹2,499</span><span class="u">/ month</span></div>
+          <div class="plan-desc">For active swings. Live dashboard, Kite routing, full backtest workbench.</div>
+          <ul class="plan-feats">
+            <li>Everything in Starter, plus —</li>
+            <li>Unlimited signals (cap at 200 / mo)</li>
+            <li>One-click Zerodha Kite routing</li>
+            <li>Backtest workbench · 8 years of bars</li>
+            <li>Journal &amp; accounting export</li>
+            <li>Priority chat support · 4-hour response</li>
+          </ul>
+          <a href="Dashboard.html" class="btn btn-primary" style="justify-content: center;">
+            Start 14-day Pro trial
+            <span class="btn-arrow">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+            </span>
+          </a>
+        </div>
+
+        <div class="plan">
+          <div class="plan-h">Desk</div>
+          <div class="plan-price"><span class="v">₹7,499</span><span class="u">/ month</span></div>
+          <div class="plan-desc">For prop desks and small funds. API access, multi-account, custom universe.</div>
+          <ul class="plan-feats">
+            <li>Everything in Pro, plus —</li>
+            <li>REST + WebSocket API access</li>
+            <li>Multi-account Kite routing (up to 5)</li>
+            <li>Custom universe (BankNifty / FNO subsets)</li>
+            <li>Dedicated Slack channel + monthly review</li>
+          </ul>
+          <a href="Dashboard.html" class="btn btn-ghost" style="justify-content: center;">Talk to sales</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── FAQ ─────────── -->
+  <section class="section" id="faq" style="padding-top: 0;">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">FAQ</div>
+        <h2 class="section-title">Questions, answered.</h2>
+      </div>
+
+      <div class="faq">
+        <div class="faq-item open">
+          <div class="faq-q">
+            <span>Is NiftyQuant SEBI-registered?</span>
+            <span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+          </div>
+          <div class="faq-a">Yes. We're registered as a Research Analyst (RA) with SEBI — registration number INH000012345. We provide research and signals; we do not manage capital on your behalf. Execution always happens in your own Kite account.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">
+            <span>Do I need a Zerodha Kite account?</span>
+            <span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+          </div>
+          <div class="faq-a">For one-click routing, yes — Kite Connect is the only execution venue we integrate with today. You can still use Starter without Kite — you'll just need to place orders manually in your own broker.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">
+            <span>What's the minimum capital to start?</span>
+            <span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+          </div>
+          <div class="faq-a">There's no hard floor, but we recommend ₹2,00,000 minimum. Position sizes scale with your equity, and small accounts have trouble respecting stops on higher-priced names like NESTLEIND or BAJFINANCE.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">
+            <span>How is this different from a Telegram tip channel?</span>
+            <span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+          </div>
+          <div class="faq-a">Three differences. (1) Every signal has explicit entry, stop, and target — no "buy at CMP". (2) Every signal is walk-forward backtested before it ships — no "this stock looks good". (3) Every trade is logged with timestamps, fills, and P&amp;L — no screenshots, no selective memory.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">
+            <span>Can I cancel?</span>
+            <span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+          </div>
+          <div class="faq-a">Anytime, no questions asked. Cancel before the next renewal date and you won't be charged again. Existing track-record and journal data stays accessible read-only.</div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q">
+            <span>What happens on a flat or bearish day?</span>
+            <span class="ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+          </div>
+          <div class="faq-a">The dashboard says so plainly — <em>"No fresh signals today — next scan at 16:15 IST."</em> The system is designed to underfit; on average, ~3 of 5 weekdays produce zero A-grade signals. Patience is part of the edge.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── CTA ─────────── -->
+  <section class="cta">
+    <div class="wrap">
+      <div class="cta-card">
+        <h2 class="cta-title">Wake up to conviction.<br/>Not noise.</h2>
+        <p class="cta-sub">Free for 14 days. Cancel any time. No card required.</p>
+        <div class="cta-buttons">
+          <a href="Dashboard.html" class="btn btn-primary">
+            Request access
+            <span class="btn-arrow">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+            </span>
+          </a>
+          <a href="#proof" class="btn btn-ghost">See the track record</a>
+        </div>
+        <div class="cta-note">SEBI INH000012345 · Past performance is not a guarantee of future returns. Subject to market risk.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── FOOTER ─────────── -->
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-brand-row">
+            <div class="nav-mark" style="width: 28px; height: 28px; border-radius: 7px;">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19V8l5 6 4-9 4 11 3-5v8"></path>
+              </svg>
+            </div>
+            <span class="nav-text">NiftyQuant</span>
+          </div>
+          <p class="footer-tag">AI-graded swing-trading signals for the Nifty 500. Walk-forward validated, one-click executable, SEBI-registered.</p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Product</h4>
+          <ul>
+            <li><a href="#how">How it works</a></li>
+            <li><a href="#proof">Track record</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="Dashboard.html">Dashboard</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Compliance</h4>
+          <ul>
+            <li><a href="#">SEBI registration</a></li>
+            <li><a href="#">Investor charter</a></li>
+            <li><a href="#">Grievance redressal</a></li>
+            <li><a href="#">Disclosures</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Founder note</a></li>
+            <li><a href="#">Press</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-foot">
+        <span>© 2026 NiftyQuant Research Pvt Ltd · INH000012345</span>
+        <span>Made in Bengaluru · NSE delayed 15 min for non-members</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ─────────── tiny vanilla JS for tabs + FAQ ─────────── -->
+  <script>
+    (() => {
+      // ── Company logos: real brand favicon with monogram fallback ──
+      const LOGO_DOMAINS = {
+        RELIANCE:'ril.com', TCS:'tcs.com', BAJFINANCE:'bajajfinserv.in', INFY:'infosys.com',
+        HDFCBANK:'hdfcbank.com', ICICIBANK:'icicibank.com', BHARTIARTL:'airtel.in',
+        LT:'larsentoubro.com', MARUTI:'marutisuzuki.com', KOTAKBANK:'kotak.com',
+        ADANIENT:'adanienterprises.com', SBIN:'sbi.co.in', AXISBANK:'axisbank.com',
+        TATAPOWER:'tatapower.com', POLYCAB:'polycab.com', VOLTAS:'voltas.com',
+        CUMMINSIND:'cummins.com', JUBLFOOD:'jubilantfoodworks.com', CRAFTSMAN:'craftsmanautomation.com',
+        JBCHEPHARM:'jbpharma.com', CDSL:'cdslindia.com', BLUEDART:'bluedart.com', IIFL:'iifl.com',
+      };
+      function logoSources(sym) {
+        const d = LOGO_DOMAINS[sym];
+        return d ? [`https://icons.duckduckgo.com/ip3/${d}.ico`,
+                    `https://www.google.com/s2/favicons?domain=${d}&sz=128`] : [];
+      }
+      window.__logoErr = function (img) {
+        const srcs = JSON.parse(img.dataset.srcs || '[]');
+        const next = (+img.dataset.i) + 1;
+        if (next < srcs.length) { img.dataset.i = next; img.src = srcs[next]; return; }
+        const tile = img.parentElement;
+        tile.classList.add('mono');
+        tile.textContent = (img.alt || '').slice(0, 2);
+      };
+      function logoHTML(sym, size) {
+        const srcs = logoSources(sym);
+        const r = Math.round(size * 0.28);
+        if (!srcs.length) {
+          return `<span class="logo-tile mono" style="width:${size}px;height:${size}px;border-radius:${r}px;font-size:${Math.round(size*0.34)}px">${sym.slice(0,2)}</span>`;
+        }
+        return `<span class="logo-tile" style="width:${size}px;height:${size}px;border-radius:${r}px;font-size:${Math.round(size*0.34)}px">`
+             + `<img src="${srcs[0]}" alt="${sym}" data-srcs='${JSON.stringify(srcs)}' data-i="0" onerror="window.__logoErr(this)"></span>`;
+      }
+
+      // Fill any static logo placeholders (hero mini-dash cards)
+      document.querySelectorAll('[data-logo]').forEach((el) => {
+        el.outerHTML = logoHTML(el.dataset.logo, +(el.dataset.logoSize || 28));
+      });
+
+      // FAQ accordion
+      document.querySelectorAll('.faq-item').forEach((item) => {
+        item.querySelector('.faq-q').addEventListener('click', () => {
+          const open = item.classList.contains('open');
+          // close siblings — single-open accordion feels tighter
+          document.querySelectorAll('.faq-item').forEach((i) => i.classList.remove('open'));
+          if (!open) item.classList.add('open');
+        });
+      });
+
+      // Sector tabs — swap chart series + side rail content
+      const SECTORS = {
+        largecap: {
+          name:  'Nifty 100 · Large-cap universe',
+          meta:  '90-day equity curve · paper-traded · ₹1L starting capital',
+          pct:   '+18.4%', tone: 'bull',
+          d:     'M0 240 L60 220 L120 200 L180 195 L240 170 L300 155 L360 130 L420 115 L480 90 L540 75 L600 60',
+          fill:  'M0 240 L60 220 L120 200 L180 195 L240 170 L300 155 L360 130 L420 115 L480 90 L540 75 L600 60 L600 280 L0 280 Z',
+          rows: [
+            ['RELIANCE',  'Reliance Industries', '₹2,948.20', '+2.18%', 'bull'],
+            ['TCS',       'Tata Consultancy',    '₹4,128.50', '+1.62%', 'bull'],
+            ['HDFCBANK',  'HDFC Bank',           '₹1,748.20', '+1.05%', 'bull'],
+            ['INFY',      'Infosys',             '₹1,842.10', '−0.77%', 'bear'],
+            ['ICICIBANK', 'ICICI Bank',          '₹1,218.60', '+1.05%', 'bull'],
+          ],
+        },
+        midcap: {
+          name: 'Nifty Midcap 150',
+          meta: '90-day equity curve · paper-traded · ₹1L starting capital',
+          pct:  '+24.6%', tone: 'bull',
+          d:    'M0 250 L60 235 L120 220 L180 200 L240 195 L300 165 L360 145 L420 110 L480 85 L540 55 L600 35',
+          fill: 'M0 250 L60 235 L120 220 L180 200 L240 195 L300 165 L360 145 L420 110 L480 85 L540 55 L600 35 L600 280 L0 280 Z',
+          rows: [
+            ['TATAPOWER', 'Tata Power',          '₹468.40',  '+3.42%', 'bull'],
+            ['POLYCAB',   'Polycab India',       '₹7,124.00','+2.84%', 'bull'],
+            ['VOLTAS',    'Voltas Ltd',          '₹1,684.20','+1.92%', 'bull'],
+            ['CUMMINSIND','Cummins India',       '₹3,842.50','+1.64%', 'bull'],
+            ['JUBLFOOD',  'Jubilant FoodWorks',  '₹612.80',  '−0.82%', 'bear'],
+          ],
+        },
+        smallcap: {
+          name: 'Nifty Smallcap 250',
+          meta: '90-day equity curve · paper-traded · ₹1L starting capital',
+          pct:  '+32.1%', tone: 'bull',
+          d:    'M0 260 L60 250 L120 232 L180 240 L240 200 L300 180 L360 140 L420 100 L480 85 L540 45 L600 22',
+          fill: 'M0 260 L60 250 L120 232 L180 240 L240 200 L300 180 L360 140 L420 100 L480 85 L540 45 L600 22 L600 280 L0 280 Z',
+          rows: [
+            ['CRAFTSMAN', 'Craftsman Automation','₹4,820.00','+4.62%', 'bull'],
+            ['JBCHEPHARM','JB Chemicals',        '₹1,842.40','+3.18%', 'bull'],
+            ['CDSL',      'Central Depository',  '₹1,684.00','+2.42%', 'bull'],
+            ['BLUEDART',  'Blue Dart Express',   '₹7,242.00','+1.94%', 'bull'],
+            ['IIFL',      'IIFL Finance',        '₹412.60',  '−1.42%', 'bear'],
+          ],
+        },
+        banking: {
+          name: 'BankNifty universe',
+          meta: '90-day equity curve · paper-traded · ₹1L starting capital',
+          pct:  '+14.8%', tone: 'bull',
+          d:    'M0 245 L60 240 L120 225 L180 210 L240 215 L300 195 L360 180 L420 165 L480 140 L540 115 L600 85',
+          fill: 'M0 245 L60 240 L120 225 L180 210 L240 215 L300 195 L360 180 L420 165 L480 140 L540 115 L600 85 L600 280 L0 280 Z',
+          rows: [
+            ['HDFCBANK',   'HDFC Bank',           '₹1,748.20', '+1.05%', 'bull'],
+            ['ICICIBANK',  'ICICI Bank',          '₹1,218.60', '+1.05%', 'bull'],
+            ['SBIN',       'State Bank of India', '₹768.40',   '+1.62%', 'bull'],
+            ['KOTAKBANK',  'Kotak Mahindra Bank', '₹1,842.60', '+0.80%', 'bull'],
+            ['AXISBANK',   'Axis Bank',           '₹1,124.20', '−0.42%', 'bear'],
+          ],
+        },
+      };
+
+      function renderSector(key) {
+        const s = SECTORS[key];
+        document.getElementById('sector-name').textContent = s.name;
+        document.getElementById('sector-meta').textContent = s.meta;
+        const pct = document.getElementById('sector-pct');
+        pct.textContent = s.pct;
+        pct.className = 'sector-chart-pct ' + s.tone;
+        document.getElementById('sc-line').setAttribute('d', s.d);
+        document.getElementById('sc-fill-path').setAttribute('d', s.fill);
+        // last point
+        const m = s.d.match(/L (\d+) (\d+)$/);
+        if (m) {
+          const cx = +m[1], cy = +m[2];
+          const end = document.getElementById('sc-end');
+          end.setAttribute('cx', cx); end.setAttribute('cy', cy);
+        }
+        const side = document.getElementById('sector-side');
+        side.innerHTML = s.rows.map(([sym, name, price, chg, tone]) => `
+          <div class="item">
+            <div class="item-l">
+              ${logoHTML(sym, 30)}
+              <div><div class="sym">${sym} <span class="name">· ${name}</span></div></div>
+            </div>
+            <div><span class="price">${price}</span> <span class="chg ${tone}"> ${chg}</span></div>
+          </div>
+        `).join('');
+      }
+      renderSector('largecap');
+
+      document.querySelectorAll('.sector-tab').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.sector-tab').forEach((b) => b.classList.remove('on'));
+          btn.classList.add('on');
+          renderSector(btn.dataset.sector);
+        });
+      });
+    })();
+  </script>
+
+</body>
+</html>

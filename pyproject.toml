@@ -48,7 +48,9 @@ include = ["nq*"]
 
 [tool.pytest.ini_options]
 minversion = "8.0"
-addopts = ["-ra", "--strict-markers", "--strict-config"]
+# --ignore=dashboard: the consolidated product backend (dashboard/backend/tests) needs
+# fastapi/sqlalchemy (not in the engine env); keep it out of the engine's `pytest -q`.
+addopts = ["-ra", "--strict-markers", "--strict-config", "--ignore=dashboard"]
 testpaths = ["tests"]
 pythonpath = ["."]
 markers = ["slow: tests that take noticeable time (end-to-end backtests)"]

@@ -1,0 +1,298 @@
+/* ================================================================
+   NIFTYQUANT — colors_and_type.css
+   Single-file foundation. Mirrors the locked tokens in the
+   product codebase at frontend/src/styles/tokens.css and
+   frontend/src/styles/typography.css.
+
+   Design direction locked 2026-04-24 (retail-pro, amber-on-black).
+   DM Sans-only locked 2026-04-25 (replaces Reckless / Untitled /
+   Berkeley Mono — all paid fonts not yet licensed).
+
+   USAGE — import once at the top of any HTML file:
+     <link rel="stylesheet" href="colors_and_type.css">
+   Then reference tokens by var name. Semantic classes (.t-display,
+   .t-num-hero, .num-bull, etc.) cover 90% of usage; the raw vars
+   are there for the remaining 10%.
+   ================================================================ */
+
+/* ──────────── FONT — DM Sans only, variable opsz/wght ──────────── */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+
+:root {
+  /* ──────────── BRAND — Apple-style blue gradient (Webull-pro / Linear inspired) ──────────── */
+  --brand:            #4F8CFF;                       /* primary blue accent */
+  --brand-hi:         #6DA1FF;                       /* hover */
+  --brand-lo:         #2C5BFF;                       /* pressed */
+  --brand-soft:       rgba(79,140,255,0.14);         /* chip background */
+  --brand-edge:       rgba(79,140,255,0.40);         /* focus ring, FRESH card border */
+  --brand-fg:         #ffffff;                       /* foreground on blue buttons */
+  --brand-ink:        #ffffff;
+  --brand-grad:       linear-gradient(135deg, #2C5BFF 0%, #4F8CFF 50%, #7B5BFF 100%);
+
+  /* ──────────── SURFACES — navy gradient page, glass cards ──────────── */
+  --surface-0:        #07091c;                       /* page base */
+  --surface-1:        rgba(255,255,255,0.04);        /* glass card resting */
+  --surface-2:        rgba(255,255,255,0.07);        /* nested / hover glass */
+  --surface-3:        rgba(255,255,255,0.10);        /* input / chip */
+  --surface-modal:    rgba(20,26,64,0.95);           /* modal */
+
+  /* ──────────── EDGES — cool hairline borders ──────────── */
+  --edge-1:           rgba(255,255,255,0.07);
+  --edge-2:           rgba(255,255,255,0.12);
+  --edge-3:           rgba(255,255,255,0.18);
+  --edge-brand:       var(--brand-edge);
+
+  /* ──────────── TEXT — cool blue-tinted neutrals ──────────── */
+  --text-1:           #F1F5FF;                       /* primary */
+  --text-2:           #B8C0DA;                       /* secondary */
+  --text-3:           #7A82A5;                       /* tertiary */
+  --text-4:           #4A537A;                       /* disabled, separator */
+
+  /* ──────────── SEMANTIC P&L — brighter for navy bg ──────────── */
+  --bull:             #3FDD8A;
+  --bull-soft:        rgba(63,221,138,0.14);
+  --bear:             #FF5C7A;
+  --bear-soft:        rgba(255,92,122,0.14);
+
+  /* ──────────── WARN / INFO ──────────── */
+  --warn:             #FFB454;
+  --warn-soft:        rgba(255,180,84,0.14);
+  --info:             #5BC7FF;                       /* distinct cyan — FRESH signals, info banners only */
+  --info-soft:        rgba(91,199,255,0.14);
+  --info-edge:        rgba(91,199,255,0.40);
+
+  /* ──────────── SPACING — 4pt grid, semantic aliases ──────────── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-7:  32px;
+  --space-8:  48px;
+  --space-9:  64px;
+
+  --gutter-tight:     var(--space-3);    /* 12 — dense data */
+  --gutter:           var(--space-4);    /* 16 — default card grid */
+  --gutter-loose:     var(--space-6);    /* 24 — hero regions */
+  --pad-card:         var(--space-5);    /* 20 — card inner padding */
+  --pad-card-lg:      var(--space-6);    /* 24 — hero cards */
+  --pad-cell-y:       12px;
+  --pad-cell-x:       14px;
+
+  /* ──────────── RADIUS — capped at 16, NO rounded-2xl/3xl ──────────── */
+  --r-chip:           6px;               /* chips, buttons, inputs */
+  --r-card:           12px;              /* cards, modals */
+  --r-panel:          16px;              /* drawers, large panels */
+
+  /* ──────────── SHADOW — plain black, no colored glow ──────────── */
+  --shadow-sm:        0 1px 2px oklch(0% 0 0 / 0.25);
+  --shadow-md:        0 2px 8px oklch(0% 0 0 / 0.28),
+                      0 1px 2px oklch(0% 0 0 / 0.20);
+  --shadow-lg:        0 12px 32px oklch(0% 0 0 / 0.48),
+                      0 4px 8px oklch(0% 0 0 / 0.30);
+
+  /* ──────────── MOTION — easing + durations ──────────── */
+  --ease-out-quart:   cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-cubic:   cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-panel:       cubic-bezier(0.32, 0.72, 0, 1);
+
+  --dur-press:        100ms;
+  --dur-tick:         140ms;
+  --dur-hover:        180ms;
+  --dur-panel:        280ms;
+  --dur-enter:        320ms;
+  --dur-pulse:        2200ms;
+
+  /* ──────────── FONT STACK — DM Sans everywhere ──────────── */
+  --font-display:
+    'DM Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-sans:        var(--font-display);
+  --font-mono:        var(--font-display);
+}
+
+/* ──────────── BASE ──────────── */
+*, *::before, *::after { box-sizing: border-box; }
+html, body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-variant-numeric: tabular-nums;
+}
+body {
+  background:
+    radial-gradient(ellipse 80vw 60vh at 70% -10%, rgba(79,140,255,0.16) 0%, transparent 55%),
+    radial-gradient(ellipse 60vw 40vh at -10% 110%, rgba(123,91,255,0.10) 0%, transparent 55%),
+    linear-gradient(180deg, #0a0e22 0%, #07091c 100%);
+  background-attachment: fixed;
+  color: var(--text-1);
+  margin: 0;
+}
+
+/* DM Sans's tnum + zero OpenType features → equal-width digits with slashed zero
+   wherever financial figures appear. Applied via class so prose stays proportional. */
+.tabular-nums, .font-mono,
+[class*="tabular"], input[type="number"] {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1, 'zero' 1;
+}
+
+/* ──────────── TYPE SCALE ──────────── */
+/* Fixed rem sizes (not fluid clamps) — this is an app UI, not marketing.
+   For marketing/hero headlines use the .t-hero-* helpers further down. */
+
+.t-display {
+  font-family: var(--font-display);
+  font-size: 40px; line-height: 44px;
+  font-weight: 400; letter-spacing: -0.02em;
+  color: var(--text-1);
+}
+.t-title-1 {
+  font-family: var(--font-display);
+  font-size: 30px; line-height: 36px;
+  font-weight: 400; letter-spacing: -0.015em;
+  color: var(--text-1);
+}
+.t-title-2 {
+  font-family: var(--font-display);
+  font-size: 22px; line-height: 28px;
+  font-weight: 500; letter-spacing: -0.005em;
+  color: var(--text-1);
+}
+.t-ui-headline {
+  font-family: var(--font-sans);
+  font-size: 16px; line-height: 22px;
+  font-weight: 600; letter-spacing: 0;
+  color: var(--text-1);
+}
+.t-ui-subhead {
+  font-family: var(--font-sans);
+  font-size: 14px; line-height: 20px;
+  font-weight: 600; letter-spacing: 0;
+  color: var(--text-1);
+}
+.t-ui-body {
+  font-family: var(--font-sans);
+  font-size: 14px; line-height: 20px;
+  font-weight: 400; letter-spacing: 0;
+  color: var(--text-2);
+}
+.t-ui-callout {
+  font-family: var(--font-sans);
+  font-size: 13px; line-height: 18px;
+  font-weight: 500; letter-spacing: 0;
+  color: var(--text-2);
+}
+.t-ui-footnote {
+  font-family: var(--font-sans);
+  font-size: 12px; line-height: 16px;
+  font-weight: 400; letter-spacing: 0;
+  color: var(--text-3);
+}
+.t-ui-micro {
+  font-family: var(--font-sans);
+  font-size: 11px; line-height: 14px;
+  font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+/* ──────────── HERO TYPE — marketing only ──────────── */
+.t-hero-mega {
+  /* RegimeStatement size — "The market is BULL." viewport-dominant */
+  font-family: var(--font-display);
+  font-size: clamp(48px, 12vw, 200px);
+  line-height: 0.92;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  color: var(--text-1);
+}
+.t-hero-headline {
+  /* Section headlines — "A complete trading desk, not a Telegram channel." */
+  font-family: var(--font-display);
+  font-size: clamp(34px, 5vw, 64px);
+  line-height: 1.05;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--text-1);
+}
+.t-hero-eyebrow {
+  /* The dotted-bullet mono label above the headline */
+  font-family: var(--font-sans);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+/* ──────────── NUMBER STYLES — Berkeley Mono substitute (DM Sans tnum) ──────────── */
+.t-num-hero {
+  font-family: var(--font-mono);
+  font-size: 34px; line-height: 38px;
+  font-weight: 400; letter-spacing: -0.015em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1, 'zero' 1;
+  color: var(--text-1);
+}
+.t-num-large {
+  font-family: var(--font-mono);
+  font-size: 20px; line-height: 24px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1, 'zero' 1;
+  color: var(--text-1);
+}
+.t-num-body {
+  font-family: var(--font-mono);
+  font-size: 13px; line-height: 18px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1, 'zero' 1;
+  color: var(--text-1);
+}
+.t-num-small {
+  font-family: var(--font-mono);
+  font-size: 11px; line-height: 14px;
+  font-weight: 400; letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1, 'zero' 1;
+  color: var(--text-2);
+}
+
+/* ──────────── SEMANTIC NUMBER COLORS ──────────── */
+.num-bull  { color: var(--bull); }
+.num-bear  { color: var(--bear); }
+.num-warn  { color: var(--warn); }
+.num-info  { color: var(--info); }
+.num-brand { color: var(--brand); }
+.num-muted { color: var(--text-3); }
+
+/* ──────────── PROSE LINE LENGTH ──────────── */
+.t-prose { max-width: 65ch; }
+
+/* ──────────── FOCUS RING — amber, keyboard-only ──────────── */
+:where(*):focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+
+/* ──────────── REDUCED-MOTION ──────────── */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-press: 1ms;
+    --dur-hover: 1ms;
+    --dur-panel: 1ms;
+    --dur-enter: 1ms;
+    --dur-pulse: 1ms;
+    /* --dur-tick retained — opacity flash is a comprehension signal */
+  }
+}
+
+/* ──────────── REDUCED-TRANSPARENCY ──────────── */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --surface-modal: oklch(19% 0.012 70);
+  }
+}

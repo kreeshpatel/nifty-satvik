@@ -1,0 +1,233 @@
+/* ================================================================
+   NIFTYQUANT DESIGN TOKENS (v3 — Blue Glass on Navy, locked 2026-05-21)
+   Apple-style blue-glass on deep navy gradient.
+
+   Single brand color = blue gradient #2C5BFF → #4F8CFF → #7B5BFF.
+   Page = navy gradient with subtle blue + violet radial glows.
+   Cards = translucent glass with 20–30px backdrop-blur.
+   ================================================================ */
+
+:root {
+  /* ──────────── BRAND — Apple-style blue gradient ──────────── */
+  --brand:            #4F8CFF;                       /* primary blue accent */
+  --brand-hi:         #6DA1FF;                       /* hover */
+  --brand-lo:         #2C5BFF;                       /* pressed */
+  --brand-soft:       rgba(79, 140, 255, 0.14);      /* chip background */
+  --brand-edge:       rgba(79, 140, 255, 0.40);      /* focus ring, FRESH card border */
+  --brand-fg:         #ffffff;                       /* foreground on blue buttons */
+  --brand-ink:        #ffffff;
+  --brand-grad:       linear-gradient(135deg, #2C5BFF 0%, #4F8CFF 50%, #7B5BFF 100%);
+
+  /* ──────────── SURFACES — navy gradient page, glass cards ──────────── */
+  --surface-0:        #07091c;                       /* page base */
+  --surface-1:        rgba(255, 255, 255, 0.04);     /* glass card resting */
+  --surface-2:        rgba(255, 255, 255, 0.07);     /* nested / hover glass */
+  --surface-3:        rgba(255, 255, 255, 0.10);     /* input / chip */
+  --surface-modal:    rgba(20, 26, 64, 0.95);        /* modal */
+
+  /* Solid surfaces (for areas where translucent glass can't be used —
+     dropdowns, popovers over data tables, etc.) */
+  --surface-solid-0:  #07091c;
+  --surface-solid-1:  #0d1230;
+  --surface-solid-2:  #131a40;
+  --surface-solid-3:  #1a2150;
+
+  /* ──────────── EDGES — cool hairline borders ──────────── */
+  --edge-1:           rgba(255, 255, 255, 0.07);
+  --edge-2:           rgba(255, 255, 255, 0.12);
+  --edge-3:           rgba(255, 255, 255, 0.18);
+  --edge-brand:       var(--brand-edge);
+
+  /* ──────────── TEXT — cool blue-tinted neutrals ──────────── */
+  --text-1:           #F1F5FF;                       /* primary */
+  --text-2:           #B8C0DA;                       /* secondary */
+  --text-3:           #7A82A5;                       /* tertiary */
+  --text-4:           #4A537A;                       /* disabled, separator */
+
+  /* ──────────── SEMANTIC P&L — brighter for navy bg ──────────── */
+  --bull:             #3FDD8A;
+  --bull-soft:        rgba(63, 221, 138, 0.14);
+  --bear:             #FF5C7A;
+  --bear-soft:        rgba(255, 92, 122, 0.14);
+
+  /* ──────────── WARN / INFO ──────────── */
+  --warn:             #FFB454;
+  --warn-soft:        rgba(255, 180, 84, 0.14);
+  --info:             #5BC7FF;                       /* distinct cyan — FRESH signals, info banners only */
+  --info-soft:        rgba(91, 199, 255, 0.14);
+  --info-edge:        rgba(91, 199, 255, 0.40);
+
+  /* ──────────── SPACING — 4pt grid, semantic aliases ──────────── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-7:  32px;
+  --space-8:  48px;
+  --space-9:  64px;
+
+  --gutter-tight:     var(--space-3);                /* 12 — dense data */
+  --gutter:           var(--space-4);                /* 16 — default card grid */
+  --gutter-loose:     var(--space-6);                /* 24 — hero regions */
+  --pad-card:         var(--space-5);                /* 20 — card inner padding */
+  --pad-card-lg:      var(--space-6);                /* 24 — hero cards */
+  --pad-cell-y:       12px;
+  --pad-cell-x:       14px;
+
+  --space-divider-sm: 8px;
+  --space-divider-md: 12px;
+  --space-divider-lg: 16px;
+
+  /* ──────────── RADIUS — larger on glass, capped at 22 ──────────── */
+  --r-chip:           6px;                           /* chips, buttons, inputs */
+  --r-card:           18px;                          /* glass cards */
+  --r-panel:          22px;                          /* drawers, hero cards */
+
+  /* ──────────── SHADOW — plain black depth + brand glow on featured ──────────── */
+  --shadow-sm:        0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-md:        0 2px 8px rgba(0, 0, 0, 0.28),
+                      0 1px 2px rgba(0, 0, 0, 0.20);
+  --shadow-lg:        0 12px 32px rgba(0, 0, 0, 0.48),
+                      0 4px 8px rgba(0, 0, 0, 0.30);
+
+  /* Specular top-edge highlight — read as a soft glass top edge */
+  --inset-specular:   inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+  /* Glass card box-shadow stack */
+  --shadow-glass:     0 10px 32px rgba(0, 0, 0, 0.36),
+                      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --shadow-glass-lg: 0 14px 40px rgba(0, 0, 0, 0.40),
+                      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+  /* ──────────── MOTION — easing + durations ──────────── */
+  --ease-out-quart:   cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-cubic:   cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-panel:       cubic-bezier(0.32, 0.72, 0, 1);
+
+  --dur-press:        100ms;
+  --dur-tick:         140ms;
+  --dur-hover:        180ms;
+  --dur-panel:        280ms;
+  --dur-enter:        320ms;
+  --dur-pulse:        2200ms;
+  --dur-breathe:      8000ms;
+  --dur-drift:        12000ms;
+  --dur-reveal:       720ms;
+  --ease-bloom:       cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ──────────── GLOW STACK — brand blue glows for featured surfaces ──────────── */
+  --glow-brand-strong: rgba(79, 140, 255, 0.55);
+  --glow-brand:        rgba(79, 140, 255, 0.32);
+  --glow-brand-soft:   rgba(79, 140, 255, 0.18);
+  --glow-brand-whisp:  rgba(79, 140, 255, 0.08);
+
+  --glow-violet:       rgba(123, 91, 255, 0.32);
+  --glow-violet-soft:  rgba(123, 91, 255, 0.14);
+
+  --glow-bull:         rgba(63, 221, 138, 0.32);
+  --glow-bull-soft:    rgba(63, 221, 138, 0.12);
+  --glow-bear:         rgba(255, 92, 122, 0.32);
+  --glow-bear-soft:    rgba(255, 92, 122, 0.12);
+  --glow-info:         rgba(91, 199, 255, 0.32);
+  --glow-info-soft:    rgba(91, 199, 255, 0.12);
+  --glow-warn:         rgba(255, 180, 84, 0.30);
+  --glow-warn-soft:    rgba(255, 180, 84, 0.10);
+
+  /* Pre-baked stage-light cones for hero bands */
+  --stage-light-brand:
+    radial-gradient(80% 60% at 18% 10%,
+      rgba(79, 140, 255, 0.18) 0%,
+      rgba(79, 140, 255, 0.08) 28%,
+      transparent 70%);
+  --stage-light-brand-strong:
+    radial-gradient(70% 55% at 22% 8%,
+      rgba(79, 140, 255, 0.32) 0%,
+      rgba(79, 140, 255, 0.12) 24%,
+      transparent 68%);
+  --stage-light-bull:
+    radial-gradient(75% 60% at 80% 12%,
+      rgba(63, 221, 138, 0.18) 0%,
+      rgba(63, 221, 138, 0.06) 30%,
+      transparent 70%);
+  --stage-light-info:
+    radial-gradient(70% 55% at 90% 18%,
+      rgba(91, 199, 255, 0.20) 0%,
+      rgba(91, 199, 255, 0.06) 28%,
+      transparent 70%);
+
+  /* Featured card stack — blue glow + plain black depth */
+  --shadow-glow-sm:    0 1px 2px rgba(0, 0, 0, 0.25),
+                       0 0 18px var(--glow-brand-whisp);
+  --shadow-glow-md:    0 2px 8px rgba(0, 0, 0, 0.28),
+                       0 0 32px var(--glow-brand-soft);
+  --shadow-glow-lg:    0 14px 40px rgba(0, 0, 0, 0.40),
+                       0 0 48px var(--glow-brand);
+  --shadow-glow-xl:    0 24px 56px rgba(0, 0, 0, 0.55),
+                       0 0 80px var(--glow-brand-strong);
+
+  --bloom-brand:       inset 0 1px 0 rgba(255, 255, 255, 0.06),
+                       inset 0 0 24px var(--glow-brand-soft);
+  --bloom-bull:        inset 0 1px 0 rgba(255, 255, 255, 0.06),
+                       inset 0 0 24px var(--glow-bull-soft);
+  --bloom-info:        inset 0 1px 0 rgba(255, 255, 255, 0.06),
+                       inset 0 0 24px var(--glow-info-soft);
+
+  /* ──────────── PAGE BACKGROUND — navy gradient with corner glows ──────────── */
+  --page-bg:
+    radial-gradient(ellipse 80vw 60vh at 70% -10%, rgba(79, 140, 255, 0.16) 0%, transparent 55%),
+    radial-gradient(ellipse 60vw 40vh at -10% 110%, rgba(123, 91, 255, 0.10) 0%, transparent 55%),
+    linear-gradient(180deg, #0a0e22 0%, #07091c 100%);
+
+  /* ──────────── LEGACY COMPAT — remap old vars to new tokens ──────────── */
+  --bg-main-v2:               var(--surface-0);
+  --nq-brand-v2:              var(--brand);
+  --text-main-v2:             var(--text-1);
+  --text-muted-v2:            var(--text-2);
+  --border-edge-v2:           var(--edge-1);
+}
+
+/* ──────────── MOBILE SPACING OVERRIDES ──────────── */
+@media (max-width: 767px) {
+  :root {
+    --pad-card:     16px;
+    --pad-card-lg:  18px;
+    --gutter:       12px;
+    --gutter-loose: 16px;
+    --r-card:       14px;
+    --r-panel:      16px;
+  }
+}
+
+/* ──────────── REDUCED-TRANSPARENCY ACCOMMODATION ──────────── */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --surface-1: var(--surface-solid-1);
+    --surface-2: var(--surface-solid-2);
+    --surface-3: var(--surface-solid-3);
+    --surface-modal: var(--surface-solid-1);
+  }
+}
+
+/* ──────────── FOCUS RING ──────────── */
+:where(*):focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: inherit;
+}
+
+/* ──────────── REDUCED-MOTION ACCOMMODATION ──────────── */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-press:        1ms;
+    --dur-hover:        1ms;
+    --dur-panel:        1ms;
+    --dur-enter:        1ms;
+    --dur-pulse:        1ms;
+    --dur-breathe:      1ms;
+    --dur-drift:        1ms;
+    --dur-reveal:       1ms;
+    /* --dur-tick intentionally retained */
+  }
+}

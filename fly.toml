@@ -1,0 +1,44 @@
+# Fly.io config for the NiftyQuant FastAPI backend (Render -> Fly re-host, 2026-06-25).
+#
+# `app` is a placeholder — set it when you `fly launch --no-deploy --copy-config`
+# (it rewrites this line) or `fly apps create niftyquant-api` and keep this name.
+#
+# SECRETS are NOT here (this file is committed). Set them with `fly secrets set`:
+#   DATABASE_URL  JWT_SECRET  ENCRYPTION_KEY  KITE_API_KEY  KITE_API_SECRET
+#   GITHUB_TOKEN  CRON_SERVICE_TOKEN  (optional: KITE_PROXY_URL, FRONTEND_URL, ANTHROPIC_API_KEY)
+# See MIGRATION_RENDER_TO_SUPABASE.md for the full inventory + how to generate each.
+
+app = "niftyquant-api"
+primary_region = "sin"   # Singapore — lowest latency to NSE + India users
+
+[build]
+  dockerfile = "deploy/Dockerfile"
+
+# Non-secret config only (committed). Real secrets go via `fly secrets set`.
+[env]
+  PYTHONUNBUFFERED = "1"
+  # Belt-and-suspenders: FLY_APP_NAME already makes the app treat itself as production
+  # (enforces required secrets + secure cookies), but set this explicitly too.
+  IS_PRODUCTION = "1"
+  # CORS: main.py already allows *.vercel.app via regex; this covers a custom domain.
+  ALLOWED_ORIGIN = "https://niftyquant.vercel.app"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  # Always-on: the /ws WebSocket, the in-memory rate limiter, and the scanner's
+  # backend prune-exemption call need a live machine. Do NOT scale to zero.
+  auto_stop_machines = "off"
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "20s"
+    method = "GET"
+    path = "/health"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "1024mb"   # pandas/numpy/sklearn import is ~300-400MB RSS; 512MB risks OOM

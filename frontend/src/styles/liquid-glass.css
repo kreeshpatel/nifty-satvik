@@ -1,0 +1,339 @@
+/* ===========================================
+   APPLE LIQUID GLASS DESIGN SYSTEM
+   iOS 26 / macOS Sequoia Style
+   =========================================== */
+
+/* Font imports live in index.css to avoid double-loading. */
+
+:root {
+  /* Apple System Colors - Dark Mode (retained for legacy refs) */
+  --apple-blue: #3B82F6;
+  --apple-green: #30D158;
+  --apple-indigo: #3B82F6;
+  --apple-orange: #FF9F0A;
+  --apple-pink: #60A5FA;
+  --apple-purple: #60A5FA;
+  --apple-red: #FF453A;
+  --apple-teal: #60A5FA;
+  --apple-yellow: #FFD60A;
+
+  /* Background System — Navy */
+  --bg-deep-midnight: #020617;
+  --bg-deep-indigo: #0F172A;
+  --bg-deep-purple: #1E293B;
+  --bg-fallback-solid: #0F172A;
+
+  /* Glass Material Tiers */
+  --glass-ultra-thin: rgba(255, 255, 255, 0.08);
+  --glass-thin: rgba(255, 255, 255, 0.12);
+  --glass-regular: rgba(255, 255, 255, 0.18);
+  --glass-thick: rgba(255, 255, 255, 0.28);
+
+  /* Glass Borders */
+  --glass-border-thin: rgba(255, 255, 255, 0.18);
+  --glass-border-regular: rgba(255, 255, 255, 0.22);
+  --glass-border-thick: rgba(255, 255, 255, 0.28);
+  --glass-border-hover: rgba(255, 255, 255, 0.35);
+  --glass-border-high-contrast: rgba(255, 255, 255, 0.6);
+
+  /* Text Hierarchy */
+  --text-primary: rgba(255, 255, 255, 1);
+  --text-secondary: rgba(255, 255, 255, 0.75);
+  --text-tertiary: rgba(255, 255, 255, 0.45);
+  --text-quaternary: rgba(255, 255, 255, 0.25);
+
+  /* Shadows */
+  --shadow-z1: none;
+  --shadow-z2: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-z3: 0 8px 32px rgba(0, 0, 0, 0.35);
+  --shadow-z4: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --shadow-z5: 0 24px 64px rgba(0, 0, 0, 0.6);
+
+  /* Spring Animation */
+  --spring-280: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --spring-350: cubic-bezier(0.175, 0.885, 0.32, 1.05);
+
+  /* Spacing (4pt grid) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-11: 44px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+
+  /* Radii */
+  --radius-sm: 10px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+  --radius-3xl: 32px;
+  --radius-pill: 9999px;
+
+  /* Blur */
+  --blur-sm: 20px;
+  --blur-md: 30px;
+  --blur-lg: 40px;
+  --blur-orb: 100px;
+}
+
+/* ===========================================
+   BACKGROUND SCENE
+   =========================================== */
+
+/* overflow-x: hidden on body is handled by mobile.css (single source) */
+
+/* Legacy radial backgrounds + blue orbs — retired 2026-04-24 with the
+   pure-black page direction. Selectors kept as no-ops so stray JSX
+   references don't break; they'll be deleted once the page layouts
+   stop rendering these elements. */
+.liquid-glass-bg,
+.liquid-glass-bg::before,
+.liquid-glass-bg::after,
+.orb-1,
+.orb-2 { display: none; }
+
+/* Grain Texture Overlay */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.04;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+/* ===========================================
+   GLASS MATERIAL SYSTEM
+   =========================================== */
+
+/* Base Glass Classes */
+.glass-ultra-thin {
+  background: var(--glass-ultra-thin);
+  backdrop-filter: blur(var(--blur-sm));
+  -webkit-backdrop-filter: blur(var(--blur-sm));
+  border: 1px solid var(--glass-border-thin);
+}
+
+.glass-thin {
+  background: var(--glass-thin);
+  backdrop-filter: blur(var(--blur-md));
+  -webkit-backdrop-filter: blur(var(--blur-md));
+  border: 1px solid var(--glass-border-regular);
+}
+
+.glass-regular {
+  background: var(--glass-regular);
+  backdrop-filter: blur(var(--blur-lg));
+  -webkit-backdrop-filter: blur(var(--blur-lg));
+  border: 1px solid var(--glass-border-thick);
+}
+
+.glass-thick {
+  background: var(--glass-thick);
+  backdrop-filter: blur(var(--blur-lg));
+  -webkit-backdrop-filter: blur(var(--blur-lg));
+  border: 1px solid var(--glass-border-thick);
+}
+
+/* ===========================================
+   TYPOGRAPHY
+   =========================================== */
+
+.text-large-title {
+  font-family: var(--font-sans);
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: -0.6px;
+  line-height: 1.1;
+  color: #F5F3FF;
+}
+
+.text-title1 {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+.text-title2 {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  line-height: 1.25;
+}
+
+.text-headline {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  line-height: 1.3;
+}
+
+.text-body {
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.4;
+}
+
+.text-callout {
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.35;
+}
+
+.text-subheadline {
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.35;
+}
+
+.text-footnote {
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.3;
+}
+
+.text-caption {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.1px;
+  line-height: 1.3;
+}
+
+/* ===========================================
+   COMPONENT PATTERNS
+   =========================================== */
+
+/* Cards */
+.liquid-card {
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-z2);
+  overflow: hidden;
+}
+
+/* Buttons */
+.btn-primary {
+  background: var(--apple-blue);
+  color: white;
+  padding: 10px 20px;
+  border-radius: var(--radius-pill);
+  font-size: 17px;
+  font-weight: 600;
+  border: none;
+  min-height: 44px;
+  transition: all 100ms ease-out;
+}
+
+.btn-primary:active {
+  transform: scale(0.96);
+}
+
+.btn-secondary {
+  background: var(--glass-thin);
+  backdrop-filter: blur(var(--blur-md));
+  color: var(--text-primary);
+  padding: 10px 20px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--glass-border-regular);
+  font-size: 17px;
+  font-weight: 600;
+  min-height: 44px;
+  transition: all 100ms ease-out;
+}
+
+.btn-destructive {
+  background: rgba(255, 69, 58, 0.15);
+  color: var(--apple-red);
+  padding: 10px 20px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 69, 58, 0.3);
+  font-size: 17px;
+  font-weight: 600;
+  min-height: 44px;
+}
+
+/* Focus Ring */
+.focus-ring:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.3);
+}
+
+/* ===========================================
+   MOTION & INTERACTION
+   =========================================== */
+
+.spring-appear {
+  animation: springAppear 280ms var(--spring-280);
+}
+
+@keyframes springAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.spring-slide {
+  animation: springSlide 350ms var(--spring-350);
+}
+
+@keyframes springSlide {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ===========================================
+   ACCESSIBILITY
+   =========================================== */
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass-ultra-thin,
+  .glass-thin,
+  .glass-regular,
+  .glass-thick {
+    background: var(--bg-fallback-solid);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+@media (prefers-contrast: more) {
+  .glass-ultra-thin,
+  .glass-thin,
+  .glass-regular,
+  .glass-thick {
+    border-color: var(--glass-border-high-contrast);
+  }
+}
+
+/* ===========================================
+   UTILITY CLASSES
+   =========================================== */
+
+.z-bg { z-index: 0; }
+.z-1 { z-index: 1; box-shadow: var(--shadow-z1); }
+.z-2 { z-index: 2; box-shadow: var(--shadow-z2); }
+.z-3 { z-index: 3; box-shadow: var(--shadow-z3); }
+.z-4 { z-index: 4; box-shadow: var(--shadow-z4); }
+.z-5 { z-index: 5; box-shadow: var(--shadow-z5); }

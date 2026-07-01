@@ -1,0 +1,254 @@
+/* ================================================================
+   NIFTYQUANT TYPOGRAPHY (v2 — Retail-Pro)
+
+   Ship fonts:
+     - Reckless Neue (Displaay)       — display serif (paid, not yet licensed)
+     - DM Sans (Google Fonts)         — humanist sans, UI body
+                                        (selected 2026-04-25, replaced Untitled Sans)
+     - Berkeley Mono (Berkeley Graphics) — tabular mono (paid, not yet licensed)
+
+   Staging fallbacks for paid fonts (Google Fonts, permanent-fallback-acceptable):
+     - Libre Caslon Display           — display serif
+     - JetBrains Mono                 — tabular mono
+
+   DM Sans is loaded directly from Google Fonts in index.html with both
+   weight (400-700) and optical-size (9-40) variable axes — opsz lets the
+   browser auto-tune the letterform between text and display sizes.
+
+   Design context: /.impeccable.md
+   Palette:        /frontend/src/styles/tokens.css
+   ================================================================ */
+
+/* ──────────── FONT STACKS ────────────
+   Reckless / Berkeley are intentionally NOT @font-face'd here yet.
+   When licensed, drop woff2 files into /public/fonts and add @font-face
+   blocks above the :root rule below. */
+
+:root {
+  /* DM Sans for ALL text including editorial headlines (locked 2026-04-25
+     per user pref). The previous serif display font (Reckless Neue / Libre
+     Caslon Display) caused the regime statement and page titles to read as
+     a different font, which the user did not want. */
+  --font-display:
+    'DM Sans',
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+
+  --font-sans:
+    'DM Sans',
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+
+  /* DM Sans for "mono" too. Tabular-nums OpenType feature is enabled
+     globally on .font-mono / .tabular-nums / numeric inputs (see below)
+     so DM Sans still produces aligned columns for prices and percentages
+     — proportional in normal text, tabular when needed. */
+  --font-mono:
+    'DM Sans',
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ──────────── TYPE SCALE ────────────
+   Fixed rem sizes (not fluid clamps) — this is an app UI, not marketing.
+   Row order mirrors /.impeccable.md design tokens.
+
+   Font-feature-settings:
+     - All mono: tnum + zero (slashed zero — critical in finance)
+     - Sans: ss01 + ss02 (Untitled stylistic alternates; harmless on fallbacks) */
+
+.t-display {
+  font-family: var(--font-display);
+  font-size: 40px;
+  line-height: 44px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  color: var(--text-1);
+}
+
+.t-title-1 {
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 36px;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  color: var(--text-1);
+}
+
+.t-title-2 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: var(--text-1);
+}
+
+.t-ui-headline {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--text-1);
+}
+
+.t-ui-subhead {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  letter-spacing: 0;
+  color: var(--text-1);
+}
+
+.t-ui-body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--text-2);
+}
+
+.t-ui-callout {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--text-2);
+}
+
+.t-ui-footnote {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--text-3);
+}
+
+.t-ui-micro {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+/* Editorial descriptive lead — between body (14) and title-2 (22). Sits
+   under hero headlines as a soft second-row. Replaces ~6 hardcoded
+   fontSize: 18 declarations across BacktestV2 / TrackRecordV2 / JournalV2 /
+   AccountingV2. Phase 3a addition (2026-05-20). */
+.t-lead {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  line-height: 28px;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  color: var(--text-2);
+}
+
+/* ──────────── MONO / TABULAR NUMBERS ────────────
+   Used on prices, percentages, dates in tables, counts. Never on
+   labels or prose. `font-variant-numeric: tabular-nums` ensures
+   equal-width digits so columns of numbers stack cleanly.
+
+   The `zero` feature enables a slashed zero where the font provides
+   one (JetBrains Mono + Berkeley Mono both do). Harmless no-op on
+   fonts that don't expose the feature. */
+
+.t-num-hero {
+  font-family: var(--font-mono);
+  font-size: 34px;
+  line-height: 38px;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1, 'zero' 1;
+  color: var(--text-1);
+}
+
+.t-num-large {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  line-height: 24px;
+  font-weight: 400;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1, 'zero' 1;
+  color: var(--text-1);
+}
+
+.t-num-body {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 400;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1, 'zero' 1;
+  color: var(--text-1);
+}
+
+.t-num-small {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1, 'zero' 1;
+  color: var(--text-2);
+}
+
+/* ──────────── SEMANTIC NUMBER COLORS ────────────
+   Pair with any .t-num-* class; colors drive only via tokens so a
+   theme change propagates without grepping the codebase. */
+
+.num-bull  { color: var(--bull); }
+.num-bear  { color: var(--bear); }
+.num-muted { color: var(--text-3); }
+
+/* ──────────── HARD-CAP LINE LENGTH ON PROSE ────────────
+   Applied to any long-form text block via .t-prose. Tables, cards,
+   and data regions ignore this — they manage their own widths. */
+
+.t-prose {
+  max-width: 65ch;
+}
+
+/* ──────────── MOBILE TYPE SCALE ────────────
+   Reduce display + hero sizes on small screens so text doesn't overflow
+   or force awkward line breaks. Body/callout/footnote stay fixed — they're
+   already phone-safe at 14/13/12/11px. */
+
+@media (max-width: 767px) {
+  .t-display {
+    font-size: 28px;
+    line-height: 34px;
+  }
+  .t-title-1 {
+    font-size: 24px;
+    line-height: 30px;
+  }
+  .t-title-2 {
+    font-size: 18px;
+    line-height: 24px;
+  }
+  .t-lead {
+    font-size: 16px;
+    line-height: 24px;
+  }
+  .t-num-hero {
+    font-size: 24px;
+    line-height: 28px;
+  }
+  .t-num-large {
+    font-size: 17px;
+    line-height: 22px;
+  }
+}

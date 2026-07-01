@@ -1,0 +1,351 @@
+"""
+NiftyQuant Database — SQLAlchemy models and session management.
+Uses PostgreSQL on Render via DATABASE_URL.
+"""
+
+import os
+from datetime import datetime
+
+from sqlalchemy import (
+    create_engine, Column, Integer, String, Boolean, DateTime, Date, Float,
+    ForeignKey, Text, UniqueConstraint, event
+)
+from sqlalchemy.orm import declarative_base, sessionmaker, relationship
+
+DATABASE_URL = os.getenv("DATABASE_URL", "")
+# Render provides postgres:// but SQLAlchemy needs postgresql://
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+# Enforce TLS to Postgres. Render's managed Postgres supports it but the
+# default DSN doesn't include sslmode — without this, a misconfigured
+# proxy or future migration could silently fall back to plaintext.
+# For local dev against a non-SSL Postgres, set sslmode=disable explicitly
+# in your DATABASE_URL.
+if DATABASE_URL.startswith("postgresql://") and "sslmode=" not in DATABASE_URL:
+    sep = "&" if "?" in DATABASE_URL else "?"
+    DATABASE_URL = f"{DATABASE_URL}{sep}sslmode=require"
+
+engine = create_engine(DATABASE_URL, pool_pre_ping=True) if DATABASE_URL else None
+SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False) if engine else None
+
+Base = declarative_base()
+
+
+# ── Models ────────────────────────────────────────────
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(255), unique=True, nullable=False, index=True)
+    password_hash = Column(String(255), nullable=False)
+    name = Column(String(100), nullable=False)
+    is_active = Column(Boolean, default=True)
+    is_admin = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    failed_login_attempts = Column(Integer, default=0)
+    locked_until = Column(DateTime, nullable=True)
+    last_active = Column(DateTime, nullable=True)
+    mfa_enabled = Column(Boolean, default=False, nullable=False)
+    mfa_secret_encrypted = Column(Text, nullable=True)
+
+    kite_session = relationship("KiteSession", back_populates="user", uselist=False)
+    refresh_tokens = relationship("RefreshToken", back_populates="user")
+    audit_logs = relationship("AuditLog", back_populates="user")
+
+
+class KiteSession(Base):
+    __tablename__ = "kite_sessions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
+    kite_user_id = Column(String(50), nullable=True)
+    access_token_encrypted = Column(Text, nullable=False)
+    expires_at = Column(Float, nullable=False)
+
+    user = relationship("User", back_populates="kite_session")
+
+
+class RefreshToken(Base):
+    """
+    Refresh-token chain with reuse detection.
+
+    Each rotation links the new token to the old one via parent_token_hash.
+    Old tokens are NOT deleted — they're marked with revoked_at so a replay
+    of an already-rotated token is detectable as theft.
+
+    On /auth/refresh:
+      - Token hash matches an active row (revoked_at IS NULL) → rotate.
+      - Token hash matches a revoked row → REUSE DETECTED → revoke the
+        entire chain for that user_id (force re-login).
+      - Token hash matches no row → 401 invalid/expired.
+
+    parent_token_hash and revoked_at are nullable so create_all() can add
+    them to an existing DB; the manual ALTER TABLE in init_db() handles
+    the live migration when the Render service redeploys.
+    """
+    __tablename__ = "refresh_tokens"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    token_hash = Column(String(255), unique=True, nullable=False, index=True)
+    parent_token_hash = Column(String(255), nullable=True, index=True)
+    expires_at = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    revoked_at = Column(DateTime, nullable=True)
+
+    user = relationship("User", back_populates="refresh_tokens")
+
+
+class PasswordResetToken(Base):
+    """
+    Single-use password-reset token.
+
+    On /auth/forgot-password we store sha256(raw_token) — the raw string is
+    only ever in the email URL. On /auth/reset-password the row is consumed
+    (used_at set) so a token cannot be replayed even within its 30-min TTL.
+    """
+    __tablename__ = "password_reset_tokens"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"),
+                     nullable=False, index=True)
+    token_hash = Column(String(255), unique=True, nullable=False, index=True)
+    expires_at = Column(DateTime, nullable=False)
+    used_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    user = relationship("User")
+
+
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    action = Column(String(50), nullable=False, index=True)
+    detail = Column(Text, nullable=True)
+    ip_address = Column(String(45), nullable=True)
+    timestamp = Column(DateTime, default=datetime.utcnow, index=True)
+
+    user = relationship("User", back_populates="audit_logs")
+
+
+class AccessRequest(Base):
+    __tablename__ = "access_requests"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+    email = Column(String(255), nullable=False, index=True)
+    trading_experience = Column(String(255), nullable=True)
+    message = Column(Text, nullable=True)
+    status = Column(String(20), default="pending", index=True)  # pending, approved, rejected
+    ip_address = Column(String(45), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    reviewed_at = Column(DateTime, nullable=True)
+    reviewed_by = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+
+
+class NQOrder(Base):
+    """
+    NiftyQuant-executed orders — only orders placed through our Buy/Sell
+    buttons live here. External Kite trades (placed directly on kite.zerodha.com
+    or another client) are intentionally NOT tracked, so that the Accounting
+    and Journal pages show only trades that came from a NiftyQuant signal.
+
+    Lifecycle:
+      1. Frontend POSTs to /api/kite/orders/:variety (creates Kite order)
+      2. Frontend POSTs to /api/nq-orders with { kite_order_id, signal_id, ... }
+         → status = PENDING
+      3. WS order_update from Kite → ws_manager patches this row:
+         - OPEN      → still working
+         - COMPLETE  → fill_price / filled_at / net_amount set
+         - REJECTED  → terminal, with reason
+         - CANCELLED → terminal (user cancelled from our UI or Kite web)
+
+    Defaults are set on every nullable column so Base.metadata.create_all()
+    adds the table to an existing Render DB without needing Alembic.
+    """
+    __tablename__ = "nq_orders"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"),
+                     nullable=False, index=True)
+
+    # Kite broker order id, returned by kite.place_order. Unique because Kite
+    # guarantees global uniqueness across all users within an account; we
+    # index it for the WS patching hot-path lookup.
+    kite_order_id = Column(String(64), unique=True, nullable=True, index=True)
+
+    # Logical signal id — "{ticker}__{signal_date}". Lets us group all
+    # orders (entry + trim + full exit) for the same trade idea on the
+    # Journal + Accounting pages.
+    signal_id = Column(String(128), nullable=True, index=True)
+
+    ticker = Column(String(32), nullable=False, index=True)
+    action = Column(String(8), nullable=False)                # BUY | SELL
+    qty = Column(Integer, nullable=False, default=0)
+    placed_price = Column(Float, nullable=True)               # LIMIT entry price
+    fill_price = Column(Float, nullable=True)                 # avg fill from WS
+    brokerage = Column(Float, nullable=True, default=0.0)
+    stt = Column(Float, nullable=True, default=0.0)
+    net_amount = Column(Float, nullable=True)
+
+    status = Column(String(16), nullable=False, default="PENDING", index=True)
+    # PENDING → placed locally, awaiting Kite ack
+    # OPEN    → Kite accepted, order working
+    # COMPLETE → fully filled
+    # REJECTED → Kite rejected (insufficient funds, invalid price, etc.)
+    # CANCELLED → user or system cancelled
+
+    placed_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    filled_at = Column(DateTime, nullable=True)
+
+    source = Column(String(32), nullable=False, default="niftyquant_signal")
+    notes = Column(Text, nullable=True)                       # journal rationale
+
+    user = relationship("User")
+
+
+class NavHistory(Base):
+    """
+    Per-user daily NAV snapshot for the Equity Curve.
+
+    Populated by the snapshot helper in services/nav_history.py whenever
+    /api/positions/nq is hit (i.e. every dashboard load). Idempotent on
+    (user_id, snapshot_date) — multiple visits same day update the same
+    row with the latest intraday NAV rather than appending duplicates.
+
+    No backfill exists — series starts on the day we shipped this and
+    grows from there. Charts render gracefully on partial data; an
+    explicit "less than 7 days of history" note is shown by the
+    frontend when count < 7.
+
+    Columns:
+      nav             cash + holdings_market_value (Kite truth)
+      cash            margins.available + margins.used (cash + blocked)
+      holdings_value  sum(last_price * effective_qty) across Kite holdings
+      day_pnl         today's P&L at snapshot time (uses fallback if Kite's
+                      day_change field is 0 — same logic as the KPI tiles)
+    """
+    __tablename__ = "nav_history"
+    __table_args__ = (
+        UniqueConstraint("user_id", "snapshot_date", name="uix_nav_user_date"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"),
+                     nullable=False, index=True)
+    snapshot_date = Column(Date, nullable=False, index=True)
+    nav = Column(Float, nullable=False)
+    cash = Column(Float, nullable=False, default=0.0)
+    holdings_value = Column(Float, nullable=False, default=0.0)
+    day_pnl = Column(Float, nullable=False, default=0.0)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    user = relationship("User")
+
+
+# ── DB Session Dependency ─────────────────────────────
+
+def get_db():
+    """FastAPI dependency that yields a DB session."""
+    if SessionLocal is None:
+        raise RuntimeError("DATABASE_URL not configured")
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+def init_db():
+    """Create all tables (called on startup)."""
+    if engine is None:
+        return
+
+    Base.metadata.create_all(bind=engine)
+
+    # Idempotent live migrations for tables that already exist on Render.
+    #
+    # Each step runs in its own short-lived transaction with a 3s lock_timeout
+    # and a try/except wrapper. Rationale: during a Render rolling deploy the
+    # OLD container is still serving requests and holding read locks on these
+    # tables, so a naive ALTER TABLE / CREATE TRIGGER blocks waiting for an
+    # ACCESS EXCLUSIVE lock — startup hangs, the new container never binds
+    # its port, and Render kills it. Failing fast + skipping is safe because
+    # every step is a no-op on subsequent runs (IF NOT EXISTS / CREATE OR
+    # REPLACE) — once the old container exits and lock contention clears,
+    # the next restart picks them up cleanly.
+    import logging as _logging
+    from sqlalchemy import text
+    from sqlalchemy.exc import OperationalError, ProgrammingError
+
+    _migration_logger = _logging.getLogger("niftyquant.db_migration")
+
+    def _run_migration(label: str, sql: str) -> None:
+        try:
+            with engine.begin() as conn:
+                conn.execute(text("SET LOCAL lock_timeout = '3s'"))
+                conn.execute(text(sql))
+            _migration_logger.info("migration ok: %s", label)
+        except (OperationalError, ProgrammingError) as e:
+            # OperationalError covers lock_timeout / canceling-statement-due-to-statement-timeout.
+            # ProgrammingError catches things like "permission denied for function ..."
+            # (Render free-tier role can't always CREATE FUNCTION). Both are
+            # non-fatal — the next clean restart will retry idempotently.
+            _migration_logger.warning(
+                "migration deferred (%s): %s — will retry on next restart",
+                label, str(e).splitlines()[0] if str(e) else type(e).__name__,
+            )
+
+    # P0-5: refresh-token reuse detection columns
+    _run_migration("refresh_tokens.parent_token_hash",
+        "ALTER TABLE refresh_tokens ADD COLUMN IF NOT EXISTS parent_token_hash VARCHAR(255)")
+    _run_migration("refresh_tokens.revoked_at",
+        "ALTER TABLE refresh_tokens ADD COLUMN IF NOT EXISTS revoked_at TIMESTAMP")
+    _run_migration("ix_refresh_tokens_parent_token_hash",
+        "CREATE INDEX IF NOT EXISTS ix_refresh_tokens_parent_token_hash "
+        "ON refresh_tokens (parent_token_hash)")
+
+    # P1-7: opt-in TOTP MFA columns on users
+    _run_migration("users.mfa_enabled",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS mfa_enabled BOOLEAN NOT NULL DEFAULT FALSE")
+    _run_migration("users.mfa_secret_encrypted",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS mfa_secret_encrypted TEXT")
+
+    # P2-1: audit_logs append-only + 365-day retention enforcement.
+    # The CREATE TRIGGER step needs ACCESS EXCLUSIVE on audit_logs, which
+    # is the most likely thing to lose to lock contention during a rolling
+    # deploy — that's exactly why each step is independently retriable.
+    _run_migration("audit_logs_protect_function", """
+        CREATE OR REPLACE FUNCTION audit_logs_protect()
+        RETURNS TRIGGER AS $$
+        BEGIN
+            IF TG_OP = 'UPDATE' THEN
+                RAISE EXCEPTION 'audit_logs is append-only';
+            ELSIF TG_OP = 'DELETE' THEN
+                IF OLD.timestamp < NOW() - INTERVAL '365 days' THEN
+                    RETURN OLD;
+                ELSE
+                    RAISE EXCEPTION 'audit_logs entries cannot be deleted within the 365-day retention window';
+                END IF;
+            END IF;
+            RETURN NEW;
+        END;
+        $$ LANGUAGE plpgsql
+    """)
+    _run_migration("audit_logs_protect_trigger_drop",
+        "DROP TRIGGER IF EXISTS audit_logs_protect_trigger ON audit_logs")
+    _run_migration("audit_logs_protect_trigger_create", """
+        CREATE TRIGGER audit_logs_protect_trigger
+        BEFORE UPDATE OR DELETE ON audit_logs
+        FOR EACH ROW EXECUTE FUNCTION audit_logs_protect()
+    """)
+
+    # P2-3: opportunistic 365-day retention purge. Render restarts at least
+    # once a day so this gives natural cadence without a separate cron.
+    _run_migration("audit_logs_retention_purge",
+        "DELETE FROM audit_logs WHERE timestamp < NOW() - INTERVAL '365 days'")

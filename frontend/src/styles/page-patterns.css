@@ -1,0 +1,186 @@
+/* ================================================================
+   PAGE-LEVEL COMPOSITE PATTERNS
+   Built on tokens from liquid-glass.css + index.css.
+   Consumed via shared/PageShell, shared/GlassKPIRow, etc.
+   Do NOT duplicate tokens here — reference existing vars.
+
+   Note: imported before @tailwind directives in index.css, so classes
+   live at the base cascade layer. Tailwind utilities still override.
+   ================================================================ */
+
+/* Retired ambient orb — kept as no-op selectors so any stale reference
+   doesn't break. Modern-SaaS direction uses solid cards without ambient
+   glow; the brand green shows up in the hero type + chart fill instead. */
+.ambient-amber-hero,
+.ambient-amber-hero.muted { display: none; }
+
+/* Retired grain overlay — modern-SaaS direction is clean, no texture.
+   Selector kept as a no-op so any lingering reference doesn't break. */
+.page-grain { display: none; }
+
+/* ============================================================
+   GLOBAL REDUCED-MOTION SAFETY NET
+   Disables all CSS-driven animations and transitions for users
+   with vestibular-disorder accommodations. Framer-motion is
+   gated separately via <MotionConfig reducedMotion="user"> in
+   PageShell.
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   SECTION HEADING — mixed-case, semibold, 20pt.
+   Used for block titles ("Sales overview", "Position size calculator").
+   Benchmark: modern SaaS dashboards (DWISON, LittleBee).
+   ============================================================ */
+.section-heading {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--text-main);
+  line-height: 1.15;
+}
+
+/* ============================================================
+   SECTION LABEL — legacy tiny uppercase label.
+   Kept for small column headers + very-muted KPI tile labels only.
+   DO NOT use on block titles; use .section-heading instead.
+   ============================================================ */
+.section-label {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--text-muted);
+  line-height: 1.2;
+  text-transform: none;
+}
+
+/* ============================================================
+   PAGE CONTAINER — fluid horizontal padding, fills the viewport.
+   No max-width cap — premium dashboards (Bloomberg/Koyfin/Linear)
+   fill the full width; centering with empty side gutters feels
+   like a product not-quite-finished. At ultra-wide (>2400px) we
+   apply a generous cap so lines don't stretch into unreadability.
+   ============================================================ */
+.page-container {
+  position: relative;
+  padding: 16px 14px;
+  margin-inline: auto;
+}
+@media (min-width: 640px)  { .page-container { padding: 20px 22px; } }
+@media (min-width: 768px)  { .page-container { padding: 24px 32px; } }
+@media (min-width: 1280px) { .page-container { padding: 28px 40px; } }
+@media (min-width: 1536px) { .page-container { padding: 32px 56px; } }
+@media (min-width: 1920px) { .page-container { padding: 36px 72px; } }
+@media (min-width: 2400px) {
+  .page-container { padding: 40px 96px; max-width: 2208px; }
+}
+
+/* ============================================================
+   NUMERIC DISPLAY — 5-step scale tuned to modern-SaaS benchmark.
+   64 / 28 / 18 / 14 / 11   heavy weights, tighter tracking.
+   Fixed sizes (non-fluid) — fluid type belongs on landing only.
+   ============================================================ */
+.num-hero {
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  font-size: 56px;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  color: var(--text-main);
+}
+
+@media (max-width: 767px)  { .num-hero { font-size: 36px; } }
+@media (min-width: 1280px) { .num-hero { font-size: 64px; } }
+
+.num-lg {
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--text-main);
+}
+
+.num-md {
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: var(--text-main);
+}
+
+.num-sm {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+/* Semantic colorings for P&L, delta values. Equal weight per design brief.
+   Green matches the brand-accent token (--nq-brand-green) — see index.css. */
+.num-positive { color: #22DD88; }
+.num-negative { color: #EF4444; }
+.num-muted { color: var(--text-muted); }
+
+/* ============================================================
+   SOLID CARD SURFACES — modern-SaaS direction (replaces glass).
+   Opaque dark navy with soft border; elevation via subtle shadow.
+   ============================================================ */
+.card-solid {
+  background: #1E293B;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 18px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.02) inset,
+    0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.card-solid-2 {
+  background: #162032;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+}
+
+/* Brand green — used liberally as the product pulse */
+.text-brand-green { color: #22DD88; }
+.bg-brand-green { background: #22DD88; color: #0F172A; }
+.border-brand-green { border-color: #22DD88; }
+
+/* ============================================================
+   MOBILE LAYOUT PATTERNS
+   Responsive overrides for dashboard grids and sidebars.
+   Gated behind max-width: 767px so desktop is untouched.
+   ============================================================ */
+@media (max-width: 767px) {
+  /* Settings page: sidebar → horizontal scrolling chip rail */
+  .settings-layout {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  .settings-nav {
+    flex-direction: row !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 6px !important;
+    padding-bottom: 4px;
+  }
+  .settings-tab-btn {
+    flex-shrink: 0;
+  }
+}

@@ -1,0 +1,142 @@
+/* Mobile-only browser compliance rules.
+   STRUCTURE: Every rule that affects layout, scroll, or sizing is gated
+   behind @media (max-width: 767px) so desktop is completely untouched.
+   The only globally-applied rules are:
+     - safe-area CSS vars (no visual effect on desktop)
+     - iOS text-size-adjust (no-op on desktop)
+     - tap-highlight color reset (touch-only behavior, harmless on desktop)
+   Page-specific mobile styles go in landing.css (scoped) or Tailwind
+   utilities on dashboard components. Do NOT add page-specific rules here. */
+
+/* ========== UNIVERSAL (desktop + mobile) ========== */
+
+:root {
+  --safe-top: env(safe-area-inset-top);
+  --safe-bottom: env(safe-area-inset-bottom);
+  --safe-left: env(safe-area-inset-left);
+  --safe-right: env(safe-area-inset-right);
+}
+
+html {
+  /* Prevent iOS text inflation when rotating to landscape. No-op on desktop. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Tap-highlight kill — only manifests on touch, but harmless on desktop. */
+button,
+a,
+[role="button"],
+[role="tab"],
+[role="option"],
+input,
+select,
+textarea,
+label {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Safe-area utility classes (escape hatches for components that can't use
+   the env() vars directly via inline style). On desktop these resolve to 0. */
+.safe-pt { padding-top: var(--safe-top); }
+.safe-pb { padding-bottom: var(--safe-bottom); }
+.safe-pl { padding-left: var(--safe-left); }
+.safe-pr { padding-right: var(--safe-right); }
+.safe-px { padding-left: var(--safe-left); padding-right: var(--safe-right); }
+
+/* ========== MOBILE-ONLY (max-width: 767px) ========== */
+
+@media (max-width: 767px) {
+  /* Block horizontal scroll. `clip` (not `hidden`) avoids the spec rule
+     where `hidden` on one axis flips the other axis to `auto`, which would
+     make html/body their own scroll containers and break vertical scroll. */
+  html,
+  body {
+    overflow-x: clip;
+    /* Avoid OS-level overscroll bounce that exposes a white band behind
+       the pure-black page on iOS. */
+    overscroll-behavior-y: none;
+  }
+
+  /* Kill the 300ms tap delay on touch. */
+  button,
+  a,
+  [role="button"],
+  [role="tab"],
+  [role="option"],
+  input,
+  select,
+  textarea,
+  label {
+    touch-action: manipulation;
+  }
+
+  /* Allow text selection in inputs (touch-action: manipulation can interfere). */
+  input,
+  textarea {
+    touch-action: auto;
+  }
+
+  /* Disable iOS long-press text/image callout in app chrome. We don't
+     disable it on prose because traders may want to copy values. */
+  button,
+  a[role="button"] {
+    -webkit-touch-callout: none;
+  }
+
+  /* Prevent zoom-on-focus in iOS Safari. iOS auto-zooms when an input
+     has font-size < 16px. */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
+  /* Minimum 44x44 touch target on icon-only buttons inside the mobile
+     bottom nav and header. WCAG 2.5.5. */
+  button[aria-label],
+  a[aria-label] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Bottom-nav clearance — pages opt in via class on their root content
+     wrapper to reserve space below the 64px mobile bottom nav + safe area. */
+  .has-mobile-nav {
+    padding-bottom: calc(64px + var(--safe-bottom) + 16px);
+  }
+
+  /* ── Responsive grid helpers ──
+     Force fixed-column grids to stack or halve on mobile. Pages opt in
+     by adding these classes alongside their inline gridTemplateColumns. */
+  .mobile-grid-1 {
+    grid-template-columns: 1fr !important;
+  }
+  .mobile-grid-2 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* PageShell hero band — reduce height so it doesn't dominate the
+     mobile viewport. The fade-to-black dissolve adapts automatically. */
+  .page-shell-hero {
+    height: 220px !important;
+  }
+}
+
+/* On touch-only devices (regardless of viewport width), neutralize
+   hover-only effects so tapped elements don't get stuck in the hover
+   state until another element is tapped. Scoped via @media (hover: none)
+   so desktop with a mouse never hits this. */
+@media (hover: none) {
+  .hover-lift:hover,
+  .surface-1:hover,
+  .surface-2:hover,
+  .glass-card:hover,
+  .glass-card-light:hover,
+  .interactive:hover {
+    transform: none;
+    box-shadow: var(--shadow-card, 0 8px 25px rgba(0, 0, 0, 0.35));
+    border-color: var(--border-edge, rgba(255, 255, 255, 0.06));
+    background-color: inherit;
+  }
+}

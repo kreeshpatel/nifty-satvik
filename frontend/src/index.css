@@ -1,0 +1,344 @@
+/* Fonts are loaded from Google Fonts in public/index.html — see that file
+   for the current font stack (DM Sans + Libre Caslon Display + JetBrains Mono;
+   Reckless Neue and Berkeley Mono will replace the latter two when licensed). */
+
+/* v2 design tokens (retail-pro direction, locked 2026-04-24) — additive to legacy.
+   Tokens defined here override anything redefined below in :root. */
+@import './styles/tokens.css';
+@import './styles/typography.css';
+
+/* Legacy Apple Liquid Glass — being retired page-by-page through Phase 1+ of
+   ~/.claude/plans/we-need-to-highly-streamed-bengio.md. Do NOT add new usages. */
+@import './styles/liquid-glass.css';
+
+/* Legacy page-level composite patterns (PageShell, section labels, num-* utilities). */
+@import './styles/page-patterns.css';
+
+/* Mobile-browser compliance (Android Chrome + iOS Safari): tap delay,
+   safe-area helpers, hover-stickiness fix, touch targets. */
+@import './styles/mobile.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ================================================================
+   DESIGN SYSTEM — Apple Liquid Glass + NiftyQuant
+   Deep gradient background, 4-tier glass materials, spring animations
+   ================================================================ */
+
+@layer base {
+  :root {
+    /* Design-system bridge vars — Navy gradient page + blue glass */
+    --bg-main: #07091c;
+    --bg-gradient-start: #0a0e22;
+    --bg-surface: rgba(255, 255, 255, 0.04);
+    --bg-surface-2: rgba(255, 255, 255, 0.07);
+    --bg-surface-3: rgba(255, 255, 255, 0.10);
+
+    --blue: #4F8CFF;
+    --blue-light: #6DA1FF;
+    --blue-deep: #2C5BFF;
+    --blue-glow-25: rgba(79, 140, 255, 0.25);
+    --blue-glow-40: rgba(79, 140, 255, 0.40);
+
+    --green: #3FDD8A;
+    --red: #FF5C7A;
+    --amber: #FFB454;
+    --nq-brand: #4F8CFF;
+    --nq-brand-light: #6DA1FF;
+    --nq-brand-dark: #2C5BFF;
+
+    --text-main: #F1F5FF;
+    --text-muted: #B8C0DA;
+    --text-subtle: #7A82A5;
+
+    --border-edge: rgba(255, 255, 255, 0.07);
+    --border-edge-strong: rgba(255, 255, 255, 0.12);
+
+    /* shadcn bridge vars (HSL — locked to new blue/navy palette) */
+    --background: 230 56% 7%;
+    --foreground: 222 100% 97%;
+
+    --card: 230 50% 12%;
+    --card-foreground: 222 100% 97%;
+
+    --popover: 230 56% 9%;
+    --popover-foreground: 222 100% 97%;
+
+    --primary: 219 100% 65%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 230 36% 18%;
+    --secondary-foreground: 222 100% 97%;
+
+    --muted: 230 24% 24%;
+    --muted-foreground: 226 28% 79%;
+
+    --accent: 219 100% 65%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 350 100% 68%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 150 67% 56%;
+    --success-foreground: 0 0% 100%;
+    --warning: 33 100% 65%;
+    --warning-foreground: 230 56% 7%;
+
+    --border: 230 24% 30%;
+    --input: 230 24% 22%;
+    --ring: 219 100% 65%;
+
+    --chart-1: 219 100% 65%;     /* brand blue */
+    --chart-2: 150 67% 56%;      /* bull */
+    --chart-3: 33 100% 65%;      /* warn */
+    --chart-4: 256 100% 68%;     /* violet */
+    --chart-5: 350 100% 68%;     /* bear */
+
+    --shadow-card: 0 10px 32px rgba(0, 0, 0, 0.36);
+    --shadow-card-hover: 0 14px 40px rgba(79, 140, 255, 0.20);
+
+    --radius: 1.125rem;
+  }
+}
+
+@layer base {
+  * {
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+  html, body {
+    /* DM Sans everywhere by default (locked 2026-04-25). Legacy pages that
+       used `font-sans`/`font-heading` Tailwind classes resolved to Geist
+       — those classes now resolve to DM Sans via tailwind.config.js. */
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-variant-numeric: tabular-nums;
+  }
+  code, kbd, pre, samp {
+    font-family: var(--font-mono);
+  }
+  /* Lock tabular alignment on every numeric display class used across the app */
+  .tabular-nums, .font-mono,
+  [class*="tabular"], input[type="number"] {
+    font-variant-numeric: tabular-nums;
+  }
+  body {
+    @apply text-foreground;
+    /* Navy gradient page with subtle blue + violet radial glows per
+       locked design direction (2026-05-21). Apple-style blue-glass. */
+    background-color: var(--surface-0);
+    background-image: var(--page-bg);
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    color: var(--text-1);
+  }
+
+  /* All page contexts share the same navy gradient page — no per-context
+     override needed. The dashboard, landing, and auth surfaces lift off
+     the same navy base via their own glass card tints. */
+}
+
+@layer base {
+  [data-debug-wrapper="true"] { display: contents !important; }
+  [data-debug-wrapper="true"] > * {
+    margin-left: inherit; margin-right: inherit; margin-top: inherit; margin-bottom: inherit;
+    padding-left: inherit; padding-right: inherit; padding-top: inherit; padding-bottom: inherit;
+    column-gap: inherit; row-gap: inherit; gap: inherit;
+    border-left-width: inherit; border-right-width: inherit; border-top-width: inherit; border-bottom-width: inherit;
+    border-left-style: inherit; border-right-style: inherit; border-top-style: inherit; border-bottom-style: inherit;
+    border-left-color: inherit; border-right-color: inherit; border-top-color: inherit; border-bottom-color: inherit;
+  }
+}
+
+/* ================================================================
+   SCROLLBAR
+   ================================================================ */
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar { width: 5px; height: 5px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+
+  /* Hide scrollbar but keep scroll functionality (for tab bars, pill selectors on mobile) */
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+  /* Horizontal scroll wrapper for tables on mobile */
+  .mobile-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .mobile-table-scroll::-webkit-scrollbar { display: none; }
+
+  /* ================================================================
+     GLASS CARDS — Premium Webull-tier glass system
+     Deep navy tint, multi-layer shadows, gradient border accents
+     ================================================================ */
+
+  /* ================================================================
+     SURFACE SYSTEM — 3 layered levels
+     Hierarchy via light + depth, not color
+     ================================================================ */
+
+  /* Level 1 — primary glass surface (main containers) */
+  .surface-1, .glass-card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    border: 1px solid var(--edge-1);
+    border-radius: 18px !important;
+    box-shadow: var(--shadow-glass);
+    color: var(--text-1);
+    transition: transform 0.18s var(--ease-out-quart), box-shadow 0.18s var(--ease-out-quart), border-color 0.18s var(--ease-out-quart);
+  }
+  .surface-1:hover, .glass-card:hover {
+    border-color: var(--edge-2);
+    box-shadow:
+      0 14px 40px rgba(0, 0, 0, 0.40),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  /* Level 2 — nested glass surface (inner cards, modules) */
+  .surface-2, .glass-card-light {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.03) 100%);
+    backdrop-filter: blur(20px) saturate(130%);
+    -webkit-backdrop-filter: blur(20px) saturate(130%);
+    border: 1px solid var(--edge-1);
+    border-radius: 14px !important;
+    box-shadow:
+      0 4px 16px rgba(0, 0, 0, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    color: var(--text-1);
+    transition: transform 0.18s var(--ease-out-quart), box-shadow 0.18s var(--ease-out-quart), border-color 0.18s var(--ease-out-quart);
+  }
+  .surface-2:hover, .glass-card-light:hover {
+    border-color: var(--edge-2);
+    box-shadow:
+      0 8px 24px rgba(79, 140, 255, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  /* Level 3 — interactive elements (chips, inputs, toggles) */
+  .surface-3 {
+    background: var(--surface-3);
+    border-radius: 10px;
+    transition: background 0.18s var(--ease-out-quart), border-color 0.18s var(--ease-out-quart);
+  }
+  .surface-3:hover { background: rgba(79, 140, 255, 0.14); }
+
+  /* FRESH variant — brand-blue edge + glow */
+  .glass-card-fresh {
+    border-color: var(--brand-edge) !important;
+    box-shadow:
+      0 14px 40px rgba(0, 0, 0, 0.40),
+      0 0 0 1px rgba(79, 140, 255, 0.18),
+      0 14px 40px rgba(79, 140, 255, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  }
+
+  /* Depth + glow utilities */
+  .shadow-soft { box-shadow: var(--shadow-glass); }
+  .glow-blue { box-shadow: 0 0 32px var(--glow-brand-soft); }
+  .glow-blue-strong { box-shadow: 0 0 40px var(--glow-brand); }
+  .edge-light { border: 1px solid var(--edge-1); }
+
+  /* Interactive hover */
+  .interactive { transition: background 0.18s var(--ease-out-quart), border-color 0.18s var(--ease-out-quart); }
+  .interactive:hover { background: rgba(79, 140, 255, 0.10); }
+
+  /* Brand-gradient surfaces (feature cards, primary CTAs) */
+  .brand-grad-surface {
+    background: var(--brand-grad);
+    color: var(--brand-fg);
+    box-shadow: 0 20px 50px rgba(44, 91, 255, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  }
+  .brand-grad-surface::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 90% 10%, rgba(255, 255, 255, 0.10), transparent 40%);
+    pointer-events: none;
+  }
+
+  /* Typography primitives */
+  .t-title { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; color: var(--text-main); }
+  .t-value { font-size: 18px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--text-main); }
+  .t-label { font-size: 12px; font-weight: 500; color: var(--text-muted); }
+
+  /* Nested depth → glass-ultra-thin (8%, 20px blur) */
+  .glass-nested {
+    background: var(--glass-ultra-thin);
+    backdrop-filter: blur(var(--blur-sm));
+    -webkit-backdrop-filter: blur(var(--blur-sm));
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: var(--radius-lg);
+  }
+
+  /* ================================================================
+     SIDEBAR — glass-thin with specular highlight
+     ================================================================ */
+  .glass-sidebar {
+    background: var(--glass-thin);
+    backdrop-filter: blur(var(--blur-md));
+    -webkit-backdrop-filter: blur(var(--blur-md));
+    border-right: 1px solid var(--glass-border-thin);
+    color: var(--text-primary);
+  }
+
+  /* ================================================================
+     AMBIENT GLOW — RETIRED 2026-04-24
+     The navy radial + blue orbs were a holdover from the old Liquid
+     Glass direction. Pure-black page is the new truth. `.ambient-glow`
+     stays as a no-op selector so ProtectedAppLayout doesn't error on
+     the orphaned <div className="ambient-glow" /> until the layout is
+     refactored in a later phase.
+     ================================================================ */
+  .ambient-glow { display: none; }
+
+  /* ================================================================
+     HOVER LIFT — transform + soft blue glow (the formula)
+     ================================================================ */
+  .hover-lift {
+    transition: transform 0.18s var(--ease-out-quart), box-shadow 0.18s var(--ease-out-quart), border-color 0.18s var(--ease-out-quart);
+  }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    border-color: var(--edge-2);
+    box-shadow:
+      0 14px 40px rgba(0, 0, 0, 0.40),
+      0 8px 24px var(--glow-brand-soft),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .signal-pulse { animation: signal-pulse 2s ease-in-out infinite; }
+  @keyframes signal-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(12px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .animate-fade-in-up { animation: fade-in-up 0.35s var(--spring-280) forwards; }
+
+  .stagger-children > * { opacity: 0; animation: fade-in-up 0.35s var(--spring-280) forwards; }
+  .stagger-children > *:nth-child(1) { animation-delay: 0.04s; }
+  .stagger-children > *:nth-child(2) { animation-delay: 0.08s; }
+  .stagger-children > *:nth-child(3) { animation-delay: 0.12s; }
+  .stagger-children > *:nth-child(4) { animation-delay: 0.16s; }
+  .stagger-children > *:nth-child(5) { animation-delay: 0.20s; }
+  .stagger-children > *:nth-child(6) { animation-delay: 0.24s; }
+  .stagger-children > *:nth-child(7) { animation-delay: 0.28s; }
+  .stagger-children > *:nth-child(8) { animation-delay: 0.32s; }
+
+  /* ================================================================
+     TEXT UTILITY CLASSES — Apple system colors
+     ================================================================ */
+  .text-fierce-primary { color: var(--text-primary); }
+  .text-fierce-secondary { color: var(--text-secondary); }
+  .text-fierce-muted { color: var(--text-tertiary); }
+  .text-fierce-green { color: var(--apple-green); }
+  .text-fierce-red { color: var(--apple-red); }
+  .text-fierce-purple { color: var(--apple-purple); }
+  .text-fierce-cyan { color: var(--apple-teal); }
+  .text-fierce-amber { color: var(--apple-orange); }
+}

@@ -1,0 +1,979 @@
+/* portfolio-v3.css — NiftyQuant Portfolio V3 page styles.
+ * Derived from frontend/public/nifty-design/portfolio2.css.
+ * Chrome rules (topbar, sidebar, nav) DROPPED — project's layout handles those.
+ * Kept: regime-strip, equity-hero, perf-ribbon, risk-ribbon, holdings-table,
+ *        allocation-card, recently-closed, monthly-pnl.
+ * All selectors prefixed .pv3- to avoid global bleed.
+ */
+
+/* ──────────────────────────────────────────────────────────────────────
+   PAGE ROOT
+   ────────────────────────────────────────────────────────────────────── */
+.pv3-page {
+  padding: 0 0 80px;
+  max-width: 1640px;
+  margin: 0 auto;
+}
+
+.pv3-page.density-compact { --pad-card: 16px; --gutter: 12px; }
+.pv3-page.density-regular { --pad-card: 20px; --gutter: 16px; }
+
+/* ──────────────────────────────────────────────────────────────────────
+   SHARED UTILITIES
+   ────────────────────────────────────────────────────────────────────── */
+.pv3-dim { color: var(--text-3); }
+.pv3-sep { color: var(--text-4); }
+
+.pv3-t-ui-micro {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.pv3-t-ui-headline {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-1);
+  letter-spacing: -0.01em;
+}
+.pv3-t-ui-footnote {
+  font-size: 11.5px;
+  color: var(--text-3);
+  margin-top: 3px;
+}
+.pv3-t-num-small {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+}
+
+/* Kill-word badge */
+.pv3-kw {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 3px 11px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.kw-ok   { background: var(--bull-soft); color: var(--bull); }
+.kw-soft { background: var(--warn-soft); color: var(--warn); }
+.kw-hard { background: var(--bear-soft); color: var(--bear); }
+
+/* Card shared */
+.pv3-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+  border: 1px solid var(--edge-1);
+  border-radius: var(--r-card, 12px);
+  padding: var(--pad-card, 20px);
+  overflow: hidden;
+}
+.pv3-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* Skeleton */
+.pv3-skel {
+  background: var(--surface-2);
+  animation: pv3SkPulse 1.8s ease-in-out infinite;
+}
+@keyframes pv3SkPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* Seg button (period picker) */
+.pv3-seg-btn {
+  background: transparent;
+  border: 0;
+  color: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+.pv3-seg-btn:hover { background: var(--surface-2); color: var(--text-1); }
+.pv3-seg-btn.active {
+  background: var(--brand-soft, rgba(79,140,255,0.14));
+  color: var(--brand-hi, #4F8CFF);
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   ROW / PAGE-HEAD
+   ────────────────────────────────────────────────────────────────────── */
+.pv3-row {
+  margin: 0 16px 18px;
+}
+.pv3-head-row { margin-bottom: 4px; }
+.pv3-row-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 14px;
+}
+.pv3-row-title {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text-1);
+  margin: 6px 0 4px;
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   DATA ROW — holdings table + right rail
+   ────────────────────────────────────────────────────────────────────── */
+.pv3-row-data {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 14px;
+  align-items: start;
+}
+.pv3-right-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   REGIME STRIP / STATE STRIP
+   ────────────────────────────────────────────────────────────────────── */
+.pv3-regime-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 14px 16px 20px;
+  padding: 12px 20px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%);
+  border: 1px solid var(--edge-1);
+  border-radius: 12px;
+}
+.pv3-regime-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.pv3-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bull);
+  box-shadow: 0 0 10px var(--bull);
+  flex-shrink: 0;
+  animation: pv3LivePulse 2.4s ease-in-out infinite;
+}
+.pv3-live-dot.pv3-dot-info {
+  background: var(--info, #4F8CFF);
+  box-shadow: 0 0 10px var(--info, #4F8CFF);
+}
+@keyframes pv3LivePulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+.pv3-regime-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.pv3-regime-statement {
+  font-size: 14.5px;
+  font-weight: 500;
+  letter-spacing: -0.012em;
+  color: var(--text-1);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+.pv3-regime-statement em {
+  font-style: italic;
+  font-weight: 600;
+}
+.pv3-regime-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.pv3-strength-label {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  font-weight: 600;
+}
+
+/* Connect Kite button */
+.pv3-connect-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  background: var(--brand);
+  color: var(--brand-fg);
+  border: 1px solid var(--brand);
+  border-radius: var(--r-chip, 6px);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 120ms;
+}
+.pv3-connect-btn:hover { opacity: 0.88; }
+
+/* Paper / Live segmented toggle */
+.pv3-mode-toggle {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--surface-2, rgba(255,255,255,0.04));
+  border: 1px solid var(--edge-1, rgba(255,255,255,0.08));
+  border-radius: 999px;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+.pv3-mode-btn {
+  padding: 6px 18px;
+  border: none;
+  background: transparent;
+  color: var(--text-2, #9aa3b2);
+  font-size: 12.5px;
+  font-weight: 600;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 140ms, color 140ms;
+}
+.pv3-mode-btn:hover { color: var(--text-1, #e7ebf3); }
+.pv3-mode-btn.active {
+  background: var(--brand);
+  color: var(--brand-fg);
+}
+
+/* Live-but-disconnected banner */
+.pv3-connect-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 18px;
+  background: var(--surface-1, rgba(255,255,255,0.03));
+  border: 1px solid var(--edge-1, rgba(255,255,255,0.08));
+  border-radius: var(--r-card, 14px);
+  font-size: 13px;
+  color: var(--text-2, #9aa3b2);
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   FUSED EQUITY HERO
+   ────────────────────────────────────────────────────────────────────── */
+.pv3-eq-hero {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.82fr) minmax(0, 1.18fr);
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.pv3-eqh-l {
+  padding: 24px 26px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--edge-1);
+}
+.pv3-eqh-eq {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 50px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  color: var(--text-1);
+  line-height: 1;
+  margin: 11px 0 12px;
+}
+.pv3-eqh-delta {
+  font-size: 12px;
+  color: var(--text-3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.pv3-eqh-delta b {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+.pv3-tag {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.pv3-tag-bull { background: var(--bull-soft); color: var(--bull); }
+.pv3-tag-bear { background: var(--bear-soft); color: var(--bear); }
+
+.pv3-eqh-kpis {
+  margin-top: auto;
+  padding-top: 18px;
+  display: flex;
+  flex-direction: column;
+}
+.pv3-eqh-kpi {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: baseline;
+  gap: 12px;
+  padding: 11px 0;
+  border-top: 1px solid var(--edge-1);
+}
+.pv3-ek-l {
+  font-size: 11.5px;
+  color: var(--text-3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pv3-ek-v {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-1);
+}
+.pv3-ek-s {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-4);
+  min-width: 56px;
+  text-align: right;
+}
+
+/* Right col: equity chart */
+.pv3-eqh-r {
+  padding: 18px 20px 12px;
+  display: flex;
+  flex-direction: column;
+}
+.pv3-eq-r-head {
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.pv3-t-footnote {
+  font-size: 11.5px;
+  color: var(--text-3);
+}
+.pv3-eq-seg {
+  display: flex;
+  gap: 2px;
+}
+.pv3-eq-wrap {
+  position: relative;
+  flex: 1;
+}
+.pv3-eq-empty {
+  padding: 32px 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-4);
+}
+.pv3-eq-svg {
+  width: 100%;
+  height: 232px;
+  display: block;
+  overflow: visible;
+  cursor: crosshair;
+}
+.pv3-eq-grid {
+  stroke: rgba(255,255,255,0.05);
+  stroke-width: 1;
+}
+.pv3-eq-ax {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  fill: var(--text-4);
+}
+.pv3-eq-peak {
+  stroke: var(--text-3);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+  opacity: 0.5;
+}
+.pv3-eq-peak-l {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  fill: var(--text-4);
+  letter-spacing: 0.05em;
+}
+.pv3-eq-line {
+  fill: none;
+  stroke: var(--brand-hi, #4F8CFF);
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  filter: drop-shadow(0 4px 12px rgba(79,140,255,0.45));
+}
+.pv3-eq-cross {
+  stroke: rgba(255,255,255,0.22);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.pv3-eq-tip {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  z-index: 3;
+  pointer-events: none;
+  background: rgba(13,18,48,0.96);
+  border: 1px solid var(--edge-2);
+  border-radius: 8px;
+  padding: 5px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.5);
+  white-space: nowrap;
+}
+.pv3-eq-tip b {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-1);
+  font-variant-numeric: tabular-nums;
+}
+.pv3-eq-tip span {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+}
+.pv3-eq-xax {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 56px 0 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-4);
+}
+.pv3-eq-xax span { flex: 1; text-align: center; }
+.pv3-eq-xax span:first-child { text-align: left; }
+.pv3-eq-xax span:last-child  { text-align: right; }
+
+/* ──────────────────────────────────────────────────────────────────────
+   PERFORMANCE RIBBON
+   ────────────────────────────────────────────────────────────────────── */
+.pv3-perf-ribbon {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+.pv3-prc {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 14px 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+  border: 1px solid var(--edge-1);
+  border-radius: 14px;
+}
+.pv3-prc-l {
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  font-family: var(--font-mono);
+}
+.pv3-prc-v {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-1);
+  letter-spacing: -0.02em;
+}
+.pv3-prc-src {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.pv3-src-live     { background: var(--bull-soft); color: var(--bull); }
+.pv3-src-backtest { background: var(--warn-soft); color: var(--warn); }
+.pv3-src-paper    { background: var(--info-soft); color: var(--info, #4F8CFF); }
+
+/* ──────────────────────────────────────────────────────────────────────
+   RISK RIBBON
+   ────────────────────────────────────────────────────────────────────── */
+.pv3-risk-card {
+  padding: var(--pad-card, 20px);
+}
+.pv3-partial-note {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--text-4);
+  font-family: var(--font-sans, system-ui);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.pv3-risk-cells {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+}
+.pv3-rc {
+  padding: 4px 18px;
+  border-left: 1px solid var(--edge-1);
+  position: relative;
+}
+.pv3-rc:first-child { border-left: 0; padding-left: 2px; }
+.pv3-rc-name {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  color: var(--text-3);
+}
+.pv3-rc-val {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-1);
+  margin: 8px 0 10px;
+  line-height: 1;
+}
+.pv3-rc-soft .pv3-rc-val { color: var(--warn); }
+.pv3-rc-hard .pv3-rc-val { color: var(--bear); }
+.pv3-rc-unknown .pv3-rc-val { color: var(--text-4); font-size: 20px; }
+.pv3-rc-bar {
+  height: 5px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+.pv3-rc-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--text-4);
+}
+.pv3-rc-ok   .pv3-rc-bar span { background: var(--bull); }
+.pv3-rc-soft .pv3-rc-bar span { background: var(--warn); }
+.pv3-rc-hard .pv3-rc-bar span { background: var(--bear); }
+.pv3-rc-pct {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--text-4);
+  margin-top: 6px;
+}
+.pv3-rc-pulse .pv3-rc-bar {
+  animation: pv3RcPulse 2.2s ease-in-out infinite;
+}
+@keyframes pv3RcPulse {
+  0%, 100% { opacity: 0.55; }
+  50%       { opacity: 1; }
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   MONTHLY P&L CHART
+   ────────────────────────────────────────────────────────────────────── */
+.pv3-monthly-empty,
+.pv3-alloc-empty,
+.pv3-closed-empty {
+  padding: 24px 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-4);
+}
+.pv3-mp-chart {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  height: 140px;
+  padding: 6px 2px 0;
+}
+.pv3-mp-baseline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(6px + (140px - 6px - 22px) * 0.5);
+  height: 1px;
+  background: var(--edge-2);
+}
+.pv3-mp-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+.pv3-mp-bar-wrap {
+  position: relative;
+  width: 100%;
+  flex: 1;
+}
+.pv3-mp-bar {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  border-radius: 3px;
+  min-height: 2px;
+}
+.pv3-mp-bar.b-up {
+  background: linear-gradient(180deg, var(--bull), rgba(63,221,138,0.55));
+  box-shadow: 0 0 10px rgba(63,221,138,0.3);
+}
+.pv3-mp-bar.b-dn {
+  background: linear-gradient(180deg, rgba(255,92,122,0.55), var(--bear));
+  box-shadow: 0 0 10px rgba(255,92,122,0.3);
+}
+.pv3-mp-m {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--text-4);
+  margin-top: 7px;
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   HOLDINGS TABLE
+   ────────────────────────────────────────────────────────────────────── */
+.pv3-stocks-table {
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+  border: 1px solid var(--edge-1);
+  border-radius: var(--r-card, 12px);
+  overflow: hidden;
+}
+.pv3-stocks-table-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--edge-1);
+  gap: 16px;
+}
+.pv3-stocks-table-tabs {
+  display: flex;
+  gap: 2px;
+}
+.pv3-ttab {
+  background: transparent;
+  border: 0;
+  color: var(--text-3);
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 5px 11px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+.pv3-ttab:hover { background: var(--surface-2); color: var(--text-1); }
+.pv3-ttab.active { background: var(--surface-2); color: var(--text-1); font-weight: 600; }
+
+/* Grid: 9 cols (Company Qty Avg LTP Value Day P&L Alloc Status) */
+.pv3-htbl {
+  display: grid;
+  grid-template-columns: minmax(180px, 2fr) 0.6fr 1fr 1fr 1fr 0.8fr 1.35fr 0.95fr 1.05fr;
+  align-items: center;
+}
+.pv3-th {
+  padding: 10px 18px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-4);
+  background: var(--surface-1);
+  border-bottom: 1px solid var(--edge-1);
+}
+.pv3-th-r { text-align: right; }
+.pv3-td {
+  padding: 16px 18px;
+  font-size: 13px;
+  color: var(--text-1);
+  border-bottom: 1px solid var(--edge-1);
+}
+/* last row: no bottom border */
+.pv3-htbl .pv3-td:nth-last-child(-n+9) { border-bottom: 0; }
+.pv3-td-r { text-align: right; }
+.pv3-td-name {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.pv3-td-name-sym {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-1);
+}
+.pv3-td-name-full {
+  font-size: 10.5px;
+  color: var(--text-3);
+  margin-top: 2px;
+}
+.pv3-holdings-empty {
+  padding: 28px 18px;
+  font-size: 12.5px;
+  color: var(--text-4);
+  text-align: center;
+}
+
+/* Logo tiles */
+.pv3-logo-tile {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.pv3-logo-tile img { width: 100%; height: 100%; object-fit: contain; }
+.pv3-logo-mono {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+/* P&L column: value + % stacked */
+.pv3-pcol {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+.pv3-pnl-v {
+  white-space: nowrap;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+.pv3-pnl-p {
+  font-size: 10.5px;
+  opacity: 0.82;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Alloc column: mini bar + % stacked */
+.pv3-acol {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  width: 100%;
+}
+.pv3-al-mini {
+  width: 100%;
+  max-width: 92px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+.pv3-al-mini span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--brand-hi, #4F8CFF);
+  opacity: 0.7;
+}
+.pv3-al-n {
+  color: var(--text-3);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Status chip */
+.pv3-spill {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 4px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.pv3-sp-hold { background: var(--surface-3); color: var(--text-3); }
+.pv3-sp-tgt  { background: var(--bull-soft); color: var(--bull); }
+.pv3-sp-stp  { background: var(--bear-soft); color: var(--bear); }
+
+/* ──────────────────────────────────────────────────────────────────────
+   ALLOCATION CARD
+   ────────────────────────────────────────────────────────────────────── */
+.pv3-alloc-stack {
+  display: flex;
+  height: 16px;
+  border-radius: 8px;
+  overflow: hidden;
+  gap: 2px;
+  margin-bottom: 14px;
+}
+.pv3-alloc-stack span {
+  display: block;
+  height: 100%;
+}
+.pv3-alloc-list {
+  display: flex;
+  flex-direction: column;
+}
+.pv3-al-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--edge-1);
+}
+.pv3-al-row:last-child { border-bottom: 0; }
+.pv3-al-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.pv3-al-name {
+  font-size: 12.5px;
+  color: var(--text-2);
+}
+.pv3-al-pct {
+  font-weight: 600;
+  color: var(--text-1);
+}
+.pv3-al-val {
+  min-width: 58px;
+  text-align: right;
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   RECENTLY CLOSED CARD
+   ────────────────────────────────────────────────────────────────────── */
+.pv3-closed-list {
+  display: flex;
+  flex-direction: column;
+}
+.pv3-cl-row {
+  display: grid;
+  grid-template-columns: auto auto auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--edge-1);
+}
+.pv3-cl-row:last-child { border-bottom: 0; }
+.pv3-cl-sym {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-1);
+}
+.pv3-cl-rsn {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.pv3-cl-rsn.won  { background: var(--bull-soft); color: var(--bull); }
+.pv3-cl-rsn.lost { background: var(--bear-soft); color: var(--bear); }
+.pv3-cl-rsn.neu  { background: var(--surface-3); color: var(--text-3); }
+.pv3-cl-held { text-align: right; }
+.pv3-cl-pnl  {
+  font-weight: 600;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   FOOTER
+   ────────────────────────────────────────────────────────────────────── */
+.pv3-foot {
+  margin: 28px 16px 0;
+  padding-top: 18px;
+  border-top: 1px solid var(--edge-1);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pv3-disclaimer {
+  font-size: 11px;
+  color: var(--text-4);
+  font-style: italic;
+  max-width: 940px;
+}
+.pv3-foot-meta {
+  font-size: 10.5px;
+  color: var(--text-4);
+  font-family: var(--font-mono);
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+   RESPONSIVE
+   ────────────────────────────────────────────────────────────────────── */
+@media (max-width: 1080px) {
+  .pv3-eq-hero {
+    grid-template-columns: 1fr;
+  }
+  .pv3-eqh-l {
+    border-right: 0;
+    border-bottom: 1px solid var(--edge-1);
+  }
+}
+
+@media (max-width: 980px) {
+  .pv3-row-data {
+    grid-template-columns: 1fr;
+  }
+  .pv3-right-rail {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .pv3-perf-ribbon {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .pv3-risk-cells {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px 0;
+  }
+  .pv3-rc:nth-child(odd) { border-left: 0; padding-left: 2px; }
+  /* Hide less important columns on tablet */
+  .pv3-htbl {
+    grid-template-columns: minmax(140px, 1.8fr) 1fr 1.1fr 0.9fr 1.1fr;
+  }
+  .pv3-htbl .pv3-th:nth-child(2), .pv3-htbl .pv3-td:nth-child(2),
+  .pv3-htbl .pv3-th:nth-child(3), .pv3-htbl .pv3-td:nth-child(3),
+  .pv3-htbl .pv3-th:nth-child(6), .pv3-htbl .pv3-td:nth-child(6),
+  .pv3-htbl .pv3-th:nth-child(8), .pv3-htbl .pv3-td:nth-child(8) {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .pv3-right-rail { grid-template-columns: 1fr; }
+  .pv3-perf-ribbon { grid-template-columns: repeat(2, 1fr); }
+  .pv3-eqh-eq { font-size: 38px; }
+  .pv3-row { margin: 0 10px 14px; }
+  .pv3-regime-strip { margin: 10px 10px 14px; }
+}
