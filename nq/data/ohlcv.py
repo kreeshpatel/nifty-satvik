@@ -337,6 +337,23 @@ def file_sha256(path: Path | None = None, *, chunk_size: int = 1 << 20) -> str:
     return h.hexdigest()
 
 
+def merge_ohlcv(existing: Mapping[str, pd.DataFrame],
+                new: Mapping[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
+    """Merge ``new`` OHLCV bars into ``existing`` (the incremental-cache update the daily paper cron
+    uses so it refreshes only recent days, not the full history). Per ticker: concat, drop duplicate
+    dates keeping the NEW bar (adjustments/late-prints win), sort. Pure — returns a new dict."""
+    out: dict[str, pd.DataFrame] = {t: df for t, df in existing.items()}
+    for t, df in new.items():
+        if df is None or len(df) == 0:
+            continue
+        if t in out and out[t] is not None and len(out[t]):
+            comb = pd.concat([out[t], df])
+            out[t] = comb[~comb.index.duplicated(keep="last")].sort_index()
+        else:
+            out[t] = df
+    return out
+
+
 def load_ohlcv_json(path: Path | None = None) -> dict[str, pd.DataFrame]:
     """Load the live incremental JSON cache ``{ticker: {dates, open, high, low, close,
     volume}}`` into ``{ticker -> DataFrame}`` with title-cased columns on a DatetimeIndex.
