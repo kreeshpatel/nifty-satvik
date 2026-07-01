@@ -1,13 +1,19 @@
 # Kite session auto-refresh — runs on the DigitalOcean droplet
 
-> **Why the droplet and not GitHub Actions?** Zerodha enforces SEBI's static-IP
+> **Why the droplet is the primary refresh.** Zerodha enforces SEBI's static-IP
 > rule: every Kite Connect login/API call must originate from one registered IP.
 > The droplet (`168.144.90.26`) is that whitelisted IP (it also hosts the
 > tinyproxy the Fly API tunnels its Kite calls through). GitHub Actions runners
-> get a **random IP**, so the TOTP login in `refresh_kite_session.py` is blocked
-> there — the `cron-kite-refresh.yml` workflow was deleted for exactly this
-> reason. This script must run **on the droplet**, where the IP is already
-> whitelisted (so it needs **no proxy** — it calls Zerodha directly).
+> get a **random IP**, so a naive TOTP login there is blocked. Running on the
+> droplet is simplest — the IP is already whitelisted, so it needs **no proxy**
+> and calls Zerodha directly.
+>
+> A repo-tracked **backup** now exists at `.github/workflows/cron-kite-refresh.yml`
+> (2026-07-02): it runs the *same* `refresh_kite_session.py` but tunnels the login
+> **and** token exchange through `KITE_PROXY_URL` (the droplet's tinyproxy), so a
+> GH-Actions runner presents the whitelisted IP. It stays inert until its secrets
+> are set. Keep the droplet crontab as primary; enable the GH backup only if you
+> want a second, host-independent refresh.
 
 ## What it does
 
@@ -29,9 +35,9 @@ ssh root@168.144.90.26
 # 1. System Python 3.12 + venv + git (Ubuntu)
 apt-get update && apt-get install -y python3.12 python3.12-venv git
 
-# 2. Clone the repo
-mkdir -p /opt && git clone https://github.com/kreeshpatel/niftyquant.git /opt/niftyquant
-cd /opt/niftyquant
+# 2. Clone the mono-repo (the backend moved here from the retired niftyquant repo)
+mkdir -p /opt && git clone https://github.com/kreeshpatel/nifty-satvik.git /opt/nifty-satvik
+cd /opt/nifty-satvik
 
 # 3. Venv + the SAME locked backend deps the Fly image uses
 python3.12 -m venv .venv
@@ -41,7 +47,7 @@ python3.12 -m venv .venv
 
 ### Secrets — `dashboard/backend/.env`
 
-Create `/opt/niftyquant/dashboard/backend/.env` (the script calls `load_dotenv()`
+Create `/opt/nifty-satvik/dashboard/backend/.env` (the script calls `load_dotenv()`
 from its own directory) and `chmod 600` it:
 
 ```
@@ -65,14 +71,14 @@ DATABASE_URL=...                 # the SAME Supabase session-pooler URL as Fly
 > Kite on 2026-06-26.
 
 ```bash
-chmod 600 /opt/niftyquant/dashboard/backend/.env
+chmod 600 /opt/nifty-satvik/dashboard/backend/.env
 ```
 
 ### Verify once, by hand
 
 ```bash
-cd /opt/niftyquant/dashboard/backend
-/opt/niftyquant/.venv/bin/python refresh_kite_session.py
+cd /opt/nifty-satvik/dashboard/backend
+/opt/nifty-satvik/.venv/bin/python refresh_kite_session.py
 # Expect: "access_token received", "Kite session refreshed for admin ...",
 # "Expires at <tomorrow> 06:00:00 IST". Then load the dashboard — live data back.
 ```
@@ -86,12 +92,12 @@ Add (00:45 UTC = 06:15 IST, weekdays — markets are closed weekends, and Monday
 run re-arms it before the open):
 
 ```cron
-45 0 * * 1-5 cd /opt/niftyquant/dashboard/backend && /opt/niftyquant/.venv/bin/python refresh_kite_session.py >> /var/log/kite-refresh.log 2>&1
+45 0 * * 1-5 cd /opt/nifty-satvik/dashboard/backend && /opt/nifty-satvik/.venv/bin/python refresh_kite_session.py >> /var/log/kite-refresh.log 2>&1
 ```
 
 ## Keeping it current
 
-- After any push that changes backend deps: `cd /opt/niftyquant && git pull && ./.venv/bin/pip install --require-hashes -r dashboard/backend/requirements.lock`.
+- After any push that changes backend deps: `cd /opt/nifty-satvik && git pull && ./.venv/bin/pip install --require-hashes -r dashboard/backend/requirements.lock`.
 - If you rotate the Zerodha password / TOTP / Kite secret / `ENCRYPTION_KEY` /
   DB password, update **both** this `.env` **and** the Fly secrets — they must stay
   in lockstep.
