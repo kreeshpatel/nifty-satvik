@@ -19,6 +19,7 @@ flowchart LR
     nq_engine_exits["nq/engine/exits"]
     nq_engine_panel["nq/engine/panel"]
     nq_engine_portfolio["nq/engine/portfolio"]
+    nq_paper_book["nq/paper/book"]
     nq_research_conviction["nq/research/conviction"]
     nq_runner["nq/runner"]
     nq_runner_research["nq/runner/research"]
@@ -52,6 +53,8 @@ flowchart LR
     nq_engine_panel --> nq_data_ohlcv
     nq_engine_portfolio --> config
     nq_engine_portfolio --> nq_engine_exits
+    nq_paper_book --> nq_engine_exits
+    nq_paper_book --> nq_engine_portfolio
     nq_research_conviction --> config
     nq_runner --> nq_runner_research
     nq_runner --> nq_runner_scan
