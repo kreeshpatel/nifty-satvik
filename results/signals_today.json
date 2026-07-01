@@ -1,0 +1,39 @@
+{
+  "as_of": "2026-07-01",
+  "n_positions": 10,
+  "cash": 167.32,
+  "buy_signals": [
+    {
+      "ticker": "KIRLOSENG",
+      "indicative_close": 2364.0,
+      "buy_window": "T+1..T+3 at open"
+    },
+    {
+      "ticker": "VEDL",
+      "indicative_close": 280.75,
+      "buy_window": "T+1..T+3 at open"
+    },
+    {
+      "ticker": "APARINDS",
+      "indicative_close": 15695.0,
+      "buy_window": "T+1..T+3 at open"
+    },
+    {
+      "ticker": "GESHIP",
+      "indicative_close": 1483.1,
+      "buy_window": "T+1..T+3 at open"
+    },
+    {
+      "ticker": "BHARATFORG",
+      "indicative_close": 2144.1,
+      "buy_window": "T+1..T+3 at open"
+    }
+  ],
+  "kill_state": {
+    "wr_last20": 50.0,
+    "wr_breach": false,
+    "sharpe_30d": -2.988,
+    "sharpe_30d_breach": true,
+    "mode": "observe"
+  }
+}

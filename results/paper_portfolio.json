@@ -1,0 +1,162 @@
+{
+  "cash": 167.3204157813367,
+  "pending": [
+    "KIRLOSENG",
+    "VEDL",
+    "APARINDS",
+    "GESHIP",
+    "BHARATFORG"
+  ],
+  "positions": {
+    "HINDCOPPER": {
+      "ticker": "HINDCOPPER",
+      "entry_date": "2026-06-02 00:00:00",
+      "entry": 542.8212627868652,
+      "qty": 276,
+      "stop": 460.9273367562858,
+      "target": 665.0646111664672,
+      "peak": 545.4000244140625,
+      "atr_pct": 4.110822989352917,
+      "adv": 4038477155.015979,
+      "days_held": 19,
+      "last_mark": 501.1000061035156,
+      "absent_run": 0
+    },
+    "MCX": {
+      "ticker": "MCX",
+      "entry_date": "2026-06-02 00:00:00",
+      "entry": 2891.4449999999997,
+      "qty": 51,
+      "stop": 2490.987553409936,
+      "target": 3542.598414,
+      "peak": 2914.5,
+      "atr_pct": 3.773769532552333,
+      "adv": 11384969717.21466,
+      "days_held": 19,
+      "last_mark": 2837.199951171875,
+      "absent_run": 0
+    },
+    "ADANIPOWER": {
+      "ticker": "ADANIPOWER",
+      "entry_date": "2026-06-02 00:00:00",
+      "entry": 230.11499999999998,
+      "qty": 651,
+      "stop": 200.96430075960404,
+      "target": 281.936898,
+      "peak": 233.77999877929688,
+      "atr_pct": 3.451739269613617,
+      "adv": 10985228779.162184,
+      "days_held": 19,
+      "last_mark": 223.77000427246094,
+      "absent_run": 0
+    },
+    "GMDCLTD": {
+      "ticker": "GMDCLTD",
+      "entry_date": "2026-06-02 00:00:00",
+      "entry": 664.3820127868652,
+      "qty": 226,
+      "stop": 559.0742212948428,
+      "target": 814.0008420664673,
+      "peak": 676.8499755859375,
+      "atr_pct": 4.31893407147337,
+      "adv": 1857783177.8976197,
+      "days_held": 19,
+      "last_mark": 583.9500122070312,
+      "absent_run": 0
+    },
+    "NATIONALUM": {
+      "ticker": "NATIONALUM",
+      "entry_date": "2026-06-09 00:00:00",
+      "entry": 378.6392372131347,
+      "qty": 341,
+      "stop": 323.9254145334986,
+      "target": 463.9087934335327,
+      "peak": 382.3500061035156,
+      "atr_pct": 3.9373622924128373,
+      "adv": 5384722013.739853,
+      "days_held": 14,
+      "last_mark": 339.6000061035156,
+      "absent_run": 0
+    },
+    "LAURUSLABS": {
+      "ticker": "LAURUSLABS",
+      "entry_date": "2026-06-17 00:00:00",
+      "entry": 1376.6879999999999,
+      "qty": 74,
+      "stop": 1247.239659342203,
+      "target": 1686.7181375999999,
+      "peak": 1517.4000244140625,
+      "atr_pct": 2.562093039758652,
+      "adv": 2478625792.3535156,
+      "days_held": 8,
+      "last_mark": 1517.4000244140625,
+      "absent_run": 0
+    },
+    "HINDALCO": {
+      "ticker": "HINDALCO",
+      "entry_date": "2026-06-17 00:00:00",
+      "entry": 985.4925,
+      "qty": 1,
+      "stop": 873.4850950402786,
+      "target": 1207.425411,
+      "peak": 1014.2000122070312,
+      "atr_pct": 3.096901181070246,
+      "adv": 7292236804.687683,
+      "days_held": 8,
+      "last_mark": 956.5999755859375,
+      "absent_run": 0
+    },
+    "GVT&D": {
+      "ticker": "GVT&D",
+      "entry_date": "2026-06-25 00:00:00",
+      "entry": 5122.5599999999995,
+      "qty": 27,
+      "stop": 4277.285173339149,
+      "target": 6276.1605119999995,
+      "peak": 5122.5599999999995,
+      "atr_pct": 4.496191674794686,
+      "adv": 5032464920.849999,
+      "days_held": 2,
+      "last_mark": 4944.0,
+      "absent_run": 0
+    },
+    "SYRMA": {
+      "ticker": "SYRMA",
+      "entry_date": "2026-06-25 00:00:00",
+      "entry": 1439.7195,
+      "qty": 12,
+      "stop": 1263.61638663087,
+      "target": 1763.9443314,
+      "peak": 1439.7195,
+      "atr_pct": 3.332906135925868,
+      "adv": 2182288500.05,
+      "days_held": 2,
+      "last_mark": 1396.300048828125,
+      "absent_run": 0
+    },
+    "HFCL": {
+      "ticker": "HFCL",
+      "entry_date": "2026-06-29 00:00:00",
+      "entry": 212.3060969467163,
+      "qty": 4,
+      "stop": 179.52547166224556,
+      "target": 260.1174299791168,
+      "peak": 212.85000610351562,
+      "atr_pct": 4.207156843203395,
+      "adv": 7934977113.549655,
+      "days_held": 1,
+      "last_mark": 212.85000610351562,
+      "absent_run": 0
+    }
+  },
+  "config": {
+    "initial_capital": 1000000.0,
+    "vol_target": {
+      "_note": "Applied by long_horizon_cron to the paper-book sizing equity. NOT part of the frozen `cfg` block (load_frozen_cfg returns `cfg` only), so the research backtest baselines + golden master are unaffected. The backtest VALIDATED the vol-target via pre-reg 0068 (arm V2, the best-Calmar arm); the live scanner applies the IDENTICAL shared formula (portfolio.vol_target_scalar) to the trailing paper-portfolio equity (results/portfolio_history.csv). Shipped 2026-06-26 to the paper path; remove this block or set vol_target_annual=0 to disable.",
+      "vol_target_annual": 0.15,
+      "vol_window": 42,
+      "vol_floor": 0.4,
+      "provenance": "pre-reg 0068 V2 (target_vol 0.15 / floor 0.40); CAGR-neutral DD reduction (~-45 -> -39 in-backtest); 0070 confirmed sizing/market-state overlays plateau ~-38 (a dependable -30 needs the deferred tail hedge)."
+    }
+  }
+}
