@@ -64,7 +64,7 @@ flowchart LR
   eNQ --> rPos2["positions.py + services/nq_positions.py"]
   rSig --> fST["signals_today.json"]
   rSig --> fMdl["models/long_horizon/config.json"]
-  rSig --> fSH["signals_history.json (degrades ∅ — not emitted)"]
+  rSig --> fSH["signals_history.json ✅ (emitted by paper cron)"]
   rPos2 --> dbOrders[("nq_orders (Supabase)")]
   rPos2 --> kite2(["Kite holdings"])
 ```
@@ -79,13 +79,14 @@ flowchart LR
 | `useTrades` | `fetchTrades` | `GET /api/trades` | `trades.py` | paper_trades.json |
 | `useTradeStats` | `fetchTradeStats` | `GET /api/trades/stats` | `trades.py` | paper_trades.json |
 | `useSignals` | `fetchSignals` | `GET /api/signals` | `signals.py` | signals_today.json, paper_portfolio.json, models/long_horizon/config.json |
-| `useSignalHistory` | `fetchSignalHistory` | `GET /api/signals/history` | `signals.py` | signals_today.json, signals_history.json (∅), signal_analytics.json (∅) |
+| `useSignalHistory` | `fetchSignalHistory` | `GET /api/signals/history` | `signals.py` | signals_today.json, signals_history.json ✅, signal_analytics.json ✅ |
 | `useNavHistory` | `fetchNavHistory` | `GET /api/portfolio/nav-history` | `portfolio.py` | `nav_history` DB (per-user) |
 | `usePaperHistory` | `fetchPaperHistory` | `GET /api/portfolio/paper-history` | `portfolio.py` | paper_ledger_history.csv |
 | `useKiteHoldings` / `useKiteMargins` / `useKiteState` | `kiteJson(...)` | `GET /api/kite/*` | `kite.py` | Zerodha Kite API (per-user session) |
 | `useNQOrders` | `fetchNQOrders` | `GET /api/nq-orders` | `nq_orders.py` | `nq_orders` DB |
+| `useNQOrderStats` | `fetchNQOrderStats` | `GET /api/nq-orders/stats?period=` | `nq_orders.py` | `nq_orders` DB (realised / STCG / LTCG / brokerage / STT rollup) |
 | `useOverview().metrics` (landing) | — | `GET /api/landing-stats` | `landing_stats.py` | trade_log.csv (∅), production_strategy.json (∅), portfolio_history.csv |
-| `useBacktest*` | `fetchBacktest*` | `GET /api/backtest/*` | `backtest.py` | signals_history.json (∅), backtest_data.json (∅) |
+| `useBacktest*` | `fetchBacktest*` | `GET /api/backtest/*` | `backtest.py` | signals_history.json ✅ (live blob), backtest_data.json (∅ — historical blob only) |
 
 `∅` = nifty-satvik's cron does **not** emit this file; the router degrades to an empty state (`or []`/`{}`).
 
@@ -122,15 +123,15 @@ Routes from `App.js` (all under `ProtectedAppLayout`). Legend: ✅ live now (pap
 /funds · FundsV2           → useRawMargins()                                    → /api/kite/margins       🔌
 /pnl · AnalyticsV2         → useOverview() + useTradeStats() + useTrades(200)   → /api/overview ✅ + /api/trades/stats→paper_trades.json  ⏳
 /journal · JournalV2       → useNQOrders()                                      → /api/nq-orders          🗄
-/accounting · AccountingV2 → useNQOrders() (brokerage/STT)                      → /api/nq-orders          🗄
-/track-record · TrackRecordV2 → useBacktestLive() + useBacktestHistorical()     → /api/backtest/live+historical→backtest_data.json  ∅
-/backtest · BacktestV2     → useBacktestLive/Historical (+ /api/backtest/run stub) → /api/backtest/*→backtest_data.json  ∅
-/stock/:symbol · StockDetailV2 → useSignalHistory()                            → /api/signals/history→signals_history.json  ∅
+/accounting · AccountingV2 → useNQOrders() + useNQOrderStats() (brokerage/STT)   → /api/nq-orders (+/stats)  🗄
+/track-record · TrackRecordV2 → useBacktestLive() + useBacktestHistorical()     → live ✅ signals_history.json · historical ∅ backtest_data.json
+/backtest · BacktestV2     → useBacktestLive/Historical (+ /api/backtest/run stub) → live ✅ signals_history.json · historical ∅ backtest_data.json
+/stock/:symbol · StockDetailV2 → useSignalHistory() + useStockData(yahoo quote/candles) → /api/signals/history  ✅ + /api/yahoo/* 🔌
 /settings · SettingsV2     → AuthContext(/api/auth/me) + fetchMfaStatus() + KiteContext  → /api/auth/* + /api/kite/session/status  ✅
 /admin · AdminV2           → useSignals() + admin endpoints                     → /api/signals ✅ + /api/admin/*
 ```
 
-**Populated today (from the paper cron):** Portfolio (Overview + Positions), Signals cards, Dashboard trending/regime, Analytics KPIs. **Waiting on a Kite session (🔌):** Dashboard holdings/balance, Orders, Funds. **Waiting on DB rows (🗄):** Journal, Accounting (populate when orders are placed via the Buy/Sell UI). **Empty by design (∅):** Track-record / Backtest / Watchlist / StockDetail history — nifty-satvik's cron doesn't emit `backtest_data.json` / `signals_history.json` / `signals_watchlist.json` (a Stage-F/analytics data task if you want them live).
+**Populated today (from the paper cron):** Portfolio (Overview + Positions), Signals cards, Dashboard trending/regime, Analytics KPIs. **Waiting on a Kite session (🔌):** Dashboard holdings/balance, Orders, Funds. **Waiting on DB rows (🗄):** Journal, Accounting (populate when orders are placed via the Buy/Sell UI). **Now wired (2026-07-02):** the paper cron emits `signals_history.json` + `signal_analytics.json`, so StockDetail history, Track-record *live*, and Backtest *live* now populate. **Still ∅:** Backtest/Track *historical* (`backtest_data.json`) and Watchlist (`signals_watchlist.json`) — a research/analytics data task.
 
 ## 5. Cross-cutting infrastructure
 - **`services/api.js`** — all fetches go through `authJson`/`authPost` (adds JWT, auto-refreshes on 401 via
