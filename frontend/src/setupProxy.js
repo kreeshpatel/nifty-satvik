@@ -1,7 +1,7 @@
 /**
  * Local-dev API proxy — mirrors the Vercel rewrite in production.
  *
- * In production, frontend/vercel.json rewrites /api/* → niftyquant-api.fly.dev
+ * In production, frontend/vercel.json rewrites /api/* → nifty-satvik-api.fly.dev
  * so cookies are first-party. Without an equivalent for `npm start`, local
  * dev would either:
  *   - hit a non-existent backend on localhost:3000/api/* (signals show 0,
@@ -17,7 +17,7 @@
  */
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
-const BACKEND = process.env.LOCAL_PROXY_TARGET || 'https://niftyquant-api.fly.dev';
+const BACKEND = process.env.LOCAL_PROXY_TARGET || 'https://nifty-satvik-api.fly.dev';
 
 module.exports = function (app) {
   app.use(

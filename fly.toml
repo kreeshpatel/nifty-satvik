@@ -1,14 +1,14 @@
 # Fly.io config for the NiftyQuant FastAPI backend (Render -> Fly re-host, 2026-06-25).
 #
 # `app` is a placeholder — set it when you `fly launch --no-deploy --copy-config`
-# (it rewrites this line) or `fly apps create niftyquant-api` and keep this name.
+# (it rewrites this line) or `fly apps create nifty-satvik-api` and keep this name.
 #
 # SECRETS are NOT here (this file is committed). Set them with `fly secrets set`:
 #   DATABASE_URL  JWT_SECRET  ENCRYPTION_KEY  KITE_API_KEY  KITE_API_SECRET
 #   GITHUB_TOKEN  CRON_SERVICE_TOKEN  (optional: KITE_PROXY_URL, FRONTEND_URL, ANTHROPIC_API_KEY)
 # See MIGRATION_RENDER_TO_SUPABASE.md for the full inventory + how to generate each.
 
-app = "niftyquant-api"
+app = "nifty-satvik-api"
 primary_region = "sin"   # Singapore — lowest latency to NSE + India users
 
 [build]

@@ -12,11 +12,11 @@
 nifty-satvik (ONE repo)
   nq/ scripts/ config.py            the quant engine + frozen cfg
   cron-scanner.yml ──push──▶ results/*.json      the paper book (daily cron commits state)
-  dashboard/backend/  ──build──▶ FastAPI on Fly.io (niftyquant-api.fly.dev)
+  dashboard/backend/  ──build──▶ FastAPI on Fly.io (nifty-satvik-api.fly.dev)
        └ reads results/* from GitHub (contents API, GITHUB_TOKEN) — the image is frozen, the cron
          pushes fresh results/ to the repo, the backend fetches the latest
   frontend/           ──build──▶ React on Vercel (Root Directory = frontend)
-       └ vercel.json rewrites /api/* + wss → niftyquant-api.fly.dev (Fly app name unchanged)
+       └ vercel.json rewrites /api/* + wss → nifty-satvik-api.fly.dev (Fly app name unchanged)
   Supabase Postgres (auth/kite/nav)  project slyxryfbhvjgvvtffjjb
 ```
 
@@ -56,11 +56,11 @@ Repo hygiene: `.gitignore` gains `node_modules/`, `frontend/{node_modules,build,
 ```
 curl -L https://fly.io/install.sh | sh   # install flyctl
 fly auth login                            # YOUR Fly account
-fly apps create niftyquant-api            # keeps the app name (frontend vercel.json points here)
+fly apps create nifty-satvik-api            # keeps the app name (frontend vercel.json points here)
 fly secrets set \
   DATABASE_URL="postgresql://postgres.slyxryfbhvjgvvtffjjb:<DB-PASSWORD>@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres" \
-  JWT_SECRET="$(openssl rand -hex 32)" \
-  ENCRYPTION_KEY="$(openssl rand -hex 32)" \
+  JWT_SECRET="$(python -c 'import secrets; print(secrets.token_hex(32))')" \
+  ENCRYPTION_KEY="$(python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())')" \  # MUST be a Fernet key, not hex
   KITE_API_KEY="<zerodha app key>" KITE_API_SECRET="<zerodha app secret>" \
   GITHUB_TOKEN="<PAT with contents:read on nifty-satvik>" \
   CRON_SERVICE_TOKEN="$(openssl rand -hex 24)"
@@ -84,7 +84,7 @@ permissive policies). 1 WARN: `audit_logs_protect` mutable search_path → optio
 `ALTER FUNCTION public.audit_logs_protect() SET search_path=''` (not applied; owner call).
 
 ## Vercel — **YOU DO (dashboard settings)**
-`frontend/vercel.json` already targets `niftyquant-api.fly.dev` (`/api/*` rewrite + `wss://` + CSP) and
+`frontend/vercel.json` already targets `nifty-satvik-api.fly.dev` (`/api/*` rewrite + `wss://` + CSP) and
 needs NO code change (the Fly app name is unchanged by the repo move). In the Vercel dashboard:
 - **Settings → Git:** connect the project to **`kreeshpatel/nifty-satvik`**, Production Branch = `main`.
 - **Settings → General → Root Directory = `frontend`** (build config lives under `frontend/`; also scopes
@@ -97,7 +97,7 @@ needs NO code change (the Fly app name is unchanged by the repo move). In the Ve
    Supabase verified.
 2. **B (you):** `fly auth` + `fly secrets set` (incl. `GITHUB_TOKEN`) + `fly deploy` from the repo root.
 3. **Vercel (you):** connect to nifty-satvik, Root Directory = frontend.
-4. Smoke: `curl https://niftyquant-api.fly.dev/health`; load the Vercel site; confirm the paper
+4. Smoke: `curl https://nifty-satvik-api.fly.dev/health`; load the Vercel site; confirm the paper
    NAV/positions/signals render.
 
 ## Deferred to Stage F (live) — NOT needed to monitor paper

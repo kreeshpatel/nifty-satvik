@@ -5,7 +5,7 @@
   "framework": "create-react-app",
   "ignoreCommand": "bash -c 'if [ \"$VERCEL_GIT_COMMIT_REF\" = \"main\" ]; then exit 1; else git diff --quiet HEAD^ HEAD -- .; fi'",
   "rewrites": [
-    { "source": "/api/:path*", "destination": "https://niftyquant-api.fly.dev/api/:path*" },
+    { "source": "/api/:path*", "destination": "https://nifty-satvik-api.fly.dev/api/:path*" },
     { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
@@ -19,13 +19,13 @@
         { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
         {
           "key": "Content-Security-Policy-Report-Only",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://niftyquant-api.fly.dev wss://niftyquant-api.fly.dev; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://nifty-satvik-api.fly.dev wss://nifty-satvik-api.fly.dev; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
         }
       ]
     }
   ],
   "env": {
-    "REACT_APP_WS_URL": "wss://niftyquant-api.fly.dev",
+    "REACT_APP_WS_URL": "wss://nifty-satvik-api.fly.dev",
     "GENERATE_SOURCEMAP": "false"
   }
 }
