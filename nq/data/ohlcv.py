@@ -278,12 +278,18 @@ def download_ohlcv(tickers: list[str], start: str = "2015-01-01",
 
     if end is None:
         end = datetime.now().strftime("%Y-%m-%d")
+    # yfinance's `end` is EXCLUSIVE — passing it verbatim drops the `end` day's own bar, so the
+    # live paper cron never captured the just-closed session and lagged one trading day (the
+    # dashboard looked "stuck" a day behind). Bump by a day so `end` is inclusive of the last
+    # session the caller asked for.
+    from datetime import timedelta
+    yf_end = (datetime.strptime(str(end)[:10], "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
     out: dict[str, pd.DataFrame] = {}
     for i in range(0, len(tickers), batch_size):
         batch = tickers[i:i + batch_size]
         tickers_ns = [f"{s}.NS" for s in batch]
         try:
-            data = yf.download(tickers_ns, start=start, end=end, group_by="ticker",
+            data = yf.download(tickers_ns, start=start, end=yf_end, group_by="ticker",
                                auto_adjust=True, threads=True, progress=False)
         except Exception:
             continue
