@@ -8,7 +8,7 @@ on:
     inputs:
       inception:
         description: "paper inception date YYYY-MM-DD (book trades forward from here)"
-        default: "2026-05-30"
+        default: "2026-06-30"
   schedule:
     - cron: "0 11 * * 1-5"      # 11:00 UTC = 16:30 IST, after the 15:30 NSE close, weekdays
 
@@ -43,7 +43,7 @@ jobs:
         run: |
           python scripts/run_paper_cron.py \
             --mode current \
-            --start "${{ github.event.inputs.inception || '2026-05-30' }}"
+            --start "${{ github.event.inputs.inception || '2026-06-30' }}"
       - name: Commit persisted paper state
         run: |
           # Author with the owner's GitHub-matched email so Vercel (which auto-deploys
