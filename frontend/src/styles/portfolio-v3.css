@@ -977,3 +977,89 @@
   .pv3-row { margin: 0 10px 14px; }
   .pv3-regime-strip { margin: 10px 10px 14px; }
 }
+
+/* ══ Portfolio sub-tabs (Overview / Positions / Closed Trades / Activity) ══ */
+.pv3-subtabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--surface-1);
+  border: 1px solid var(--edge-1);
+  border-radius: 10px;
+  width: fit-content;
+}
+.pv3-subtab {
+  background: transparent;
+  border: 0;
+  color: var(--text-3);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+.pv3-subtab:hover { color: var(--text-1); }
+.pv3-subtab.active { background: var(--surface-2); color: var(--text-1); font-weight: 600; }
+
+/* ── P&L summary strip ── */
+.pv3-pnl-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@media (max-width: 720px) { .pv3-pnl-strip { grid-template-columns: repeat(2, 1fr); } }
+.pv3-pstat {
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+  border: 1px solid var(--edge-1);
+  border-radius: var(--r-card, 12px);
+  padding: 16px 18px;
+}
+.pv3-pstat-l {
+  font-family: var(--font-mono);
+  font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--text-4); margin-bottom: 8px;
+}
+.pv3-pstat-v { font-size: 22px; font-weight: 600; color: var(--text-1); letter-spacing: -0.01em; }
+.pv3-pstat-s { font-size: 11.5px; color: var(--text-3); margin-top: 4px; }
+
+/* ── Positions detail table (10 cols) + Closed trades table (9 cols) ── */
+.pv3-ptbl {
+  display: grid;
+  grid-template-columns: minmax(160px, 1.8fr) 0.6fr 0.9fr 0.9fr 1fr 1.15fr 0.6fr 0.9fr 0.9fr 0.6fr;
+  align-items: center;
+}
+.pv3-ctbl {
+  display: grid;
+  grid-template-columns: minmax(150px, 1.6fr) 1fr 1fr 0.7fr 0.9fr 0.9fr 0.85fr 1.1fr 0.9fr;
+  align-items: center;
+}
+.pv3-ptbl .pv3-td:nth-last-child(-n+10) { border-bottom: 0; }
+.pv3-ctbl .pv3-td:nth-last-child(-n+9) { border-bottom: 0; }
+.pv3-th-c { text-align: center; }
+.pv3-td-c { text-align: center; }
+.pv3-td-co { display: flex; align-items: center; gap: 10px; }
+.pv3-td-sym { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--text-1); }
+.pv3-td-sec { font-size: 10.5px; color: var(--text-3); margin-top: 2px; }
+.pv3-td-sub { font-size: 10.5px; opacity: 0.8; margin-top: 2px; font-weight: 400; }
+
+/* ── Activity feed ── */
+.pv3-act-list { display: flex; flex-direction: column; }
+.pv3-act-row {
+  display: grid;
+  grid-template-columns: 52px 24px minmax(72px, 1fr) 1.5fr 1fr auto auto;
+  align-items: center; gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--edge-1);
+  font-size: 13px;
+}
+.pv3-act-row:last-child { border-bottom: 0; }
+.pv3-act-side {
+  font-family: var(--font-mono);
+  font-size: 10px; font-weight: 700; letter-spacing: 0.05em;
+  padding: 3px 8px; border-radius: 5px; text-align: center;
+  border: 1px solid currentColor;
+}
+.pv3-act-side.buy { color: var(--bull); }
+.pv3-act-side.sell { color: var(--bear); }
+.pv3-act-sym { font-family: var(--font-mono); font-weight: 600; color: var(--text-1); }
+.pv3-act-qty, .pv3-act-note { font-size: 12px; }
+.pv3-act-note { text-transform: capitalize; }
+.pv3-act-date { font-size: 11.5px; text-align: right; }
+.pv3-act-pnl { font-family: var(--font-mono); font-size: 12.5px; text-align: right; }

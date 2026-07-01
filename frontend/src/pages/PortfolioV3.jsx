@@ -1106,6 +1106,227 @@ function ClosedCard({ trades, isLoading }) {
 // ─────────────────────────────────────────────────────────────────────
 // MAIN PAGE
 // ─────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────
+// Paper sub-tabs — Positions / Closed Trades / Activity (+ P&L strips)
+// ─────────────────────────────────────────────────────────────────────
+function reasonChip(reason) {
+  const k = String(reason || '');
+  if (RSN_MAP[k]) return RSN_MAP[k];
+  if (RSN_MAP[k.toLowerCase()]) return RSN_MAP[k.toLowerCase()];
+  if (k.toLowerCase().includes('trail')) return ['TRAIL', 'won'];
+  return ['—', 'neu'];
+}
+
+function PnlStat({ label, value, sub, tone }) {
+  return (
+    <div className="pv3-pstat">
+      <div className="pv3-pstat-l">{label}</div>
+      <div className={`pv3-pstat-v ${tone || ''}`}>{value}</div>
+      {sub != null && <div className="pv3-pstat-s">{sub}</div>}
+    </div>
+  );
+}
+
+function UnrealizedStrip({ holdings, isPaper }) {
+  const s = useMemo(() => {
+    const rows = (holdings || []).map((h) => ({
+      sym: h.ticker || h.tradingsymbol || '—',
+      pnl: isPaper
+        ? Number(h.unrealised_pnl) || 0
+        : ((Number(h.last_price) || 0) - (Number(h.average_price) || 0)) * (Number(h.quantity) || 0),
+    }));
+    const total = rows.reduce((a, r) => a + r.pnl, 0);
+    const invested = (holdings || []).reduce(
+      (a, h) => a + (Number(h.current_value ?? (Number(h.last_price) || 0) * (Number(h.quantity) || 0)) || 0), 0);
+    const winners = rows.filter((r) => r.pnl > 0).length;
+    const best = rows.length ? rows.reduce((a, b) => (b.pnl > a.pnl ? b : a)) : null;
+    const worst = rows.length ? rows.reduce((a, b) => (b.pnl < a.pnl ? b : a)) : null;
+    return { total, invested, n: rows.length, winners, best, worst };
+  }, [holdings, isPaper]);
+  return (
+    <div className="pv3-pnl-strip">
+      <PnlStat label="Unrealised P&L" value={fmtSignedINR(s.total)} tone={s.total >= 0 ? 'num-bull' : 'num-bear'}
+               sub={s.invested > 0 ? fmtPct((s.total / s.invested) * 100) + ' on cost' : null} />
+      <PnlStat label="Open positions" value={s.n} sub={`${s.winners} in profit`} />
+      <PnlStat label="Best" value={s.best ? s.best.sym : '—'} tone="num-bull" sub={s.best ? fmtSignedINR(s.best.pnl) : null} />
+      <PnlStat label="Worst" value={s.worst ? s.worst.sym : '—'} tone="num-bear" sub={s.worst ? fmtSignedINR(s.worst.pnl) : null} />
+    </div>
+  );
+}
+
+function RealizedStrip({ trades }) {
+  const s = useMemo(() => {
+    const t = trades || [];
+    const pnls = t.map((x) => Number(x.net_pnl) || 0);
+    const rets = t.map((x) => Number(x.return_pct) || 0);
+    const wins = rets.filter((r) => r > 0);
+    const losses = rets.filter((r) => r <= 0);
+    const gw = pnls.filter((p) => p > 0).reduce((a, b) => a + b, 0);
+    const gl = Math.abs(pnls.filter((p) => p < 0).reduce((a, b) => a + b, 0));
+    return {
+      n: t.length,
+      total: pnls.reduce((a, b) => a + b, 0),
+      winRate: t.length ? (wins.length / t.length) * 100 : null,
+      avgWin: wins.length ? wins.reduce((a, b) => a + b, 0) / wins.length : null,
+      avgLoss: losses.length ? losses.reduce((a, b) => a + b, 0) / losses.length : null,
+      pf: gl > 0 ? gw / gl : null,
+    };
+  }, [trades]);
+  return (
+    <div className="pv3-pnl-strip">
+      <PnlStat label="Realised P&L" value={fmtSignedINR(s.total)} tone={s.total >= 0 ? 'num-bull' : 'num-bear'} sub={`${s.n} closed`} />
+      <PnlStat label="Win rate" value={s.winRate != null ? s.winRate.toFixed(0) + '%' : '—'}
+               sub={s.n ? `${Math.round((s.winRate / 100) * s.n)}/${s.n}` : null} />
+      <PnlStat label="Avg win / loss"
+               value={s.avgWin != null || s.avgLoss != null
+                 ? `${s.avgWin != null ? fmtPct(s.avgWin) : '—'} / ${s.avgLoss != null ? fmtPct(s.avgLoss) : '—'}` : '—'} />
+      <PnlStat label="Profit factor" value={s.pf != null ? s.pf.toFixed(2) : '—'}
+               tone={s.pf != null ? (s.pf >= 1 ? 'num-bull' : 'num-bear') : ''} />
+    </div>
+  );
+}
+
+function PositionsTable({ holdings, isLoading }) {
+  const rows = useMemo(() => (holdings || []).map((h, i) => {
+    const qty = Number(h.shares) || 0;
+    const entry = Number(h.entry_price) || 0;
+    const ltp = Number(h.current_price) || 0;
+    const value = Number(h.current_value) || qty * ltp;
+    const pnl = h.unrealised_pnl != null ? Number(h.unrealised_pnl) : value - qty * entry;
+    const pnlPct = h.unrealised_pnl_pct != null ? Number(h.unrealised_pnl_pct) : (entry > 0 ? ((ltp - entry) / entry) * 100 : 0);
+    const stop = Number(h.atr_stop) || 0;
+    const target = Number(h.target) || 0;
+    const rr = (entry > 0 && entry !== stop && target > 0) ? (target - entry) / (entry - stop) : null;
+    return { id: h.ticker || i, sym: h.ticker || '—', sector: h.sector || 'Other', qty, entry, ltp, value, pnl, pnlPct, stop, target, rr, days: h.hold_days };
+  }), [holdings]);
+  return (
+    <div className="pv3-stocks-table">
+      <div className="pv3-stocks-table-head">
+        <div>
+          <div className="pv3-t-ui-headline">Open positions</div>
+          <div className="pv3-t-ui-footnote">{isLoading ? 'Loading…' : `${rows.length} held · entry / stop / target / R:R`}</div>
+        </div>
+      </div>
+      <div className="pv3-ptbl">
+        <div className="pv3-th">Company</div>
+        <div className="pv3-th pv3-th-r">Qty</div>
+        <div className="pv3-th pv3-th-r">Entry</div>
+        <div className="pv3-th pv3-th-r">LTP</div>
+        <div className="pv3-th pv3-th-r">Value</div>
+        <div className="pv3-th pv3-th-r">Unreal P&L</div>
+        <div className="pv3-th pv3-th-r">Days</div>
+        <div className="pv3-th pv3-th-r">Stop</div>
+        <div className="pv3-th pv3-th-r">Target</div>
+        <div className="pv3-th pv3-th-r">R:R</div>
+        {isLoading ? (
+          <div className="pv3-td" style={{ gridColumn: '1 / -1' }}><Skel w="100%" h={40} /></div>
+        ) : rows.length === 0 ? (
+          <div className="pv3-closed-empty" style={{ gridColumn: '1 / -1' }}>No open positions.</div>
+        ) : rows.map((r) => (
+          <React.Fragment key={r.id}>
+            <div className="pv3-td pv3-td-co"><Logo sym={r.sym} size={26} radius={6} /><div><div className="pv3-td-sym">{r.sym}</div><div className="pv3-td-sec">{r.sector}</div></div></div>
+            <div className="pv3-td pv3-td-r">{r.qty}</div>
+            <div className="pv3-td pv3-td-r pv3-dim">{fmtNum(r.entry)}</div>
+            <div className="pv3-td pv3-td-r">{fmtNum(r.ltp)}</div>
+            <div className="pv3-td pv3-td-r">{fmtLakh(r.value)}</div>
+            <div className={`pv3-td pv3-td-r ${r.pnl >= 0 ? 'num-bull' : 'num-bear'}`}>{fmtSignedINR(r.pnl)}<div className="pv3-td-sub">{fmtPct(r.pnlPct)}</div></div>
+            <div className="pv3-td pv3-td-r pv3-dim">{r.days != null ? `${r.days}d` : '—'}</div>
+            <div className="pv3-td pv3-td-r num-bear">{r.stop ? fmtNum(r.stop) : '—'}</div>
+            <div className="pv3-td pv3-td-r num-bull">{r.target ? fmtNum(r.target) : '—'}</div>
+            <div className="pv3-td pv3-td-r">{r.rr != null ? r.rr.toFixed(2) : '—'}</div>
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ClosedTradesTable({ trades, isLoading }) {
+  const rows = useMemo(() => [...(trades || [])].sort((a, b) => String(b.exit_date || '').localeCompare(String(a.exit_date || ''))), [trades]);
+  return (
+    <div className="pv3-stocks-table">
+      <div className="pv3-stocks-table-head">
+        <div>
+          <div className="pv3-t-ui-headline">Closed trades</div>
+          <div className="pv3-t-ui-footnote">{isLoading ? 'Loading…' : `${rows.length} round-trip${rows.length === 1 ? '' : 's'}`}</div>
+        </div>
+      </div>
+      <div className="pv3-ctbl">
+        <div className="pv3-th">Company</div>
+        <div className="pv3-th pv3-th-r">In</div>
+        <div className="pv3-th pv3-th-r">Out</div>
+        <div className="pv3-th pv3-th-r">Held</div>
+        <div className="pv3-th pv3-th-r">Entry</div>
+        <div className="pv3-th pv3-th-r">Exit</div>
+        <div className="pv3-th pv3-th-c">Reason</div>
+        <div className="pv3-th pv3-th-r">Realised</div>
+        <div className="pv3-th pv3-th-r">Return</div>
+        {isLoading ? (
+          <div className="pv3-td" style={{ gridColumn: '1 / -1' }}><Skel w="100%" h={40} /></div>
+        ) : rows.length === 0 ? (
+          <div className="pv3-closed-empty" style={{ gridColumn: '1 / -1' }}>No closed trades yet — round-trips appear here as positions exit.</div>
+        ) : rows.map((t, i) => {
+          const [lbl, tone] = reasonChip(t.exit_reason);
+          const ret = Number(t.return_pct);
+          const pnl = Number(t.net_pnl);
+          return (
+            <React.Fragment key={`${t.ticker}-${t.exit_date}-${i}`}>
+              <div className="pv3-td pv3-td-co"><Logo sym={t.ticker} size={26} radius={6} /><span className="pv3-td-sym">{t.ticker}</span></div>
+              <div className="pv3-td pv3-td-r pv3-dim">{String(t.entry_date || '').slice(0, 10)}</div>
+              <div className="pv3-td pv3-td-r pv3-dim">{String(t.exit_date || '').slice(0, 10)}</div>
+              <div className="pv3-td pv3-td-r pv3-dim">{t.hold_days != null ? `${Math.round(t.hold_days)}d` : '—'}</div>
+              <div className="pv3-td pv3-td-r pv3-dim">{fmtNum(t.entry_price)}</div>
+              <div className="pv3-td pv3-td-r">{fmtNum(t.exit_price)}</div>
+              <div className="pv3-td pv3-td-c"><span className={`pv3-cl-rsn ${tone}`}>{lbl}</span></div>
+              <div className={`pv3-td pv3-td-r ${pnl >= 0 ? 'num-bull' : 'num-bear'}`}>{fmtSignedINR(pnl)}</div>
+              <div className={`pv3-td pv3-td-r ${ret >= 0 ? 'num-bull' : 'num-bear'}`}>{fmtPct(ret)}</div>
+            </React.Fragment>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ActivityPanel({ holdings, trades, isLoading }) {
+  const events = useMemo(() => {
+    const ev = [];
+    (holdings || []).forEach((h) => ev.push({ date: h.entry_date, side: 'BUY', ticker: h.ticker, qty: Number(h.shares) || null, price: Number(h.entry_price) || null, note: 'opened' }));
+    (trades || []).forEach((t) => {
+      ev.push({ date: t.entry_date, side: 'BUY', ticker: t.ticker, qty: Number(t.qty) || null, price: Number(t.entry_price) || null, note: 'entry' });
+      ev.push({ date: t.exit_date, side: 'SELL', ticker: t.ticker, qty: Number(t.qty) || null, price: Number(t.exit_price) || null, note: t.exit_reason, pnl: Number(t.net_pnl) });
+    });
+    return ev.filter((e) => e.date).sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  }, [holdings, trades]);
+  return (
+    <div className="pv3-stocks-table">
+      <div className="pv3-stocks-table-head">
+        <div>
+          <div className="pv3-t-ui-headline">Activity</div>
+          <div className="pv3-t-ui-footnote">{isLoading ? 'Loading…' : `${events.length} fill${events.length === 1 ? '' : 's'} · buys fill at next open, sells at exit`}</div>
+        </div>
+      </div>
+      <div className="pv3-act-list">
+        {isLoading ? (
+          Array.from({ length: 4 }).map((_, i) => <Skel key={i} w="100%" h={36} />)
+        ) : events.length === 0 ? (
+          <div className="pv3-closed-empty">No activity yet.</div>
+        ) : events.map((e, i) => (
+          <div key={i} className="pv3-act-row">
+            <span className={`pv3-act-side ${e.side === 'BUY' ? 'buy' : 'sell'}`}>{e.side}</span>
+            <Logo sym={e.ticker} size={24} radius={6} />
+            <span className="pv3-act-sym">{e.ticker}</span>
+            <span className="pv3-act-qty pv3-dim">{e.qty != null ? `${e.qty} sh` : ''}{e.price != null ? ` @ ${fmtNum(e.price)}` : ''}</span>
+            <span className="pv3-act-note pv3-dim">{e.note}</span>
+            <span className="pv3-act-date pv3-dim">{String(e.date).slice(0, 10)}</span>
+            {e.pnl != null && <span className={`pv3-act-pnl ${e.pnl >= 0 ? 'num-bull' : 'num-bear'}`}>{fmtSignedINR(e.pnl)}</span>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function PortfolioV3() {
   const kite = useContext(KiteContext);
   const kiteConnected = !!kite?.connected;
@@ -1114,6 +1335,7 @@ export default function PortfolioV3() {
   // account). The selector defaults to Live when Kite is connected, else
   // Paper — and follows the connection until the user picks explicitly.
   const [modeOverride, setModeOverride] = useState(null);
+  const [ptab, setPtab] = useState('overview');   // sub-tab: overview | positions | closed | activity
   const mode = modeOverride ?? (kiteConnected ? 'live' : 'paper');
   const isPaper = mode === 'paper';
 
@@ -1220,6 +1442,23 @@ export default function PortfolioV3() {
         </div>
       </section>
 
+      {/* Sub-tab bar — Portfolio sections */}
+      <section className="pv3-row">
+        <nav className="pv3-subtabs" role="tablist" aria-label="Portfolio sections">
+          {[['overview', 'Overview'], ['positions', 'Positions'], ['closed', 'Closed Trades'], ['activity', 'Activity']].map(([id, label]) => (
+            <button
+              key={id}
+              role="tab"
+              aria-selected={ptab === id}
+              className={`pv3-subtab ${ptab === id ? 'active' : ''}`}
+              onClick={() => setPtab(id)}
+            >
+              {label}
+            </button>
+          ))}
+        </nav>
+      </section>
+
       {/* Live-but-disconnected prompt */}
       {liveDisconnected && (
         <section className="pv3-row">
@@ -1233,69 +1472,66 @@ export default function PortfolioV3() {
         </section>
       )}
 
-      {/* EquityHero */}
-      <section className="pv3-row">
-        <EquityHero
-          portfolio={view.portfolio}
-          metrics={metrics}
-          navHistory={navHistory}
-          paperHistory={paperHistory}
-          isPaper={isPaper}
-          margins={margins}
-          holdings={view.holdings}
-          paperPositions={isPaper ? paperPos : []}
-          isLoading={isOverviewLoading}
-        />
-      </section>
+      {/* OVERVIEW — NAV + equity curve + performance + risk + allocation */}
+      {ptab === 'overview' && (
+        <>
+          <section className="pv3-row">
+            <EquityHero
+              portfolio={view.portfolio}
+              metrics={metrics}
+              navHistory={navHistory}
+              paperHistory={paperHistory}
+              isPaper={isPaper}
+              margins={margins}
+              holdings={view.holdings}
+              paperPositions={isPaper ? paperPos : []}
+              isLoading={isOverviewLoading}
+            />
+          </section>
+          <section className="pv3-row">
+            <PerfRibbon metrics={metrics} portfolio={view.portfolio} isLoading={isOverviewLoading} />
+          </section>
+          <section className="pv3-row">
+            <RiskRibbon portfolio={view.portfolio} metrics={metrics} isLoading={isOverviewLoading} />
+          </section>
+          <section className="pv3-row">
+            <AllocCard holdings={activeHoldings} cash={cash} totalEquity={totalEquity} isPaper={isPaper} isLoading={isHoldingsLoading} />
+          </section>
+        </>
+      )}
 
-      {/* PerfRibbon — model track record (mode-agnostic) */}
-      <section className="pv3-row">
-        <PerfRibbon
-          metrics={metrics}
-          portfolio={view.portfolio}
-          isLoading={isOverviewLoading}
-        />
-      </section>
+      {/* POSITIONS — aggregate unrealised P&L + per-position detail (stop/target/R:R) */}
+      {ptab === 'positions' && (
+        <>
+          <section className="pv3-row"><UnrealizedStrip holdings={activeHoldings} isPaper={isPaper} /></section>
+          <section className="pv3-row">
+            {isPaper
+              ? <PositionsTable holdings={paperPos} isLoading={isHoldingsLoading} />
+              : <HoldingsTable holdings={activeHoldings} isPaper={isPaper} totalEquity={totalEquity} isLoading={isHoldingsLoading} />}
+          </section>
+          <section className="pv3-row"><AllocCard holdings={activeHoldings} cash={cash} totalEquity={totalEquity} isPaper={isPaper} isLoading={isHoldingsLoading} /></section>
+        </>
+      )}
 
-      {/* RiskRibbon */}
-      <section className="pv3-row">
-        <RiskRibbon
-          portfolio={view.portfolio}
-          metrics={metrics}
-          isLoading={isOverviewLoading}
-        />
-      </section>
+      {/* CLOSED TRADES — realised P&L + full round-trip table + monthly returns */}
+      {ptab === 'closed' && (
+        <>
+          <section className="pv3-row"><RealizedStrip trades={trades} /></section>
+          <section className="pv3-row"><ClosedTradesTable trades={trades} isLoading={tradesQuery.isLoading} /></section>
+          <section className="pv3-row"><MonthlyPnl trades={trades} isLoading={tradesQuery.isLoading} /></section>
+        </>
+      )}
 
-      {/* MonthlyPnl */}
-      <section className="pv3-row">
-        <MonthlyPnl
-          trades={trades}
-          isLoading={tradesQuery.isLoading}
-        />
-      </section>
-
-      {/* Holdings + Right rail (AllocCard + ClosedCard) */}
-      <section className="pv3-row pv3-row-data">
-        <HoldingsTable
-          holdings={activeHoldings}
-          isPaper={isPaper}
-          totalEquity={totalEquity}
-          isLoading={isHoldingsLoading}
-        />
-        <aside className="pv3-right-rail">
-          <AllocCard
-            holdings={activeHoldings}
-            cash={cash}
-            totalEquity={totalEquity}
-            isPaper={isPaper}
-            isLoading={isHoldingsLoading}
-          />
-          <ClosedCard
+      {/* ACTIVITY — chronological fills (buys at next open, sells at exit) */}
+      {ptab === 'activity' && (
+        <section className="pv3-row">
+          <ActivityPanel
+            holdings={isPaper ? paperPos : []}
             trades={trades}
-            isLoading={tradesQuery.isLoading && trades.length === 0}
+            isLoading={tradesQuery.isLoading || (isPaper && paperQuery.isLoading)}
           />
-        </aside>
-      </section>
+        </section>
+      )}
 
       {/* Footer */}
       <footer className="pv3-foot">

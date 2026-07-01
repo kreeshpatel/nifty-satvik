@@ -47,6 +47,7 @@ def _load_trades():
             # "Recently closed: 0 trades" bug). Read our field names, fall back to the legacy ones.
             frames.append(pd.DataFrame([{
                 "ticker": t.get("ticker"),
+                "qty": t.get("qty", t.get("shares")),
                 "entry_date": t.get("entry_date", t.get("buy_date")),
                 "entry_price": t.get("entry", t.get("buy_price")),
                 "exit_date": t.get("exit_date", t.get("sell_date")),
