@@ -14,14 +14,33 @@
  * Stats are static marketing figures — see NOTE comment below.
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { RegimeProvider } from '@/context/RegimeContext';
 import RequestAccessModal from '@/components/landing/RequestAccessModal';
 import { DISCLAIMER } from '@/lib/signalCopy';
 import '@/styles/landing-v2.css';
 
-// NOTE: static marketing stats — wire to a public /stats endpoint if one ships.
-// Numbers below match the artifact as-is and are not pulled from live data.
+// Real performance numbers are served by GET /api/landing-stats (public, aggregate-only —
+// never tickers/prices/parameters). The constants below are the honest FALLBACKS (the frozen
+// baseline_v1 anchor) used until the fetch resolves or if the endpoint is unreachable, so the
+// page never renders a blank or an invented figure. SAFETY: nothing here reveals the strategy.
+const STATS_FALLBACK = {
+  backtest: {
+    cagr_pct: 15.46, net_cagr_pct: 12.2, sharpe: 0.667, win_rate_pct: 60.36,
+    total_trades: 1279, max_drawdown_pct: -46.26, operational_max_drawdown_pct: -39,
+    psr_gt0_pct: 97.4, period: '2017–2026',
+  },
+  live: { since: '2026-06-30', n_positions: null, n_closed: 0, total_return_pct: null },
+};
+
+// number → display string, '—' when null/undefined (never an invented number).
+const fmt = (v, opts = {}) => {
+  if (v === null || v === undefined || Number.isNaN(v)) return '—';
+  const { dp = 0, sign = false, suffix = '' } = opts;
+  const n = Number(v);
+  const s = n.toFixed(dp);
+  return `${sign && n > 0 ? '+' : ''}${s}${suffix}`;
+};
 
 /* ─── Sector tab data (mirrors SECTORS in Landing.html vanilla JS) ─── */
 const SECTORS = {
@@ -125,7 +144,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'What happens on a flat or bearish day?',
-    a: 'The dashboard says so plainly — "No fresh signals today — next scan at 16:15 IST." The system is designed to underfit; on average, ~3 of 5 weekdays produce zero A-grade signals. Patience is part of the edge.',
+    a: 'The dashboard says so plainly — "No fresh signals today — next scan at 16:15 IST." The system is designed to underfit; on many weekdays it surfaces zero A-grade signals. Patience is part of the edge.',
   },
 ];
 
@@ -202,6 +221,27 @@ function LandingV2Shell() {
   const [requestOpen, setRequestOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);      // single-open FAQ index
   const [activeSector, setActiveSector] = useState('largecap');
+  const [stats, setStats] = useState(STATS_FALLBACK);
+
+  // Public aggregate stats — real backtest + live-paper numbers, honest fallbacks on failure.
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/landing-stats')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!alive || !d) return;
+        setStats({
+          backtest: { ...STATS_FALLBACK.backtest, ...(d.backtest || {}) },
+          live: { ...STATS_FALLBACK.live, ...(d.live || {}) },
+          equity_curve: Array.isArray(d.equity_curve) ? d.equity_curve : [],
+        });
+      })
+      .catch(() => { /* keep honest fallbacks */ });
+    return () => { alive = false; };
+  }, []);
+
+  const bt = stats.backtest || STATS_FALLBACK.backtest;
+  const live = stats.live || STATS_FALLBACK.live;
 
   const openModal = () => setRequestOpen(true);
 
@@ -247,7 +287,7 @@ function LandingV2Shell() {
         <div className="lv2-wrap">
           <div className="lv2-hero-pill">
             <span className="lv2-badge">NEW</span>
-            <span>Walk-forward validated · 14 years of NSE history · 441 stocks scanned daily</span>
+            <span>Systematic · walk-forward &amp; CPCV validated · Nifty 500 large &amp; mid-caps</span>
           </div>
 
           <h1 className="lv2-hero-title">
@@ -278,27 +318,31 @@ function LandingV2Shell() {
             <span>One-click Zerodha Kite routing · you sign every order</span>
           </div>
 
-          {/* Stat band */}
+          {/* Stat band — real baseline_v1 numbers, net-first, drawdown shown alongside */}
           <div className="lv2-hero-stats">
             <div className="lv2-hero-stat">
-              <div className="lv2-hero-stat-v">441</div>
-              <div className="lv2-hero-stat-l">Stocks scored daily</div>
+              <div className="lv2-hero-stat-v">~{fmt(bt.net_cagr_pct, { dp: 0 })}<span>%</span></div>
+              <div className="lv2-hero-stat-l">Net CAGR · backtest, after cost + tax</div>
             </div>
             <div className="lv2-hero-stat">
-              <div className="lv2-hero-stat-v">0.95</div>
-              <div className="lv2-hero-stat-l">Mean Sharpe · walk-forward</div>
+              <div className="lv2-hero-stat-v">{fmt(bt.sharpe, { dp: 2 })}</div>
+              <div className="lv2-hero-stat-l">Sharpe ratio · backtest</div>
             </div>
             <div className="lv2-hero-stat">
-              <div className="lv2-hero-stat-v">53<span>%</span></div>
-              <div className="lv2-hero-stat-l">Win rate · out-of-sample</div>
+              <div className="lv2-hero-stat-v">{fmt(bt.win_rate_pct, { dp: 0 })}<span>%</span></div>
+              <div className="lv2-hero-stat-l">Win rate · backtest</div>
             </div>
             <div className="lv2-hero-stat">
-              <div className="lv2-hero-stat-v">0.92</div>
-              <div className="lv2-hero-stat-l">Confidence gate to ship</div>
+              <div className="lv2-hero-stat-v">{fmt(bt.operational_max_drawdown_pct, { dp: 0 })}<span>%</span></div>
+              <div className="lv2-hero-stat-l">Max drawdown · operational</div>
             </div>
           </div>
-          <p style={{ fontSize: 11, color: 'var(--lv2-text-3)', marginTop: 14, maxWidth: 600 }}>
-            10-fold walk-forward, out-of-sample, survivorship-corrected (2017–2026). Backtest, not live — returns varied widely year to year and were negative in 3 of the last 8.
+          <p style={{ fontSize: 11, color: 'var(--lv2-text-3)', marginTop: 14, maxWidth: 640 }}>
+            Backtest, {bt.period}, in-sample and after brokerage, STT, slippage and 20% STCG — gross
+            CAGR {fmt(bt.cagr_pct, { dp: 1 })}%, Sharpe 95% CI includes zero. Not indicative of future
+            results. Returns are lumpy: a handful of strong-trend years drive the total, with multi-year
+            flat stretches and a &gt;40% peak-to-trough drawdown. No real capital has traded yet — the
+            forward paper record since {live.since} is the real test.
           </p>
         </div>
 
@@ -310,6 +354,7 @@ function LandingV2Shell() {
               <span className="lv2-url">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2C20 17.5 12 22 12 22Z" /></svg>
                 app.niftyquant.in / dashboard
+                <span style={{ marginLeft: 8, fontSize: 9, letterSpacing: '0.1em', color: 'var(--lv2-text-4)', textTransform: 'uppercase' }}>· illustrative</span>
               </span>
             </div>
             <div className="lv2-hero-product-img">
@@ -341,7 +386,7 @@ function LandingV2Shell() {
                 <div className="lv2-mini-dash-main">
                   <div className="lv2-mini-dash-regime">
                     <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--lv2-bull)', boxShadow: '0 0 8px var(--lv2-bull)', flexShrink: 0 }} />
-                    The market is <em>Bullish</em> · NIFTY +0.68% · Breadth 75
+                    The market regime, read systematically each day
                   </div>
                   <div className="lv2-mini-cards">
                     <div className="lv2-mini-card fresh">
@@ -396,9 +441,9 @@ function LandingV2Shell() {
                     ))}
                   </div>
                   <div className="lv2-mini-bal">
-                    <div className="lv2-l">EQUITY · LTD</div>
-                    <div className="lv2-v">₹52.43L</div>
-                    <div className="lv2-l" style={{ marginTop: 4 }}>+8.4% MTD</div>
+                    <div className="lv2-l">YOUR EQUITY</div>
+                    <div className="lv2-v">₹ ••••••</div>
+                    <div className="lv2-l" style={{ marginTop: 4 }}>Your own Zerodha funds</div>
                     <button className="lv2-mini-bal-btn">Open trade desk</button>
                   </div>
                 </div>
@@ -449,8 +494,9 @@ function LandingV2Shell() {
             <SectionEyebrow>HOW IT WORKS</SectionEyebrow>
             <h2 className="lv2-section-title">Built for the way Indian swings actually trade.</h2>
             <p className="lv2-section-sub">
-              A two-head LightGBM scores every Nifty 500 stock against 79 features —
-              momentum, volatility, macro regime, sector strength, and cross-sectional relative strength. Only stocks that earn a place ship as signals.
+              A systematic model ranks every Nifty 500 large- and mid-cap by trend quality and
+              risk, point-in-time and cross-sectionally. Only the strongest, most liquid, most
+              solvent names clear the bar and ship as signals — the rest are scored and set aside.
             </p>
           </div>
 
@@ -526,19 +572,19 @@ function LandingV2Shell() {
         <div className="lv2-wrap">
           <div className="lv2-section-head">
             <SectionEyebrow>UNDER THE HOOD</SectionEyebrow>
-            <h2 className="lv2-section-title">No black box. Five steps, every day.</h2>
+            <h2 className="lv2-section-title">No black box. The same path, every day.</h2>
             <p className="lv2-section-sub">
-              Every signal travels the same path — and every step runs identically in
-              backtest and in production. What we measure is what we serve.
+              Every signal travels one transparent, frozen pipeline — and every step runs
+              identically in backtest and in production. What we measure is what we serve.
+              The one thing we keep private is the exact ranking formula.
             </p>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 14 }}>
             {[
-              ['Daily scan', 'Every weekday at 16:15 IST we pull EOD bars for all 441 tradeable Nifty 500 names, plus live macro and sector context.'],
-              ['79 features', 'Each stock becomes 79 point-in-time features — momentum, volatility, macro regime, sector strength, relative-strength ranks. No lookahead.'],
-              ['Two-head LightGBM', 'One head predicts the size of the move, the other its confidence. Trained on 14 years (2010–2024) and validated walk-forward.'],
-              ['Confidence gate', 'Only names clearing a 0.92 confidence floor and the return bar survive. Most days that’s one or two. Often zero.'],
-              ['Risk-sized plan', 'Each survivor ships with an ATR stop, an R:R-tuned target, and a volatility-scaled size — ready to route to Kite.'],
+              ['Scan', 'Every weekday after the 15:30 NSE close we refresh point-in-time prices and fundamentals across the full Nifty 500 large- and mid-cap universe. No lookahead, ever.'],
+              ['Rank', 'Each name is scored cross-sectionally on trend quality and risk. The exact ranking rule is proprietary and frozen — derived once from history, then never touched.'],
+              ['Screen', 'Only the top-ranked names that also pass strict liquidity and solvency filters survive. Most days that is one or two. Often zero — and that restraint is part of the edge.'],
+              ['Risk-size', 'Each survivor ships as a complete plan — entry, a hard stop, a target, and a size set to a fixed risk budget with a portfolio-level volatility cap — ready to route to Kite.'],
             ].map(([title, desc], i) => (
               <div
                 key={title}
@@ -561,6 +607,24 @@ function LandingV2Shell() {
                 <p style={{ fontSize: 13, lineHeight: 1.5, color: 'var(--lv2-text-2)', margin: 0 }}>{desc}</p>
               </div>
             ))}
+            {/* The deliberately-redacted step — 'how it works, without the secret' */}
+            <div style={{
+              background: 'linear-gradient(180deg, rgba(43,91,255,0.06) 0%, rgba(43,91,255,0.02) 100%)',
+              border: '1px dashed var(--lv2-brand-edge)', borderRadius: 16, padding: 22,
+              display: 'flex', flexDirection: 'column', gap: 10,
+            }}>
+              <div style={{ fontFamily: 'var(--lv2-font-mono)', fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--lv2-text-3)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 7 }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                The moat
+              </div>
+              <h3 style={{ fontFamily: 'var(--lv2-font-display)', fontSize: 17, fontWeight: 600, letterSpacing: '-0.018em', margin: 0, color: 'var(--lv2-text-1)' }}>
+                Ranking formula · not disclosed
+              </h3>
+              <p style={{ fontSize: 13, lineHeight: 1.5, color: 'var(--lv2-text-2)', margin: 0 }}>
+                The exact factor, thresholds, and hold rules are the edge — so they stay internal.
+                You get the plan and the track record; the recipe stays ours.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -616,7 +680,7 @@ function LandingV2Shell() {
             <div className="lv2-feature">
               <div className="lv2-num">02 · PROOF</div>
               <h3>Walk-forward backtested. Not curve-fit.</h3>
-              <p>Every signal is validated on out-of-sample bars the model never saw at training time. Track record updates daily, with every trade open or closed.</p>
+              <p>Every signal is validated on out-of-sample bars the model never saw. The live paper record updates daily — young, but growing with every position opened and closed.</p>
               <div className="lv2-feature-visual">
                 <svg viewBox="0 0 320 140" width="100%" height="100%" preserveAspectRatio="none">
                   <defs>
@@ -663,8 +727,8 @@ function LandingV2Shell() {
                     <circle cx="36" cy="22" r="11" fill="#ff6b35" />
                     <path d="M30 18 L34 22 L42 14" fill="none" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
                     <text x="36" y="46" fontFamily="DM Sans" fontSize="9" fontWeight="600" fill="#F1F5FF" textAnchor="middle">Kite</text>
-                    <text x="36" y="58" fontFamily="DM Sans" fontSize="8" fill="#7A82A5" textAnchor="middle">Filled</text>
-                    <text x="36" y="68" fontFamily="DM Sans" fontSize="8" fill="#3FDD8A" textAnchor="middle" style={{ fontVariantNumeric: 'tabular-nums' }}>14s</text>
+                    <text x="36" y="58" fontFamily="DM Sans" fontSize="8" fill="#7A82A5" textAnchor="middle">You sign</text>
+                    <text x="36" y="68" fontFamily="DM Sans" fontSize="8" fill="#3FDD8A" textAnchor="middle">1-tap</text>
                   </g>
                 </svg>
               </div>
@@ -696,7 +760,7 @@ function LandingV2Shell() {
                   </div>
                 </div>
                 <span style={{ fontFamily: 'var(--lv2-font-mono)', fontSize: 11, fontWeight: 600, color: 'var(--lv2-info)', border: '1px solid var(--lv2-info-edge)', background: 'var(--lv2-info-soft)', borderRadius: 6, padding: '4px 8px' }}>
-                  GRADE A · CONF 0.94
+                  GRADE A · SAMPLE
                 </span>
               </div>
               {[
@@ -704,7 +768,7 @@ function LandingV2Shell() {
                 ['Target', '₹3,066', 'bull'],
                 ['Stop', '₹2,786', 'bear'],
                 ['Risk : reward', '1 : 2.2', ''],
-                ['Hold window', '~14 days', ''],
+                ['Hold window', 'Multi-week', ''],
               ].map(([k, v, tone]) => (
                 <div key={k} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--lv2-edge-1)', paddingTop: 10 }}>
                   <span style={{ fontSize: 13, color: 'var(--lv2-text-3)' }}>{k}</span>
@@ -716,10 +780,10 @@ function LandingV2Shell() {
             {/* Field explanations */}
             <div className="lv2-proof-stats">
               {[
-                ['Confidence + grade', 'A calibrated probability that the move clears the bar, distilled into an A–D grade. Only A and A− ship as signals.'],
-                ['Entry, stop, target', 'Concrete prices — an ATR-based stop and an R:R-tuned target — not a vague “buy now and hope.”'],
+                ['Conviction + grade', 'A cross-sectional rank of trend quality against risk, distilled into an A–D grade. Only the top grades ship as signals.'],
+                ['Entry, stop, target', 'Concrete prices — an ATR-based stop and a fixed profit target — not a vague “buy now and hope.”'],
                 ['Position size', 'Scaled to your account and capped so risk per trade stays bounded. You approve it and route it to Kite.'],
-                ['Exit logic', 'A swing horizon of about two weeks. The model tells you when to leave — target hit, stop hit, or time.'],
+                ['Exit logic', 'A multi-week horizon with a hard stop, a target, a trailing stop, and a time cap. The rule tells you when to leave — target, stop, or time.'],
               ].map(([k, v]) => (
                 <div key={k} className="lv2-stat">
                   <div className="lv2-stat-l">{k}</div>
@@ -735,61 +799,67 @@ function LandingV2Shell() {
       <section className="lv2-section" id="proof" style={{ paddingTop: 0 }}>
         <div className="lv2-wrap">
           <div className="lv2-section-head">
-            <SectionEyebrow>TRACK RECORD · 10-FOLD WALK-FORWARD</SectionEyebrow>
-            <h2 className="lv2-section-title">Tested out-of-sample. The good years and the bad.</h2>
-            <p className="lv2-section-sub">A survivorship-corrected, walk-forward backtest of the core 14-day model (2017–2026), with brokerage and STT modelled in. Returns concentrate in trending years and were negative in three of the last eight. Live trading began recently — the forward record is still accumulating. Backtest figures, not live results.</p>
+            <SectionEyebrow>TRACK RECORD · WALK-FORWARD + CPCV</SectionEyebrow>
+            <h2 className="lv2-section-title">The record, in numbers — net of every cost.</h2>
+            <p className="lv2-section-sub">A survivorship-corrected, walk-forward and combinatorial-purged cross-validation backtest ({bt.period}), after brokerage, STT, slippage and 20% STCG. Returns are lumpy — a handful of strong-trend years drive the total, with a peak-to-trough drawdown near {fmt(bt.max_drawdown_pct, { dp: 0 })}%. In-sample; no real capital has traded. These are backtest figures, not live results.</p>
           </div>
 
           <div className="lv2-proof">
-            <div className="lv2-proof-chart" style={{ height: 'auto', minHeight: 320 }}>
-              <div style={{ fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--lv2-text-3)', fontWeight: 600, marginBottom: 12 }}>
-                Walk-forward return by year (CAGR)
+            <div className="lv2-proof-chart" style={{ height: 'auto', minHeight: 320, display: 'flex', flexDirection: 'column', gap: 18 }}>
+              <div style={{ fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--lv2-text-3)', fontWeight: 600 }}>
+                Backtest, at a glance
               </div>
-              <svg viewBox="0 0 600 300" width="100%" height="100%" style={{ maxHeight: 270 }}>
-                {(() => {
-                  const data = [['2017', 31.6], ['2018', -6.0], ['2019', -15.3], ['2020', 103.7], ['2021', 106.0], ['2022', 5.0], ['2023', 9.7], ['2024', -7.6], ['2025', -6.4], ['2026', 14.5]];
-                  const maxV = 110, minV = -22, plotTop = 30, plotBot = 248;
-                  const scale = (plotBot - plotTop) / (maxV - minV);
-                  const zeroY = plotBot - (0 - minV) * scale;
-                  const slot = 600 / data.length;
-                  const bw = 30;
-                  return (
-                    <g>
-                      <line x1="0" x2="600" y1={zeroY} y2={zeroY} stroke="rgba(255,255,255,0.22)" strokeWidth="1" />
-                      {data.map(([yr, v], i) => {
-                        const x = i * slot + (slot - bw) / 2;
-                        const h = Math.max(2, Math.abs(v) * scale);
-                        const y = v >= 0 ? zeroY - h : zeroY;
-                        const color = v >= 0 ? '#3FDD8A' : '#FF5C7A';
-                        return (
-                          <g key={yr}>
-                            <rect x={x} y={y} width={bw} height={h} rx="3" fill={color} opacity="0.88" />
-                            <text x={x + bw / 2} y={v >= 0 ? y - 5 : y + h + 12} fontFamily="var(--lv2-font-mono)" fontSize="9" fill={color} textAnchor="middle">{`${v > 0 ? '+' : ''}${v}%`}</text>
-                            <text x={x + bw / 2} y="288" fontFamily="var(--lv2-font-mono)" fontSize="9" fill="#7A82A5" textAnchor="middle">{`'${yr.slice(2)}`}</text>
-                          </g>
-                        );
-                      })}
-                    </g>
-                  );
-                })()}
-              </svg>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, flexWrap: 'wrap' }}>
+                <div style={{ fontFamily: 'var(--lv2-font-mono)', fontSize: 54, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--lv2-text-1)', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
+                  {fmt(bt.cagr_pct, { dp: 1 })}<span style={{ fontSize: 26, color: 'var(--lv2-text-3)' }}>%</span>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <span style={{ fontFamily: 'var(--lv2-font-mono)', fontSize: 13, color: 'var(--lv2-text-2)' }}>gross CAGR · {bt.period}</span>
+                  <span style={{ fontFamily: 'var(--lv2-font-mono)', fontSize: 13, color: 'var(--lv2-text-3)' }}>~{fmt(bt.net_cagr_pct, { dp: 0 })}% net of costs + tax</span>
+                </div>
+              </div>
+              <p style={{ fontSize: 12.5, color: 'var(--lv2-text-3)', lineHeight: 1.6, margin: 0 }}>
+                Lumpy and bull-concentrated: a few strong-trend years drive the whole total, with
+                multi-year flat stretches and a {fmt(bt.max_drawdown_pct, { dp: 0 })}% raw drawdown
+                ({fmt(bt.operational_max_drawdown_pct, { dp: 0 })}% operational). A Probabilistic Sharpe of
+                {' '}{fmt(bt.psr_gt0_pct, { dp: 0 })}% says the edge is statistically real — but it is
+                in-sample, and no real rupee has traded.
+              </p>
+              {/* Live forward record — the leak-proof out-of-sample */}
+              <div style={{ marginTop: 'auto', border: '1px solid var(--lv2-edge-1)', borderRadius: 12, padding: '14px 16px', display: 'flex', gap: 28, flexWrap: 'wrap', background: 'rgba(255,255,255,0.02)' }}>
+                <div>
+                  <div style={{ fontFamily: 'var(--lv2-font-mono)', fontSize: 10, letterSpacing: '0.11em', textTransform: 'uppercase', color: 'var(--lv2-info)' }}>Live paper · since {live.since}</div>
+                  <div style={{ fontFamily: 'var(--lv2-font-mono)', fontSize: 17, color: 'var(--lv2-text-1)', marginTop: 5, fontVariantNumeric: 'tabular-nums' }}>
+                    {live.n_positions != null ? `${live.n_positions} open` : '—'} · {fmt(live.n_closed)} closed
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontFamily: 'var(--lv2-font-mono)', fontSize: 10, letterSpacing: '0.11em', textTransform: 'uppercase', color: 'var(--lv2-text-3)' }}>Forward record</div>
+                  <div style={{ fontFamily: 'var(--lv2-font-display)', fontSize: 14, color: 'var(--lv2-text-2)', marginTop: 6 }}>Accruing — the real judge</div>
+                </div>
+              </div>
             </div>
 
             <div className="lv2-proof-stats">
               <div className="lv2-stat">
-                <div className="lv2-stat-l">MEAN SHARPE</div>
-                <div className="lv2-stat-v">0.95</div>
-                <div className="lv2-stat-d">10-fold walk-forward, out-of-sample · median 0.85</div>
+                <div className="lv2-stat-l">SHARPE RATIO</div>
+                <div className="lv2-stat-v">{fmt(bt.sharpe, { dp: 2 })}</div>
+                <div className="lv2-stat-d">Backtest · block-bootstrap 95% CI includes zero</div>
               </div>
               <div className="lv2-stat">
                 <div className="lv2-stat-l">WIN RATE</div>
-                <div className="lv2-stat-v">53<span className="lv2-stat-unit">%</span></div>
-                <div className="lv2-stat-d">Mean across folds · range 40–69%</div>
+                <div className="lv2-stat-v">{fmt(bt.win_rate_pct, { dp: 0 })}<span className="lv2-stat-unit">%</span></div>
+                <div className="lv2-stat-d">Across {bt.total_trades ? bt.total_trades.toLocaleString() : '—'} backtested trades</div>
               </div>
               <div className="lv2-stat">
-                <div className="lv2-stat-l">PROFITABLE YEARS</div>
-                <div className="lv2-stat-v">5<span className="lv2-stat-unit"> / 8</span></div>
-                <div className="lv2-stat-d">2019–2026 · negative in 2019, 2024, 2025</div>
+                <div className="lv2-stat-l">MAX DRAWDOWN</div>
+                <div className="lv2-stat-v">{fmt(bt.operational_max_drawdown_pct, { dp: 0 })}<span className="lv2-stat-unit">%</span></div>
+                <div className="lv2-stat-d">Operational · {fmt(bt.max_drawdown_pct, { dp: 0 })}% raw, unhedged</div>
+              </div>
+              <div className="lv2-stat">
+                <div className="lv2-stat-l">STATISTICAL CONFIDENCE</div>
+                <div className="lv2-stat-v">{fmt(bt.psr_gt0_pct, { dp: 0 })}<span className="lv2-stat-unit">%</span></div>
+                <div className="lv2-stat-d">Probabilistic Sharpe · P(Sharpe &gt; 0)</div>
               </div>
             </div>
           </div>
@@ -810,8 +880,8 @@ function LandingV2Shell() {
                 kind: 'is',
                 label: 'WHAT IT IS',
                 items: [
-                  ['Calibrated conviction', 'The model rates how likely a stock is to make a sizable move; only the highest-confidence names clear the 0.92 gate.'],
-                  ['Asymmetry by construction', 'ATR stops and R:R-tuned targets turn a roughly even win rate into wins that are bigger than the losses.'],
+                  ['Cross-sectional conviction', 'Every name is ranked against the whole universe on trend quality and risk; only the strongest, most liquid, most solvent names clear the bar.'],
+                  ['Asymmetry by construction', 'Hard ATR stops and a fixed profit target turn an above-even win rate into wins that outweigh the losses.'],
                   ['Restraint', 'Most days it stays silent. Not trading the marginal setups is part of the return.'],
                 ],
               },
@@ -819,9 +889,9 @@ function LandingV2Shell() {
                 kind: 'isnt',
                 label: 'WHAT IT ISN’T',
                 items: [
-                  ['Not a direction oracle', 'The win rate sits around 50%. The model ranks how much a stock may move — not whether it’s simply “going up”.'],
+                  ['Not a direction oracle', 'It wins about 60% of the time in backtest — an edge, not clairvoyance. It ranks trend quality across names; it does not promise any single stock simply “goes up”.'],
                   ['Not AI sector rotation', 'It doesn’t decide which sector leads. That layer is still in shadow research, graded before it can touch a trade.'],
-                  ['Not a guarantee', 'Backtests flatter, some years are negative, and the live record is still being earned.'],
+                  ['Not a guarantee', 'Backtests flatter, the drawdown is deep, some years are flat, and the live record is still being earned.'],
                 ],
               },
             ].map((col) => {

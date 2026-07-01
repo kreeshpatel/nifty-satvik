@@ -28,6 +28,56 @@ CACHE_TTL = 3600  # 1 hour
 EQUITY_CURVE_POINTS = 60  # sample portfolio_history.csv down to ~60 points
 INITIAL_CAPITAL = 1_000_000.0  # baseline used to compute % return on the curve
 
+# Frozen baseline_v1 anchor — the locked production model (ADR-0006), sourced from
+# research/baseline_v1.json on the pinned dataset (dataset-pin-20260701). GROSS backtest,
+# in-sample, 2017-2026; `net_cagr_pct` is after Indian transaction costs + 20% STCG. These
+# are published, frozen research results that only change when a new baseline is deliberately
+# minted (a gated, code-reviewed event), so they live here as constants rather than being
+# fetched. SAFETY: none of these reveal the strategy (no signal, factor, hold horizon, or
+# parameter) — they are aggregate, non-actionable performance statistics only.
+BASELINE_V1 = {
+    "version": "baseline_v1",
+    "period": "2017–2026",
+    "validated_on": "2026-07-01",
+    "cagr_pct": 15.46,                     # gross
+    "net_cagr_pct": 12.2,                  # after costs + 20% STCG (~12% headline)
+    "sharpe": 0.667,
+    "sharpe_ci_95": [-0.02, 1.43],         # block-bootstrap 95% CI (straddles 0 — disclosed)
+    "win_rate_pct": 60.36,
+    "total_trades": 1279,
+    "max_drawdown_pct": -46.26,            # raw, unhedged book
+    "operational_max_drawdown_pct": -39,   # with the shipped volatility-target overlay
+    "psr_gt0_pct": 97.4,                   # Probabilistic Sharpe Ratio, P(Sharpe > 0)
+    "min_trl_years": 6.2,                  # Minimum Track Record Length (95%)
+    "basis": "gross backtest, in-sample (2017-2026), after costs + 20% STCG for net; "
+             "returns are lumpy and bull-concentrated with a deep drawdown",
+}
+
+
+def _live_block() -> dict | None:
+    """Live paper-trading forward record (the leak-proof out-of-sample) from the cron-
+    published paper book. Aggregate only — never tickers/prices."""
+    try:
+        from github_data import fetch_github_json
+        pf = fetch_github_json("results/paper_portfolio.json") or {}
+        an = fetch_github_json("results/signal_analytics.json") or {}
+        nav = pf.get("total_value") or pf.get("nav")
+        total_ret = round((float(nav) / INITIAL_CAPITAL - 1) * 100, 2) if nav else None
+        return {
+            "since": "2026-06-30",
+            "nav": round(float(nav), 2) if nav else None,
+            "starting_nav": INITIAL_CAPITAL,
+            "total_return_pct": total_ret,
+            "n_positions": pf.get("n_positions") or an.get("active"),
+            "n_closed": an.get("total_closed"),
+            "win_rate_pct": an.get("win_rate"),
+            "note": "Live paper record since inception — the forward wall the model is judged on. "
+                    "No real capital has traded; the gate to live capital is >=30 closed paper trades.",
+        }
+    except Exception as e:
+        logger.warning(f"live paper block failed: {e}")
+        return None
+
 
 def _compute_stats() -> dict:
     """
@@ -59,7 +109,8 @@ def _compute_stats() -> dict:
         },
         "closed_signals_recent": [],
         "sector_heatmap_30d": [],
-        "backtest": None,
+        "backtest": dict(BASELINE_V1),   # frozen anchor — always present
+        "live": None,
         "equity_curve": [],
     }
 
@@ -179,32 +230,13 @@ def _compute_stats() -> dict:
     except Exception as e:
         logger.warning(f"signals_history enrichment failed: {e}")
 
-    # Headline backtest stats — production_strategy.json is rewritten on the
-    # quarterly revalidation cron and is the authoritative source for the
-    # CAGR / total-trades / win-rate / max-DD numbers shown in the hero +
-    # KPI row. Frontend uses these in preference to the live-cron numbers
-    # above for the headline display.
-    try:
-        from github_data import fetch_github_json
-        strategy = fetch_github_json("results/production_strategy.json")
-        if isinstance(strategy, dict):
-            br = strategy.get("backtest_results") or {}
-            stats["backtest"] = {
-                "version": strategy.get("version"),
-                "validated_on": strategy.get("validated_on"),
-                "next_revalidation": strategy.get("next_revalidation"),
-                "period": strategy.get("backtest_period"),
-                "cagr_pct": br.get("cagr"),
-                "total_return_pct": br.get("total_return"),
-                "total_trades": br.get("total_trades"),
-                "win_rate_pct": br.get("win_rate"),
-                "avg_return_per_trade_pct": br.get("avg_return_per_trade"),
-                "sharpe": br.get("sharpe_2024"),
-                "max_drawdown_pct": br.get("max_drawdown"),
-                "profit_factor": br.get("profit_factor_2024"),
-            }
-    except Exception as e:
-        logger.warning(f"production_strategy enrichment failed: {e}")
+    # Headline backtest stats come from the frozen BASELINE_V1 anchor (set in the default
+    # dict above). The legacy production_strategy.json path described the RETIRED v1 model
+    # (two-head LightGBM / 14-day horizon) and is not emitted by the clean engine, so it is
+    # intentionally NOT read here — the landing headlines the real, locked baseline_v1.
+
+    # Live paper forward record (the leak-proof out-of-sample) — updates daily via the cron.
+    stats["live"] = _live_block()
 
     # Equity curve — sample portfolio_history.csv down to ~60 points so the
     # frontend SVG renders cleanly without shipping 1100 rows of payload.

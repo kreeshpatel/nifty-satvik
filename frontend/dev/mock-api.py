@@ -377,7 +377,13 @@ def _match(path):
         r"^/api/backtest/historical$": BACKTEST_HISTORICAL,
         r"^/api/yahoo/index-sparklines$": INDEX_SPARKLINES,
         r"^/api/yahoo/quote-batch$": QUOTE_BATCH,
-        r"^/api/landing-stats$": {"cagr": 15.46, "sharpe": 0.667, "win_rate": 60.36, "n_trades": 1279},
+        r"^/api/landing-stats$": {
+            "backtest": {"cagr_pct": 15.46, "net_cagr_pct": 12.2, "sharpe": 0.667, "win_rate_pct": 60.36,
+                         "total_trades": 1279, "max_drawdown_pct": -46.26, "operational_max_drawdown_pct": -39,
+                         "psr_gt0_pct": 97.4, "period": "2017–2026", "version": "baseline_v1"},
+            "live": {"since": "2026-06-30", "nav": 986562.83, "starting_nav": 1000000,
+                     "total_return_pct": -1.34, "n_positions": 7, "n_closed": 0, "win_rate_pct": None},
+            "equity_curve": [], "sector_heatmap_30d": [], "closed_signals_recent": []},
     }
     for pat, body in R.items():
         if re.match(pat, p):
