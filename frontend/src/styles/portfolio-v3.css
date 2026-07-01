@@ -1016,28 +1016,31 @@
   font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
   text-transform: uppercase; color: var(--text-4); margin-bottom: 8px;
 }
-.pv3-pstat-v { font-size: 22px; font-weight: 600; color: var(--text-1); letter-spacing: -0.01em; }
+.pv3-pstat-v { font-size: 22px; font-weight: 600; color: var(--text-1); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
 .pv3-pstat-s { font-size: 11.5px; color: var(--text-3); margin-top: 4px; }
 
 /* ── Positions detail table (10 cols) + Closed trades table (9 cols) ── */
 .pv3-ptbl {
   display: grid;
-  grid-template-columns: minmax(160px, 1.8fr) 0.6fr 0.9fr 0.9fr 1fr 1.15fr 0.6fr 0.9fr 0.9fr 0.6fr;
+  grid-template-columns: minmax(170px, 1.9fr) 0.62fr 0.95fr 0.95fr 1fr 1.3fr 0.55fr 0.95fr 0.95fr 0.6fr;
   align-items: center;
 }
 .pv3-ctbl {
   display: grid;
-  grid-template-columns: minmax(150px, 1.6fr) 1fr 1fr 0.7fr 0.9fr 0.9fr 0.85fr 1.1fr 0.9fr;
+  grid-template-columns: minmax(160px, 1.7fr) 1fr 1fr 0.7fr 0.95fr 0.95fr 0.85fr 1.15fr 0.9fr;
   align-items: center;
 }
 .pv3-ptbl .pv3-td:nth-last-child(-n+10) { border-bottom: 0; }
 .pv3-ctbl .pv3-td:nth-last-child(-n+9) { border-bottom: 0; }
 .pv3-th-c { text-align: center; }
 .pv3-td-c { text-align: center; }
-.pv3-td-co { display: flex; align-items: center; gap: 10px; }
-.pv3-td-sym { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--text-1); }
-.pv3-td-sec { font-size: 10.5px; color: var(--text-3); margin-top: 2px; }
-.pv3-td-sub { font-size: 10.5px; opacity: 0.8; margin-top: 2px; font-weight: 400; }
+/* Wide tables scroll horizontally on narrow viewports rather than cramming the columns. */
+@media (max-width: 920px) {
+  .pv3-stocks-table:has(.pv3-ptbl),
+  .pv3-stocks-table:has(.pv3-ctbl) { overflow-x: auto; }
+  .pv3-ptbl { min-width: 860px; }
+  .pv3-ctbl { min-width: 820px; }
+}
 
 /* ── Activity feed ── */
 .pv3-act-list { display: flex; flex-direction: column; }

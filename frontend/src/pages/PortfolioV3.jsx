@@ -1224,16 +1224,24 @@ function PositionsTable({ holdings, isLoading }) {
           <div className="pv3-closed-empty" style={{ gridColumn: '1 / -1' }}>No open positions.</div>
         ) : rows.map((r) => (
           <React.Fragment key={r.id}>
-            <div className="pv3-td pv3-td-co"><Logo sym={r.sym} size={26} radius={6} /><div><div className="pv3-td-sym">{r.sym}</div><div className="pv3-td-sec">{r.sector}</div></div></div>
-            <div className="pv3-td pv3-td-r">{r.qty}</div>
-            <div className="pv3-td pv3-td-r pv3-dim">{fmtNum(r.entry)}</div>
-            <div className="pv3-td pv3-td-r">{fmtNum(r.ltp)}</div>
-            <div className="pv3-td pv3-td-r">{fmtLakh(r.value)}</div>
-            <div className={`pv3-td pv3-td-r ${r.pnl >= 0 ? 'num-bull' : 'num-bear'}`}>{fmtSignedINR(r.pnl)}<div className="pv3-td-sub">{fmtPct(r.pnlPct)}</div></div>
-            <div className="pv3-td pv3-td-r pv3-dim">{r.days != null ? `${r.days}d` : '—'}</div>
-            <div className="pv3-td pv3-td-r num-bear">{r.stop ? fmtNum(r.stop) : '—'}</div>
-            <div className="pv3-td pv3-td-r num-bull">{r.target ? fmtNum(r.target) : '—'}</div>
-            <div className="pv3-td pv3-td-r">{r.rr != null ? r.rr.toFixed(2) : '—'}</div>
+            <div className="pv3-td pv3-td-name">
+              <Logo sym={r.sym} size={32} radius={8} />
+              <div>
+                <div className="pv3-td-name-sym">{r.sym}</div>
+                <div className="pv3-td-name-full">{r.sector}</div>
+              </div>
+            </div>
+            <div className="pv3-td pv3-td-r tabular-nums">{Math.round(r.qty)}</div>
+            <div className="pv3-td pv3-td-r tabular-nums" style={{ color: 'var(--text-3)' }}>{fmtNum(r.entry)}</div>
+            <div className="pv3-td pv3-td-r tabular-nums">{fmtNum(r.ltp)}</div>
+            <div className="pv3-td pv3-td-r tabular-nums">{fmtLakh(r.value)}</div>
+            <div className="pv3-td pv3-td-r tabular-nums" style={{ color: r.pnl >= 0 ? 'var(--bull)' : 'var(--bear)' }}>
+              <div className="pv3-pcol"><span className="pv3-pnl-v">{fmtSignedINR(r.pnl)}</span><span className="pv3-pnl-p">{fmtPct(r.pnlPct)}</span></div>
+            </div>
+            <div className="pv3-td pv3-td-r tabular-nums" style={{ color: 'var(--text-3)' }}>{r.days != null ? `${r.days}d` : '—'}</div>
+            <div className="pv3-td pv3-td-r tabular-nums" style={{ color: 'var(--bear)' }}>{r.stop ? fmtNum(r.stop) : '—'}</div>
+            <div className="pv3-td pv3-td-r tabular-nums" style={{ color: 'var(--bull)' }}>{r.target ? fmtNum(r.target) : '—'}</div>
+            <div className="pv3-td pv3-td-r tabular-nums">{r.rr != null ? r.rr.toFixed(2) : '—'}</div>
           </React.Fragment>
         ))}
       </div>
@@ -1271,15 +1279,15 @@ function ClosedTradesTable({ trades, isLoading }) {
           const pnl = Number(t.net_pnl);
           return (
             <React.Fragment key={`${t.ticker}-${t.exit_date}-${i}`}>
-              <div className="pv3-td pv3-td-co"><Logo sym={t.ticker} size={26} radius={6} /><span className="pv3-td-sym">{t.ticker}</span></div>
-              <div className="pv3-td pv3-td-r pv3-dim">{String(t.entry_date || '').slice(0, 10)}</div>
-              <div className="pv3-td pv3-td-r pv3-dim">{String(t.exit_date || '').slice(0, 10)}</div>
-              <div className="pv3-td pv3-td-r pv3-dim">{t.hold_days != null ? `${Math.round(t.hold_days)}d` : '—'}</div>
-              <div className="pv3-td pv3-td-r pv3-dim">{fmtNum(t.entry_price)}</div>
-              <div className="pv3-td pv3-td-r">{fmtNum(t.exit_price)}</div>
+              <div className="pv3-td pv3-td-name"><Logo sym={t.ticker} size={32} radius={8} /><div className="pv3-td-name-sym">{t.ticker}</div></div>
+              <div className="pv3-td pv3-td-r tabular-nums" style={{ color: 'var(--text-3)' }}>{String(t.entry_date || '').slice(0, 10)}</div>
+              <div className="pv3-td pv3-td-r tabular-nums" style={{ color: 'var(--text-3)' }}>{String(t.exit_date || '').slice(0, 10)}</div>
+              <div className="pv3-td pv3-td-r tabular-nums" style={{ color: 'var(--text-3)' }}>{t.hold_days != null ? `${Math.round(t.hold_days)}d` : '—'}</div>
+              <div className="pv3-td pv3-td-r tabular-nums" style={{ color: 'var(--text-3)' }}>{fmtNum(t.entry_price)}</div>
+              <div className="pv3-td pv3-td-r tabular-nums">{fmtNum(t.exit_price)}</div>
               <div className="pv3-td pv3-td-c"><span className={`pv3-cl-rsn ${tone}`}>{lbl}</span></div>
-              <div className={`pv3-td pv3-td-r ${pnl >= 0 ? 'num-bull' : 'num-bear'}`}>{fmtSignedINR(pnl)}</div>
-              <div className={`pv3-td pv3-td-r ${ret >= 0 ? 'num-bull' : 'num-bear'}`}>{fmtPct(ret)}</div>
+              <div className="pv3-td pv3-td-r tabular-nums" style={{ color: pnl >= 0 ? 'var(--bull)' : 'var(--bear)' }}>{fmtSignedINR(pnl)}</div>
+              <div className="pv3-td pv3-td-r tabular-nums" style={{ color: ret >= 0 ? 'var(--bull)' : 'var(--bear)' }}>{fmtPct(ret)}</div>
             </React.Fragment>
           );
         })}
@@ -1316,10 +1324,12 @@ function ActivityPanel({ holdings, trades, isLoading }) {
             <span className={`pv3-act-side ${e.side === 'BUY' ? 'buy' : 'sell'}`}>{e.side}</span>
             <Logo sym={e.ticker} size={24} radius={6} />
             <span className="pv3-act-sym">{e.ticker}</span>
-            <span className="pv3-act-qty pv3-dim">{e.qty != null ? `${e.qty} sh` : ''}{e.price != null ? ` @ ${fmtNum(e.price)}` : ''}</span>
-            <span className="pv3-act-note pv3-dim">{e.note}</span>
-            <span className="pv3-act-date pv3-dim">{String(e.date).slice(0, 10)}</span>
-            {e.pnl != null && <span className={`pv3-act-pnl ${e.pnl >= 0 ? 'num-bull' : 'num-bear'}`}>{fmtSignedINR(e.pnl)}</span>}
+            <span className="pv3-act-qty tabular-nums" style={{ color: 'var(--text-3)' }}>{e.qty != null ? `${e.qty} sh` : ''}{e.price != null ? ` @ ${fmtNum(e.price)}` : ''}</span>
+            <span className="pv3-act-note" style={{ color: 'var(--text-3)' }}>{e.note}</span>
+            <span className="pv3-act-date tabular-nums" style={{ color: 'var(--text-3)' }}>{String(e.date).slice(0, 10)}</span>
+            {e.pnl != null
+              ? <span className="pv3-act-pnl tabular-nums" style={{ color: e.pnl >= 0 ? 'var(--bull)' : 'var(--bear)' }}>{fmtSignedINR(e.pnl)}</span>
+              : <span />}
           </div>
         ))}
       </div>
