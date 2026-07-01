@@ -48,7 +48,8 @@ jobs:
         run: |
           git config user.name "paper-cron"
           git config user.email "paper-cron@users.noreply.github.com"
-          git add results/paper_portfolio.json results/paper_trades.json results/portfolio_history.csv \
+          git add results/paper_state.json results/paper_portfolio.json results/paper_trades.json \
+                  results/portfolio_history.csv results/paper_ledger_history.csv \
                   results/signals_today.json results/kill_state.json 2>/dev/null || true
           git commit -m "chore(paper): daily cron state $(date -u +%F)" || echo "no state change"
           git push || echo "nothing to push"
