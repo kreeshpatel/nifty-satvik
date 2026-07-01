@@ -39,6 +39,12 @@
 
 ---
 
+## ✅ DECISION MADE (2026-07-01, owner awake): LOCK + D1(a) — ADR-0006
+Owner reviewed + chose **D1(a): accept ~−39% DD via the vol-target, ship to paper.** Model LOCKED
+(baseline_v1 + carried cfg; ADR-0006). D2 = keep carried cfg. Alpha research CLOSED. **NEXT = Stage E
+(paper): implement the vol-target in the clean engine's live/paper path + build the paper book + cron
+scanner; ≥30 paper trades; then live.** Stage-G tail hedge builds in parallel (scaling gate).
+
 ## MORNING BRIEFING (read first — filled as the night progresses)
 
 **Headline (FINAL, after rigorous stress-testing):** I chased the one promising lead — "let winners

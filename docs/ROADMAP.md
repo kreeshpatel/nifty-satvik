@@ -455,7 +455,9 @@ fold-pass ≥ 60%, bootstrap CI excludes 0, turnover ≤ +30%, mechanism explain
 | Phase 1 | Audit & Safe Hardening | **DONE** (2026-06-27; commits `ab585c3`, `b653f52`; golden master byte-identical) |
 | A | Trustworthy ground (harness + reproduce baseline + KILLs) | **DONE — owner signed off 2026-07-01.** Absorbed the corrected-universe build (old Stage B). `baseline_v1` = **15.46% gross CAGR / 0.667 Sharpe** (pinned `dataset-pin-20260701`, byte-reproducible); engine≡strategy (golden); §11 KILL re-derived via the A5 harness-trust gate (regime overlay → KILL, run 28472608257). See `research/STAGE_A_TRUST_RECORD.md`. The 26.1% baseline_v0 was a vintage-favorable in-sample headline; the honest pinned anchor is 15.46% (Δ = data vintage). |
 | B | Corrected universe + re-derived base (`baseline_v1`) | **FOLDED INTO STAGE A** (owner decision 2026-06-30) — the corrected universe + delisted-D/E rehydration + `baseline_v1` were built within Stage A. Note: the frozen cfg was NOT re-derived (kept the carried frozen cfg; reproduction proved engine fidelity). |
-| C | Conviction model (within top-15) | **IN PROGRESS (started 2026-07-01)** — measured against the pinned `baseline_v1` (15.46% / 0.667). |
+| C | Conviction model (within top-15) | **DONE — KILL (conviction does not earn a place).** C2 signal INCONCLUSIVE, C3 sizing KILL, Kelly = no sizer. |
+| D | Conviction-driven hybrid (sizing/exit/risk) | **DONE — no promotable layer.** Sizing/regime/exits/quality all KILL or regime-dependent (findings 0002-0009). |
+| **LOCK** | Model locked (ADR-0006, 2026-07-01) | **DONE.** baseline_v1 + carried cfg; D1 = accept ~-39% DD via vol-target; D2 = keep cfg; alpha research CLOSED. |
 | D | Conviction-driven hybrid (sizing / exit / risk) | NOT STARTED — blocked on C |
 | E | Paper-revalidate full system (≥30 trades, observe→enforce) | NOT STARTED — blocked on D |
 | F | Live capital (kill switch + decay monitor) | NOT STARTED — the pre-committed real-capital gate |
