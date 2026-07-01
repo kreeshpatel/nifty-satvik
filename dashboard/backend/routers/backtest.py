@@ -20,11 +20,11 @@ from database import User
 from github_data import fetch_github_json
 
 # signal analytics lived in the retired v1 engine (src/trading/signal_tracker); the
-# clean nifty-satvik engine does not carry it, and the /backtest live series reads
-# results/signals_history.json (which the long-horizon cron does not emit), so the
-# analytics are empty regardless. Guard the import so a missing module degrades to
-# an empty-analytics stub instead of crashing uvicorn at startup (main.py mounts
-# this router at import time).
+# clean nifty-satvik engine does not carry that module. The /backtest live series is
+# instead derived here from results/signals_history.json, which the paper-book cron
+# now emits (PaperBook.dashboard_files, 2026-07-02). Guard the legacy import so its
+# absence degrades to an empty-analytics stub instead of crashing uvicorn at startup
+# (main.py mounts this router at import time).
 try:
     _SRC = os.path.join(PROJECT_ROOT, "src")
     if _SRC not in sys.path:
