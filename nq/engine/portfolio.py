@@ -95,6 +95,27 @@ def base_risk_qty(
     return max(0, qty)
 
 
+def vol_target_scalar(daily_returns, *, target_annual: float, floor: float, window: int = 42) -> float:
+    """De-gross-ONLY book vol-target scalar (O-009 / pre-reg 0068 V2): the factor to multiply SIZING
+    equity by so realised book volatility targets ``target_annual``::
+
+        scalar = clip( target_annual / realised_vol,  floor,  1.0 )
+
+    ``daily_returns`` = the book's trailing daily returns; ``realised_vol`` = std of the last
+    ``window`` × √252. Returns **1.0** (no scaling) when there are < ``window`` returns or vol is 0 —
+    it NEVER levers up (hard cap 1.0). This is the SINGLE shared formula the live paper book and the
+    backtest both call, so they cannot drift (the kite-execution parity rule). Off the frozen-cfg
+    research path (``simulate`` only applies it when a ``vol_target`` is passed), so the golden master
+    is unaffected."""
+    r = np.asarray(daily_returns, dtype=float)
+    if r.size < window:
+        return 1.0
+    rv = float(np.std(r[-window:], ddof=0)) * np.sqrt(TRADING_DAYS)
+    if rv <= 0.0:
+        return 1.0
+    return float(np.clip(target_annual / rv, floor, 1.0))
+
+
 @dataclass
 class Position:
     ticker: str
@@ -146,11 +167,17 @@ def simulate(
     date_col: str = "date",
     rank_col: str = "trend_rank",
     min_adv_rs: float = 0.0,
+    vol_target: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Run the portfolio backtest over ``panel`` (a ranked eligible panel) with the frozen
     ``cfg``. ``min_adv_rs`` is an optional tradeability floor on ENTRIES (0 = trade everything the
     rank gate selects — the universe was already masked upstream). Returns
-    ``{equity_curve, trades, metrics}``."""
+    ``{equity_curve, trades, metrics}``.
+
+    ``vol_target`` (paper/live ONLY — the O-009 overlay from ``config.json → live_overlays``, NOT the
+    frozen cfg): when given, each day's SIZING equity is de-grossed by :func:`vol_target_scalar` on
+    the trailing realised book vol (keys: ``vol_target_annual``, ``vol_window`` 42, ``vol_floor``
+    0.40). ``None`` (the research/golden path) ⇒ scalar is always 1.0 ⇒ byte-identical golden master."""
     q = float(cfg["gate_quantile"])
     stop_mult = float(cfg["stop_atr_mult"])
     target_pct = float(cfg["target_pct"])
@@ -179,6 +206,12 @@ def simulate(
     conv_size = bool(cfg.get("conviction_size"))
     conv_mult_map = cfg.get("conviction_size_mult") or DEFAULT_CONVICTION_MULT
 
+    # Paper/live vol-target overlay (O-009; None on the research/golden path -> scalar always 1.0).
+    vt = vol_target if vol_target and float(vol_target.get("vol_target_annual", 0.0)) > 0 else None
+    vt_target = float(vt["vol_target_annual"]) if vt else 0.0
+    vt_window = int(vt.get("vol_window", 42)) if vt else 42
+    vt_floor = float(vt.get("vol_floor", 0.40)) if vt else 0.40
+
     cash = float(initial_capital)
     positions: dict[str, Position] = {}
     pending: list[str] = []                 # tickers selected at t-1, fill at t's open
@@ -188,6 +221,13 @@ def simulate(
 
     for t in dates:
         day = by_date[t]
+        # vol-target de-gross factor for SIZING (trailing realised book vol through yesterday; no
+        # lookahead). 1.0 unless the paper/live vol_target is passed -> golden byte-identical.
+        vscalar = 1.0
+        if vt is not None and len(equity_curve) > 1:
+            _eq = np.array([e["equity"] for e in equity_curve[-(vt_window + 1):]], dtype=float)
+            _r = np.diff(_eq) / _eq[:-1]
+            vscalar = vol_target_scalar(_r, target_annual=vt_target, floor=vt_floor, window=vt_window)
 
         # ── 1. Fill pending entries at today's OPEN ──────────────────────────────
         for tkr in pending:
@@ -207,7 +247,8 @@ def simulate(
                 continue
             equity = cash + sum(p.qty * _mark(p, day) for p in positions.values())
             eff_risk_pct = risk_pct * pending_mult.get(tkr, 1.0)   # conviction tilt (mean-preserved)
-            qty = base_risk_qty(equity, fill, risk_per_share, adv, eff_risk_pct,
+            # de-gross the SIZING equity by the vol-target scalar (1.0 off the research/golden path)
+            qty = base_risk_qty(equity * vscalar, fill, risk_per_share, adv, eff_risk_pct,
                                 max_position_pct=max_position_pct, max_adv_participation=max_adv_part)
             if qty <= 0:
                 continue
