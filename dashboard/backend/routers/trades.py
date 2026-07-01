@@ -40,16 +40,21 @@ def _load_trades():
     try:
         rows = fetch_github_json("results/paper_trades.json")
         if isinstance(rows, list) and rows:
+            # nifty-satvik's PaperBook emits entry_date/exit_date/entry/exit/reason/return_pct/pnl
+            # (+ net_pct/net_pnl/hold_days aliases). The old mapping read buy_date/sell_date/
+            # buy_price/sell_price/exit_reason — absent here, so every date/price/reason column came
+            # back all-null → NaN → the JSON response failed and /api/trades returned empty (the
+            # "Recently closed: 0 trades" bug). Read our field names, fall back to the legacy ones.
             frames.append(pd.DataFrame([{
                 "ticker": t.get("ticker"),
-                "entry_date": t.get("buy_date"),
-                "entry_price": t.get("buy_price"),
-                "exit_date": t.get("sell_date"),
-                "exit_price": t.get("sell_price"),
-                "return_pct": t.get("net_pct"),
-                "net_pnl": t.get("net_pnl"),
-                "hold_days": t.get("hold_days"),
-                "exit_reason": t.get("exit_reason"),
+                "entry_date": t.get("entry_date", t.get("buy_date")),
+                "entry_price": t.get("entry", t.get("buy_price")),
+                "exit_date": t.get("exit_date", t.get("sell_date")),
+                "exit_price": t.get("exit", t.get("sell_price")),
+                "return_pct": t.get("net_pct", t.get("return_pct")),
+                "net_pnl": t.get("net_pnl", t.get("pnl")),
+                "hold_days": t.get("hold_days", t.get("days_held")),
+                "exit_reason": t.get("exit_reason", t.get("reason")),
             } for t in rows]))
     except Exception:
         pass
