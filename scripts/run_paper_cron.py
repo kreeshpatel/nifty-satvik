@@ -94,12 +94,23 @@ def main(argv: list[str] | None = None) -> int:
             continue                                    # already processed this session
         book.step(d, g.set_index("ticker"))
         stepped += 1
+
+    # Refresh each held position's mark to the LATEST session close for a live MTM display.
+    # step() leaves a position filled on the last session marked at its ENTRY (it skips the
+    # fill-day close-mark so it doesn't age/exit on the fill day), so per-position P&L would read
+    # 0 until the next session. Mark to the latest close so the dashboard's position P&L agrees
+    # with the NAV. Display-only: the equity curve already marks to close via _mark, so this never
+    # touches the parity-gated step()/simulate() path.
+    last_day = df[df["date"] == df["date"].max()].set_index("ticker") if not df.empty else None
+    if last_day is not None:
+        for _tkr, _p in book.positions.items():
+            if _tkr in last_day.index:
+                _p.last_mark = float(last_day.loc[_tkr, "close"])
     book.save(args.state_dir)
 
     # today's BUY signals = the pending names to fill at the next session's open (indicative entry/
     # stop/target). signals_today.json uses the niftyquant backend's envelope shape.
     from nq.engine.portfolio import leg_slippage
-    last_day = df[df["date"] == df["date"].max()].set_index("ticker") if not df.empty else None
     hold_days = int(cfg["max_hold_days"]); target_pct = float(cfg["target_pct"])
     signals = []
     for tkr in book.pending:
