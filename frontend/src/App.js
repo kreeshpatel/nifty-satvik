@@ -196,6 +196,9 @@ function ProtectedAppLayout() {
   }, [user]);
 
   const connectKite = useCallback(() => {
+    // REACT_APP_KITE_API_KEY must be set in the Vercel build env (Production) — CRA bakes it
+    // in at BUILD time, so it only takes effect on a build created after the var is saved.
+    // If it's missing, this early-returns with the toast below and never redirects to Zerodha.
     const apiKey = process.env.REACT_APP_KITE_API_KEY;
     if (!apiKey) {
       toastError('Kite API key is not configured. Contact support.');
