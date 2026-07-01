@@ -20,8 +20,10 @@ import { TopBar } from '@/components/layout/TopBar';
 // Login + Landing stay eager — they're the entry points and any lazy
 // Suspense flicker on first paint reads as broken.
 import Login from '@/pages/Login';
-import Landing from '@/pages/Landing';
 import LandingV2 from '@/pages/LandingV2';
+// NOTE: the legacy `Landing` page (/landing-v1) was retired 2026-07-02 — it carried fabricated
+// stats and a pricing block that contradicted the live invite-only positioning. The route now
+// redirects to `/`. Landing.jsx stays on disk; roll back by reverting this commit.
 
 const DashboardV2     = React.lazy(() => import('@/pages/DashboardV2'));
 const DashboardV3     = React.lazy(() => import('@/pages/DashboardV3'));
@@ -370,9 +372,10 @@ function AnimatedRoutes() {
       <Suspense fallback={<RouteFallback />}>
       <Routes location={location} key={location.pathname}>
         {/* Public routes — landing page always shown at / */}
-        {/* LandingV2 is the live landing; Landing retained at /landing-v1 for rollback */}
+        {/* LandingV2 is the single live landing; /landing-v1 (legacy) redirects here — it
+            carried fabricated stats + a contradictory pricing block. Roll back via git. */}
         <Route path="/" element={<PageTransition><LandingV2 /></PageTransition>} />
-        <Route path="/landing-v1" element={<PageTransition><Landing /></PageTransition>} />
+        <Route path="/landing-v1" element={<Navigate to="/" replace />} />
         <Route path="/login" element={<PageTransition><LoginGuard /></PageTransition>} />
         <Route path="/forgot-password" element={<PageTransition><ForgotPassword /></PageTransition>} />
         <Route path="/reset-password" element={<PageTransition><ResetPassword /></PageTransition>} />
