@@ -46,8 +46,11 @@ jobs:
             --start "${{ github.event.inputs.inception || '2026-05-30' }}"
       - name: Commit persisted paper state
         run: |
-          git config user.name "paper-cron"
-          git config user.email "paper-cron@users.noreply.github.com"
+          # Author with the owner's GitHub-matched email so Vercel (which auto-deploys
+          # main) doesn't BLOCK the commit as an unrecognized author. paper-cron@…noreply
+          # matched no GitHub account -> "Deployment Blocked".
+          git config user.name "kreeshpatel"
+          git config user.email "kreeshvasistha@gmail.com"
           git add results/paper_state.json results/paper_portfolio.json results/paper_trades.json \
                   results/portfolio_history.csv results/paper_ledger_history.csv \
                   results/signals_today.json results/kill_state.json 2>/dev/null || true
