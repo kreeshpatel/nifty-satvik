@@ -201,8 +201,36 @@ class PaperBook:
         hist = pd.DataFrame(self.equity_curve or [{"date": "", "equity": self.initial_capital,
                             "cash": self.initial_capital, "n_positions": 0}]).rename(
                             columns={"equity": "total_value"})
+        # signal-history lifecycle — feeds /api/signals/history + /api/backtest/live + positions-nq
+        # enrichment + StockDetail. Readers key on ticker/signal_date/status/entry/stop/target/
+        # close_price/close_date/pnl_pct/days_since. Closed trades → HIT_TARGET/HIT_STOP/EXPIRED
+        # (trailing counts as a stop-type exit so a profitable one shows "Trailing at Gain"); held → ACTIVE.
+        _RSN = {"target": "HIT_TARGET", "stop": "HIT_STOP", "trailing": "HIT_STOP",
+                "time": "EXPIRED", "stale": "EXPIRED"}
+        sig_hist: list[dict[str, Any]] = []
+        for t in self.trades:
+            rp = t.get("return_pct")
+            sig_hist.append({"ticker": t.get("ticker"), "signal_date": t.get("entry_date"),
+                             "status": _RSN.get(t.get("reason"), "EXPIRED"), "entry": t.get("entry"),
+                             "close_price": t.get("exit"), "close_date": t.get("exit_date"),
+                             "return_pct": rp, "pnl_pct": rp, "close_pnl_pct": rp,
+                             "days_since": t.get("days_held"), "hold_days": t.get("days_held"),
+                             "exit_reason": t.get("reason")})
+        for p in self.positions.values():
+            pct = round((p.last_mark / p.entry - 1) * 100, 2) if p.entry else 0.0
+            sig_hist.append({"ticker": p.ticker, "signal_date": str(p.entry_date)[:10], "status": "ACTIVE",
+                             "entry": round(p.entry, 2), "stop": round(p.stop, 2), "target": round(p.target, 2),
+                             "current_price": round(p.last_mark, 2), "close_price": round(p.last_mark, 2),
+                             "pnl_pct": pct, "return_pct": pct, "days_since": p.days_held, "hold_days": p.days_held})
+        _cr = [t.get("return_pct") or 0.0 for t in self.trades]
+        _wins = [r for r in _cr if r > 0]
+        sig_analytics = {"total_signals": len(sig_hist), "total_closed": len(self.trades),
+                         "active": len(self.positions),
+                         "win_rate": round(len(_wins) / len(_cr) * 100, 1) if _cr else None,
+                         "avg_return_pct": round(sum(_cr) / len(_cr), 2) if _cr else None}
         return {"paper_portfolio.json": portfolio, "paper_trades.json": trades,
-                "portfolio_history.csv": hist, "kill_state.json": self.kill_flags()}
+                "portfolio_history.csv": hist, "kill_state.json": self.kill_flags(),
+                "signals_history.json": sig_hist, "signal_analytics.json": sig_analytics}
 
     # ── persistence (survives across cron runs) ──
     def save(self, state_dir: str | Path) -> None:
