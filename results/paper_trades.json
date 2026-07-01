@@ -9,7 +9,10 @@
     "days_held": 4,
     "reason": "stop",
     "return_pct": -13.34,
-    "pnl": -20328.1
+    "pnl": -20328.1,
+    "net_pct": -13.34,
+    "net_pnl": -20328.1,
+    "hold_days": 4
   },
   {
     "ticker": "LAURUSLABS",
@@ -21,7 +24,10 @@
     "days_held": 10,
     "reason": "trailing",
     "return_pct": -0.93,
-    "pnl": -1243.19
+    "pnl": -1243.19,
+    "net_pct": -0.93,
+    "net_pnl": -1243.19,
+    "hold_days": 10
   },
   {
     "ticker": "GVT&D",
@@ -33,7 +39,10 @@
     "days_held": 16,
     "reason": "trailing",
     "return_pct": 6.09,
-    "pnl": 8597.61
+    "pnl": 8597.61,
+    "net_pct": 6.09,
+    "net_pnl": 8597.61,
+    "hold_days": 16
   },
   {
     "ticker": "HFCL",
@@ -45,6 +54,9 @@
     "days_held": 10,
     "reason": "target",
     "return_pct": 22.46,
-    "pnl": 71.27
+    "pnl": 71.27,
+    "net_pct": 22.46,
+    "net_pnl": 71.27,
+    "hold_days": 10
   }
 ]

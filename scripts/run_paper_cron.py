@@ -96,19 +96,29 @@ def main(argv: list[str] | None = None) -> int:
         stepped += 1
     book.save(args.state_dir)
 
-    # today's BUY signals = the pending names to fill at the next session's open (indicative entry)
+    # today's BUY signals = the pending names to fill at the next session's open (indicative entry/
+    # stop/target). signals_today.json uses the niftyquant backend's envelope shape.
+    from nq.engine.portfolio import leg_slippage
     last_day = df[df["date"] == df["date"].max()].set_index("ticker") if not df.empty else None
     signals = []
     for tkr in book.pending:
         if last_day is not None and tkr in last_day.index:
             row = last_day.loc[tkr]
-            signals.append({"ticker": tkr, "indicative_close": round(float(row["close"]), 2),
-                            "buy_window": "T+1..T+3 at open"})
+            close = float(row["close"]); atr = float(row.get("atr_pct_63", 0) or 0)
+            entry = round(close * (1 + leg_slippage(float(row.get("adv_rupees_20d", 0) or 0))), 2)
+            signals.append({
+                "ticker": tkr, "indicative_close": round(close, 2), "indicative_entry": entry,
+                "stop": round(entry * (1 - float(cfg["stop_atr_mult"]) * atr / 100.0), 2) if atr > 0 else None,
+                "target": round(entry * (1 + float(cfg["target_pct"]) / 100.0), 2),
+                "buy_window": "T+1..T+3 at open",
+            })
     Path(args.state_dir).mkdir(parents=True, exist_ok=True)
-    (Path(args.state_dir) / "signals_today.json").write_text(
-        json.dumps({"as_of": end, "n_positions": len(book.positions), "cash": round(book.cash, 2),
-                    "buy_signals": signals, "kill_state": book.kill_flags()}, indent=2, default=str),
-        encoding="utf-8")
+    (Path(args.state_dir) / "signals_today.json").write_text(json.dumps({
+        "generated_at": end, "signals": signals,
+        "regime": {"status": "UNKNOWN", "strength": 0, "vix": 0, "breadth": 0},
+        "n_positions": len(book.positions), "cash": round(book.cash, 2),
+        "kill_state": book.kill_flags(),
+    }, indent=2, default=str), encoding="utf-8")
 
     nav = book.equity_curve[-1]["equity"] if book.equity_curve else args.initial_capital
     print(f"paper cron: stepped {stepped} session(s) | NAV {nav} | held {len(book.positions)} | "

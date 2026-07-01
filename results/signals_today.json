@@ -1,8 +1,6 @@
 {
-  "as_of": "2026-07-01",
-  "n_positions": 10,
-  "cash": 167.32,
-  "buy_signals": [
+  "generated_at": "2026-07-01",
+  "signals": [
     {
       "ticker": "KIRLOSENG",
       "indicative_close": 2364.0,
@@ -29,6 +27,14 @@
       "buy_window": "T+1..T+3 at open"
     }
   ],
+  "regime": {
+    "status": "UNKNOWN",
+    "strength": 0,
+    "vix": 0,
+    "breadth": 0
+  },
+  "n_positions": 10,
+  "cash": 167.32,
   "kill_state": {
     "wr_last20": 50.0,
     "wr_breach": false,

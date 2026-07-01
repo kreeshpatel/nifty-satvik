@@ -32,6 +32,9 @@ results/*
 !results/paper_trades.json
 !results/paper_ledger_history.csv
 !results/paper_equity_state.json
+# PaperBook (Stage E) resume state — cash/positions/pending/trades/equity_curve. MUST persist
+# across cron runs so the cloud cron resumes the book instead of resetting it every day.
+!results/paper_state.json
 # Kill-criteria + paper-equity runtime state must persist across cron runs (Stage E/F).
 !results/kill_state.json
 !results/kill_log.jsonl

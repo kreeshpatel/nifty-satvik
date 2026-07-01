@@ -19,17 +19,33 @@ backend is up + re-pointed, the frontend works with no frontend changes.
 
 ## The 3 workstreams
 
-### A. Data-contract alignment  — **I DO (code)**  — the real integration work
+### A. Data-contract alignment  — **DONE (code, 2026-07-01)**  — the real integration work
 The Fly backend (`niftyquant/dashboard/backend/github_data.py`) reads `results/*.json` from
 `kreeshpatel/niftyquant` and its routers (`signals`, `positions`, `overview`, `trades`,
-`landing_stats`) expect that repo's OLD shapes. nifty-satvik's cron emits DIFFERENT (leaner) shapes.
-Fix = make the two match:
-1. Re-point `github_data.py`: `kreeshpatel/niftyquant` → `kreeshpatel/nifty-satvik` (GITHUB_RAW + API).
-2. Compare the OLD contract (niftyquant `results/signals_today.json`, `portfolio_history.csv`, paper
-   files + what each router reads) to nifty-satvik's output, and **make nifty-satvik's cron emit the
-   OLD shapes** (adapt `scripts/run_paper_cron.py` — cheaper + keeps the validated frontend/backend
-   untouched) OR adapt the routers. Prefer adapting nifty-satvik's output.
-3. Verify each dashboard page's data need is satisfied by a nifty-satvik file.
+`landing_stats`) expect that repo's OLD shapes. nifty-satvik's cron emitted DIFFERENT (leaner) shapes.
+What was done:
+1. **Re-pointed the backend** (in the niftyquant repo — separate push): `github_data.py` **and**
+   `routers/signals.py` both carried hardcoded `kreeshpatel/niftyquant` GITHUB_RAW + API-contents
+   URLs → both flipped to `kreeshpatel/nifty-satvik`. (The docs' `git clone niftyquant` lines stay —
+   they point at the product repo, not the results data source.)
+2. **Adapted nifty-satvik's output to the backend contract** (chose this over touching the validated
+   routers). `PaperBook` now splits persistence: `paper_state.json` = the engine RESUME state
+   (cash/peak/pending/positions/trades/equity_curve — internal shape), and `dashboard_files()` derives
+   the backend-shaped exports:
+   - `paper_portfolio.json` → `{cash, peak_value, total_value, total_trades, n_positions,
+     positions:{tkr:{entry_price, shares, atr_stop, current_price, current_value, unrealised_pnl(_pct),
+     entry_date, days_held, target}}}` (matches `overview._paper_payload` + `positions.py`).
+   - `paper_trades.json` → each trade gets `net_pct`/`net_pnl`/`hold_days` aliases (overview KPIs + trades router).
+   - `portfolio_history.csv` **and** `paper_ledger_history.csv` → `total_value` column (equity curve +
+     the overview Sharpe/MDD read).
+   - `signals_today.json` (written by `run_paper_cron`) → the backend envelope `{generated_at, signals:[…
+     ticker/indicative_close/indicative_entry/stop/target/buy_window], regime, kill_state}`.
+   `load()` has a one-time legacy-migration fallback (reads the pre-split internal `paper_portfolio.json`
+   + siblings) so the LIVE book (10 positions, ₹941K NAV) carried forward without a reset; the committed
+   `results/` were migrated in place. `paper_state.json` whitelisted in `.gitignore` so the cloud cron resumes.
+3. **Coverage:** overview/positions/trades/signals/landing-stats satisfied. Files nifty-satvik does NOT
+   emit — `signals_history.json`, `backtest_data.json`, `trade_log.csv`, `production_strategy.json`,
+   `tearsheet.html` — all degrade gracefully (`or []`/`or {}`) to empty states, no crash.
 
 ### B. Fly.io backend deploy  — **YOU DO (account)**  + I prep the config
 `fly.toml` + `deploy/Dockerfile` are staged in niftyquant. Steps (one-time):

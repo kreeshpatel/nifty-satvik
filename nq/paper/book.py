@@ -54,6 +54,7 @@ class PaperBook:
         self.initial_capital = float(initial_capital)
 
         self.cash = float(initial_capital)
+        self.peak = float(initial_capital)      # running max NAV (for the dashboard drawdown)
         self.positions: dict[str, Position] = {}
         self.pending: list[str] = []
         self.equity_curve: list[dict[str, Any]] = []
@@ -140,7 +141,9 @@ class PaperBook:
 
         # 4. mark-to-market NAV
         mtm = sum(p.qty * _mark(p, day) for p in self.positions.values())
-        self.equity_curve.append({"date": str(t)[:10], "equity": round(self.cash + mtm, 2),
+        nav = self.cash + mtm
+        self.peak = max(self.peak, nav)
+        self.equity_curve.append({"date": str(t)[:10], "equity": round(nav, 2),
                                   "cash": round(self.cash, 2), "n_positions": len(self.positions)})
 
     def run_batch(self, panel: pd.DataFrame, *, date_col: str = "date") -> dict[str, Any]:
@@ -169,28 +172,90 @@ class PaperBook:
             "mode": "observe",
         }
 
+    # ── dashboard-contract exports (the niftyquant FastAPI's expected shapes) ──
+    def dashboard_files(self) -> dict[str, Any]:
+        """The results/* files the niftyquant backend reads, in ITS shapes:
+        paper_portfolio.json {cash, peak_value, positions:{tkr:{current_value,...}}},
+        paper_trades.json [{..., net_pct, net_pnl, hold_days}], portfolio_history.csv [date,total_value],
+        kill_state.json. (paper_ledger_history.csv is written as a copy of portfolio_history.)"""
+        nav = self.equity_curve[-1]["equity"] if self.equity_curve else self.initial_capital
+        # field names mirror what the niftyquant positions.py router reads (Holdings page):
+        # entry_price/shares/atr_stop/current_price/current_value/unrealised_pnl(_pct)/entry_date.
+        positions = {}
+        for p in self.positions.values():
+            mkt = round(p.qty * p.last_mark, 2)
+            positions[p.ticker] = {
+                "entry_date": str(p.entry_date)[:10], "entry_price": round(p.entry, 2),
+                "shares": p.qty, "position_size": round(p.qty * p.entry, 2),
+                "atr_stop": round(p.stop, 2), "target": round(p.target, 2),
+                "current_price": round(p.last_mark, 2), "current_value": mkt,
+                "unrealised_pnl": round(p.qty * (p.last_mark - p.entry), 2),
+                "unrealised_pnl_pct": round((p.last_mark / p.entry - 1) * 100, 2) if p.entry else 0.0,
+                "days_held": p.days_held,
+            }
+        portfolio = {"cash": round(self.cash, 2), "peak_value": round(self.peak, 2),
+                     "total_value": round(nav, 2), "n_positions": len(self.positions),
+                     "total_trades": len(self.trades), "positions": positions}
+        trades = [{**t, "net_pct": t.get("return_pct"), "net_pnl": t.get("pnl"),
+                   "hold_days": t.get("days_held")} for t in self.trades]
+        hist = pd.DataFrame(self.equity_curve or [{"date": "", "equity": self.initial_capital,
+                            "cash": self.initial_capital, "n_positions": 0}]).rename(
+                            columns={"equity": "total_value"})
+        return {"paper_portfolio.json": portfolio, "paper_trades.json": trades,
+                "portfolio_history.csv": hist, "kill_state.json": self.kill_flags()}
+
     # ── persistence (survives across cron runs) ──
     def save(self, state_dir: str | Path) -> None:
         d = Path(state_dir); d.mkdir(parents=True, exist_ok=True)
-        state = {
-            "cash": self.cash, "pending": self.pending,
+        # resume state (the ENGINE reload path — paper_state.json, internal shape)
+        (d / "paper_state.json").write_text(json.dumps({
+            "cash": self.cash, "peak": self.peak, "pending": self.pending,
             "positions": {k: asdict(v) for k, v in self.positions.items()},
+            "trades": self.trades, "equity_curve": self.equity_curve,
             "config": {"initial_capital": self.initial_capital, "vol_target": self.vt},
-        }
-        (d / "paper_portfolio.json").write_text(json.dumps(state, indent=2, default=str), encoding="utf-8")
-        (d / "paper_trades.json").write_text(json.dumps(self.trades, indent=2, default=str), encoding="utf-8")
-        pd.DataFrame(self.equity_curve).to_csv(d / "portfolio_history.csv", index=False)
-        (d / "kill_state.json").write_text(json.dumps(self.kill_flags(), indent=2), encoding="utf-8")
+        }, indent=2, default=str), encoding="utf-8")
+        # dashboard-contract exports (the FastAPI reads these via GitHub)
+        for name, content in self.dashboard_files().items():
+            p = d / name
+            content.to_csv(p, index=False) if name.endswith(".csv") else \
+                p.write_text(json.dumps(content, indent=2, default=str), encoding="utf-8")
+        self.dashboard_files()["portfolio_history.csv"].to_csv(
+            d / "paper_ledger_history.csv", index=False)      # the realistic capital-constrained book
 
     def load(self, state_dir: str | Path) -> None:
-        d = Path(state_dir)
-        pf = d / "paper_portfolio.json"
-        if not pf.exists():
+        d = Path(state_dir); pf = d / "paper_state.json"
+        if pf.exists():
+            st = json.loads(pf.read_text(encoding="utf-8"))
+            self.cash = float(st["cash"]); self.peak = float(st.get("peak", self.cash))
+            self.pending = list(st.get("pending", []))
+            self.positions = {k: Position(**v) for k, v in st.get("positions", {}).items()}
+            self.trades = list(st.get("trades", []))
+            self.equity_curve = list(st.get("equity_curve", []))
             return
-        st = json.loads(pf.read_text(encoding="utf-8"))
+        self._load_legacy(d)                       # one-time pre-split migration
+
+    def _load_legacy(self, d: Path) -> None:
+        """Resume from the pre-split state (internal-shape paper_portfolio.json + sibling
+        paper_trades.json / portfolio_history.csv). Fires once; the next save() writes
+        paper_state.json and this branch never runs again. A no-op if there's no legacy
+        state, or if paper_portfolio.json is already the (dashboard) export shape."""
+        legacy = d / "paper_portfolio.json"
+        if not legacy.exists():
+            return
+        st = json.loads(legacy.read_text(encoding="utf-8"))
+        if "pending" not in st:                    # already the dashboard export shape — no resume info
+            return
         self.cash = float(st["cash"]); self.pending = list(st.get("pending", []))
         self.positions = {k: Position(**v) for k, v in st.get("positions", {}).items()}
         tp = d / "paper_trades.json"
         self.trades = json.loads(tp.read_text(encoding="utf-8")) if tp.exists() else []
         hp = d / "portfolio_history.csv"
-        self.equity_curve = pd.read_csv(hp).to_dict("records") if hp.exists() else []
+        if hp.exists():
+            hist = pd.read_csv(hp)
+            col = "equity" if "equity" in hist.columns else "total_value"
+            self.equity_curve = [{"date": str(r.get("date", "")), "equity": float(r.get(col, self.initial_capital)),
+                                  "cash": float(r.get("cash", 0) or 0), "n_positions": int(r.get("n_positions", 0) or 0)}
+                                 for r in hist.to_dict("records")]
+            self.peak = max([e["equity"] for e in self.equity_curve] + [self.cash])
+        else:
+            self.equity_curve = []; self.peak = self.cash
