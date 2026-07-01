@@ -5,8 +5,8 @@
     "KIRLOSENG",
     "VEDL",
     "APARINDS",
-    "GESHIP",
-    "BHARATFORG"
+    "BHARATFORG",
+    "GESHIP"
   ],
   "positions": {
     "HINDCOPPER": {
@@ -19,8 +19,8 @@
       "peak": 545.4000244140625,
       "atr_pct": 4.110822989352917,
       "adv": 4038477155.015979,
-      "days_held": 19,
-      "last_mark": 501.1000061035156,
+      "days_held": 20,
+      "last_mark": 490.6000061035156,
       "absent_run": 0
     },
     "MCX": {
@@ -30,11 +30,11 @@
       "qty": 51,
       "stop": 2490.987553409936,
       "target": 3542.598414,
-      "peak": 2914.5,
+      "peak": 2962.0,
       "atr_pct": 3.773769532552333,
       "adv": 11384969717.21466,
-      "days_held": 19,
-      "last_mark": 2837.199951171875,
+      "days_held": 20,
+      "last_mark": 2962.0,
       "absent_run": 0
     },
     "ADANIPOWER": {
@@ -47,8 +47,8 @@
       "peak": 233.77999877929688,
       "atr_pct": 3.451739269613617,
       "adv": 10985228779.162184,
-      "days_held": 19,
-      "last_mark": 223.77000427246094,
+      "days_held": 20,
+      "last_mark": 226.86000061035156,
       "absent_run": 0
     },
     "GMDCLTD": {
@@ -61,8 +61,8 @@
       "peak": 676.8499755859375,
       "atr_pct": 4.31893407147337,
       "adv": 1857783177.8976197,
-      "days_held": 19,
-      "last_mark": 583.9500122070312,
+      "days_held": 20,
+      "last_mark": 610.6500244140625,
       "absent_run": 0
     },
     "NATIONALUM": {
@@ -75,8 +75,8 @@
       "peak": 382.3500061035156,
       "atr_pct": 3.9373622924128373,
       "adv": 5384722013.739853,
-      "days_held": 14,
-      "last_mark": 339.6000061035156,
+      "days_held": 15,
+      "last_mark": 334.6499938964844,
       "absent_run": 0
     },
     "LAURUSLABS": {
@@ -89,8 +89,8 @@
       "peak": 1517.4000244140625,
       "atr_pct": 2.562093039758652,
       "adv": 2478625792.3535156,
-      "days_held": 8,
-      "last_mark": 1517.4000244140625,
+      "days_held": 9,
+      "last_mark": 1493.300048828125,
       "absent_run": 0
     },
     "HINDALCO": {
@@ -103,8 +103,8 @@
       "peak": 1014.2000122070312,
       "atr_pct": 3.096901181070246,
       "adv": 7292236804.687683,
-      "days_held": 8,
-      "last_mark": 956.5999755859375,
+      "days_held": 9,
+      "last_mark": 939.7000122070312,
       "absent_run": 0
     },
     "GVT&D": {
@@ -117,8 +117,8 @@
       "peak": 5122.5599999999995,
       "atr_pct": 4.496191674794686,
       "adv": 5032464920.849999,
-      "days_held": 2,
-      "last_mark": 4944.0,
+      "days_held": 3,
+      "last_mark": 4895.7001953125,
       "absent_run": 0
     },
     "SYRMA": {
@@ -131,8 +131,8 @@
       "peak": 1439.7195,
       "atr_pct": 3.332906135925868,
       "adv": 2182288500.05,
-      "days_held": 2,
-      "last_mark": 1396.300048828125,
+      "days_held": 3,
+      "last_mark": 1421.5999755859375,
       "absent_run": 0
     },
     "HFCL": {
@@ -145,8 +145,8 @@
       "peak": 212.85000610351562,
       "atr_pct": 4.207156843203395,
       "adv": 7934977113.549655,
-      "days_held": 1,
-      "last_mark": 212.85000610351562,
+      "days_held": 2,
+      "last_mark": 212.08999633789062,
       "absent_run": 0
     }
   },
@@ -324,6 +324,12 @@
     {
       "date": "2026-06-30",
       "equity": 940957.9,
+      "cash": 167.32,
+      "n_positions": 10
+    },
+    {
+      "date": "2026-07-01",
+      "equity": 947978.7,
       "cash": 167.32,
       "n_positions": 10
     }
