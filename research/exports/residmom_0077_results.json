@@ -1,0 +1,49 @@
+{
+  "prereg": "0077",
+  "n_trials": 87,
+  "corr_resid_vs_trend": 0.114,
+  "base": {
+    "sharpe": 0.667,
+    "sortino": 0.836,
+    "calmar": 0.33,
+    "max_drawdown_pct": -46.26,
+    "cagr_pct": 15.46,
+    "n_trades": 1279,
+    "turnover_per_year": 149.0
+  },
+  "resid_mom": {
+    "sharpe": 0.503,
+    "sortino": 0.658,
+    "calmar": 0.19,
+    "max_drawdown_pct": -44.04,
+    "cagr_pct": 8.17,
+    "n_trades": 986,
+    "turnover_per_year": 114.9
+  },
+  "base_skew": -0.639,
+  "resid_skew": -0.253,
+  "dSharpe": -0.164,
+  "dSharpe_ci": [
+    -0.651,
+    0.32
+  ],
+  "dSortino": -0.178,
+  "dSortino_ci": [
+    -0.812,
+    0.485
+  ],
+  "fold_pass": 0.375,
+  "n_folds": 8,
+  "subperiod_2022_dCAGR": -8.661,
+  "base_2022_26": {
+    "sharpe": 0.57,
+    "sortino": 0.744,
+    "dd": -46.3
+  },
+  "resid_2022_26": {
+    "sharpe": 0.309,
+    "sortino": 0.444,
+    "dd": -24.9
+  },
+  "shape_win": false
+}
