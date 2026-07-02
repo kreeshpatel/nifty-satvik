@@ -34,16 +34,18 @@ Extend the Screener parser to pull the new rows and compute the derived series (
 year-ago period from the *reported* series, trailing-only). One code path, reused offline + live (the
 `conviction-features` §1c single-code-path rule). No network in tests — parse from saved Screener fixtures.
 
-### 1.3 — PIT store schema extension
-Add the new columns to `fundamentals_pit_screener.pkl` (still `period_end`-keyed, availability = `+90d`),
-**backward-compatible** so `value_quality_series` and every current caller keep working unchanged. New fields
-are additive; existing 5 fields byte-identical.
+### 1.3 — PIT store schema extension ✅ (schema) — satisfied by the additive 1.2 parser
+The 1.2 change makes `build_pit_frame_from_screener` emit the depth columns **additively** (original 5 in the
+same positions), so the store schema is backward-compatible and `value_quality_series` + every caller keep
+working unchanged (verified: suite 112 passed, golden byte-identical). **Population deferred:** the on-disk
+`fundamentals_pit_screener.pkl` only carries the old 5 fields until a rebuild; populating the depth fields for
+the *live* universe needs the polite Screener scrape (1.5, network — flag before running).
 
-### 1.4 — Truncation / leakage test *(the gate)*
-`tests/test_fundamentals_pit_depth.py`: build the store truncated at date `d`, assert every value at periods
-available `≤ d` equals the full-build value. Any forward-looking op (using a restated figure, a filing dated
-after the period without the lag) fails it. This is the `leakage-audit` gate for the data layer — Part 2
-cannot start until it is green.
+### 1.4 — Truncation / leakage test ✅ DONE → `tests/test_fundamentals_pit_depth.py`
+**GREEN (7 passed).** Proves the store is strictly **period-independent**: dropping the latest fiscal year
+leaves every earlier period's full row byte-identical; availability is strictly `> period_end`; depth levels
+equal their own source cell (not a cross-period blend). This is the `leakage-audit` gate for the data layer —
+Part 2 is now unblocked. (Growth/ratio features get their *own* truncation gate with the feature code in Part 2.)
 
 ### 1.5 — Coverage & quality audit
 Via the `data-quality` skill: for each new field, report coverage (% of the ~500-name universe × history
