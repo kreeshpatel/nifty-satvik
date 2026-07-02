@@ -150,6 +150,48 @@ All six "yes" → take the trade. Any "no" → skip it (close the laptop for the
   timeframes just add more stop-losses, more trades, more patience/mindset load.
 - The tool has no power; **the person using it does** (mindset + risk + practice).
 
+## 12. Swing High / Low & Dow Theory (the foundation under everything)
+
+- **Charles Dow = father of technical analysis** (the Dow Jones index bears his name). His theory of
+  **swing high / swing low** is the base under all TA.
+- **Price moves in swings, never straight.** An **up-swing** then a **down-swing**, repeating — in *both*
+  up- and down-trends. A **swing high** = the top of an up-swing; a **swing low** = the bottom of a down-swing.
+- **Dow's trend definition — an UPTREND = Higher High + Higher Low.** A *higher low* forms first (swing low
+  above the prior low); the *higher high* is **confirmed only when price breaks the prior swing high.** Both
+  conditions required before you can stamp "uptrend." **Downtrend = Lower High + Lower Low.**
+- **Price action is the *father* of every indicator.** MAs, RSI, chart patterns, MACD, Fibonacci — all derive
+  from swing structure. Every "breakout" (double-bottom, head-&-shoulders, triangle, rectangle) is a
+  **swing-high break**; every "support" (MA/RSI/MACD/Fib) is really a **swing low**.
+- **Why it's useful:** clear trend ID; exact entry + stop; and a **trailing stop that ratchets up to each new
+  higher swing low.**
+- **Retest strategy (one of the best entries).** In an established uptrend (HH+HL), when price returns to a
+  **proven prior swing low** (a support it has already respected) and holds → a high-quality buy. It's
+  *proven* price, unlike a fresh breakout. **Ball-and-floor** analogy: a ball keeps bouncing off the same
+  floor. Repeated tests of one zone = **smart-money accumulation** (they buy in hundreds of crores, so the
+  zone holds 3–4×).
+- **The "magical placement":** a swing-low **retest that coincides with a rising 44-SMA** → buy above the
+  green candle's high, stop below its low, target 1:2/1:3.
+- **Swing Failure Pattern (SFP / trap):** a breakout that **fails** — a strong green breakout candle, then a
+  big **red candle back into the range**. Institutions trap breakout-buyers. If long → **exit**; it's also a
+  **short** setup. Reverse for a failed *breakdown* (big red breakdown that snaps back up = trap = **buy**).
+  Entry above/below the trap candle, stop the other side, 1:2/1:3. Purpose: **minimize mistakes** (SEBI's
+  "91% lose money" pop-up exists because retail keeps getting trapped here).
+
+## 13. HVC — High Volume Candle (spotting institutional footprints)
+
+- **Volume = shares traded in a day** (one buy+sell = 1 unit). **HVC chart** (TradingView "volume candles"):
+  candle **thickness ∝ volume**, so a big-volume day is obvious at a glance without a separate volume pane.
+- **An HVC = an institutional footprint.** The setups:
+  - **HVC at support → institutional *buying*** → buy above the HVC's high, stop below its low, 1:2/1:3.
+  - **HVC at resistance → institutional *selling*** → avoid / short side.
+  - **HVC as a breakout** of a tight range / consolidation / sideways base → momentum-continuation buy.
+  - **HVC at the rising 44-SMA**, or a **Bollinger inside→outside** reclaim → same buy-above-high logic.
+- **Big-candle stop rule:** if the HVC is very large (6–8% on the daily), don't stop below its full low — put
+  the **stop at 50% of the candle's range** (₹1 below the midpoint). Still **buy above the high**, never on
+  the close.
+- **21-trade-trial rule:** prove a setup with 21 small-risk trades before scaling — his systematic
+  "find-what-works-first" discipline.
+
 ---
 
 ## Appendix — what WE measured testing these on our data (2019–2026, ~700 NSE names)
@@ -175,6 +217,14 @@ Kept separate from his teaching. Faithful systematic tests; **measurements, not 
   not new alpha. Open checks before any trust: **return-correlation to baseline_v1** (new vs redundant) and a
   **pre-registered CPCV/DSR** pass.
 
+- **The swing/HVC concepts reinforce the same split.** **HVC breakout** was the *best single signal* we
+  measured (+0.56pp/20d, 54% win) — institutional-volume breakout is momentum-continuation. The **swing-low
+  retest + rising-44-MA** "magical placement" *is* the strong-uptrend pullback we found works (Sharpe ~0.5–0.9
+  with a wide ATR stop). The **SFP trap** and **short side** are untested here (long-only book; SFP needs a
+  swing-pivot detector — a candidate to build). All consistent: **momentum-continuation + volume confirmation
+  + a clear swing/trend structure carry edge; mean-reversion entries do not.**
+
 **Net:** his *principles* — trade a clear uptrend, respect risk, give winners room, exit is where money is
 made, price leads news — largely hold up and match our own validated findings. His *specific mechanical
-entries* (RSI-oversold, Bollinger-oversold) do not carry an edge here; the *momentum-continuation* pieces do.
+entries* (RSI-oversold, Bollinger-oversold) do not carry an edge here; the *momentum-continuation* pieces
+(pullback/retest in a strong uptrend, HVC breakout, hidden divergence) do.
