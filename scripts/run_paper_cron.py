@@ -108,6 +108,15 @@ def main(argv: list[str] | None = None) -> int:
                 _p.last_mark = float(last_day.loc[_tkr, "close"])
     book.save(args.state_dir)
 
+    # forward-wall (forward/prereg.md §3): append the atomic 3-book (base/veto-0.1/drift) hash-chained
+    # row for the newly-stepped sessions. Isolated + non-fatal so a wall error never breaks the paper job.
+    try:
+        from nq.paper.wall_cron import update_wall
+        wrote = update_wall(book, panel, cfg, state_dir=args.state_dir, vol_target=_live_vol_target())
+        print(f"forward-wall: appended {wrote} row(s) -> {args.state_dir}/forward_wall.csv", flush=True)
+    except Exception as exc:  # noqa: BLE001 -- the wall must never break the paper cron
+        print(f"forward-wall: SKIPPED ({type(exc).__name__}: {exc})", flush=True)
+
     # today's BUY signals = the pending names to fill at the next session's open (indicative entry/
     # stop/target). signals_today.json uses the niftyquant backend's envelope shape.
     from nq.engine.portfolio import leg_slippage
