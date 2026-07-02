@@ -1,7 +1,7 @@
 # forward/prereg.md — Forward-Wall Pre-Registration
 
 **Status:** PRE-REGISTERED (locked before first live row)
-**Version:** 1.3 (v1.0 2026-07-02; v1.1–v1.3 amendments 2026-07-02 — see §10)
+**Version:** 1.4 (v1.0 2026-07-02; v1.1–v1.3 amendments 2026-07-02; v1.4 amendment 2026-07-03 — see §10)
 **Registered:** 2026-07-02
 **Anchor:** `baseline_v1` / `dataset-pin-20260701` (ohlcv_sha256 `f8625a8f…52142`)
 **Author/owner:** Kreesh Patel
@@ -121,6 +121,35 @@ At the **first review on/after 12 months of live data**:
 Amendments are appended below with date, author, and rationale. Tightening/clarification only. Any relaxation of a §4–§9 threshold voids the pre-registration for that criterion and restarts its clock.
 
 *(amendments below this line)*
+
+- **2026-07-03 — v1.4 (Claude Code, per owner).** Registers the two real PIT-clean orthogonal signals found
+  this arc as **WATCHED SHADOW FEATURES** — per-signal annotations, NOT shadow books. Addition/clarification
+  only; no §4–§9 threshold relaxed.
+  1. **Watched features:** `rev_yoy` (revenue YoY growth; in-sample cross-sectional IC **−0.036**, robust in
+     ≥2019/2022-26/current-only, [finding 0019](../research/findings/0019-fundamentals-depth-ic.md)) and
+     `usd_beta` (trailing-126d beta to the USD/INR trend; in-sample IC **−0.0295**, PIT-clean,
+     [finding 0017](../research/findings/0017-macro-pit-reconfirm.md)).
+  2. **Not books — no cap consumed.** These carry no separate portfolio or trades; they annotate the base
+     book's daily signals. They therefore do **NOT** consume the §1 two-shadow-book cap (which governs
+     traded/watched *books*). Multiple-testing is bounded by pre-committing, per feature, a *single* directional
+     evaluation rule below — no sweep, no re-formulation.
+  3. **Pre-committed forward test (quarterly dates only, after ≥ 50 forward paper closes).** Rank each day's
+     new-entry signals by the feature; the forward outcome split must match the **in-sample sign** — for both,
+     the IC is negative, so **LOW-feature names must out-return HIGH-feature names** (low revenue-growth beats
+     high; low USD-beta beats high). Promotable to a real overlay only if the forward quartile-split
+     Δ(win-rate or forward-return) has a 95% bootstrap CI **excluding 0 in the pre-committed direction**, on
+     **forward-only** data. A forward split with the *opposite* or a zero sign → the feature is **dropped as
+     noise** (recorded here). This mirrors the `conviction-features` §4 forward-wall test.
+  4. **Why the wall, not another in-sample trial.** Both signals are real but ~half the base IC (0.062) and sit
+     at the magnitude that already **KILLED as an in-sample tilt** (USD, 0082: IC ≠ portfolio Sharpe). The
+     forward wall is the only place a small real signal can be certified without the ~34-window wall; watching
+     them costs **no in-sample trial and no book slot.**
+  5. **Operational hook (NOT shipped under this bar).** Live logging requires the cron to compute `rev_yoy`
+     (from a refreshed `data/fundamentals_pit_depth.pkl`, PIT-clean per Part 1.2) and `usd_beta` (from the
+     macro betas, `nq/data/macro.py`) for each daily signal and write them into `results/signals_today.json`
+     under the `conviction-features` shadow schema (`conviction_score: null` + raw feature values). Documented
+     as the remaining wiring, to be verified against the running paper book before shipping — same discipline
+     as the §3/§6 cron hook. Until wired, this amendment fixes the *rule*; the log starts when the hook ships.
 
 - **2026-07-02 — v1.1 (Claude Code, per owner).** All tightenings/clarifications; no relaxation of any §4–§9 threshold.
   1. **§1 base TRADED → PAPER (Phase A).** v1.0 committed base to small real capital in its first section, which would have vaulted the repo's pre-committed `portfolio-simulation` paper gate (≥30 closed trades / ~2 months) — the exact class of pre-registration this doc exists to honor. Base now begins PAPER; the real-capital transition (Phase B) is gated on the paper gate and requires its own dated amendment. Added the Phase A (signal-continuation) vs Phase B (execution-cost reality) distinction so paper results are not misread as clearing the execution-risk question.
