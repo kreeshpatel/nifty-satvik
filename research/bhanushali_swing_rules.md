@@ -264,7 +264,17 @@ Kept separate from his teaching. Faithful systematic tests; **measurements, not 
   swing-pivot detector — a candidate to build). All consistent: **momentum-continuation + volume confirmation
   + a clear swing/trend structure carry edge; mean-reversion entries do not.**
 
-**Net:** his *principles* — trade a clear uptrend, respect risk, give winners room, exit is where money is
-made, price leads news — largely hold up and match our own validated findings. His *specific mechanical
-entries* (RSI-oversold, Bollinger-oversold) do not carry an edge here; the *momentum-continuation* pieces
-(pullback/retest in a strong uptrend, HVC breakout, hidden divergence) do.
+- **Certification (finding 0021 / pre-reg 0083):** the full recipe — visible uptrend + pullback + **volume
+  confirmation** + wide ATR stop + let-winners-run — was frozen and run through the repo's Deflated-Sharpe
+  gate. Volume confirmation *doubled* the entry edge again (+0.48→+0.95pp) and lifted in-sample Sharpe to
+  **+1.09** (bootstrap CI excludes 0; sub-periods stable 2017-21 +1.18 / 2022-26 +1.00). **But DSR@101 = 0.60
+  < 0.95 → UNDERPOWERED:** the +1.0 is a multi-parameter-search max, and at the program's search burden it is
+  not certifiable in-sample. ρ 0.57 to base (momentum). Disposition: a forward-wall watch candidate (owner
+  decision), never the frozen cfg — the wall is the only certifier.
+
+**Net:** his *principles* — trade a clear uptrend, respect risk, give winners room, **volume is the voice of
+god**, exit is where money is made, price leads news — largely hold up and match our own validated findings.
+His *specific mechanical mean-reversion entries* (RSI-oversold, Bollinger-oversold) do not carry an edge here;
+the *momentum-continuation* pieces (pullback/retest in a strong uptrend, HVC/volume breakout, hidden
+divergence) do — but even the best assembled recipe is uncertifiable in-sample (DSR 0.60) and belongs on the
+forward wall, not the config.
