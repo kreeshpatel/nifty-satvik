@@ -1,0 +1,36 @@
+{
+  "prereg": "0081",
+  "n_trials": 98,
+  "corr": 0.539,
+  "verdict": "UNDERPOWERED",
+  "momentum": {
+    "sharpe": 0.667,
+    "sortino": 0.835,
+    "maxdd": -46.3,
+    "cagr": 15.5,
+    "calmar": 0.33
+  },
+  "lowvol": {
+    "sharpe": 1.059,
+    "sortino": 1.396,
+    "maxdd": -32.6,
+    "cagr": 14.5,
+    "calmar": 0.45
+  },
+  "combined": {
+    "sharpe": 0.942,
+    "sortino": 1.131,
+    "maxdd": -36.1,
+    "cagr": 15.0,
+    "calmar": 0.42
+  },
+  "momentum_22_26_sharpe": 0.582,
+  "combined_22_26_sharpe": 1.066,
+  "dSharpe": 0.275,
+  "dSharpe_ci": [
+    -0.096,
+    0.695
+  ],
+  "dSortino": 0.296,
+  "dsr": 0.315
+}

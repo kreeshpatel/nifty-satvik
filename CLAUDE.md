@@ -60,7 +60,10 @@ unbiased information is the forward wall (`forward/prereg.md`).
    blend/veto (0078), and the **whole technical/chart zoo at 63d** (0079/O-015: RSI/MACD/Stoch/Williams/
    CCI/Bollinger/MFI/OBV have IC≈0; 52-week-high/SMA-dist/ROC have IC but lose as rankers — IC ≠ portfolio
    Sharpe). Vol-target is PROMOTED & shipped to paper (O-009 / pre-reg 0068). Low-vol as a *sole ranker*
-   (O-016) is strong-but-uncertifiable → the multi-sleeve fork, not a cfg change.
+   (O-016) is strong-but-uncertifiable → the multi-sleeve fork, not a cfg change. **0081 confirmed the
+   momentum×low-vol ERC combination: Sharpe 0.67→0.94, DD −46→−36 at flat CAGR, ρ=0.54 — but UNDERPOWERED**
+   → route the low-vol sleeve to the **forward wall** (`forward/prereg.md` §7 swap), the only certifier. The
+   operational robot (`nq/paper/wall_cron.py`, wired into `run_paper_cron.py`) logs the 3-book wall daily.
 
 **Reproduce-before-trust.** A number that informs a decision must be reproducible from the committed
 pipeline, never a chat transcript (e.g. the veto-0.1 null → `scripts/diag_veto01_cascade.py`). Two
