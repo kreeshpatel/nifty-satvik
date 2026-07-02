@@ -1,7 +1,7 @@
 # forward/prereg.md — Forward-Wall Pre-Registration
 
 **Status:** PRE-REGISTERED (locked before first live row)
-**Version:** 1.1 (v1.0 2026-07-02; v1.1 amendments 2026-07-02 — see §10)
+**Version:** 1.2 (v1.0 2026-07-02; v1.1 + v1.2 amendments 2026-07-02 — see §10)
 **Registered:** 2026-07-02
 **Anchor:** `baseline_v1` / `dataset-pin-20260701` (ohlcv_sha256 `f8625a8f…52142`)
 **Author/owner:** Kreesh Patel
@@ -37,12 +37,18 @@ This document fixes — **before any live row exists** — every decision thresh
 
 ## 3. Log-integrity rules (enforced in code, not convention)
 
-> **IMPLEMENTATION STATUS (verified 2026-07-02): NOT YET BUILT.** There is no `row_hash`/hash-chain anywhere in `nq/paper` or `scripts`, and no 3-book forward-wall log exists — only the legacy single-book NAV log (`results/paper_ledger_history.csv`, cols `date,total_value,cash,n_positions`, no hashing). The mechanism below is therefore a **build prerequisite**: Phase A logging is **not tamper-evident until this harness exists and its genesis row is hash-initialized.** Building it (3-book schema + hash chain + refuse-to-write-on-mismatch) is the first task before the wall's first live row.
+> **IMPLEMENTATION STATUS (2026-07-02): BUILT & TESTED.** `nq/paper/forward_wall.py` implements the chain below; `tests/test_forward_wall.py` (5 tests, green) is the acceptance criterion — a mutated **or** reordered historical row makes `append_row` refuse the next write, and back-dating is rejected. Built while the log was empty (no history to migrate or re-hash). (v1.0/v1.1 recorded this as aspirational; v1.2 built it — see §10.)
 
-1. The live log is **append-only**. Each row carries `date`, all three books' `ret`/`equity`/`n_positions`, and a `row_hash = H(prior_row_hash ‖ this_row_payload)`.
-2. The harness **refuses to write** if the recomputed hash chain over existing rows does not match — retroactive edits are structurally blocked.
+**Pinned contract — the doc is the authority; a code change that diverges from this is a break:**
+- **Hash:** `row_hash = SHA-256( prior_row_hash ‖ "|" ‖ canonical_payload )`, hex digest.
+- **Genesis seed** (the `prior_row_hash` of the first row): `SHA-256(b"nifty-satvik/forward-wall/genesis@dataset-pin-20260701")` = `f5a0223bea985252683bfbb51d9d845f9c50bda499017381884127192aa209ee`. Anchors the chain to the pinned dataset.
+- **Canonical payload** (fixed order, deterministic formatting; the written CSV cells ARE these strings, so read-back re-hashes identically with no float round-trip drift): `date(YYYY-MM-DD) | base_ret(.8f) | base_equity(.2f) | base_npos(int) | veto_ret | veto_equity | veto_npos | drift_ret | drift_equity | drift_npos`.
+- **Log path:** `results/forward_wall.csv` (columns = the payload fields + `row_hash`).
+
+1. The live log is **append-only**, **ONE atomic row per trading day carrying all three books hashed together** — a partial write (one book logged, another missed) cannot open a silent hole, because there is one row and one hash, not three independent chains.
+2. The harness **refuses to write** if the recomputed chain over existing rows does not match — retroactive edits **and reorderings** are structurally blocked (position-sensitive: each hash binds its predecessor).
 3. Live fills use realized executions (real slippage/financing), not modelled costs — **Phase B only** (Phase A paper cannot measure these). Slippage and own-behaviour-under-drawdown are themselves untested model inputs; the wall measures them once real capital is live.
-4. No back-dating. A missed day is logged as a gap, never reconstructed.
+4. No back-dating. A row's date must be strictly after the last; a missed day is a gap, never reconstructed.
 
 ## 4. Risk halt (mechanical, no discretion)
 
@@ -115,6 +121,7 @@ Amendments are appended below with date, author, and rationale. Tightening/clari
   2. **§3 marked NOT-YET-BUILT.** Verified 2026-07-02 that the hash-chain + 3-book log harness does not exist in code (no `row_hash` in `nq/paper`; only the legacy single-book NAV log). Recorded as a build prerequisite before the first live row.
   3. **§6 null made auditable.** The veto-0.1 cascade figures (previously transcript-only) were reproduced from the pinned pipeline (`scripts/diag_veto01_cascade.py`) and embedded (removed +7.8L / replacement +10.1L / shared +3.1L / net +5.5L, exact recon). The null now cites a committed, reproducible basis.
   4. **Appendix pins the rejected −18.8% figure** so a future reviewer does not "correct" the Red-return line to it.
+- **2026-07-02 — v1.2 (Claude Code, per owner).** Built the §3 integrity harness that v1.1 recorded as unbuilt — clarification/addition only, no threshold relaxed. `nq/paper/forward_wall.py`: one atomic 3-book row, a single SHA-256 chain off the pinned genesis seed, `append_row` refuses on any chain mismatch, reorder, or back-dating. `tests/test_forward_wall.py`: tamper-rejection, reorder-break, no-backdating, atomic-three-books, genesis-pin — 5 green (the acceptance criterion). Pinned the genesis seed (`f5a0223b…09ee`), the hash construction, and the canonical field order into §3 as the contract. Done while the log was empty (no history to migrate/re-hash) — the cheapest possible time.
 
 ---
 
