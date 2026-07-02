@@ -155,32 +155,43 @@ def build_pit_frame_from_screener(
     """Build one ticker's PIT frame from Screener annual P&L + Balance Sheet tables. Per fiscal
     year: ``eps_ttm`` = annual EPS; net worth = Equity Capital + Reserves; ``roe`` = Net Profit /
     net worth × 100; ``debt_equity`` = Borrowings / net worth; shares = Net Profit / EPS;
-    ``book_value_ps`` = net worth / shares. ``available_date = period_end + lag_days``. Returns the
-    SAME schema as the carried store (index=available_date; cols period_end/eps_ttm/book_value_ps/
-    roe/debt_equity); empty frame when nothing parses. Lookahead-safe by construction."""
+    ``book_value_ps`` = net worth / shares. ``available_date = period_end + lag_days``. Returns a
+    **superset** of the carried store's schema (index=available_date; the original
+    period_end/eps_ttm/book_value_ps/roe/debt_equity in the same positions, PLUS the Part-1.2 depth
+    levels sales/operating_profit/opm_pct/net_profit/total_assets/interest/depreciation — raw annual
+    values, growth/ratios derived downstream). Additive: ``value_quality_series`` and every existing
+    caller select their columns by name, so they consume it unchanged. Empty frame when nothing parses.
+    Lookahead-safe by construction (each value is stamped period_end + lag_days)."""
     eps_row = _screener_row(profit_loss, ("EPS in Rs", "EPS", "Adjusted EPS in Rs"))
     np_row = _screener_row(profit_loss, ("Net Profit", "Profit after tax"))
+    sales_row = _screener_row(profit_loss, ("Sales", "Revenue"))
+    op_row = _screener_row(profit_loss, ("Operating Profit", "Financing Profit"))
+    opm_row = _screener_row(profit_loss, ("OPM %", "Financing Margin %"))
+    int_row = _screener_row(profit_loss, ("Interest",))
+    dep_row = _screener_row(profit_loss, ("Depreciation",))
     eq_row = _screener_row(balance_sheet, ("Equity Capital", "Share Capital"))
     res_row = _screener_row(balance_sheet, ("Reserves", "Reserves and Surplus"))
     borr_row = _screener_row(balance_sheet, ("Borrowings", "Total Debt"))
+    ta_row = _screener_row(balance_sheet, ("Total Assets",))
 
     labels: list[str] = []
-    for r in (eps_row, np_row, eq_row, res_row, borr_row):
+    for r in (eps_row, np_row, sales_row, op_row, opm_row, int_row, dep_row, eq_row, res_row, borr_row, ta_row):
         if r is not None:
             for lbl in r.index:
                 if lbl not in labels:
                     labels.append(str(lbl))
+
+    def _cell(row: pd.Series | None, lbl: str) -> float:
+        return _screener_num(row[lbl]) if row is not None and lbl in row else float("nan")
 
     rows: list[dict] = []
     for lbl in labels:
         pe = _period_end_from_label(lbl)
         if pe is None:
             continue
-        eps = _screener_num(eps_row[lbl]) if eps_row is not None and lbl in eps_row else float("nan")
-        net_profit = _screener_num(np_row[lbl]) if np_row is not None and lbl in np_row else float("nan")
-        eq = _screener_num(eq_row[lbl]) if eq_row is not None and lbl in eq_row else float("nan")
-        res = _screener_num(res_row[lbl]) if res_row is not None and lbl in res_row else float("nan")
-        borr = _screener_num(borr_row[lbl]) if borr_row is not None and lbl in borr_row else float("nan")
+        eps = _cell(eps_row, lbl)
+        net_profit = _cell(np_row, lbl)
+        eq, res, borr = _cell(eq_row, lbl), _cell(res_row, lbl), _cell(borr_row, lbl)
         net_worth = eq + res if _ok(eq) and _ok(res) else float("nan")
         roe = (net_profit / net_worth * 100.0
                if _ok(net_profit) and _ok(net_worth) and net_worth != 0 else float("nan"))
@@ -189,11 +200,16 @@ def build_pit_frame_from_screener(
         bvps = net_worth / shares if _ok(net_worth) and _ok(shares) and shares != 0 else float("nan")
         rows.append({"available_date": available_date_from_period_end(pe, lag_days),
                      "period_end": pe, "eps_ttm": eps, "book_value_ps": bvps,
-                     "roe": roe, "debt_equity": de})
+                     "roe": roe, "debt_equity": de,
+                     # ── depth fields (Part 1.2): raw annual levels; growth/ratios derived in features ──
+                     "sales": _cell(sales_row, lbl), "operating_profit": _cell(op_row, lbl),
+                     "opm_pct": _cell(opm_row, lbl), "net_profit": net_profit,
+                     "total_assets": _cell(ta_row, lbl), "interest": _cell(int_row, lbl),
+                     "depreciation": _cell(dep_row, lbl)})
 
+    cols = ["period_end", "eps_ttm", "book_value_ps", "roe", "debt_equity",
+            "sales", "operating_profit", "opm_pct", "net_profit", "total_assets", "interest", "depreciation"]
     if not rows:
-        return pd.DataFrame(
-            columns=["period_end", "eps_ttm", "book_value_ps", "roe", "debt_equity"]
-        ).set_axis(pd.DatetimeIndex([], name="available_date"))
+        return pd.DataFrame(columns=cols).set_axis(pd.DatetimeIndex([], name="available_date"))
     frame = pd.DataFrame(rows).set_index("available_date").sort_index()
     return frame[~frame.index.duplicated(keep="last")]
