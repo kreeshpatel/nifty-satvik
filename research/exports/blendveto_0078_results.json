@@ -1,0 +1,116 @@
+{
+  "prereg": "0078",
+  "n_trials": 91,
+  "base": {
+    "gross_cagr": 15.46,
+    "after_tax_cagr": 12.758,
+    "sharpe": 0.667,
+    "sortino": 0.836,
+    "skew": -0.639,
+    "ann_vol": 0.271,
+    "live_dd": -46.3
+  },
+  "criteria": {
+    "live_dd_shallower_pp": 8.0,
+    "gross_cagr_floor": 13.5,
+    "vol_guard_below": 0.24
+  },
+  "arms": [
+    {
+      "arm": "blend-0.25",
+      "gross_cagr": 10.89,
+      "after_tax_cagr": 8.131,
+      "sortino": 0.716,
+      "skew": -0.571,
+      "sharpe": 0.552,
+      "ann_vol": 0.24,
+      "live_dd": -35.3,
+      "live_dd_guarded": -35.3,
+      "full_dd": -48.06,
+      "n_trades": 1204,
+      "dSharpe": -0.115,
+      "dSharpe_ci": [
+        -0.518,
+        0.224
+      ],
+      "dsr": 0.167,
+      "fold": 0.5,
+      "crit1_dd": true,
+      "crit2_cagr": false,
+      "crit3_shape": false,
+      "verdict": "KILL"
+    },
+    {
+      "arm": "blend-0.5",
+      "gross_cagr": 12.44,
+      "after_tax_cagr": 9.777,
+      "sortino": 0.771,
+      "skew": -0.619,
+      "sharpe": 0.609,
+      "ann_vol": 0.24,
+      "live_dd": -34.7,
+      "live_dd_guarded": -34.7,
+      "full_dd": -36.35,
+      "n_trades": 1182,
+      "dSharpe": -0.058,
+      "dSharpe_ci": [
+        -0.444,
+        0.278
+      ],
+      "dsr": 0.281,
+      "fold": 0.5,
+      "crit1_dd": true,
+      "crit2_cagr": false,
+      "crit3_shape": false,
+      "verdict": "KILL"
+    },
+    {
+      "arm": "veto-0.2",
+      "gross_cagr": 18.37,
+      "after_tax_cagr": 15.323,
+      "sortino": 0.97,
+      "skew": -0.68,
+      "sharpe": 0.765,
+      "ann_vol": 0.268,
+      "live_dd": -40.9,
+      "live_dd_guarded": -40.9,
+      "full_dd": -40.93,
+      "n_trades": 1249,
+      "dSharpe": 0.098,
+      "dSharpe_ci": [
+        -0.11,
+        0.311
+      ],
+      "dsr": 0.355,
+      "fold": 0.875,
+      "crit1_dd": false,
+      "crit2_cagr": true,
+      "crit3_shape": false,
+      "verdict": "KILL"
+    },
+    {
+      "arm": "veto-0.1",
+      "gross_cagr": 17.44,
+      "after_tax_cagr": 14.829,
+      "sortino": 0.938,
+      "skew": -0.691,
+      "sharpe": 0.743,
+      "ann_vol": 0.264,
+      "live_dd": -37.5,
+      "live_dd_guarded": -37.5,
+      "full_dd": -41.68,
+      "n_trades": 1266,
+      "dSharpe": 0.076,
+      "dSharpe_ci": [
+        -0.153,
+        0.282
+      ],
+      "dsr": 0.346,
+      "fold": 0.75,
+      "crit1_dd": true,
+      "crit2_cagr": true,
+      "crit3_shape": false,
+      "verdict": "KILL"
+    }
+  ]
+}
