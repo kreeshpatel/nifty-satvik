@@ -1,0 +1,56 @@
+{
+  "prereg": "0080",
+  "n_trials": 97,
+  "base": {
+    "sharpe": 0.667,
+    "sortino": 0.836,
+    "cagr_pct": 15.46,
+    "max_drawdown_pct": -46.26
+  },
+  "base_live22": {
+    "sharpe": 0.57,
+    "dd": -46.3
+  },
+  "arms": [
+    {
+      "cutoff": 0.5,
+      "sharpe": 0.889,
+      "sortino": 1.103,
+      "cagr": 17.18,
+      "dd": -33.53,
+      "skew": -0.627,
+      "dSharpe": 0.222,
+      "dSharpe_ci": [
+        -0.357,
+        0.763
+      ],
+      "dSortino": 0.267,
+      "dsr": 0.35,
+      "live22_sharpe": 0.988,
+      "live22_dd": -31.4,
+      "sub22_dCAGR": 5.492,
+      "fold": 0.5,
+      "verdict": "KILL"
+    },
+    {
+      "cutoff": 0.33,
+      "sharpe": 0.871,
+      "sortino": 1.086,
+      "cagr": 14.59,
+      "dd": -37.75,
+      "skew": -0.945,
+      "dSharpe": 0.204,
+      "dSharpe_ci": [
+        -0.344,
+        0.685
+      ],
+      "dSortino": 0.25,
+      "dsr": 0.329,
+      "live22_sharpe": 1.035,
+      "live22_dd": -23.9,
+      "sub22_dCAGR": 3.843,
+      "fold": 0.5,
+      "verdict": "KILL"
+    }
+  ]
+}
