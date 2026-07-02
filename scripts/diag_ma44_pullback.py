@@ -125,7 +125,7 @@ def backtest(P, sigkey, RR, start=None, stop_mode="tight", maxhold=MAXHOLD, exit
     return dict(trades=len(R), wr=(R > 0).mean() if len(R) else float("nan"),
                 cagr=(e.iloc[-1] / e.iloc[0]) ** (1 / yrs) - 1,
                 sharpe=ret.mean() / ret.std() * np.sqrt(252) if ret.std() else float("nan"),
-                dd=(e / e.cummax() - 1).min(), mult=e.iloc[-1] / EQ0)
+                dd=(e / e.cummax() - 1).min(), mult=e.iloc[-1] / EQ0, curve=e)
 
 
 def main() -> int:
