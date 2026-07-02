@@ -1,8 +1,19 @@
-# 0022 — The COMPLETE Bhanushali strategy, backtested faithfully: both systems lose catastrophically (the definitive answer)
+# 0022 — The COMPLETE Bhanushali strategy, backtested faithfully: NO GROSS EDGE (break-even), cost-killed on turnover
 
-- **Status:** **MEASUREMENT / definitive strategy analysis** (standalone, no n_trials cost, no cfg change).
-  Answers the owner's question — "have we tested the *full* strategy, faithfully?" — with a clean YES and a
-  decisive result: **his exact mechanical systems are large net losers on our data.**
+> **CORRECTION (2026-07-03, bug-hunt `scripts/diag_faithful_debug.py`).** The original verdict below ("loses
+> catastrophically / destroys capital / Sharpe −1.6") was **overstated — a cost-model × turnover artifact, not
+> the strategy's true behaviour.** A cost sweep shows the strategy is **break-even GROSS** (cost=0: Sharpe
+> +0.085, −0.4% CAGR). The entire −90%+ loss is transaction cost compounded over **~5,100%/yr turnover** (260
+> trades/yr), and its magnitude was inflated by two modelling problems: (1) a **punitive uniform 0.22% slippage**
+> applied to every name incl. liquid large-caps (it alone moved Sharpe −0.57→−1.61), and (2) a **notional-cap
+> under-sizing bug** — 94% of trades hit the 20% cap, so realized risk was **0.75%/trade, not the intended 2%**,
+> making cost ~18% of the risk budget. Trades are clean (R∈[−1,+2], zero |R|>5 glitches; no data corruption).
+> **Corrected verdict: his mechanical strategy has NO gross alpha (break-even) and is cost-unfriendly due to
+> high turnover — NOT a catastrophic capital-destroyer.** It is still not tradeable (no gross edge), but the
+> alarming framing was wrong. The sections below are the original (uncorrected) writeup, kept for the record.
+
+- **Status:** **MEASUREMENT / definitive strategy analysis** (standalone, no n_trials cost, no cfg change) —
+  **verdict corrected (see box above): no gross edge, cost-killed on turnover; original "catastrophic" framing retracted.**
 - **Date:** 2026-07-03. Script `scripts/run_bhanushali_faithful.py`. Window **2017–2026** (~684 PIT names;
   pre-2019 mildly survivor-biased). Two faithfulness fixes prior diag scripts lacked: **PIT Nifty-500
   membership** (his watchlist + survivorship fix) and **real NSE round-trip cost 0.70%** (config
