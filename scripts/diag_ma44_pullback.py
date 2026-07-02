@@ -47,9 +47,12 @@ def prep(ohlcv):
         strong = rose(22) & rose(44) & rose(66) & (c > sma) & (slope66 >= 0.08)
         near = (l <= sma * (1 + BAND)) & (c >= sma * (1 - BAND))   # pulled back to the MA (support)
         green = c > o
+        vol = df["Volume"].to_numpy(float)
+        vspike = vol > 1.5 * pd.Series(vol).rolling(20).mean().to_numpy()   # HVC: volume >1.5x its 20d avg
         sig = {}
         for name, tr in (("weak", weak), ("medium", med), ("strong", strong)):
             sig[name] = np.nan_to_num(tr & near & green, nan=False).astype(bool)
+        sig["strong_vol"] = np.nan_to_num(strong & near & green & vspike, nan=False).astype(bool)  # + volume conf
         P[tkr] = dict(dates=pd.to_datetime(df.index), o=o, h=h, l=l, c=c, atr=atr,
                       **{f"sig_{k}": v for k, v in sig.items()})
     return P
@@ -130,9 +133,15 @@ def backtest(P, sigkey, RR, start=None, stop_mode="tight", maxhold=MAXHOLD, exit
 
 def main() -> int:
     P = prep(load_ohlcv_cache(OHLCV_CACHE))
-    print(f"names {len(P)}\n=== ENTRY-EDGE by trend-filter strength (does a VISIBLE uptrend help?) ===")
-    for k in ("sig_weak", "sig_medium", "sig_strong"):
+    print(f"names {len(P)}\n=== ENTRY-EDGE by trend-filter strength (+ volume confirmation) ===")
+    for k in ("sig_weak", "sig_medium", "sig_strong", "sig_strong_vol"):
         entry_edge(P, k)
+    print("\n=== PHASE 1: does VOLUME confirmation add to the strong-filter pullback? (ATR2.5 1:3/40d) ===")
+    for tag, st in (("2019-26", None), ("2022-26", "2022-01-01")):
+        for sk in ("sig_strong", "sig_strong_vol"):
+            m = backtest(P, sk, RR=3.0, start=st, stop_mode="atr25", maxhold=40, exit_mode="target")
+            print(f"  {tag:<9} {sk.replace('sig_',''):<11} trades {m['trades']:>4} | win {m['wr']*100:>4.1f}% "
+                  f"| CAGR {m['cagr']*100:+6.1f}% | Sharpe {m['sharpe']:+.3f} | DD {m['dd']*100:>6.1f}% | {m['mult']:.2f}x")
     print("\n=== STRONG filter x STOP/EXIT (harvest the 20d drift without noise shake-out) ===")
     configs = [
         ("tight 1:2 30d", dict(stop_mode="tight", RR=2.0, maxhold=30, exit_mode="target")),
