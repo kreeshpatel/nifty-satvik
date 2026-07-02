@@ -1,0 +1,85 @@
+{
+  "prereg": "0079",
+  "n_trials": 95,
+  "base": {
+    "sharpe": 0.667,
+    "sortino": 0.836,
+    "cagr_pct": 15.46,
+    "max_drawdown_pct": -46.26
+  },
+  "base_live22_sharpe": 0.57,
+  "arms": [
+    {
+      "signal": "prox_52wh",
+      "cand_sharpe": 0.483,
+      "cand_sortino": 0.626,
+      "cand_cagr": 7.55,
+      "cand_dd": -37.9,
+      "dSharpe": -0.184,
+      "dSharpe_ci": [
+        -0.786,
+        0.343
+      ],
+      "dSortino": -0.21,
+      "dsr": 0.066,
+      "live22_sharpe": 0.4,
+      "sub22_dCAGR": -6.913,
+      "fold": 0.5,
+      "verdict": "KILL"
+    },
+    {
+      "signal": "dist_sma200",
+      "cand_sharpe": 0.221,
+      "cand_sortino": 0.276,
+      "cand_cagr": 2.28,
+      "cand_dd": -54.49,
+      "dSharpe": -0.446,
+      "dSharpe_ci": [
+        -0.938,
+        -0.063
+      ],
+      "dSortino": -0.56,
+      "dsr": 0.019,
+      "live22_sharpe": -0.127,
+      "sub22_dCAGR": -20.021,
+      "fold": 0.375,
+      "verdict": "KILL"
+    },
+    {
+      "signal": "roc_126",
+      "cand_sharpe": 0.354,
+      "cand_sortino": 0.463,
+      "cand_cagr": 6.08,
+      "cand_dd": -57.76,
+      "dSharpe": -0.313,
+      "dSharpe_ci": [
+        -0.822,
+        0.098
+      ],
+      "dSortino": -0.373,
+      "dsr": 0.044,
+      "live22_sharpe": 0.111,
+      "sub22_dCAGR": -13.57,
+      "fold": 0.25,
+      "verdict": "KILL"
+    },
+    {
+      "signal": "rvol_63",
+      "cand_sharpe": 1.059,
+      "cand_sortino": 1.396,
+      "cand_cagr": 14.53,
+      "cand_dd": -32.55,
+      "dSharpe": 0.392,
+      "dSharpe_ci": [
+        -0.276,
+        1.061
+      ],
+      "dSortino": 0.56,
+      "dsr": 0.35,
+      "live22_sharpe": 1.338,
+      "sub22_dCAGR": 3.744,
+      "fold": 0.625,
+      "verdict": "KILL"
+    }
+  ]
+}

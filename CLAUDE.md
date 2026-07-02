@@ -57,7 +57,10 @@ unbiased information is the forward wall (`forward/prereg.md`).
    entry gate (O-001), single-beta residual (O-002), sector selection (O-004), RSI/MACD/reversal
    (O-005), low-vol/quality **signal-blend** (O-006/O-007), alt lookbacks 12-1/6-1 (O-010/11/12),
    meta-labeling (0025), conviction sizing (0073/0020), residual-momentum sole-swap (0077) &
-   blend/veto (0078). Vol-target is PROMOTED & shipped to paper (O-009 / pre-reg 0068).
+   blend/veto (0078), and the **whole technical/chart zoo at 63d** (0079/O-015: RSI/MACD/Stoch/Williams/
+   CCI/Bollinger/MFI/OBV have IC≈0; 52-week-high/SMA-dist/ROC have IC but lose as rankers — IC ≠ portfolio
+   Sharpe). Vol-target is PROMOTED & shipped to paper (O-009 / pre-reg 0068). Low-vol as a *sole ranker*
+   (O-016) is strong-but-uncertifiable → the multi-sleeve fork, not a cfg change.
 
 **Reproduce-before-trust.** A number that informs a decision must be reproducible from the committed
 pipeline, never a chat transcript (e.g. the veto-0.1 null → `scripts/diag_veto01_cascade.py`). Two
