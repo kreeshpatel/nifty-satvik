@@ -33,6 +33,21 @@ This is the disciplined form of "a bot that learns from data." It reuses everyth
    and is already a candidate family (F5). News/NLP can only ever be a *live-only forward-wall overlay*,
    so it is Part 7 (optional, shadow), never the backtested core.
 
+## ⚠ UPDATE 2026-07-03 — the IC gate retired the multi-feature learner (finding 0019)
+
+Before building the learner (Parts 4-6), the go/no-go IC probe (`scripts/screen_depth_ic.py`, 653-name
+PIT-clean depth store, 652k rows) measured whether the depth features carry 63d cross-sectional signal.
+**Result: exactly ONE of 7 features is real** — `rev_yoy` (revenue growth, IC −0.036, robust in ≥2019 /
+2022-26 / current-only → not an artifact); the other six are ~0. **A learner on 1 real + 6 noise features
+overfits** (the 0046/0025 failure), so **the multi-feature learning bot is NOT built** — the data yields a
+single orthogonal feature, not a fleet. And rev_yoy's tradeable magnitude (current-names −0.028) ≈ the
+USD-sensitivity signal that already KILLED as a tilt (0082) → same IC ≠ portfolio-Sharpe wall.
+
+**Consequence:** Parts 4-6 (bake-off learner → validation → forward-cert) are **retired as scoped**. What
+survives: rev_yoy earns *at most* one pre-registered single-feature overlay (a quality-veto or tilt, honest
+prior UNDERPOWERED/KILL) or a forward-wall watch — owner decision. Parts 1-2 (PIT-clean depth data + features)
+are **banked, reusable infrastructure**. Full readout: [research/findings/0019-fundamentals-depth-ic.md](../../research/findings/0019-fundamentals-depth-ic.md).
+
 ## Verification (2026-07-03) — yes, it is a genuine learner
 
 Checked before committing to the plan: (1) the **training + validation harness already exists and has run**
