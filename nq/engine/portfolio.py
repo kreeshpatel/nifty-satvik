@@ -191,6 +191,7 @@ def simulate(
         "min_hold_days": min_hold, "max_hold_days": max_hold,
         "trailing_activate_pct": float(cfg["trailing_activate_pct"]),
         "trailing_pct": float(cfg["trailing_pct"]),
+        "trail_atr_mult": cfg.get("trail_atr_mult"),   # pre-reg 0076; None -> flat trail (golden-identical)
     }
 
     df = panel.copy()
@@ -287,7 +288,8 @@ def simulate(
             row = day.loc[tkr]
             o, h, c = float(row["open"]), float(row["high"]), float(row["close"])
             decision = decide_exit(
-                {"entry": p.entry, "stop": p.stop, "peak": p.peak, "target": p.target},
+                {"entry": p.entry, "stop": p.stop, "peak": p.peak, "target": p.target,
+                 "atr_pct": p.atr_pct},
                 {"open": o, "high": h, "close": c}, exit_cfg, p.days_held)
             if decision.close_reason:
                 delta, rec = _book_exit(p, decision.exit_price, t, decision.close_reason)

@@ -1,0 +1,199 @@
+{
+  "prereg": "0076",
+  "n_trials": 86,
+  "anchor": "baseline_v1 dataset-pin-20260701",
+  "base": {
+    "sharpe": 0.667,
+    "sortino": 0.836,
+    "maxdd": -46.26,
+    "calmar": 0.33,
+    "cagr": 15.46,
+    "after_tax_cagr": 12.758
+  },
+  "arms": [
+    {
+      "trail_atr_mult": 2.0,
+      "n_obs": 2162,
+      "n_eff_windows": 34,
+      "n_trials": 86,
+      "base_sharpe": 0.667,
+      "candidate_sharpe": 0.78,
+      "dSharpe": 0.113,
+      "dSharpe_ci": [
+        -0.177,
+        0.395
+      ],
+      "dsr_candidate": 0.2593234865156124,
+      "dCalmar": 0.08,
+      "subperiod_2022_dCAGR": 6.498,
+      "fold_pass_frac": 0.875,
+      "n_folds": 8,
+      "turnover_delta": -0.2993,
+      "after_tax_cagr_base": 12.758,
+      "after_tax_cagr_cand": 16.238,
+      "gates": {
+        "dSharpe_meaningful": false,
+        "dCalmar_ge_0.05": true,
+        "subperiod_2022_positive": true,
+        "fold_pass_ge_60pct": true,
+        "turnover_le_30pct": true,
+        "dsr_gt_0.95": false,
+        "n_eff_ge_20": true
+      },
+      "gate_pass": false,
+      "verdict": "UNDERPOWERED",
+      "dSortino": 0.182,
+      "dSortino_ci": [
+        -0.203,
+        0.576
+      ],
+      "cand_maxdd": -46.37,
+      "cand_calmar": 0.41,
+      "cand_sortino": 1.018,
+      "exit_reasons": {
+        "stop": 181,
+        "trailing": 598,
+        "time": 115,
+        "stale": 2
+      }
+    },
+    {
+      "trail_atr_mult": 2.5,
+      "n_obs": 2162,
+      "n_eff_windows": 34,
+      "n_trials": 86,
+      "base_sharpe": 0.667,
+      "candidate_sharpe": 0.808,
+      "dSharpe": 0.141,
+      "dSharpe_ci": [
+        -0.131,
+        0.402
+      ],
+      "dsr_candidate": 0.296625416461336,
+      "dCalmar": 0.12,
+      "subperiod_2022_dCAGR": 2.37,
+      "fold_pass_frac": 0.875,
+      "n_folds": 8,
+      "turnover_delta": -0.3785,
+      "after_tax_cagr_base": 12.758,
+      "after_tax_cagr_cand": 16.301,
+      "gates": {
+        "dSharpe_meaningful": false,
+        "dCalmar_ge_0.05": true,
+        "subperiod_2022_positive": true,
+        "fold_pass_ge_60pct": true,
+        "turnover_le_30pct": true,
+        "dsr_gt_0.95": false,
+        "n_eff_ge_20": true
+      },
+      "gate_pass": false,
+      "verdict": "UNDERPOWERED",
+      "dSortino": 0.225,
+      "dSortino_ci": [
+        -0.153,
+        0.595
+      ],
+      "cand_maxdd": -44.09,
+      "cand_calmar": 0.45,
+      "cand_sortino": 1.06,
+      "exit_reasons": {
+        "stop": 169,
+        "trailing": 454,
+        "time": 170,
+        "stale": 2
+      }
+    },
+    {
+      "trail_atr_mult": 3.0,
+      "n_obs": 2162,
+      "n_eff_windows": 34,
+      "n_trials": 86,
+      "base_sharpe": 0.667,
+      "candidate_sharpe": 0.742,
+      "dSharpe": 0.075,
+      "dSharpe_ci": [
+        -0.184,
+        0.317
+      ],
+      "dsr_candidate": 0.2648080691372886,
+      "dCalmar": 0.0,
+      "subperiod_2022_dCAGR": 8.656,
+      "fold_pass_frac": 0.625,
+      "n_folds": 8,
+      "turnover_delta": -0.445,
+      "after_tax_cagr_base": 12.758,
+      "after_tax_cagr_cand": 14.683,
+      "gates": {
+        "dSharpe_meaningful": false,
+        "dCalmar_ge_0.05": false,
+        "subperiod_2022_positive": true,
+        "fold_pass_ge_60pct": true,
+        "turnover_le_30pct": true,
+        "dsr_gt_0.95": false,
+        "n_eff_ge_20": true
+      },
+      "gate_pass": false,
+      "verdict": "UNDERPOWERED",
+      "dSortino": 0.123,
+      "dSortino_ci": [
+        -0.221,
+        0.45
+      ],
+      "cand_maxdd": -53.58,
+      "cand_calmar": 0.33,
+      "cand_sortino": 0.959,
+      "exit_reasons": {
+        "stop": 162,
+        "trailing": 336,
+        "time": 210,
+        "stale": 2
+      }
+    },
+    {
+      "trail_atr_mult": 3.5,
+      "n_obs": 2162,
+      "n_eff_windows": 34,
+      "n_trials": 86,
+      "base_sharpe": 0.667,
+      "candidate_sharpe": 0.775,
+      "dSharpe": 0.108,
+      "dSharpe_ci": [
+        -0.181,
+        0.398
+      ],
+      "dsr_candidate": 0.2362265929872091,
+      "dCalmar": 0.1,
+      "subperiod_2022_dCAGR": 2.815,
+      "fold_pass_frac": 0.75,
+      "n_folds": 8,
+      "turnover_delta": -0.494,
+      "after_tax_cagr_base": 12.758,
+      "after_tax_cagr_cand": 15.519,
+      "gates": {
+        "dSharpe_meaningful": false,
+        "dCalmar_ge_0.05": true,
+        "subperiod_2022_positive": true,
+        "fold_pass_ge_60pct": true,
+        "turnover_le_30pct": true,
+        "dsr_gt_0.95": false,
+        "n_eff_ge_20": true
+      },
+      "gate_pass": false,
+      "verdict": "UNDERPOWERED",
+      "dSortino": 0.16,
+      "dSortino_ci": [
+        -0.221,
+        0.563
+      ],
+      "cand_maxdd": -43.08,
+      "cand_calmar": 0.43,
+      "cand_sortino": 0.995,
+      "exit_reasons": {
+        "stop": 137,
+        "trailing": 257,
+        "time": 252,
+        "stale": 1
+      }
+    }
+  ]
+}

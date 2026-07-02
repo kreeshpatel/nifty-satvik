@@ -88,10 +88,16 @@ def decide_exit(
         d.close_reason = "time"
         return d
 
-    # 4. Trailing stop on the running close-peak, once activated.
+    # 4. Trailing stop on the running close-peak, once activated. Trail WIDTH is the flat cfg
+    #    trailing_pct (frozen path), OR — when cfg["trail_atr_mult"] is set (pre-reg 0076
+    #    ATR-proportionate overlay) — trail_atr_mult x the name's atr_pct. Absent key / no atr ->
+    #    flat, so the golden master is byte-identical when the overlay is off.
     effective_peak = d.new_peak if d.new_peak is not None else peak
     if entry > 0 and effective_peak > entry * (1 + float(cfg["trailing_activate_pct"]) / 100.0):
-        trail_stop = effective_peak * (1 - float(cfg["trailing_pct"]) / 100.0)
+        atr_mult = cfg.get("trail_atr_mult")
+        atr_pct = float(position.get("atr_pct", 0.0) or 0.0)
+        trail_pct = atr_mult * atr_pct if (atr_mult and atr_pct > 0) else float(cfg["trailing_pct"])
+        trail_stop = effective_peak * (1 - trail_pct / 100.0)
         if close <= trail_stop:
             d.close_reason = "trailing"
             return d
