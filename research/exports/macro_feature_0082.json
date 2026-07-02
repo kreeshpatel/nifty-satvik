@@ -1,0 +1,123 @@
+{
+  "prereg": "0082",
+  "n_trials": 100,
+  "macro_factor": "usd_trend",
+  "windows": {
+    "PRIMARY": {
+      "window": [
+        "2019-01-01",
+        "2026-06-30"
+      ],
+      "base": {
+        "sharpe": 0.965,
+        "sortino": 1.243,
+        "cagr_pct": 25.45,
+        "max_drawdown_pct": -46.85,
+        "calmar": 0.54,
+        "after_tax_cagr": 22.364,
+        "live22_sharpe": 0.69,
+        "live22_dd": -46.8
+      },
+      "arms": [
+        {
+          "lambda": 0.15,
+          "sharpe": 0.9,
+          "sortino": 1.121,
+          "cagr": 21.87,
+          "dd": -39.54,
+          "calmar": 0.55,
+          "after_tax_cagr": 18.556,
+          "dSharpe": -0.065,
+          "dSharpe_ci": [
+            -0.406,
+            0.264
+          ],
+          "dSortino": -0.122,
+          "dsr": 0.366,
+          "dCalmar": 0.01,
+          "sub22_dCAGR": -0.295,
+          "fold": 0.25,
+          "verdict": "KILL"
+        },
+        {
+          "lambda": 0.25,
+          "sharpe": 0.96,
+          "sortino": 1.19,
+          "cagr": 24.1,
+          "dd": -38.7,
+          "calmar": 0.62,
+          "after_tax_cagr": 20.039,
+          "dSharpe": -0.006,
+          "dSharpe_ci": [
+            -0.382,
+            0.314
+          ],
+          "dSortino": -0.054,
+          "dsr": 0.489,
+          "dCalmar": 0.08,
+          "sub22_dCAGR": -1.233,
+          "fold": 0.625,
+          "verdict": "KILL"
+        }
+      ]
+    },
+    "context": {
+      "window": [
+        "2017-01-01",
+        "2026-06-30"
+      ],
+      "base": {
+        "sharpe": 0.667,
+        "sortino": 0.836,
+        "cagr_pct": 15.46,
+        "max_drawdown_pct": -46.26,
+        "calmar": 0.33,
+        "after_tax_cagr": 12.758,
+        "live22_sharpe": 0.57,
+        "live22_dd": -46.3
+      },
+      "arms": [
+        {
+          "lambda": 0.15,
+          "sharpe": 0.619,
+          "sortino": 0.766,
+          "cagr": 13.66,
+          "dd": -51.6,
+          "calmar": 0.26,
+          "after_tax_cagr": 10.204,
+          "dSharpe": -0.048,
+          "dSharpe_ci": [
+            -0.463,
+            0.326
+          ],
+          "dSortino": -0.07,
+          "dsr": 0.16,
+          "dCalmar": -0.07,
+          "sub22_dCAGR": 3.882,
+          "fold": 0.625,
+          "verdict": "KILL"
+        },
+        {
+          "lambda": 0.25,
+          "sharpe": 0.666,
+          "sortino": 0.829,
+          "cagr": 14.59,
+          "dd": -49.94,
+          "calmar": 0.29,
+          "after_tax_cagr": 11.923,
+          "dSharpe": -0.001,
+          "dSharpe_ci": [
+            -0.424,
+            0.404
+          ],
+          "dSortino": -0.007,
+          "dsr": 0.221,
+          "dCalmar": -0.04,
+          "sub22_dCAGR": 1.525,
+          "fold": 0.75,
+          "verdict": "KILL"
+        }
+      ]
+    }
+  }
+}

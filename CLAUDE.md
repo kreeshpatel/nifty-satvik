@@ -64,6 +64,15 @@ unbiased information is the forward wall (`forward/prereg.md`).
    momentum×low-vol ERC combination: Sharpe 0.67→0.94, DD −46→−36 at flat CAGR, ρ=0.54 — but UNDERPOWERED**
    → route the low-vol sleeve to the **forward wall** (`forward/prereg.md` §7 swap), the only certifier. The
    operational robot (`nq/paper/wall_cron.py`, wired into `run_paper_cron.py`) logs the 3-book wall daily.
+   **The cross-asset / macro branch is CLOSED (2026-07-02, trials 98→100).** The Step-1 PIT gate (finding 0017,
+   `nq/data/macro.py` + `tests/test_macro_pit.py` truncation-tested) rebuilt the macro factors clean and split
+   real from artifact: **USD/INR-sensitivity is real & PIT-robust** (beta-IC −0.034→−0.0295), **crude was a
+   lookahead artifact** of the un-audited `data/macro_data.pkl` (+0.027→+0.002, dropped), VIX dead. But the
+   follow-on trial **0082 (O-019) KILLED USD-sensitivity as a rank-component tilt** (`trend_rank + λ·(1−usd_beta_rank)`,
+   λ∈{0.15,0.25}): every arm ΔSharpe ≤ 0, the DD relief fails the continuous-slice 2022-26 gate — **IC ≠ portfolio
+   Sharpe, again** (like the 52-week-high, 0079). Do NOT re-propose macro/USD/crude as an entry gate (O-001),
+   sizing (0073), a sole ranker, or a rank tilt (O-019). The only unspent macro avenue is a *portfolio-level*
+   low-USD-beta sleeve via the O-018 ERC mechanism (forward-wall / owner decision), never a single-sleeve blend.
 
 **Reproduce-before-trust.** A number that informs a decision must be reproducible from the committed
 pipeline, never a chat transcript (e.g. the veto-0.1 null → `scripts/diag_veto01_cascade.py`). Two
