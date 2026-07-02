@@ -86,6 +86,68 @@ def value_quality_series(
     return out
 
 
+# ── Part-2 depth features (learning-bot conviction layer) — PIT-clean fundamentals-depth signals ──
+# Growth / profitability / quality derived from the depth levels (Part 1.2: sales, operating_profit, opm_pct,
+# net_profit, total_assets). Growth = period Y vs period Y-1 on the REPORTED annual series (both past), then
+# joined strict-before the decision date — PIT-safe by construction (gated by test_fundamentals_depth_features).
+DEPTH_FEATURE_COLS: tuple[str, ...] = (
+    "rev_yoy", "eps_yoy", "np_yoy", "op_to_assets", "op_margin", "op_margin_delta", "asset_turnover",
+)
+_DEPTH_LEVELS_REQUIRED = ("sales", "operating_profit", "opm_pct", "net_profit", "total_assets")
+
+
+def _yoy(v: pd.Series) -> pd.Series:
+    """Year-over-year growth of an annual series ordered oldest→newest; NaN where the prior year is 0/absent."""
+    prev = v.shift(1)
+    out = v / prev - 1.0
+    out[(prev == 0) | prev.isna() | v.isna()] = np.nan
+    return out
+
+
+def _ratio(num: pd.Series, den: pd.Series) -> pd.Series:
+    """num/den with den==0 or NaN → NaN (no divide-by-zero / no fabricated ratio)."""
+    out = num / den
+    out[(den == 0) | den.isna() | num.isna()] = np.nan
+    return out
+
+
+def depth_feature_series(
+    ticker: str, store: Mapping[str, pd.DataFrame] | None, dates: pd.DatetimeIndex,
+) -> dict[str, np.ndarray]:
+    """Per-date fundamentals-depth features for one ticker, PIT-safe (strict-before join).
+
+    Growth features are computed on the reported annual series (period Y vs Y-1 — both past), then joined
+    ``merge_asof(direction="backward", allow_exact_matches=False)`` so a decision date ``t`` sees only the
+    most-recent annual period whose availability is strictly < ``t``. All-NaN when the store lacks the ticker
+    or carries the old 5-field schema (no depth levels). ``dates`` MUST be sorted ascending (caller sorts)."""
+    n = len(dates)
+    out: dict[str, np.ndarray] = {k: np.full(n, np.nan) for k in DEPTH_FEATURE_COLS}
+    fr = store.get(ticker) if store else None
+    if fr is None or len(fr) == 0 or not all(c in fr.columns for c in _DEPTH_LEVELS_REQUIRED):
+        return out
+    right = fr.copy()
+    right["avail"] = pd.to_datetime(right.index).astype("datetime64[ns]")
+    # sort oldest→newest by availability (== period_end order, since avail = period_end + fixed lag) for YoY
+    right = right.sort_values("avail")
+    right["rev_yoy"] = _yoy(right["sales"].astype(float))
+    right["eps_yoy"] = _yoy(right["eps_ttm"].astype(float)) if "eps_ttm" in right else np.nan
+    right["np_yoy"] = _yoy(right["net_profit"].astype(float))
+    right["op_to_assets"] = _ratio(right["operating_profit"].astype(float), right["total_assets"].astype(float))
+    right["op_margin"] = right["opm_pct"].astype(float)
+    right["op_margin_delta"] = right["opm_pct"].astype(float) - right["opm_pct"].astype(float).shift(1)
+    right["asset_turnover"] = _ratio(right["sales"].astype(float), right["total_assets"].astype(float))
+    feat = list(DEPTH_FEATURE_COLS)
+    right = right[["avail", *feat]]
+    left = pd.DataFrame({"date": pd.to_datetime(dates).astype("datetime64[ns]")})
+    merged = pd.merge_asof(
+        left, right, left_on="date", right_on="avail",
+        direction="backward", allow_exact_matches=False,   # strict: avail < date
+    )
+    for k in feat:
+        out[k] = merged[k].to_numpy(dtype=float)
+    return out
+
+
 # ── Screener.in deep-history PIT-frame builder (Stage-A survivorship fundamentals) ──
 # yfinance carries only ~5 recent quarters; Screener company pages carry ~10-12 fiscal years of
 # annual P&L + Balance Sheet — the depth needed to give DELISTED / historical index members the
