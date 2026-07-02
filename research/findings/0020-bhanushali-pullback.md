@@ -38,7 +38,18 @@ Consistency with the program: this whisper (+0.15pp, IC ≈ 0.01–0.02) is far 
 mechanical technical/price-action entry carries ~0 exploitable edge; the base's 63d momentum is genuinely
 stronger. Combining several individually-weak/killed components ("all together") did not resurrect them.
 
+## Addendum (2026-07-03) — the RSI variant (Bhanushali ch.6 checklist), same autopsy
+Systematized the RSI checklist too (weekly-44MA-uptrend ≈ rising 220d SMA + daily RSI<35 uptick + green
+candle; `scripts/diag_rsi_pullback.py`, Wilder RSI(14)). Implementation-independent entry-edge (forward return
+after signal vs universe, 24,229 signals): **5d −0.02pp / 10d −0.24pp / 20d −0.33pp** — the signal
+**UNDERPERFORMS** the universe (win-rate 52% vs 51% but lower mean = mean-reversion catching falling knives).
+Worse than the 44-SMA pullback (+0.15pp). Confirms the RSI §11 KILL (0079) on this exact oversold-in-uptrend
+formulation. Trendlines/breakouts: the systematic form is Donchian-channel breakout = `donchian_pos_126`,
+already tested tie-or-lose in the C4 horse-race; visual chart-pattern "imagination" is the 0004 chart-structure
+KILL (numeric) or a lookahead/PIT-impossible vision layer — the chart *is* the price, so pattern-reading adds
+no information the price doesn't already carry.
+
 ## Verdict
-**KILL** as a systematic strategy. Recorded so the 44-SMA-pullback / candlestick-trigger class is not
+**KILL** as a systematic strategy (both the 44-SMA-pullback and RSI-oversold variants). Recorded so the 44-SMA-pullback / candlestick-trigger class is not
 re-proposed. The transferable, *true* piece — wide stops / don't-exit-on-noise / hold for target-or-stop — is
 already consistent with the base's exit geometry; it is good risk discipline, not an alpha source.
