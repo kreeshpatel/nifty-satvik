@@ -13,6 +13,7 @@ flowchart LR
     nq_data_eligibility["nq/data/eligibility"]
     nq_data_features["nq/data/features"]
     nq_data_fundamentals["nq/data/fundamentals"]
+    nq_data_macro["nq/data/macro"]
     nq_data_membership["nq/data/membership"]
     nq_data_ohlcv["nq/data/ohlcv"]
     nq_engine["nq/engine"]
@@ -44,6 +45,7 @@ flowchart LR
     nq_data_features --> config
     nq_data_features --> nq_data_ohlcv
     nq_data_fundamentals --> config
+    nq_data_macro --> config
     nq_data_membership --> config
     nq_data_ohlcv --> config
     nq_engine --> nq_engine_exits

@@ -9,6 +9,7 @@ Two honest tests, because macro is market-level (one value/day, can't rank stock
 """
 from __future__ import annotations
 
+import argparse
 import pickle
 import sys
 from pathlib import Path
@@ -21,14 +22,75 @@ sys.path.insert(0, str(ROOT))
 
 from nq.data.features import compute_all_features  # noqa: E402
 from nq.data.fundamentals import load_fund_store  # noqa: E402
+from nq.data.macro import load_macro_pit  # noqa: E402
 from nq.data.membership import load_membership  # noqa: E402
 from nq.data.ohlcv import OHLCV_CACHE, load_ohlcv_cache  # noqa: E402
 from nq.engine.panel import compose_ranked_panel  # noqa: E402
 
 FWD, BETA_WIN = 63, 126
+# clean PIT factors: *_ret (daily) + *_trend (63d trailing ROC, like-for-like vs finding 0016's trend betas).
+# The go/no-go compares clean *_trend betas directly to 0016 (usd −0.034, crude +0.027).
+CLEAN_FACS = ["usd_ret", "usd_trend", "crude_ret", "crude_trend", "vix_chg", "vix_trend"]
+
+
+def _cross_sectional_ic(macro: pd.DataFrame, facs: list[str]) -> None:
+    """Part B: per-stock trailing beta to each macro factor -> rank -> IC vs forward-63d stock return."""
+    ohlcv = load_ohlcv_cache(OHLCV_CACHE)
+    print("\npanel build for the cross-sectional test ...", flush=True)
+    panel = compose_ranked_panel(compute_all_features(ohlcv), ohlcv,
+                                 fund_store=load_fund_store(), membership=load_membership())
+    panel["date"] = pd.to_datetime(panel["date"])
+    elig = set(map(tuple, panel[["date", "ticker"]].to_numpy()))
+    rows = []
+    for tkr, gdf in ohlcv.items():
+        c = gdf["Close"]
+        ret = c.pct_change()
+        idx = pd.to_datetime(gdf.index)
+        m = macro.reindex(idx)[facs]
+        fwd_s = c.shift(-FWD) / c - 1
+        d = pd.DataFrame({"ret": ret.to_numpy(), "fwd": fwd_s.to_numpy()}, index=idx)
+        for f in facs:
+            fv = m[f]
+            # min_periods < BETA_WIN so a few cross-calendar holes (crude/VIX vs NSE holidays) don't
+            # NaN the whole 126d window; ~half-window of valid pairs still yields a stable beta.
+            mp = BETA_WIN // 2
+            cov = ret.rolling(BETA_WIN, min_periods=mp).cov(fv)
+            var = fv.rolling(BETA_WIN, min_periods=mp).var()
+            d[f + "_beta"] = (cov / var).to_numpy()
+        d["ticker"] = tkr
+        d["date"] = idx
+        rows.append(d.reset_index(drop=True))
+    allb = pd.concat(rows, ignore_index=True)
+    allb = allb[[tuple(x) in elig for x in allb[["date", "ticker"]].to_numpy()]].dropna(subset=["fwd"])
+    print("\n=== B. CROSS-SECTIONAL: per-stock macro-beta rank vs forward-63d stock return ===")
+    print(f"{'macro-beta signal':<20}{'mean_IC':>9}{'IC_IR':>8}")
+    for f in facs:
+        col = f + "_beta"
+        sub = allb[["date", col, "fwd"]].dropna()
+        daily = sub.groupby("date").apply(
+            lambda g: g[col].corr(g["fwd"], method="spearman") if len(g) >= 15 else np.nan,
+            include_groups=False).dropna()
+        if len(daily) < 100:
+            print(f"{col:<20}{'n/a':>9}")
+            continue
+        print(f"{col:<20}{daily.mean():>+9.4f}{daily.mean() / daily.std():>+8.3f}")
+    print("\nRead: |IC| < ~0.02 or Spearman ~0 = no orthogonal 63d signal in the macro data (as with the "
+          "price-derived zoo). A real |IC| >= ~0.03 in Part B = a genuinely-new cross-sectional feature.")
 
 
 def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--clean", action="store_true",
+                    help="use the PIT-clean macro_pit.parquet (nq.data.macro) + run only the go/no-go Part B")
+    args = ap.parse_args()
+
+    if args.clean:
+        macro = load_macro_pit()
+        macro.index = pd.to_datetime(macro.index)
+        print("=== CLEAN (PIT) re-confirm — data/macro_pit.parquet, factors=%s ===" % CLEAN_FACS)
+        _cross_sectional_ic(macro, CLEAN_FACS)
+        return 0
+
     macro = pd.DataFrame(pickle.load(open(ROOT / "data" / "macro_data.pkl", "rb"))).T
     macro.index = pd.to_datetime(macro.index)
     macro = macro.sort_index().apply(pd.to_numeric, errors="coerce")
@@ -71,8 +133,11 @@ def main() -> int:
         d = pd.DataFrame({"ret": ret.to_numpy(), "fwd": fwd_s.to_numpy()}, index=idx)
         for f in facs:
             fv = m[f]
-            cov = ret.rolling(BETA_WIN).cov(fv)
-            var = fv.rolling(BETA_WIN).var()
+            # min_periods < BETA_WIN so a few cross-calendar holes (crude/VIX vs NSE holidays) don't
+            # NaN the whole 126d window; ~half-window of valid pairs still yields a stable beta.
+            mp = BETA_WIN // 2
+            cov = ret.rolling(BETA_WIN, min_periods=mp).cov(fv)
+            var = fv.rolling(BETA_WIN, min_periods=mp).var()
             d[f + "_beta"] = (cov / var).to_numpy()
         d["ticker"] = tkr
         d["date"] = idx
