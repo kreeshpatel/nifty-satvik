@@ -1,6 +1,6 @@
 """Forward-wall append-only, hash-chained daily log — the §3 integrity mechanism of forward/prereg.md.
 
-ONE atomic row per trading day carries all THREE books (base, veto, drift), hashed together into a
+ONE atomic row per trading day carries all THREE books (base, veto, drift) hashed together into a
 single chain so a partial write (one book logged, another missed) cannot open a silent hole:
 
     row_hash = SHA-256( prior_row_hash | canonical_payload )
@@ -8,15 +8,18 @@ single chain so a partial write (one book logged, another missed) cannot open a 
 The genesis seed anchors the chain to the pinned dataset. :func:`append_row` recomputes and verifies
 the ENTIRE existing chain before writing and REFUSES to append if any prior row was mutated or
 reordered — retroactive edits are structurally blocked, not merely discouraged. No back-dating: a
-row's date must be strictly after the last.
+row's date must be strictly after the last (so a double-run on the same date is refused, and a missed
+day is a :func:`gap_row`, never reconstructed).
 
-Canonical payload — fixed field order, deterministic formatting (the doc pins this construction):
-
-    date(YYYY-MM-DD) | base_ret(.8f) | base_equity(.2f) | base_npos(int) | veto_ret | veto_equity |
-    veto_npos | drift_ret | drift_equity | drift_npos
-
-The written CSV cells ARE the canonical strings, so read-back re-hashes identically (no float
-round-trip drift).
+Row schema (fixed order — the doc pins this):
+    date(YYYY-MM-DD) | status(ok|gap) |
+    base_ret(.8f) base_equity(.2f) base_npos(int) |
+    veto_ret veto_equity veto_npos | drift_ret drift_equity drift_npos |
+    drift_mult(.4f)          # the exposure multiplier ACTUALLY applied to drift that day — STATE,
+                             # logged (not recomputed at review), so a later data revision cannot
+                             # silently rewrite what exposure "was" in effect.
+A ``gap`` row (a missed trading day) carries empty book fields; only its date+status are hashed.
+The written CSV cells ARE the canonical strings, so read-back re-hashes identically.
 """
 from __future__ import annotations
 
@@ -30,8 +33,9 @@ from config import RESULTS_DIR
 
 BOOKS: tuple[str, ...] = ("base", "veto", "drift")
 _METRICS: tuple[str, ...] = ("ret", "equity", "npos")
-DATA_FIELDS: list[str] = ["date"] + [f"{b}_{m}" for b in BOOKS for m in _METRICS]
-FIELDS: list[str] = DATA_FIELDS + ["row_hash"]
+_BOOK_FIELDS: list[str] = [f"{b}_{m}" for b in BOOKS for m in _METRICS]
+DATA_FIELDS: list[str] = ["date", "status", *_BOOK_FIELDS, "drift_mult"]
+FIELDS: list[str] = [*DATA_FIELDS, "row_hash"]
 
 # Genesis seed: SHA-256 of a fixed preimage tying the chain to the pinned dataset. Pinned in
 # forward/prereg.md §3 — changing it (or the hash construction) breaks verification of every prior
@@ -45,12 +49,17 @@ class IntegrityError(RuntimeError):
 
 
 def _canon_parts(row: Mapping[str, Any]) -> list[str]:
-    """Canonical, deterministically-formatted field strings in the fixed order."""
-    parts = [str(row["date"])[:10]]
+    """Canonical, deterministically-formatted field strings in the fixed order.
+    A ``gap`` row formats its book fields as empty strings (no observation to record)."""
+    status = str(row.get("status", "ok"))
+    parts = [str(row["date"])[:10], status]
+    if status == "gap":
+        return parts + [""] * (len(DATA_FIELDS) - 2)
     for b in BOOKS:
         parts.append(f"{float(row[f'{b}_ret']):.8f}")
         parts.append(f"{float(row[f'{b}_equity']):.2f}")
         parts.append(str(int(row[f'{b}_npos'])))
+    parts.append(f"{float(row['drift_mult']):.4f}")
     return parts
 
 
@@ -63,6 +72,15 @@ def _load(path: Path) -> list[dict[str, str]]:
         return []
     with open(path, newline="", encoding="utf-8") as f:
         return list(csv.DictReader(f))
+
+
+def gap_row(date: str) -> dict[str, str]:
+    """A missed-trading-day marker: date + status='gap', empty book fields. Hashed into the chain
+    like any row, so the gap is itself tamper-evident and can never be silently back-filled."""
+    row = {f: "" for f in DATA_FIELDS}
+    row["date"] = str(date)[:10]
+    row["status"] = "gap"
+    return row
 
 
 def verify_chain(rows: Sequence[Mapping[str, str]]) -> tuple[bool, int]:
@@ -78,9 +96,9 @@ def verify_chain(rows: Sequence[Mapping[str, str]]) -> tuple[bool, int]:
 
 
 def append_row(row: Mapping[str, Any], path: str | Path = DEFAULT_LOG) -> str:
-    """Verify the entire existing chain, then atomically append ONE row (all three books, one hash).
-    Refuses (:class:`IntegrityError`) if the existing chain is broken or the date is not strictly
-    after the last logged date. Returns the new ``row_hash``."""
+    """Verify the entire existing chain, then atomically append ONE row. Refuses
+    (:class:`IntegrityError`) if the existing chain is broken or the date is not strictly after the
+    last logged date. Returns the new ``row_hash``."""
     path = Path(path)
     rows = _load(path)
     ok, bad = verify_chain(rows)
@@ -88,7 +106,7 @@ def append_row(row: Mapping[str, Any], path: str | Path = DEFAULT_LOG) -> str:
         raise IntegrityError(f"existing chain fails to verify at row {bad}; refusing to append")
     date = str(row["date"])[:10]
     if rows and date <= rows[-1]["date"]:
-        raise IntegrityError(f"no back-dating: {date} <= last logged {rows[-1]['date']}")
+        raise IntegrityError(f"no back-dating / double-run: {date} <= last logged {rows[-1]['date']}")
     parts = _canon_parts(row)
     prior = rows[-1]["row_hash"] if rows else GENESIS
     h = _chain_hash(prior, parts)

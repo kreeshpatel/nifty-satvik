@@ -1,7 +1,7 @@
 # forward/prereg.md — Forward-Wall Pre-Registration
 
 **Status:** PRE-REGISTERED (locked before first live row)
-**Version:** 1.2 (v1.0 2026-07-02; v1.1 + v1.2 amendments 2026-07-02 — see §10)
+**Version:** 1.3 (v1.0 2026-07-02; v1.1–v1.3 amendments 2026-07-02 — see §10)
 **Registered:** 2026-07-02
 **Anchor:** `baseline_v1` / `dataset-pin-20260701` (ohlcv_sha256 `f8625a8f…52142`)
 **Author/owner:** Kreesh Patel
@@ -42,8 +42,14 @@ This document fixes — **before any live row exists** — every decision thresh
 **Pinned contract — the doc is the authority; a code change that diverges from this is a break:**
 - **Hash:** `row_hash = SHA-256( prior_row_hash ‖ "|" ‖ canonical_payload )`, hex digest.
 - **Genesis seed** (the `prior_row_hash` of the first row): `SHA-256(b"nifty-satvik/forward-wall/genesis@dataset-pin-20260701")` = `f5a0223bea985252683bfbb51d9d845f9c50bda499017381884127192aa209ee`. Anchors the chain to the pinned dataset.
-- **Canonical payload** (fixed order, deterministic formatting; the written CSV cells ARE these strings, so read-back re-hashes identically with no float round-trip drift): `date(YYYY-MM-DD) | base_ret(.8f) | base_equity(.2f) | base_npos(int) | veto_ret | veto_equity | veto_npos | drift_ret | drift_equity | drift_npos`.
+- **Canonical payload** (fixed order, deterministic formatting; the written CSV cells ARE these strings, so read-back re-hashes identically with no float round-trip drift): `date(YYYY-MM-DD) | status(ok|gap) | base_ret(.8f) | base_equity(.2f) | base_npos(int) | veto_ret | veto_equity | veto_npos | drift_ret | drift_equity | drift_npos | drift_mult(.4f)`. A `gap` row (a missed trading day) carries **empty** book fields — only its date + status are hashed. `drift_mult` is the exposure multiplier ACTUALLY applied to the drift book that day (logged as state — see the job rules below).
 - **Log path:** `results/forward_wall.csv` (columns = the payload fields + `row_hash`).
+
+**Daily-append job (`nq/paper/forward_wall_job.record_trading_day`) — the wiring, held to its own bar** (the chain proves the log can't lie about the past; the job must write the *right* row, which a chain can't check):
+- **One source (§1).** The job takes base and veto metrics the caller computes from a SINGLE day's panel (one OHLCV pull → one `compose_ranked_panel`); passing them in one call is the structural enforcement of "one source, three books, one row." *(The cron call site that computes base + a veto-book off the same panel is the remaining operational hook — deliberately NOT wired into the live cron here, because that edit must be verified against the running paper book, not shipped under this doc's bar.)*
+- **Double-run.** A second call for the same date is refused (the chain's date guard). Verified: `tests/test_forward_wall_job.py`.
+- **Missed day.** Detected against the NSE calendar and filled with hash-chained `gap` markers — never back-dated, never silently skipped. Verified.
+- **Drift is logged STATE.** The drift multiplier is derived from the trailing-63d LOGGED (immutable) base return (through the prior session — no lookahead; <63d history ⇒ 1.0) and written into the row, so a later data revision to the trailing window cannot rewrite what exposure was actually applied. Verified.
 
 1. The live log is **append-only**, **ONE atomic row per trading day carrying all three books hashed together** — a partial write (one book logged, another missed) cannot open a silent hole, because there is one row and one hash, not three independent chains.
 2. The harness **refuses to write** if the recomputed chain over existing rows does not match — retroactive edits **and reorderings** are structurally blocked (position-sensitive: each hash binds its predecessor).
@@ -121,6 +127,7 @@ Amendments are appended below with date, author, and rationale. Tightening/clari
   2. **§3 marked NOT-YET-BUILT.** Verified 2026-07-02 that the hash-chain + 3-book log harness does not exist in code (no `row_hash` in `nq/paper`; only the legacy single-book NAV log). Recorded as a build prerequisite before the first live row.
   3. **§6 null made auditable.** The veto-0.1 cascade figures (previously transcript-only) were reproduced from the pinned pipeline (`scripts/diag_veto01_cascade.py`) and embedded (removed +7.8L / replacement +10.1L / shared +3.1L / net +5.5L, exact recon). The null now cites a committed, reproducible basis.
   4. **Appendix pins the rejected −18.8% figure** so a future reviewer does not "correct" the Red-return line to it.
+- **2026-07-02 — v1.3 (Claude Code, per owner).** Built the daily-append JOB (`nq/paper/forward_wall_job.record_trading_day`) — the wiring — and held it to the three operational-correctness criteria the chain cannot check: one atomic pull → three books → one row; deterministic double-run refusal + gap markers; and drift's exposure multiplier logged as state (derived from the immutable logged base returns, no lookahead). Extended the §3 schema with `status(ok|gap)` and `drift_mult` (log still empty → no migration) and re-pinned the canonical payload above to match. `tests/test_forward_wall_job.py` (5 green) proves double-run, gap-marker, and drift-degross behaviour. The live-cron call site (compute base + a veto book off the same panel, then call the job) is documented as the remaining operational hook, intentionally not shipped under this bar. Clarification/addition only; no threshold relaxed.
 - **2026-07-02 — v1.2 (Claude Code, per owner).** Built the §3 integrity harness that v1.1 recorded as unbuilt — clarification/addition only, no threshold relaxed. `nq/paper/forward_wall.py`: one atomic 3-book row, a single SHA-256 chain off the pinned genesis seed, `append_row` refuses on any chain mismatch, reorder, or back-dating. `tests/test_forward_wall.py`: tamper-rejection, reorder-break, no-backdating, atomic-three-books, genesis-pin — 5 green (the acceptance criterion). Pinned the genesis seed (`f5a0223b…09ee`), the hash construction, and the canonical field order into §3 as the contract. Done while the log was empty (no history to migrate/re-hash) — the cheapest possible time.
 
 ---
