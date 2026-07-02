@@ -272,6 +272,16 @@ Kept separate from his teaching. Faithful systematic tests; **measurements, not 
   not certifiable in-sample. ρ 0.57 to base (momentum). Disposition: a forward-wall watch candidate (owner
   decision), never the frozen cfg — the wall is the only certifier.
 
+- **THE DEFINITIVE FAITHFUL TEST (finding 0022):** both complete systems — Engine A (RSI-35) and Engine B
+  (44-SMA pullback) — run with his **exact** rules (candle-low stop, 1:2, hold 3-10d), **real PIT index
+  membership**, and **real 0.70% NSE round-trip costs**, over 2017-2026. Result: **catastrophic loss — Sharpe
+  ≈ −1.6, CAGR −24%/−31%, MaxDD −93%/−97%, negative in every sub-period.** His tight candle-low stops get
+  shredded (36-37% win-rate; stops outnumber targets ~2.5:1), and 0.70% × 1,400-2,400 trades buries the tiny
+  edge. **Only** multi-rule *deviations* (wide ATR stop + 40d hold + 1:3) turn positive — and then it is a
+  generic momentum book below baseline_v1, not his system. **His exact mechanical strategy is a KILL.** The
+  earlier ~+1.0 hybrid was inflated by missing PIT membership + the flat 0.25% cost; honest fixes cut it to
+  ~+0.6. His *principles* have value; his *mechanics* lose money.
+
 **Net:** his *principles* — trade a clear uptrend, respect risk, give winners room, **volume is the voice of
 god**, exit is where money is made, price leads news — largely hold up and match our own validated findings.
 His *specific mechanical mean-reversion entries* (RSI-oversold, Bollinger-oversold) do not carry an edge here;
