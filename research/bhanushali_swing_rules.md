@@ -295,11 +295,14 @@ Kept separate from his teaching. Faithful systematic tests; **measurements, not 
 - **THE PRACTITIONER TEST (finding 0024):** the owner's process audit found 0022/0023 skipped the *portfolio
   process* — weekly frozen top-50 watchlist (his weekend routine), no-overtrade throttle, half@1:2 + §12
   swing-low trail, index regime pause. Run that way (`scripts/run_bhanushali_practitioner.py`):
-  **overtrading vanishes (260→20 trades/yr) and DD collapses (−92%→−20%)** — the watchlist confluence itself
-  is the throttle. The **regime pause is the first component that adds net Sharpe outright** (+0.15 vs −0.08
+  **overtrading vanishes (260→21 trades/yr) and DD collapses (−92%→−19%)** — the watchlist confluence itself
+  is the throttle. The **regime pause is the first component that adds net Sharpe outright** (+0.19 vs −0.05
   without). But the method **cannot deploy capital**: tight candle-low stops + no leverage cap realized risk
-  ~1%/trade → gross +4.0%/yr, net **+1.0%/yr** (Sharpe +0.15). His RSI system with all his own confirmations
-  fired **3 trades in 9.5 years**. Verdict: the practitioner process rescues the RISK profile, not the RETURN.
+  ~1%/trade → gross +4.5%/yr, net **+1.4%/yr** (Sharpe +0.19). His RSI system, correctly watchlisted on the
+  weekly chart (two owner-caught amendments fixed a filter contradiction that first showed 3 trades/9.5y),
+  fires a credible ~3–4 trades/yr — **and loses** (27% win, expR −0.18, Sharpe −0.49): the RSI-oversold entry
+  is the part of his teaching with no edge, same as 0020/0022. Verdict: the practitioner process rescues the
+  RISK profile, not the RETURN; every edge in the arc lives in the momentum pullback (engine B).
 
 **Net:** his *principles* — trade a clear uptrend, respect risk, give winners room, **volume is the voice of
 god**, exit is where money is made, price leads news — largely hold up and match our own validated findings.

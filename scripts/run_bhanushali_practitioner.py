@@ -57,6 +57,7 @@ def prep(ohlcv):
         w = df.resample("W-FRI").agg({"Close": "last"}).dropna()
         wsma = w["Close"].rolling(44).mean()
         wtrend = ((wsma > wsma.shift(4)) & (wsma.shift(4) > wsma.shift(8))).reindex(idx, method="ffill").fillna(False).to_numpy(bool)
+        wslope = (wsma / wsma.shift(8) - 1.0).reindex(idx, method="ffill").to_numpy(float)
         adv20 = pd.Series(c * v).rolling(20).mean().to_numpy()
         adv60 = pd.Series(c * v).rolling(60).mean().to_numpy()
         vavg20 = pd.Series(v).rolling(20).mean().to_numpy()
@@ -76,7 +77,7 @@ def prep(ohlcv):
             swlow[i] = last
         P[tkr] = dict(dates=idx, o=o, h=h, l=l, c=c, atr=atr, adv20=adv20, adv60=adv60,
                       dsma=dsma, slope66=slope66, strong=strong, wtrend=wtrend,
-                      qgreen=qgreen, hvc=hvc, hold44=hold44, rsix=rsix, swlow=swlow)
+                      wslope=wslope, qgreen=qgreen, hvc=hvc, hold44=hold44, rsix=rsix, swlow=swlow)
     return P
 
 
@@ -87,12 +88,20 @@ def regime_series():
     return ok  # dates missing / warmup -> treated as OK by caller
 
 
-def build_watchlist(P, mem, dd, prev_i):
-    """Top-50 rank using data strictly before the week's first session (prev_i = last index < that day)."""
+def build_watchlist(P, mem, dd, prev_i, mode="mixed"):
+    """Top-50 rank using data strictly before the week's first session (prev_i = last index < that day).
+    mode 'mixed': eligibility strong-daily OR weekly trend, rank by daily slope (headline book).
+    mode 'A': his RSI-system list — weekly-trend eligibility, ranked by WEEKLY slope (amendment 2: the
+    daily-slope rank buries RSI candidates, only 7% survived it — owner-caught)."""
     rows = []
     for t, s in P.items():
         i = prev_i.get(t)
-        if i is None or not s["strong"][i]:
+        # eligibility per setup family: strong DAILY trend (engine B) OR sustained WEEKLY trend (engine A —
+        # his RSI-system watchlist is weekly; requiring the strong daily trend contradicts RSI<35 by
+        # construction and produced 3 trades/9.5y — owner-caught, amendment 1 in pre-reg 0024)
+        if i is None:
+            continue
+        if not (s["wtrend"][i] if mode == "A" else (s["strong"][i] or s["wtrend"][i])):
             continue
         if not ticker_in_index_on(t, dd, mem):
             continue
@@ -101,7 +110,10 @@ def build_watchlist(P, mem, dd, prev_i):
             continue
         if not (s["atr"][i] / s["c"][i] >= 0.015):                       # volatile enough for 1:2 in days
             continue
-        rows.append((t, s["slope66"][i], s["adv20"][i] / s["adv60"][i]))
+        slope = s["wslope"][i] if mode == "A" else s["slope66"][i]
+        if not np.isfinite(slope):
+            continue
+        rows.append((t, slope, s["adv20"][i] / s["adv60"][i]))
     if not rows:
         return set()
     df = pd.DataFrame(rows, columns=["t", "slope", "vexp"])
@@ -112,8 +124,8 @@ def build_watchlist(P, mem, dd, prev_i):
     return set(df.nlargest(50, "rank")["t"])
 
 
-def backtest(P, mem, *, engines=("A", "B"), regime_on=True, vol_confirm=True, maxpos=5, max_new_wk=3,
-             cooldown=10, maxhold=60, risk=0.02, notional_cap=0.30, cost_off=False):
+def backtest(P, mem, *, engines=("A", "B"), watch_mode="mixed", regime_on=True, vol_confirm=True, maxpos=5,
+             max_new_wk=3, cooldown=10, maxhold=60, risk=0.02, notional_cap=0.30, cost_off=False):
     dts = pd.DatetimeIndex(sorted(set().union(*[set(s["dates"]) for s in P.values()])))
     dts = dts[dts >= pd.Timestamp(START)]
     didx = {t: {d: i for i, d in enumerate(s["dates"])} for t, s in P.items()}
@@ -135,7 +147,7 @@ def backtest(P, mem, *, engines=("A", "B"), regime_on=True, vol_confirm=True, ma
                 j = s["dates"].searchsorted(d) - 1
                 if j >= 0:
                     prev_i[t] = j
-            watch = build_watchlist(P, mem, dd, prev_i)
+            watch = build_watchlist(P, mem, dd, prev_i, watch_mode)
             cur_week, new_this_wk = wk, 0
             orders = {t: o_ for t, o_ in orders.items() if t in watch}   # stale orders off-list die
         # --- manage opens (stop first, then half-target, then trail ratchet, then time) ---
@@ -250,6 +262,7 @@ def main() -> int:
     print("\n===== pre-declared arms (net) =====")
     for tag, kw in (("B only (pullback)", dict(engines=("B",))),
                     ("A only (RSI)", dict(engines=("A",))),
+                    ("A only, weekly-ranked list", dict(engines=("A",), watch_mode="A")),
                     ("regime OFF", dict(regime_on=False)),
                     ("volume-confirm OFF", dict(vol_confirm=False)),
                     ("throttle OFF (15pos/inf)", dict(maxpos=15, max_new_wk=10**9))):

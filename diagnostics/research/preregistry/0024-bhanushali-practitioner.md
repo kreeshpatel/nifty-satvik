@@ -56,5 +56,12 @@ continuous-slice sub-periods (2017-18 / 2019-21 / 2022-26).
 avoidance (no historical earnings-date data); gap-through stops filled at the stop (optimistic); weekly
 watchlist uses Monday-open information only (PIT-safe).
 
+**Amendments (2026-07-03, owner-caught, before any conclusion was anchored):**
+1. Watchlist eligibility required the strong DAILY trend for all setups — near-mutually-exclusive with
+   daily RSI<35 (41 joint events in 1.4M ticker-days) → engine A showed 3 trades/9.5y, an artifact.
+   Fixed: eligibility = strong-daily OR sustained-weekly trend.
+2. The daily-slope rank buried the surviving RSI candidates (7% of 2,637 signals made the list). Added a
+   pre-declared arm: engine A on its own weekly-slope-ranked list (his RSI-system watchlist is weekly).
+
 **Success criteria (fixed):** interesting = net Sharpe > 0 with trades/yr ≤ ~80 and DD shallower than the
 2023-26 base; NOT tradeable/promotable regardless of outcome — the forward wall remains the only certifier.

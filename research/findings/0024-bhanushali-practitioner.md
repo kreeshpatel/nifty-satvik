@@ -9,48 +9,57 @@
   (watchlist rank = trend+volatility+volume; half@2R + §12 swing-low trail; NIFTY regime pause; 5 pos / 3
   new-wk / 10d cooldown).
 
-## Result (headline = combined A+B on the weekly watchlist)
+## Result (headline = combined A+B on the weekly watchlist; CORRECTED after amendments 1+2)
+> **Amendments (owner-caught).** The first run showed engine A firing 3 trades in 9.5y — an artifact:
+> the watchlist demanded a strong DAILY trend, which is near-mutually-exclusive with daily RSI<35 (41 joint
+> events in 1.4M ticker-days). Amendment 1 widened eligibility to strong-daily OR sustained-weekly; amendment
+> 2 added an engine-A arm on its own weekly-slope-ranked list (only 7% of RSI signals survived the
+> daily-slope rank contest). Numbers below are the corrected run.
+
 | arm | tr/yr | win | expR | CAGR | Sharpe | MaxDD |
 |---|---|---|---|---|---|---|
-| **combined GROSS** | **20** | 39% | +0.21 | **+4.0%** | **+0.46** | **−19.5%** |
-| **combined NET** | 20 | 39% | +0.21 | **+1.0%** | **+0.15** | −21.8% |
-| B only (pullback), net | 20 | 38% | +0.17 | +0.0% | +0.05 | −22.8% |
-| A only (RSI), net | **3 trades in 9.5y** | 100% | +1.77 | +0.8% | +0.46 | −2.8% |
-| regime OFF, net | 36 | 36% | +0.14 | −1.9% | **−0.08** | −34.3% |
-| volume-confirm OFF, net | 45 | 38% | +0.24 | +4.8% | +0.39 | **−36.4%** |
-| throttle OFF, net | 20 | — | — | +1.0% | +0.15 | −21.8% (identical — never binds) |
+| **combined GROSS** | **21** | 40% | +0.17 | **+4.5%** | **+0.48** | **−19.4%** |
+| **combined NET** | 21 | 40% | +0.17 | **+1.4%** | **+0.19** | −24.0% |
+| B only (pullback), net | 19 | 41% | +0.22 | +2.2% | +0.27 | −23.0% |
+| A only (RSI), mixed list, net | 3 | 43% | +0.13 | +0.0% | +0.03 | −6.6% |
+| **A only, own weekly-ranked list, net** | **4** | **27%** | **−0.18** | −1.8% | **−0.49** | −19.5% |
+| regime OFF, net | 40 | 38% | +0.11 | −1.7% | **−0.05** | −43.8% |
+| volume-confirm OFF, net | 44 | 36% | +0.19 | +3.5% | +0.29 | **−38.5%** |
+| throttle OFF, net | 21 | 40% | +0.19 | +1.8% | +0.22 | −23.0% (barely binds) |
 
-Sub-periods (net, continuous slice): 2017-18 +0.32 / 2019-21 +0.03 / 2022-26 +0.19. Exit mix: essentially
+Sub-periods (net, continuous slice): 2017-18 +0.42 / 2019-21 −0.26 / 2022-26 +0.45. Exit mix: essentially
 all exits via (initial or trailed) stop; avg hold 11d — squarely his 3–10d rhythm.
 
 ## Root-cause readout (REQUIRED)
-1. **The practitioner process WORKS as process.** Trades/yr collapsed 260→20 (the owner's no-overtrade goal),
-   and MaxDD collapsed −92%→−20% gross. The watchlist + confluence is itself the throttle: the explicit
-   5-pos/3-new cap **never binds** (throttle-OFF arm is byte-identical). Overtrading was a *scanning-the-
+1. **The practitioner process WORKS as process.** Trades/yr collapsed 260→21 (the owner's no-overtrade goal),
+   and MaxDD collapsed −92%→−19% gross. The watchlist + confluence is itself the throttle: the explicit
+   5-pos/3-new cap barely binds (throttle-OFF is nearly identical). Overtrading was a *scanning-the-
    whole-market* artifact, exactly as the owner suspected.
 2. **The regime pause is genuinely load-bearing** (his "mahaul", the owner's call): regime OFF flips net
-   Sharpe +0.15→−0.08 and deepens DD to −34%. First Bhanushali component that *adds* net Sharpe outright.
-3. **But the method cannot deploy capital.** Gross CAGR only +4.0% despite positive expectancy (+0.21R/trade),
+   Sharpe +0.19→−0.05 and deepens DD to −44%. First Bhanushali component that *adds* net Sharpe outright.
+3. **But the method cannot deploy capital.** Gross CAGR only +4.5% despite positive expectancy (+0.17R/trade),
    because: tight candle-low stops (~3–4%) want ~57% notional to reach 2% risk → the 30% notional cap and the
-   no-leverage cash constraint cut realized risk to ~1%/trade; × 20 trades/yr ≈ a few %/yr. This is the honest
+   no-leverage cash constraint cut realized risk to ~1%/trade; × 21 trades/yr ≈ a few %/yr. This is the honest
    ceiling of a 5-position tight-stop swing book without leverage. A real trader "earning 20%/yr" on this is
    either concentrated way beyond 30%/name or leveraged.
-4. **Costs still eat most of it:** 4.0%→1.0% CAGR (~3%/yr drag on a volatile-midcap watchlist at 0.22%
+4. **Costs still eat most of it:** 4.5%→1.4% CAGR (~3%/yr drag on a volatile-midcap watchlist at 0.22%
    slippage). The method selects exactly the names with the highest slippage tier.
-5. **Volume nuance (differs from 0023):** removing the HVC gate here RAISES net CAGR/Sharpe (+4.8%/+0.39)
-   but doubles DD (−36%) — because the watchlist's volume-*expansion* ranking already pre-filters for
-   institutional interest, the per-candle HVC gate acts as drawdown control, not return enhancement. In 0023
+5. **Volume nuance (differs from 0023):** removing the HVC gate here raises net CAGR (+3.5%) but deepens DD
+   to −38% and doubles the trade count — because the watchlist's volume-*expansion* ranking already
+   pre-filters for institutional interest, the per-candle HVC gate acts mostly as drawdown control. In 0023
    (no watchlist) volume was the only institutional filter and removing it collapsed the system. Consistent
    story: *some* volume filter is load-bearing; where you apply it moves return↔DD.
-6. **Engine A (RSI-35) is practically untradeable under real confluence** — the weekly-trend + RSI-cross +
-   watchlist + quality-green + HVC stack fired 3 times in 9.5 years. His RSI system as taught, with all his
-   own confirmations applied, produces ~1 trade every 3 years.
+6. **Engine A (RSI-35), correctly watchlisted, fires ~3–4 trades/yr and LOSES.** On its own weekly-ranked
+   list (his actual RSI-system watchlist): 37 trades, 27% win, expR −0.18, Sharpe −0.49. A credible human
+   cadence (~one trade a quarter from that system), and the same verdict as 0020/0022: the RSI-oversold
+   *entry* is the part of his teaching with no edge — buying the dip loses even inside a weekly uptrend
+   with green-candle + volume confirmation. Every edge in the arc lives in engine B (momentum pullback).
 
 ## Verdict
 **The practitioner process rescues the strategy's RISK profile, not its RETURN.** Run the way a disciplined
-human runs it, Bhanushali's method is a real, low-drawdown (−20%), low-turnover (20/yr) system with positive
-per-trade expectancy — and a gross return of ~4%/yr that costs cut to ~1%/yr net: roughly FD-yield with equity
-effort. It is decisively below baseline_v1 (0.667 Sharpe / 15.5% CAGR) on every axis except drawdown. The
+human runs it, Bhanushali's method is a real, low-drawdown (−19%), low-turnover (21/yr) system with positive
+per-trade expectancy — and a gross return of ~4.5%/yr that costs cut to ~1.4%/yr net: roughly FD-yield with
+equity effort. It is decisively below baseline_v1 (0.667 Sharpe / 15.5% CAGR) on every axis except drawdown. The
 durable extracts stand: **regime pause (new, net-positive here), volume as DD-control, watchlist-as-throttle.**
 Survivor-only cache (sha f8625a8f, 103 delisted members missing) makes even these numbers optimistic.
 Disposition: arc closed for the config; principles feed the forward-only conviction/feature work.
