@@ -30,9 +30,9 @@ def corrected_universe():
     for t, df in bf.items():
         ohlcv.setdefault(t, df)                                   # never overwrite the pinned series
     amap = json.load(open(ROOT / "data" / "delisted_alias_map.json"))["aliases"]
-    for old, spec in amap.items():
-        src = ohlcv.get(spec["to"])
-        if src is None or old in ohlcv:
+    for old, spec in amap.items():                                # aliases OVERRIDE any bhavcopy series for
+        src = ohlcv.get(spec["to"])                               # the same old symbol (dividend-adjusted,
+        if src is None:                                           # identity-validated — the better source)
             continue
         df = src
         if "valid_until" in spec:

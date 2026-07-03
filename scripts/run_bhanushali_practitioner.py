@@ -115,13 +115,15 @@ def build_watchlist(P, mem, dd, prev_i, mode="mixed"):
             continue
         rows.append((t, slope, s["adv20"][i] / s["adv60"][i]))
     if not rows:
-        return set()
+        return []
     df = pd.DataFrame(rows, columns=["t", "slope", "vexp"])
     for col in ("slope", "vexp"):
         sd = df[col].std()
         df[col + "_z"] = (df[col] - df[col].mean()) / (sd if sd else 1.0)
     df["rank"] = df["slope_z"] + df["vexp_z"]
-    return set(df.nlargest(50, "rank")["t"])
+    # RANKED list, strongest first — fill priority follows watchlist rank (deterministic; a set here made
+    # same-day fill order depend on string-hash randomization, wobbling net Sharpe ±0.05 across processes)
+    return df.sort_values(["rank", "t"], ascending=[False, True]).head(50)["t"].tolist()
 
 
 def backtest(P, mem, *, engines=("A", "B"), watch_mode="mixed", regime_on=True, vol_confirm=True, maxpos=5,
@@ -140,7 +142,7 @@ def backtest(P, mem, *, engines=("A", "B"), watch_mode="mixed", regime_on=True, 
         sB = s["strong"] & s["hold44"] & base if "B" in engines else np.zeros(len(s["c"]), bool)
         sig[t] = np.nan_to_num(sA | sB, nan=False).astype(bool)
     eq = cash = EQ0; op = {}; orders = {}; cool = {}; curve = []; T = []
-    watch, cur_week, new_this_wk = set(), None, 0
+    watch, cur_week, new_this_wk = [], None, 0
     for d in dts:
         dd = d.date()
         wk = (d.isocalendar().year, d.isocalendar().week)
@@ -151,8 +153,9 @@ def backtest(P, mem, *, engines=("A", "B"), watch_mode="mixed", regime_on=True, 
                 if j >= 0:
                     prev_i[t] = j
             watch = build_watchlist(P, mem, dd, prev_i, watch_mode)
+            wset = set(watch)
             cur_week, new_this_wk = wk, 0
-            orders = {t: o_ for t, o_ in orders.items() if t in watch}   # stale orders off-list die
+            orders = {t: o_ for t, o_ in orders.items() if t in wset}    # stale orders off-list die
         # --- manage opens (stop first, then half-target, then trail ratchet, then time) ---
         for t in list(op):
             p = op[t]; i = didx[t].get(d)

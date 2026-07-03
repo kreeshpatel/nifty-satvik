@@ -115,10 +115,15 @@ the practitioner-B swing sleeve is a registered PROPOSAL for the 2026-10-01 revi
 pre-committed; spec freeze gated on the delisted backfill); Path A declined. RSI-oversold is triple-killed
 (0020/0022/0024 — the indicator *subtracts* from the dip situation); do not relitigate. Regime pause lives
 ONLY inside the B-sleeve spec (O-001 stays killed for the base).
-**⚠ DATA DEBT (blocking):** `data/ohlcv.pkl` (sha f8625a8f — the baseline_v1 pin) is **survivor-only**: 103
-of 813 PIT members have no price series at all (every cached series ends 2026-06-29). All absolute numbers
-in the repo are optimistic, including the 0.667 anchor. The delisted-price backfill is the next data-honesty
-job; no in-sample spec freeze or baseline re-anchor until it lands.
+**⚠ DATA DEBT — backfill LANDED 2026-07-03, base re-run PENDING.** The pinned `data/ohlcv.pkl` (f8625a8f)
+is survivor-only (103/813 PIT members missing). The backfill recovered **103/103 (~100% member-day
+coverage)** into `data/ohlcv_backfill.pkl` + `data/delisted_alias_map.json` (pin untouched; see
+`diagnostics/research/backfill_readiness.md` + harvest/finalize scripts). Finding 0025 measured the bias:
+**it scales with holding period** (−0.04 Sharpe tight-stop vs −0.18 wide-stop swing configs) → the 63d-hold
+**baseline_v1 0.667 is exposed in the same direction; its corrected re-run is unblocked** but re-anchors the
+pin → owner/governance decision (quarterly-review class). 0025 also settled Path-1: 4×ATR geometry lifts
+the swing book to net +0.40 Sharpe / −12% DD on the corrected universe — **0.003 below its pre-committed
+bar; recorded, not relitigated; Oct-1 review decides the sleeve.**
 
 **When handed an external research doc, be adversarial.** Cross-reference every recommendation against
 the registry (an outside chat can't see it) — most "new" ideas are already tested here. Correct the

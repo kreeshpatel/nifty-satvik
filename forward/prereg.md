@@ -157,6 +157,13 @@ Amendments are appended below with date, author, and rationale. Tightening/clari
      The dip20 lever is the most survivorship-exposed of the three (deep dips are where the corpses lived).
      Forward-only feature evaluation is uncontaminated by this; but **no in-sample spec freeze and no
      baseline re-anchor until the delisted backfill lands.**
+     **[2026-07-03 update: the backfill LANDED** — 103/103 resolved, ~100% member-day coverage
+     (`diagnostics/research/backfill_readiness.md`). The §2 sleeve spec is now freezable. Finding 0025
+     measured the proposal's geometry on the corrected universe: **net Sharpe +0.397 / CAGR +2.8% / MaxDD
+     −12.1%** — 0.003 below the pre-committed ≥+0.40 lift bar (recorded, not relitigated). The Oct-1 review
+     judges the proposal on these numbers. 0025 also found survivorship bias scales with holding period
+     (−0.18 Sharpe on the wide-stop config vs −0.04 tight-stop) → **the corrected re-run of baseline_v1
+     itself is unblocked and pending as an owner/governance action.]**
 
 - **2026-07-03 — v1.4 (Claude Code, per owner).** Registers the two real PIT-clean orthogonal signals found
   this arc as **WATCHED SHADOW FEATURES** — per-signal annotations, NOT shadow books. Addition/clarification

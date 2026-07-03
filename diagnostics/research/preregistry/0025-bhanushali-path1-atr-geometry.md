@@ -1,6 +1,8 @@
 # 0025 — Path-1 rerun: the 4×ATR stop geometry as the ONLY change to the practitioner config
 
-- **Status:** PRE-REGISTERED (2026-07-03, before any run).
+- **Status:** COMPLETE (2026-07-03) → `research/findings/0025-bhanushali-path1-atr-geometry.md`. Corrected
+  4×ATR net Sharpe **+0.397 vs the ≥+0.40 bar — NOT met, by 0.003; not relitigated.** (Authoring gap noted:
+  the 0.30–0.40 band was undefined; recorded in the finding.)
 - **Class:** MEASUREMENT / external-strategy analysis (0022–0024 series convention; not an overlay trial on
   the momentum sleeve, no cfg change, no n_trials increment). Single pre-declared mechanical change; results
   feed the v1.5 Path-B sleeve proposal for the 2026-10-01 review, nothing else.

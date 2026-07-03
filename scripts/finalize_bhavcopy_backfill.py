@@ -27,6 +27,14 @@ sys.path.insert(0, str(ROOT))
 CLEAN_FACTORS = [2.0, 2.5, 4.0, 5.0, 10.0, 0.5, 0.4, 0.25, 0.2, 0.1]
 DEMERGERS = pd.read_csv(ROOT / "data" / "corporate_actions_demergers.csv", comment="#")
 
+# W-01 review overrides (owner-audited cliff classifications the heuristic gets wrong):
+# - HSIL 2019-08-19: the SHIL/Brilloca DEMERGER (consumer business left) — ratio ~4.0 coincidentally clean;
+#   back-adjusting would fabricate pre-2019 trend. Leave RAW.
+# - INFIBEAM 2021-03-18: 1:1 bonus (true factor 2.0) + a same-day market move pushed the observed ratio to
+#   ~2.33, outside the clean-factor tolerance. Adjust by exactly 2.0.
+CA_OVERRIDES = {("HSIL", "2019-08-19"): "demerger_no_adjust",
+                ("INFIBEAM", "2021-03-18"): 2.0}
+
 
 def assemble(rows):
     df = pd.DataFrame(rows, columns=["date", "Open", "High", "Low", "Close", "Volume"])
@@ -46,9 +54,11 @@ def ca_screen(tkr, df):
         for i in cliffs[::-1]:
             d = df.index[i]
             ratio = df["Close"].iloc[i - 1] / df["Close"].iloc[i]
-            demerged = ((DEMERGERS["ticker"] == tkr)
+            ov = CA_OVERRIDES.get((tkr, str(d.date())))
+            demerged = ov == "demerger_no_adjust" or ((DEMERGERS["ticker"] == tkr)
                         & (pd.to_datetime(DEMERGERS["date"]) - d).abs().le(pd.Timedelta(days=7))).any()
-            fac = next((f for f in CLEAN_FACTORS if abs(ratio / f - 1) < 0.06), None)
+            fac = ov if isinstance(ov, float) else next(
+                (f for f in CLEAN_FACTORS if abs(ratio / f - 1) < 0.06), None)
             if fac and fac > 1 and not demerged:
                 df.loc[:df.index[i - 1], ["Open", "High", "Low", "Close"]] /= fac
                 df.loc[:df.index[i - 1], "Volume"] *= fac
@@ -109,12 +119,32 @@ def main() -> int:
             return "merged_or_delisted", "nse_bhavcopy", True
         return "unresolved", "", False
     scope[["class", "source", "resolved"]] = scope["ticker"].apply(lambda t: pd.Series(classify(t)))
+    # coverage-weighted recovery: only the overlap of the recovered series with the membership window counts
+    from nq.data.ohlcv import OHLCV_CACHE, load_ohlcv_cache
+    cache = load_ohlcv_cache(OHLCV_CACHE)
+    def covered_days(r):
+        t = r["ticker"]
+        w0, w1 = pd.Timestamp(r["first"]), pd.Timestamp(r["last"])
+        if t in alias:
+            src = bf.get(alias[t]["to"]) if alias[t]["to"] in bf else cache.get(alias[t]["to"])
+            s0, s1 = src.index.min(), src.index.max()
+            if "valid_until" in alias[t]:
+                s1 = min(s1, pd.Timestamp(alias[t]["valid_until"]))
+        elif t in bf:
+            s0, s1 = bf[t].index.min(), bf[t].index.max()
+        else:
+            return 0
+        return max(0, (min(w1, s1) - max(w0, s0)).days)
+    scope["covered_days"] = scope.apply(covered_days, axis=1)
     scope.to_csv(ROOT / "diagnostics" / "research" / "delisted_backfill_scope.csv", index=False)
-    rec = scope[scope["resolved"]]["member_days_in_window"].sum()
+    rec = scope["covered_days"].sum()
     tot = scope["member_days_in_window"].sum()
-    print(f"\nresolved {int(scope['resolved'].sum())}/103 names | member-days recovered "
+    print(f"\nresolved {int(scope['resolved'].sum())}/103 names | coverage-weighted member-days recovered "
           f"{rec:,}/{tot:,} = {100*rec/tot:.1f}%")
-    print("unresolved:", scope[~scope["resolved"]]["ticker"].tolist())
+    worst = scope[scope["covered_days"] < 0.9 * scope["member_days_in_window"]]
+    print("partial/missing coverage:")
+    for _, r in worst.sort_values("member_days_in_window", ascending=False).head(15).iterrows():
+        print(f"  {r['ticker']:<12} window {r['member_days_in_window']:>5}d covered {r['covered_days']:>5}d ({r['class']})")
     return 0
 
 
