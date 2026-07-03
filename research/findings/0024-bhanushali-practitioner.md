@@ -55,6 +55,25 @@ all exits via (initial or trailed) stop; avg hold 11d — squarely his 3–10d r
    *entry* is the part of his teaching with no edge — buying the dip loses even inside a weekly uptrend
    with green-candle + volume confirmation. Every edge in the arc lives in engine B (momentum pullback).
 
+## Follow-up diagnostics (reviewer checks, `scripts/diag_rsi_recovery.py`, 2,616 engine-A signals)
+1. **Weekly-filter lookahead: CLEAN.** Truncation test, 50 random (ticker,date) pairs: weekly trend/slope at
+   date d byte-identical whether or not future bars exist. Mon–Thu days read the prior completed W-FRI bar;
+   a Friday signal reads the bar completing at its own close — available at decision time.
+2. **The weekly filter is SLOWING THE BLEED, not selecting resilience.** From the signal close, forward
+   returns trail the universe control at every horizon (−0.4 to −0.8pp at 5–60d). 96% do reclaim the daily
+   44-SMA within 60d (median 15d) — but the median path first suffers a **−6.6% MAE within 20d (p10 −17.4%)**,
+   which a 2–4% candle-low stop cannot survive. That is the mechanical reason the portfolio arm loses.
+3. **The buy-above-high trigger carries the RSI system's ENTIRE edge.** 68% of signals trigger within 3d;
+   17% hit the stop level first (knives the trigger correctly refuses). Triggered vs not-triggered forward
+   returns: **+4.8 to +6.0pp** separation — and the triggered subset *beats* the universe (+1.0pp/10d),
+   while the raw signal underperforms it. His confirmation-entry mechanic is real alpha; the RSI-oversold
+   condition itself is anti-alpha. (Consistent with the program-wide lesson: confirmation/momentum works,
+   dip-buying does not.)
+4. **Capital interaction (explicit decision):** the combined book holds max one position and one pending
+   order per ticker across engines, shares the 5-slot capital FCFS, and the cooldown applies across engines
+   — a name exiting a B position cannot immediately re-enter via A. Since A is net-negative as a system, the
+   practical combined book is B-only (+0.27 net); A stays a documented, excluded arm.
+
 ## Verdict
 **The practitioner process rescues the strategy's RISK profile, not its RETURN.** Run the way a disciplined
 human runs it, Bhanushali's method is a real, low-drawdown (−19%), low-turnover (21/yr) system with positive
