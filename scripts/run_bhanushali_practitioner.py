@@ -128,9 +128,11 @@ def build_watchlist(P, mem, dd, prev_i, mode="mixed"):
 
 def backtest(P, mem, *, engines=("A", "B"), watch_mode="mixed", regime_on=True, vol_confirm=True, maxpos=5,
              max_new_wk=3, cooldown=10, maxhold=60, risk=0.02, notional_cap=0.30, cost_off=False,
-             stop_geom="candle"):
+             stop_geom="candle", ledger=None):
     """stop_geom: 'candle' = signal-candle low (big-candle midpoint rule); 'atr4' = fill − 4×ATR(14, signal
-    day) — pre-reg 0025 Path-1 geometry, the only sanctioned alternative."""
+    day) — pre-reg 0025 Path-1 geometry, the only sanctioned alternative.
+    ledger: optional list — appends one forensic record per completed trade (pure observation, does not
+    alter any decision path)."""
     dts = pd.DatetimeIndex(sorted(set().union(*[set(s["dates"]) for s in P.values()])))
     dts = dts[dts >= pd.Timestamp(START)]
     didx = {t: {d: i for i, d in enumerate(s["dates"])} for t, s in P.items()}
@@ -171,6 +173,8 @@ def backtest(P, mem, *, engines=("A", "B"), watch_mode="mixed", regime_on=True, 
                 cash += half * p["tp2"] * (1 - _cost_leg(p["adv"], cost_off))
                 p["sh"] -= half; p["half_done"] = True
                 p["stop"] = max(p["stop"], p["en"])                      # breakeven floor after the half-book
+                if ledger is not None and "rec" in p:
+                    p["rec"].update(half_date=d, half_px=p["tp2"])
             if ex is None and p["held"] >= maxhold:
                 ex, rs = s["c"][i], "time"
             if ex is None:                                               # swing-low ratchet (his §12 trail)
@@ -182,6 +186,10 @@ def backtest(P, mem, *, engines=("A", "B"), watch_mode="mixed", regime_on=True, 
                 r_full = (ex - p["en"]) / p["risk0"]
                 R = 0.5 * 2.0 + 0.5 * r_full if p["half_done"] else r_full
                 T.append(dict(R=R, reason=rs, held=p["held"], half=p["half_done"]))
+                if ledger is not None and "rec" in p:
+                    p["rec"].update(exit_date=d, exit_px=ex, reason=rs, held=p["held"], R=R,
+                                    final_stop=p["stop"], half_done=p["half_done"])
+                    ledger.append(p["rec"])
                 cool[t] = 0
                 del op[t]
         for t in list(cool):
@@ -209,6 +217,13 @@ def backtest(P, mem, *, engines=("A", "B"), watch_mode="mixed", regime_on=True, 
                             cash -= notion
                             op[t] = dict(en=en, stop=st, risk0=en - st, tp2=en + 2 * (en - st), sh=sh,
                                          held=0, adv=o_["adv"], half_done=False)
+                            if ledger is not None:
+                                op[t]["rec"] = dict(
+                                    tkr=t, sig_date=o_["sig_d"], entry_date=d, entry=en, trig=o_["trig"],
+                                    gap_pct=(opn / o_["trig"] - 1) * 100, stop0=st,
+                                    stop_pct=(en / st - 1) * 100, sh=sh, notional_pct=sh * en / eq * 100,
+                                    risk_pct=sh * (en - st) / eq * 100, adv_cr=o_["adv"] / 1e7,
+                                    rank=o_["rank"], half_date=None, half_px=None)
                             new_this_wk += 1; filled = True
             if filled or o_["live"] <= 0:
                 del orders[t]
@@ -225,7 +240,8 @@ def backtest(P, mem, *, engines=("A", "B"), watch_mode="mixed", regime_on=True, 
                 continue
             rng = s["h"][i] - s["l"][i]
             st = (s["l"][i] + 0.5 * rng if rng / s["c"][i] >= 0.06 else s["l"][i]) * 0.999  # big-candle rule
-            orders[t] = dict(trig=s["h"][i] * 1.001, stop=st, atr=s["atr"][i], adv=adv, live=3)
+            orders[t] = dict(trig=s["h"][i] * 1.001, stop=st, atr=s["atr"][i], adv=adv, live=3,
+                             sig_d=d, rank=watch.index(t))
         mtm = sum(p["sh"] * (P[t]["c"][didx[t][d]] if d in didx[t] else p["en"]) for t, p in op.items())
         eq = cash + mtm; curve.append((d, eq))
     e = pd.Series(dict(curve)).sort_index(); r = e.pct_change().dropna()

@@ -42,6 +42,16 @@ figure, not a gamed one.
 4. 2017-18 is flat (+0.01) in the corrected atr4 cell — the strategy's net edge is concentrated in ≥2019,
    consistent with the program's trust-≥2019 rule.
 
+## Erratum (2026-07-03, trade-level forensic audit — `diagnostics/research/audit_0025_tradelog.md`)
+The pinned cache contains exactly **2 bad-tick bars** (INDIAMART Diwali-Muhurat sessions 2019-10-27 and
+2020-11-14, price doubled then fully reversed). One 0025 trade half-booked on the phantom price.
+**Sensitivity with the bars dropped: net Sharpe +0.393 / CAGR +2.55%** (record +0.397 / +2.82%) — verdict
+unchanged (still below the bar); the honest CAGR is ~2.55%. baseline_v1 has one small INDIAMART trade whose
+target exit plausibly fired on the same phantom bar (negligible to 0.667). Fix routes to the next dataset
+pin (bad-tick screen), never to frozen f8625a8f. The audit otherwise verified timing, fills, sizing, and
+cost accounting per-trade (all PASS) and logged the structural findings: half-book leg inert under 4×ATR
+(8% ever book), 52% of P&L in 3 names, gap-through stop optimism ~0.3%/yr.
+
 ## Disposition
 Swing-book work is COMPLETE: no experiment remains that could change this verdict in-sample (the next knob
 is trial #2 of a search — forbidden). The strategy of record: **net ~+0.40 Sharpe, ~+2.8% CAGR, −12% MaxDD,
