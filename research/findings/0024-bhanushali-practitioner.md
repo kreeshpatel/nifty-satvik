@@ -63,12 +63,26 @@ all exits via (initial or trailed) stop; avg hold 11d — squarely his 3–10d r
    returns trail the universe control at every horizon (−0.4 to −0.8pp at 5–60d). 96% do reclaim the daily
    44-SMA within 60d (median 15d) — but the median path first suffers a **−6.6% MAE within 20d (p10 −17.4%)**,
    which a 2–4% candle-low stop cannot survive. That is the mechanical reason the portfolio arm loses.
-3. **The buy-above-high trigger carries the RSI system's ENTIRE edge.** 68% of signals trigger within 3d;
-   17% hit the stop level first (knives the trigger correctly refuses). Triggered vs not-triggered forward
-   returns: **+4.8 to +6.0pp** separation — and the triggered subset *beats* the universe (+1.0pp/10d),
-   while the raw signal underperforms it. His confirmation-entry mechanic is real alpha; the RSI-oversold
-   condition itself is anti-alpha. (Consistent with the program-wide lesson: confirmation/momentum works,
-   dip-buying does not.)
+   **Cross-reference (reviewer):** this MAE shape is also the mechanical explanation of 0023's Engine-A
+   stop-width flip (−0.33 net at candle-low → +0.25 at 4×ATR): a 4×ATR stop on a typical mid-cap is ~8–12%,
+   just outside the median excursion and inside the p10. The RSI entry's dip-then-reclaim path (median 15d)
+   is survivable only with a stop wider than anything he teaches for it — the 0023 A/4×ATR result is not an
+   anomaly.
+3. **Trigger decomposition, CORRECTED for selection bias (reviewer-caught).** The first-pass "+4.8–6.0pp
+   trigger separation" measured forward returns from the *signal close*, so the triggered subset embedded
+   the pop up to the trigger — mechanically inflated. Re-measured from the **fill price**: the triggered RSI
+   trades have **NO edge** (−0.28 to −0.41pp vs universe at 10–60d). The trigger's genuine contribution is
+   knife-refusal (17% of signals hit the stop level before ever triggering), not post-fill alpha. "The
+   trigger carries the entire edge" is retracted; on fill basis the RSI system has no edge even with the
+   trigger.
+3b. **Separability control (reviewer-proposed): the confirmation mechanic works — on generic dips, not RSI
+   dips.** The identical trigger mechanic on a generic-dip pool (weekly uptrend + close ≥8% below its 20d
+   high + quality green + HVC, RSI events excluded): 3,630 signals, 25% knife-refusal, and the triggered
+   trades **beat the universe from the fill: +0.23pp/20d, +2.13pp/60d** (gross, no costs, survivor-only
+   cache, in-sample). Same context, same mechanic, only the dip definition differs → **the RSI<35 condition
+   is the anti-alpha ingredient**; dip-depth + confirmation is mildly positive. Confirmation-trigger joins
+   volume/HVC as a candidate conviction feature for the Phase-5 forward work (measurement only — not a
+   system, stays off n_trials).
 4. **Capital interaction (explicit decision):** the combined book holds max one position and one pending
    order per ticker across engines, shares the 5-slot capital FCFS, and the cooldown applies across engines
    — a name exiting a B position cannot immediately re-enter via A. Since A is net-negative as a system, the
@@ -82,3 +96,11 @@ equity effort. It is decisively below baseline_v1 (0.667 Sharpe / 15.5% CAGR) on
 durable extracts stand: **regime pause (new, net-positive here), volume as DD-control, watchlist-as-throttle.**
 Survivor-only cache (sha f8625a8f, 103 delisted members missing) makes even these numbers optimistic.
 Disposition: arc closed for the config; principles feed the forward-only conviction/feature work.
+
+**The transferable template (reviewer framing, keep for the next external-strategy request):** the durable
+output of this arc is not the verdict but the **decomposition method** — locate *where* in a taught system
+the edge actually lives (confirmation trigger, volume/HVC, trailing/let-run, regime pause, watchlist-as-
+throttle) versus where the *narrative* lives (RSI, the oversold story, tight stops, fixed targets). Test the
+components on fill-basis event studies with universe controls and selection-bias checks before the portfolio
+wrapper; only then assemble. Edge-bearing components route to Phase-5 conviction features / the forward
+wall; narrative components get recorded and retired.
