@@ -116,22 +116,31 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None):
             else:
                 if not p["half_done"] and s["h"][i] >= p["tp2"]:
                     half = p["sh0"] * 0.5
-                    cash += half * p["tp2"] * (1 - _cost_leg(p["adv"], half * p["tp2"], cost_off))
+                    hp = half * p["tp2"]
+                    cash += hp * (1 - _cost_leg(p["adv"], hp, cost_off))
                     p["sh"] -= half; p["half_done"] = True              # stop UNCHANGED (frozen: no breakeven)
+                    p["proceeds"] += hp * (1 - _cost_leg(p["adv"], hp, cost_off))
+                    p["stt"] += hp * STT_PCT
                     if "rec" in p:
                         p["rec"].update(half_date=d, half_px=p["tp2"])
                 if p["half_done"] and p["sh"] > 0 and s["h"][i] >= p["tp3"]:
                     ex, rs = p["tp3"], "target3"
             if ex is not None:
-                cash += p["sh"] * ex * (1 - _cost_leg(p["adv"], p["sh"] * ex, cost_off))
+                xp = p["sh"] * ex
+                cash += xp * (1 - _cost_leg(p["adv"], xp, cost_off))
+                p["proceeds"] += xp * (1 - _cost_leg(p["adv"], xp, cost_off))
+                p["stt"] += xp * STT_PCT
                 r_rest = (ex - p["en"]) / p["risk0"]
                 R = 0.5 * 2.0 + 0.5 * r_rest if p["half_done"] else r_rest
                 T.append(dict(R=R, reason=rs + ("_half" if p["half_done"] and rs != "target3" else ""),
                               held=p["held"], half=p["half_done"]))
                 if "rec" in p:
+                    # rupee cashflow fields are OBSERVATIONAL (tax analysis) — no decision path reads them
                     p["rec"].update(exit_date=d, exit_px=round(float(ex), 2), reason=T[-1]["reason"],
                                     held=p["held"], R=round(float(R), 3),
-                                    gap_through=p.get("gap_through", False))
+                                    gap_through=p.get("gap_through", False),
+                                    net_pnl=round(float(p["proceeds"] - p["cash_out"]), 2),
+                                    stt_paid=round(float(p["stt"] + p["stt_buy"]), 2))
                     ledger.append(p["rec"])
                 del op[t]
                 continue
@@ -155,7 +164,9 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None):
                         cash -= notion
                         op[t] = dict(en=en, stop=st, risk0=en - st, tp2=en + 2 * (en - st),
                                      tp3=en + 3 * (en - st), sh=sh, sh0=sh, held=0, adv=o_["adv"],
-                                     half_done=False, mabreach=0, pending_exit=False)
+                                     half_done=False, mabreach=0, pending_exit=False,
+                                     cash_out=notion, proceeds=0.0, stt=0.0,
+                                     stt_buy=sh * en * STT_PCT)
                         risk_pct = sh * (en - st) / eq * 100
                         assert 1.99 <= risk_pct <= 2.01, f"sizing bug: realized risk {risk_pct:.3f}%"
                         if ledger is not None:
@@ -196,8 +207,12 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None):
         R = 0.5 * 2.0 + 0.5 * r_rest if p["half_done"] else r_rest
         T.append(dict(R=R, reason="eos", held=p["held"], half=p["half_done"]))
         if ledger is not None and "rec" in p:
+            xp = p["sh"] * ex
+            mark = p["proceeds"] + xp * (1 - _cost_leg(p["adv"], xp, cost_off))
             p["rec"].update(exit_date=P[t]["dates"][i], exit_px=round(float(ex), 2), reason="eos",
-                            held=p["held"], R=round(float(R), 3), gap_through=False)
+                            held=p["held"], R=round(float(R), 3), gap_through=False,
+                            net_pnl=round(float(mark - p["cash_out"]), 2),
+                            stt_paid=round(float(p["stt"] + p["stt_buy"] + xp * STT_PCT), 2))
             ledger.append(p["rec"])
     e = pd.Series(dict(curve)).sort_index()
     r = e.pct_change().dropna()
