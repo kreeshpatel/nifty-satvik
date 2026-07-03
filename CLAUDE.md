@@ -106,6 +106,20 @@ quarterly reviews (first trading day Jan/Apr/Jul/Oct); between them, log and **l
 peeking, no config/size changes (except the mechanical −50% halt). The 12-month review resolves the
 multi-sleeve fork on forward evidence. Thresholds may be tightened, never retroactively relaxed.
 
+**The Bhanushali external-strategy arc is CLOSED (2026-07-03, findings 0022–0024 + prereg v1.5).** The full
+taught system, tested three ways (letter-faithful, method-faithful, practitioner-process), is a low-drawdown
+discipline, not a return engine (net ~1.4%/yr vs base 15.5%). Owner decision: **Path C primary** — three new
+watched shadow features on the base (`hvc_confirm`, `dip20_depth` — a NEW lever, Jaccard 0.04 vs MA-touch,
+60d CI excludes 0 — and `entry_confirm`, a RISK feature; family now 5 with rev_yoy/usd_beta); **Path B** —
+the practitioner-B swing sleeve is a registered PROPOSAL for the 2026-10-01 review (promote/kill
+pre-committed; spec freeze gated on the delisted backfill); Path A declined. RSI-oversold is triple-killed
+(0020/0022/0024 — the indicator *subtracts* from the dip situation); do not relitigate. Regime pause lives
+ONLY inside the B-sleeve spec (O-001 stays killed for the base).
+**⚠ DATA DEBT (blocking):** `data/ohlcv.pkl` (sha f8625a8f — the baseline_v1 pin) is **survivor-only**: 103
+of 813 PIT members have no price series at all (every cached series ends 2026-06-29). All absolute numbers
+in the repo are optimistic, including the 0.667 anchor. The delisted-price backfill is the next data-honesty
+job; no in-sample spec freeze or baseline re-anchor until it lands.
+
 **When handed an external research doc, be adversarial.** Cross-reference every recommendation against
 the registry (an outside chat can't see it) — most "new" ideas are already tested here. Correct the
 doc's premises with our data (e.g. "most residual benefit comes from market residualization" is

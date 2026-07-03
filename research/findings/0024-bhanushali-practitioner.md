@@ -123,3 +123,12 @@ conviction features / the forward wall; narrative components get recorded and re
 **Final durable extracts of the arc: three levers — volume confirmation, regime pause, depth-defined
 pullbacks (new, Jaccard 0.04 vs the MA-touch edge, 60d CI excludes 0) — one risk feature (the confirmation
 trigger's knife-refusal), and the template.**
+
+**Disposition (owner decision, 2026-07-03 — forward/prereg.md v1.5):** Path C primary — `hvc_confirm`,
+`dip20_depth`, `entry_confirm` (risk axis) registered as watched shadow features on the base (family now 5).
+Path B parallel — the practitioner-B sleeve (with the 4×ATR trail geometry) registered as a PROPOSAL for the
+2026-10-01 quarterly review, promote/kill criteria pre-committed (≥40 trades or 4 quarters: promote if net
+expectancy >+0.10R and DD >−25%; kill if net Sharpe <0); spec freeze gated on the delisted-price backfill.
+Path A (standalone swing model) declined — the numbers say it is a low-drawdown trading *discipline*, not a
+return engine. The regime pause routes ONLY inside the Path-B sleeve; O-001 (regime entry gate on the base)
+stays killed and is not relitigated.

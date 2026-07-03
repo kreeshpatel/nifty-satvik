@@ -122,6 +122,42 @@ Amendments are appended below with date, author, and rationale. Tightening/clari
 
 *(amendments below this line)*
 
+- **2026-07-03 — v1.5 (Claude Code, per owner).** Routes the Bhanushali-arc extracts (findings 0022–0024)
+  per the owner's Path decision: **C primary (features), B passive parallel (sleeve proposal), A declined.**
+  Addition/clarification only; no §4–§9 threshold relaxed.
+  1. **Three more WATCHED SHADOW FEATURES** (same class and bar as v1.4 — per-signal annotations on the base
+     book, NOT shadow books, no §1 cap consumed; one pre-committed directional rule each, no sweep). The
+     watched-feature family is now **five** (rev_yoy, usd_beta, + these three) — recorded here as the family
+     size for honesty about the forward multiple-testing burden.
+     - `hvc_confirm` (binary): entry-signal day volume ≥ 1.5× its 20d average. **Direction: TRUE entries
+       out-return FALSE** (in-sample +0.56pp/20d, findings 0020/0021 — the arc's strongest single signal).
+     - `dip20_depth` (continuous): close/20d-high − 1 at entry. **Direction: deeper-dip entries out-return
+       shallower at the 60d horizon** (fill-basis event study, +3.28pp/60d excess, positive all 9 years,
+       cluster-bootstrap CI [+0.32,+6.40]pp — finding 0024 §3b; Jaccard 0.04 vs the MA-touch definition).
+     - `entry_confirm` (binary, **RISK feature**): entry-day price traded above the signal-day high before
+       fill. **Judged on the risk axis, not return:** confirmed entries must show lower 20d MAE / higher
+       win-rate than unconfirmed (the trigger's knife-refusal, 0024 §3c — it adds no fill-basis excess
+       return by construction and must not be judged on one).
+     Evaluation identical to v1.4 §3: quarterly dates only, ≥50 forward closes, quartile/binary split must
+     match the pre-committed direction with a 95% bootstrap CI excluding 0 on forward-only data; opposite or
+     zero sign → dropped as noise, recorded here.
+  2. **Path-B sleeve PROPOSAL registered for the 2026-10-01 review** (not activated — the §1 two-shadow-book
+     cap is full, and a swing sleeve would also compete with the low-vol §9 candidate; the review decides).
+     Candidate spec (to be frozen ONLY after the delisted-price backfill closes the survivor-only-cache debt
+     — no spec freeze on survivor-only data): practitioner Engine B exactly as `run_bhanushali_practitioner.py`
+     (weekly top-50 watchlist, MA-touch pullback + quality-green + HVC + buy-stop trigger, NIFTY regime pause
+     [sleeve-internal only — O-001 stays killed for the base], 5-slot book) with the 4×ATR chandelier trail
+     replacing the candle-low stop (the only geometry the 0024 MAE distribution says is survivable).
+     **Pre-committed promote/kill (fixed now, per reviewer):** evaluated at ≥40 closed trades OR 4 quarters,
+     whichever first — **promote** if net expectancy > +0.10R AND MaxDD shallower than −25%; **kill** if net
+     Sharpe < 0. If activated at review it enters `n_trials` as a real trial and requires retiring a shadow
+     book or an explicit cap amendment.
+  3. **Data-debt gate (blocking, recorded):** `data/ohlcv.pkl` (sha f8625a8f, the baseline_v1 pin) is
+     survivor-only — 103 of 813 PIT members have no price series (DHFL, COFFEEDAY, the merged PSU banks...).
+     The dip20 lever is the most survivorship-exposed of the three (deep dips are where the corpses lived).
+     Forward-only feature evaluation is uncontaminated by this; but **no in-sample spec freeze and no
+     baseline re-anchor until the delisted backfill lands.**
+
 - **2026-07-03 — v1.4 (Claude Code, per owner).** Registers the two real PIT-clean orthogonal signals found
   this arc as **WATCHED SHADOW FEATURES** — per-signal annotations, NOT shadow books. Addition/clarification
   only; no §4–§9 threshold relaxed.
