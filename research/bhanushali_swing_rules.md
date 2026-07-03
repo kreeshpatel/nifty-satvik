@@ -292,6 +292,15 @@ Kept separate from his teaching. Faithful systematic tests; **measurements, not 
   exact things a letter-faithful reading throws away. His "catch the rocket" and "volume is the voice of god"
   are empirically vindicated.
 
+- **THE PRACTITIONER TEST (finding 0024):** the owner's process audit found 0022/0023 skipped the *portfolio
+  process* — weekly frozen top-50 watchlist (his weekend routine), no-overtrade throttle, half@1:2 + §12
+  swing-low trail, index regime pause. Run that way (`scripts/run_bhanushali_practitioner.py`):
+  **overtrading vanishes (260→20 trades/yr) and DD collapses (−92%→−20%)** — the watchlist confluence itself
+  is the throttle. The **regime pause is the first component that adds net Sharpe outright** (+0.15 vs −0.08
+  without). But the method **cannot deploy capital**: tight candle-low stops + no leverage cap realized risk
+  ~1%/trade → gross +4.0%/yr, net **+1.0%/yr** (Sharpe +0.15). His RSI system with all his own confirmations
+  fired **3 trades in 9.5 years**. Verdict: the practitioner process rescues the RISK profile, not the RETURN.
+
 **Net:** his *principles* — trade a clear uptrend, respect risk, give winners room, **volume is the voice of
 god**, exit is where money is made, price leads news — largely hold up and match our own validated findings.
 His *specific mechanical mean-reversion entries* (RSI-oversold, Bollinger-oversold) do not carry an edge here;
