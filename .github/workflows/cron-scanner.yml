@@ -10,7 +10,7 @@ on:
         description: "paper inception date YYYY-MM-DD (book trades forward from here)"
         default: "2026-06-30"
   schedule:
-    - cron: "0 11 * * 1-5"      # 11:00 UTC = 16:30 IST, after the 15:30 NSE close, weekdays
+    - cron: "45 10 * * 1-5"     # 10:45 UTC = 16:15 IST, after the 15:30 NSE close, weekdays
 
 concurrency:
   group: cron-scanner

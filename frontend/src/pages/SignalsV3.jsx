@@ -86,6 +86,16 @@ function fmtBuyBy(date) {
   return new Date(date).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
+// Signal issue date — "2 Jul", with year appended when it isn't the current year
+function fmtSigDate(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (isNaN(d)) return null;
+  const opts = { day: 'numeric', month: 'short' };
+  if (d.getFullYear() !== new Date().getFullYear()) opts.year = 'numeric';
+  return d.toLocaleDateString('en-IN', opts);
+}
+
 function daysLeftUntil(dateObj, now = new Date()) {
   if (!dateObj) return null;
   return Math.max(0, Math.ceil((new Date(dateObj) - now) / 86400000));
@@ -515,7 +525,10 @@ function SignalCard({ sig, selected, onOpen }) {
             <span className="ac-sym">{sig.sym}</span>
             <span className={`conv-pill ${sig.conv.cls}`}>{sig.conv.word} · {sig.grade}</span>
           </div>
-          <div className="ac-name">{sig.name} · {sig.sector}</div>
+          <div className="ac-name">
+            {sig.name} · {sig.sector}
+            {sig.signal_date && <> · Signaled {fmtSigDate(sig.signal_date)}</>}
+          </div>
         </div>
       </div>
       <div className="ac-action"><ActionChip sig={sig} /></div>
@@ -797,6 +810,12 @@ function DetailBody({ sig, availableMargin }) {
         )}
         <span className="conv-sep">·</span>
         <span>Hold ~{sig.hold} days</span>
+        {sig.signal_date && (
+          <>
+            <span className="conv-sep">·</span>
+            <span>Signaled {fmtSigDate(sig.signal_date)}</span>
+          </>
+        )}
       </div>
 
       {/* chart */}
