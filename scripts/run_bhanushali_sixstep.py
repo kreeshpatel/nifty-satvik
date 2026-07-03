@@ -97,7 +97,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None):
     eq = cash = EQ0
     op: dict[str, dict] = {}
     orders: dict[str, dict] = {}
-    curve = []; T = []; skipped_cash = 0
+    curve = []; cash_curve = []; T = []; skipped_cash = 0
     for d in dts:
         dd = d.date()
         # ── manage opens: pending MA-exit at open -> stop -> tp2 half -> tp3 rest -> breach counter ──
@@ -199,6 +199,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None):
         eq = cash + mtm
         assert cash >= -1e-6, f"cash went negative: {cash}"
         curve.append((d, eq))
+        cash_curve.append((d, cash, len(op)))                           # observational (deployment analysis)
     # end of window: force-close remaining opens at their last close (tagged eos, included in stats)
     for t, p in op.items():
         i = len(P[t]["c"]) - 1
@@ -230,7 +231,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None):
                 cagr=(e.iloc[-1] / e.iloc[0]) ** (1 / yrs) - 1,
                 sharpe=r.mean() / r.std() * np.sqrt(252) if r.std() else float("nan"),
                 dd=(e / e.cummax() - 1).min(), mult=e.iloc[-1] / EQ0,
-                reasons=reasons, skipped_cash=skipped_cash)
+                reasons=reasons, skipped_cash=skipped_cash,
+                cash_curve=pd.DataFrame(cash_curve, columns=["date", "cash", "n_pos"]).set_index("date"))
 
 
 def _row(tag, m):
