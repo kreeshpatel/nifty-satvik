@@ -22,6 +22,7 @@ import { useSignals } from '@/hooks/queries/useSignals';
 import { useWatchlist } from '@/hooks/queries/useWatchlist';
 import { useKiteHoldings, useKiteMargins } from '@/hooks/queries/useKiteState';
 import { useNQPositions } from '@/hooks/queries/useNQPositions';
+import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import {
   SECTIONS,
   CONVICTION,
@@ -274,11 +275,15 @@ function genCandles(sig, n = 64) {
 // ─────────────────────────────────────────────────────────────────────
 // Signal enrichment — maps real API fields to UI fields
 // ─────────────────────────────────────────────────────────────────────
-function enrichSignal(raw, heldSet, positionByTicker, sizingCapital) {
+function enrichSignal(raw, heldSet, positionByTicker, sizingCapital, quotes) {
   const { action, sellReason, position } = deriveAction(raw, heldSet, positionByTicker);
 
   const ticker = raw.ticker || raw.sym || '';
-  const ltp = raw.current_price ?? raw.last_price ?? raw.close ?? raw.entry ?? 0;
+  // Live quote overlay — the cron writes current_price once at scan time (previous
+  // close), so without this the page shows a frozen price all day.
+  const q = quotes?.[ticker.toUpperCase()] || null;
+  const ltp = q?.last_price ?? raw.current_price ?? raw.last_price ?? raw.close ?? raw.entry ?? 0;
+  const dayChangePct = q?.change_pct ?? null;
   const entry = raw.entry ?? 0;
   const stop = raw.stop ?? entry;
   const target = raw.target ?? entry;
@@ -353,6 +358,7 @@ function enrichSignal(raw, heldSet, positionByTicker, sizingCapital) {
     _ltp: ltp,
     // derived metrics
     _rr: rr,
+    _dayChangePct: dayChangePct,
     _fromEntry: fromEntry,
     _upside: upside,
     _risk: risk,
@@ -772,6 +778,11 @@ function DetailBody({ sig, availableMargin }) {
         </div>
         <div className="db-price">
           <div className="db-ltp">{fmtINR(sig._ltp)}</div>
+          {sig._dayChangePct != null && (
+            <div className={`db-vs ${sig._dayChangePct >= 0 ? 'num-bull' : 'num-bear'}`}>
+              today {fmtPct1(sig._dayChangePct)}
+            </div>
+          )}
           {sig.action !== 'closed' && (
             <div className={`db-vs ${sig._fromEntry >= 0 ? 'num-bull' : 'num-bear'}`}>
               now {fmtPct1(sig._fromEntry)} from entry
@@ -988,6 +999,18 @@ export default function SignalsV3() {
 
   const rawSignals    = useMemo(() => signalsQuery.data?.signals ?? [], [signalsQuery.data]);
   const rawWatchlist  = useMemo(() => watchlistQuery.data?.signals ?? [], [watchlistQuery.data]);
+
+  // Live quotes for every signal ticker (60s poll; server caches 30s per symbol).
+  // Overlaid in enrichSignal so LTP / from-entry / day-change track the market
+  // instead of freezing at the cron's scan-time close.
+  const quoteSymbols = useMemo(
+    () => [...new Set([...rawSignals, ...rawWatchlist]
+      .map((s) => (s.ticker || '').toUpperCase()).filter(Boolean))],
+    [rawSignals, rawWatchlist]
+  );
+  const quotesQuery = useQuoteBatch(quoteSymbols);
+  const quotes = quotesQuery.data ?? null;
+
   const regime        = signalsQuery.data?.regime ?? {};
   const cronHealth    = signalsQuery.data?.cron_health ?? {};
   const sizingCapital = signalsQuery.data?.sizing_capital ?? 500000;
@@ -1012,13 +1035,13 @@ export default function SignalsV3() {
   // Enrich all signals
   const allEnriched = useMemo(() => {
     const enriched = [
-      ...rawSignals.map((s) => enrichSignal(s, heldSet, positionByTicker, sizingCapital)),
-      ...rawWatchlist.map((s) => enrichSignal({ ...s, actionability: 'WATCHLIST', tier: 'watchlist' }, heldSet, positionByTicker, sizingCapital)),
+      ...rawSignals.map((s) => enrichSignal(s, heldSet, positionByTicker, sizingCapital, quotes)),
+      ...rawWatchlist.map((s) => enrichSignal({ ...s, actionability: 'WATCHLIST', tier: 'watchlist' }, heldSet, positionByTicker, sizingCapital, quotes)),
     ];
     // Dedupe by sym (prefer first occurrence — rawSignals take precedence)
     const seen = new Set();
     return enriched.filter((s) => { if (seen.has(s.sym)) return false; seen.add(s.sym); return true; });
-  }, [rawSignals, rawWatchlist, heldSet, positionByTicker, sizingCapital]);
+  }, [rawSignals, rawWatchlist, heldSet, positionByTicker, sizingCapital, quotes]);
 
   // Apply grade filter
   const pool = useMemo(() => {
