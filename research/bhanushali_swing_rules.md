@@ -281,6 +281,16 @@ Kept separate from his teaching. Faithful systematic tests; **measurements, not 
   from high turnover — not a "catastrophic capital-destroyer."** Still not tradeable (no gross edge), but the
   alarming framing was wrong. Even at minimal cost (STT+brokerage only) it loses (−13% CAGR) because of turnover.
   His mean-reversion *mechanics* have no edge; his momentum *principles* (0020/0021) do — judged forward only.
+- **HIS REAL METHOD, corrected-faithful (finding 0023):** the 0022 test was letter-faithful but omitted the
+  *core* of what he teaches — **trailing stops / let winners run, volume confirmation, curated liquid
+  watchlist, 2% sizing.** Implemented properly (`scripts/run_bhanushali_corrected.py`), **Engine B (44-SMA
+  pullback + volume + trailing) has a genuine positive GROSS edge — Sharpe +0.39 / CAGR +5.9%** — because the
+  trailing stop finally rides the **rockets** (max winner **18–28R**, not a capped +2R). **Volume is
+  load-bearing** (remove it → −0.90 Sharpe). Net of real costs it is modest (+0.15 to +0.34 Sharpe), below
+  baseline_v1 (0.667), in-sample/uncertifiable, ρ~0.57 momentum. **So his actual method is real but modest —
+  NOT the edgeless catastrophe 0022 first suggested.** The edge lives in *letting winners run + volume* — the
+  exact things a letter-faithful reading throws away. His "catch the rocket" and "volume is the voice of god"
+  are empirically vindicated.
 
 **Net:** his *principles* — trade a clear uptrend, respect risk, give winners room, **volume is the voice of
 god**, exit is where money is made, price leads news — largely hold up and match our own validated findings.
