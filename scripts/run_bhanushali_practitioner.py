@@ -125,7 +125,10 @@ def build_watchlist(P, mem, dd, prev_i, mode="mixed"):
 
 
 def backtest(P, mem, *, engines=("A", "B"), watch_mode="mixed", regime_on=True, vol_confirm=True, maxpos=5,
-             max_new_wk=3, cooldown=10, maxhold=60, risk=0.02, notional_cap=0.30, cost_off=False):
+             max_new_wk=3, cooldown=10, maxhold=60, risk=0.02, notional_cap=0.30, cost_off=False,
+             stop_geom="candle"):
+    """stop_geom: 'candle' = signal-candle low (big-candle midpoint rule); 'atr4' = fill − 4×ATR(14, signal
+    day) — pre-reg 0025 Path-1 geometry, the only sanctioned alternative."""
     dts = pd.DatetimeIndex(sorted(set().union(*[set(s["dates"]) for s in P.values()])))
     dts = dts[dts >= pd.Timestamp(START)]
     didx = {t: {d: i for i, d in enumerate(s["dates"])} for t, s in P.items()}
@@ -194,7 +197,8 @@ def backtest(P, mem, *, engines=("A", "B"), watch_mode="mixed", regime_on=True, 
                     and regime_ok and P[t]["h"][i] >= o_["trig"]):
                 opn = P[t]["o"][i]
                 if opn <= o_["trig"] * 1.015:                            # no chasing a >1.5% gap
-                    en = max(opn, o_["trig"]); st = o_["stop"]
+                    en = max(opn, o_["trig"])
+                    st = en - 4.0 * o_["atr"] if stop_geom == "atr4" else o_["stop"]
                     if en > st:
                         sh = min(eq * risk / (en - st), eq * notional_cap / en)
                         notion = sh * en * (1 + _cost_leg(o_["adv"], cost_off))
@@ -218,7 +222,7 @@ def backtest(P, mem, *, engines=("A", "B"), watch_mode="mixed", regime_on=True, 
                 continue
             rng = s["h"][i] - s["l"][i]
             st = (s["l"][i] + 0.5 * rng if rng / s["c"][i] >= 0.06 else s["l"][i]) * 0.999  # big-candle rule
-            orders[t] = dict(trig=s["h"][i] * 1.001, stop=st, adv=adv, live=3)
+            orders[t] = dict(trig=s["h"][i] * 1.001, stop=st, atr=s["atr"][i], adv=adv, live=3)
         mtm = sum(p["sh"] * (P[t]["c"][didx[t][d]] if d in didx[t] else p["en"]) for t, p in op.items())
         eq = cash + mtm; curve.append((d, eq))
     e = pd.Series(dict(curve)).sort_index(); r = e.pct_change().dropna()
