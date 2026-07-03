@@ -36,6 +36,43 @@ def _live_vol_target() -> dict | None:
         return None
 
 
+# ── signal memory ────────────────────────────────────────────────────────────
+# pending is re-selected at every session close, so stamping `end` on every run
+# made a continuing signal look brand-new each day: its issue date walked forward,
+# status stayed FRESH, and the T+1..T+3 buy window never closed on the dashboard.
+# Instead, carry the ORIGINAL issue date for a name still pending from a prior run;
+# a carried signal older than its buy window is re-issued fresh (the book
+# re-selected it at the latest close — a new entry episode).
+
+BUY_WINDOW_TRADING_DAYS = 3
+
+
+def _load_prev_signal_dates(state_dir: str | Path) -> dict[str, str]:
+    """ticker → signal_date from the previous run's signals_today.json ({} if none)."""
+    try:
+        prev = json.loads((Path(state_dir) / "signals_today.json").read_text(encoding="utf-8"))
+        sigs = prev.get("signals", []) if isinstance(prev, dict) else (prev or [])
+        return {str(s["ticker"]): str(s["signal_date"])
+                for s in sigs if s.get("ticker") and s.get("signal_date")}
+    except Exception:
+        return {}
+
+
+def _issue_date(prev_dates: dict[str, str], tkr: str, end: str,
+                window: int = BUY_WINDOW_TRADING_DAYS) -> str:
+    """Issue date for a pending signal: carried from the prior run while its buy
+    window is open, else today (`end`)."""
+    issued = prev_dates.get(tkr, end)
+    if issued == end:
+        return end
+    import pandas as pd
+    try:
+        age_bdays = max(0, len(pd.bdate_range(issued, end)) - 1)
+    except Exception:
+        return end
+    return end if age_bdays > window else issued
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Daily paper-trading cron (PaperBook step)")
     ap.add_argument("--mode", choices=["current", "union", "corrected"], default="current")
@@ -121,6 +158,7 @@ def main(argv: list[str] | None = None) -> int:
     # stop/target). signals_today.json uses the niftyquant backend's envelope shape.
     from nq.engine.portfolio import leg_slippage
     hold_days = int(cfg["max_hold_days"]); target_pct = float(cfg["target_pct"])
+    prev_dates = _load_prev_signal_dates(args.state_dir)   # signal memory (see helpers above)
     signals = []
     for tkr in book.pending:
         if last_day is not None and tkr in last_day.index:
@@ -131,12 +169,14 @@ def main(argv: list[str] | None = None) -> int:
             # field names match the frontend contract (SignalsV3.enrichSignal + SignalCard):
             # entry/stop/target/current_price drive the numbers; tier/grade/signal_date/hold_days
             # drive the chips. indicative_* kept as legacy aliases.
+            issued = _issue_date(prev_dates, tkr, end)
             signals.append({
                 "ticker": tkr, "entry": entry, "stop": stop,
                 "target": round(entry * (1 + target_pct / 100.0), 2), "target_pct": round(target_pct, 2),
                 "current_price": round(close, 2), "close": round(close, 2),
-                "signal_date": end, "hold_days": hold_days, "grade": "B", "tier": "signal",
-                "status": "FRESH", "buy_window": "T+1..T+3 at open",
+                "signal_date": issued, "hold_days": hold_days, "grade": "B", "tier": "signal",
+                "status": "FRESH" if issued == end else "ACTIVE",
+                "buy_window": "T+1..T+3 at open",
                 "indicative_close": round(close, 2), "indicative_entry": entry,
             })
     Path(args.state_dir).mkdir(parents=True, exist_ok=True)

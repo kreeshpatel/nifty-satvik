@@ -62,3 +62,28 @@ def test_paper_cron_steps_and_resumes(tmp_path, monkeypatch):
     n_trades_2 = len(json.loads((tmp_path / "paper_trades.json").read_text()))
     assert len(pd.read_csv(tmp_path / "portfolio_history.csv")) == n_hist_1   # no duplicate sessions
     assert n_trades_2 == n_trades_1
+
+
+def test_signal_issue_date_memory(tmp_path):
+    """A name still pending from a prior run keeps its ORIGINAL issue date instead
+    of being re-stamped `end` every run; past the buy window it re-issues fresh."""
+    from scripts.run_paper_cron import _issue_date, _load_prev_signal_dates
+
+    # carried while the 3-trading-day buy window is open (Thu 07-02 -> Fri 07-03)
+    assert _issue_date({"MCX": "2026-07-02"}, "MCX", "2026-07-03") == "2026-07-02"
+    # weekend does not consume the window (Thu 07-02 -> Tue 07-07 = 3 bdays)
+    assert _issue_date({"MCX": "2026-07-02"}, "MCX", "2026-07-07") == "2026-07-02"
+    # window expired -> re-issued fresh (Thu 07-02 -> Wed 07-08 = 4 bdays)
+    assert _issue_date({"MCX": "2026-07-02"}, "MCX", "2026-07-08") == "2026-07-08"
+    # not previously issued -> today
+    assert _issue_date({}, "MCX", "2026-07-03") == "2026-07-03"
+    # unparseable carried date -> today, never a crash
+    assert _issue_date({"MCX": "garbage"}, "MCX", "2026-07-03") == "2026-07-03"
+
+    # loader: envelope shape, bare-list shape, missing file
+    sp = tmp_path / "signals_today.json"
+    sp.write_text(json.dumps({"signals": [{"ticker": "MCX", "signal_date": "2026-07-02"}]}))
+    assert _load_prev_signal_dates(tmp_path) == {"MCX": "2026-07-02"}
+    sp.write_text(json.dumps([{"ticker": "SYRMA", "signal_date": "2026-07-01"}]))
+    assert _load_prev_signal_dates(tmp_path) == {"SYRMA": "2026-07-01"}
+    assert _load_prev_signal_dates(tmp_path / "nope") == {}
