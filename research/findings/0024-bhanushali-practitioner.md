@@ -77,12 +77,27 @@ all exits via (initial or trailed) stop; avg hold 11d — squarely his 3–10d r
    trigger.
 3b. **Separability control (reviewer-proposed): the confirmation mechanic works — on generic dips, not RSI
    dips.** The identical trigger mechanic on a generic-dip pool (weekly uptrend + close ≥8% below its 20d
-   high + quality green + HVC, RSI events excluded): 3,630 signals, 25% knife-refusal, and the triggered
-   trades **beat the universe from the fill: +0.23pp/20d, +2.13pp/60d** (gross, no costs, survivor-only
-   cache, in-sample). Same context, same mechanic, only the dip definition differs → **the RSI<35 condition
-   is the anti-alpha ingredient**; dip-depth + confirmation is mildly positive. Confirmation-trigger joins
-   volume/HVC as a candidate conviction feature for the Phase-5 forward work (measurement only — not a
-   system, stays off n_trials).
+   high + quality green + HVC, RSI events excluded): 3,680 signals, 25% knife-refusal, triggered trades
+   beat the universe **from the fill** (both pools ran the same corrected fill-basis loop). Same context,
+   same mechanic, only the dip definition differs → **the RSI<35 condition is the anti-alpha ingredient.**
+   **Adversarial pass before this settled (reviewer-demanded, `scripts/diag_dip_overlap_boot.py`):**
+   - **Overlap vs Engine B: it IS a new event set, not a rediscovery.** Jaccard 0.04 at ±3 bars; only 11%
+     of dip events have a 44-SMA-pullback signal nearby. The MA-touch definition catches shallow pullbacks
+     riding the MA; dip-depth catches ≥8% washouts, usually below the daily MA — different events.
+   - **Error bars (year-matched universe control + calendar-month cluster bootstrap, 2,453 fills):**
+     60d excess **+3.28pp pooled, positive in ALL 9 years** (2018–2026, +0.87 to +5.49pp — not
+     2020-recovery beta), 95% CI **[+0.32, +6.40]pp — excludes 0**. The 20d excess (+0.62pp pooled,
+     CI [−0.87, +2.06]) **includes 0** — quote the 60d horizon only.
+   Caveats: gross, no costs, survivor-only cache, in-sample; the 8%/20d dip definition was chosen once, not
+   searched. Status: measurement (off n_trials); any portfolio wrapper around it enters the meter as a trial.
+3c. **Trigger reframed as a RISK feature (reviewer).** On fill basis it adds no excess return, but refusing
+   17–25% of entries that go straight to the stop is loss-avoidance — invisible in an event study, real in a
+   book's expectancy and drawdown. Route to Phase-5 as a risk/conviction feature and judge it on that axis
+   (hit-rate/MAE of refused vs accepted), not on return.
+   **Epistemics note for the ledger:** every error caught this session was on claims that *disagreed* with
+   the program's prior; this dip result *agrees* with the prior and therefore got the same adversarial
+   treatment (fill-basis, overlap, bootstrap) before being recorded. Confirmation-friendly results must
+   clear the identical bar, or the ledger accretes prior-shaped bias.
 4. **Capital interaction (explicit decision):** the combined book holds max one position and one pending
    order per ticker across engines, shares the 5-slot capital FCFS, and the cooldown applies across engines
    — a name exiting a B position cannot immediately re-enter via A. Since A is net-negative as a system, the
@@ -99,8 +114,12 @@ Disposition: arc closed for the config; principles feed the forward-only convict
 
 **The transferable template (reviewer framing, keep for the next external-strategy request):** the durable
 output of this arc is not the verdict but the **decomposition method** — locate *where* in a taught system
-the edge actually lives (confirmation trigger, volume/HVC, trailing/let-run, regime pause, watchlist-as-
-throttle) versus where the *narrative* lives (RSI, the oversold story, tight stops, fixed targets). Test the
-components on fill-basis event studies with universe controls and selection-bias checks before the portfolio
-wrapper; only then assemble. Edge-bearing components route to Phase-5 conviction features / the forward
-wall; narrative components get recorded and retired.
+the edge actually lives (volume/HVC, regime pause, depth-defined pullbacks, trailing/let-run, watchlist-as-
+throttle, trigger-as-loss-avoider) versus where the *narrative* lives (RSI, the oversold story, tight stops,
+fixed targets). Test the components on fill-basis event studies with universe controls, selection-bias
+checks, overlap checks against known edges, and cluster bootstraps — applied EQUALLY to prior-confirming and
+prior-contradicting results — before any portfolio wrapper. Edge-bearing components route to Phase-5
+conviction features / the forward wall; narrative components get recorded and retired.
+**Final durable extracts of the arc: three levers — volume confirmation, regime pause, depth-defined
+pullbacks (new, Jaccard 0.04 vs the MA-touch edge, 60d CI excludes 0) — one risk feature (the confirmation
+trigger's knife-refusal), and the template.**
