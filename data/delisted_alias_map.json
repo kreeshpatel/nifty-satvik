@@ -1,0 +1,22 @@
+{
+  "_readme": "Symbol aliases for PIT Nifty-500 members whose listing CONTINUED under a new symbol (pure renames). For dates in the OLD name's membership window, use the NEW symbol's series from the pinned OHLCV cache (all successors except LMW are in cache sha f8625a8f; LMW lives in data/ohlcv_backfill.pkl). Validation: every alias identity-checked against NSE bhavcopy RAW closes on up to 3 historical dates (2018-06-01 / 2021-02-01 / 2022-08-01) vs the successor's unadjusted yfinance close — MATCH means ratio 1.000, or a CONSTANT clean corporate-action factor across years (split/rights back-adjustment in the successor series, consistent with the cache's auto_adjust=True convention). REJECTED on identity: TV18BRDCST->NETWORK18 (parent's own history, TV18 merged INTO it) and SWANENERGY->SWANDEF (SWANDEF is the resurrected Reliance Naval entity; ratio varied 0.04-0.27). Those two go the bhavcopy route. Built 2026-07-03, scripts in git log (backfill step 2).",
+  "aliases": {
+    "PVR":        {"to": "PVRINOX",    "factor_note": "match 1.000 (2021, 2022; 2018 within 1.8%)"},
+    "ZOMATO":     {"to": "ETERNAL",    "factor_note": "match 1.000; series starts at IPO 2021-07-23"},
+    "GLS":        {"to": "ALIVUS",     "factor_note": "match 1.000; series starts at IPO 2021-08-06"},
+    "IIFLWAM":    {"to": "360ONE",     "factor_note": "constant 4.000 = post-2022 split/bonus back-adjustment"},
+    "PHILIPCARB": {"to": "PCBL",       "factor_note": "constant 2.000 = split back-adjustment"},
+    "NBVENTURES": {"to": "NAVA",       "factor_note": "constant 2.000 = split back-adjustment"},
+    "ESSELPACK":  {"to": "EPL",        "factor_note": "constant 2.000 = split back-adjustment"},
+    "BAJAJCORP":  {"to": "BAJAJCON",   "factor_note": "match 1.000"},
+    "MAHINDCIE":  {"to": "CIEINDIA",   "factor_note": "match 1.000 (3 dates)"},
+    "IBULHSGFIN": {"to": "SAMMAANCAP", "factor_note": "constant 1.122 = rights-issue back-adjustment (3 dates)"},
+    "LAXMIMACH":  {"to": "LMW",        "factor_note": "match 1.000 (3 dates); LMW series in ohlcv_backfill.pkl"},
+    "STRTECH":    {"to": "STLTECH",    "factor_note": "match 1.000"},
+    "ORIENTREF":  {"to": "RHIM",       "factor_note": "match 1.000 (2 dates)"},
+    "SUVENPHAR":  {"to": "COHANCE",    "factor_note": "match 1.000 (2 dates); series starts at demerger listing 2020-03-09"},
+    "INFRATEL":   {"to": "INDUSTOWER", "factor_note": "match 1.000; pre-2020-11 history is Bharti Infratel's own listing"},
+    "MERCK":      {"to": "PGHL",       "factor_note": "match 1.000"},
+    "TATAMOTORS": {"to": "TMPV",       "factor_note": "match 1.000 (3 dates). W-01 CAVEAT: Oct-2025 demerger (CV business left) sits at the membership-window end; use alias only for dates <= 2025-09-30", "valid_until": "2025-09-30"}
+  }
+}

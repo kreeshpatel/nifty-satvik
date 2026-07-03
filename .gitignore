@@ -17,6 +17,7 @@ dashboard/backend/.env
 # data/_screener_cache/ stay ignored (regenerable; the 64 MB OHLCV is too big for git — pin via a
 # release asset, see docs/DATA_AND_ARTIFACTS.md).
 !data/ohlcv_backfill_manifest.json
+!data/delisted_alias_map.json
 !data/macro_data.pkl
 !data/sector_intelligence.pkl
 !data/fundamentals_pit_screener.pkl
