@@ -8,8 +8,8 @@
     "APARINDS",
     "BHARATFORG",
     "CHENNPETRO",
-    "GESHIP",
-    "GMDCLTD"
+    "BHEL",
+    "GESHIP"
   ],
   "positions": {
     "NATIONALUM": {
@@ -19,11 +19,11 @@
       "qty": 443,
       "stop": 283.68183254018925,
       "target": 414.2633831335327,
-      "peak": 338.11898721313474,
+      "peak": 347.6000061035156,
       "atr_pct": 4.386920798125617,
       "adv": 4441908776.768724,
-      "days_held": 1,
-      "last_mark": 332.25,
+      "days_held": 2,
+      "last_mark": 347.6000061035156,
       "absent_run": 0
     },
     "KIRLOSENG": {
@@ -36,8 +36,8 @@
       "peak": 2376.987948852539,
       "atr_pct": 4.173956357790997,
       "adv": 3076294607.1790285,
-      "days_held": 1,
-      "last_mark": 2321.39990234375,
+      "days_held": 2,
+      "last_mark": 2230.800048828125,
       "absent_run": 0
     },
     "HFCL": {
@@ -47,11 +47,11 @@
       "qty": 697,
       "stop": 181.27072301701853,
       "target": 262.3238964,
-      "peak": 214.107,
+      "peak": 214.47999572753906,
       "atr_pct": 4.178851899648163,
       "adv": 7082187238.646996,
-      "days_held": 1,
-      "last_mark": 204.58999633789062,
+      "days_held": 2,
+      "last_mark": 214.47999572753906,
       "absent_run": 0
     },
     "VEDL": {
@@ -64,8 +64,8 @@
       "peak": 280.890375,
       "atr_pct": 4.00640867529247,
       "adv": 7843113178.512839,
-      "days_held": 1,
-      "last_mark": 276.1000061035156,
+      "days_held": 2,
+      "last_mark": 280.3999938964844,
       "absent_run": 0
     },
     "HINDCOPPER": {
@@ -78,8 +78,8 @@
       "peak": 501.35055610656735,
       "atr_pct": 3.8205945903544167,
       "adv": 1784075385.0455399,
-      "days_held": 1,
-      "last_mark": 494.95001220703125,
+      "days_held": 2,
+      "last_mark": 499.20001220703125,
       "absent_run": 0
     },
     "GVT&D": {
@@ -92,8 +92,8 @@
       "peak": 4979.4884999999995,
       "atr_pct": 4.678702680030726,
       "adv": 4889523535.161084,
-      "days_held": 1,
-      "last_mark": 4822.7998046875,
+      "days_held": 2,
+      "last_mark": 4401.5,
       "absent_run": 0
     },
     "ADANIPOWER": {
@@ -106,8 +106,8 @@
       "peak": 224.5500030517578,
       "atr_pct": 3.3000418992534697,
       "adv": 6897591941.612507,
-      "days_held": 1,
-      "last_mark": 224.5500030517578,
+      "days_held": 2,
+      "last_mark": 221.7899932861328,
       "absent_run": 0
     }
   },
@@ -128,6 +128,12 @@
     {
       "date": "2026-07-02",
       "equity": 977374.58,
+      "cash": 34.71,
+      "n_positions": 7
+    },
+    {
+      "date": "2026-07-03",
+      "equity": 975406.63,
       "cash": 34.71,
       "n_positions": 7
     }
