@@ -30,9 +30,9 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 from config import RESULTS_DIR  # noqa: E402
 from nq.data.membership import load_membership  # noqa: E402
+from nq.data.ohlcv import OHLCV_CACHE, load_ohlcv_cache  # noqa: E402
 import run_bhanushali_weekly_full as W89  # noqa: E402
 import run_bhanushali_weekly_sma as S91  # noqa: E402
-from run_bhanushali_path1 import corrected_universe  # noqa: E402
 
 INCEPTION_DEFAULT = "2026-07-04"
 TARGET_R = 2                     # 0091 books half at +2R -> the displayed target
@@ -57,11 +57,16 @@ def build_envelopes(P, out, ledger, generated_at):
         entry = round(cur if lo < cur < hi else (lo + hi) / 2.0, 2)   # buy inside the band
         stop = round(lo, 2)
         target = round(entry + TARGET_R * (entry - stop), 2)
+        # signal_date = the SETUP week's last day (the green-bounce week that just closed) — the day
+        # before the entry window opened. STABLE across daily re-runs; NOT today's date (which would
+        # walk forward every run, the glitch fixed earlier on the momentum book).
+        first_day = min(o_["days"])
+        sig_idx = max(0, first_day - 1)
         signals.append({
             "ticker": t, "entry": entry, "stop": stop, "target": target,
             "entry_low": round(lo, 2), "entry_high": round(hi, 2),
             "current_price": round(cur, 2), "close": round(cur, 2),
-            "signal_date": str(pd.Timestamp(_last(P, t, "dates")).date()),
+            "signal_date": str(pd.Timestamp(P[t]["dates"][sig_idx]).date()),
             "hold_days": HOLD_DAYS_DISPLAY, "grade": "B", "tier": "signal", "status": "FRESH",
             "buy_window": "this week — buy the open inside the band [low, high]",
         })
@@ -142,7 +147,11 @@ def main(argv=None) -> int:
     args = ap.parse_args(argv)
     sd = Path(args.state_dir); sd.mkdir(parents=True, exist_ok=True)
 
-    ohlcv = corrected_universe()
+    # LIVE data = the fresh cache the momentum cron just refreshed (data/ohlcv.pkl). NOT
+    # corrected_universe(): the backfill/alias delisted names are a backtest-only survivorship
+    # tool, they are not committed to the repo (would crash the cron), and a forward book only
+    # ever trades currently-listed names anyway. Empty cache -> valid empty book, never a crash.
+    ohlcv = load_ohlcv_cache(OHLCV_CACHE) or {}
     mem = load_membership()
     P = S91.prep_weekly_sma(ohlcv)
     ledger: list = []
