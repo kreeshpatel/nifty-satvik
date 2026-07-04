@@ -69,6 +69,14 @@ def prep_weekly_sma(ohlcv, drop_erratum: bool = False):
                 continue
             edays = weeks[k + 1]
             s["entry_win"][edays[0]] = (edays, float(wlow[k]), float(whigh[k]))
+        # LIVE actionable signal: did the MOST-RECENT completed week fire a setup? Its entry window is
+        # the upcoming week (no data yet — which is exactly why entry_win skips it). Read only by the
+        # paper runner's "buy this week" list; the backtest never touches it, so results stay identical.
+        s["last_signal"] = None
+        _ws = np.nan_to_num(wsig, nan=False)
+        if len(weeks) and _ws[len(weeks) - 1]:
+            li = len(weeks) - 1
+            s["last_signal"] = {"fri_idx": int(weeks[li][-1]), "lo": float(wlow[li]), "hi": float(whigh[li])}
     return P
 
 

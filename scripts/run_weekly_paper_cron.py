@@ -50,28 +50,36 @@ def _last(P, t, key):
     return arr[-1]
 
 
-def build_envelopes(P, out, ledger, generated_at):
-    """Map the 0091 live state to the same dashboard envelope shape the momentum book writes."""
-    # ── this week's actionable "buy in range" signals (active entry windows) ──
+def build_envelopes(P, out, ledger, generated_at, mem=None):
+    """Map the 0091 live state to the same dashboard envelope shape the momentum book writes.
+
+    Buy-signals come from the LATEST completed week's setup (P[t]['last_signal']) — inception-independent,
+    so they always reflect last Friday's close. Held positions / NAV / closed trades come from the
+    inception-gated paper book (out) — clean-forward, empty until the book has post-inception trades.
+    """
+    from nq.data.membership import ticker_in_index_on
     signals = []
-    for t, o_ in out["active_orders"].items():
-        lo, hi = float(o_["lo"]), float(o_["hi"])
+    for t, s in P.items():
+        ls = s.get("last_signal")
+        if not ls:
+            continue
+        fri = pd.Timestamp(s["dates"][ls["fri_idx"]])
+        if mem is not None and not ticker_in_index_on(t, fri.date(), mem):
+            continue                                           # only currently-listed index members
+        lo, hi = ls["lo"], ls["hi"]
         cur = float(_last(P, t, "c"))
         entry = round(cur if lo < cur < hi else (lo + hi) / 2.0, 2)   # buy inside the band
         stop = round(lo, 2)
-        target = round(entry + TARGET_R * (entry - stop), 2)
-        # signal_date = the SETUP week's last day (the green-bounce week that just closed) — the day
-        # before the entry window opened. STABLE across daily re-runs; NOT today's date (which would
-        # walk forward every run, the glitch fixed earlier on the momentum book).
-        first_day = min(o_["days"])
-        sig_idx = max(0, first_day - 1)
+        if entry <= stop:
+            continue
         signals.append({
-            "ticker": t, "entry": entry, "stop": stop, "target": target,
+            "ticker": t, "entry": entry, "stop": stop,
+            "target": round(entry + TARGET_R * (entry - stop), 2),
             "entry_low": round(lo, 2), "entry_high": round(hi, 2),
             "current_price": round(cur, 2), "close": round(cur, 2),
-            "signal_date": str(pd.Timestamp(P[t]["dates"][sig_idx]).date()),
+            "signal_date": str(fri.date()),                    # the just-closed setup week (stable)
             "hold_days": HOLD_DAYS_DISPLAY, "grade": "B", "tier": "signal", "status": "FRESH",
-            "buy_window": "this week — buy the open inside the band [low, high]",
+            "buy_window": "buy Mon–Fri this week, at the open inside the band [low, high]",
         })
 
     # ── held positions ──
@@ -191,7 +199,7 @@ def main(argv=None) -> int:
     last = max((pd.Timestamp(s["dates"][-1]) for s in P.values()), default=pd.Timestamp(args.start))
     generated_at = str(last.date())
 
-    envelope, sig_hist, analytics, portfolio, hist_df = build_envelopes(P, out, ledger, generated_at)
+    envelope, sig_hist, analytics, portfolio, hist_df = build_envelopes(P, out, ledger, generated_at, mem)
 
     (sd / "signals_today_weekly.json").write_text(json.dumps(envelope, indent=2, default=str), encoding="utf-8")
     (sd / "signals_history_weekly.json").write_text(json.dumps(sig_hist, indent=2, default=str), encoding="utf-8")
