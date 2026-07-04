@@ -1,0 +1,56 @@
+name: cron-weekly-scanner
+
+# The 0091 weekly-swing FORWARD-WATCH paper book. A weekly-swing strategy only changes after Friday's
+# weekly close, so it runs on its OWN weekly schedule — every Saturday 6 PM IST — not in the daily
+# momentum cron. It self-downloads OHLCV, re-runs the 0091 engine from inception, and commits the
+# results/*_weekly.* dashboard files. Paper only; never touches the momentum book, the live config, or
+# any kill/wall state.
+on:
+  workflow_dispatch:
+    inputs:
+      inception:
+        description: "weekly-book inception YYYY-MM-DD (clean forward start)"
+        default: "2026-07-04"
+  schedule:
+    - cron: "30 12 * * 6"       # 12:30 UTC Saturday = 18:00 (6 PM) IST Saturday
+
+concurrency:
+  group: cron-weekly-scanner
+  cancel-in-progress: false
+
+permissions:
+  contents: write               # commits the weekly paper state back to the repo
+
+jobs:
+  weekly:
+    name: weekly-swing paper cron (Python 3.12, Ubuntu)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Run weekly-swing (0091) paper cron
+        run: python scripts/run_weekly_paper_cron.py --start "${{ github.event.inputs.inception || '2026-07-04' }}"
+      - name: Commit weekly paper state
+        run: |
+          # Author with the owner's GitHub-matched email so Vercel (auto-deploys main) doesn't
+          # BLOCK the commit as an unrecognized author.
+          git config user.name "kreeshpatel"
+          git config user.email "kreeshvasistha@gmail.com"
+          git add results/signals_today_weekly.json results/signals_history_weekly.json \
+                  results/signal_analytics_weekly.json results/paper_portfolio_weekly.json \
+                  results/portfolio_history_weekly.csv 2>/dev/null || true
+          git commit -m "chore(weekly): Saturday weekly-swing paper state $(date -u +%F)" || echo "no state change"
+          git pull --rebase && git push || echo "nothing to push"

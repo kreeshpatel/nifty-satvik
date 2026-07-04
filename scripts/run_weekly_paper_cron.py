@@ -1,20 +1,23 @@
 """Live / paper runner for the 0091 weekly-swing book (FORWARD-WATCH).
 
-Re-runs the tested 0091 engine (run_bhanushali_weekly_sma.prep_weekly_sma + run_bhanushali_weekly_full.
-backtest, finding 0034) from a fixed inception over the freshly-updated corrected universe, then serializes
-the CURRENT state to the dashboard envelope (results/*_weekly.json/.csv). Live == backtest by construction:
-the same deterministic, PIT-clean engine that produced the +18.2% CAGR / +0.87 Sharpe backtest generates
-the live signals — no re-implementation, no persisted-state drift (recomputed from inception each run).
+Self-sufficient: refreshes the live OHLCV cache itself, then re-runs the tested 0091 engine
+(run_bhanushali_weekly_sma.prep_weekly_sma + run_bhanushali_weekly_full.backtest, finding 0034) from a
+fixed inception, and serializes the CURRENT state to the dashboard envelope (results/*_weekly.json/.csv).
+Live == backtest by construction: the same deterministic, PIT-clean engine that produced the +18.2% CAGR /
++0.87 Sharpe backtest generates the live signals — no re-implementation.
+
+CADENCE — a weekly-swing book only changes after Friday's weekly close, so this runs on its OWN schedule:
+**every Saturday 6 PM IST** (.github/workflows/cron-weekly-scanner.yml). Saturday's download picks up the
+just-closed Friday bar; the signals it computes are actionable the following Mon/Tue (buy in the band).
+Idempotent — recomputed from inception each run (see the known mutable-record caveat, finding-0035 TODO).
 
 MODELED FILLS — the book models entries at the in-range open; live you place a limit order inside the
-band. This is a forward-watch record, NOT a live broker ledger. 0091 signals refresh weekly (Mondays,
-after Friday's weekly close); this runs daily and is idempotent.
+band. Forward-watch record, NOT a live broker ledger. Clean forward inception (owner choice): default
+--start = go-live date, so the book only reflects trades from inception forward; empty until fresh
+post-inception bars exist (valid, not an error).
 
-Clean forward inception (owner choice): default --start = the go-live date, so the book only reflects
-trades from inception forward. Until fresh post-inception bars exist the book is legitimately empty (valid,
-not an error); it fills as the daily cron adds bars.
-
-    python scripts/run_weekly_paper_cron.py --start 2026-07-04
+    python scripts/run_weekly_paper_cron.py --start 2026-07-04            # cron (downloads)
+    python scripts/run_weekly_paper_cron.py --start 2025-01-01 --no-download  # local/offline test
 """
 from __future__ import annotations
 
@@ -140,18 +143,46 @@ def build_envelopes(P, out, ledger, generated_at):
     return envelope, sig_hist, analytics, portfolio, hist_df
 
 
+def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
+    """Return the LIVE OHLCV cache, refreshed with recent bars unless --no-download.
+
+    Self-sufficient so the weekly book can run in its OWN Saturday workflow (no momentum
+    step to download first). Mirrors run_paper_cron's incremental logic: cold cache -> full
+    history from (inception - history_days); warm cache -> last 15 days merged. Saturday runs
+    pick up the just-closed Friday bar (NSE shut Sat, so yfinance returns through Friday).
+    """
+    ohlcv = load_ohlcv_cache(OHLCV_CACHE) or {}
+    if not do_download:
+        return ohlcv
+    from datetime import date, timedelta
+    from nq.data.ohlcv import download_ohlcv, merge_ohlcv, save_ohlcv_cache
+    from run_cpcv import build_universe
+    universe = build_universe("current")
+    hist_start = (pd.to_datetime(start) - pd.Timedelta(days=history_days)).date().isoformat()
+    dl_start = hist_start if not ohlcv else (date.today() - timedelta(days=15)).isoformat()
+    print(f"downloading OHLCV {dl_start}.. for {len(universe)} names ...", flush=True)
+    try:
+        fresh = download_ohlcv(universe, start=dl_start, end=date.today().isoformat())
+        ohlcv = merge_ohlcv(ohlcv, fresh) if ohlcv else fresh
+        save_ohlcv_cache(ohlcv, OHLCV_CACHE)
+    except Exception as exc:  # noqa: BLE001 — a download hiccup must not lose the existing cache/book
+        print(f"download failed ({type(exc).__name__}: {exc}); using cached bars", flush=True)
+    return ohlcv
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="0091 weekly-swing forward-watch paper runner")
     ap.add_argument("--start", default=INCEPTION_DEFAULT, help="inception (clean forward start) YYYY-MM-DD")
     ap.add_argument("--state-dir", default=str(RESULTS_DIR))
+    ap.add_argument("--no-download", action="store_true", help="use the cache as-is (test/offline)")
+    ap.add_argument("--history-days", type=int, default=520, help="calendar days of history before inception for the 44-week-SMA warmup")
     args = ap.parse_args(argv)
     sd = Path(args.state_dir); sd.mkdir(parents=True, exist_ok=True)
 
-    # LIVE data = the fresh cache the momentum cron just refreshed (data/ohlcv.pkl). NOT
-    # corrected_universe(): the backfill/alias delisted names are a backtest-only survivorship
-    # tool, they are not committed to the repo (would crash the cron), and a forward book only
-    # ever trades currently-listed names anyway. Empty cache -> valid empty book, never a crash.
-    ohlcv = load_ohlcv_cache(OHLCV_CACHE) or {}
+    # LIVE data = data/ohlcv.pkl (self-refreshed here). NOT corrected_universe(): the backfill/alias
+    # delisted names are a backtest-only survivorship tool, are not committed to the repo (would crash
+    # the cron), and a forward book only ever trades currently-listed names. Empty -> valid empty book.
+    ohlcv = _refresh_ohlcv(args.start, args.history_days, not args.no_download)
     mem = load_membership()
     P = S91.prep_weekly_sma(ohlcv)
     ledger: list = []
