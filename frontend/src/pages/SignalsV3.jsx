@@ -23,6 +23,7 @@ import { useWatchlist } from '@/hooks/queries/useWatchlist';
 import { useKiteHoldings, useKiteMargins } from '@/hooks/queries/useKiteState';
 import { useNQPositions } from '@/hooks/queries/useNQPositions';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
+import { GlassTabs } from '@/components/shared/GlassTabs';
 import {
   SECTIONS,
   CONVICTION,
@@ -963,8 +964,10 @@ function SkeletonList() {
 // ─────────────────────────────────────────────────────────────────────
 export default function SignalsV3() {
   const kite = useContext(KiteContext);
-  const signalsQuery    = useSignals();
-  const watchlistQuery  = useWatchlist();
+  // Which strategy book to show: 'momentum' (baseline_v1, live) or 'weekly' (0091 forward-watch).
+  const [model, setModel] = useState('momentum');
+  const signalsQuery    = useSignals({ model });
+  const watchlistQuery  = useWatchlist({ model });
   const holdingsQuery   = useKiteHoldings({ enabled: !!kite?.connected });
   const marginsQuery    = useKiteMargins({ enabled: !!kite?.connected });
   const nqPositionsQuery = useNQPositions();
@@ -1115,6 +1118,19 @@ export default function SignalsV3() {
         breadth={regime?.breadth}
         cronHealth={cronHealth}
       />
+
+      {/* Strategy book toggle — two live models */}
+      <div className="sig-model-tabs">
+        <GlassTabs
+          tabs={[{ key: 'momentum', label: 'Momentum' }, { key: 'weekly', label: 'Weekly Swing' }]}
+          active={model}
+          onChange={setModel}
+          size="md"
+        />
+        <span className={`chip ${model === 'momentum' ? 'c-bull' : 'c-warn'}`}>
+          {model === 'momentum' ? 'Live' : 'Forward-watch · paper'}
+        </span>
+      </div>
 
       {/* Subhead */}
       <div className="sig-subhead">

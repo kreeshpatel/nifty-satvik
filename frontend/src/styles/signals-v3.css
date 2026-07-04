@@ -54,6 +54,9 @@
 .rg-dot.choppy { background: var(--warn); box-shadow: 0 0 10px var(--warn); }
 .rg-text { color: var(--text-2); }
 
+/* ── strategy-book toggle ── */
+.sig-model-tabs { display: flex; align-items: center; gap: 12px; padding: 10px 4px 0; flex-wrap: wrap; }
+
 /* ── subhead ── */
 .sig-subhead { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding: 16px 4px 14px; }
 .sig-page-title { font-family: var(--font-display); font-size: 30px; font-weight: 600; letter-spacing: -0.028em; margin: 6px 0 8px; color: var(--text-1); }

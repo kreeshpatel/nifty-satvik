@@ -11,7 +11,7 @@ from pathlib import Path
 from datetime import datetime, date
 
 import requests
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
@@ -36,6 +36,32 @@ GITHUB_RAW = "https://raw.githubusercontent.com/kreeshpatel/nifty-satvik/main"
 # cron-published results/ files through the authenticated GitHub API contents
 # endpoint instead, using the same GITHUB_TOKEN the cron uses to push.
 GITHUB_API_CONTENTS = "https://api.github.com/repos/kreeshpatel/nifty-satvik/contents"
+
+# ── Two live models, selected by the `?model=` query param ──────────────
+# `momentum` = baseline_v1 (the validated live book, unchanged default).
+# `weekly`   = the 0091 Bhanushali weekly-swing FORWARD-WATCH paper book (finding 0034),
+#              written by scripts/run_weekly_paper_cron.py to results/*_weekly.*. It is
+#              UNDERPOWERED / not certified — surfaced as a second tab, never the default.
+_MODELS = {
+    "momentum": {
+        "today": "signals_today.json", "history": "signals_history.json",
+        "analytics": "signal_analytics.json", "portfolio": "paper_portfolio.json",
+        "watchlist": "signals_watchlist.json", "config": "models/long_horizon/config.json",
+    },
+    "weekly": {
+        "today": "signals_today_weekly.json", "history": "signals_history_weekly.json",
+        "analytics": "signal_analytics_weekly.json", "portfolio": "paper_portfolio_weekly.json",
+        "watchlist": None, "config": "models/bhanushali_weekly/config.json",
+    },
+}
+
+
+def _model_or_400(model: str) -> dict:
+    m = _MODELS.get(model)
+    if m is None:
+        raise HTTPException(status_code=400,
+                            detail=f"Unknown model '{model}'. Use 'momentum' or 'weekly'.")
+    return m
 
 
 import time as _time
@@ -215,6 +241,7 @@ def _augment_signals_for_user(signals: list, user: User, db: Session) -> list:
 
 @router.get("/signals")
 def get_signals(
+    model: str = Query("momentum", description="Strategy book: 'momentum' (baseline_v1) or 'weekly' (0091 forward-watch)"),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -229,8 +256,9 @@ def get_signals(
     avg fill, status_for_user, sell_guidance — joined live from
     nq_orders + Kite holdings via services/nq_positions).
     """
+    files = _model_or_400(model)
     raw = _read_json_with_fallback(
-        RESULTS_DIR / "signals_today.json", "results/signals_today.json", []
+        RESULTS_DIR / files["today"], f"results/{files['today']}", []
     )
     # Handle both new envelope and legacy array
     if isinstance(raw, list):
@@ -245,14 +273,15 @@ def get_signals(
         sizing_risk_pct = raw.get("sizing_risk_pct")
 
     portfolio = _read_json_with_fallback(
-        RESULTS_DIR / "paper_portfolio.json", "results/paper_portfolio.json", {}
+        RESULTS_DIR / files["portfolio"], f"results/{files['portfolio']}", {}
     )
     # The live strategy is the long-horizon (3-month) trend model (v1 retired
     # 2026-06-25). Read its frozen config for the dashboard model badge. It is a
     # rule-based composite, not a trained classifier, so there is no AUC /
     # per-feature count — those badge fields are left at safe defaults.
+    _cfg_rel = files["config"]
     model_cfg = _read_json_with_fallback(
-        MODELS_DIR / "long_horizon" / "config.json", "models/long_horizon/config.json", {}
+        PROJECT_ROOT / _cfg_rel, _cfg_rel, {}
     )
     model_meta = {
         "version": model_cfg.get("model_version", "long-horizon-63d"),
@@ -384,6 +413,7 @@ def get_signals(
 
 @router.get("/signals/history")
 def get_signal_history(
+    model: str = Query("momentum", description="Strategy book: 'momentum' or 'weekly'"),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -398,15 +428,16 @@ def get_signal_history(
     the frontend's existing price/Kite hooks cover live overlays, and history
     entries already carry their stored status + last_price.
     """
+    files = _model_or_400(model)
     today_raw = _read_json_with_fallback(
-        RESULTS_DIR / "signals_today.json", "results/signals_today.json", []
+        RESULTS_DIR / files["today"], f"results/{files['today']}", []
     )
     today = today_raw.get("signals", []) if isinstance(today_raw, dict) else (today_raw or [])
     history = _read_json_with_fallback(
-        RESULTS_DIR / "signals_history.json", "results/signals_history.json", []
+        RESULTS_DIR / files["history"], f"results/{files['history']}", []
     ) or []
     analytics = _read_json_with_fallback(
-        RESULTS_DIR / "signal_analytics.json", "results/signal_analytics.json", {}
+        RESULTS_DIR / files["analytics"], f"results/{files['analytics']}", {}
     ) or {}
     return {"today": today, "history": history, "analytics": analytics, "source": "backend"}
 
@@ -444,7 +475,9 @@ def get_sell_guidance(
 
 
 @router.get("/signals/watchlist")
-def get_watchlist():
+def get_watchlist(
+    model: str = Query("momentum", description="Strategy book: 'momentum' or 'weekly'"),
+):
     """Borderline candidates from today's scan (conf 0.75-0.92).
 
     These are signals the model surfaced but didn't clear the entry
@@ -461,9 +494,12 @@ def get_watchlist():
     distinguish "monitoring only" from "buyable now" without parsing
     confidence ranges client-side.
     """
+    files = _model_or_400(model)
+    if files["watchlist"] is None:            # the weekly book has no watchlist tier
+        return {"signals": [], "count": 0, "generated_at": None, "tier": "watchlist"}
     raw = _read_json_with_fallback(
-        RESULTS_DIR / "signals_watchlist.json",
-        "results/signals_watchlist.json",
+        RESULTS_DIR / files["watchlist"],
+        f"results/{files['watchlist']}",
         {},
     )
     # Tolerate both envelope and bare-list shapes for forward compat.

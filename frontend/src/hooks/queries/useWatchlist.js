@@ -22,10 +22,10 @@ import { fetchWatchlist } from '@/services/api';
 
 export const WATCHLIST_QUERY_KEY = ['signals', 'watchlist'];
 
-export function useWatchlist(options = {}) {
+export function useWatchlist({ model = 'momentum', ...options } = {}) {
   return useQuery({
-    queryKey: WATCHLIST_QUERY_KEY,
-    queryFn: fetchWatchlist,
+    queryKey: [...WATCHLIST_QUERY_KEY, model],
+    queryFn: () => fetchWatchlist(model),
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
     refetchInterval: 5 * 60 * 1000,

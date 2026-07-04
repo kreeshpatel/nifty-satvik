@@ -26,10 +26,10 @@ export const SIGNAL_HISTORY_KEY = ['signal-history'];
 // on mount without null-checking. Real fetch settles in the background.
 const HISTORY_PLACEHOLDER = { today: [], history: [], analytics: {}, source: 'placeholder' };
 
-export function useSignalHistory(options = {}) {
+export function useSignalHistory({ model = 'momentum', ...options } = {}) {
   return useQuery({
-    queryKey: SIGNAL_HISTORY_KEY,
-    queryFn: fetchSignalHistory,
+    queryKey: [...SIGNAL_HISTORY_KEY, model],
+    queryFn: () => fetchSignalHistory(model),
     // Bumped to 15 min (was 5 min) so stock detail pages don't re-fetch
     // unnecessarily on every tab switch. Vercel function caches 5 min on
     // edge anyway — most refetches were no-ops.

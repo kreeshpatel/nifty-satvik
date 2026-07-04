@@ -44,6 +44,12 @@ jobs:
           python scripts/run_paper_cron.py \
             --mode current \
             --start "${{ github.event.inputs.inception || '2026-06-30' }}"
+      - name: Run weekly-swing (0091) forward-watch paper cron
+        run: |
+          # Second live book: the 0091 Bhanushali weekly swing, forward-watch only (paper).
+          # Runs AFTER the momentum step so it reads the freshly-downloaded OHLCV. Non-fatal —
+          # a weekly-book error must never break the momentum book's commit.
+          python scripts/run_weekly_paper_cron.py --start 2026-07-04 || echo "weekly cron skipped"
       - name: Commit persisted paper state
         run: |
           # Author with the owner's GitHub-matched email so Vercel (which auto-deploys
@@ -54,6 +60,9 @@ jobs:
           git add results/paper_state.json results/paper_portfolio.json results/paper_trades.json \
                   results/portfolio_history.csv results/paper_ledger_history.csv \
                   results/signals_today.json results/signals_history.json results/signal_analytics.json \
-                  results/kill_state.json 2>/dev/null || true
+                  results/kill_state.json \
+                  results/signals_today_weekly.json results/signals_history_weekly.json \
+                  results/signal_analytics_weekly.json results/paper_portfolio_weekly.json \
+                  results/portfolio_history_weekly.csv 2>/dev/null || true
           git commit -m "chore(paper): daily cron state $(date -u +%F)" || echo "no state change"
           git push || echo "nothing to push"

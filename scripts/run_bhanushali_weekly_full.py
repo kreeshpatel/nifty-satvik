@@ -78,9 +78,13 @@ def prep_weekly(ohlcv, drop_erratum: bool = False):
     return P
 
 
-def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None):
+def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
+             start: str | None = None, return_state: bool = False):
+    """start (default START) filters the daily loop; return_state=True skips the end-of-window
+    force-close and returns the LIVE open positions + active entry windows (for the paper runner).
+    Both default to preserve byte-identical research behavior (0089/0091 findings)."""
     dts = pd.DatetimeIndex(sorted(set().union(*[set(s["dates"]) for s in P.values()])))
-    dts = dts[dts >= pd.Timestamp(START)]
+    dts = dts[dts >= pd.Timestamp(start or START)]
     didx = {t: {d: i for i, d in enumerate(s["dates"])} for t, s in P.items()}
     eq = cash = EQ0
     op: dict[str, dict] = {}
@@ -173,33 +177,47 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None):
         eq = cash + mtm
         assert cash >= -1e-6
         curve.append((d, eq))
-    for t, p in op.items():
-        i = len(P[t]["c"]) - 1; ex = P[t]["c"][i]
-        r_rest = (ex - p["en"]) / p["risk0"]
-        R = 0.5 * 2.0 + 0.5 * r_rest if p["half_done"] else r_rest
-        T.append(dict(R=R, reason="eos", held=p["weeks"], half=p["half_done"]))
-        if ledger is not None and "rec" in p:
-            xp = p["sh"] * ex; mark = p["proceeds"] + xp * (1 - _cost_leg(p["adv"], xp, cost_off))
-            p["rec"].update(exit_date=P[t]["dates"][i], exit_px=round(float(ex), 2), reason="eos",
-                            held_weeks=p["weeks"], R=round(float(R), 3),
-                            net_pnl=round(float(mark - p["cash_out"]), 2),
-                            stt_paid=round(float(p["stt"] + p["stt_buy"] + xp * STT_PCT), 2))
-            ledger.append(p["rec"])
+    # Backtest convention: force-close open positions at the window end so metrics realize them.
+    # LIVE mode (return_state) skips this — those positions are still open, not closed.
+    if not return_state:
+        for t, p in op.items():
+            i = len(P[t]["c"]) - 1; ex = P[t]["c"][i]
+            r_rest = (ex - p["en"]) / p["risk0"]
+            R = 0.5 * 2.0 + 0.5 * r_rest if p["half_done"] else r_rest
+            T.append(dict(R=R, reason="eos", held=p["weeks"], half=p["half_done"]))
+            if ledger is not None and "rec" in p:
+                xp = p["sh"] * ex; mark = p["proceeds"] + xp * (1 - _cost_leg(p["adv"], xp, cost_off))
+                p["rec"].update(exit_date=P[t]["dates"][i], exit_px=round(float(ex), 2), reason="eos",
+                                held_weeks=p["weeks"], R=round(float(R), 3),
+                                net_pnl=round(float(mark - p["cash_out"]), 2),
+                                stt_paid=round(float(p["stt"] + p["stt_buy"] + xp * STT_PCT), 2))
+                ledger.append(p["rec"])
     e = pd.Series(dict(curve)).sort_index()
     r = e.pct_change().dropna()
-    yrs = (e.index[-1] - e.index[0]).days / 365.25
+    # empty window (e.g. a live inception past the last data bar) -> degenerate metrics, no crash.
+    # Never hit by a 2017-start research run, so byte-identical there.
+    empty = len(e) < 2
+    yrs = (e.index[-1] - e.index[0]).days / 365.25 if not empty else 1.0
     R = np.array([x["R"] for x in T])
     reasons = pd.Series([x["reason"] for x in T]).value_counts().to_dict() if T else {}
-    return dict(curve=e, ret=r, trades=len(R), tpy=len(R) / yrs, activations=activations,
+    out = dict(curve=e, ret=r, trades=len(R), tpy=len(R) / yrs, activations=activations,
                 wr=(R > 0).mean() if len(R) else float("nan"),
                 expR=R.mean() if len(R) else float("nan"),
                 medhold_w=float(np.median([x["held"] for x in T])) if T else float("nan"),
                 medhold=float(np.median([x["held"] for x in T]) * 5) if T else float("nan"),
                 p90hold=float(np.percentile([x["held"] for x in T], 90) * 5) if T else float("nan"),
-                cagr=(e.iloc[-1] / e.iloc[0]) ** (1 / yrs) - 1,
-                sharpe=r.mean() / r.std() * np.sqrt(252) if r.std() else float("nan"),
-                dd=(e / e.cummax() - 1).min(), mult=e.iloc[-1] / EQ0,
+                cagr=((e.iloc[-1] / e.iloc[0]) ** (1 / yrs) - 1) if not empty else 0.0,
+                sharpe=r.mean() / r.std() * np.sqrt(252) if (not empty and r.std()) else float("nan"),
+                dd=(e / e.cummax() - 1).min() if not empty else 0.0,
+                mult=(e.iloc[-1] / EQ0) if not empty else 1.0,
                 reasons=reasons, skipped_cash=skipped_cash)
+    if return_state:
+        out["open_positions"] = op        # ticker -> live position dict (en/stop/tp2/trail/weeks/half_done/sh...)
+        out["active_orders"] = orders     # ticker -> {days, lo, hi} entry windows still open this week
+        out["cash"] = cash
+        out["equity"] = float(eq)
+        out["didx"] = didx
+    return out
 
 
 def main() -> int:

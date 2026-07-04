@@ -1,0 +1,30 @@
+{
+  "model_version": "weekly-swing-0091",
+  "strategy": "BHANUSHALI_WEEKLY_SMA",
+  "status": "FORWARD_WATCH",
+  "horizon": "weekly",
+  "inception": "2026-07-04",
+  "certification": "UNDERPOWERED (DSR 0.47 < 0.95); forward wall is the only certifier — not promoted",
+  "provenance": "pre-reg 0091 / finding 0034",
+  "params_derived_through": "2026-07-04",
+  "params": {
+    "weekly_sma": 44,
+    "trail_sma": 20,
+    "trail_pct": 0.04,
+    "touch_band": 0.07,
+    "risk_pct": 0.02,
+    "cap_weeks": 13,
+    "target_r": 2,
+    "entry": "in-range open the week after a green weekly bounce off the 44-week SMA",
+    "exits": "half at +2R; remainder trails the 20-day SMA -4% (ratchet); stop = signal-week low; all decided at the weekly close, filled Monday; 13-week cap"
+  },
+  "backtest": {
+    "universe": "corrected (pinned + backfill + aliases)",
+    "window": "2017-2026",
+    "net_sharpe": 0.869,
+    "net_cagr_pct": 18.2,
+    "max_dd_pct": -41.5,
+    "win_rate_pct": 52.0,
+    "note": "in-sample; 2023 = 49% of profit; top-of-plateau. Not indicative of future results."
+  }
+}
