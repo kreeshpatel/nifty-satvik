@@ -1,30 +1,37 @@
 {
-  "model_version": "weekly-swing-0091",
-  "strategy": "BHANUSHALI_WEEKLY_SMA",
+  "model_version": "weekly-swing-0093-n50",
+  "strategy": "BHANUSHALI_WEEKLY_SMA_CRS",
   "status": "FORWARD_WATCH",
   "horizon": "weekly",
   "inception": "2026-07-04",
-  "certification": "UNDERPOWERED (DSR 0.47 < 0.95); forward wall is the only certifier — not promoted",
-  "provenance": "pre-reg 0091 / finding 0034",
+  "certification": "UNDERPOWERED (DSR 0.745 < 0.95); strongest & most robust book of the arc; forward wall is the only certifier — not promoted",
+  "provenance": "pre-reg 0093 / finding 0037 (confirmatory Nifty-50 run)",
   "params_derived_through": "2026-07-04",
   "params": {
     "weekly_sma": 44,
     "trail_sma": 20,
     "trail_pct": 0.04,
     "touch_band": 0.07,
+    "slope_floor_pct": 0.03,
+    "slope_lookback_weeks": 13,
+    "quality_green": "close > open AND close in the upper half of the week's range",
+    "crs_index": "Nifty-50 (^NSEI)",
+    "crs_length_weeks": 40,
+    "crs_rule": "take signal only if weekly RS = stock/Nifty-50 is above its own 40-week SMA",
     "risk_pct": 0.02,
     "cap_weeks": 13,
     "target_r": 2,
     "entry": "in-range open the week after a green weekly bounce off the 44-week SMA",
-    "exits": "half at +2R; remainder trails the 20-day SMA -4% (ratchet); stop = signal-week low; all decided at the weekly close, filled Monday; 13-week cap"
+    "exits": "half at +2R; remainder trails the 20-day SMA -4% (ratchet); stop = signal-week low; decided at the weekly close, filled Monday; 13-week cap"
   },
   "backtest": {
     "universe": "corrected (pinned + backfill + aliases)",
     "window": "2017-2026",
-    "net_sharpe": 0.869,
-    "net_cagr_pct": 18.2,
-    "max_dd_pct": -41.5,
-    "win_rate_pct": 52.0,
-    "note": "in-sample; 2023 = 49% of profit; top-of-plateau. Not indicative of future results."
+    "net_sharpe": 0.900,
+    "net_cagr_pct": 18.7,
+    "max_dd_pct": -42.5,
+    "ci_low": 0.274,
+    "dsr": 0.745,
+    "note": "in-sample; robust plateau, 2 losing years, 2023-concentration 39%; leakage-clean. Beats 0091 and buy-and-hold. Not indicative of future results."
   }
 }

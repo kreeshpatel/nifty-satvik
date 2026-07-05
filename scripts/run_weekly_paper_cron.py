@@ -35,7 +35,7 @@ from config import RESULTS_DIR  # noqa: E402
 from nq.data.membership import load_membership  # noqa: E402
 from nq.data.ohlcv import OHLCV_CACHE, load_ohlcv_cache  # noqa: E402
 import run_bhanushali_weekly_full as W89  # noqa: E402
-import run_bhanushali_weekly_sma as S91  # noqa: E402
+import run_bhanushali_weekly_crs as CRS  # noqa: E402  — LIVE strategy: 0093 + Nifty-50 (finding 0037)
 
 INCEPTION_DEFAULT = "2026-07-04"
 TARGET_R = 2                     # 0091 books half at +2R -> the displayed target
@@ -143,10 +143,10 @@ def build_envelopes(P, out, ledger, generated_at, mem=None):
                if len(curve) else pd.DataFrame({"date": [], "total_value": []}))
 
     envelope = {
-        "generated_at": generated_at, "model": "weekly-swing-0091", "signals": signals,
+        "generated_at": generated_at, "model": "weekly-swing-0093-n50", "signals": signals,
         "regime": {"status": "UNKNOWN", "strength": 0, "vix": 0, "breadth": 0},
         "n_positions": len(positions), "cash": round(float(out["cash"]), 2),
-        "note": "forward-watch, modeled fills — 0091 all-SMA weekly swing (UNDERPOWERED, not certified)",
+        "note": "forward-watch, modeled fills — 0093 weekly swing (SMA + slope + quality-green + CRS vs Nifty-50; UNDERPOWERED, not certified)",
     }
     return envelope, sig_hist, analytics, portfolio, hist_df
 
@@ -178,8 +178,29 @@ def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
     return ohlcv
 
 
+def _refresh_nifty50(do_download: bool) -> None:
+    """Refresh the pinned Nifty-50 CSV (the CRS denominator) with recent bars. Non-fatal — a fetch
+    hiccup falls back to the committed series so the book still runs."""
+    if not do_download:
+        return
+    from datetime import date
+    try:
+        import yfinance as yf
+        csv = CRS.NIFTY50_CSV
+        existing = pd.read_csv(csv, parse_dates=["date"]) if Path(csv).exists() else pd.DataFrame(columns=["date", "nifty50_close"])
+        d = yf.download("^NSEI", start="2015-01-01", end=date.today().isoformat(), progress=False, auto_adjust=False)
+        close = d["Close"]; close = close.iloc[:, 0] if hasattr(close, "columns") else close
+        fresh = pd.DataFrame({"date": pd.to_datetime(close.index).tz_localize(None),
+                              "nifty50_close": close.values}).dropna()
+        merged = pd.concat([existing, fresh]).drop_duplicates("date", keep="last").sort_values("date")
+        merged.to_csv(csv, index=False)
+        print(f"nifty-50 refreshed -> {merged['date'].max().date()} ({len(merged)} rows)", flush=True)
+    except Exception as exc:  # noqa: BLE001
+        print(f"nifty-50 refresh failed ({type(exc).__name__}: {exc}); using committed CSV", flush=True)
+
+
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(description="0091 weekly-swing forward-watch paper runner")
+    ap = argparse.ArgumentParser(description="weekly-swing (0093 + Nifty-50 CRS) forward-watch paper runner")
     ap.add_argument("--start", default=INCEPTION_DEFAULT, help="inception (clean forward start) YYYY-MM-DD")
     ap.add_argument("--state-dir", default=str(RESULTS_DIR))
     ap.add_argument("--no-download", action="store_true", help="use the cache as-is (test/offline)")
@@ -191,8 +212,11 @@ def main(argv=None) -> int:
     # delisted names are a backtest-only survivorship tool, are not committed to the repo (would crash
     # the cron), and a forward book only ever trades currently-listed names. Empty -> valid empty book.
     ohlcv = _refresh_ohlcv(args.start, args.history_days, not args.no_download)
+    _refresh_nifty50(not args.no_download)               # CRS denominator (finding 0037)
     mem = load_membership()
-    P = S91.prep_weekly_sma(ohlcv)
+    # LIVE strategy = 0093 + Nifty-50 (the program's strongest, most robust book; supersedes 0091).
+    CRS.INDEX = ("nifty50", CRS.NIFTY50_CSV, "nifty50_close")
+    P = CRS.prep_weekly_crs(ohlcv)
     ledger: list = []
     out = W89.backtest(P, mem, ledger=ledger, start=args.start, return_state=True)
     # data's last date = the "as of" the book is current to
