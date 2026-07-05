@@ -957,20 +957,42 @@ function Section({ sec, rows, selSym, onOpen, collapsedByDefault, limit }) {
 //   shares        = floor(risk ÷ (entry − stop))
 //   affordability = cash × margin multiplier (leverage widens what you can BUY,
 //                   never what you RISK); funded strongest-CRS-first; unaffordable → SKIP
+//
+// Names you already own are EXCLUDED from the buy list — the strategy holds one
+// position per name and never adds/rotates, so a signal you already hold must not
+// be re-bought. Held names come from your Kite holdings (auto) ∪ any you type in.
 // Client-side only; inputs persist per-browser (per-user) in localStorage.
 // ─────────────────────────────────────────────────────────────────────
 const SIZING_LS_KEY = 'nq_weekly_sizing_v1';
 
-function SizingCalculator({ candidates }) {
+function SizingCalculator({ candidates, kiteHeld }) {
   const saved = useMemo(() => {
     try { return JSON.parse(localStorage.getItem(SIZING_LS_KEY)) || {}; } catch { return {}; }
   }, []);
   const [cash, setCash] = useState(saved.cash ?? '');
   const [invested, setInvested] = useState(saved.invested ?? '');
   const [mult, setMult] = useState(saved.mult ?? 1);
+  const [manualHeld, setManualHeld] = useState(saved.manualHeld ?? []);
+  const [heldInput, setHeldInput] = useState('');
   useEffect(() => {
-    try { localStorage.setItem(SIZING_LS_KEY, JSON.stringify({ cash, invested, mult })); } catch {}
-  }, [cash, invested, mult]);
+    try { localStorage.setItem(SIZING_LS_KEY, JSON.stringify({ cash, invested, mult, manualHeld })); } catch {}
+  }, [cash, invested, mult, manualHeld]);
+
+  // Held = Kite holdings (auto-detected) ∪ manually typed tickers. Never re-bought.
+  const autoHeld = useMemo(
+    () => [...(kiteHeld || [])].map((t) => (t || '').toUpperCase()).filter(Boolean),
+    [kiteHeld],
+  );
+  const held = useMemo(
+    () => new Set([...autoHeld, ...manualHeld.map((t) => t.toUpperCase())]),
+    [autoHeld, manualHeld],
+  );
+  const addHeld = () => {
+    const t = heldInput.trim().toUpperCase();
+    if (t && !manualHeld.includes(t) && !autoHeld.includes(t)) setManualHeld((m) => [...m, t]);
+    setHeldInput('');
+  };
+  const removeHeld = (t) => setManualHeld((m) => m.filter((x) => x !== t));
 
   const cashN = Math.max(0, parseFloat(cash) || 0);
   const investedN = Math.max(0, parseFloat(invested) || 0);
@@ -978,8 +1000,15 @@ function SizingCalculator({ candidates }) {
   const risk = 0.02 * equity;
   const buyingPower = cashN * mult;
 
+  // Split this week's signals into fundable vs already-held (excluded from buying).
+  const heldInSignals = candidates.filter((s) => held.has((s.sym || '').toUpperCase()));
+  const fundable = useMemo(
+    () => candidates.filter((s) => !held.has((s.sym || '').toUpperCase())),
+    [candidates, held],
+  );
+
   const rows = useMemo(() => {
-    const sorted = [...candidates].sort((a, b) => (b.crs_rank ?? 0) - (a.crs_rank ?? 0));
+    const sorted = [...fundable].sort((a, b) => (b.crs_rank ?? 0) - (a.crs_rank ?? 0));
     let bp = buyingPower;
     return sorted.map((s) => {
       const rps = (s.entry ?? 0) - (s.stop ?? 0);
@@ -991,7 +1020,7 @@ function SizingCalculator({ candidates }) {
       bp -= cost;
       return { s, qty, cost, status: 'FUND', left: bp };
     });
-  }, [candidates, risk, buyingPower]);
+  }, [fundable, risk, buyingPower]);
 
   const funded = rows.filter((r) => r.status === 'FUND');
   const deployed = funded.reduce((a, r) => a + r.cost, 0);
@@ -1019,13 +1048,38 @@ function SizingCalculator({ candidates }) {
           </select>
         </label>
       </div>
+      <div className="sc-holdings">
+        <span className="sc-hold-label">Stocks you already hold <em>(won't be re-bought)</em></span>
+        <div className="sc-chips">
+          {[...held].sort().map((t) => (
+            <span key={t} className={`sc-chip ${autoHeld.includes(t) ? 'is-auto' : ''}`}>
+              {t}{autoHeld.includes(t) && <em> · Kite</em>}
+              {!autoHeld.includes(t) && (
+                <button type="button" onClick={() => removeHeld(t)} aria-label={`remove ${t}`}>×</button>
+              )}
+            </span>
+          ))}
+          <input className="sc-chip-input" placeholder={held.size ? '+ ticker' : 'type a ticker you own, Enter'}
+                 value={heldInput}
+                 onChange={(e) => setHeldInput(e.target.value.replace(/[^A-Za-z0-9&-]/g, '').toUpperCase())}
+                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addHeld(); } }}
+                 onBlur={addHeld} />
+        </div>
+        {autoHeld.length > 0 && <span className="sc-hold-hint">Kite-connected: your holdings are auto-excluded.</span>}
+      </div>
       {equity > 0 && (
         <>
+          {heldInSignals.length > 0 && (
+            <div className="sc-excluded">
+              Excluded — you already hold <b>{heldInSignals.map((s) => s.sym).join(', ')}</b>. No re-buy, no adding to a
+              live position (the strategy is one position per name). Include their current value in “already invested” above.
+            </div>
+          )}
           <div className="sc-strip">
             <span>Equity <b className="num">{fmtLakh(equity)}</b></span>
             <span>Risk/trade <b className="num">{fmtLakh(risk)}</b></span>
             <span>Buying power <b className="num">{fmtLakh(buyingPower)}</b></span>
-            <span>Will fund <b className="num-bull">{funded.length}</b> of {rows.length} · deploys {fmtLakh(deployed)}</span>
+            <span>Will fund <b className="num-bull">{funded.length}</b> of {rows.length} new · deploys {fmtLakh(deployed)}</span>
           </div>
           <div className="sc-table-wrap"><table className="sc-table">
             <thead><tr><th>#</th><th>Signal</th><th>Buy band</th><th>Stop</th><th>Shares</th><th>Cost</th><th></th></tr></thead>
@@ -1302,7 +1356,7 @@ export default function SignalsV3() {
           ) : (
             <>
               {model === 'weekly' && sizingCands.length > 0 && (
-                <SizingCalculator candidates={sizingCands} />
+                <SizingCalculator candidates={sizingCands} kiteHeld={heldSet} />
               )}
               {SECTION_ORDER.map((sec) => (
                 <Section

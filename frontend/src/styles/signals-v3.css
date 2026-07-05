@@ -344,6 +344,20 @@
 .sizing-calc .sc-inputs label { display: flex; flex-direction: column; gap: 4px; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--text-3); }
 .sizing-calc .sc-inputs input, .sizing-calc .sc-inputs select { height: 34px; min-width: 170px; padding: 0 10px; background: var(--surface-2, rgba(255,255,255,.04)); border: 1px solid var(--edge-1); border-radius: 8px; color: var(--text-1); font: 600 13px/1 var(--font-mono, monospace); font-variant-numeric: tabular-nums; }
 .sizing-calc .sc-inputs input:focus, .sizing-calc .sc-inputs select:focus { outline: none; border-color: var(--brand-edge, var(--brand-hi)); }
+.sizing-calc .sc-holdings { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.sizing-calc .sc-hold-label { font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--text-3); }
+.sizing-calc .sc-hold-label em { text-transform: none; letter-spacing: 0; font-style: normal; color: var(--text-3); opacity: .8; }
+.sizing-calc .sc-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.sizing-calc .sc-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; padding: 3px 8px; border: 1px solid var(--edge-1); border-radius: 999px; background: var(--surface-2, rgba(255,255,255,.04)); color: var(--text-1); font-variant-numeric: tabular-nums; }
+.sizing-calc .sc-chip.is-auto { border-color: var(--brand-hi); color: var(--brand-hi); }
+.sizing-calc .sc-chip em { font-style: normal; font-size: 10px; opacity: .7; }
+.sizing-calc .sc-chip button { background: none; border: none; color: inherit; cursor: pointer; font-size: 14px; line-height: 1; padding: 0 0 0 2px; opacity: .6; }
+.sizing-calc .sc-chip button:hover { opacity: 1; }
+.sizing-calc .sc-chip-input { height: 28px; min-width: 130px; padding: 0 10px; background: var(--surface-2, rgba(255,255,255,.04)); border: 1px dashed var(--edge-1); border-radius: 999px; color: var(--text-1); font: 600 12px/1 var(--font-mono, monospace); }
+.sizing-calc .sc-chip-input:focus { outline: none; border-style: solid; border-color: var(--brand-hi); }
+.sizing-calc .sc-hold-hint { font-size: 11px; color: var(--text-3); opacity: .8; }
+.sizing-calc .sc-excluded { font-size: 12px; line-height: 1.5; color: var(--text-2); background: var(--surface-2, rgba(255,255,255,.04)); border: 1px solid var(--edge-1); border-left: 2px solid var(--warn, #F0B24E); border-radius: 8px; padding: 8px 10px; margin: 4px 0 10px; }
+.sizing-calc .sc-excluded b { color: var(--text-1); }
 .sizing-calc .sc-strip { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--text-3); padding: 8px 0; border-top: 1px solid var(--edge-1); }
 .sizing-calc .sc-strip b { color: var(--text-1); font-variant-numeric: tabular-nums; }
 .sizing-calc .sc-table-wrap { overflow-x: auto; }
