@@ -949,6 +949,116 @@ function Section({ sec, rows, selSym, onOpen, collapsedByDefault, limit }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────
+// SizingCalculator — Weekly Swing position sizer (finding 0038 fill rules)
+//
+// Faithful to the backtest's math:
+//   equity        = cash on hand + value already invested in weekly positions
+//   risk/trade    = 2% of EQUITY  (never of cash — invested value stays in the base)
+//   shares        = floor(risk ÷ (entry − stop))
+//   affordability = cash × margin multiplier (leverage widens what you can BUY,
+//                   never what you RISK); funded strongest-CRS-first; unaffordable → SKIP
+// Client-side only; inputs persist per-browser (per-user) in localStorage.
+// ─────────────────────────────────────────────────────────────────────
+const SIZING_LS_KEY = 'nq_weekly_sizing_v1';
+
+function SizingCalculator({ candidates }) {
+  const saved = useMemo(() => {
+    try { return JSON.parse(localStorage.getItem(SIZING_LS_KEY)) || {}; } catch { return {}; }
+  }, []);
+  const [cash, setCash] = useState(saved.cash ?? '');
+  const [invested, setInvested] = useState(saved.invested ?? '');
+  const [mult, setMult] = useState(saved.mult ?? 1);
+  useEffect(() => {
+    try { localStorage.setItem(SIZING_LS_KEY, JSON.stringify({ cash, invested, mult })); } catch {}
+  }, [cash, invested, mult]);
+
+  const cashN = Math.max(0, parseFloat(cash) || 0);
+  const investedN = Math.max(0, parseFloat(invested) || 0);
+  const equity = cashN + investedN;
+  const risk = 0.02 * equity;
+  const buyingPower = cashN * mult;
+
+  const rows = useMemo(() => {
+    const sorted = [...candidates].sort((a, b) => (b.crs_rank ?? 0) - (a.crs_rank ?? 0));
+    let bp = buyingPower;
+    return sorted.map((s) => {
+      const rps = (s.entry ?? 0) - (s.stop ?? 0);
+      if (rps <= 0 || risk <= 0) return { s, qty: 0, cost: 0, status: 'n/a' };
+      const qty = Math.floor(risk / rps);
+      const cost = qty * s.entry;
+      if (qty < 1) return { s, qty: 0, cost: 0, status: 'risk too small' };
+      if (cost > bp) return { s, qty, cost, status: 'skip — over budget' };
+      bp -= cost;
+      return { s, qty, cost, status: 'FUND', left: bp };
+    });
+  }, [candidates, risk, buyingPower]);
+
+  const funded = rows.filter((r) => r.status === 'FUND');
+  const deployed = funded.reduce((a, r) => a + r.cost, 0);
+
+  return (
+    <div className="sizing-calc">
+      <div className="sc-head">
+        <span className="sc-title">Position sizer</span>
+        <span className="sc-sub">2% of equity risked per trade · funded strongest CRS first</span>
+      </div>
+      <div className="sc-inputs">
+        <label>Cash in hand (₹)
+          <input inputMode="numeric" placeholder="e.g. 400000" value={cash}
+                 onChange={(e) => setCash(e.target.value.replace(/[^\d.]/g, ''))} />
+        </label>
+        <label>Already invested in weekly positions (₹)
+          <input inputMode="numeric" placeholder="0" value={invested}
+                 onChange={(e) => setInvested(e.target.value.replace(/[^\d.]/g, ''))} />
+        </label>
+        <label>Funding mode
+          <select value={mult} onChange={(e) => setMult(parseFloat(e.target.value))}>
+            <option value={1}>All cash (1.0×)</option>
+            <option value={1.8}>E-margin (1.8×)</option>
+            <option value={2}>E-margin (2.0×)</option>
+          </select>
+        </label>
+      </div>
+      {equity > 0 && (
+        <>
+          <div className="sc-strip">
+            <span>Equity <b className="num">{fmtLakh(equity)}</b></span>
+            <span>Risk/trade <b className="num">{fmtLakh(risk)}</b></span>
+            <span>Buying power <b className="num">{fmtLakh(buyingPower)}</b></span>
+            <span>Will fund <b className="num-bull">{funded.length}</b> of {rows.length} · deploys {fmtLakh(deployed)}</span>
+          </div>
+          <div className="sc-table-wrap"><table className="sc-table">
+            <thead><tr><th>#</th><th>Signal</th><th>Buy band</th><th>Stop</th><th>Shares</th><th>Cost</th><th></th></tr></thead>
+            <tbody>
+              {rows.map((r, i) => (
+                <tr key={r.s.sym} className={r.status === 'FUND' ? '' : 'sc-skip'}>
+                  <td>{i + 1}</td>
+                  <td><b>{r.s.sym}</b> <span className="sc-grade">{r.s.grade}</span></td>
+                  <td className="num">{fmtNum(r.s.entry_low)} – {fmtNum(r.s.entry_high)}</td>
+                  <td className="num">{fmtNum(r.s.stop)}</td>
+                  <td className="num"><b>{r.status === 'FUND' ? r.qty.toLocaleString('en-IN') : '—'}</b></td>
+                  <td className="num">{r.status === 'FUND' ? fmtLakh(r.cost) : '—'}</td>
+                  <td className={`sc-status ${r.status === 'FUND' ? 'ok' : ''}`}>{r.status === 'FUND' ? 'fund' : r.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table></div>
+          <div className="sc-note">
+            Shares assume a fill near the band top — <b>recompute at your actual fill: shares = {fmtLakh(risk)} ÷ (fill − stop)</b>.
+            Buy only if the day's open is INSIDE the band; skip otherwise.
+            {mult > 1 && (
+              <span className="sc-warn"> E-margin: leverage widens what you can buy, never what you risk (still 2% of equity
+              per trade). The backtest is UNLEVERED — a −40%-class drawdown on a levered book risks margin calls and forced
+              selling, and E-margin interest (~9–12%/yr) is not in any backtest number.</span>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
 // Skeleton loading state
 // ─────────────────────────────────────────────────────────────────────
 function SkeletonList() {
@@ -1058,6 +1168,15 @@ export default function SignalsV3() {
     if (gradeFilter === 'all') return allEnriched;
     return allEnriched.filter((s) => (s.grade || 'B')[0].toUpperCase() === gradeFilter);
   }, [allEnriched, gradeFilter]);
+
+  // Weekly position-sizer candidates: this week's ranked BUY cards (never held/bought ones),
+  // grade-filter-independent so the sizer always sees the full ranked list.
+  const sizingCands = useMemo(() =>
+    model === 'weekly'
+      ? allEnriched.filter((s) => s.crs_rank != null && !s.bought_date
+          && (s.action === 'buy-today' || s.action === 'closing'))
+      : [],
+    [model, allEnriched]);
 
   // Partition into action buckets
   const byAction = useMemo(() => {
@@ -1181,17 +1300,22 @@ export default function SignalsV3() {
               </div>
             </div>
           ) : (
-            SECTION_ORDER.map((sec) => (
-              <Section
-                key={sec.id}
-                sec={sec}
-                rows={byAction[sec.id] || []}
-                selSym={selSym}
-                onOpen={handleOpen}
-                collapsedByDefault={sec.id === 'closed'}
-                limit={sec.id === 'brewing' ? WATCH_TOP_N : undefined}
-              />
-            ))
+            <>
+              {model === 'weekly' && sizingCands.length > 0 && (
+                <SizingCalculator candidates={sizingCands} />
+              )}
+              {SECTION_ORDER.map((sec) => (
+                <Section
+                  key={sec.id}
+                  sec={sec}
+                  rows={byAction[sec.id] || []}
+                  selSym={selSym}
+                  onOpen={handleOpen}
+                  collapsedByDefault={sec.id === 'closed'}
+                  limit={sec.id === 'brewing' ? WATCH_TOP_N : undefined}
+                />
+              ))}
+            </>
           )}
         </div>
 

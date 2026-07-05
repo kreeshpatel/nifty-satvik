@@ -334,3 +334,27 @@
   .ac-figures { gap: 10px; }
   .sig-v3-app { padding: 0 16px 80px; }
 }
+
+/* ── SizingCalculator (Weekly Swing position sizer) ─────────────────── */
+.sizing-calc { background: var(--surface-1); border: 1px solid var(--edge-1); border-radius: 14px; padding: 16px 16px 12px; margin-bottom: 18px; }
+.sizing-calc .sc-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.sizing-calc .sc-title { font-weight: 650; font-size: 14px; }
+.sizing-calc .sc-sub { color: var(--text-3); font-size: 12px; }
+.sizing-calc .sc-inputs { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.sizing-calc .sc-inputs label { display: flex; flex-direction: column; gap: 4px; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--text-3); }
+.sizing-calc .sc-inputs input, .sizing-calc .sc-inputs select { height: 34px; min-width: 170px; padding: 0 10px; background: var(--surface-2, rgba(255,255,255,.04)); border: 1px solid var(--edge-1); border-radius: 8px; color: var(--text-1); font: 600 13px/1 var(--font-mono, monospace); font-variant-numeric: tabular-nums; }
+.sizing-calc .sc-inputs input:focus, .sizing-calc .sc-inputs select:focus { outline: none; border-color: var(--brand-edge, var(--brand-hi)); }
+.sizing-calc .sc-strip { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--text-3); padding: 8px 0; border-top: 1px solid var(--edge-1); }
+.sizing-calc .sc-strip b { color: var(--text-1); font-variant-numeric: tabular-nums; }
+.sizing-calc .sc-table-wrap { overflow-x: auto; }
+.sizing-calc .sc-table { width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.sizing-calc .sc-table th { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); text-align: right; padding: 6px 8px; border-bottom: 1px solid var(--edge-1); }
+.sizing-calc .sc-table td { padding: 6px 8px; text-align: right; border-bottom: 1px solid rgba(255,255,255,.04); white-space: nowrap; }
+.sizing-calc .sc-table th:nth-child(2), .sizing-calc .sc-table td:nth-child(2) { text-align: left; }
+.sizing-calc .sc-skip td { opacity: .45; }
+.sizing-calc .sc-grade { font-size: 10px; padding: 1px 6px; border: 1px solid var(--edge-1); border-radius: 8px; color: var(--text-3); margin-left: 4px; }
+.sizing-calc .sc-status { font-size: 11px; color: var(--text-3); }
+.sizing-calc .sc-status.ok { color: var(--bull, #3FDD8A); font-weight: 650; }
+.sizing-calc .sc-note { font-size: 11.5px; color: var(--text-3); margin-top: 10px; line-height: 1.5; }
+.sizing-calc .sc-note b { color: var(--text-2); }
+.sizing-calc .sc-warn { color: var(--warn, #F0B24E); }
