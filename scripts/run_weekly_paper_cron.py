@@ -90,6 +90,35 @@ def build_envelopes(P, out, ledger, generated_at, mem=None):
     for j, sg in enumerate(signals):
         sg["grade"] = "A" if j < 5 else "B"
 
+    # ── held positions -> HOLDING cards ("Bought on <date>"), or SELL cards when the weekly close
+    # decided an exit (pending -> executes Monday open). The Saturday run therefore tells the owner
+    # exactly which held signals to SELL on Monday, on the same card the buy came from. ──
+    for t, p in out["open_positions"].items():
+        s = P[t]
+        cur = float(_last(P, t, "c"))
+        entry = float(p["en"])
+        stop = float(p["trail"] if p["half_done"] else p["stop"])
+        bought = str(p["rec"]["entry_date"])[:10] if "rec" in p else None
+        rec = {
+            "ticker": t, "entry": round(entry, 2), "stop": round(stop, 2),
+            "target": round(float(p["tp2"]), 2), "current_price": round(cur, 2),
+            "close": round(cur, 2), "signal_date": bought, "bought_date": bought,
+            "qty": round(float(p["sh"]), 2), "fill_price": round(entry, 2),
+            "nq_position_id": f"{t}__{bought}",              # -> frontend 'holding' action
+            "hold_days": HOLD_DAYS_DISPLAY, "grade": "A" if p["half_done"] else "B",
+            "tier": "signal", "status": "ACTIVE",
+        }
+        if p["pending"] is not None:                          # Friday close said EXIT -> sell Monday open
+            act, reason = p["pending"]
+            rec["actionability"] = "EXIT_REQUIRED"
+            if act == "half":
+                rec["status"] = "HIT_TARGET"                  # frontend: sell-now, 'target' tone
+                rec["why"] = "+2R target hit at the weekly close — SELL HALF at Monday's open, keep the rest on the trail"
+            else:
+                rec["status"] = "ACTIVE"
+                rec["why"] = f"weekly close triggered exit ({reason}) — SELL the full position at Monday's open"
+        signals.append(rec)
+
     # ── held positions ──
     positions = {}
     hist_active = []

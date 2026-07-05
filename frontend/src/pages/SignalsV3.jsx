@@ -534,7 +534,9 @@ function SignalCard({ sig, selected, onOpen }) {
           </div>
           <div className="ac-name">
             {sig.name} · {sig.sector}
-            {sig.signal_date && <> · Signaled {fmtSigDate(sig.signal_date)}</>}
+            {sig.bought_date
+              ? <> · Bought {fmtSigDate(sig.bought_date)}</>
+              : sig.signal_date && <> · Signaled {fmtSigDate(sig.signal_date)}</>}
           </div>
         </div>
       </div>
@@ -822,7 +824,12 @@ function DetailBody({ sig, availableMargin }) {
         )}
         <span className="conv-sep">·</span>
         <span>Hold ~{sig.hold} days</span>
-        {sig.signal_date && (
+        {sig.bought_date ? (
+          <>
+            <span className="conv-sep">·</span>
+            <span>Bought {fmtSigDate(sig.bought_date)}</span>
+          </>
+        ) : sig.signal_date && (
           <>
             <span className="conv-sep">·</span>
             <span>Signaled {fmtSigDate(sig.signal_date)}</span>
