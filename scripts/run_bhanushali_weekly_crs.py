@@ -39,10 +39,19 @@ SLOPE_MIN, SLOPE_LOOKBACK = 0.03, 13    # slope floor (kept from 0092)
 TOUCH_BAND = 0.07                        # LOOSE band restored (0091)
 CRS_LEN = 40                             # 40-week SMA on the RS line
 TRI_CSV = ROOT / "research" / "exports" / "benchmark_nifty500_tri.csv"
+NIFTY50_CSV = ROOT / "research" / "exports" / "benchmark_nifty50.csv"
+# index used for the CRS denominator. Pre-reg 0093 ran of record on the N500 TRI (proxy); the owner's
+# INTENDED denominator is Nifty-50 (pinned 2015->, --nifty50), which is the confirmatory run (finding 0037).
+INDEX = ("tri", TRI_CSV, "tri_close")
+
+
+def _load_index():
+    _, csv, col = INDEX
+    return pd.read_csv(csv, parse_dates=["date"]).set_index("date")[col].sort_index()
 
 
 def prep_weekly_crs(ohlcv, drop_erratum: bool = False):
-    tri = pd.read_csv(TRI_CSV, parse_dates=["date"]).set_index("date")["tri_close"].sort_index()
+    tri = _load_index()
     P = prep(ohlcv, drop_erratum=drop_erratum)
     for t, s in P.items():
         c = s["c"]
@@ -88,8 +97,11 @@ def prep_weekly_crs(ohlcv, drop_erratum: bool = False):
 
 
 def main() -> int:
+    global INDEX
     args = sys.argv[1:]
-    print("=== pre-reg 0093: weekly slope-floor + quality-green + CRS>SMA40 (vs N500 TRI) ===")
+    if "--nifty50" in args:
+        INDEX = ("nifty50", NIFTY50_CSV, "nifty50_close")   # finding 0037 — owner's intended index
+    print(f"=== pre-reg 0093: weekly slope-floor + quality-green + CRS>SMA40 (vs {INDEX[0].upper()}) ===")
     ohlcv = corrected_universe(); mem = load_membership()
     P = prep_weekly_crs(ohlcv)
     print(f"corrected universe: {len(P)} names | slope>={SLOPE_MIN:.0%}/{SLOPE_LOOKBACK}w | loose band "
