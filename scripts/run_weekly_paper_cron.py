@@ -34,8 +34,9 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from config import RESULTS_DIR  # noqa: E402
 from nq.data.membership import load_membership  # noqa: E402
 from nq.data.ohlcv import OHLCV_CACHE, load_ohlcv_cache  # noqa: E402
-import run_bhanushali_weekly_full as W89  # noqa: E402
-import run_bhanushali_weekly_crs as CRS  # noqa: E402  — LIVE strategy: 0093 + Nifty-50 (finding 0037)
+import run_bhanushali_weekly_full as W89  # noqa: E402  (engine family; kept for imports)
+import run_bhanushali_weekly_crs as CRS  # noqa: E402  (Nifty-50 CSV path + index plumbing)
+import run_bhanushali_weekly_rank as R94  # noqa: E402  — LIVE strategy: 0093-N50 + ranked fill (finding 0038)
 
 INCEPTION_DEFAULT = "2026-07-04"
 TARGET_R = 2                     # 0091 books half at +2R -> the displayed target
@@ -78,9 +79,16 @@ def build_envelopes(P, out, ledger, generated_at, mem=None):
             "entry_low": round(lo, 2), "entry_high": round(hi, 2),
             "current_price": round(cur, 2), "close": round(cur, 2),
             "signal_date": str(fri.date()),                    # the just-closed setup week (stable)
-            "hold_days": HOLD_DAYS_DISPLAY, "grade": "B", "tier": "signal", "status": "FRESH",
-            "buy_window": "buy Mon–Fri this week, at the open inside the band [low, high]",
+            "hold_days": HOLD_DAYS_DISPLAY,
+            # CRS-rank fill priority (finding 0038): fund strongest-first. A-grade = top 5 by rank.
+            "crs_rank": round(float(ls.get("rank", 0.0)), 4),
+            "grade": "B", "tier": "signal", "status": "FRESH",
+            "buy_window": "buy Mon–Fri this week, at the open inside the band [low, high] — fund strongest CRS rank first",
         })
+    # strongest-first on the page; top-5 flagged A so the grade filter surfaces the priority names
+    signals.sort(key=lambda x: -x["crs_rank"])
+    for j, sg in enumerate(signals):
+        sg["grade"] = "A" if j < 5 else "B"
 
     # ── held positions ──
     positions = {}
@@ -143,10 +151,10 @@ def build_envelopes(P, out, ledger, generated_at, mem=None):
                if len(curve) else pd.DataFrame({"date": [], "total_value": []}))
 
     envelope = {
-        "generated_at": generated_at, "model": "weekly-swing-0093-n50", "signals": signals,
+        "generated_at": generated_at, "model": "weekly-swing-0094-rank", "signals": signals,
         "regime": {"status": "UNKNOWN", "strength": 0, "vix": 0, "breadth": 0},
         "n_positions": len(positions), "cash": round(float(out["cash"]), 2),
-        "note": "forward-watch, modeled fills — 0093 weekly swing (SMA + slope + quality-green + CRS vs Nifty-50; UNDERPOWERED, not certified)",
+        "note": "forward-watch, modeled fills — 0094 weekly swing (0093-N50 signals, CRS-ranked fills; UNDERPOWERED DSR 0.89, not certified)",
     }
     return envelope, sig_hist, analytics, portfolio, hist_df
 
@@ -214,11 +222,10 @@ def main(argv=None) -> int:
     ohlcv = _refresh_ohlcv(args.start, args.history_days, not args.no_download)
     _refresh_nifty50(not args.no_download)               # CRS denominator (finding 0037)
     mem = load_membership()
-    # LIVE strategy = 0093 + Nifty-50 (the program's strongest, most robust book; supersedes 0091).
-    CRS.INDEX = ("nifty50", CRS.NIFTY50_CSV, "nifty50_close")
-    P = CRS.prep_weekly_crs(ohlcv)
+    # LIVE strategy = 0093 + Nifty-50 with CRS-ranked fills (finding 0038; supersedes arbitrary fill).
+    P = R94.prep_weekly_rank(ohlcv)
     ledger: list = []
-    out = W89.backtest(P, mem, ledger=ledger, start=args.start, return_state=True)
+    out = R94.backtest(P, mem, ledger=ledger, start=args.start, return_state=True)
     # data's last date = the "as of" the book is current to
     last = max((pd.Timestamp(s["dates"][-1]) for s in P.values()), default=pd.Timestamp(args.start))
     generated_at = str(last.date())

@@ -1,11 +1,11 @@
 {
-  "model_version": "weekly-swing-0093-n50",
-  "strategy": "BHANUSHALI_WEEKLY_SMA_CRS",
+  "model_version": "weekly-swing-0094-rank",
+  "strategy": "BHANUSHALI_WEEKLY_SMA_CRS_RANKED",
   "status": "FORWARD_WATCH",
   "horizon": "weekly",
   "inception": "2026-07-04",
-  "certification": "UNDERPOWERED (DSR 0.745 < 0.95); strongest & most robust book of the arc; forward wall is the only certifier — not promoted",
-  "provenance": "pre-reg 0093 / finding 0037 (confirmatory Nifty-50 run)",
+  "certification": "UNDERPOWERED (DSR 0.894 < 0.95 — closest ever); forward wall is the only certifier — not promoted",
+  "provenance": "pre-reg 0093/0094, findings 0037/0038 (Nifty-50 CRS signals + CRS-ranked fills, ordering-probe verified)",
   "params_derived_through": "2026-07-04",
   "params": {
     "weekly_sma": 44,
@@ -18,6 +18,7 @@
     "crs_index": "Nifty-50 (^NSEI)",
     "crs_length_weeks": 40,
     "crs_rule": "take signal only if weekly RS = stock/Nifty-50 is above its own 40-week SMA",
+    "fill_ranking": "descending CRS distance = RS/SMA40(RS) - 1 at the signal week (finding 0038); fund strongest first",
     "risk_pct": 0.02,
     "cap_weeks": 13,
     "target_r": 2,
@@ -27,11 +28,12 @@
   "backtest": {
     "universe": "corrected (pinned + backfill + aliases)",
     "window": "2017-2026",
-    "net_sharpe": 0.900,
-    "net_cagr_pct": 18.7,
-    "max_dd_pct": -42.5,
-    "ci_low": 0.274,
-    "dsr": 0.745,
-    "note": "in-sample; robust plateau, 2 losing years, 2023-concentration 39%; leakage-clean. Beats 0091 and buy-and-hold. Not indicative of future results."
+    "net_sharpe": 1.132,
+    "net_cagr_pct": 24.7,
+    "max_dd_pct": -42.4,
+    "win_rate_pct": 59.2,
+    "ci_low": 0.474,
+    "dsr": 0.894,
+    "note": "in-sample; ranked fill verified by adversarial ordering probe (desc best, asc worst); slices +1.17/+1.05/+1.19; leakage-clean. Not indicative of future results."
   }
 }
