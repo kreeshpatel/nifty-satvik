@@ -9,8 +9,12 @@ on:
       inception:
         description: "paper inception date YYYY-MM-DD (book trades forward from here)"
         default: "2026-06-30"
-  schedule:
-    - cron: "45 10 * * 1-5"     # 10:45 UTC = 16:15 IST, after the 15:30 NSE close, weekdays
+  # ── MOMENTUM CRON SUSPENDED 2026-07-06 (owner: "work on it someday") ──
+  # The daily momentum paper cron is paused. Manual runs still work via
+  # workflow_dispatch. To resume, uncomment the schedule below (and unhide the
+  # Momentum tab: MOMENTUM_SUSPENDED = false in frontend/src/pages/SignalsV3.jsx).
+  # schedule:
+  #   - cron: "45 10 * * 1-5"     # 10:45 UTC = 16:15 IST, after the 15:30 NSE close, weekdays
 
 concurrency:
   group: cron-scanner

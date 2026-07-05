@@ -1135,8 +1135,12 @@ function SkeletonList() {
 // ─────────────────────────────────────────────────────────────────────
 export default function SignalsV3() {
   const kite = useContext(KiteContext);
-  // Which strategy book to show: 'momentum' (baseline_v1, live) or 'weekly' (0091 forward-watch).
-  const [model, setModel] = useState('momentum');
+  // Which strategy book to show: 'momentum' (baseline_v1) or 'weekly' (0091 forward-watch).
+  // MOMENTUM SUSPENDED 2026-07-06 (owner: "work on it someday") — its daily cron is paused
+  // (see .github/workflows/cron-scanner.yml) and its tab is hidden. Flip MOMENTUM_SUSPENDED
+  // back to false to restore the tab; re-enable the cron schedule in the same commit.
+  const MOMENTUM_SUSPENDED = true;
+  const [model, setModel] = useState(MOMENTUM_SUSPENDED ? 'weekly' : 'momentum');
   const signalsQuery    = useSignals({ model });
   const watchlistQuery  = useWatchlist({ model });
   const holdingsQuery   = useKiteHoldings({ enabled: !!kite?.connected });
@@ -1299,10 +1303,12 @@ export default function SignalsV3() {
         cronHealth={cronHealth}
       />
 
-      {/* Strategy book toggle — two live models */}
+      {/* Strategy book toggle. Momentum is suspended (owner, 2026-07-06) → tab hidden. */}
       <div className="sig-model-tabs">
         <GlassTabs
-          tabs={[{ key: 'momentum', label: 'Momentum' }, { key: 'weekly', label: 'Weekly Swing' }]}
+          tabs={MOMENTUM_SUSPENDED
+            ? [{ key: 'weekly', label: 'Weekly Swing' }]
+            : [{ key: 'momentum', label: 'Momentum' }, { key: 'weekly', label: 'Weekly Swing' }]}
           active={model}
           onChange={setModel}
           size="md"
