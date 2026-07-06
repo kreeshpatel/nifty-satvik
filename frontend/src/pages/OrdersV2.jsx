@@ -126,7 +126,7 @@ export default function OrdersV2() {
           variant="warn"
           icon={<Plug size={16} strokeWidth={1.75} />}
           title="Connect Kite to see your orders"
-          body="Order book is populated from Zerodha in real time. Once connected, orders placed through NiftyQuant or directly on kite.zerodha.com appear here."
+          body="Order book is populated from Zerodha in real time. Once connected, orders placed through Nifty Satvik or directly on kite.zerodha.com appear here."
           action={
             <button
               type="button"
@@ -297,7 +297,7 @@ export default function OrdersV2() {
               }
               body={
                 filter === 'ALL'
-                  ? 'Orders placed today through NiftyQuant or kite.zerodha.com will appear here.'
+                  ? 'Orders placed today through Nifty Satvik or kite.zerodha.com will appear here.'
                   : 'Switch the filter to see other orders, or place a new order from Signals.'
               }
             />

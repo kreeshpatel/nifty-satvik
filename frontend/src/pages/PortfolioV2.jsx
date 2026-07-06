@@ -378,7 +378,7 @@ export default function PortfolioV2() {
  * HoldingsSplitTab — Kite-connected variant of the Holdings tab.
  *
  * Two stacked sections:
- *   1. NiftyQuant Positions — PositionCard grid with full signal context
+ *   1. Nifty Satvik Positions — PositionCard grid with full signal context
  *      and sell guidance. Sourced from /api/positions/nq.
  *   2. Other Kite Holdings — DataTable of Kite holdings minus NQ-attributed
  *      qty. Includes pre-existing positions and external trades.
@@ -397,9 +397,9 @@ function HoldingsSplitTab({ nqQuery, externalQuery, onSell }) {
 
   return (
     <div className="flex flex-col gap-8">
-      {/* ───── NiftyQuant Positions ───── */}
+      {/* ───── Nifty Satvik Positions ───── */}
       <SectionHeader
-        title="NiftyQuant Positions"
+        title="Nifty Satvik Positions"
         count={nqPositions.length}
         tone="brand"
         subtitle="Tracked by signal — entry, stop, target, and sell guidance shown."
@@ -417,7 +417,7 @@ function HoldingsSplitTab({ nqQuery, externalQuery, onSell }) {
         <EmptyCard
           variant="warn"
           icon={<AlertCircle size={16} strokeWidth={1.75} />}
-          title="Couldn't load NiftyQuant positions"
+          title="Couldn't load Nifty Satvik positions"
           body={nqError?.message || 'Try refreshing.'}
         />
       ) : nqPositions.length === 0 ? (
@@ -425,7 +425,7 @@ function HoldingsSplitTab({ nqQuery, externalQuery, onSell }) {
           variant="muted"
           icon={<Target size={16} strokeWidth={1.75} />}
           title="No tracked positions yet"
-          body="When you buy a signal through NiftyQuant, it appears here with full lifecycle tracking."
+          body="When you buy a signal through Nifty Satvik, it appears here with full lifecycle tracking."
         />
       ) : (
         <div
@@ -443,7 +443,7 @@ function HoldingsSplitTab({ nqQuery, externalQuery, onSell }) {
         title="Other Kite Holdings"
         count={externalHoldings.length}
         tone="info"
-        subtitle="Positions in your Kite account that weren't bought via NiftyQuant."
+        subtitle="Positions in your Kite account that weren't bought via Nifty Satvik."
       />
       {externalLoading ? (
         <TableSkeleton rows={4} />
@@ -459,7 +459,7 @@ function HoldingsSplitTab({ nqQuery, externalQuery, onSell }) {
           variant="muted"
           icon={<Inbox size={16} strokeWidth={1.75} />}
           title="No external holdings"
-          body="Every position in your Kite account is tracked by NiftyQuant."
+          body="Every position in your Kite account is tracked by Nifty Satvik."
         />
       ) : (
         <DataTable
@@ -844,7 +844,7 @@ function OrdersTab({ orders, kiteConnected, isLoading }) {
         variant="muted"
         icon={<Inbox size={16} strokeWidth={1.75} />}
         title="No orders today"
-        body="Orders placed through NiftyQuant or on kite.zerodha.com will appear here."
+        body="Orders placed through Nifty Satvik or on kite.zerodha.com will appear here."
       />
     );
   }

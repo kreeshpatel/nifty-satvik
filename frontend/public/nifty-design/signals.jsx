@@ -1,4 +1,4 @@
-/* signals.jsx — NiftyQuant Signals page (action-first, desktop split-pane)
+/* signals.jsx — Nifty Satvik Signals page (action-first, desktop split-pane)
  * Self-contained: own helpers + data, loaded via <script type="text/babel">.
  * Instrument chart uses TradingView Lightweight Charts (per design system).
  *
@@ -6,7 +6,7 @@
  * Mobile (≤900px) = tap a card to PUSH a full-screen detail view (not a drawer).
  * Lead with the ACTION and the RISK; never surface raw model internals.
  *
- * NOTE on fonts: the NiftyQuant design system retired Reckless/Berkeley/Untitled
+ * NOTE on fonts: the Nifty Satvik design system retired Reckless/Berkeley/Untitled
  * in favour of DM Sans only (tokens --font-display/-mono/-sans). Numbers keep
  * tabular-nums via the mono token. This is intentional, per the live token set.
  */
@@ -307,7 +307,7 @@ function Topbar() {
         <div className="brand-mark">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19V8l5 6 4-9 4 11 3-5v8"/></svg>
         </div>
-        <div className="brand-text">NiftyQuant</div>
+        <div className="brand-text">Nifty Satvik</div>
       </a>
       <div className="search">
         <Icon.Search width="14" height="14" />

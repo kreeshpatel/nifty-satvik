@@ -1,5 +1,5 @@
 /**
- * useNQOrders — list of NiftyQuant-executed orders for the current user.
+ * useNQOrders — list of Nifty Satvik-executed orders for the current user.
  *
  * Backing endpoint: GET /api/nq-orders[?year=&month=&ticker=&status=]
  *   Returns { orders: [...], count }

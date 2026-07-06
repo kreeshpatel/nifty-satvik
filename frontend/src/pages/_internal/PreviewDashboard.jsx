@@ -141,7 +141,7 @@ export default function PreviewDashboard() {
 
   return (
     <div className="pd2-root">
-      <div className="pd2-wordmark" aria-hidden>NiftyQuant</div>
+      <div className="pd2-wordmark" aria-hidden>Nifty Satvik</div>
       <div className="pd2-bloom" aria-hidden />
 
       <div className="pd2-shell">
@@ -193,7 +193,7 @@ function LeftRail({ activeNav, activeSub, onSelectNav, onSelectSub }) {
         <div className="pd2-brand-mark">
           <TrendingUp size={18} strokeWidth={2.5} />
         </div>
-        <span className="pd2-brand-name">NiftyQuant</span>
+        <span className="pd2-brand-name">Nifty Satvik</span>
       </div>
 
       <nav className="pd2-rail-nav">

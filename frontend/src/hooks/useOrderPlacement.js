@@ -1,5 +1,5 @@
 /**
- * useOrderPlacement — the end-to-end trading mutation for NiftyQuant.
+ * useOrderPlacement — the end-to-end trading mutation for Nifty Satvik.
  *
  * This hook encapsulates the flow the redesign plan §6.3 specifies:
  *

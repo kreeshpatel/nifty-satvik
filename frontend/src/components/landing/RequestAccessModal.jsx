@@ -88,7 +88,7 @@ export default function RequestAccessModal({ open, onOpenChange }) {
                 Request access
               </DialogTitle>
               <DialogDescription className="text-sm text-[color:var(--text-2)]">
-                NiftyQuant is invite-only. Fill out this form and we'll be in touch.
+                Nifty Satvik is invite-only. Fill out this form and we'll be in touch.
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 mt-4">

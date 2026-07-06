@@ -1,4 +1,4 @@
-// API Service Layer - NiftyQuant
+// API Service Layer - Nifty Satvik
 // Connects Frontend to FastAPI Backend via Authorization: Bearer JWT.
 // Migrated from HttpOnly cookies → bearer tokens on 2026-05-26 because
 // cookie-based auth was unreliable across mobile Safari, Chrome incognito,
@@ -244,7 +244,7 @@ export const fetchPositions = () =>
 
 // NQ-tracked positions: signals the user actually bought, joined with
 // signal context (entry/stop/target/days) and live Kite price. Powers
-// PortfolioV2's "NiftyQuant Positions" section and SignalsV2 "Held"
+// PortfolioV2's "Nifty Satvik Positions" section and SignalsV2 "Held"
 // tier. Returns { positions, count, kite_connected, updated_at }.
 export const fetchNQPositions = () =>
   authJson(`${API}/api/positions/nq`);
@@ -375,7 +375,7 @@ export const fetchBacktestHistorical = () =>
  *   - Other Kite error types (InputException for T2T, OrderException for
  *     rejection, PermissionException for IP-not-whitelisted, etc.)
  *   - Order rejection reasons like 'insufficient funds'
- *   - 401 from NiftyQuant auth (handled by auth.js refresh logic)
+ *   - 401 from Nifty Satvik auth (handled by auth.js refresh logic)
  */
 const KITE_EXPIRED_PATTERNS = /\(TokenException\)|session_expired|token is invalid|access_token is invalid/i;
 
@@ -472,7 +472,7 @@ export const cancelOrder = async (variety, orderId) =>
     .then(detectKiteSessionExpired);
 
 // ========================================
-// NQ Orders — NiftyQuant-executed orders (Accounting + Journal source)
+// NQ Orders — Nifty Satvik-executed orders (Accounting + Journal source)
 // ========================================
 
 /**

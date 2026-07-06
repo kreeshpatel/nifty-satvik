@@ -47,7 +47,7 @@ export default function FounderSection() {
             marginBottom: 36,
           }}
         >
-          I built NiftyQuant because I wanted the tools institutions use, on the
+          I built Nifty Satvik because I wanted the tools institutions use, on the
           stocks I actually trade. Every signal you see, I take myself with my
           own capital. No paid promotions, no affiliate kickbacks, no Telegram
           channels. Just the model, the trades, and the receipts.

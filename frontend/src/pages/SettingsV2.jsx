@@ -248,7 +248,7 @@ export default function SettingsV2() {
           Danger zone
         </h2>
         <p style={{ color: 'var(--text-2)', margin: '4px 0 0', maxWidth: '76ch', fontSize: 12 }}>
-          Sign out of NiftyQuant on this device. Your sessions on other devices stay active.
+          Sign out of Nifty Satvik on this device. Your sessions on other devices stay active.
         </p>
         <div style={{ marginTop: 12 }}>
           <button

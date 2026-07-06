@@ -1,5 +1,5 @@
 /**
- * RadarScanner — NiftyQuant's signature visual.
+ * RadarScanner — Nifty Satvik's signature visual.
  * A circular sonar sweep that "scans" for pre-move signals.
  * Pure SVG + CSS animation. No canvas, no JS timers.
  */

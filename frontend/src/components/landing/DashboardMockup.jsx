@@ -2,7 +2,7 @@ import { useMemo } from "react";
 
 /**
  * DashboardMockup — a stylised, CSS-only representation of what the
- * NiftyQuant dashboard looks like. Lives inside the hero, wrapped in a
+ * Nifty Satvik dashboard looks like. Lives inside the hero, wrapped in a
  * blue radial glow, perspective-tilted slightly.
  *
  * Composition mirrors the prototype dashboard at /preview-dashboard:
@@ -62,7 +62,7 @@ export default function DashboardMockup() {
       <div className="mock-top">
         <div className="mock-top-brand">
           <span className="mock-top-dot" />
-          <span className="mock-top-name">NiftyQuant</span>
+          <span className="mock-top-name">Nifty Satvik</span>
           <span className="mock-top-divider" />
           <span className="mock-top-section">Today</span>
         </div>

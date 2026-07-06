@@ -2,7 +2,7 @@
  * AccountingV2 — Phase 7 redesign of the Accounting page (FY P&L + tax view).
  *
  * Per product decision (locked 2026-04-24): only orders placed through
- * NiftyQuant (`nq_orders` table) appear here. External Kite trades are
+ * Nifty Satvik (`nq_orders` table) appear here. External Kite trades are
  * intentionally invisible — Accounting is a record of what the user
  * executed via our signal flow.
  *
@@ -125,7 +125,7 @@ export default function AccountingV2() {
             maxWidth: '72ch',
           }}
         >
-          Tax-year P&L for orders placed through NiftyQuant. STCG / LTCG matched
+          Tax-year P&L for orders placed through Nifty Satvik. STCG / LTCG matched
           FIFO. External Kite trades aren't tracked here by design — only signals
           you actually executed.
         </p>
@@ -205,7 +205,7 @@ export default function AccountingV2() {
         <EmptyCard
           variant="muted"
           icon={<FileText size={16} strokeWidth={1.75} />}
-          title="Tax records appear once you place orders through NiftyQuant"
+          title="Tax records appear once you place orders through Nifty Satvik"
           body="The Accounting view fills in once you have completed buy/sell pairs in this period."
           className="mb-4"
         />
@@ -325,7 +325,7 @@ export default function AccountingV2() {
             variant="muted"
             icon={<FileText size={16} strokeWidth={1.75} />}
             title="No orders in this period"
-            body="Switch to a wider period or place trades through NiftyQuant Buy/Sell to populate this table."
+            body="Switch to a wider period or place trades through Nifty Satvik Buy/Sell to populate this table."
           />
         ) : (
           <DataTable

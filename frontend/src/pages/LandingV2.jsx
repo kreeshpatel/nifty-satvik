@@ -1,5 +1,5 @@
 /**
- * LandingV2.jsx — NiftyQuant marketing landing page (React port of Landing.html artifact).
+ * LandingV2.jsx — Nifty Satvik marketing landing page (React port of Landing.html artifact).
  *
  * Ported from: frontend/public/nifty-design/Landing.html
  * Styles:      frontend/src/styles/landing-v2.css (every selector scoped under
@@ -48,7 +48,7 @@ const SECTORS = {
     key: 'largecap',
     label: 'Large-cap · Nifty 100',
     name: 'Nifty 100 · Large-cap universe',
-    meta: 'Illustrative — the universe NiftyQuant scans daily',
+    meta: 'Illustrative — the universe Nifty Satvik scans daily',
     pct: '100 names',
     tone: '',
     linePath: 'M0 240 L60 220 L120 200 L180 195 L240 170 L300 155 L360 130 L420 115 L480 90 L540 75 L600 60',
@@ -66,7 +66,7 @@ const SECTORS = {
     key: 'midcap',
     label: 'Mid-cap · Nifty 150',
     name: 'Nifty Midcap 150',
-    meta: 'Illustrative — the universe NiftyQuant scans daily',
+    meta: 'Illustrative — the universe Nifty Satvik scans daily',
     pct: '150 names',
     tone: '',
     linePath: 'M0 250 L60 235 L120 220 L180 200 L240 195 L300 165 L360 145 L420 110 L480 85 L540 55 L600 35',
@@ -84,7 +84,7 @@ const SECTORS = {
     key: 'smallcap',
     label: 'Small-cap · Nifty 250',
     name: 'Nifty Smallcap 250',
-    meta: 'Illustrative — the universe NiftyQuant scans daily',
+    meta: 'Illustrative — the universe Nifty Satvik scans daily',
     pct: '250 names',
     tone: '',
     linePath: 'M0 260 L60 250 L120 232 L180 240 L240 200 L300 180 L360 140 L420 100 L480 85 L540 45 L600 22',
@@ -102,7 +102,7 @@ const SECTORS = {
     key: 'banking',
     label: 'Banking · BankNifty',
     name: 'BankNifty universe',
-    meta: 'Illustrative — the universe NiftyQuant scans daily',
+    meta: 'Illustrative — the universe Nifty Satvik scans daily',
     pct: 'Bank Nifty',
     tone: '',
     linePath: 'M0 245 L60 240 L120 225 L180 210 L240 215 L300 195 L360 180 L420 165 L480 140 L540 115 L600 85',
@@ -123,12 +123,12 @@ const SECTOR_KEYS = ['largecap', 'midcap', 'smallcap', 'banking'];
 /* ─── FAQ items ─── */
 const FAQ_ITEMS = [
   {
-    q: 'Is NiftyQuant SEBI-registered?',
-    a: 'No. NiftyQuant is not a SEBI-registered investment advisor or research analyst. We publish research and decision-support signals — not personalised investment advice — and we never manage your capital. Every order is placed by you, in your own Zerodha Kite account.',
+    q: 'Is Nifty Satvik SEBI-registered?',
+    a: 'No. Nifty Satvik is not a SEBI-registered investment advisor or research analyst. We publish research and decision-support signals — not personalised investment advice — and we never manage your capital. Every order is placed by you, in your own Zerodha Kite account.',
   },
   {
     q: 'Do I need a Zerodha Kite account?',
-    a: 'For one-click routing, yes — Kite Connect is the only execution venue we integrate with today. You can still use NiftyQuant without Kite — you\'ll just place orders manually in your own broker.',
+    a: 'For one-click routing, yes — Kite Connect is the only execution venue we integrate with today. You can still use Nifty Satvik without Kite — you\'ll just place orders manually in your own broker.',
   },
   {
     q: "What's the minimum capital to start?",
@@ -140,7 +140,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'What does it cost?',
-    a: 'Nothing today. NiftyQuant is private and invite-only — not a paid subscription. You bring your own Zerodha account; we don\'t charge a fee or manage your money. Revoke access anytime — your journal and track-record data stay readable.',
+    a: 'Nothing today. Nifty Satvik is private and invite-only — not a paid subscription. You bring your own Zerodha account; we don\'t charge a fee or manage your money. Revoke access anytime — your journal and track-record data stay readable.',
   },
   {
     q: 'What happens on a flat or bearish day?',
@@ -261,7 +261,7 @@ function LandingV2Shell() {
           <div className="lv2-nav-mark">
             <ChartIcon size={18} />
           </div>
-          <span className="lv2-nav-text">NiftyQuant</span>
+          <span className="lv2-nav-text">Nifty Satvik</span>
         </a>
         <div className="lv2-nav-links">
           <button className="lv2-nav-link" onClick={() => scrollTo('how')}>How it works</button>
@@ -296,7 +296,7 @@ function LandingV2Shell() {
           </h1>
 
           <p className="lv2-hero-sub">
-            NiftyQuant scores all 441 stocks in the Nifty 500 every weekday at 16:15 IST.
+            Nifty Satvik scores all 441 stocks in the Nifty 500 every weekday at 16:15 IST.
             You wake up to the day's A-grade signals — often one, sometimes none — each with an explicit
             entry, stop, and target, and a one-click route to Zerodha Kite.
           </p>
@@ -363,7 +363,7 @@ function LandingV2Shell() {
                 <div className="lv2-mini-dash-bar">
                   <div className="lv2-mini-dash-brand">
                     <div className="lv2-m"><ChartIcon size={13} /></div>
-                    NiftyQuant
+                    Nifty Satvik
                   </div>
                   <div className="lv2-mini-dash-tabs">
                     {['Dashboard', 'Signals', 'Portfolio', 'Backtest'].map((t, i) => (
@@ -1001,7 +1001,7 @@ function LandingV2Shell() {
           <div className="lv2-section-head">
             <SectionEyebrow>ACCESS</SectionEyebrow>
             <h2 className="lv2-section-title">Private, invite-only. Not a subscription.</h2>
-            <p className="lv2-section-sub">NiftyQuant isn’t sold. It’s a private research tool shared with a small group of traders — no plans, no tiers, no card.</p>
+            <p className="lv2-section-sub">Nifty Satvik isn’t sold. It’s a private research tool shared with a small group of traders — no plans, no tiers, no card.</p>
           </div>
 
           <div style={{ maxWidth: 760, margin: '0 auto', background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%)', border: '1px solid var(--lv2-edge-1)', borderRadius: 20, padding: 32 }}>
@@ -1091,7 +1091,7 @@ function LandingV2Shell() {
                 <div className="lv2-nav-mark" style={{ width: 28, height: 28, borderRadius: 7 }}>
                   <ChartIcon size={15} />
                 </div>
-                <span className="lv2-nav-text">NiftyQuant</span>
+                <span className="lv2-nav-text">Nifty Satvik</span>
               </div>
               <p className="lv2-footer-tag">
                 AI-graded swing-trading signals for the Nifty 500. Walk-forward validated and one-click executable through Zerodha Kite.
@@ -1130,7 +1130,7 @@ function LandingV2Shell() {
           </div>
 
           <div className="lv2-footer-foot">
-            <span>© 2026 NiftyQuant</span>
+            <span>© 2026 Nifty Satvik</span>
             <span>Made in Bengaluru · NSE data may be delayed</span>
           </div>
           <p className="lv2-footer-disclaimer">{DISCLAIMER}</p>

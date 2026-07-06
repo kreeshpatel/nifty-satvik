@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { searchStocks } from '@/services/kiteStock';
 import { KiteContext } from '@/App';
 import { AuthContext } from '@/context/AuthContext';
+import BrandLogo from './BrandLogo';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import {
   DropdownMenu,
@@ -142,27 +143,7 @@ export function TopBar() {
           >
             <Menu size={20} />
           </button>
-          <Link
-            to="/dashboard"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}
-          >
-            <span
-              style={{
-                width: 26, height: 26, borderRadius: 6,
-                background: 'var(--brand-grad)',
-                display: 'grid', placeItems: 'center',
-                color: '#fff',
-              }}
-            >
-              <svg viewBox="0 0 32 32" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 23 V9 L20 22 V11" />
-                <path d="M16.5 9.5 L20 6 L23.5 9.5" />
-              </svg>
-            </span>
-            <span style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 15, letterSpacing: '-0.02em', color: 'var(--text-1)' }}>
-              NiftyQuant
-            </span>
-          </Link>
+          <BrandLogo to="/dashboard" size={26} wordSize={15} />
           <button
             type="button"
             aria-label="Search"
@@ -347,9 +328,7 @@ export function TopBar() {
                   borderBottom: '1px solid var(--edge-1)',
                 }}
               >
-                <span style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 15, color: 'var(--text-1)' }}>
-                  NiftyQuant
-                </span>
+                <BrandLogo to="/dashboard" size={24} wordSize={15} onClick={() => setMobileMenuOpen(false)} />
                 <button
                   type="button"
                   aria-label="Close menu"
@@ -419,28 +398,7 @@ export function TopBar() {
       }}
     >
       {/* Logo lockup */}
-      <Link to="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-        <span
-          style={{
-            width: 30,
-            height: 30,
-            borderRadius: 8,
-            background: 'var(--brand-grad)',
-            display: 'grid',
-            placeItems: 'center',
-            boxShadow: '0 4px 14px rgba(79,140,255,0.32)',
-            color: '#fff',
-          }}
-        >
-          <svg viewBox="0 0 32 32" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M9 23 V9 L20 22 V11" />
-            <path d="M16.5 9.5 L20 6 L23.5 9.5" />
-          </svg>
-        </span>
-        <span style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 16, letterSpacing: '-0.02em', color: 'var(--text-1)' }}>
-          NiftyQuant
-        </span>
-      </Link>
+      <BrandLogo to="/dashboard" size={30} wordSize={16} />
 
       {/* Primary pill tabs */}
       <nav

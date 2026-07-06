@@ -1,5 +1,5 @@
 /**
- * Shared number/date formatting utilities for NiftyQuant.
+ * Shared number/date formatting utilities for Nifty Satvik.
  * Use these everywhere instead of inline toLocaleString/toFixed.
  */
 
