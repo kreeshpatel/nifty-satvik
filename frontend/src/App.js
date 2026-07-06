@@ -33,6 +33,7 @@ const SignalsV2       = React.lazy(() => import('@/pages/SignalsV2'));
 const SignalsV3       = React.lazy(() => import('@/pages/SignalsV3'));
 const PortfolioV2     = React.lazy(() => import('@/pages/PortfolioV2'));
 const PortfolioV3     = React.lazy(() => import('@/pages/PortfolioV3'));
+const PositionsV3     = React.lazy(() => import('@/pages/PositionsV3'));
 const AnalyticsV2     = React.lazy(() => import('@/pages/AnalyticsV2'));
 const JournalV2       = React.lazy(() => import('@/pages/JournalV2'));
 const BacktestV2      = React.lazy(() => import('@/pages/BacktestV2'));
@@ -416,6 +417,7 @@ function AnimatedRoutes() {
           <Route path="/portfolio" element={<PageTransition><PortfolioV3 /></PageTransition>} />
           {/* PortfolioV2 retained at /portfolio-v2 for rollback */}
           <Route path="/portfolio-v2" element={<PageTransition><PortfolioV2 /></PageTransition>} />
+          <Route path="/positions" element={<PageTransition><PositionsV3 /></PageTransition>} />
           <Route path="/orders" element={<PageTransition><OrdersV2 /></PageTransition>} />
           <Route path="/funds" element={<PageTransition><FundsV2 /></PageTransition>} />
           <Route path="/pnl" element={<PageTransition><AnalyticsV2 /></PageTransition>} />

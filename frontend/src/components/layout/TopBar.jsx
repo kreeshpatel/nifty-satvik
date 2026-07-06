@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import {
   Search, Bell, User, LogOut, Plug, Loader2, Menu, X,
-  LayoutDashboard, Zap, Briefcase, ListOrdered, MoreHorizontal,
+  LayoutDashboard, LineChart, Briefcase, Layers, ListOrdered,
   Wallet, BarChart3, BookOpen, Trophy, FlaskConical, Calculator,
   Settings as SettingsIcon, Shield, Minus, Plus,
 } from 'lucide-react';
@@ -11,6 +11,7 @@ import { searchStocks } from '@/services/kiteStock';
 import { KiteContext } from '@/App';
 import { AuthContext } from '@/context/AuthContext';
 import BrandLogo from './BrandLogo';
+import KiteChip from './KiteChip';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useUiScale } from '@/hooks/useUiScale';
 import {
@@ -36,14 +37,17 @@ import {
 // Settings live under the account (avatar) menu instead (see ACCOUNT_LINKS).
 const PRIMARY_TABS = [
   { to: '/dashboard',    label: 'Dashboard',  icon: LayoutDashboard },
-  { to: '/premove',      label: 'Signals',    icon: Zap },
+  { to: '/premove',      label: 'Research',   icon: LineChart },
+  { to: '/positions',    label: 'Positions',  icon: Layers },
   { to: '/portfolio',    label: 'Portfolio',  icon: Briefcase },
-  { to: '/orders',       label: 'Orders',     icon: ListOrdered },
-  { to: '/funds',        label: 'Funds',      icon: Wallet },
 ];
 
 // Secondary pages, tucked into the account dropdown with clearer names.
+// Orders + Funds moved here (2026-07-07) so the top nav mirrors the
+// prototype's Dashboard · Research · Positions · Portfolio set.
 const ACCOUNT_LINKS = [
+  { to: '/orders',       label: 'Orders',         icon: ListOrdered },
+  { to: '/funds',        label: 'Funds',          icon: Wallet },
   { to: '/pnl',          label: 'Reports',        icon: BarChart3 },
   { to: '/track-record', label: 'Track record',   icon: Trophy },
   { to: '/journal',      label: 'Journal',        icon: BookOpen },
@@ -499,10 +503,9 @@ export function TopBar() {
       {/* spacer */}
       <span />
 
-      {/* Search pill */}
-      {/* Top-bar search removed per owner request — global stock search lives
-          in the watchlist rail (and the mobile search icon). */}
-      <span />
+      {/* Kite integration status — connect / live / disconnect. Global stock
+          search lives in the watchlist rail (top-bar search removed). */}
+      <KiteChip />
 
       {/* Notifications — placeholder until in-app inbox lands. Bell currently
           surfaces the Kite session status (the only ambient signal) and
