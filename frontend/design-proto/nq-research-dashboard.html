@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <style>
 /* ============================================================
-   NiftyQuant — dense terminal layout (prototype v3)
+   Nifty Satvik — dense terminal layout (prototype v3)
    Real v3 tokens (tokens.css). 3-pane shell: watchlist rail +
    main + right rail. Font: DM Sans in-app, Segoe UI fallback here
    (Artifact CSP blocks the Google Fonts CDN).
@@ -40,9 +40,14 @@ a{color:inherit;text-decoration:none}
 .topbar{position:sticky;top:0;z-index:60;display:flex;align-items:center;gap:20px;height:var(--topH);padding:0 22px;
   background:rgba(9,12,32,.78);backdrop-filter:blur(24px);border-bottom:1px solid var(--edge-1)}
 .brand{display:flex;align-items:center;gap:10px;flex-shrink:0}
-.brand-mark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
-  background:linear-gradient(135deg,#2C5BFF,#4F8CFF 50%,#7B5BFF);box-shadow:0 4px 14px rgba(79,140,255,.45);font-weight:800;font-size:15px;color:#fff}
-.brand-word{font-weight:700;font-size:15px;letter-spacing:-.01em}.brand-word span{color:var(--brand)}
+.brand-mark{width:30px;height:30px;display:grid;place-items:center}
+.brand-mark svg{width:30px;height:30px;display:block;filter:drop-shadow(0 3px 8px rgba(79,140,255,.4))}
+.brand-word{font-weight:700;font-size:15px;letter-spacing:-.01em;white-space:nowrap}.brand-word span{color:var(--brand)}
+.broker-chip{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:8px;background:var(--surface-1);border:1px solid var(--edge-1);flex-shrink:0}
+.broker-chip svg{width:16px;height:16px;display:block}
+.broker-chip .bk{font-size:12px;font-weight:600;color:var(--text-2)}
+.broker-chip .live{width:6px;height:6px;border-radius:50%;background:var(--bull);box-shadow:0 0 0 3px var(--bull-soft)}
+@media(max-width:900px){.broker-chip .bk{display:none}}
 .ticker{position:relative;flex:1;overflow:hidden;margin-left:4px;
   -webkit-mask:linear-gradient(90deg,transparent,#000 4%,#000 93%,transparent);mask:linear-gradient(90deg,transparent,#000 4%,#000 93%,transparent)}
 .ticker-track{display:inline-flex;align-items:center;white-space:nowrap;animation:marquee 90s linear infinite}
@@ -500,7 +505,7 @@ a{color:inherit;text-decoration:none}
 </style>
 
 <div class="topbar">
-  <div class="brand"><div class="brand-mark">N</div><div class="brand-word">Nifty<span>Quant</span></div></div>
+  <div class="brand"><div class="brand-mark"><svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="nsg" x1="0" y1="40" x2="40" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2C5BFF"/><stop offset=".55" stop-color="#4F8CFF"/><stop offset="1" stop-color="#7B5BFF"/></linearGradient></defs><g fill="url(#nsg)"><path d="M4 34V6h7v28z"/><path d="M4 6h7l22 28h-7z"/><path d="M26 34V13h7v21z"/><path d="M21.5 15L29.5 4L37.5 15z"/></g></svg></div><div class="brand-word">Nifty <span>Satvik</span></div></div>
   <div class="ticker"><div class="ticker-track" id="tkr">
     <span class="tk"><span class="tk-name">NIFTY 50</span><span class="tk-val tnum">24,440.95</span><span class="tk-chg bull tnum">▲0.70%</span></span>
     <span class="tk"><span class="tk-name">SENSEX</span><span class="tk-val tnum">78,353.99</span><span class="tk-chg bull tnum">▲0.76%</span></span>
@@ -534,6 +539,7 @@ a{color:inherit;text-decoration:none}
     <button data-v="positions">Positions</button>
     <button data-v="portfolio">Portfolio</button>
   </div>
+  <div class="broker-chip" title="Broker connected"><svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><path d="M32 7L12 20l20 13v-7l-10-6 10-6z" fill="#F9521F"/><path d="M22 20l10 13v-7z" fill="#E23A2C"/></svg><span class="bk">Kite</span><span class="live"></span></div>
   <div class="avatar">KP</div>
 </div>
 
@@ -783,7 +789,7 @@ a{color:inherit;text-decoration:none}
       <div class="trow"><div class="co"><div class="logo" style="background:linear-gradient(135deg,#5a3a0a,#c78a12)">AD</div><div><div class="nm">ADANIGREEN</div><div class="ex">NSE · Power</div></div></div><div class="td tnum">18</div><div class="td tnum">1,510.00</div><div class="td tnum">1,583.60</div><div><span class="chgpill up tnum">+1.76%</span></div><div class="td bull tnum">+1,325</div></div>
       <div class="trow"><div class="co"><div class="logo" style="background:linear-gradient(135deg,#5a0f0f,#c0392b)">DR</div><div><div class="nm">DRREDDY</div><div class="ex">NSE · Pharma</div></div></div><div class="td tnum">12</div><div class="td tnum">1,402.00</div><div class="td tnum">1,363.10</div><div><span class="chgpill dn tnum">−0.80%</span></div><div class="td bear tnum">−467</div></div>
     </div>
-    <p class="disc">Prototype for design review. Figures illustrative. NiftyQuant signals are model-generated on a mechanical long-only momentum strategy over NSE Nifty-500 large + mid caps and are not investment advice. Past &amp; paper performance does not guarantee future returns.</p>
+    <p class="disc">Prototype for design review. Figures illustrative. Nifty Satvik signals are model-generated on a mechanical long-only momentum strategy over NSE Nifty-500 large + mid caps and are not investment advice. Past &amp; paper performance does not guarantee future returns.</p>
   </section>
 
   <section class="view" id="v-positions"></section>
