@@ -900,6 +900,61 @@
 .dv3-nw-day { margin-left: auto; text-align: right; }
 .dv3-nw-day .dv3-nw-v { font-size: 16px; }
 
+/* net-worth header: date + eye toggle (left), Day's P&L (right) */
+.dv3-nw-head-l { display: inline-flex; align-items: center; gap: 8px; }
+.dv3-nw-eye {
+  width: 24px; height: 24px; display: grid; place-items: center;
+  border: 1px solid var(--edge-1); border-radius: 7px; background: var(--surface-1);
+  color: var(--text-3); cursor: pointer; transition: all 160ms;
+}
+.dv3-nw-eye:hover { color: var(--text-1); border-color: var(--edge-2); }
+.dv3-nw-head-r { display: inline-flex; align-items: center; gap: 18px; }
+.dv3-nw-day-inline { text-align: right; line-height: 1.2; }
+.dv3-nw-day-k { display: block; font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-3); }
+.dv3-nw-day-v { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* ── Market regime CARD (prototype) ───────────────────────────── */
+.dv3-rg {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 22px; align-items: center;
+  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+  border: 1px solid var(--edge-1); border-radius: var(--r-card); box-shadow: var(--shadow-glass);
+  padding: 18px 22px; margin-bottom: var(--gutter);
+}
+.dv3-rg.tone-bull { border-color: rgba(63,221,138,0.22); }
+.dv3-rg.tone-bear { border-color: rgba(255,92,122,0.22); }
+.dv3-rg.tone-warn { border-color: rgba(255,180,84,0.18); }
+.dv3-rg-eyebrow {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.07em; color: var(--text-3);
+}
+.dv3-rg-statement { margin-top: 8px; font-size: 21px; font-weight: 600; letter-spacing: -0.01em; color: var(--text-1); line-height: 1.3; }
+.dv3-rg-strength { margin-top: 14px; }
+.dv3-rg-strength-l { font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; color: var(--text-3); }
+.dv3-rg-bar { margin-top: 6px; height: 7px; border-radius: 999px; background: rgba(255,255,255,0.07); overflow: hidden; max-width: 520px; }
+.dv3-rg-bar span { display: block; height: 100%; border-radius: 999px; transition: width 400ms; }
+.dv3-rg-bar .fill-bull { background: linear-gradient(90deg, #2fb56f, var(--bull)); }
+.dv3-rg-bar .fill-bear { background: linear-gradient(90deg, #c8465f, var(--bear)); }
+.dv3-rg-bar .fill-warn { background: linear-gradient(90deg, #d9962f, var(--warn)); }
+.dv3-rg-stats { display: flex; gap: 26px; }
+.dv3-rg-stat { text-align: center; }
+.dv3-rg-stat-k { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; color: var(--text-3); }
+.dv3-rg-stat-v { font-size: 22px; font-weight: 700; margin-top: 4px; color: var(--text-1); }
+.dv3-rg-stat-s { font-size: 10.5px; color: var(--text-3); margin-top: 2px; }
+@media (max-width: 720px) {
+  .dv3-rg { grid-template-columns: 1fr; }
+  .dv3-rg-stats { justify-content: flex-start; }
+}
+
+/* ── Research-calls head controls ─────────────────────────────── */
+.dv3-row-controls { display: inline-flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.dv3-freshpill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 12px; border-radius: 999px; text-decoration: none;
+  background: var(--surface-1); border: 1px solid var(--edge-1);
+  color: var(--text-2); font-size: 12px; font-weight: 600; transition: all 160ms;
+}
+.dv3-freshpill:hover { color: var(--text-1); border-color: var(--edge-2); }
+
 /* ── Gradient action tiles (prototype) ────────────────────────── */
 .dv3-actions {
   display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--gutter);
