@@ -514,7 +514,7 @@ export default function DashboardV2() {
             <EmptyCard
               variant="muted"
               title="No holdings yet"
-              body="Once you place an order through NiftyQuant, your positions will appear here."
+              body="Once you place an order through Nifty Satvik, your positions will appear here."
               height={160}
             />
           ) : (

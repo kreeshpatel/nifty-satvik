@@ -247,7 +247,7 @@ export function OrderConfirmDialog({
               />
               <div className="t-ui-footnote" style={{ color: 'var(--text-2)', lineHeight: 1.5 }}>
                 This order will be placed directly on <strong>Zerodha Kite</strong> using your
-                linked account. NiftyQuant does not hold funds or settle the trade. By
+                linked account. Nifty Satvik does not hold funds or settle the trade. By
                 confirming, you authorize Zerodha to execute this transaction on your behalf.
                 Markets move — fills are not guaranteed at the displayed price.
               </div>

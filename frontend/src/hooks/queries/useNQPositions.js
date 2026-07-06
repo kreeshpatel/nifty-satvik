@@ -9,7 +9,7 @@
  *   - Kite live truth (last_price, kite_qty_for_ticker for drift detection)
  *   - per-(user, signal) state (status_for_user, sell_guidance)
  *
- * Used by PortfolioV2's "NiftyQuant Positions" section and SignalsV2's
+ * Used by PortfolioV2's "Nifty Satvik Positions" section and SignalsV2's
  * "Held — Sell Guidance" tier. Both pages can consume the same query —
  * react-query dedupes the request when the staleTime hasn't elapsed.
  *

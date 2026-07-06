@@ -2,7 +2,7 @@
  * JournalV2 — Phase 7 redesign of the Trading Journal.
  *
  * Per product decision (locked 2026-04-24): Journal is auto-populated from
- * orders placed through NiftyQuant Buy/Sell buttons (`nq_orders` table).
+ * orders placed through Nifty Satvik Buy/Sell buttons (`nq_orders` table).
  * External Kite trades are NOT shown — Journal is for trades the user
  * actively chose through our signal flow.
  *
@@ -247,7 +247,7 @@ export default function JournalV2() {
           variant="info"
           icon={<BookOpen size={16} strokeWidth={1.75} />}
           title="Your journal is empty"
-          body="Only orders placed through NiftyQuant Buy/Sell appear here. External Kite trades are tracked separately on Portfolio."
+          body="Only orders placed through Nifty Satvik Buy/Sell appear here. External Kite trades are tracked separately on Portfolio."
           action={
             <Link
               to="/premove"

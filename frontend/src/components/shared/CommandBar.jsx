@@ -200,7 +200,7 @@ export function CommandBar({
           aria-label="Command palette"
           aria-describedby={undefined}
         >
-          <DialogPrimitive.Title className="sr-only">NiftyQuant Command</DialogPrimitive.Title>
+          <DialogPrimitive.Title className="sr-only">Nifty Satvik Command</DialogPrimitive.Title>
 
           {/* INPUT */}
           <div

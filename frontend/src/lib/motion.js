@@ -1,4 +1,4 @@
-// Shared framer-motion variants + easings for NiftyQuant.
+// Shared framer-motion variants + easings for Nifty Satvik.
 // Every page imports from here; inline variant definitions in feature components
 // should migrate here over time.
 //

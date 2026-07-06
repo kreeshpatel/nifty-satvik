@@ -104,8 +104,8 @@ export default function TrackRecordV2() {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: 'NiftyQuant — Live Track Record',
-          text: `NiftyQuant has returned ${fmtPct(totalReturnPct, 1)} live since ${data?.start_date} with a ${(stats.win_rate ?? 0).toFixed(1)}% win rate.`,
+          title: 'Nifty Satvik — Live Track Record',
+          text: `Nifty Satvik has returned ${fmtPct(totalReturnPct, 1)} live since ${data?.start_date} with a ${(stats.win_rate ?? 0).toFixed(1)}% win rate.`,
           url,
         });
       } else {
@@ -183,7 +183,7 @@ export default function TrackRecordV2() {
                 maxWidth: '60ch',
               }}
             >
-              Every signal NiftyQuant has fired since {data?.start_date || 'launch'},
+              Every signal Nifty Satvik has fired since {data?.start_date || 'launch'},
               tracked live. Wins counted. Losses counted. No cherry-picking.
             </p>
             <div

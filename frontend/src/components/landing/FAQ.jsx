@@ -11,7 +11,7 @@ import { GlowOrb } from "@/components/shared/GlowOrb";
 
 const FAQS = [
   {
-    q: "How does NiftyQuant work?",
+    q: "How does Nifty Satvik work?",
     a: "A two-head LightGBM model scores every Nifty 500 stock daily on 79 features — technical, macro, sectoral. Signals that clear the confidence + return gates are routed through a risk manager (sector caps, regime filter, correlation filter), then sized via ATR-based risk budgeting. Every signal arrives with its entry, stop, and target precomputed.",
   },
   {
@@ -19,12 +19,12 @@ const FAQS = [
     a: "Three ways, in order of how much we trust them. Walk-forward backtests across 2010–2024 (out-of-sample, with brokerage and STT modelled in). A cost-realistic ₹10L paper ledger that trades the live signals the way a real, imperfect human would. And the one that can't be gamed — a live forward record that started on a fixed date and only grows. Past performance never guarantees future returns; we'd rather show the receipts than a headline number.",
   },
   {
-    q: "Who is NiftyQuant for?",
+    q: "Who is Nifty Satvik for?",
     a: "Active swing traders on Indian equities — sophisticated retail to semi-professional. You should already understand position sizing and stop-loss discipline. We don't hand-hold beginners; we don't talk down to professionals.",
   },
   {
     q: "Do I need a Zerodha Kite API key?",
-    a: "No. NiftyQuant runs on the founder's Kite Connect infrastructure. You only need a regular Zerodha trading account. To place orders through us, you connect your personal Kite in one OAuth step — and you can revoke it any time.",
+    a: "No. Nifty Satvik runs on the founder's Kite Connect infrastructure. You only need a regular Zerodha trading account. To place orders through us, you connect your personal Kite in one OAuth step — and you can revoke it any time.",
   },
   {
     q: "Is my Kite session safe?",

@@ -66,7 +66,7 @@ export function TickerOrderHistory({ ticker, height = 320 }) {
           )}
         </div>
         <div className="t-ui-footnote" style={{ color: 'var(--text-3)', marginTop: 2 }}>
-          {symbol ? `Trades you placed on ${symbol}` : 'Trades you placed via NiftyQuant'}
+          {symbol ? `Trades you placed on ${symbol}` : 'Trades you placed via Nifty Satvik'}
         </div>
       </header>
 
@@ -86,7 +86,7 @@ export function TickerOrderHistory({ ticker, height = 320 }) {
               No history on {symbol}
             </div>
             <div className="t-ui-footnote" style={{ color: 'var(--text-3)', marginTop: 6, textAlign: 'center', maxWidth: 220 }}>
-              When you Buy or Sell {symbol} through NiftyQuant, your past orders will appear here.
+              When you Buy or Sell {symbol} through Nifty Satvik, your past orders will appear here.
             </div>
           </Centered>
         ) : (

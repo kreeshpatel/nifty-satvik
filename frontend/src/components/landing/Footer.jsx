@@ -100,7 +100,7 @@ export default function Footer({ onRequestAccess }) {
               margin: 0,
             }}
           >
-            NiftyQuant is not a SEBI-registered investment advisor. Not investment
+            Nifty Satvik is not a SEBI-registered investment advisor. Not investment
             advice. Past performance does not guarantee future returns. All
             trading involves risk; you could lose some or all of your capital.
             For educational and personal use only.

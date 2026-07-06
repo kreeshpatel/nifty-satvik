@@ -1,4 +1,4 @@
-/* portfolio.jsx — NiftyQuant Portfolio page
+/* portfolio.jsx — Nifty Satvik Portfolio page
  * Self-contained React app loaded via <script type="text/babel">.
  * Portfolio-style charts use hand-rolled SVG with system tokens (per the
  * design system: TradingView is reserved for single-instrument price charts).
@@ -123,7 +123,7 @@ function Topbar() {
     <header className="topbar">
       <a className="brand" href="Landing.html" style={{ textDecoration: 'none' }}>
         <div className="brand-mark"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19V8l5 6 4-9 4 11 3-5v8"/></svg></div>
-        <div className="brand-text">NiftyQuant</div>
+        <div className="brand-text">Nifty Satvik</div>
       </a>
       <div className="search"><Icon.Search width="14" height="14" /><input placeholder="Search holdings, sector, or ticker…" /><kbd>⌘K</kbd></div>
       <nav className="tabs">

@@ -1,5 +1,5 @@
 /* ================================================================
-   QueryClient — TanStack Query setup for NiftyQuant.
+   QueryClient — TanStack Query setup for Nifty Satvik.
 
    Single shared client. Cache policy per endpoint is set at the
    useQuery call-site in hooks/queries/*, not globally here. The

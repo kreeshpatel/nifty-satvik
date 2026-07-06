@@ -2,7 +2,7 @@
  * ActiveSignalStrip — surfaces an NQ signal for the current ticker.
  *
  * The killer feature of StockDetailV2: when a trader lands on /stock/RELIANCE
- * and there's an active NiftyQuant signal for RELIANCE, this strip turns the
+ * and there's an active Nifty Satvik signal for RELIANCE, this strip turns the
  * page from "stock info dump" into a decision tool. Hero info: signal status,
  * entry / stop / target / R:R, and a Why? button that opens the existing
  * SignalDetailDrawer with the full v7 breakdown.

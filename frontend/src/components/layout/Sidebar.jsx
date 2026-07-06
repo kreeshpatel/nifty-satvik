@@ -8,6 +8,7 @@ import {
   ChevronLeft, ChevronRight, User, Crown, Shield, LogOut, Menu,
 } from 'lucide-react';
 import { AuthContext } from '@/context/AuthContext';
+import BrandLogo from './BrandLogo';
 
 const iconMap = {
   LayoutDashboard, Zap, Briefcase, ListOrdered, Wallet, BarChart3, BookOpen,
@@ -143,25 +144,14 @@ export const Sidebar = ({ collapsed, onToggle }) => {
         }}
       >
         {/* Logo */}
-        <div className="flex items-center gap-3" style={{ padding: '20px 16px' }}>
-          <div
-            className="flex h-9 w-9 items-center justify-center shrink-0 cursor-pointer"
-            style={{
-              background: 'var(--brand-grad)',
-              borderRadius: 'var(--r-chip)',
-            }}
+        <div className="flex items-center" style={{ padding: '20px 16px' }}>
+          <BrandLogo
+            to={null}
+            size={36}
+            wordSize={16}
+            showWord={!collapsed}
             onClick={() => navigate('/dashboard')}
-          >
-            <BarChart3 className="h-5 w-5" style={{ color: '#ffffff' }} />
-          </div>
-          {!collapsed && (
-            <span
-              className="text-base font-semibold font-heading tracking-tight cursor-pointer text-white"
-              onClick={() => navigate('/dashboard')}
-            >
-              NiftyQuant
-            </span>
-          )}
+          />
         </div>
 
         <div className="mx-4" style={{ height: 1, background: 'var(--edge-1)' }} />

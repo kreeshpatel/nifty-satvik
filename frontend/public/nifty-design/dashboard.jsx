@@ -1,4 +1,4 @@
-/* dashboard.jsx — main React app for NiftyQuant trading desk
+/* dashboard.jsx — main React app for Nifty Satvik trading desk
  * Loaded via <script type="text/babel" src="dashboard.jsx"> from Dashboard.html
  * Tweaks: brand color, density, sparkline style, hero copy variant
  */
@@ -170,7 +170,7 @@ function Topbar({ density }) {
             <path d="M4 19V8l5 6 4-9 4 11 3-5v8"/>
           </svg>
         </div>
-        <div className="brand-text">NiftyQuant</div>
+        <div className="brand-text">Nifty Satvik</div>
       </div>
 
       <div className="search">

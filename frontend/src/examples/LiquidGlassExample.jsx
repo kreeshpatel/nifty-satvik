@@ -25,7 +25,7 @@ export default function LiquidGlassExample() {
         }}>
           <div className="flex items-center justify-between">
             <h1 className="text-title1" style={{ color: 'var(--text-primary)' }}>
-              NiftyQuant
+              Nifty Satvik
             </h1>
             <div className="flex items-center gap-3">
               <button className="btn-secondary">

@@ -174,7 +174,7 @@ export default function Hero({ onRequestAccess }) {
           className="inline-block w-1.5 h-1.5 rounded-full align-middle mr-2"
           style={{ background: "var(--brand)" }}
         />
-        NiftyQuant · Pre-move detection for Indian equity
+        Nifty Satvik · Pre-move detection for Indian equity
       </motion.div>
 
       {/* The headline — viewport-dominant. RegimeStatement renders the

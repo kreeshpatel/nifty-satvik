@@ -18,7 +18,7 @@ const FEATURES = [
   {
     n: "02",
     title: "Native Kite integration",
-    body: "One-click sync with your Zerodha Kite account. View holdings, place orders, and track fills inside NiftyQuant. We hold no positions on your behalf — you sign every order.",
+    body: "One-click sync with your Zerodha Kite account. View holdings, place orders, and track fills inside Nifty Satvik. We hold no positions on your behalf — you sign every order.",
   },
   {
     n: "03",

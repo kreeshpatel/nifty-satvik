@@ -1,4 +1,4 @@
-/* portfolio2.jsx — NiftyQuant Portfolio.
+/* portfolio2.jsx — Nifty Satvik Portfolio.
  * Speaks the Dashboard's design language (glass cards, mono values, glowing
  * sparklines, regime strip, eyebrow→title→footnote rhythm, one gradient
  * accent) — but with a portfolio-native composition: a fused equity hero
@@ -75,7 +75,7 @@ function Topbar() {
     <header className="topbar">
       <a className="brand" href="Landing.html" style={{ textDecoration: 'none' }}>
         <div className="brand-mark"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19V8l5 6 4-9 4 11 3-5v8"/></svg></div>
-        <div className="brand-text">NiftyQuant</div>
+        <div className="brand-text">Nifty Satvik</div>
       </a>
       <div className="search"><Icon.Search width="14" height="14" /><input placeholder="Search holdings, sector, or ticker…" /><kbd>⌘K</kbd></div>
       <nav className="tabs">

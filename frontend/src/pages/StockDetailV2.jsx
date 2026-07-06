@@ -626,7 +626,7 @@ export default function StockDetailV2() {
 //
 // `tone` maps to the semantic palette:
 //   'bull'  — actionable / market-near data (depth, volume, your history)
-//   'brand' — NiftyQuant-signature content (peers preview, related stocks)
+//   'brand' — Nifty Satvik-signature content (peers preview, related stocks)
 //   'info'  — descriptive / fundamentals
 //   'warn'  — news / events
 //   'muted' — neutral context (default)

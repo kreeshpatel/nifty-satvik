@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
  * PositionCard — a single NQ-tracked position rendered with the
  * originating signal's frame of reference (entry/stop/target/days).
  *
- * Used by the PortfolioV2 "NiftyQuant Positions" section. NOT used for
+ * Used by the PortfolioV2 "Nifty Satvik Positions" section. NOT used for
  * external Kite holdings (those go through the existing DataTable in
  * the "Other Kite Holdings" section, since they have no signal context
  * to display).

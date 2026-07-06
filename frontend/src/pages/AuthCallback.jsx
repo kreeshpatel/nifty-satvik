@@ -12,7 +12,7 @@
  *
  *   This component lives OUTSIDE `ProtectedAppLayout` so the chrome (sidebar,
  *   header) doesn't briefly flash during the ~500ms exchange. It does need
- *   the NiftyQuant session cookie to be present, since `kiteExchangeToken`
+ *   the Nifty Satvik session cookie to be present, since `kiteExchangeToken`
  *   hits a backend endpoint guarded by `get_current_user`. If that's missing
  *   we surface a clear "sign in first" toast and redirect to /login.
  *
@@ -75,11 +75,11 @@ export default function AuthCallback() {
         // Non-error HTTP but the body indicates failure.
         const reason = res?.detail || res?.error || res?.message || 'Unknown error';
         // 401 from the backend (no NQ session cookie) typically means the user
-        // wasn't logged in to NiftyQuant when they came back from Kite.
+        // wasn't logged in to Nifty Satvik when they came back from Kite.
         const looksAuth = /unauthor|401|sign in|login/i.test(reason);
         toast.error('Kite connection failed', {
           description: looksAuth
-            ? 'Sign in to NiftyQuant first, then click Connect Kite again.'
+            ? 'Sign in to Nifty Satvik first, then click Connect Kite again.'
             : `Kite: ${reason}`,
         });
         setPhase('redirecting');
