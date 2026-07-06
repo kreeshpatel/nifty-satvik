@@ -8,7 +8,7 @@
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { getWatchlist, addToWatchlist, removeFromWatchlist } from '@/services/api';
+import { getWatchlist, addToWatchlist, removeFromWatchlist, reorderWatchlist } from '@/services/api';
 
 export const USER_WATCHLIST_KEY = ['user', 'watchlist'];
 
@@ -64,6 +64,25 @@ export function useRemoveFromWatchlist() {
     onError: (err, ticker, ctx) => {
       if (ctx?.prev !== undefined) qc.setQueryData(USER_WATCHLIST_KEY, ctx.prev);
       toast.error('Could not remove from watchlist', { description: err?.message });
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: USER_WATCHLIST_KEY }),
+  });
+}
+
+/** Persist a new order; optimistically applies it immediately. */
+export function useReorderWatchlist() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (order) => reorderWatchlist(order),
+    onMutate: async (order) => {
+      await qc.cancelQueries({ queryKey: USER_WATCHLIST_KEY });
+      const prev = qc.getQueryData(USER_WATCHLIST_KEY);
+      qc.setQueryData(USER_WATCHLIST_KEY, { watchlist: order });
+      return { prev };
+    },
+    onError: (err, order, ctx) => {
+      if (ctx?.prev !== undefined) qc.setQueryData(USER_WATCHLIST_KEY, ctx.prev);
+      toast.error('Could not reorder watchlist', { description: err?.message });
     },
     onSettled: () => qc.invalidateQueries({ queryKey: USER_WATCHLIST_KEY }),
   });
