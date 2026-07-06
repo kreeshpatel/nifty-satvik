@@ -1,7 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { KiteContext } from '@/App';
 import { searchStocks } from '@/services/kiteStock';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
+import { useSignals } from '@/hooks/queries/useSignals';
+import { useKiteHoldings } from '@/hooks/queries/useKiteState';
 import {
   useUserWatchlist, useAddToWatchlist, useRemoveFromWatchlist,
 } from '@/hooks/queries/useUserWatchlist';
@@ -40,6 +43,35 @@ export default function WatchlistRail() {
 
   const quotesQuery = useQuoteBatch(tickers, { enabled: tickers.length > 0 });
   const quotes = quotesQuery.data ?? {};
+
+  // ── model context: flag watched names that are held or have a live signal ──
+  const kite = useContext(KiteContext);
+  const signalsQuery = useSignals();
+  const holdingsQuery = useKiteHoldings({ enabled: !!kite?.connected });
+
+  const heldSet = useMemo(() => {
+    const s = new Set();
+    (holdingsQuery.data ?? []).forEach((h) => {
+      const t = (h.tradingsymbol || '').toUpperCase();
+      if (t) s.add(t);
+    });
+    return s;
+  }, [holdingsQuery.data]);
+
+  const signalSet = useMemo(() => {
+    const s = new Set();
+    (signalsQuery.data?.signals ?? []).forEach((sg) => {
+      const t = (sg.ticker || sg.symbol || sg.sym || '').toUpperCase();
+      if (t) s.add(t);
+    });
+    return s;
+  }, [signalsQuery.data]);
+
+  const flagFor = (sym) => {
+    if (heldSet.has(sym)) return { color: 'var(--bull)', label: 'held' };
+    if (signalSet.has(sym)) return { color: 'var(--info)', label: 'signal' };
+    return { color: null, label: 'NSE' };
+  };
 
   // ── search (debounced) ──────────────────────────────────────────
   const [q, setQ] = useState('');
@@ -126,12 +158,16 @@ export default function WatchlistRail() {
           const qd = quotes[sym] || {};
           const chg = qd.change_pct;
           const pos = (chg ?? 0) >= 0;
+          const flag = flagFor(sym);
           return (
             <div key={sym} className="wlr-row" onClick={() => openStock(sym)}>
               <StockLogo sym={sym} size={27} />
               <div className="wlr-l">
-                <div className="wlr-s">{sym}</div>
-                <div className="wlr-e">NSE</div>
+                <div className="wlr-s">
+                  {sym}
+                  {flag.color && <span className="wlr-flag" style={{ background: flag.color }} />}
+                </div>
+                <div className="wlr-e">{flag.label}</div>
               </div>
               <div className="wlr-r">
                 <div className="wlr-p tnum">{fmtPrice(qd.last_price)}</div>
