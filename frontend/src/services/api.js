@@ -533,6 +533,14 @@ export const removeFromWatchlist = (ticker) =>
   authFetch(`${API}/api/watchlist/${encodeURIComponent(ticker)}`, { method: 'DELETE' })
     .then(safeJson);
 
+/** Persist a new display order → { watchlist: [...] } */
+export const reorderWatchlist = (order) =>
+  authFetch(`${API}/api/watchlist/reorder`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ order }),
+  }).then(safeJson);
+
 // ========================================
 // Admin APIs (require is_admin=true on the user)
 // ========================================

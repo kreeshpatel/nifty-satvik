@@ -101,6 +101,41 @@ def add_watchlist(
     return {"watchlist": _list(db, user.id)}
 
 
+class ReorderRequest(BaseModel):
+    order: list[str] = Field(default_factory=list)
+
+
+@router.patch("/reorder")
+def reorder_watchlist(
+    req: ReorderRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Persist a new display order. Lenient: unknown/invalid tickers are skipped,
+    any of the user's rows not named keep their prior relative order after the rest."""
+    rows = {
+        r.ticker: r
+        for r in db.query(UserWatchlist).filter(UserWatchlist.user_id == user.id).all()
+    }
+    seen = set()
+    pos = 0
+    for raw in req.order[:MAX_WATCHLIST]:
+        t = str(raw or "").strip().upper()
+        row = rows.get(t)
+        if row is None or t in seen:
+            continue
+        row.sort_order = pos
+        seen.add(t)
+        pos += 1
+    # Rows the client didn't mention keep a stable order after the named ones.
+    for t, row in rows.items():
+        if t not in seen:
+            row.sort_order = pos
+            pos += 1
+    db.commit()
+    return {"watchlist": _list(db, user.id)}
+
+
 @router.delete("/{ticker}", status_code=204)
 def remove_watchlist(
     ticker: str,
