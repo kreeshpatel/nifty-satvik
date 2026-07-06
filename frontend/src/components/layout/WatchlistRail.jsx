@@ -19,6 +19,7 @@ import '@/styles/watchlist-rail.css';
  * chart, top-5 depth, and the Buy/Sell order pad via ?action=).
  */
 const COLLAPSE_KEY = 'nq_rail_collapsed';
+const LIST_KEY = 'nq_rail_list';
 
 const fmtPrice = (n) =>
   n == null ? '—' : Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -72,10 +73,20 @@ export default function WatchlistRail() {
     return n;
   });
 
-  const wlQuery = useUserWatchlist();
+  // Two independent lists: 1 = seeded core (never blank on first look),
+  // 2 = the user's own blank list. Remembered across mounts.
+  const [activeList, setActiveList] = useState(() => {
+    try { return localStorage.getItem(LIST_KEY) === '2' ? 2 : 1; } catch { return 1; }
+  });
+  const selectList = (n) => {
+    setActiveList(n);
+    try { localStorage.setItem(LIST_KEY, String(n)); } catch {}
+  };
+
+  const wlQuery = useUserWatchlist(activeList);
   const tickers = wlQuery.data ?? [];
-  const add = useAddToWatchlist();
-  const remove = useRemoveFromWatchlist();
+  const add = useAddToWatchlist(activeList);
+  const remove = useRemoveFromWatchlist(activeList);
 
   const quotesQuery = useQuoteBatch(tickers, { enabled: tickers.length > 0 });
   const quotes = quotesQuery.data ?? {};
@@ -113,7 +124,7 @@ export default function WatchlistRail() {
   const [expanded, setExpanded] = useState(null);
 
   // ── drag-to-reorder (native HTML5 DnD; no library) ──────────────
-  const reorder = useReorderWatchlist();
+  const reorder = useReorderWatchlist(activeList);
   const [localOrder, setLocalOrder] = useState(tickers);
   const tickersKey = tickers.join(',');
   useEffect(() => {
@@ -177,6 +188,20 @@ export default function WatchlistRail() {
         <button className="wlr-collapse" onClick={toggle} title="Collapse" aria-label="Collapse watchlist">«</button>
       </div>
 
+      <div className="wlr-tabs" role="tablist" aria-label="Watchlists">
+        {[1, 2].map((n) => (
+          <button
+            key={n}
+            role="tab"
+            aria-selected={activeList === n}
+            className={`wlr-tab${activeList === n ? ' on' : ''}`}
+            onClick={() => selectList(n)}
+          >
+            List {n}
+          </button>
+        ))}
+      </div>
+
       <div className="wlr-searchwrap">
         <div className="wlr-search">
           <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4-4" /></svg>
@@ -218,7 +243,7 @@ export default function WatchlistRail() {
           <div className="wlr-empty">Loading…</div>
         ) : tickers.length === 0 ? (
           <div className="wlr-empty">
-            Your watchlist is empty.
+            {activeList === 2 ? 'List 2 is empty.' : 'This list is empty.'}
             <span>Search above to add stocks you want to track.</span>
           </div>
         ) : localOrder.map((sym, i) => {
