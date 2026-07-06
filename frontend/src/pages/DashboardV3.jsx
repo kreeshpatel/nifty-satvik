@@ -310,6 +310,13 @@ function TrendingCard({ sig, modelWinRate, brewing = false }) {
     : null;
   const rMult = rr != null ? rr.toFixed(2) : null;
 
+  // Fallback metric so the card never shows a bare "—": model conviction
+  // (confidence / ml_score, normalised to a %) then the grade.
+  const conviction = sig.confidence ?? sig.ml_score ?? null;
+  const convPct = conviction != null
+    ? Math.round(conviction <= 1 ? conviction * 100 : conviction)
+    : null;
+
   return (
     <div className={`dv3-trending-card ${dir === 'up' ? 'is-up' : 'is-down'}`}>
       <div className="dv3-tc-head">
@@ -329,7 +336,7 @@ function TrendingCard({ sig, modelWinRate, brewing = false }) {
       <div className="dv3-tc-metrics">
         <div className="dv3-tc-metric">
           <span className="dv3-tc-metric-label">
-            {wr != null ? 'Model win rate' : 'Expected return'}
+            {wr != null ? 'Model win rate' : edge ? 'Expected return' : convPct != null ? 'Conviction' : 'Grade'}
           </span>
           <div className="dv3-tc-metric-row">
             {wr != null ? (
@@ -342,10 +349,12 @@ function TrendingCard({ sig, modelWinRate, brewing = false }) {
                   </div>
                 )}
               </>
+            ) : edge ? (
+              <span className={`dv3-tc-metric-val ${dir === 'up' ? 'num-bull' : 'num-bear'}`}>{edge}</span>
+            ) : convPct != null ? (
+              <span className="dv3-tc-metric-val">{convPct}<small>%</small></span>
             ) : (
-              <span className={`dv3-tc-metric-val ${dir === 'up' ? 'num-bull' : 'num-bear'}`}>
-                {edge ?? '—'}
-              </span>
+              <span className="dv3-tc-metric-val">{grade}</span>
             )}
           </div>
         </div>
