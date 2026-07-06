@@ -940,6 +940,69 @@ function ToolsGrid() {
 }
 
 // ─────────────────────────────────────────────────────────────────────
+// MarketIndices — the prototype's index strip, from useIndexSparklines().
+// Defensive on the payload shape ({last,changePct} or {ltp,change_pct}).
+// ─────────────────────────────────────────────────────────────────────
+const INDEX_LABELS = {
+  NIFTY: 'NIFTY 50', NIFTY50: 'NIFTY 50', SENSEX: 'SENSEX',
+  BANKNIFTY: 'BANK NIFTY', NIFTYBANK: 'BANK NIFTY', INDIAVIX: 'INDIA VIX',
+  VIX: 'INDIA VIX', USDINR: 'USD/INR', NIFTYMIDCAP: 'NIFTY MIDCAP', NIFTYIT: 'NIFTY IT',
+};
+function MarketIndices({ indexData }) {
+  const items = useMemo(() => {
+    if (!indexData || typeof indexData !== 'object') return [];
+    return Object.keys(indexData).map((k) => {
+      const d = indexData[k] || {};
+      const val = d.last ?? d.ltp ?? d.value;
+      const chg = d.changePct ?? d.change_pct ?? d.change;
+      if (typeof val !== 'number' || !isFinite(val)) return null;
+      return { key: k, label: INDEX_LABELS[k] || k, val, chg: (typeof chg === 'number' ? chg : 0) };
+    }).filter(Boolean).slice(0, 6);
+  }, [indexData]);
+  if (!items.length) return null;
+  return (
+    <section className="dv3-row">
+      <div className="dv3-row-head"><div><h2 className="dv3-row-title" style={{ fontSize: 16 }}>Market indices</h2></div></div>
+      <div className="dv3-indices">
+        {items.map((it) => (
+          <div className="dv3-idx" key={it.key}>
+            <div className="dv3-idx-n">{it.label}</div>
+            <div className="dv3-idx-v tnum">{it.val.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</div>
+            <div className={`dv3-idx-c tnum ${it.chg >= 0 ? 'num-bull' : 'num-bear'}`}>
+              {it.chg >= 0 ? '▲' : '▼'}{Math.abs(it.chg).toFixed(2)}%
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// MorningCommentary — the prototype's amber note, derived from real regime
+// + breadth + today's signal count (no fabricated text).
+// ─────────────────────────────────────────────────────────────────────
+function MorningCommentary({ regime, signalsCount }) {
+  const status = regime?.status || regime?.label;
+  if (!status) return null;
+  const label = String(status).charAt(0).toUpperCase() + String(status).slice(1);
+  const breadth = regime?.breadth;
+  return (
+    <div className="dv3-commentary">
+      <div className="dv3-comm-tag">Model note</div>
+      <h4>The market is {label} today.</h4>
+      <p>
+        {breadth != null ? `Breadth ${breadth >= 0 ? '+' : ''}${breadth} adv−dec. ` : ''}
+        {signalsCount > 0
+          ? `${signalsCount} names cleared the conviction gate this scan.`
+          : 'No fresh buys cleared the gate this scan.'}
+        {' '}No manual action — the book posts itself.
+      </p>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
 // DashboardV3 — main page export
 // ─────────────────────────────────────────────────────────────────────
 export default function DashboardV3() {
@@ -1020,7 +1083,22 @@ export default function DashboardV3() {
           {/* RegimeStrip */}
           <RegimeStrip regime={regime} indexData={indexData} />
 
-          {/* Trending signals + BacktestCTA */}
+          {/* Scan-status ribbon */}
+          <div className="dv3-scan-status">
+            <span className="dv3-live-dot" />
+            <div className="dv3-scan-txt">
+              <div className="dv3-scan-head">
+                {cronHealth?.last_run_today ? "Today's scan ran on schedule" : 'Next scan at 4:15 PM IST'}
+                {signals.length ? ` · ${signals.length} signals` : ''}
+              </div>
+              <div className="dv3-scan-sub">
+                Cron {cronHealth?.last_run_today ? 'healthy' : 'pending'} · runs 4:15 PM IST on trading days — the calls post themselves, no manual scan.
+              </div>
+            </div>
+            <Link to="/premove" className="dv3-scan-link">See all calls →</Link>
+          </div>
+
+          {/* Research calls */}
           <section className="dv3-row">
             <div className="dv3-row-head">
               <div>
@@ -1028,7 +1106,7 @@ export default function DashboardV3() {
                   {showingBrewing ? 'BREWING · BELOW ENTRY GATE' : 'TODAY · 16:15 IST SCAN'}
                 </div>
                 <h2 className="dv3-row-title">
-                  {showingBrewing ? 'Brewing watchlist' : 'Top signals'}
+                  {showingBrewing ? 'Brewing watchlist' : 'Research calls'}
                 </h2>
                 <div className="dv3-row-sub">
                   {sigLoading
@@ -1072,14 +1150,18 @@ export default function DashboardV3() {
             isLoading={holdingsQuery.isLoading}
           />
 
+          {/* Market indices strip */}
+          <MarketIndices indexData={indexData} />
+
           {/* Action tiles */}
           <ActionTiles />
         </div>
 
-        {/* Right rail — Pick of the week, tools, model health, breadth, balance */}
+        {/* Right rail — Pick of the week, tools, commentary, model health, breadth, balance */}
         <aside className="dv3-right-rail">
           <PickOfWeek sig={displayCards[0]} />
           <ToolsGrid />
+          <MorningCommentary regime={regime} signalsCount={signals.length} />
           <ModelHealth cronHealth={cronHealth} metrics={metrics} portfolio={portfolio} />
           <SectorBreadth signals={breadthSource} />
           <BalanceCard
