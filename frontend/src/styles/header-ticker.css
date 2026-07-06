@@ -1,0 +1,49 @@
+/* header-ticker.css — scrolling live index marquee in the app top bar */
+.hticker {
+  position: relative;
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  mask: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+}
+.hticker-track {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  animation: hticker-marquee 60s linear infinite;
+  will-change: transform;
+}
+.hticker:hover .hticker-track { animation-play-state: paused; }
+@keyframes hticker-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hticker-track { animation: none; }
+}
+.hticker-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 0 16px;
+  border-right: 1px solid var(--edge-1);
+  white-space: nowrap;
+}
+.hticker-name {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.hticker-val {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-1);
+}
+.hticker-chg {
+  font-size: 10.5px;
+  font-weight: 600;
+}
