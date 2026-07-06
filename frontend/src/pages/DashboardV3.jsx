@@ -745,6 +745,103 @@ function BalanceCard({ margins, portfolio, holdings, kiteConnected }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────
+// EquityNetWorth — top-of-page net-worth bar (prototype). Same derivation
+// as BalanceCard: real Kite holdings + margins when connected, else the
+// paper portfolio from overview. Additive; never fabricates numbers.
+// ─────────────────────────────────────────────────────────────────────
+function EquityNetWorth({ margins, portfolio, holdings, kiteConnected }) {
+  const kite = useMemo(() => {
+    if (!kiteConnected) return null;
+    const rows = holdings ?? [];
+    let mktValue = 0, cost = 0;
+    for (const h of rows) {
+      const qty = h.quantity ?? 0, ltp = h.last_price ?? 0, avg = h.average_price ?? 0;
+      if (qty > 0 && ltp > 0) mktValue += qty * ltp;
+      if (qty > 0 && avg > 0) cost += qty * avg;
+    }
+    const pnl = cost > 0 ? mktValue - cost : null;
+    return {
+      current: mktValue || null,
+      invested: cost || null,
+      pnl,
+      pnlPct: cost > 0 ? (pnl / cost) * 100 : null,
+    };
+  }, [kiteConnected, holdings]);
+
+  const current  = kite ? kite.current  : (portfolio?.total_value ?? null);
+  const invested = kite ? kite.invested : (portfolio?.invested ?? null);
+  const pnl      = kite ? kite.pnl
+    : (portfolio?.total_pnl ?? ((current != null && invested != null) ? current - invested : null));
+  const pnlPct   = kite ? kite.pnlPct   : (portfolio?.total_return_pct ?? null);
+  const dayPnl   = portfolio?.day_pnl ?? null;
+  const dayPct   = portfolio?.day_return_pct ?? null;
+
+  return (
+    <div className="dv3-networth">
+      <div className="dv3-nw-head">
+        <div>
+          <span className="card-head-title">My equity net-worth</span>
+          <span className="card-head-sub">{kiteConnected ? 'Kite · live' : 'Paper portfolio'}</span>
+        </div>
+        <Link to="/portfolio" className="dv3-nw-link">View details <Icon.Arrow width="12" height="12" /></Link>
+      </div>
+      <div className="dv3-nw-body">
+        <div className="dv3-nw-item">
+          <div className="dv3-nw-k">Current value</div>
+          <div className="dv3-nw-v">{current != null ? fmtLakh(current) : '—'}</div>
+        </div>
+        <div className="dv3-nw-item">
+          <div className="dv3-nw-k">Invested</div>
+          <div className="dv3-nw-v">{invested != null ? fmtLakh(invested) : '—'}</div>
+        </div>
+        <div className="dv3-nw-item">
+          <div className="dv3-nw-k">Total P&amp;L</div>
+          <div className={`dv3-nw-v ${pnl != null ? (pnl >= 0 ? 'num-bull' : 'num-bear') : ''}`}>
+            {pnl != null ? fmtLakh(pnl) : '—'}
+            {pnlPct != null && <small> ({fmtPct(pnlPct)})</small>}
+          </div>
+        </div>
+        {dayPnl != null && (
+          <div className="dv3-nw-item dv3-nw-day">
+            <div className="dv3-nw-k">Today's P&amp;L</div>
+            <div className={`dv3-nw-v ${dayPnl >= 0 ? 'num-bull' : 'num-bear'}`}>
+              {fmtLakh(dayPnl)}{dayPct != null ? ` (${fmtPct(dayPct)})` : ''}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// ActionTiles — the prototype's vibrant "what you can do" gradient cards.
+// Real routes only (no fake broker actions); crons are scheduled so there
+// is no manual-scan tile.
+// ─────────────────────────────────────────────────────────────────────
+function ActionTiles() {
+  const tiles = [
+    { cls: 'dv3-qa-teal',   to: '/signals',      title: 'Position sizer', desc: "Size today's top names to your capital & E-margin." },
+    { cls: 'dv3-qa-violet', to: '/track-record', title: 'Track record',   desc: 'Live paper equity curve & closed-trade log.' },
+    { cls: 'dv3-qa-blue',   to: '/pnl',          title: 'Analytics',      desc: 'Performance, attribution & signal stats.' },
+  ];
+  return (
+    <section className="dv3-row">
+      <div className="dv3-actions">
+        {tiles.map((t) => (
+          <Link key={t.to} to={t.to} className={`dv3-qa ${t.cls}`}>
+            <span className="dv3-qa-deco" />
+            <h4>{t.title}</h4>
+            <p>{t.desc}</p>
+            <span className="dv3-qa-go">Open <Icon.Arrow width="12" height="12" /></span>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
 // DashboardV3 — main page export
 // ─────────────────────────────────────────────────────────────────────
 export default function DashboardV3() {
@@ -811,6 +908,14 @@ export default function DashboardV3() {
 
   return (
     <div className="dv3-page density-regular">
+      {/* ── Equity net-worth bar ─────────────────────────────────── */}
+      <EquityNetWorth
+        margins={marginsQuery.data}
+        portfolio={portfolio}
+        holdings={holdingsQuery.data ?? []}
+        kiteConnected={!!kite?.connected}
+      />
+
       {/* ── RegimeStrip ──────────────────────────────────────────── */}
       <RegimeStrip regime={regime} indexData={indexData} />
 
@@ -877,6 +982,9 @@ export default function DashboardV3() {
           />
         </aside>
       </section>
+
+      {/* ── Action tiles ────────────────────────────────────────── */}
+      <ActionTiles />
 
       {/* ── Footer ──────────────────────────────────────────────── */}
       <footer className="dv3-foot">
