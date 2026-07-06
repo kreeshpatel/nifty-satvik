@@ -1,0 +1,153 @@
+/* research-insights.css — the Research page (/premove) "Research Insights"
+   layout: graded calls table + right rail. Uses house design tokens. */
+
+.ri-app {
+  padding: clamp(16px, 2.4vw, 30px) clamp(16px, 3vw, 34px) 40px;
+  max-width: 1500px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ── header ── */
+.ri-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 20px; flex-wrap: wrap; margin-bottom: 18px;
+}
+.ri-title {
+  font-family: var(--font-display); font-weight: 600; font-size: 30px;
+  letter-spacing: -0.02em; color: var(--text-1); margin: 0;
+}
+.ri-sub { margin: 6px 0 0; font-size: 14px; color: var(--text-2); max-width: 62ch; }
+.ri-head-r { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+/* ── filter chips ── */
+.ri-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.ri-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 13px; border-radius: 999px; cursor: pointer;
+  background: var(--surface-1); border: 1px solid var(--edge-1);
+  color: var(--text-2); font-family: var(--font-sans); font-size: 12.5px; font-weight: 600;
+  transition: all 160ms;
+}
+.ri-chip:hover { color: var(--text-1); border-color: var(--edge-2); }
+.ri-chip.on {
+  background: rgba(79,140,255,0.16); color: var(--text-1);
+  border-color: rgba(79,140,255,0.4);
+}
+.ri-chip-n {
+  min-width: 18px; padding: 0 5px; height: 18px; border-radius: 999px;
+  display: inline-grid; place-items: center; font-size: 11px;
+  background: rgba(255,255,255,0.08); color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+}
+.ri-chip.on .ri-chip-n { background: rgba(79,140,255,0.3); color: #fff; }
+
+.ri-pick { margin-bottom: 18px; }
+
+/* ── two-column body ── */
+.ri-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 18px;
+  align-items: start;
+}
+@media (max-width: 1180px) {
+  .ri-grid { grid-template-columns: 1fr; }
+  .ri-rail { order: -1; }
+}
+
+/* ── calls table ── */
+.ri-table {
+  background: var(--surface-1); border: 1px solid var(--edge-1);
+  border-radius: 16px; overflow: hidden;
+}
+.ri-thead, .ri-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 96px 96px 126px 88px;
+  align-items: center; gap: 10px;
+  padding: 12px 16px;
+}
+.ri-thead {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text-3); border-bottom: 1px solid var(--edge-1);
+  background: rgba(255,255,255,0.015);
+}
+.ri-th-r { text-align: right; }
+
+.ri-row {
+  border-bottom: 1px solid var(--edge-1);
+  cursor: pointer; transition: background 140ms;
+}
+.ri-row:last-child { border-bottom: none; }
+.ri-row:hover { background: rgba(255,255,255,0.03); }
+
+.ri-scrip { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.ri-scrip-l { min-width: 0; }
+.ri-scrip-top { display: flex; align-items: center; gap: 8px; }
+.ri-sym { font-size: 14px; font-weight: 600; color: var(--text-1); }
+.ri-grade {
+  width: 18px; height: 18px; border-radius: 5px; display: grid; place-items: center;
+  font-size: 11px; font-weight: 700; line-height: 1;
+}
+.ri-grade.g-A { background: rgba(63,221,138,0.16); color: var(--bull); }
+.ri-grade.g-B { background: rgba(255,180,84,0.16); color: var(--warn); }
+.ri-scrip-sub {
+  font-size: 11.5px; color: var(--text-3); margin-top: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.ri-cell { text-align: right; }
+.ri-cell-main { font-size: 13.5px; font-weight: 600; color: var(--text-1); }
+.ri-cell-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+.ri-act { display: flex; justify-content: flex-end; }
+.ri-btn {
+  min-width: 66px; padding: 7px 12px; border-radius: 8px; border: 1px solid transparent;
+  font-family: var(--font-sans); font-size: 12.5px; font-weight: 600; cursor: pointer;
+  transition: all 160ms;
+}
+.ri-btn-buy   { background: rgba(63,221,138,0.16); color: var(--bull); border-color: rgba(63,221,138,0.3); }
+.ri-btn-buy:hover { background: rgba(63,221,138,0.26); }
+.ri-btn-sell  { background: rgba(255,92,122,0.16); color: var(--bear); border-color: rgba(255,92,122,0.3); }
+.ri-btn-sell:hover { background: rgba(255,92,122,0.26); }
+.ri-btn-watch { background: rgba(91,199,255,0.14); color: var(--info); border-color: rgba(91,199,255,0.3); }
+.ri-btn-watch:hover { background: rgba(91,199,255,0.24); }
+.ri-btn-hold, .ri-btn-view {
+  background: var(--surface-2); color: var(--text-2); border-color: var(--edge-1);
+}
+.ri-btn-hold:hover, .ri-btn-view:hover { color: var(--text-1); border-color: var(--edge-2); }
+
+.ri-row-skel { height: 58px; margin: 0; border-radius: 0; border-bottom: 1px solid var(--edge-1); }
+.ri-empty { padding: 40px 20px; text-align: center; color: var(--text-3); font-size: 13.5px; }
+
+/* ── right rail cards ── */
+.ri-rail { display: flex; flex-direction: column; gap: 14px; }
+.ri-card {
+  background: var(--surface-1); border: 1px solid var(--edge-1);
+  border-radius: 16px; padding: 16px;
+}
+.ri-card-h {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--text-3); margin-bottom: 10px;
+}
+.ri-comm-title { font-size: 15px; font-weight: 600; color: var(--text-1); line-height: 1.4; }
+.ri-comm-body { margin-top: 8px; font-size: 12.5px; color: var(--text-2); line-height: 1.55; }
+
+.ri-kv {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 5px 0; font-size: 13px; color: var(--text-2);
+}
+.ri-kv b { font-size: 13.5px; color: var(--text-1); }
+
+.ri-statrow { display: grid; grid-template-columns: 62px 1fr 26px; align-items: center; gap: 8px; padding: 5px 0; }
+.ri-stat-l { font-size: 12.5px; color: var(--text-2); }
+.ri-bar { height: 6px; border-radius: 999px; background: rgba(255,255,255,0.06); overflow: hidden; }
+.ri-bar-fill { display: block; height: 100%; border-radius: 999px; background: var(--brand-grad, linear-gradient(90deg, #4F8CFF, #7B5BFF)); }
+.ri-stat-v { font-size: 12.5px; color: var(--text-1); text-align: right; }
+
+.ri-how { font-size: 12.5px; color: var(--text-2); line-height: 1.6; }
+
+/* ── footer ── */
+.ri-foot { margin-top: 26px; padding-top: 16px; border-top: 1px solid var(--edge-1); }
+.ri-disclaimer { font-size: 11.5px; color: var(--text-3); line-height: 1.5; max-width: 90ch; }
+.ri-foot-meta { margin-top: 8px; font-size: 10.5px; color: var(--text-3); opacity: 0.8; }
