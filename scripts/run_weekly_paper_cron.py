@@ -79,6 +79,11 @@ def build_envelopes(P, out, ledger, generated_at, mem=None):
             "entry_low": round(lo, 2), "entry_high": round(hi, 2),
             "current_price": round(cur, 2), "close": round(cur, 2),
             "signal_date": str(fri.date()),                    # the just-closed setup week (stable)
+            # Entry window is the FULL trading week AFTER the setup Friday (buy Mon–Fri). The
+            # dashboard/backend reads buy_window_until to keep the signal actionable all week —
+            # WITHOUT it the backend falls back to the momentum 2-calendar-day rule and wrongly
+            # flags a Friday signal BUY_CLOSED by Monday. fri is always a Friday, so +7d = next Fri.
+            "buy_window_until": str((fri + pd.Timedelta(days=7)).date()),
             "hold_days": HOLD_DAYS_DISPLAY,
             # CRS-rank fill priority (finding 0038): fund strongest-first. A-grade = top 5 by rank.
             "crs_rank": round(float(ls.get("rank", 0.0)), 4),

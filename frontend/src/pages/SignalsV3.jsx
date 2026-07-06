@@ -217,9 +217,18 @@ function deriveAction(sig, heldSet, positionByTicker) {
     return { action: 'holding', position: pos };
   }
 
-  // 4. Buy open — today vs not today
+  // 4. Buy open — actionable entry window
   if (actionability === 'BUY_OPEN' || (!actionability && (sig.tier === 'signal' || !sig.tier))) {
     const today = todayISO();
+    // Multi-day window (the weekly book carries buy_window_until = last buyable date):
+    // it's a live buy for the whole window; only the FINAL day reads as "closing".
+    // ISO date strings compare lexicographically, so string < / === is correct here.
+    if (sig.buy_window_until) {
+      if (today < sig.buy_window_until) return { action: 'buy-today' };
+      if (today === sig.buy_window_until) return { action: 'closing' };
+      return { action: 'closed' };            // window passed (backend also returns BUY_CLOSED)
+    }
+    // Single-day (momentum) window: buyable the signal day, then closing.
     if (sig.signal_date === today) return { action: 'buy-today' };
     return { action: 'closing' };
   }
