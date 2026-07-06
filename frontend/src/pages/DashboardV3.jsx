@@ -983,9 +983,11 @@ function MarketIndices({ indexData }) {
 // + breadth + today's signal count (no fabricated text).
 // ─────────────────────────────────────────────────────────────────────
 function MorningCommentary({ regime, signalsCount }) {
-  const status = regime?.status || regime?.label;
-  if (!status) return null;
-  const label = String(status).charAt(0).toUpperCase() + String(status).slice(1);
+  const raw = (regime?.status || '').toLowerCase();
+  if (!raw) return null;
+  // Same mapping as RegimeStrip: anything not bull/bear reads as "Choppy"
+  // (never the raw "unknown" string).
+  const label = raw.includes('bull') ? 'Bullish' : raw.includes('bear') ? 'Bearish' : 'Choppy';
   const breadth = regime?.breadth;
   return (
     <div className="dv3-commentary">
