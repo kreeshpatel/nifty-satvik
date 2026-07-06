@@ -11,6 +11,7 @@ const toastSuccess = (msg, opts) => toast.success(msg, opts);
 const toastError = (msg, opts) => toast.error(msg, opts);
 import { queryClient } from '@/lib/queryClient';
 import { TopBar } from '@/components/layout/TopBar';
+import WatchlistRail from '@/components/layout/WatchlistRail';
 
 // Phase 8 polish: every page is code-split via React.lazy so the initial
 // bundle only carries the shell + auth + sidebar. Each route fetches its
@@ -306,9 +307,12 @@ function ProtectedAppLayout() {
     <KiteContext.Provider value={kiteValue}>
       <div data-page-ctx="dashboard" className="min-h-screen flex flex-col">
         <TopBar />
-        <main className="flex-1 min-w-0 overflow-x-hidden relative z-10">
-          <Outlet />
-        </main>
+        <div className="flex flex-1 min-w-0">
+          <WatchlistRail />
+          <main className="flex-1 min-w-0 overflow-x-hidden relative z-10">
+            <Outlet />
+          </main>
+        </div>
       </div>
     </KiteContext.Provider>
   );

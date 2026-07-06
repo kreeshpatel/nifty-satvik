@@ -22,7 +22,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
 from ws_manager import WSManager
-from routers import overview, positions, signals, backtest, trades, kite, yahoo_finance, admin, access_requests, landing_stats, nq_orders
+from routers import overview, positions, signals, backtest, trades, kite, yahoo_finance, admin, access_requests, landing_stats, nq_orders, watchlist
 from config import INITIAL_CAPITAL
 from github_data import fetch_github_json
 from database import init_db, SessionLocal
@@ -273,6 +273,7 @@ app.include_router(admin.router, prefix="/api")
 app.include_router(access_requests.router, prefix="/api")
 app.include_router(landing_stats.router, prefix="/api")
 app.include_router(nq_orders.router, prefix="/api")
+app.include_router(watchlist.router, prefix="/api")
 
 ws_manager = WSManager()
 

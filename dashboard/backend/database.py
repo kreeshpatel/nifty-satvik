@@ -248,6 +248,28 @@ class NavHistory(Base):
     user = relationship("User")
 
 
+class UserWatchlist(Base):
+    """Per-user saved-stocks list (the left watchlist rail).
+
+    Stores only membership — (user_id, ticker) — never prices. Quotes are
+    fetched from the shared, centralized quote endpoints. A brand-new table,
+    so Base.metadata.create_all() creates it on startup (no migration needed).
+    """
+    __tablename__ = "user_watchlists"
+    __table_args__ = (
+        UniqueConstraint("user_id", "ticker", name="uix_watchlist_user_ticker"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"),
+                     nullable=False, index=True)
+    ticker = Column(String(32), nullable=False, index=True)
+    sort_order = Column(Integer, nullable=False, default=0)
+    added_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    user = relationship("User")
+
+
 # ── DB Session Dependency ─────────────────────────────
 
 def get_db():

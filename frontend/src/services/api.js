@@ -516,6 +516,24 @@ export const updateNQOrderNotes = (orderId, notes) =>
   }).then(safeJson);
 
 // ========================================
+// Watchlist APIs (per-user saved stocks — the left rail)
+// Distinct from /signals/watchlist (the model's signal-tier list).
+// ========================================
+
+/** The authenticated user's saved tickers → { watchlist: [...] } */
+export const getWatchlist = () =>
+  authJson(`${API}/api/watchlist`);
+
+/** Add a ticker (idempotent) → { watchlist: [...] } */
+export const addToWatchlist = (ticker) =>
+  authPost(`${API}/api/watchlist`, { ticker });
+
+/** Remove a ticker (204 No Content) */
+export const removeFromWatchlist = (ticker) =>
+  authFetch(`${API}/api/watchlist/${encodeURIComponent(ticker)}`, { method: 'DELETE' })
+    .then(safeJson);
+
+// ========================================
 // Admin APIs (require is_admin=true on the user)
 // ========================================
 
