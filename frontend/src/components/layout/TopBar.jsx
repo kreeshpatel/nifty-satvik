@@ -32,18 +32,23 @@ import {
 
 // Primary nav — every visible pill tab in the topbar. Per design system kit
 // v2 (2026-05-21), no "More" dropdown — all routes get top-level visibility.
+// Primary top-nav pills — kept lean. Reports/Journal/Track/Backtest/Ledger/
+// Settings live under the account (avatar) menu instead (see ACCOUNT_LINKS).
 const PRIMARY_TABS = [
   { to: '/dashboard',    label: 'Dashboard',  icon: LayoutDashboard },
   { to: '/premove',      label: 'Signals',    icon: Zap },
   { to: '/portfolio',    label: 'Portfolio',  icon: Briefcase },
   { to: '/orders',       label: 'Orders',     icon: ListOrdered },
   { to: '/funds',        label: 'Funds',      icon: Wallet },
-  { to: '/pnl',          label: 'Analytics',  icon: BarChart3 },
-  { to: '/journal',      label: 'Journal',    icon: BookOpen },
-  { to: '/track-record', label: 'Track',      icon: Trophy },
-  { to: '/backtest',     label: 'Backtest',   icon: FlaskConical },
-  { to: '/accounting',   label: 'Accounts',   icon: Calculator },
-  { to: '/settings',     label: 'Settings',   icon: SettingsIcon },
+];
+
+// Secondary pages, tucked into the account dropdown with clearer names.
+const ACCOUNT_LINKS = [
+  { to: '/pnl',          label: 'Reports',        icon: BarChart3 },
+  { to: '/track-record', label: 'Track record',   icon: Trophy },
+  { to: '/journal',      label: 'Journal',        icon: BookOpen },
+  { to: '/backtest',     label: 'Backtest',       icon: FlaskConical },
+  { to: '/accounting',   label: 'Ledger & charges', icon: Calculator },
 ];
 
 export function TopBar() {
@@ -191,6 +196,17 @@ export function TopBar() {
                   Kite · {kite.userId}
                 </DropdownMenuItem>
               )}
+              <DropdownMenuSeparator />
+              {ACCOUNT_LINKS.map((l) => {
+                const LIcon = l.icon;
+                return (
+                  <DropdownMenuItem key={l.to} onSelect={() => navigate(l.to)} className="gap-2 cursor-pointer">
+                    <LIcon size={14} />
+                    {l.label}
+                  </DropdownMenuItem>
+                );
+              })}
+              <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={() => navigate('/settings')} className="gap-2 cursor-pointer">
                 <SettingsIcon size={14} />
                 Settings
@@ -652,6 +668,17 @@ export function TopBar() {
               Kite · {kite.userId}
             </DropdownMenuItem>
           )}
+          <DropdownMenuSeparator />
+          {ACCOUNT_LINKS.map((l) => {
+            const LIcon = l.icon;
+            return (
+              <DropdownMenuItem key={l.to} onSelect={() => navigate(l.to)} className="gap-2 cursor-pointer">
+                <LIcon size={14} />
+                {l.label}
+              </DropdownMenuItem>
+            );
+          })}
+          <DropdownMenuSeparator />
           <DropdownMenuItem onSelect={() => navigate('/settings')} className="gap-2 cursor-pointer">
             <SettingsIcon size={14} />
             Settings
