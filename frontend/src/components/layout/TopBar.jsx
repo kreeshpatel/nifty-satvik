@@ -4,7 +4,7 @@ import {
   Search, Bell, User, LogOut, Plug, Loader2, Menu, X,
   LayoutDashboard, Zap, Briefcase, ListOrdered, MoreHorizontal,
   Wallet, BarChart3, BookOpen, Trophy, FlaskConical, Calculator,
-  Settings as SettingsIcon, Shield,
+  Settings as SettingsIcon, Shield, Minus, Plus,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { searchStocks } from '@/services/kiteStock';
@@ -12,6 +12,7 @@ import { KiteContext } from '@/App';
 import { AuthContext } from '@/context/AuthContext';
 import BrandLogo from './BrandLogo';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useUiScale } from '@/hooks/useUiScale';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -66,6 +67,35 @@ export function TopBar() {
   const searchWrapRef = useRef(null);
 
   const isAdmin = !!user?.is_admin;
+  const uiScale = useUiScale();
+
+  // Display-size control for the account menu — a "zoom that doesn't reflow".
+  // Plain buttons (not menu items) so clicking them doesn't close the menu.
+  const scaleBtn = (label, onClick, enabled) => (
+    <button
+      type="button"
+      aria-label={label}
+      onClick={onClick}
+      disabled={!enabled}
+      style={{
+        width: 24, height: 24, display: 'grid', placeItems: 'center',
+        borderRadius: 6, border: '1px solid var(--edge-1)', background: 'var(--surface-1)',
+        color: 'var(--text-2)', cursor: enabled ? 'pointer' : 'not-allowed', opacity: enabled ? 1 : 0.4,
+      }}
+    >
+      {label === 'Zoom out' ? <Minus size={13} /> : <Plus size={13} />}
+    </button>
+  );
+  const scaleRow = (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 8px', fontSize: 13, color: 'var(--text-2)' }}>
+      <span>Display size</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        {scaleBtn('Zoom out', uiScale.dec, uiScale.canDec)}
+        <span style={{ minWidth: 42, textAlign: 'center', fontSize: 12, fontVariantNumeric: 'tabular-nums' }}>{uiScale.pct}%</span>
+        {scaleBtn('Zoom in', uiScale.inc, uiScale.canInc)}
+      </div>
+    </div>
+  );
 
   // Close mobile menu on route change so tap-to-navigate dismisses the drawer.
   useEffect(() => {
@@ -216,6 +246,8 @@ export function TopBar() {
                   Admin console
                 </DropdownMenuItem>
               )}
+              <DropdownMenuSeparator />
+              {scaleRow}
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={() => logout()} className="gap-2 cursor-pointer">
                 <LogOut size={14} />
@@ -611,6 +643,8 @@ export function TopBar() {
               Admin console
             </DropdownMenuItem>
           )}
+          <DropdownMenuSeparator />
+          {scaleRow}
           <DropdownMenuSeparator />
           <DropdownMenuItem onSelect={() => logout()} className="gap-2 cursor-pointer">
             <LogOut size={14} />
