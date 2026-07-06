@@ -821,7 +821,7 @@ function EquityNetWorth({ margins, portfolio, holdings, kiteConnected }) {
 // ─────────────────────────────────────────────────────────────────────
 function ActionTiles() {
   const tiles = [
-    { cls: 'dv3-qa-teal',   to: '/signals',      title: 'Position sizer', desc: "Size today's top names to your capital & E-margin." },
+    { cls: 'dv3-qa-teal',   to: '/premove',      title: 'Position sizer', desc: "Size today's top names to your capital & E-margin." },
     { cls: 'dv3-qa-violet', to: '/track-record', title: 'Track record',   desc: 'Live paper equity curve & closed-trade log.' },
     { cls: 'dv3-qa-blue',   to: '/pnl',          title: 'Analytics',      desc: 'Performance, attribution & signal stats.' },
   ];
@@ -907,7 +907,7 @@ function PickOfWeek({ sig }) {
         <div><div className="k">Target</div><div className="v">{num(target)}</div></div>
         <div><div className="k">Upside</div><div className="v">{upside == null ? '—' : fmtPct(upside)}</div></div>
       </div>
-      <Link to="/signals" className="dv3-pick-btn">Size &amp; view →</Link>
+      <Link to="/premove" className="dv3-pick-btn">Size &amp; view →</Link>
     </div>
   );
 }
@@ -917,7 +917,7 @@ function PickOfWeek({ sig }) {
 // ─────────────────────────────────────────────────────────────────────
 function ToolsGrid() {
   const tools = [
-    { to: '/signals', label: 'Position sizer' },
+    { to: '/premove', label: 'Position sizer' },
     { to: '/track-record', label: 'Track record' },
     { to: '/pnl', label: 'P&L report' },
     { to: '/orders', label: 'Trade log' },
