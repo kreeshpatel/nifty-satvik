@@ -209,66 +209,64 @@ const Icon = {
 // ─────────────────────────────────────────────────────────────────────
 // RegimeStrip — driven from useSignals().regime + useIndexSparklines()
 // ─────────────────────────────────────────────────────────────────────
-function RegimeStrip({ regime, indexData }) {
+function RegimeStrip({ regime, indexData, heldCount }) {
   const status = (regime?.status || '').toLowerCase();
   const isBull = status.includes('bull');
   const isBear = status.includes('bear');
-  const isChop = !isBull && !isBear;
 
-  const regimeLabel = isBull ? 'Bullish' : isBear ? 'Bearish' : 'Choppy';
-  const regimeCls   = isBull ? 'num-bull' : isBear ? 'num-bear' : 'num-warn';
-  const strength    = regime?.strength ?? 50;
+  const label = isBull ? 'Bullish' : isBear ? 'Bearish' : 'Choppy';
+  const tone  = isBull ? 'bull' : isBear ? 'bear' : 'warn';
+  const line  = isBull
+    ? 'Trend and breadth favour longs.'
+    : isBear
+      ? 'Trend and breadth are against longs — stay defensive.'
+      : 'Mixed tape — no clear trend. Stay selective.';
+  const strength = Math.max(0, Math.min(100, Math.round(regime?.strength ?? 50)));
 
-  // NIFTY 50 data from index sparklines
-  const nifty    = indexData?.['NIFTY 50'] ?? indexData?.['NIFTY'] ?? null;
-  const niftyLtp = nifty?.ltp ?? nifty?.last ?? null;
-  const niftyChg = nifty?.change_pct ?? nifty?.changePct ?? null;
-
-  // VIX from index sparklines
+  // VIX: prefer regime.vix, fall back to the live INDIA VIX sparkline.
   const vixData = indexData?.['INDIA VIX'] ?? indexData?.['INDIAVIX'] ?? null;
-  const vix     = regime?.vix ?? vixData?.ltp ?? vixData?.last ?? null;
-  const breadth = regime?.breadth;
+  const vixRaw  = regime?.vix ?? vixData?.ltp ?? vixData?.last ?? vixData?.value ?? null;
+  const vix     = vixRaw != null && isFinite(Number(vixRaw)) ? Number(vixRaw) : null;
+  const vixWord = vix == null ? '—' : vix < 15 ? 'calm' : vix <= 20 ? 'normal' : 'elevated';
+  const breadth = regime?.breadth != null ? Number(regime.breadth) : null;
+
+  const updated = regime?.updated_at || regime?.as_of || regime?.timestamp || null;
+  const updatedLabel = updated
+    ? new Date(updated).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+    : null;
 
   return (
-    <div className="dv3-regime-strip">
-      <div className="dv3-regime-left">
-        <span className="dv3-live-dot" />
-        <span className="dv3-regime-eyebrow">MARKET REGIME</span>
-        <div className="dv3-regime-statement">
-          The market is <em className={regimeCls}>{regimeLabel}</em>
-          {niftyLtp != null && (
-            <>
-              <span className="sep">·</span>
-              <span className="t-num-small">NIFTY {Number(niftyLtp).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-              {niftyChg != null && (
-                <span className={`t-num-small ${niftyChg >= 0 ? 'num-bull' : 'num-bear'}`}>
-                  {fmtPct(niftyChg)}
-                </span>
-              )}
-            </>
-          )}
-          {vix != null && (
-            <>
-              <span className="sep">·</span>
-              <span>VIX {Number(vix).toFixed(1)}</span>
-            </>
-          )}
-          {breadth != null && (
-            <>
-              <span className="sep">·</span>
-              <span>Breadth {Number(breadth).toFixed(0)}</span>
-            </>
-          )}
+    <div className={`dv3-rg tone-${tone}`}>
+      <div className="dv3-rg-main">
+        <div className="dv3-rg-eyebrow">
+          <span className="dv3-live-dot" /> MARKET REGIME{updatedLabel ? ` · UPDATED ${updatedLabel}` : ''}
+        </div>
+        <div className="dv3-rg-statement">
+          The market is <span className={`num-${tone}`}>{label}.</span> {line}
+        </div>
+        <div className="dv3-rg-strength">
+          <span className="dv3-rg-strength-l">10-DAY STRENGTH · {strength}/100</span>
+          <div className="dv3-rg-bar"><span className={`fill-${tone}`} style={{ width: `${strength}%` }} /></div>
         </div>
       </div>
-      <div className="dv3-regime-right">
-        <span className="dv3-strength-label">10-DAY STRENGTH</span>
-        <div className="dv3-strength-bar">
-          <span style={{ width: `${Math.max(0, Math.min(100, strength))}%` }} />
+      <div className="dv3-rg-stats">
+        <div className="dv3-rg-stat">
+          <div className="dv3-rg-stat-k">INDIA VIX</div>
+          <div className="dv3-rg-stat-v tnum">{vix == null ? '—' : vix.toFixed(1)}</div>
+          <div className="dv3-rg-stat-s">{vixWord}</div>
         </div>
-        <span className={`t-num-small ${isBull ? 'num-bull' : isBear ? 'num-bear' : 'num-warn'}`}>
-          {Math.round(strength)}
-        </span>
+        <div className="dv3-rg-stat">
+          <div className="dv3-rg-stat-k">BREADTH</div>
+          <div className={`dv3-rg-stat-v tnum ${breadth != null ? (breadth >= 0 ? 'num-bull' : 'num-bear') : ''}`}>
+            {breadth == null ? '—' : (breadth >= 0 ? '+' : '') + breadth}
+          </div>
+          <div className="dv3-rg-stat-s">adv–dec</div>
+        </div>
+        <div className="dv3-rg-stat">
+          <div className="dv3-rg-stat-k">HELD</div>
+          <div className="dv3-rg-stat-v tnum">{heldCount != null ? `${Math.min(heldCount, 15)}/15` : '—/15'}</div>
+          <div className="dv3-rg-stat-s">slots</div>
+        </div>
       </div>
     </div>
   );
@@ -329,41 +327,31 @@ function TrendingCard({ sig, modelWinRate, brewing = false }) {
           <div className="dv3-tc-name">{name} · {sector}</div>
         </div>
         <span className={`dv3-tc-fresh${brewing ? ' dv3-tc-brewing' : ''}`}>
-          {brewing ? 'WATCHLIST' : 'SIGNAL'}
+          {brewing ? 'WATCHLIST' : '● FRESH'}
         </span>
       </div>
 
       <div className="dv3-tc-metrics">
         <div className="dv3-tc-metric">
           <span className="dv3-tc-metric-label">
-            {wr != null ? 'Model win rate' : edge ? 'Expected return' : convPct != null ? 'Conviction' : 'Grade'}
+            {wr != null ? 'Win rate' : convPct != null ? 'Conviction' : 'Grade'}
           </span>
           <div className="dv3-tc-metric-row">
-            {wr != null ? (
-              <>
-                <span className="dv3-tc-metric-val">{wr}<small>%</small></span>
-                {edge && (
-                  <div className={`dv3-stat-pill ${dir === 'up' ? 'bull' : 'bear'}`}>
-                    <Icon.Arrow width="9" height="9" style={{ transform: dir === 'down' ? 'rotate(90deg)' : 'none' }} />
-                    <span>{edge}</span>
-                  </div>
-                )}
-              </>
-            ) : edge ? (
-              <span className={`dv3-tc-metric-val ${dir === 'up' ? 'num-bull' : 'num-bear'}`}>{edge}</span>
-            ) : convPct != null ? (
-              <span className="dv3-tc-metric-val">{convPct}<small>%</small></span>
-            ) : (
-              <span className="dv3-tc-metric-val">{grade}</span>
-            )}
+            <span className="dv3-tc-metric-val">
+              {wr != null ? <>{wr}<small>%</small></> : convPct != null ? <>{convPct}<small>%</small></> : grade}
+            </span>
           </div>
         </div>
         <div className="dv3-tc-metric">
-          <span className="dv3-tc-metric-label">Reward : risk</span>
+          <span className="dv3-tc-metric-label">Exp. return</span>
           <div className="dv3-tc-metric-row">
-            <span className={`dv3-tc-metric-val ${rMult != null && rr >= 2 ? 'num-bull' : ''}`}>
-              {rMult != null ? <>{rMult}<small>R</small></> : '—'}
-            </span>
+            {edge ? (
+              <span className={`dv3-tc-metric-val ${dir === 'up' ? 'num-bull' : 'num-bear'}`}>{edge}</span>
+            ) : rMult != null ? (
+              <span className={`dv3-tc-metric-val ${rr >= 2 ? 'num-bull' : ''}`}>{rMult}<small>R</small></span>
+            ) : (
+              <span className="dv3-tc-metric-val">—</span>
+            )}
           </div>
         </div>
       </div>
@@ -785,39 +773,56 @@ function EquityNetWorth({ margins, portfolio, holdings, kiteConnected }) {
   const dayPnl   = portfolio?.day_pnl ?? null;
   const dayPct   = portfolio?.day_return_pct ?? null;
 
+  const [hidden, setHidden] = React.useState(false);
+  const dateLabel = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  const show = (v) => (hidden ? '••••••' : v);
+
   return (
     <div className="dv3-networth">
       <div className="dv3-nw-head">
-        <div>
+        <div className="dv3-nw-head-l">
           <span className="card-head-title">My equity net-worth</span>
-          <span className="card-head-sub">{kiteConnected ? 'Kite · live' : 'Paper portfolio'}</span>
+          <span className="card-head-sub">as on {dateLabel}</span>
+          <button
+            type="button"
+            className="dv3-nw-eye"
+            onClick={() => setHidden((h) => !h)}
+            title={hidden ? 'Show values' : 'Hide values'}
+            aria-label={hidden ? 'Show values' : 'Hide values'}
+          >
+            {hidden
+              ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M9.9 4.24A9.1 9.1 0 0 1 12 4c7 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19M6.6 6.6A18.5 18.5 0 0 0 2 12s3 8 10 8a9.1 9.1 0 0 0 5.4-1.6"/><path d="m2 2 20 20"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+              : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8-10-8-10-8z"/><circle cx="12" cy="12" r="3"/></svg>}
+          </button>
         </div>
-        <Link to="/portfolio" className="dv3-nw-link">View details <Icon.Arrow width="12" height="12" /></Link>
+        <div className="dv3-nw-head-r">
+          {dayPnl != null && (
+            <div className="dv3-nw-day-inline">
+              <span className="dv3-nw-day-k">Day's P&amp;L</span>
+              <span className={`dv3-nw-day-v ${dayPnl >= 0 ? 'num-bull' : 'num-bear'}`}>
+                {show(`${dayPnl >= 0 ? '+' : ''}${fmtLakh(dayPnl)}${dayPct != null ? ` (${fmtPct(dayPct)})` : ''}`)}
+              </span>
+            </div>
+          )}
+          <Link to="/portfolio" className="dv3-nw-link">View details <Icon.Arrow width="12" height="12" /></Link>
+        </div>
       </div>
       <div className="dv3-nw-body">
         <div className="dv3-nw-item">
           <div className="dv3-nw-k">Current value</div>
-          <div className="dv3-nw-v">{current != null ? fmtLakh(current) : '—'}</div>
+          <div className="dv3-nw-v">{current != null ? show(fmtLakh(current)) : '—'}</div>
         </div>
         <div className="dv3-nw-item">
           <div className="dv3-nw-k">Invested</div>
-          <div className="dv3-nw-v">{invested != null ? fmtLakh(invested) : '—'}</div>
+          <div className="dv3-nw-v">{invested != null ? show(fmtLakh(invested)) : '—'}</div>
         </div>
         <div className="dv3-nw-item">
           <div className="dv3-nw-k">Total P&amp;L</div>
           <div className={`dv3-nw-v ${pnl != null ? (pnl >= 0 ? 'num-bull' : 'num-bear') : ''}`}>
-            {pnl != null ? fmtLakh(pnl) : '—'}
-            {pnlPct != null && <small> ({fmtPct(pnlPct)})</small>}
+            {pnl != null ? show(fmtLakh(pnl)) : '—'}
+            {pnlPct != null && !hidden && <small> ({fmtPct(pnlPct)})</small>}
           </div>
         </div>
-        {dayPnl != null && (
-          <div className="dv3-nw-item dv3-nw-day">
-            <div className="dv3-nw-k">Today's P&amp;L</div>
-            <div className={`dv3-nw-v ${dayPnl >= 0 ? 'num-bull' : 'num-bear'}`}>
-              {fmtLakh(dayPnl)}{dayPct != null ? ` (${fmtPct(dayPct)})` : ''}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
@@ -931,14 +936,14 @@ function ToolsGrid() {
     { to: '/pnl', label: 'P&L report' },
     { to: '/orders', label: 'Trade log' },
     { to: '/journal', label: 'Journal' },
-    { to: '/backtest', label: 'Backtest' },
+    { to: '/premove', label: 'Methodology' },
   ];
   return (
     <div className="dv3-card dv3-tools-card">
       <div className="dv3-card-head"><div className="t-ui-headline">Your tools</div></div>
       <div className="dv3-tools">
         {tools.map((t) => (
-          <Link key={t.to} to={t.to} className="dv3-tool">
+          <Link key={t.label} to={t.to} className="dv3-tool">
             <span className="dv3-tool-ic"><Icon.Arrow width="14" height="14" /></span>
             <span className="dv3-tool-lbl">{t.label}</span>
           </Link>
@@ -1068,6 +1073,9 @@ export default function DashboardV3() {
   const indexData = indexQuery.data ?? {};
   const sigLoading = signalsQuery.isLoading || watchlistQuery.isLoading;
 
+  // Held slots for the regime card (Kite holdings when connected, else null).
+  const heldCount = kite?.connected ? (holdingsQuery.data ?? []).length : null;
+
   // Connect Kite handler — delegates to existing KiteContext
   const handleConnectKite = () => {
     if (kite?.connect) kite.connect();
@@ -1092,7 +1100,7 @@ export default function DashboardV3() {
       <div className="dv3-main-grid">
         <div className="dv3-main-col">
           {/* RegimeStrip */}
-          <RegimeStrip regime={regime} indexData={indexData} />
+          <RegimeStrip regime={regime} indexData={indexData} heldCount={heldCount} />
 
           {/* Scan-status ribbon */}
           <div className="dv3-scan-status">
@@ -1128,6 +1136,10 @@ export default function DashboardV3() {
                         ? `No fresh buys today — ${watchlist.length} names brewing below the entry gate · ${scanNote}`
                         : `No signals from today's scan · ${scanNote}`}
                 </div>
+              </div>
+              <div className="dv3-row-controls">
+                <span className="chip c-warn">Weekly Swing</span>
+                <Link to="/premove?filter=today" className="dv3-freshpill">Fresh today <Icon.Arrow width="11" height="11" /></Link>
               </div>
             </div>
 
