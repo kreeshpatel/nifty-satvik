@@ -926,3 +926,12 @@
 .dv3-qa-blue   { background: linear-gradient(145deg, #1546C7, #2C5BFF 60%, #4F8CFF); }
 .dv3-qa-teal   { background: linear-gradient(145deg, #0B7A66, #12A88A 55%, #2FD6A6); }
 .dv3-qa-violet { background: linear-gradient(145deg, #3A2C9E, #5B4BFF 55%, #8E6DFF); }
+
+/* ── Model health card (prototype right rail) ─────────────────── */
+.dv3-model-health .dv3-mh-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 0; border-bottom: 1px solid var(--edge-1); font-size: 13px;
+}
+.dv3-model-health .dv3-mh-row:last-child { border-bottom: none; }
+.dv3-mh-k { color: var(--text-2); }
+.dv3-mh-v { font-weight: 700; font-variant-numeric: tabular-nums; }

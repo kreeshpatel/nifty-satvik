@@ -842,6 +842,48 @@ function ActionTiles() {
 }
 
 // ─────────────────────────────────────────────────────────────────────
+// ModelHealth — prototype right-rail card. Shows the model is running and
+// its headline stats, from cron_health (useSignals) + metrics/portfolio
+// (useOverview). Same formatting conventions as PortfolioV3's PerfRibbon.
+// ─────────────────────────────────────────────────────────────────────
+function ModelHealth({ cronHealth, metrics, portfolio }) {
+  const ranToday = cronHealth?.last_run_today;
+  const winRate  = metrics?.win_rate ?? null;
+  const sharpe   = metrics?.sharpe_ratio ?? null;
+  const drawdown = portfolio?.drawdown_pct ?? null;
+  const trades   = metrics?.total_trades ?? null;
+
+  const rows = [
+    ['Daily scan', ranToday
+      ? <span className="num-bull">● Ran today</span>
+      : <span className="num-warn">Pending</span>],
+    ['Win rate', winRate != null ? `${Number(winRate).toFixed(1)}%` : '—'],
+    ['Sharpe ratio', sharpe != null ? Number(sharpe).toFixed(2) : '—'],
+    ['Max drawdown', drawdown != null
+      ? <span className="num-bear">{fmtPct(-Math.abs(drawdown))}</span>
+      : '—'],
+    ['Closed trades', trades != null ? `${trades}` : '—'],
+  ];
+
+  return (
+    <div className="dv3-card dv3-model-health">
+      <div className="dv3-card-head">
+        <div>
+          <div className="t-ui-headline">Model health</div>
+          <div className="t-ui-footnote">Momentum book · paper</div>
+        </div>
+      </div>
+      {rows.map(([k, v]) => (
+        <div className="dv3-mh-row" key={k}>
+          <span className="dv3-mh-k">{k}</span>
+          <span className="dv3-mh-v">{v}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
 // DashboardV3 — main page export
 // ─────────────────────────────────────────────────────────────────────
 export default function DashboardV3() {
@@ -974,6 +1016,7 @@ export default function DashboardV3() {
         />
         <aside className="dv3-right-rail">
           <SectorBreadth signals={breadthSource} />
+          <ModelHealth cronHealth={cronHealth} metrics={metrics} portfolio={portfolio} />
           <BalanceCard
             margins={marginsQuery.data}
             portfolio={portfolio}
