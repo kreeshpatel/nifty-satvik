@@ -34,6 +34,7 @@ import {
 } from '@/lib/signalCopy';
 import { explainExitRules, exitRulesSummary } from '@/lib/exitRules';
 import { EmptyState } from '@/components/shared/EmptyState';
+import PickOfWeek from '@/components/shared/PickOfWeek';
 import '@/styles/signals-v3.css';
 
 // ─────────────────────────────────────────────────────────────────────
@@ -1284,6 +1285,12 @@ export default function SignalsV3() {
   const freshCount = pool.filter((s) => ['buy-today', 'closing'].includes(s.action)).length;
   const activeCount = pool.filter((s) => ['holding', 'sell-now'].includes(s.action)).length;
 
+  // Top-ranked buy-today signal → the "Pick of the week" banner (prototype Research look).
+  const topPick = useMemo(
+    () => pool.find((s) => s.action === 'buy-today') || pool[0] || null,
+    [pool]
+  );
+
   const today = todayISO();
   const todayLabel = new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase();
 
@@ -1353,6 +1360,16 @@ export default function SignalsV3() {
           ))}
         </div>
       </div>
+
+      {/* Pick of the week — the prototype's Research banner, top-ranked signal */}
+      {!signalsQuery.isLoading && topPick && (
+        <div style={{ margin: '0 0 18px' }}>
+          <PickOfWeek
+            sig={topPick}
+            to={`/stock/${encodeURIComponent(topPick.ticker || topPick.sym || topPick.symbol || '')}`}
+          />
+        </div>
+      )}
 
       <main className="sig-body">
         {/* Left: signal list */}
