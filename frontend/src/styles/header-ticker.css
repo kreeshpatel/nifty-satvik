@@ -47,3 +47,18 @@
   font-size: 10.5px;
   font-weight: 600;
 }
+
+/* The ticker is its OWN full-width strip below the top bar (like a broker's
+   index bar) so it never competes with the nav pills + search and never
+   clips mid-value. Non-sticky: it scrolls away, leaving the sticky top bar. */
+.hticker-strip {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  padding: 0 clamp(12px, 3vw, 24px);
+  border-bottom: 1px solid var(--edge-1);
+  background: rgba(255, 255, 255, 0.012);
+}
+@media (max-width: 768px) {
+  .hticker-strip { display: none; }
+}

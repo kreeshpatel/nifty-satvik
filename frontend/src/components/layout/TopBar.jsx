@@ -11,7 +11,6 @@ import { searchStocks } from '@/services/kiteStock';
 import { KiteContext } from '@/App';
 import { AuthContext } from '@/context/AuthContext';
 import BrandLogo from './BrandLogo';
-import HeaderTicker from './HeaderTicker';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import {
   DropdownMenu,
@@ -465,8 +464,8 @@ export function TopBar() {
         })}
       </nav>
 
-      {/* live index ticker (fills the flexible middle column) */}
-      <HeaderTicker />
+      {/* spacer */}
+      <span />
 
       {/* Search pill */}
       <div ref={searchWrapRef} style={{ position: 'relative' }}>
