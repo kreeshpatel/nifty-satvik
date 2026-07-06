@@ -257,13 +257,18 @@ class UserWatchlist(Base):
     """
     __tablename__ = "user_watchlists"
     __table_args__ = (
-        UniqueConstraint("user_id", "ticker", name="uix_watchlist_user_ticker"),
+        # A ticker lives once per (user, list). list_no lets a user keep two
+        # independent lists (1 = the seeded core list, 2 = a blank scratch list).
+        UniqueConstraint("user_id", "list_no", "ticker", name="uix_watchlist_user_list_ticker"),
     )
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"),
                      nullable=False, index=True)
     ticker = Column(String(32), nullable=False, index=True)
+    # Which of the user's lists this row belongs to. 1 = core (seeded with a
+    # few Nifty-50 names on first use), 2 = the user's own blank list.
+    list_no = Column(Integer, nullable=False, default=1, server_default="1", index=True)
     sort_order = Column(Integer, nullable=False, default=0)
     added_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
@@ -337,6 +342,28 @@ def init_db():
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS mfa_enabled BOOLEAN NOT NULL DEFAULT FALSE")
     _run_migration("users.mfa_secret_encrypted",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS mfa_secret_encrypted TEXT")
+
+    # Two-list watchlist: add list_no (existing rows backfill to list 1) and
+    # swap the (user_id, ticker) unique constraint for (user_id, list_no,
+    # ticker) so the same ticker can live in both lists. The DROP+ADD run in a
+    # single transaction (one _run_migration call) so there's never a window
+    # with no unique constraint. Both steps are idempotent.
+    _run_migration("user_watchlists.list_no",
+        "ALTER TABLE user_watchlists ADD COLUMN IF NOT EXISTS list_no INTEGER NOT NULL DEFAULT 1")
+    _run_migration("user_watchlists.list_no_index",
+        "CREATE INDEX IF NOT EXISTS ix_user_watchlists_list_no ON user_watchlists (list_no)")
+    _run_migration("user_watchlists.unique_constraint_swap", """
+        DO $$
+        BEGIN
+          ALTER TABLE user_watchlists DROP CONSTRAINT IF EXISTS uix_watchlist_user_ticker;
+          IF NOT EXISTS (
+            SELECT 1 FROM pg_constraint WHERE conname = 'uix_watchlist_user_list_ticker'
+          ) THEN
+            ALTER TABLE user_watchlists
+              ADD CONSTRAINT uix_watchlist_user_list_ticker UNIQUE (user_id, list_no, ticker);
+          END IF;
+        END $$;
+    """)
 
     # P2-1: audit_logs append-only + 365-day retention enforcement.
     # The CREATE TRIGGER step needs ACCESS EXCLUSIVE on audit_logs, which

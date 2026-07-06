@@ -520,25 +520,28 @@ export const updateNQOrderNotes = (orderId, notes) =>
 // Distinct from /signals/watchlist (the model's signal-tier list).
 // ========================================
 
-/** The authenticated user's saved tickers → { watchlist: [...] } */
-export const getWatchlist = () =>
-  authJson(`${API}/api/watchlist`);
+// Each user has two independent lists (list 1 = seeded core, list 2 = blank).
+// `listNo` defaults to 1 so any legacy single-list caller keeps working.
 
-/** Add a ticker (idempotent) → { watchlist: [...] } */
-export const addToWatchlist = (ticker) =>
-  authPost(`${API}/api/watchlist`, { ticker });
+/** The authenticated user's saved tickers for a list → { watchlist: [...], list } */
+export const getWatchlist = (listNo = 1) =>
+  authJson(`${API}/api/watchlist?list=${listNo}`);
 
-/** Remove a ticker (204 No Content) */
-export const removeFromWatchlist = (ticker) =>
-  authFetch(`${API}/api/watchlist/${encodeURIComponent(ticker)}`, { method: 'DELETE' })
+/** Add a ticker to a list (idempotent) → { watchlist: [...], list } */
+export const addToWatchlist = (ticker, listNo = 1) =>
+  authPost(`${API}/api/watchlist`, { ticker, list: listNo });
+
+/** Remove a ticker from a list (204 No Content) */
+export const removeFromWatchlist = (ticker, listNo = 1) =>
+  authFetch(`${API}/api/watchlist/${encodeURIComponent(ticker)}?list=${listNo}`, { method: 'DELETE' })
     .then(safeJson);
 
-/** Persist a new display order → { watchlist: [...] } */
-export const reorderWatchlist = (order) =>
+/** Persist a new display order within a list → { watchlist: [...], list } */
+export const reorderWatchlist = (order, listNo = 1) =>
   authFetch(`${API}/api/watchlist/reorder`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ order }),
+    body: JSON.stringify({ order, list: listNo }),
   }).then(safeJson);
 
 // ========================================
