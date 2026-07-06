@@ -468,86 +468,9 @@ export function TopBar() {
       <span />
 
       {/* Search pill */}
-      <div ref={searchWrapRef} style={{ position: 'relative' }}>
-        <div
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
-            height: 36,
-            padding: '0 14px',
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid var(--edge-1)',
-            borderRadius: 999,
-            color: 'var(--text-3)',
-            fontSize: 13,
-            minWidth: 240,
-            transition: 'border-color 200ms',
-          }}
-        >
-          <Search size={14} />
-          <input
-            value={query}
-            onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
-            onFocus={() => setOpen(true)}
-            onKeyDown={handleKeyDown}
-            placeholder="Search tickers, place orders…"
-            className="bg-transparent outline-none border-none flex-1"
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: 13,
-              color: 'var(--text-1)',
-              minWidth: 0,
-            }}
-          />
-        </div>
-        {open && results.length > 0 && (
-          <div
-            style={{
-              position: 'absolute',
-              top: 'calc(100% + 6px)',
-              left: 0,
-              right: 0,
-              background: 'var(--surface-modal)',
-              border: '1px solid var(--edge-2)',
-              borderRadius: 12,
-              boxShadow: 'var(--shadow-lg)',
-              backdropFilter: 'blur(24px)',
-              WebkitBackdropFilter: 'blur(24px)',
-              padding: 6,
-              maxHeight: 320,
-              overflowY: 'auto',
-              zIndex: 100,
-            }}
-          >
-            {results.map((r, i) => (
-              <button
-                key={r.symbol}
-                onClick={() => handleSelect(r.symbol)}
-                onMouseEnter={() => setSelectedIdx(i)}
-                style={{
-                  width: '100%',
-                  display: 'grid',
-                  gridTemplateColumns: '1fr auto',
-                  gap: 8,
-                  padding: '8px 10px',
-                  borderRadius: 8,
-                  background: i === selectedIdx ? 'rgba(79,140,255,0.14)' : 'transparent',
-                  border: 'none',
-                  color: 'var(--text-1)',
-                  fontFamily: 'var(--font-sans)',
-                  fontSize: 13,
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                }}
-              >
-                <span style={{ color: 'var(--text-1)', fontWeight: 500 }}>{r.symbol}</span>
-                <span style={{ color: 'var(--text-3)', fontSize: 11 }}>{r.exchange || 'NSE'}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+      {/* Top-bar search removed per owner request — global stock search lives
+          in the watchlist rail (and the mobile search icon). */}
+      <span />
 
       {/* Notifications — placeholder until in-app inbox lands. Bell currently
           surfaces the Kite session status (the only ambient signal) and
