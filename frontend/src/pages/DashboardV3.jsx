@@ -777,39 +777,25 @@ function EquityNetWorth({ margins, portfolio, holdings, kiteConnected }) {
   const dateLabel = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
   const show = (v) => (hidden ? '••••••' : v);
 
+  const eyeSvg = hidden
+    ? <svg className="dv3-nw-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.9 4.24A9.1 9.1 0 0 1 12 4c7 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19M6.6 6.6A18.5 18.5 0 0 0 2 12s3 8 10 8a9.1 9.1 0 0 0 5.4-1.6"/><path d="m2 2 20 20"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+    : <svg className="dv3-nw-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8-10-8-10-8z"/><circle cx="12" cy="12" r="3"/></svg>;
+
   return (
     <div className="dv3-networth">
-      <div className="dv3-nw-head">
-        <div className="dv3-nw-head-l">
-          <span className="card-head-title">My equity net-worth</span>
-          <span className="card-head-sub">as on {dateLabel}</span>
-          <button
-            type="button"
-            className="dv3-nw-eye"
-            onClick={() => setHidden((h) => !h)}
-            title={hidden ? 'Show values' : 'Hide values'}
-            aria-label={hidden ? 'Show values' : 'Hide values'}
-          >
-            {hidden
-              ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M9.9 4.24A9.1 9.1 0 0 1 12 4c7 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19M6.6 6.6A18.5 18.5 0 0 0 2 12s3 8 10 8a9.1 9.1 0 0 0 5.4-1.6"/><path d="m2 2 20 20"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
-              : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8-10-8-10-8z"/><circle cx="12" cy="12" r="3"/></svg>}
-          </button>
-        </div>
-        <div className="dv3-nw-head-r">
-          {dayPnl != null && (
-            <div className="dv3-nw-day-inline">
-              <span className="dv3-nw-day-k">Day's P&amp;L</span>
-              <span className={`dv3-nw-day-v ${dayPnl >= 0 ? 'num-bull' : 'num-bear'}`}>
-                {show(`${dayPnl >= 0 ? '+' : ''}${fmtLakh(dayPnl)}${dayPct != null ? ` (${fmtPct(dayPct)})` : ''}`)}
-              </span>
-            </div>
-          )}
-          <Link to="/portfolio" className="dv3-nw-link">View details <Icon.Arrow width="12" height="12" /></Link>
-        </div>
+      <div className="dv3-nw-top">
+        <div className="dv3-nw-title">My equity net-worth <span>as on {dateLabel}</span></div>
+        <Link to="/portfolio" className="dv3-nw-link">View details <Icon.Arrow width="12" height="12" /></Link>
       </div>
       <div className="dv3-nw-body">
         <div className="dv3-nw-item">
-          <div className="dv3-nw-k">Current value</div>
+          <div className="dv3-nw-k">
+            Current value
+            <button type="button" className="dv3-nw-eye-btn" onClick={() => setHidden((h) => !h)}
+              title={hidden ? 'Show values' : 'Hide values'} aria-label={hidden ? 'Show values' : 'Hide values'}>
+              {eyeSvg}
+            </button>
+          </div>
           <div className="dv3-nw-v">{current != null ? show(fmtLakh(current)) : '—'}</div>
         </div>
         <div className="dv3-nw-item">
@@ -823,6 +809,14 @@ function EquityNetWorth({ margins, portfolio, holdings, kiteConnected }) {
             {pnlPct != null && !hidden && <small> ({fmtPct(pnlPct)})</small>}
           </div>
         </div>
+        {dayPnl != null && (
+          <div className="dv3-nw-item dv3-nw-day">
+            <div className="dv3-nw-k">Day's P&amp;L</div>
+            <div className={`dv3-nw-v ${dayPnl >= 0 ? 'num-bull' : 'num-bear'}`}>
+              {show(`${dayPnl >= 0 ? '+' : ''}${fmtLakh(dayPnl)}${dayPct != null ? ` (${fmtPct(dayPct)})` : ''}`)}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
