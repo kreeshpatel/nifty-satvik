@@ -884,6 +884,62 @@ function ModelHealth({ cronHealth, metrics, portfolio }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────
+// PickOfWeek — the prototype's magenta "pick of the week" card, driven by
+// the top-ranked signal of the day. Null-safe (renders nothing if no signal).
+// ─────────────────────────────────────────────────────────────────────
+function PickOfWeek({ sig }) {
+  if (!sig) return null;
+  const sym = sig.ticker || sig.sym || sig.symbol || '';
+  const name = sig.name || sig.company || '';
+  const num = (n) => (n == null ? '—' : Number(n).toLocaleString('en-IN', { maximumFractionDigits: 0 }));
+  const reco = sig.entry ?? sig.reco_price ?? null;
+  const target = sig.target ?? null;
+  const upside = sig.predicted_return_pct ?? sig.expected_return ?? null;
+  return (
+    <div className="dv3-pick">
+      <span className="dv3-pick-badge">★ Pick of the week</span>
+      <div className="dv3-pick-nm">
+        <Logo sym={sym} size={30} radius={8} />
+        <h4>{sym}{name ? ` · ${name}` : ''}</h4>
+      </div>
+      <div className="dv3-pick-metrics">
+        <div><div className="k">Reco</div><div className="v">{num(reco)}</div></div>
+        <div><div className="k">Target</div><div className="v">{num(target)}</div></div>
+        <div><div className="k">Upside</div><div className="v">{upside == null ? '—' : fmtPct(upside)}</div></div>
+      </div>
+      <Link to="/signals" className="dv3-pick-btn">Size &amp; view →</Link>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// ToolsGrid — the prototype's "Your tools" grid; links to real routes only.
+// ─────────────────────────────────────────────────────────────────────
+function ToolsGrid() {
+  const tools = [
+    { to: '/signals', label: 'Position sizer' },
+    { to: '/track-record', label: 'Track record' },
+    { to: '/pnl', label: 'P&L report' },
+    { to: '/orders', label: 'Trade log' },
+    { to: '/journal', label: 'Journal' },
+    { to: '/backtest', label: 'Backtest' },
+  ];
+  return (
+    <div className="dv3-card dv3-tools-card">
+      <div className="dv3-card-head"><div className="t-ui-headline">Your tools</div></div>
+      <div className="dv3-tools">
+        {tools.map((t) => (
+          <Link key={t.to} to={t.to} className="dv3-tool">
+            <span className="dv3-tool-ic"><Icon.Arrow width="14" height="14" /></span>
+            <span className="dv3-tool-lbl">{t.label}</span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
 // DashboardV3 — main page export
 // ─────────────────────────────────────────────────────────────────────
 export default function DashboardV3() {
@@ -958,65 +1014,74 @@ export default function DashboardV3() {
         kiteConnected={!!kite?.connected}
       />
 
-      {/* ── RegimeStrip ──────────────────────────────────────────── */}
-      <RegimeStrip regime={regime} indexData={indexData} />
+      {/* ── Main grid: content column + full-height right rail (prototype) ── */}
+      <div className="dv3-main-grid">
+        <div className="dv3-main-col">
+          {/* RegimeStrip */}
+          <RegimeStrip regime={regime} indexData={indexData} />
 
-      {/* ── Trending signals + BacktestCTA ─────────────────────── */}
-      <section className="dv3-row">
-        <div className="dv3-row-head">
-          <div>
-            <div className="dv3-row-eyebrow">
-              {showingBrewing ? 'BREWING · BELOW ENTRY GATE' : 'TODAY · 16:15 IST SCAN'}
+          {/* Trending signals + BacktestCTA */}
+          <section className="dv3-row">
+            <div className="dv3-row-head">
+              <div>
+                <div className="dv3-row-eyebrow">
+                  {showingBrewing ? 'BREWING · BELOW ENTRY GATE' : 'TODAY · 16:15 IST SCAN'}
+                </div>
+                <h2 className="dv3-row-title">
+                  {showingBrewing ? 'Brewing watchlist' : 'Top signals'}
+                </h2>
+                <div className="dv3-row-sub">
+                  {sigLoading
+                    ? 'Loading…'
+                    : signals.length > 0
+                      ? `${signals.length} of 441 stocks scored above conviction threshold · ${scanNote}`
+                      : showingBrewing
+                        ? `No fresh buys today — ${watchlist.length} names brewing below the entry gate · ${scanNote}`
+                        : `No signals from today's scan · ${scanNote}`}
+                </div>
+              </div>
             </div>
-            <h2 className="dv3-row-title">
-              {showingBrewing ? 'Brewing watchlist' : 'Top signals'}
-            </h2>
-            <div className="dv3-row-sub">
-              {sigLoading
-                ? 'Loading…'
-                : signals.length > 0
-                  ? `${signals.length} of 441 stocks scored above conviction threshold · ${scanNote}`
-                  : showingBrewing
-                    ? `No fresh buys today — ${watchlist.length} names brewing below the entry gate · ${scanNote}`
-                    : `No signals from today's scan · ${scanNote}`}
+
+            <div className="dv3-trending-grid">
+              {sigLoading ? (
+                <TrendingCardSkeleton />
+              ) : displayCards.length === 0 ? (
+                <div className="dv3-no-signals">
+                  No high-conviction signals from today's scan. The model runs at 4:15 PM IST on trading days.
+                </div>
+              ) : (
+                displayCards.map((sig) => (
+                  <TrendingCard
+                    key={sig.ticker || sig.sym || sig.symbol}
+                    sig={sig}
+                    modelWinRate={winRate}
+                    brewing={showingBrewing}
+                  />
+                ))
+              )}
+              <BacktestCTA />
             </div>
-          </div>
+
+            {!kite?.connected && <KiteStrip onConnect={handleConnectKite} />}
+          </section>
+
+          {/* Holdings table */}
+          <StocksTable
+            holdings={holdingsQuery.data ?? []}
+            quoteData={quotesQuery.data ?? {}}
+            isLoading={holdingsQuery.isLoading}
+          />
+
+          {/* Action tiles */}
+          <ActionTiles />
         </div>
 
-        <div className="dv3-trending-grid">
-          {sigLoading ? (
-            <TrendingCardSkeleton />
-          ) : displayCards.length === 0 ? (
-            <div className="dv3-no-signals">
-              No high-conviction signals from today's scan. The model runs at 4:15 PM IST on trading days.
-            </div>
-          ) : (
-            displayCards.map((sig) => (
-              <TrendingCard
-                key={sig.ticker || sig.sym || sig.symbol}
-                sig={sig}
-                modelWinRate={winRate}
-                brewing={showingBrewing}
-              />
-            ))
-          )}
-          <BacktestCTA />
-        </div>
-
-        {/* KiteStrip: only shown when Kite is NOT connected */}
-        {!kite?.connected && <KiteStrip onConnect={handleConnectKite} />}
-      </section>
-
-      {/* ── Holdings table + right rail ─────────────────────────── */}
-      <section className="dv3-row dv3-row-data">
-        <StocksTable
-          holdings={holdingsQuery.data ?? []}
-          quoteData={quotesQuery.data ?? {}}
-          isLoading={holdingsQuery.isLoading}
-        />
+        {/* Right rail — Pick of the week, tools, model health, breadth, balance */}
         <aside className="dv3-right-rail">
-          <SectorBreadth signals={breadthSource} />
+          <PickOfWeek sig={displayCards[0]} />
+          <ToolsGrid />
           <ModelHealth cronHealth={cronHealth} metrics={metrics} portfolio={portfolio} />
+          <SectorBreadth signals={breadthSource} />
           <BalanceCard
             margins={marginsQuery.data}
             portfolio={portfolio}
@@ -1024,10 +1089,7 @@ export default function DashboardV3() {
             kiteConnected={!!kite?.connected}
           />
         </aside>
-      </section>
-
-      {/* ── Action tiles ────────────────────────────────────────── */}
-      <ActionTiles />
+      </div>
 
       {/* ── Footer ──────────────────────────────────────────────── */}
       <footer className="dv3-foot">
