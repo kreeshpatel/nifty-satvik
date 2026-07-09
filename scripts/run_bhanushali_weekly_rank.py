@@ -26,6 +26,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import run_bhanushali_weekly_crs as CRS  # noqa: E402
 import run_bhanushali_weekly_full as W89  # noqa: E402
 from nq.data.membership import load_membership, ticker_in_index_on  # noqa: E402
+from nq.engine.portfolio import vol_target_scalar  # noqa: E402  — O-009 de-gross scalar (shared formula, pre-reg 0095)
 from nq.runner.research import _dsr_from_bootstrap  # noqa: E402
 from nq.validation.bootstrap import DEFAULT_BLOCK, block_bootstrap_metric  # noqa: E402
 from nq.validation.dsr import cumulative_n_trials  # noqa: E402
@@ -87,9 +88,15 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False):
 
 
 def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
-             start: str | None = None, return_state: bool = False):
+             start: str | None = None, return_state: bool = False,
+             vol_target: tuple | None = None):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
-    start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record)."""
+    start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
+
+    vol_target (pre-reg 0095): when set = (target_annual, window, floor), de-gross the SIZING equity
+    by the shared O-009 scalar so fills shrink when the book's trailing realised vol is above target.
+    None (default) => sizing_eq == eq exactly => byte-identical to the 0094 run of record."""
+    vt_ann, vt_win, vt_floor = vol_target if vol_target else (0.0, 42, 1.0)
     dts = pd.DatetimeIndex(sorted(set().union(*[set(s["dates"]) for s in P.values()])))
     dts = dts[dts >= pd.Timestamp(start or START)]
     didx = {t: {d: i for i, d in enumerate(s["dates"])} for t, s in P.items()}
@@ -97,6 +104,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
     op: dict[str, dict] = {}
     orders: dict[str, dict] = {}
     curve = []; T = []; skipped_cash = 0; activations = 0
+    eq_hist: list[float] = []                       # book equity by day (for the vol-target scalar; prior-day only)
     for d in dts:
         dd = d.date()
         # ── manage opens: EXACT 0089/0093 exit logic (pending Monday fills, weekly-close decisions) ──
@@ -161,6 +169,14 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                 opn = s["o"][i]
                 if o_["lo"] < opn < o_["hi"]:
                     cands.append((o_["rank"], t, i, opn))
+        # vol-target de-gross (pre-reg 0095): scale the sizing equity by the shared O-009 scalar,
+        # computed from PRIOR-day book returns only. Off (vol_target=None) => scl==1.0 => sizing_eq==eq.
+        if vol_target and len(eq_hist) >= 2:
+            eh = np.asarray(eq_hist, dtype=float)
+            scl = vol_target_scalar(np.diff(eh) / eh[:-1], target_annual=vt_ann, floor=vt_floor, window=vt_win)
+        else:
+            scl = 1.0
+        sizing_eq = eq * scl
         for rk, t, i, opn in sorted(cands, key=lambda x: (-x[0], x[1])):   # descending CRS distance
             o_ = orders.get(t)
             if o_ is None or t in op:
@@ -168,14 +184,14 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
             s = P[t]
             en = opn; st = o_["lo"]
             if en > st:
-                sh = eq * RISK / (en - st)
+                sh = sizing_eq * RISK / (en - st)
                 notion = sh * en * (1 + _cost_leg(s["adv20"][i], sh * en, cost_off))
                 if notion <= cash and sh > 0:
                     cash -= notion
                     op[t] = dict(en=en, stop=st, risk0=en - st, tp2=en + 2 * (en - st), sh=sh, sh0=sh,
                                  weeks=0, adv=s["adv20"][i], half_done=False, trail=st, pending=None,
                                  stt=sh * en * STT_PCT, cash_out=notion, proceeds=0.0)
-                    rp = sh * (en - st) / eq * 100
+                    rp = sh * (en - st) / sizing_eq * 100      # 2% of SIZING equity (== eq when vol_target off)
                     assert 1.99 <= rp <= 2.01, f"sizing {rp:.3f}"
                     if ledger is not None:
                         op[t]["rec"] = dict(tkr=t, entry_date=d, entry=round(float(en), 2),
@@ -193,6 +209,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
         eq = cash + mtm
         assert cash >= -1e-6
         curve.append((d, eq))
+        eq_hist.append(eq)
     if not return_state:                       # backtest convention: realize open positions at window end
         for t, p in op.items():
             i = len(P[t]["c"]) - 1; ex = P[t]["c"][i]
