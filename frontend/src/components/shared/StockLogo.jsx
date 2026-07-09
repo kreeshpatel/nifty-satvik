@@ -47,12 +47,15 @@ export function tickerBg(sym) {
   return `linear-gradient(135deg, hsl(${h} 70% 56%) 0%, hsl(${(h + 38) % 360} 60% 42%) 100%)`;
 }
 
-export default function StockLogo({ sym, size = 28, radius = 8 }) {
+export default function StockLogo({ sym, size = 28, radius = 8, mono = false }) {
   const domain = TICKER_DOMAINS[(sym || '').toUpperCase()];
-  const sources = domain
-    ? [`https://icons.duckduckgo.com/ip3/${domain}.ico`,
-       `https://www.google.com/s2/favicons?domain=${domain}&sz=128`]
-    : [];
+  // `mono` forces the coloured 2-letter tile (skips favicons entirely) — used
+  // by the watchlist rail so every row reads consistently, the way the design
+  // prototype does, instead of a mix of real logos and low-res junk favicons.
+  const sources = (mono || !domain)
+    ? []
+    : [`https://icons.duckduckgo.com/ip3/${domain}.ico`,
+       `https://www.google.com/s2/favicons?domain=${domain}&sz=128`];
   const [idx, setIdx] = React.useState(0);
   React.useEffect(() => { setIdx(0); }, [sym]);
 
