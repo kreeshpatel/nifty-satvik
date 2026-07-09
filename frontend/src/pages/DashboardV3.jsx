@@ -897,7 +897,7 @@ function ModelHealth({ cronHealth, metrics, portfolio }) {
       <div className="dv3-card-head">
         <div>
           <div className="t-ui-headline">Model health</div>
-          <div className="t-ui-footnote">Momentum book · paper</div>
+          <div className="t-ui-footnote">Weekly swing · paper</div>
         </div>
       </div>
       {rows.map(([k, v]) => (
@@ -1039,8 +1039,11 @@ function MorningCommentary({ regime, signalsCount }) {
 // ─────────────────────────────────────────────────────────────────────
 export default function DashboardV3() {
   const kite          = useContext(KiteContext);
-  const signalsQuery  = useSignals();
-  const watchlistQuery = useWatchlist();
+  // The live book is the weekly swing model (momentum is suspended, 2026-07-06),
+  // so the dashboard queries 'weekly' — same as the Research page — otherwise it
+  // reads the empty momentum feed and shows no pick / no cards.
+  const signalsQuery  = useSignals({ model: 'weekly' });
+  const watchlistQuery = useWatchlist({ model: 'weekly' });
   const overviewQuery = useOverview();
   const holdingsQuery = useKiteHoldings({ enabled: !!kite?.connected });
   const marginsQuery  = useKiteMargins({ enabled: !!kite?.connected });
