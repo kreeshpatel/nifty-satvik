@@ -1,22 +1,27 @@
 /**
- * LandingV2.jsx — Nifty Satvik marketing landing page (React port of Landing.html artifact).
+ * LandingV2.jsx — Nifty Satvik marketing landing — "THE SATVIK ALMANAC".
  *
- * Ported from: frontend/public/nifty-design/Landing.html
- * Styles:      frontend/src/styles/landing-v2.css (every selector scoped under
- *              [data-page-ctx="landing"] per CLAUDE.md CSS-scoping hard rule).
+ * Complete visual redesign (2026-07-07): a printed financial-broadsheet / ledger
+ * aesthetic (warm newsprint, editorial serif, ruled tables) replacing the prior
+ * dark-glass look. Styles: frontend/src/styles/landing-v2.css — every selector
+ * scoped under [data-page-ctx="landing"] per CLAUDE.md.
  *
- * Vanilla JS → React translations:
+ * Behaviour unchanged from the previous version:
  *   - FAQ accordion   → useState(openFaq) single-open index
  *   - Sector tabs     → useState(activeSector) + SECTORS data map
+ *   - Weekly scan     → conditional section, safe aggregate from /api/landing-stats
  *   - All "Request access" CTAs → RequestAccessModal (real POST /api/access-requests)
  *
- * Compliance: no "guarantee / will / sure-shot" language.
- * Stats are static marketing figures — see NOTE comment below.
+ * Compliance: no "guarantee / will / sure-shot" language; every real number is
+ * served aggregate-only by GET /api/landing-stats with honest baseline_v1 fallbacks.
  */
 
 import { useState, useEffect } from 'react';
 import { RegimeProvider } from '@/context/RegimeContext';
+import DashboardMockup from '@/components/landing/DashboardMockup';
 import RequestAccessModal from '@/components/landing/RequestAccessModal';
+import kiteMark from '@/assets/brand/kite-logo.png';
+import brandLogo from '@/assets/brand/nifty-satvik-logo.png';
 import { DISCLAIMER } from '@/lib/signalCopy';
 import '@/styles/landing-v2.css';
 
@@ -25,12 +30,41 @@ import '@/styles/landing-v2.css';
 // baseline_v1 anchor) used until the fetch resolves or if the endpoint is unreachable, so the
 // page never renders a blank or an invented figure. SAFETY: nothing here reveals the strategy.
 const STATS_FALLBACK = {
+  // Weekly-swing 0094 book (the marketed model), NET of costs, corrected universe 2017–2026.
+  // Reproduced from scripts/run_bhanushali_weekly_rank.py. NOT certified (DSR 0.894). The API
+  // serves these same frozen values; this is the honest offline fallback.
   backtest: {
-    cagr_pct: 15.46, net_cagr_pct: 12.2, sharpe: 0.667, win_rate_pct: 60.36,
-    total_trades: 1279, max_drawdown_pct: -46.26, operational_max_drawdown_pct: -39,
-    psr_gt0_pct: 97.4, period: '2017–2026',
+    cagr_pct: 24.7, net_cagr_pct: 24.7, sharpe: 1.13, win_rate_pct: 59.2,
+    total_trades: 255, max_drawdown_pct: -42.4, operational_max_drawdown_pct: -42.4,
+    total_return_pct: 711, mult: 8.11, alpha_pp: 528, dsr: 0.894, certified: false,
+    period: '2017–2026',
   },
   live: { since: '2026-06-30', n_positions: null, n_closed: 0, total_return_pct: null },
+  weekly_swing: null,   // this week's swing scan — populated by the API when a fresh scan exists
+  // Net calendar-year returns of the weekly-swing 0094 book (net of costs, corrected universe).
+  // 2017 & 2026 are partial years. ₹10L → ₹81.15L over the full run.
+  yearly_returns: [
+    { year: '2017', net_pct: 31.8, partial: true },
+    { year: '2018', net_pct: 11.6, partial: false },
+    { year: '2019', net_pct: 30.8, partial: false },
+    { year: '2020', net_pct: 11.4, partial: false },
+    { year: '2021', net_pct: 34.5, partial: false },
+    { year: '2022', net_pct: 34.8, partial: false },
+    { year: '2023', net_pct: 66.5, partial: false },
+    { year: '2024', net_pct: 9.9,  partial: false },
+    { year: '2025', net_pct: -13.0, partial: false },
+    { year: '2026', net_pct: 31.3, partial: true },
+  ],
+  // Growth-of-100 curve, weekly-swing 0094 NET vs Nifty 500 TRI (indexed to inception).
+  // Strategy ends 811.5 (8.11×, +711%); Nifty 283.9. Compact fallback; API serves the full series.
+  equity_bt: [
+    { t: '2017-01', s: 99.1,  b: 100.0 }, { t: '2018-01', s: 140.6, b: 109.3 },
+    { t: '2019-01', s: 152.9, b: 102.8 }, { t: '2020-01', s: 210.4, b: 113.9 },
+    { t: '2020-04', s: 174.2, b: 92.9 },  { t: '2021-01', s: 219.2, b: 132.0 },
+    { t: '2022-01', s: 297.9, b: 176.1 }, { t: '2023-01', s: 383.6, b: 178.4 },
+    { t: '2024-01', s: 666.6, b: 238.7 }, { t: '2024-07', s: 827.2, b: 285.3 },
+    { t: '2025-04', s: 604.1, b: 268.5 }, { t: '2026-06', s: 811.5, b: 283.9 },
+  ],
 };
 
 // number → display string, '—' when null/undefined (never an invented number).
@@ -42,7 +76,7 @@ const fmt = (v, opts = {}) => {
   return `${sign && n > 0 ? '+' : ''}${s}${suffix}`;
 };
 
-/* ─── Sector tab data (mirrors SECTORS in Landing.html vanilla JS) ─── */
+/* ─── Sector tab data ─── */
 const SECTORS = {
   largecap: {
     key: 'largecap',
@@ -50,7 +84,6 @@ const SECTORS = {
     name: 'Nifty 100 · Large-cap universe',
     meta: 'Illustrative — the universe Nifty Satvik scans daily',
     pct: '100 names',
-    tone: '',
     linePath: 'M0 240 L60 220 L120 200 L180 195 L240 170 L300 155 L360 130 L420 115 L480 90 L540 75 L600 60',
     fillPath: 'M0 240 L60 220 L120 200 L180 195 L240 170 L300 155 L360 130 L420 115 L480 90 L540 75 L600 60 L600 280 L0 280 Z',
     endCx: 600, endCy: 60,
@@ -68,7 +101,6 @@ const SECTORS = {
     name: 'Nifty Midcap 150',
     meta: 'Illustrative — the universe Nifty Satvik scans daily',
     pct: '150 names',
-    tone: '',
     linePath: 'M0 250 L60 235 L120 220 L180 200 L240 195 L300 165 L360 145 L420 110 L480 85 L540 55 L600 35',
     fillPath: 'M0 250 L60 235 L120 220 L180 200 L240 195 L300 165 L360 145 L420 110 L480 85 L540 55 L600 35 L600 280 L0 280 Z',
     endCx: 600, endCy: 35,
@@ -86,7 +118,6 @@ const SECTORS = {
     name: 'Nifty Smallcap 250',
     meta: 'Illustrative — the universe Nifty Satvik scans daily',
     pct: '250 names',
-    tone: '',
     linePath: 'M0 260 L60 250 L120 232 L180 240 L240 200 L300 180 L360 140 L420 100 L480 85 L540 45 L600 22',
     fillPath: 'M0 260 L60 250 L120 232 L180 240 L240 200 L300 180 L360 140 L420 100 L480 85 L540 45 L600 22 L600 280 L0 280 Z',
     endCx: 600, endCy: 22,
@@ -104,7 +135,6 @@ const SECTORS = {
     name: 'BankNifty universe',
     meta: 'Illustrative — the universe Nifty Satvik scans daily',
     pct: 'Bank Nifty',
-    tone: '',
     linePath: 'M0 245 L60 240 L120 225 L180 210 L240 215 L300 195 L360 180 L420 165 L480 140 L540 115 L600 85',
     fillPath: 'M0 245 L60 240 L120 225 L180 210 L240 215 L300 195 L360 180 L420 165 L480 140 L540 115 L600 85 L600 280 L0 280 Z',
     endCx: 600, endCy: 85,
@@ -117,7 +147,6 @@ const SECTORS = {
     ],
   },
 };
-
 const SECTOR_KEYS = ['largecap', 'midcap', 'smallcap', 'banking'];
 
 /* ─── FAQ items ─── */
@@ -148,7 +177,7 @@ const FAQ_ITEMS = [
   },
 ];
 
-/* ─── Tiny logo-tile helper (fallback to monogram) ─── */
+/* ─── Logo-tile helper (fallback to monogram) ─── */
 const LOGO_DOMAINS = {
   RELIANCE: 'ril.com', TCS: 'tcs.com', BAJFINANCE: 'bajajfinserv.in',
   INFY: 'infosys.com', HDFCBANK: 'hdfcbank.com', ICICIBANK: 'icicibank.com',
@@ -163,67 +192,220 @@ const LOGO_DOMAINS = {
 function LogoTile({ sym, size = 30 }) {
   const [failed, setFailed] = useState(false);
   const domain = LOGO_DOMAINS[sym];
-  const r = Math.round(size * 0.28);
-  const tileStyle = { width: size, height: size, borderRadius: r };
-
+  const tileStyle = { width: size, height: size };
   if (!domain || failed) {
-    return (
-      <span className="lv2-logo-tile mono" style={tileStyle}>
-        {sym.slice(0, 2)}
-      </span>
-    );
+    return <span className="alm-logo mono" style={tileStyle}>{sym.slice(0, 2)}</span>;
   }
   return (
-    <span className="lv2-logo-tile" style={tileStyle}>
-      <img
-        src={`https://icons.duckduckgo.com/ip3/${domain}.ico`}
-        alt={sym}
-        onError={() => setFailed(true)}
-      />
+    <span className="alm-logo" style={tileStyle}>
+      <img src={`https://icons.duckduckgo.com/ip3/${domain}.ico`} alt={sym} onError={() => setFailed(true)} />
     </span>
   );
 }
 
-/* ─── NavIcon SVG ─── */
-const ChartIcon = ({ size = 18 }) => (
-  <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+/* ─── icons ─── */
+const MarkIcon = ({ size = 18 }) => (
+  <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M4 19V8l5 6 4-9 4 11 3-5v8" />
   </svg>
 );
-
 const ArrowIcon = () => (
-  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M7 17 17 7" /><path d="M7 7h10v10" />
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M5 12h14M13 5l7 7-7 7" />
   </svg>
 );
-
-const PlayIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="6 4 20 12 6 20 6 4" />
-  </svg>
-);
-
 const PlusIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
     <path d="M12 5v14M5 12h14" />
   </svg>
 );
+const CheckIcon = ({ c = 'currentColor', s = 15 }) => (
+  <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+);
+const DashIcon = ({ c = 'currentColor', s = 15 }) => (
+  <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2.6" strokeLinecap="round"><path d="M5 12h14" /></svg>
+);
 
-/* ─── Section Eyebrow ─── */
-function SectionEyebrow({ children }) {
-  return <div className="lv2-section-eyebrow">{children}</div>;
+/* ─── section header (editorial) ─── */
+function Head({ kicker, title, sub }) {
+  return (
+    <div className="tp-head">
+      <div className="tp-eyebrow">{kicker}</div>
+      <h2 className="tp-title">{title}</h2>
+      {sub && <p className="tp-sub">{sub}</p>}
+    </div>
+  );
+}
+
+/* Spark — a faint metric-shaped sparkline drawn behind a KPI value. */
+function Spark({ tone, d }) {
+  return (
+    <svg className={`alm-hero-spark ${tone}`} viewBox="0 0 100 30" preserveAspectRatio="none" aria-hidden="true">
+      <path d={d} />
+    </svg>
+  );
+}
+
+/* ─── equity curve — TradingView-style area, strategy vs Nifty 500 (real data) ─── */
+function EquityCurve({ data }) {
+  const W = 640, H = 250, padL = 6, padR = 6, padT = 14, padB = 26;
+  const plotW = W - padL - padR, plotH = H - padT - padB, baseY = padT + plotH;
+  const n = data.length;
+  const all = data.flatMap((d) => [Number(d.s), Number(d.b)]);
+  const lo = Math.min(...all), hi = Math.max(...all);
+  const gap = (hi - lo) * 0.08 || 1;
+  const minV = Math.max(0, lo - gap), maxV = hi + gap;
+  const X = (i) => padL + (i / (n - 1)) * plotW;
+  const Y = (v) => padT + (1 - (v - minV) / (maxV - minV)) * plotH;
+  const path = (key) => data.map((d, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)} ${Y(Number(d[key])).toFixed(1)}`).join(' ');
+  const sLine = path('s'), bLine = path('b');
+  const area = `${sLine} L${X(n - 1).toFixed(1)} ${baseY} L${X(0).toFixed(1)} ${baseY} Z`;
+  const last = data[n - 1];
+  const gS = Math.round(last.s - 100), gB = Math.round(last.b - 100);
+  const grid = [0, 0.25, 0.5, 0.75, 1].map((f) => padT + f * plotH);
+  const seen = new Set();
+  const ticks = [];
+  data.forEach((d, i) => {
+    const y = d.t.slice(0, 4);
+    if (!seen.has(y) && Number(y) % 2 === 1) { seen.add(y); ticks.push({ i, y }); }
+  });
+
+  return (
+    <div className="alm-yearly">
+      <div className="alm-yearly-head">
+        <div>
+          <h3 className="alm-yearly-h">Growth of ₹100 — strategy vs Nifty 500</h3>
+          <div className="alm-yearly-sub">Net of costs · indexed to 2017 inception</div>
+        </div>
+        <div className="alm-yearly-legend">
+          <span><i style={{ background: 'var(--alm-accent)' }} />Strategy <b style={{ color: 'var(--alm-bull)', fontWeight: 600 }}>+{gS}%</b></span>
+          <span><i style={{ background: 'var(--alm-ink-3)' }} />Nifty 500 <b style={{ color: 'var(--alm-ink-2)', fontWeight: 600 }}>+{gB}%</b></span>
+        </div>
+      </div>
+      <div className="alm-yearly-body">
+        <svg className="alm-yearly-svg" viewBox={`0 0 ${W} ${H}`} role="img"
+          aria-label="Growth of 100 rupees: strategy versus Nifty 500 benchmark">
+          <defs>
+            <linearGradient id="eq-fill" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor="var(--alm-accent)" stopOpacity="0.30" />
+              <stop offset="100%" stopColor="var(--alm-accent)" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          {grid.map((gy, i) => (
+            <line key={i} x1={padL} x2={W - padR} y1={gy} y2={gy} stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+          ))}
+          {ticks.map((t) => (
+            <text key={t.y} x={X(t.i)} y={H - 8} textAnchor="middle" fill="var(--alm-ink-3)" fontSize="11"
+              fontFamily="var(--alm-mono)">{t.y}</text>
+          ))}
+          <path d={area} fill="url(#eq-fill)" />
+          <path d={bLine} fill="none" stroke="var(--alm-ink-3)" strokeWidth="1.4" strokeDasharray="5 4"
+            strokeLinecap="round" strokeLinejoin="round" opacity="0.85" />
+          <path d={sLine} fill="none" stroke="var(--alm-accent)" strokeWidth="2.4"
+            strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx={X(n - 1)} cy={Y(last.s)} r="4" fill="var(--alm-accent)" />
+          <circle cx={X(n - 1)} cy={Y(last.s)} r="8" fill="var(--alm-accent)" opacity="0.18" />
+        </svg>
+      </div>
+      <div className="alm-yearly-foot">
+        Strategy vs Nifty 500 Total-Return Index · backtest, in-sample.
+      </div>
+    </div>
+  );
+}
+
+/* ─── yearly returns bar chart — crisp SVG in the house chart style ─── */
+function YearlyReturns({ data }) {
+  const W = 640;
+  const padX = 12;
+  const topPad = 22;
+  const barMaxPx = 150;                       // px height of the tallest positive bar
+  const maxPos = Math.max(...data.map((d) => Number(d.net_pct) || 0), 1);
+  const maxNeg = Math.min(...data.map((d) => Number(d.net_pct) || 0), 0);
+  const k = barMaxPx / maxPos;                // px per percentage-point
+  const y0 = topPad + barMaxPx;               // zero baseline y
+  const H = y0 + Math.abs(maxNeg) * k + 40;   // room for neg bars + x labels
+  const plotW = W - padX * 2;
+  const slot = plotW / data.length;
+  const barW = Math.min(46, slot * 0.52);
+  // horizontal gridlines every 20% up from zero
+  const grids = [];
+  for (let g = 20; g <= maxPos + 5; g += 20) grids.push(g);
+
+  return (
+    <div className="alm-yearly">
+      <div className="alm-yearly-head">
+        <div>
+          <h3 className="alm-yearly-h">Calendar-year returns</h3>
+          <div className="alm-yearly-sub">Net calendar-year returns · net of costs</div>
+        </div>
+        <div className="alm-yearly-legend">
+          <span><i style={{ background: 'linear-gradient(180deg,#57E6A0,#24C97A)' }} />Positive</span>
+          <span><i style={{ background: 'linear-gradient(180deg,#FF7A90,#E23B54)' }} />Negative</span>
+        </div>
+      </div>
+      <div className="alm-yearly-body">
+        <svg className="alm-yearly-svg" viewBox={`0 0 ${W} ${H}`} role="img"
+          aria-label="Net calendar-year returns of the strategy backtest">
+          <defs>
+            <linearGradient id="yr-bull" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor="#57E6A0" /><stop offset="100%" stopColor="#22B76E" />
+            </linearGradient>
+            <linearGradient id="yr-bear" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0%" stopColor="#FF7A90" /><stop offset="100%" stopColor="#E23B54" />
+            </linearGradient>
+          </defs>
+          {/* gridlines + % ticks */}
+          {grids.map((g) => (
+            <g key={g}>
+              <line x1={padX} x2={W - padX} y1={y0 - g * k} y2={y0 - g * k}
+                stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+              <text x={padX} y={y0 - g * k - 3} fill="var(--alm-ink-4)" fontSize="9"
+                fontFamily="var(--alm-mono)">{g}%</text>
+            </g>
+          ))}
+          {/* zero baseline */}
+          <line x1={padX} x2={W - padX} y1={y0} y2={y0} stroke="rgba(255,255,255,0.20)" strokeWidth="1" />
+
+          {data.map((d, i) => {
+            const v = Number(d.net_pct) || 0;
+            const pos = v >= 0;
+            const cx = padX + slot * i + slot / 2;
+            const h = Math.max(Math.abs(v) * k, v === 0 ? 0 : 2);
+            const y = pos ? y0 - h : y0;
+            return (
+              <g key={d.year} className="yr-col" opacity={d.partial ? 0.5 : 1}>
+                <rect className="yr-bar" x={cx - barW / 2} y={y} width={barW} height={h}
+                  rx="3" fill={pos ? 'url(#yr-bull)' : 'url(#yr-bear)'} />
+                {Math.abs(v) >= 0.05 && (
+                  <text x={cx} y={pos ? y - 7 : y0 + h + 13} textAnchor="middle"
+                    fill={pos ? 'var(--alm-bull)' : 'var(--alm-bear)'} fontSize="11" fontWeight="600"
+                    fontFamily="var(--alm-mono)">{pos ? '+' : ''}{v.toFixed(1)}</text>
+                )}
+                <text x={cx} y={H - 8} textAnchor="middle"
+                  fill={d.partial ? 'var(--alm-ink-4)' : 'var(--alm-ink-3)'} fontSize="11"
+                  fontFamily="var(--alm-mono)">&rsquo;{d.year.slice(2)}</text>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+      <div className="alm-yearly-foot">
+        2017 &amp; 2026 are partial years (dimmed) · backtest, in-sample.
+      </div>
+    </div>
+  );
 }
 
 /* ═══════════════════════════════════════════════════════════
-   LandingV2Shell — the actual page, wrapped by RegimeProvider
+   LandingV2Shell — the page, wrapped by RegimeProvider
    ═══════════════════════════════════════════════════════════ */
 function LandingV2Shell() {
   const [requestOpen, setRequestOpen] = useState(false);
-  const [openFaq, setOpenFaq] = useState(null);      // single-open FAQ index
+  const [openFaq, setOpenFaq] = useState(null);
   const [activeSector, setActiveSector] = useState('largecap');
   const [stats, setStats] = useState(STATS_FALLBACK);
 
-  // Public aggregate stats — real backtest + live-paper numbers, honest fallbacks on failure.
   useEffect(() => {
     let alive = true;
     fetch('/api/landing-stats')
@@ -233,6 +415,11 @@ function LandingV2Shell() {
         setStats({
           backtest: { ...STATS_FALLBACK.backtest, ...(d.backtest || {}) },
           live: { ...STATS_FALLBACK.live, ...(d.live || {}) },
+          weekly_swing: d.weekly_swing || null,
+          yearly_returns: Array.isArray(d.yearly_returns) && d.yearly_returns.length
+            ? d.yearly_returns : STATS_FALLBACK.yearly_returns,
+          equity_bt: Array.isArray(d.equity_bt) && d.equity_bt.length
+            ? d.equity_bt : STATS_FALLBACK.equity_bt,
           equity_curve: Array.isArray(d.equity_curve) ? d.equity_curve : [],
         });
       })
@@ -242,526 +429,197 @@ function LandingV2Shell() {
 
   const bt = stats.backtest || STATS_FALLBACK.backtest;
   const live = stats.live || STATS_FALLBACK.live;
+  const weekly = stats.weekly_swing || null;
+  const yearly = (stats.yearly_returns && stats.yearly_returns.length)
+    ? stats.yearly_returns : STATS_FALLBACK.yearly_returns;
+  const equityBt = (stats.equity_bt && stats.equity_bt.length)
+    ? stats.equity_bt : STATS_FALLBACK.equity_bt;
+  const last = equityBt[equityBt.length - 1] || { s: 343.5, b: 293.2 };
+  const totalReturn = Math.round(last.s - 100);          // growth-of-100 → total return %
+  const alphaPP = Math.round(last.s - last.b);            // strategy − benchmark, in points
 
   const openModal = () => setRequestOpen(true);
-
   const sector = SECTORS[activeSector];
-
-  function scrollTo(id) {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  }
+  const scrollTo = (id) => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth' }); };
 
   return (
     <div data-page-ctx="landing">
 
-      {/* ─── NAV ─── */}
-      <nav className="lv2-nav">
-        <a className="lv2-nav-brand" href="#top">
-          <div className="lv2-nav-mark">
-            <ChartIcon size={18} />
-          </div>
-          <span className="lv2-nav-text">Nifty Satvik</span>
-        </a>
-        <div className="lv2-nav-links">
-          <button className="lv2-nav-link" onClick={() => scrollTo('how')}>How it works</button>
-          <button className="lv2-nav-link" onClick={() => scrollTo('proof')}>Track record</button>
-          <button className="lv2-nav-link" onClick={() => scrollTo('access')}>Access</button>
-          <button className="lv2-nav-link" onClick={() => scrollTo('faq')}>FAQ</button>
-        </div>
-        <div className="lv2-nav-cta">
-          <a href="/login" className="lv2-btn lv2-btn-ghost" style={{ height: 36, fontSize: 13 }}>
-            Sign in
+      {/* ═══ MASTHEAD ═══ */}
+      <header className="alm-mast">
+        <div className="alm-mast-inner">
+          <a className="alm-brand" href="#top">
+            <span className="alm-brand-mark"><img src={brandLogo} alt="Nifty Satvik" /></span>
+            <span className="alm-brand-name">Nifty Satvik<span>Systematic Signals</span></span>
           </a>
-          <button className="lv2-btn lv2-btn-primary" onClick={openModal} style={{ height: 36, fontSize: 13 }}>
-            Request access
-            <span className="lv2-btn-arrow"><ArrowIcon /></span>
-          </button>
-        </div>
-      </nav>
-
-      {/* ─── HERO ─── */}
-      <section className="lv2-hero" id="top">
-        <div className="lv2-hero-grid" />
-        <div className="lv2-hero-glow" />
-        <div className="lv2-wrap">
-          <div className="lv2-hero-pill">
-            <span className="lv2-badge">NEW</span>
-            <span>Systematic · walk-forward &amp; CPCV validated · Nifty 500 large &amp; mid-caps</span>
-          </div>
-
-          <h1 className="lv2-hero-title">
-            Trade only when the<br />
-            market says <em>yes</em>.
-          </h1>
-
-          <p className="lv2-hero-sub">
-            Nifty Satvik scores all 441 stocks in the Nifty 500 every weekday at 16:15 IST.
-            You wake up to the day's A-grade signals — often one, sometimes none — each with an explicit
-            entry, stop, and target, and a one-click route to Zerodha Kite.
-          </p>
-
-          <div className="lv2-hero-cta">
-            <button className="lv2-btn lv2-btn-primary" onClick={openModal}>
-              See today's signals
-              <span className="lv2-btn-arrow"><ArrowIcon /></span>
-            </button>
-            <button className="lv2-btn lv2-btn-ghost" onClick={() => scrollTo('how')}>
-              <PlayIcon />
-              Watch the 90-second tour
+          <nav className="alm-mast-links">
+            <button className="alm-mast-link" onClick={() => scrollTo('how')}>How it works</button>
+            <button className="alm-mast-link" onClick={() => scrollTo('top')}>Track record</button>
+            <button className="alm-mast-link" onClick={() => scrollTo('access')}>Access</button>
+            <button className="alm-mast-link" onClick={() => scrollTo('faq')}>FAQ</button>
+          </nav>
+          <div className="alm-mast-cta">
+            <a href="/login" className="alm-btn alm-btn-ghost alm-btn-sm">Sign in</a>
+            <button className="alm-btn alm-btn-primary alm-btn-sm" onClick={openModal}>
+              Request access<span className="alm-btn-arrow"><ArrowIcon /></span>
             </button>
           </div>
+        </div>
+      </header>
 
-          <div className="lv2-hero-trust">
-            <span>Walk-forward validated on 14 years of NSE data</span>
-            <span className="lv2-sep" />
-            <span>One-click Zerodha Kite routing · you sign every order</span>
+      {/* ═══ HERO — centered, TradePro-style ═══ */}
+      <section className="tp-hero" id="top">
+        <div className="alm-wrap">
+          <div className="tp-badge">Systematic swing signals · Nifty 500</div>
+          <h1 className="tp-hero-title">Trade only when the market says <span className="tp-script">yes</span>.</h1>
+          <p className="tp-hero-sub">
+            Nifty Satvik scores 441 stocks every weekday at 16:15 IST. Wake up to the day's A-grade
+            signals — each with an explicit entry, stop and target, and a one-click route to Zerodha Kite.
+          </p>
+          <div className="tp-hero-cta">
+            <button className="tp-btn tp-btn-primary" onClick={openModal}>Request access<ArrowIcon /></button>
+            <button className="tp-btn tp-btn-ghost" onClick={() => scrollTo('how')}>How it works</button>
           </div>
 
-          {/* Stat band — real baseline_v1 numbers, net-first, drawdown shown alongside */}
-          <div className="lv2-hero-stats">
-            <div className="lv2-hero-stat">
-              <div className="lv2-hero-stat-v">~{fmt(bt.net_cagr_pct, { dp: 0 })}<span>%</span></div>
-              <div className="lv2-hero-stat-l">Net CAGR · backtest, after cost + tax</div>
+          <div className="tp-shot"><DashboardMockup /></div>
+
+          <div className="tp-trust">
+            <span className="tp-trust-item"><span className="tp-trust-ic"><MarkIcon size={15} /></span><span className="tp-trust-t">NSE market data</span></span>
+            <span className="tp-trust-item"><span className="tp-trust-ic kite"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4v16h16" /><path d="M4 16l5-5 4 4 7-7" /></svg></span><span className="tp-trust-t">Zerodha Kite Connect</span></span>
+            <span className="tp-trust-item"><span className="tp-trust-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg></span><span className="tp-trust-t">OAuth 2.0 — you sign every order</span></span>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ TRACK RECORD — stat cards + charts ═══ */}
+      <section className="alm-section tight" id="proof">
+        <div className="alm-wrap">
+          <div className="tp-head">
+            <div className="tp-eyebrow">Track record</div>
+            <h2 className="tp-title">The numbers, <span className="tp-script">net</span> of every cost.</h2>
+            <p className="tp-sub">The weekly-swing book on a survivorship-corrected backtest ({bt.period}), net of brokerage, STT and slippage. In-sample and not yet certified — no real capital has traded.</p>
+          </div>
+
+          <div className="tp-stats">
+            <div className="tp-card tp-stat">
+              <Spark tone="bull" d="M0 47 L14 43 L28 45 L42 35 L56 37 L70 22 L84 15 L100 5" />
+              <div className="tp-stat-l">Total return</div>
+              <div className="tp-stat-v bull">+{fmt(totalReturn)}<span>%</span></div>
+              <div className="tp-stat-c">Net · ₹10L → ₹81L</div>
             </div>
-            <div className="lv2-hero-stat">
-              <div className="lv2-hero-stat-v">{fmt(bt.sharpe, { dp: 2 })}</div>
-              <div className="lv2-hero-stat-l">Sharpe ratio · backtest</div>
+            <div className="tp-card tp-stat">
+              <Spark tone="bull" d="M0 42 L16 40 L32 37 L48 33 L64 26 L80 18 L100 10" />
+              <div className="tp-stat-l">CAGR</div>
+              <div className="tp-stat-v">~{fmt(bt.cagr_pct, { dp: 0 })}<span>%</span></div>
+              <div className="tp-stat-c">Net of costs · before 20% STCG</div>
             </div>
-            <div className="lv2-hero-stat">
-              <div className="lv2-hero-stat-v">{fmt(bt.win_rate_pct, { dp: 0 })}<span>%</span></div>
-              <div className="lv2-hero-stat-l">Win rate · backtest</div>
+            <div className="tp-card tp-stat">
+              <Spark tone="brand" d="M0 45 L14 42 L28 40 L42 32 L56 30 L70 20 L84 16 L100 8" />
+              <div className="tp-stat-l">vs Nifty 500</div>
+              <div className="tp-stat-v">+{fmt(alphaPP)}<span>pp</span></div>
+              <div className="tp-stat-c">Cumulative alpha · TRI</div>
             </div>
-            <div className="lv2-hero-stat">
-              <div className="lv2-hero-stat-v">{fmt(bt.operational_max_drawdown_pct, { dp: 0 })}<span>%</span></div>
-              <div className="lv2-hero-stat-l">Max drawdown · operational</div>
+            <div className="tp-card tp-stat">
+              <Spark tone="bear" d="M0 14 L18 8 L34 6 L48 12 L62 28 L76 42 L88 47 L100 38" />
+              <div className="tp-stat-l">Max drawdown</div>
+              <div className="tp-stat-v bear">{fmt(bt.max_drawdown_pct, { dp: 0 })}<span>%</span></div>
+              <div className="tp-stat-c">Raw · Sharpe {fmt(bt.sharpe, { dp: 2 })}</div>
             </div>
           </div>
-          <p style={{ fontSize: 11, color: 'var(--lv2-text-3)', marginTop: 14, maxWidth: 640 }}>
-            Backtest, {bt.period}, in-sample and after brokerage, STT, slippage and 20% STCG — gross
-            CAGR {fmt(bt.cagr_pct, { dp: 1 })}%, Sharpe 95% CI includes zero. Not indicative of future
-            results. Returns are lumpy: a handful of strong-trend years drive the total, with multi-year
-            flat stretches and a &gt;40% peak-to-trough drawdown. No real capital has traded yet — the
-            forward paper record since {live.since} is the real test.
+
+          <div className="alm-chart-duo" style={{ marginTop: 16 }}>
+            <EquityCurve data={equityBt} />
+            <YearlyReturns data={yearly} />
+          </div>
+
+          <p className="bento-fine" style={{ textAlign: 'center', marginInline: 'auto' }}>
+            Weekly-swing book, backtest {bt.period}, net of costs before 20% STCG, in-sample on the survivorship-corrected universe — Sharpe {fmt(bt.sharpe, { dp: 2 })}, DSR {fmt(bt.dsr, { dp: 2 })} (below the certification gate). Not indicative of future results; a handful of strong-trend years drive the total, with a &gt;40% peak-to-trough drawdown. No real capital has traded — the forward paper record since {live.since} is the real test.
           </p>
         </div>
+      </section>
 
-        {/* Product bezel */}
-        <div className="lv2-hero-product">
-          <div className="lv2-hero-product-bezel">
-            <div className="lv2-hero-product-bar">
-              <span className="lv2-dot" /><span className="lv2-dot" /><span className="lv2-dot" />
-              <span className="lv2-url">
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2C20 17.5 12 22 12 22Z" /></svg>
-                app.niftyquant.in / dashboard
-                <span style={{ marginLeft: 8, fontSize: 9, letterSpacing: '0.1em', color: 'var(--lv2-text-4)', textTransform: 'uppercase' }}>· illustrative</span>
-              </span>
+      {/* ═══ THIS WEEK'S SCAN — split card ═══ */}
+      {weekly && (
+      <section className="alm-section tight" id="weekly">
+        <div className="alm-wrap">
+          <div className="tp-card tp-scan-card">
+            <div>
+              <div className="tp-eyebrow">This week's scan · weekly swing model</div>
+              <h2 className="tp-title" style={{ fontSize: 'clamp(24px, 2.6vw, 34px)' }}>Fresh setups, <span className="tp-script">every week</span>.</h2>
+              <p className="tp-sub" style={{ margin: '12px 0 0', textAlign: 'left' }}>Our flagship swing model re-scans the Nifty-500 large &amp; mid-cap universe each week and publishes a graded shortlist — counts and grades only, never a ticker or price. Paper-tracked ahead of live capital.</p>
             </div>
-            <div className="lv2-hero-product-img">
-              <div className="lv2-mini-dash">
-                {/* Top bar */}
-                <div className="lv2-mini-dash-bar">
-                  <div className="lv2-mini-dash-brand">
-                    <div className="lv2-m"><ChartIcon size={13} /></div>
-                    Nifty Satvik
-                  </div>
-                  <div className="lv2-mini-dash-tabs">
-                    {['Dashboard', 'Signals', 'Portfolio', 'Backtest'].map((t, i) => (
-                      <span key={t} className={`lv2-mini-dash-tab${i === 0 ? ' on' : ''}`}>{t}</span>
-                    ))}
-                  </div>
-                </div>
-                {/* Sidebar */}
-                <div className="lv2-mini-dash-side">
-                  <div className="lv2-sec">Today</div>
-                  <div className="lv2-item on"><span className="lv2-d" />Fresh signals · 3</div>
-                  <div className="lv2-item"><span className="lv2-d" />Open positions · 7</div>
-                  <div className="lv2-item"><span className="lv2-d" />Equity curve</div>
-                  <div className="lv2-sec">Research</div>
-                  <div className="lv2-item"><span className="lv2-d" />Backtest</div>
-                  <div className="lv2-item"><span className="lv2-d" />Track record</div>
-                  <div className="lv2-item"><span className="lv2-d" />Journal</div>
-                </div>
-                {/* Main */}
-                <div className="lv2-mini-dash-main">
-                  <div className="lv2-mini-dash-regime">
-                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--lv2-bull)', boxShadow: '0 0 8px var(--lv2-bull)', flexShrink: 0 }} />
-                    The market regime, read systematically each day
-                  </div>
-                  <div className="lv2-mini-cards">
-                    <div className="lv2-mini-card fresh">
-                      <div className="lv2-mini-card-eyebrow">FRESH · GRADE A</div>
-                      <div className="lv2-mini-card-head">
-                        <LogoTile sym="RELIANCE" size={22} />
-                        <div className="lv2-mini-card-name">RELIANCE</div>
-                      </div>
-                      <div className="lv2-mini-card-vals">
-                        <span className="lv2-mini-card-price">₹2,948.20</span>
-                        <span className="lv2-mini-card-pct bull">+2.18%</span>
-                      </div>
-                    </div>
-                    <div className="lv2-mini-card fresh">
-                      <div className="lv2-mini-card-eyebrow">FRESH · GRADE A−</div>
-                      <div className="lv2-mini-card-head">
-                        <LogoTile sym="TCS" size={22} />
-                        <div className="lv2-mini-card-name">TCS</div>
-                      </div>
-                      <div className="lv2-mini-card-vals">
-                        <span className="lv2-mini-card-price">₹4,128.50</span>
-                        <span className="lv2-mini-card-pct bull">+1.62%</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="lv2-mini-chart">
-                    <svg viewBox="0 0 320 90" preserveAspectRatio="none">
-                      <defs>
-                        <linearGradient id="lv2-mc-fill" x1="0" x2="0" y1="0" y2="1">
-                          <stop offset="0%" stopColor="#4F8CFF" stopOpacity="0.42" />
-                          <stop offset="100%" stopColor="#4F8CFF" stopOpacity="0" />
-                        </linearGradient>
-                      </defs>
-                      <path d="M0 70 L20 64 L40 66 L60 58 L80 52 L100 56 L120 44 L140 48 L160 38 L180 30 L200 36 L220 24 L240 18 L260 22 L280 14 L300 10 L320 6 L320 90 L0 90 Z" fill="url(#lv2-mc-fill)" />
-                      <path d="M0 70 L20 64 L40 66 L60 58 L80 52 L100 56 L120 44 L140 48 L160 38 L180 30 L200 36 L220 24 L240 18 L260 22 L280 14 L300 10 L320 6"
-                        fill="none" stroke="#4F8CFF" strokeWidth="2" strokeLinecap="round"
-                        style={{ filter: 'drop-shadow(0 2px 6px rgba(79,140,255,0.45))' }} />
-                      <circle cx="320" cy="6" r="3.2" fill="#fff" />
-                      <circle cx="320" cy="6" r="8" fill="#fff" opacity="0.20" />
-                    </svg>
-                  </div>
-                </div>
-                {/* Right column */}
-                <div className="lv2-mini-dash-right">
-                  <div className="lv2-sec">Sector breadth</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 11 }}>
-                    {[['Banking', '72%', 'var(--lv2-bull)'], ['IT', '58%', 'var(--lv2-bull)'], ['Auto', '41%', 'var(--lv2-warn)'], ['Pharma', '64%', 'var(--lv2-bull)'], ['Energy', '36%', 'var(--lv2-bear)']].map(([label, val, color]) => (
-                      <div key={label} style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>{label}</span>
-                        <span style={{ color, fontFamily: 'var(--lv2-font-mono)' }}>{val}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="lv2-mini-bal">
-                    <div className="lv2-l">YOUR EQUITY</div>
-                    <div className="lv2-v">₹ ••••••</div>
-                    <div className="lv2-l" style={{ marginTop: 4 }}>Your own Zerodha funds</div>
-                    <button className="lv2-mini-bal-btn">Open trade desk</button>
-                  </div>
-                </div>
+            <div>
+              <div className="tp-scan-big">{fmt(weekly.n_signals)}<span>fresh setups this week</span></div>
+              <div className="tp-scan-pills">
+                <span className="tp-pill">{fmt(weekly.grade_a)} grade A</span>
+                <span className="tp-pill">{fmt(weekly.grade_b)} grade B</span>
+                <span className="tp-pill bull">avg target {fmt(weekly.avg_target_upside_pct, { dp: 1 })}%</span>
               </div>
+              <div className="tp-scan-foot">Buy window through {weekly.buy_window_until} · {fmt(weekly.hold_days)}-day swing horizon</div>
+            </div>
+          </div>
+        </div>
+      </section>
+      )}
+
+      {/* ═══ CONFIDENCE — big stat moment ═══ */}
+      <section className="alm-section tight">
+        <div className="alm-wrap">
+          <div className="tp-card tp-bigstat">
+            <div className="tp-bigstat-num">{fmt(bt.mult, { dp: 1 })}<span>×</span></div>
+            <div className="tp-bigstat-body">
+              <h3>₹10 lakh → ₹81 lakh in the backtest — and honest about the rest.</h3>
+              <p>Over {bt.period}, the weekly-swing book compounded 8.1× net of costs (Sharpe {fmt(bt.sharpe, { dp: 2 })}, {fmt(bt.win_rate_pct, { dp: 0 })}% win across {bt.total_trades} trades). But it's in-sample, before 20% STCG, the drawdown runs past 40%, and its DSR of {fmt(bt.dsr, { dp: 2 })} sits below the certification gate — so it's paper-tracked, not proven, and no real capital has traded. We'd rather tell you that than sell you certainty.</p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ─── TRUST STRIP ─── */}
-      <section className="lv2-trust">
-        <div className="lv2-wrap">
-          <div className="lv2-trust-label">DATA · EXECUTION · SECURITY</div>
-          <div className="lv2-trust-row">
-            <div className="lv2-trust-logo">
-              <span className="lv2-trust-mono" style={{ color: '#F1F5FF' }}>NSE</span>
-              <span className="lv2-trust-meta">EOD bars + intraday quotes</span>
-            </div>
-            <span className="lv2-trust-div" />
-            <div className="lv2-trust-logo lv2-trust-kite">
-              <span className="lv2-trust-kite-mark">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 4v16h16" /><path d="M4 16l5-5 4 4 7-7" />
-                </svg>
-              </span>
-              <span className="lv2-trust-kite-text">
-                Zerodha&nbsp;<span style={{ color: 'var(--lv2-text-3)', fontWeight: 400 }}>Kite Connect</span>
-              </span>
-            </div>
-            <span className="lv2-trust-div" />
-            <div className="lv2-trust-logo">
-              <span className="lv2-trust-mono" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                </svg>
-                OAuth 2.0
-              </span>
-              <span className="lv2-trust-meta">No password storage</span>
-            </div>
+      {/* ═══ HOW IT WORKS — scan → rank → screen → size ═══ */}
+      <section className="alm-section" id="how">
+        <div className="alm-wrap">
+          <div className="tp-head">
+            <div className="tp-eyebrow">How it works</div>
+            <h2 className="tp-title">No black box. The same path, <span className="tp-script">every day</span>.</h2>
+            <p className="tp-sub">Every signal travels one transparent, frozen pipeline — identical in backtest and in production. The one thing we keep private is the exact ranking formula.</p>
           </div>
-        </div>
-      </section>
-
-      {/* ─── HOW IT WORKS — sector tabs ─── */}
-      <section className="lv2-section" id="how">
-        <div className="lv2-wrap">
-          <div className="lv2-section-head">
-            <SectionEyebrow>HOW IT WORKS</SectionEyebrow>
-            <h2 className="lv2-section-title">Built for the way Indian swings actually trade.</h2>
-            <p className="lv2-section-sub">
-              A systematic model ranks every Nifty 500 large- and mid-cap by trend quality and
-              risk, point-in-time and cross-sectionally. Only the strongest, most liquid, most
-              solvent names clear the bar and ship as signals — the rest are scored and set aside.
-            </p>
-          </div>
-
-          {/* Sector tabs (React state replaces vanilla classList) */}
-          <div className="lv2-sectors-wrap">
-            <div className="lv2-sectors-tabs">
-              {SECTOR_KEYS.map((key) => (
-                <button
-                  key={key}
-                  className={`lv2-sector-tab${activeSector === key ? ' on' : ''}`}
-                  onClick={() => setActiveSector(key)}
-                >
-                  {SECTORS[key].label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="lv2-sector-panel">
-            <div className="lv2-sector-chart">
-              <div className="lv2-sector-chart-head">
-                <div>
-                  <div className="lv2-sector-chart-h">{sector.name}</div>
-                  <div className="lv2-sector-chart-meta">{sector.meta}</div>
-                </div>
-                <span className={`lv2-sector-chart-pct ${sector.tone}`}>{sector.pct}</span>
-              </div>
-              <svg className="lv2-sector-chart-svg" viewBox="0 0 600 280" preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="lv2-sc-fill" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0%" stopColor="#4F8CFF" stopOpacity="0.32" />
-                    <stop offset="100%" stopColor="#4F8CFF" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                <line x1="0" x2="600" y1="70"  y2="70"  stroke="rgba(255,255,255,0.05)" />
-                <line x1="0" x2="600" y1="140" y2="140" stroke="rgba(255,255,255,0.05)" />
-                <line x1="0" x2="600" y1="210" y2="210" stroke="rgba(255,255,255,0.05)" />
-                {/* benchmark dashed */}
-                <path d="M0 230 L60 224 L120 220 L180 214 L240 208 L300 202 L360 198 L420 192 L480 188 L540 184 L600 180"
-                  fill="none" stroke="#7A82A5" strokeWidth="1.6" strokeDasharray="5 5" opacity="0.7" />
-                <path d={sector.fillPath} fill="url(#lv2-sc-fill)" />
-                <path d={sector.linePath}
-                  fill="none" stroke="#4F8CFF" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"
-                  style={{ filter: 'drop-shadow(0 4px 12px rgba(79,140,255,0.5))' }} />
-                <circle cx={sector.endCx} cy={sector.endCy} r="5" fill="#4F8CFF" />
-                <circle cx={sector.endCx} cy={sector.endCy} r="10" fill="#4F8CFF" opacity="0.20" />
-                <text x="8" y="265" fontFamily="var(--lv2-font-mono)" fontSize="9" fill="#7A82A5">Illustrative — not a live curve</text>
-              </svg>
-            </div>
-
-            <div className="lv2-sector-side">
-              {sector.rows.map((row) => (
-                <div key={row.sym} className="lv2-s-item">
-                  <div className="lv2-item-l">
-                    <LogoTile sym={row.sym} size={30} />
-                    <div>
-                      <div className="lv2-sym">{row.sym} <span className="lv2-name">· {row.name}</span></div>
-                    </div>
-                  </div>
-                  <div>
-                    <span className="lv2-price">{row.price}</span>
-                    {' '}<span className={`lv2-chg ${row.tone}`}> {row.chg}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── PIPELINE (5 steps) ─── */}
-      <section className="lv2-section" style={{ paddingTop: 0 }}>
-        <div className="lv2-wrap">
-          <div className="lv2-section-head">
-            <SectionEyebrow>UNDER THE HOOD</SectionEyebrow>
-            <h2 className="lv2-section-title">No black box. The same path, every day.</h2>
-            <p className="lv2-section-sub">
-              Every signal travels one transparent, frozen pipeline — and every step runs
-              identically in backtest and in production. What we measure is what we serve.
-              The one thing we keep private is the exact ranking formula.
-            </p>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(190px, 1fr))', gap: 14 }}>
+          <div className="tp-steps">
             {[
               ['Scan', 'Every weekday after the 15:30 NSE close we refresh point-in-time prices and fundamentals across the full Nifty 500 large- and mid-cap universe. No lookahead, ever.'],
-              ['Rank', 'Each name is scored cross-sectionally on trend quality and risk. The exact ranking rule is proprietary and frozen — derived once from history, then never touched.'],
+              ['Rank', 'Each name is scored cross-sectionally on trend quality and risk. The ranking rule is proprietary and frozen — derived once from history, then never touched.'],
               ['Screen', 'Only the top-ranked names that also pass strict liquidity and solvency filters survive. Most days that is one or two. Often zero — and that restraint is part of the edge.'],
-              ['Risk-size', 'Each survivor ships as a complete plan — entry, a hard stop, a target, and a size set to a fixed risk budget with a portfolio-level volatility cap — ready to route to Kite.'],
+              ['Risk-size', 'Each survivor ships as a complete plan — entry, a hard stop, a target, and a size set to a fixed risk budget with a volatility cap — ready to route to Kite.'],
             ].map(([title, desc], i) => (
-              <div
-                key={title}
-                style={{
-                  background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%)',
-                  border: '1px solid var(--lv2-edge-1)',
-                  borderRadius: 16,
-                  padding: 22,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 10,
-                }}
-              >
-                <div style={{ fontFamily: 'var(--lv2-font-mono)', fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--lv2-brand-hi)', fontWeight: 600 }}>
-                  {`0${i + 1}`}
-                </div>
-                <h3 style={{ fontFamily: 'var(--lv2-font-display)', fontSize: 17, fontWeight: 600, letterSpacing: '-0.018em', margin: 0, color: 'var(--lv2-text-1)' }}>
-                  {title}
-                </h3>
-                <p style={{ fontSize: 13, lineHeight: 1.5, color: 'var(--lv2-text-2)', margin: 0 }}>{desc}</p>
+              <div className={`tp-card tp-step${i === 1 ? ' on' : ''}`} key={title}>
+                <div className="tp-step-no">0{i + 1}</div>
+                <h3>{title}</h3>
+                <p>{desc}</p>
               </div>
             ))}
-            {/* The deliberately-redacted step — 'how it works, without the secret' */}
-            <div style={{
-              background: 'linear-gradient(180deg, rgba(43,91,255,0.06) 0%, rgba(43,91,255,0.02) 100%)',
-              border: '1px dashed var(--lv2-brand-edge)', borderRadius: 16, padding: 22,
-              display: 'flex', flexDirection: 'column', gap: 10,
-            }}>
-              <div style={{ fontFamily: 'var(--lv2-font-mono)', fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--lv2-text-3)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 7 }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                The moat
-              </div>
-              <h3 style={{ fontFamily: 'var(--lv2-font-display)', fontSize: 17, fontWeight: 600, letterSpacing: '-0.018em', margin: 0, color: 'var(--lv2-text-1)' }}>
-                Ranking formula · not disclosed
-              </h3>
-              <p style={{ fontSize: 13, lineHeight: 1.5, color: 'var(--lv2-text-2)', margin: 0 }}>
-                The exact factor, thresholds, and hold rules are the edge — so they stay internal.
-                You get the plan and the track record; the recipe stays ours.
-              </p>
+          </div>
+          <div className="alm-moat">
+            <div className="alm-moat-ic">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+            </div>
+            <div className="alm-moat-body">
+              <div className="alm-moat-k">The moat · kept private</div>
+              <h3>The ranking formula is not disclosed.</h3>
+              <p>The exact factor, thresholds, and hold rules are the edge — so they stay internal. You get the complete plan and the full track record; the recipe stays ours.</p>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* ─── CAPABILITIES / FEATURES ─── */}
-      <section className="lv2-section" style={{ paddingTop: 0 }}>
-        <div className="lv2-wrap">
-          <div className="lv2-section-head">
-            <SectionEyebrow>CAPABILITIES</SectionEyebrow>
-            <h2 className="lv2-section-title">Conviction, proof, execution.</h2>
-            <p className="lv2-section-sub">Three things in that order. Everything else is noise.</p>
-          </div>
-
-          <div className="lv2-features">
-            {/* 01 — CONVICTION */}
-            <div className="lv2-feature">
-              <div className="lv2-num">01 · CONVICTION</div>
-              <h3>Only signals that earned their place.</h3>
-              <p>The 4:15 PM IST scan grades every stock A through D. We surface A and A−. Most days that's one or two ideas. Often zero — and that's a feature.</p>
-              <div className="lv2-feature-visual">
-                <svg viewBox="0 0 320 140" width="100%" height="100%" preserveAspectRatio="none">
-                  <defs>
-                    <linearGradient id="lv2-ft1" x1="0" x2="0" y1="0" y2="1">
-                      <stop offset="0%" stopColor="#5BC7FF" stopOpacity="0.5" />
-                      <stop offset="100%" stopColor="#5BC7FF" stopOpacity="0" />
-                    </linearGradient>
-                  </defs>
-                  <g transform="translate(20, 18)">
-                    <rect width="280" height="22" rx="6" fill="rgba(91,199,255,0.18)" stroke="rgba(91,199,255,0.4)" />
-                    <text x="12" y="15" fontFamily="DM Sans" fontSize="10" fontWeight="600" fill="#5BC7FF">A · RELIANCE · +2.18%</text>
-                  </g>
-                  <g transform="translate(20, 46)">
-                    <rect width="280" height="22" rx="6" fill="rgba(91,199,255,0.14)" stroke="rgba(91,199,255,0.3)" />
-                    <text x="12" y="15" fontFamily="DM Sans" fontSize="10" fontWeight="600" fill="#B8C0DA">A− · TCS · +1.62%</text>
-                  </g>
-                  <g transform="translate(20, 74)" opacity="0.4">
-                    <rect width="280" height="14" rx="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" />
-                    <text x="12" y="11" fontFamily="DM Sans" fontSize="9" fill="#7A82A5">B+ · BAJFINANCE · score below threshold</text>
-                  </g>
-                  <g transform="translate(20, 94)" opacity="0.25">
-                    <rect width="280" height="14" rx="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" />
-                    <text x="12" y="11" fontFamily="DM Sans" fontSize="9" fill="#7A82A5">B · HINDUNILVR · score below threshold</text>
-                  </g>
-                  <g transform="translate(20, 114)" opacity="0.12">
-                    <rect width="280" height="14" rx="4" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" />
-                    <text x="12" y="11" fontFamily="DM Sans" fontSize="9" fill="#7A82A5">436 more stocks · scored, not surfaced</text>
-                  </g>
-                </svg>
-              </div>
-            </div>
-
-            {/* 02 — PROOF */}
-            <div className="lv2-feature">
-              <div className="lv2-num">02 · PROOF</div>
-              <h3>Walk-forward backtested. Not curve-fit.</h3>
-              <p>Every signal is validated on out-of-sample bars the model never saw. The live paper record updates daily — young, but growing with every position opened and closed.</p>
-              <div className="lv2-feature-visual">
-                <svg viewBox="0 0 320 140" width="100%" height="100%" preserveAspectRatio="none">
-                  <defs>
-                    <linearGradient id="lv2-ft2" x1="0" x2="0" y1="0" y2="1">
-                      <stop offset="0%" stopColor="#3FDD8A" stopOpacity="0.40" />
-                      <stop offset="100%" stopColor="#3FDD8A" stopOpacity="0" />
-                    </linearGradient>
-                  </defs>
-                  <line x1="0" x2="320" y1="50" y2="50" stroke="rgba(255,255,255,0.05)" />
-                  <line x1="0" x2="320" y1="90" y2="90" stroke="rgba(255,255,255,0.05)" />
-                  <path d="M0 110 L40 100 L80 105 L120 88 L160 82 L200 65 L240 58 L280 40 L320 28 L320 140 L0 140 Z" fill="url(#lv2-ft2)" />
-                  <path d="M0 110 L40 100 L80 105 L120 88 L160 82 L200 65 L240 58 L280 40 L320 28"
-                    fill="none" stroke="#3FDD8A" strokeWidth="2"
-                    style={{ filter: 'drop-shadow(0 2px 6px rgba(63,221,138,0.5))' }} />
-                  <path d="M0 120 L40 116 L80 114 L120 108 L160 104 L200 98 L240 94 L280 90 L320 86"
-                    fill="none" stroke="#7A82A5" strokeWidth="1.5" strokeDasharray="4 4" opacity="0.6" />
-                  <circle cx="320" cy="28" r="3.5" fill="#3FDD8A" />
-                  <text x="6" y="14" fontFamily="DM Sans" fontSize="9" fontWeight="600" fill="#3FDD8A">Strategy (backtest)</text>
-                  <text x="6" y="28" fontFamily="DM Sans" fontSize="9" fill="#7A82A5">Benchmark</text>
-                </svg>
-              </div>
-            </div>
-
-            {/* 03 — EXECUTION */}
-            <div className="lv2-feature">
-              <div className="lv2-num">03 · EXECUTION</div>
-              <h3>One click to Zerodha Kite.</h3>
-              <p>Sized to your account, routed to Kite, recorded in your journal. No second tab. No copy-paste. The signal is the order is the trade log.</p>
-              <div className="lv2-feature-visual" style={{ display: 'grid', placeItems: 'center' }}>
-                <svg viewBox="0 0 220 100" width="220" height="100">
-                  <g transform="translate(8, 14)">
-                    <rect width="96" height="72" rx="10" fill="rgba(79,140,255,0.10)" stroke="rgba(79,140,255,0.36)" />
-                    <text x="10" y="18" fontFamily="DM Sans" fontSize="9" fontWeight="600" fill="#5BC7FF">FRESH</text>
-                    <text x="10" y="34" fontFamily="DM Sans" fontSize="13" fontWeight="600" fill="#F1F5FF">RELIANCE</text>
-                    <text x="10" y="50" fontFamily="DM Sans" fontSize="11" fontWeight="500" fill="#F1F5FF" style={{ fontVariantNumeric: 'tabular-nums' }}>₹2,948</text>
-                    <rect x="10" y="56" width="68" height="14" rx="7" fill="#4F8CFF" />
-                    <text x="44" y="66" fontFamily="DM Sans" fontSize="9" fontWeight="600" fill="#fff" textAnchor="middle">BUY × 25</text>
-                  </g>
-                  <g transform="translate(110, 46)">
-                    <path d="M0 4 H22 M16 0 L24 4 L16 8" fill="none" stroke="#4F8CFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </g>
-                  <g transform="translate(140, 14)">
-                    <rect width="72" height="72" rx="10" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.18)" />
-                    <circle cx="36" cy="22" r="11" fill="#ff6b35" />
-                    <path d="M30 18 L34 22 L42 14" fill="none" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                    <text x="36" y="46" fontFamily="DM Sans" fontSize="9" fontWeight="600" fill="#F1F5FF" textAnchor="middle">Kite</text>
-                    <text x="36" y="58" fontFamily="DM Sans" fontSize="8" fill="#7A82A5" textAnchor="middle">You sign</text>
-                    <text x="36" y="68" fontFamily="DM Sans" fontSize="8" fill="#3FDD8A" textAnchor="middle">1-tap</text>
-                  </g>
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── ANATOMY OF A SIGNAL ─── */}
-      <section className="lv2-section" style={{ paddingTop: 0 }}>
-        <div className="lv2-wrap">
-          <div className="lv2-section-head">
-            <SectionEyebrow>WHAT YOU GET</SectionEyebrow>
-            <h2 className="lv2-section-title">Every signal is a complete trade plan.</h2>
-            <p className="lv2-section-sub">
-              No “buy at CMP.” Each signal arrives with everything you need to act — and to
-              manage the downside — precomputed.
-            </p>
-          </div>
-          <div className="lv2-proof">
-            {/* Sample signal card */}
-            <div className="lv2-proof-chart" style={{ height: 'auto', display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div className="alm-subhead">What you get — every signal is a complete trade plan</div>
+          <div className="alm-ledger">
+            <div className="alm-ledger-main">
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
                   <LogoTile sym="RELIANCE" size={34} />
                   <div>
-                    <div style={{ fontWeight: 600, color: 'var(--lv2-text-1)', fontSize: 16 }}>RELIANCE</div>
-                    <div style={{ fontSize: 11, color: 'var(--lv2-text-3)', fontFamily: 'var(--lv2-font-mono)' }}>Energy · NSE · example</div>
+                    <div style={{ fontFamily: 'var(--alm-serif)', fontWeight: 600, fontSize: 18, color: 'var(--alm-ink)' }}>RELIANCE</div>
+                    <div style={{ fontFamily: 'var(--alm-mono)', fontSize: 10, color: 'var(--alm-ink-3)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Energy · NSE · example</div>
                   </div>
                 </div>
-                <span style={{ fontFamily: 'var(--lv2-font-mono)', fontSize: 11, fontWeight: 600, color: 'var(--lv2-info)', border: '1px solid var(--lv2-info-edge)', background: 'var(--lv2-info-soft)', borderRadius: 6, padding: '4px 8px' }}>
-                  GRADE A · SAMPLE
-                </span>
+                <span className="alm-tag">Grade A · Sample</span>
               </div>
               {[
                 ['Entry', '₹2,872', ''],
@@ -770,24 +628,37 @@ function LandingV2Shell() {
                 ['Risk : reward', '1 : 2.2', ''],
                 ['Hold window', 'Multi-week', ''],
               ].map(([k, v, tone]) => (
-                <div key={k} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--lv2-edge-1)', paddingTop: 10 }}>
-                  <span style={{ fontSize: 13, color: 'var(--lv2-text-3)' }}>{k}</span>
-                  <span style={{ fontFamily: 'var(--lv2-font-mono)', fontWeight: 600, fontSize: 14, color: tone === 'bull' ? 'var(--lv2-bull)' : tone === 'bear' ? 'var(--lv2-bear)' : 'var(--lv2-text-1)' }}>{v}</span>
+                <div key={k} style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', borderTop: '1px solid var(--alm-rule)', paddingTop: 12 }}>
+                  <span style={{ fontFamily: 'var(--alm-sans)', fontSize: 11, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--alm-ink-3)' }}>{k}</span>
+                  <span style={{ fontFamily: 'var(--alm-mono)', fontWeight: 600, fontSize: 16, color: tone === 'bull' ? 'var(--alm-bull)' : tone === 'bear' ? 'var(--alm-bear)' : 'var(--alm-ink)' }}>{v}</span>
                 </div>
               ))}
-              <div style={{ fontSize: 11, color: 'var(--lv2-text-4)', marginTop: 4 }}>Illustrative example — not a live recommendation.</div>
+              {/* ATR risk/reward band — stop → entry → target, drawn to scale */}
+              <div className="alm-rrbar">
+                <div className="alm-rrbar-head"><span className="bear">Risk 1</span><span className="bull">Reward 2.2</span></div>
+                <div className="alm-rrbar-track">
+                  <div className="alm-rrbar-risk" style={{ width: '31%' }} />
+                  <div className="alm-rrbar-reward" style={{ width: '69%' }} />
+                  <span className="alm-rrbar-mark" style={{ left: '31%' }} />
+                </div>
+                <div className="alm-rrbar-scale">
+                  <span className="lb start"><b className="bear">₹2,786</b><small>Stop</small></span>
+                  <span className="lb mid"><b>₹2,872</b><small>Entry</small></span>
+                  <span className="lb end"><b className="bull">₹3,066</b><small>Target</small></span>
+                </div>
+              </div>
+              <div style={{ fontFamily: 'var(--alm-mono)', fontSize: 10, color: 'var(--alm-ink-4)', marginTop: 2 }}>Illustrative example — not a live recommendation.</div>
             </div>
-            {/* Field explanations */}
-            <div className="lv2-proof-stats">
+            <div className="alm-ledger-rows">
               {[
                 ['Conviction + grade', 'A cross-sectional rank of trend quality against risk, distilled into an A–D grade. Only the top grades ship as signals.'],
                 ['Entry, stop, target', 'Concrete prices — an ATR-based stop and a fixed profit target — not a vague “buy now and hope.”'],
                 ['Position size', 'Scaled to your account and capped so risk per trade stays bounded. You approve it and route it to Kite.'],
                 ['Exit logic', 'A multi-week horizon with a hard stop, a target, a trailing stop, and a time cap. The rule tells you when to leave — target, stop, or time.'],
               ].map(([k, v]) => (
-                <div key={k} className="lv2-stat">
-                  <div className="lv2-stat-l">{k}</div>
-                  <div className="lv2-stat-d" style={{ marginTop: 6, fontSize: 13, color: 'var(--lv2-text-2)' }}>{v}</div>
+                <div key={k} className="alm-lrow">
+                  <div className="alm-lrow-l">{k}</div>
+                  <div className="alm-lrow-d big">{v}</div>
                 </div>
               ))}
             </div>
@@ -795,320 +666,181 @@ function LandingV2Shell() {
         </div>
       </section>
 
-      {/* ─── TRACK RECORD ─── */}
-      <section className="lv2-section" id="proof" style={{ paddingTop: 0 }}>
-        <div className="lv2-wrap">
-          <div className="lv2-section-head">
-            <SectionEyebrow>TRACK RECORD · WALK-FORWARD + CPCV</SectionEyebrow>
-            <h2 className="lv2-section-title">The record, in numbers — net of every cost.</h2>
-            <p className="lv2-section-sub">A survivorship-corrected, walk-forward and combinatorial-purged cross-validation backtest ({bt.period}), after brokerage, STT, slippage and 20% STCG. Returns are lumpy — a handful of strong-trend years drive the total, with a peak-to-trough drawdown near {fmt(bt.max_drawdown_pct, { dp: 0 })}%. In-sample; no real capital has traded. These are backtest figures, not live results.</p>
-          </div>
-
-          <div className="lv2-proof">
-            <div className="lv2-proof-chart" style={{ height: 'auto', minHeight: 320, display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div style={{ fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--lv2-text-3)', fontWeight: 600 }}>
-                Backtest, at a glance
-              </div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, flexWrap: 'wrap' }}>
-                <div style={{ fontFamily: 'var(--lv2-font-mono)', fontSize: 54, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--lv2-text-1)', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
-                  {fmt(bt.cagr_pct, { dp: 1 })}<span style={{ fontSize: 26, color: 'var(--lv2-text-3)' }}>%</span>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  <span style={{ fontFamily: 'var(--lv2-font-mono)', fontSize: 13, color: 'var(--lv2-text-2)' }}>gross CAGR · {bt.period}</span>
-                  <span style={{ fontFamily: 'var(--lv2-font-mono)', fontSize: 13, color: 'var(--lv2-text-3)' }}>~{fmt(bt.net_cagr_pct, { dp: 0 })}% net of costs + tax</span>
-                </div>
-              </div>
-              <p style={{ fontSize: 12.5, color: 'var(--lv2-text-3)', lineHeight: 1.6, margin: 0 }}>
-                Lumpy and bull-concentrated: a few strong-trend years drive the whole total, with
-                multi-year flat stretches and a {fmt(bt.max_drawdown_pct, { dp: 0 })}% raw drawdown
-                ({fmt(bt.operational_max_drawdown_pct, { dp: 0 })}% operational). A Probabilistic Sharpe of
-                {' '}{fmt(bt.psr_gt0_pct, { dp: 0 })}% says the edge is statistically real — but it is
-                in-sample, and no real rupee has traded.
-              </p>
-              {/* Live forward record — the leak-proof out-of-sample */}
-              <div style={{ marginTop: 'auto', border: '1px solid var(--lv2-edge-1)', borderRadius: 12, padding: '14px 16px', display: 'flex', gap: 28, flexWrap: 'wrap', background: 'rgba(255,255,255,0.02)' }}>
-                <div>
-                  <div style={{ fontFamily: 'var(--lv2-font-mono)', fontSize: 10, letterSpacing: '0.11em', textTransform: 'uppercase', color: 'var(--lv2-info)' }}>Live paper · since {live.since}</div>
-                  <div style={{ fontFamily: 'var(--lv2-font-mono)', fontSize: 17, color: 'var(--lv2-text-1)', marginTop: 5, fontVariantNumeric: 'tabular-nums' }}>
-                    {live.n_positions != null ? `${live.n_positions} open` : '—'} · {fmt(live.n_closed)} closed
-                  </div>
-                </div>
-                <div>
-                  <div style={{ fontFamily: 'var(--lv2-font-mono)', fontSize: 10, letterSpacing: '0.11em', textTransform: 'uppercase', color: 'var(--lv2-text-3)' }}>Forward record</div>
-                  <div style={{ fontFamily: 'var(--lv2-font-display)', fontSize: 14, color: 'var(--lv2-text-2)', marginTop: 6 }}>Accruing — the real judge</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="lv2-proof-stats">
-              <div className="lv2-stat">
-                <div className="lv2-stat-l">SHARPE RATIO</div>
-                <div className="lv2-stat-v">{fmt(bt.sharpe, { dp: 2 })}</div>
-                <div className="lv2-stat-d">Backtest · block-bootstrap 95% CI includes zero</div>
-              </div>
-              <div className="lv2-stat">
-                <div className="lv2-stat-l">WIN RATE</div>
-                <div className="lv2-stat-v">{fmt(bt.win_rate_pct, { dp: 0 })}<span className="lv2-stat-unit">%</span></div>
-                <div className="lv2-stat-d">Across {bt.total_trades ? bt.total_trades.toLocaleString() : '—'} backtested trades</div>
-              </div>
-              <div className="lv2-stat">
-                <div className="lv2-stat-l">MAX DRAWDOWN</div>
-                <div className="lv2-stat-v">{fmt(bt.operational_max_drawdown_pct, { dp: 0 })}<span className="lv2-stat-unit">%</span></div>
-                <div className="lv2-stat-d">Operational · {fmt(bt.max_drawdown_pct, { dp: 0 })}% raw, unhedged</div>
-              </div>
-              <div className="lv2-stat">
-                <div className="lv2-stat-l">STATISTICAL CONFIDENCE</div>
-                <div className="lv2-stat-v">{fmt(bt.psr_gt0_pct, { dp: 0 })}<span className="lv2-stat-unit">%</span></div>
-                <div className="lv2-stat-d">Probabilistic Sharpe · P(Sharpe &gt; 0)</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── THE EDGE, HONESTLY ─── */}
-      <section className="lv2-section" style={{ paddingTop: 0 }}>
-        <div className="lv2-wrap">
-          <div className="lv2-section-head">
-            <SectionEyebrow>THE EDGE, HONESTLY</SectionEyebrow>
-            <h2 className="lv2-section-title">What the edge is — and what it isn’t.</h2>
-            <p className="lv2-section-sub">We’d rather tell you how it actually works than sell you magic.</p>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 18, maxWidth: 980, margin: '0 auto' }}>
-            {[
-              {
-                kind: 'is',
-                label: 'WHAT IT IS',
-                items: [
-                  ['Cross-sectional conviction', 'Every name is ranked against the whole universe on trend quality and risk; only the strongest, most liquid, most solvent names clear the bar.'],
-                  ['Asymmetry by construction', 'Hard ATR stops and a fixed profit target turn an above-even win rate into wins that outweigh the losses.'],
-                  ['Restraint', 'Most days it stays silent. Not trading the marginal setups is part of the return.'],
-                ],
-              },
-              {
-                kind: 'isnt',
-                label: 'WHAT IT ISN’T',
-                items: [
-                  ['Not a direction oracle', 'It wins about 60% of the time in backtest — an edge, not clairvoyance. It ranks trend quality across names; it does not promise any single stock simply “goes up”.'],
-                  ['Not AI sector rotation', 'It doesn’t decide which sector leads. That layer is still in shadow research, graded before it can touch a trade.'],
-                  ['Not a guarantee', 'Backtests flatter, the drawdown is deep, some years are flat, and the live record is still being earned.'],
-                ],
-              },
-            ].map((col) => {
-              const accent = col.kind === 'is' ? 'var(--lv2-bull)' : 'var(--lv2-text-3)';
-              return (
-                <div key={col.kind} style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%)', border: '1px solid var(--lv2-edge-1)', borderRadius: 18, padding: 26 }}>
-                  <div style={{ fontFamily: 'var(--lv2-font-mono)', fontSize: 11, letterSpacing: '0.16em', fontWeight: 600, color: accent, marginBottom: 16 }}>{col.label}</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                    {col.items.map(([t, d]) => (
-                      <div key={t} style={{ display: 'flex', gap: 11 }}>
-                        <span style={{ color: accent, flexShrink: 0, marginTop: 2, lineHeight: 0 }}>
-                          {col.kind === 'is'
-                            ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
-                            : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round"><path d="M5 12h14" /></svg>}
-                        </span>
-                        <div>
-                          <div style={{ color: 'var(--lv2-text-1)', fontWeight: 600, fontSize: 14.5, marginBottom: 3 }}>{t}</div>
-                          <div style={{ color: 'var(--lv2-text-2)', fontSize: 13, lineHeight: 1.5 }}>{d}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── HOW WE STAY HONEST ─── */}
-      <section className="lv2-section" style={{ paddingTop: 0 }}>
-        <div className="lv2-wrap">
-          <div className="lv2-section-head">
-            <SectionEyebrow>METHODOLOGY</SectionEyebrow>
-            <h2 className="lv2-section-title">How we keep ourselves honest.</h2>
-            <p className="lv2-section-sub">No screenshots, no selective memory. For a tool that touches real money, the discipline is the product.</p>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: 14 }}>
-            {[
-              ['Walk-forward only', 'Every model is tested on out-of-sample bars it never saw at training. We measure what generalises — not what fits the past.'],
-              ['Costs are baked in', 'Brokerage and STT are modelled into every backtested trade. The numbers you see are after costs, not before.'],
-              ['The live record is the judge', 'Backtests can flatter. Live trading began recently and the forward record only grows — that’s the test we hold ourselves to.'],
-              ['We kill our own ideas', 'Every research idea is pre-registered with a pass/fail bar before we see results. Most get killed. Only what survives reaches your dashboard.'],
-              ['Survivorship-corrected', 'The backtest universe is reconstructed from historical index membership and puts delisted and merged names (Yes Bank, Suzlon, Jet Airways) back in — it can’t quietly keep only the winners.'],
-              ['One codebase, no skew', 'A single source of truth computes the features for both the backtest and the live signal. What we measure is what we serve.'],
-            ].map(([title, desc]) => (
-              <div
-                key={title}
-                style={{
-                  background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%)',
-                  border: '1px solid var(--lv2-edge-1)',
-                  borderRadius: 16,
-                  padding: 22,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 8,
-                }}
-              >
-                <h3 style={{ fontFamily: 'var(--lv2-font-display)', fontSize: 16, fontWeight: 600, letterSpacing: '-0.018em', margin: 0, color: 'var(--lv2-text-1)' }}>{title}</h3>
-                <p style={{ fontSize: 13, lineHeight: 1.55, color: 'var(--lv2-text-2)', margin: 0 }}>{desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── WHAT'S NEXT — AI SECTOR-REGIME ─── */}
-      <section className="lv2-section" style={{ paddingTop: 0 }}>
-        <div className="lv2-wrap">
-          <div className="lv2-section-head">
-            <SectionEyebrow>ON THE ROADMAP</SectionEyebrow>
-            <h2 className="lv2-section-title">What we’re building next.</h2>
-            <p className="lv2-section-sub">The model picks names and times them. The next layer reasons about sectors.</p>
-          </div>
-          <div className="lv2-proof">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <p style={{ fontSize: 15, lineHeight: 1.6, color: 'var(--lv2-text-2)', margin: 0, maxWidth: '52ch' }}>
-                We’re training an AI sector-regime analyst — a model that reasons about which sectors are
-                setting up to lead, and why. Because a language model can’t be honestly backtested on history
-                it has already seen, it runs in <strong style={{ color: 'var(--lv2-text-1)' }}>shadow mode</strong>:
-                its calls are logged and graded against what the market actually does over the following weeks.
-                It won’t influence a single live signal until it beats a fair baseline.
-              </p>
-              <span style={{ alignSelf: 'flex-start', fontFamily: 'var(--lv2-font-mono)', fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', color: 'var(--lv2-warn)', border: '1px solid rgba(255,180,84,0.4)', background: 'rgba(255,180,84,0.12)', borderRadius: 6, padding: '5px 10px' }}>
-                STATUS · SHADOW RESEARCH · NOT LIVE
-              </span>
-            </div>
-            <div className="lv2-proof-stats">
+      {/* ═══ WHY TRUST IT — the edge + methodology ═══ */}
+      <section className="alm-section tight">
+        <div className="alm-wrap">
+          <Head kicker="Why trust it"
+            title="What the edge is — and what it isn’t."
+            sub="We’d rather tell you how it actually works than sell you magic. Below, the honest edge — and the discipline behind it." />
+          <div className="alm-honest">
+            <div className="alm-honest-col">
+              <div className="alm-honest-h is">What it is</div>
               {[
-                ['Shadow mode', 'Logged weekly, never wired to a live signal.'],
-                ['Graded forward', 'Scored against real sector returns at 21 and 42 days.'],
-                ['Ships only if it earns it', 'Promoted to live sizing only after it beats a fair baseline.'],
-              ].map(([k, v]) => (
-                <div key={k} className="lv2-stat">
-                  <div className="lv2-stat-l">{k}</div>
-                  <div className="lv2-stat-d" style={{ marginTop: 6, fontSize: 13, color: 'var(--lv2-text-2)' }}>{v}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── PRIVATE ACCESS ─── */}
-      <section className="lv2-section" id="access" style={{ paddingTop: 0 }}>
-        <div className="lv2-wrap">
-          <div className="lv2-section-head">
-            <SectionEyebrow>ACCESS</SectionEyebrow>
-            <h2 className="lv2-section-title">Private, invite-only. Not a subscription.</h2>
-            <p className="lv2-section-sub">Nifty Satvik isn’t sold. It’s a private research tool shared with a small group of traders — no plans, no tiers, no card.</p>
-          </div>
-
-          <div style={{ maxWidth: 760, margin: '0 auto', background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%)', border: '1px solid var(--lv2-edge-1)', borderRadius: 20, padding: 32 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: 20, marginBottom: 30 }}>
-              {[
-                ['No subscription', 'No monthly plan, no paywall. Access is granted, not purchased.'],
-                ['Your account, your orders', 'You connect your own Zerodha Kite in one step and sign every order yourself. We never hold or manage your capital.'],
-                ['Small by design', 'Onboarded in small batches, so the dashboard stays fast and the feedback loop stays real.'],
-                ['Leave anytime', 'Revoke Kite access in one click. Your journal and track-record data stay readable.'],
+                ['Cross-sectional conviction', 'Every name is ranked against the whole universe on trend quality and risk; only the strongest, most liquid, most solvent names clear the bar.'],
+                ['Asymmetry by construction', 'Hard ATR stops and a fixed profit target turn an above-even win rate into wins that outweigh the losses.'],
+                ['Restraint', 'Most days it stays silent. Not trading the marginal setups is part of the return.'],
               ].map(([t, d]) => (
-                <div key={t} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 9, color: 'var(--lv2-text-1)', fontWeight: 600, fontSize: 15 }}>
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3FDD8A" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><path d="M20 6 9 17l-5-5" /></svg>
-                    {t}
-                  </div>
-                  <div style={{ fontSize: 13, lineHeight: 1.5, color: 'var(--lv2-text-2)', paddingLeft: 24 }}>{d}</div>
+                <div key={t} className="alm-honest-item">
+                  <span className="ic is"><CheckIcon /></span>
+                  <div><h4>{t}</h4><p>{d}</p></div>
                 </div>
               ))}
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, textAlign: 'center' }}>
-              <button className="lv2-btn lv2-btn-primary" onClick={openModal} style={{ minWidth: 220 }}>
-                Request access
-                <span className="lv2-btn-arrow"><ArrowIcon /></span>
-              </button>
-              <span style={{ fontSize: 12, color: 'var(--lv2-text-3)' }}>We review every request personally. Bring a Zerodha account.</span>
+            <div className="alm-honest-col">
+              <div className="alm-honest-h isnt">What it isn’t</div>
+              {[
+                ['Not a direction oracle', 'It wins about 60% of the time in backtest — an edge, not clairvoyance. It ranks trend quality across names; it does not promise any single stock simply “goes up”.'],
+                ['Not AI sector rotation', 'It doesn’t decide which sector leads. That layer is still in shadow research, graded before it can touch a trade.'],
+                ['Not a guarantee', 'Backtests flatter, the drawdown is deep, some years are flat, and the live record is still being earned.'],
+              ].map(([t, d]) => (
+                <div key={t} className="alm-honest-item">
+                  <span className="ic isnt"><DashIcon /></span>
+                  <div><h4>{t}</h4><p>{d}</p></div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* ─── FAQ ─── */}
-      <section className="lv2-section" id="faq" style={{ paddingTop: 0 }}>
-        <div className="lv2-wrap">
-          <div className="lv2-section-head">
-            <SectionEyebrow>FAQ</SectionEyebrow>
-            <h2 className="lv2-section-title">Questions, answered.</h2>
-          </div>
-
-          <div className="lv2-faq">
-            {FAQ_ITEMS.map((item, idx) => (
-              <div key={idx} className={`lv2-faq-item${openFaq === idx ? ' open' : ''}`}>
-                <button
-                  className="lv2-faq-q"
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  aria-expanded={openFaq === idx}
-                >
-                  <span>{item.q}</span>
-                  <span className="lv2-faq-ic">
-                    <PlusIcon />
-                  </span>
-                </button>
-                <div className="lv2-faq-a">{item.a}</div>
+          <div className="alm-subhead">Methodology — no screenshots, no selective memory</div>
+          <div className="alm-notes">
+            {[
+              ['Walk-forward only', 'Every model is tested on out-of-sample bars it never saw at training. We measure what generalises — not what fits the past.',
+                <path d="M3 13l4-1 3-7 4 14 3-8 4-1" />],
+              ['Costs are baked in', 'Brokerage and STT are modelled into every backtested trade. The numbers you see are after costs, not before.',
+                <><circle cx="12" cy="12" r="8.5" /><path d="M9 8.5h6M9 11.5h4M13.5 8.5c0 3-4.5 3-4.5 3l4.5 4" /></>],
+              ['The live record is the judge', 'Backtests can flatter. Live trading began recently and the forward record only grows — that’s the test we hold ourselves to.',
+                <path d="M12 3.5l7 3v5c0 5-3.5 7.8-7 9.5-3.5-1.7-7-4.5-7-9.5v-5z" />],
+              ['We kill our own ideas', 'Every research idea is pre-registered with a pass/fail bar before we see results. Most get killed. Only what survives reaches your dashboard.',
+                <><circle cx="12" cy="12" r="8.5" /><path d="M15 9l-6 6M9 9l6 6" /></>],
+              ['Survivorship-corrected', 'The backtest universe is reconstructed from historical index membership and puts delisted and merged names (Yes Bank, Suzlon, Jet Airways) back in — it can’t quietly keep only the winners.',
+                <path d="M12 3.5l8.5 4.5-8.5 4.5L3.5 8zM3.5 12l8.5 4.5 8.5-4.5M3.5 16l8.5 4.5 8.5-4.5" />],
+              ['One codebase, no skew', 'A single source of truth computes the features for both the backtest and the live signal. What we measure is what we serve.',
+                <path d="M9 7l-4.5 5 4.5 5M15 7l4.5 5-4.5 5" />],
+            ].map(([title, desc, icon]) => (
+              <div key={title} className="alm-note">
+                <span className="alm-note-ic">
+                  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">{icon}</svg>
+                </span>
+                <h3>{title}</h3>
+                <p>{desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ─── CTA ─── */}
-      <section className="lv2-cta">
-        <div className="lv2-wrap">
-          <div className="lv2-cta-card">
-            <h2 className="lv2-cta-title">Wake up to conviction.<br />Not noise.</h2>
-            <p className="lv2-cta-sub">Invite-only. No subscription, no card — you bring your own Zerodha account.</p>
-            <div className="lv2-cta-buttons">
-              <button className="lv2-btn lv2-btn-primary" onClick={openModal}>
-                Request access
-                <span className="lv2-btn-arrow"><ArrowIcon /></span>
-              </button>
-              <button className="lv2-btn lv2-btn-ghost" onClick={() => scrollTo('proof')}>
-                See the track record
-              </button>
+      {/* ═══ ROADMAP — compact banner ═══ */}
+      <section className="alm-section tight">
+        <div className="alm-wrap">
+          <div className="alm-moat">
+            <div className="alm-moat-ic">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3.2" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1" /></svg>
             </div>
-            <div className="lv2-cta-note">
+            <div className="alm-moat-body">
+              <div className="alm-moat-k">On the roadmap · shadow research · not live</div>
+              <h3>An AI sector-regime analyst — running in shadow mode.</h3>
+              <p>It reasons about which sectors are setting up to lead, logged and graded weekly against real sector returns at 21 and 42 days. It won’t influence a single live signal until it beats a fair baseline.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ 09 · ACCESS ═══ */}
+      <section className="alm-section tight" id="access">
+        <div className="alm-wrap">
+          <Head no="09" kicker="Access"
+            title="Private, invite-only. Not a subscription."
+            sub="Nifty Satvik isn’t sold. It’s a private research tool shared with a small group of traders — no plans, no tiers, no card." />
+          <div className="alm-access">
+            <div className="alm-access-grid">
+              {[
+                ['No subscription', 'No monthly plan, no paywall. Access is granted, not purchased.',
+                  <><rect x="3" y="6" width="18" height="12" rx="2" /><path d="M3 10h18M5 4.5l14 15" /></>],
+                ['Your account, your orders', 'You connect your own Zerodha Kite in one step and sign every order yourself. We never hold or manage your capital.',
+                  <><path d="M12 3.5l7 3v5c0 5-3.5 7.8-7 9.5-3.5-1.7-7-4.5-7-9.5v-5z" /><path d="M9 12l2 2 4-4" /></>],
+                ['Small by design', 'Onboarded in small batches, so the dashboard stays fast and the feedback loop stays real.',
+                  <><circle cx="9" cy="9" r="3" /><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5" /><circle cx="17.5" cy="10" r="2" /><path d="M16 14.5c2 .4 3.5 2 3.5 4.5" /></>],
+                ['Leave anytime', 'Revoke Kite access in one click. Your journal and track-record data stay readable.',
+                  <><path d="M14 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 8l-4 4 4 4M6 12h9" /></>],
+              ].map(([t, d, icon]) => (
+                <div key={t} className="alm-access-item">
+                  <span className="alm-access-ic">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">{icon}</svg>
+                  </span>
+                  <h4>{t}</h4>
+                  <p>{d}</p>
+                </div>
+              ))}
+            </div>
+            <div className="alm-access-foot">
+              <button className="alm-btn alm-btn-primary" onClick={openModal} style={{ minWidth: 220 }}>
+                Request access<span className="alm-btn-arrow"><ArrowIcon /></span>
+              </button>
+              <small>We review every request personally. Bring a Zerodha account.</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ 10 · FAQ ═══ */}
+      <section className="alm-section tight" id="faq">
+        <div className="alm-wrap">
+          <Head no="10" kicker="FAQ" title="Questions, answered." />
+          <div className="alm-faq">
+            {FAQ_ITEMS.map((item, idx) => (
+              <div key={idx} className={`alm-faq-item${openFaq === idx ? ' open' : ''}`}>
+                <button className="alm-faq-q" onClick={() => setOpenFaq(openFaq === idx ? null : idx)} aria-expanded={openFaq === idx}>
+                  <span style={{ flex: 1 }}>{item.q}</span>
+                  <span className="alm-faq-ic"><PlusIcon /></span>
+                </button>
+                <div className="alm-faq-a">{item.a}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ CLOSING CTA ═══ */}
+      <section className="alm-cta">
+        <div className="alm-wrap">
+          <div className="alm-cta-card">
+            <div className="alm-cta-rule" />
+            <h2 className="alm-cta-title">Wake up to conviction.<br />Not <em>noise.</em></h2>
+            <p className="alm-cta-sub">Invite-only. No subscription, no card — you bring your own Zerodha account.</p>
+            <div className="alm-cta-btns">
+              <button className="alm-btn alm-btn-primary" onClick={openModal}>
+                Request access<span className="alm-btn-arrow"><ArrowIcon /></span>
+              </button>
+              <button className="alm-btn alm-btn-ghost" onClick={() => scrollTo('proof')}>See the track record</button>
+            </div>
+            <div className="alm-cta-note">
               Research and decision-support output, not investment advice. Past performance is not indicative of future returns. Subject to market risk.
             </div>
           </div>
         </div>
       </section>
 
-      {/* ─── FOOTER ─── */}
-      <footer className="lv2-footer">
-        <div className="lv2-wrap">
-          <div className="lv2-footer-grid">
-            <div className="lv2-footer-brand">
-              <div className="lv2-footer-brand-row">
-                <div className="lv2-nav-mark" style={{ width: 28, height: 28, borderRadius: 7 }}>
-                  <ChartIcon size={15} />
-                </div>
-                <span className="lv2-nav-text">Nifty Satvik</span>
-              </div>
-              <p className="lv2-footer-tag">
-                AI-graded swing-trading signals for the Nifty 500. Walk-forward validated and one-click executable through Zerodha Kite.
-              </p>
+      {/* ═══ COLOPHON / FOOTER ═══ */}
+      <footer className="alm-foot">
+        <div className="alm-wrap">
+          <div className="alm-foot-grid">
+            <div className="alm-foot-brand">
+              <a className="alm-brand" href="#top">
+                <span className="alm-brand-mark" style={{ width: 30, height: 30 }}><img src={brandLogo} alt="Nifty Satvik" /></span>
+                <span className="alm-brand-name">Nifty Satvik<span>Systematic Signals</span></span>
+              </a>
+              <p className="alm-foot-tag">AI-graded swing-trading signals for the Nifty 500. Walk-forward validated and one-click executable through Zerodha Kite.</p>
             </div>
-
-            <div className="lv2-footer-col">
+            <div className="alm-foot-col">
               <h4>Product</h4>
               <ul>
-                <li><button className="lv2-footer-col-link" onClick={() => scrollTo('how')} style={{ background: 'none', border: 0, cursor: 'pointer', padding: 0, fontSize: 'inherit', fontFamily: 'inherit', color: 'inherit' }}>How it works</button></li>
-                <li><button className="lv2-footer-col-link" onClick={() => scrollTo('proof')} style={{ background: 'none', border: 0, cursor: 'pointer', padding: 0, fontSize: 'inherit', fontFamily: 'inherit', color: 'inherit' }}>Track record</button></li>
-                <li><button className="lv2-footer-col-link" onClick={() => scrollTo('access')} style={{ background: 'none', border: 0, cursor: 'pointer', padding: 0, fontSize: 'inherit', fontFamily: 'inherit', color: 'inherit' }}>Access</button></li>
+                <li><button className="alm-foot-link" onClick={() => scrollTo('how')}>How it works</button></li>
+                <li><button className="alm-foot-link" onClick={() => scrollTo('proof')}>Track record</button></li>
+                <li><button className="alm-foot-link" onClick={() => scrollTo('access')}>Access</button></li>
                 <li><a href="/dashboard">Dashboard</a></li>
               </ul>
             </div>
-
-            <div className="lv2-footer-col">
+            <div className="alm-foot-col">
               <h4>Legal</h4>
               <ul>
                 <li><a href="#">Disclaimer</a></li>
@@ -1117,8 +849,7 @@ function LandingV2Shell() {
                 <li><a href="#">Terms</a></li>
               </ul>
             </div>
-
-            <div className="lv2-footer-col">
+            <div className="alm-foot-col">
               <h4>Company</h4>
               <ul>
                 <li><a href="#">About</a></li>
@@ -1128,22 +859,20 @@ function LandingV2Shell() {
               </ul>
             </div>
           </div>
-
-          <div className="lv2-footer-foot">
+          <div className="alm-foot-rule">
             <span>© 2026 Nifty Satvik</span>
             <span>Made in Bengaluru · NSE data may be delayed</span>
           </div>
-          <p className="lv2-footer-disclaimer">{DISCLAIMER}</p>
+          <p className="alm-foot-disc">{DISCLAIMER}</p>
         </div>
       </footer>
 
-      {/* ─── Request access modal (real POST /api/access-requests) ─── */}
       <RequestAccessModal open={requestOpen} onOpenChange={setRequestOpen} />
     </div>
   );
 }
 
-/* ─── Default export wrapped in RegimeProvider (matches current Landing.jsx pattern) ─── */
+/* ─── Default export wrapped in RegimeProvider ─── */
 export default function LandingV2() {
   return (
     <RegimeProvider>

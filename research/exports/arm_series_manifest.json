@@ -1,0 +1,120 @@
+{
+  "anchor": "baseline_v1 dataset-pin-20260701",
+  "window": [
+    "2017-01-01",
+    "2026-06-30"
+  ],
+  "note": "arm books are full-period 2017-2026; base = sma200_slope_63; veto/blend inject residual momentum. live_dd is the 2022-26 slice.",
+  "arms": {
+    "base": {
+      "kind": null,
+      "param": null,
+      "gross_cagr": 15.46,
+      "after_tax_cagr": 12.758,
+      "sharpe": 0.667,
+      "sortino": 0.836,
+      "calmar": 0.33,
+      "max_dd": -46.26,
+      "skew_daily": -0.639,
+      "ann_vol": 0.271,
+      "live_dd_2022_26": -46.3,
+      "n_trades": 1279,
+      "win_rate": 60.36,
+      "exit_reasons": {
+        "stop": 265,
+        "trailing": 732,
+        "target": 226,
+        "time": 54,
+        "stale": 2
+      }
+    },
+    "blend-0.25": {
+      "kind": "blend",
+      "param": 0.25,
+      "gross_cagr": 10.89,
+      "after_tax_cagr": 8.131,
+      "sharpe": 0.552,
+      "sortino": 0.716,
+      "calmar": 0.23,
+      "max_dd": -48.06,
+      "skew_daily": -0.571,
+      "ann_vol": 0.24,
+      "live_dd_2022_26": -35.3,
+      "n_trades": 1204,
+      "win_rate": 58.89,
+      "exit_reasons": {
+        "stop": 258,
+        "trailing": 700,
+        "target": 185,
+        "time": 60,
+        "stale": 1
+      }
+    },
+    "blend-0.5": {
+      "kind": "blend",
+      "param": 0.5,
+      "gross_cagr": 12.44,
+      "after_tax_cagr": 9.777,
+      "sharpe": 0.609,
+      "sortino": 0.771,
+      "calmar": 0.34,
+      "max_dd": -36.35,
+      "skew_daily": -0.619,
+      "ann_vol": 0.24,
+      "live_dd_2022_26": -34.7,
+      "n_trades": 1182,
+      "win_rate": 60.41,
+      "exit_reasons": {
+        "stop": 242,
+        "trailing": 708,
+        "target": 167,
+        "time": 63,
+        "stale": 2
+      }
+    },
+    "veto-0.2": {
+      "kind": "veto",
+      "param": 0.2,
+      "gross_cagr": 18.37,
+      "after_tax_cagr": 15.323,
+      "sharpe": 0.765,
+      "sortino": 0.97,
+      "calmar": 0.45,
+      "max_dd": -40.93,
+      "skew_daily": -0.68,
+      "ann_vol": 0.268,
+      "live_dd_2022_26": -40.9,
+      "n_trades": 1249,
+      "win_rate": 60.61,
+      "exit_reasons": {
+        "stop": 262,
+        "trailing": 700,
+        "target": 223,
+        "time": 61,
+        "stale": 3
+      }
+    },
+    "veto-0.1": {
+      "kind": "veto",
+      "param": 0.1,
+      "gross_cagr": 17.44,
+      "after_tax_cagr": 14.829,
+      "sharpe": 0.743,
+      "sortino": 0.938,
+      "calmar": 0.42,
+      "max_dd": -41.68,
+      "skew_daily": -0.691,
+      "ann_vol": 0.264,
+      "live_dd_2022_26": -37.5,
+      "n_trades": 1266,
+      "win_rate": 58.61,
+      "exit_reasons": {
+        "stop": 263,
+        "trailing": 710,
+        "target": 226,
+        "time": 65,
+        "stale": 2
+      }
+    }
+  }
+}

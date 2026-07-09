@@ -1,0 +1,68 @@
+{
+  "as_of_run": "regenerated locally from pinned snapshot",
+  "ohlcv_sha256": "f8625a8ff6abae06baf4d5c3c10eef2c9bbe98df785248a2b360d7d2a3c52142",
+  "pin_match_baseline_v1": true,
+  "release_tag": "dataset-pin-20260701",
+  "mode": "corrected",
+  "start": "2017-01-01",
+  "end": "2026-06-30",
+  "n_names_with_data": 710,
+  "frozen_cfg": {
+    "signal": "sma200_slope_63",
+    "gate_quantile": 0.5,
+    "stop_atr_mult": 3.67,
+    "target_pct": 22.52,
+    "trailing_activate_pct": 4.0,
+    "trailing_pct": 4.27,
+    "min_hold_days": 10,
+    "max_hold_days": 63,
+    "risk_per_trade_pct": 3.0,
+    "max_position_pct": 15.0,
+    "max_adv_participation_pct": 5.0,
+    "max_positions": 15,
+    "expected_win_rate": 0.6297,
+    "expected_rr": 1.94
+  },
+  "metrics_net": {
+    "final_equity": 3434695.36,
+    "total_return_pct": 243.47,
+    "cagr_pct": 15.46,
+    "sharpe": 0.667,
+    "sortino": 0.836,
+    "max_drawdown_pct": -46.26,
+    "calmar": 0.33,
+    "turnover_per_year": 149.0,
+    "n_trades": 1279,
+    "n_reallocated_exits": 0,
+    "win_rate_pct": 60.36,
+    "profit_factor": 1.27,
+    "avg_return_per_trade_pct": 1.944,
+    "avg_hold_days": 21.6,
+    "avg_positions_held": 12.87,
+    "exit_reasons": {
+      "stop": 265,
+      "trailing": 732,
+      "target": 226,
+      "time": 54,
+      "stale": 2
+    },
+    "years": 8.58
+  },
+  "exit_reason_counts": {
+    "atr_stop": 265,
+    "trailing": 732,
+    "time_exit": 54,
+    "target": 226,
+    "stale": 2
+  },
+  "files": {
+    "daily_returns": "daily_returns.csv",
+    "tradelog": "tradelog.csv"
+  },
+  "notes": [
+    "ret_net is net of brokerage(0.03%/leg)+STT(0.10%/leg)+tiered slippage.",
+    "ret_gross is a COSTLESS re-run counterfactual (fills re-priced at zero cost); not exactly ret_net+costs.",
+    "post-tax is per-calendar-year STCG(20%) on realized pnl, not daily \u2014 approximate from tradelog pnl by exit-year.",
+    "exit_reason: stop->atr_stop, time->time_exit; 'stale' = rare data-gap force-close."
+  ]
+}

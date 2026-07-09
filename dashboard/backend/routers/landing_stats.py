@@ -53,6 +53,82 @@ BASELINE_V1 = {
              "returns are lumpy and bull-concentrated with a deep drawdown",
 }
 
+# The WEEKLY-SWING book (pre-reg 0094, "weekly-swing-0094-rank") — the model the landing markets
+# ("This week's scan"). NET of tiered real costs, CORRECTED universe 2017–2026. Reproduced from the
+# committed pipeline (scripts/run_bhanushali_weekly_rank.py on run_bhanushali_path1.corrected_universe;
+# byte-matches finding 0095's run of record: Sharpe 1.132, CAGR 24.7%, DD −42.4%). ₹10L → ₹81.15L
+# = 8.11× = +711%. IMPORTANT: DSR 0.894 → BELOW the deflated-Sharpe gate → NOT certified; it is a
+# registered proposal for the 2026-10-01 review + forward wall, not the pinned baseline of record.
+# `certified` stays False so the caller keeps the "paper-tracked · no real capital" framing. Returns
+# are NET of brokerage/STT/slippage but BEFORE 20% STCG (disclosed in fine print).
+WEEKLY_SWING_TRACK = {
+    "version": "weekly_swing_0094",
+    "period": "2017–2026",
+    "validated_on": "2026-07-09",
+    "cagr_pct": 24.7,                      # net of costs
+    "net_cagr_pct": 24.7,                  # net of costs (before 20% STCG — disclosed)
+    "sharpe": 1.13,
+    "win_rate_pct": 59.2,
+    "total_trades": 255,
+    "total_return_pct": 711,               # ₹10L → ₹81.15L
+    "mult": 8.11,
+    "max_drawdown_pct": -42.4,             # raw
+    "operational_max_drawdown_pct": -42.4, # vol-target de-gross KILLED on this book (finding 0095)
+    "alpha_pp": 528,                       # cumulative vs Nifty 500 TRI (indexed to inception)
+    "dsr": 0.894,                          # BELOW the 0.95 gate — not certified
+    "certified": False,
+    "basis": "weekly-swing 0094, net of costs, corrected universe (2017-2026), in-sample; "
+             "Sharpe 1.13, DSR 0.894 (not certified); before 20% STCG; no real capital has traded",
+}
+
+# Net calendar-year returns of baseline_v1, reproduced from the pinned equity curve
+# (research/exports/daily_returns.csv, equity_net year-end over year-end; dataset-pin-20260701).
+# NET = after brokerage/STT/slippage + 20% STCG. These are frozen, published research
+# results — aggregate performance only, no signal/parameter — so they live as constants like
+# BASELINE_V1. 2017 (Sep inception) and 2026 (through Jun) are PARTIAL years, flagged so the
+# chart can mark them. The shape is deliberately honest: two strong-trend years carry the
+# whole record, several years flat or negative.
+YEARLY_RETURNS = [
+    {"year": "2017", "net_pct": 31.8, "partial": True},
+    {"year": "2018", "net_pct": 11.6, "partial": False},
+    {"year": "2019", "net_pct": 30.8, "partial": False},
+    {"year": "2020", "net_pct": 11.4, "partial": False},
+    {"year": "2021", "net_pct": 34.5, "partial": False},
+    {"year": "2022", "net_pct": 34.8, "partial": False},
+    {"year": "2023", "net_pct": 66.5, "partial": False},
+    {"year": "2024", "net_pct": 9.9,  "partial": False},
+    {"year": "2025", "net_pct": -13.0, "partial": False},
+    {"year": "2026", "net_pct": 31.3, "partial": True},
+]
+
+# Growth-of-100 curve of the WEEKLY-SWING 0094 book vs NIFTY 500 TRI, reproduced from the committed
+# pipeline (scripts/run_bhanushali_weekly_rank.py, corrected universe). `s` = strategy NET of costs,
+# `b` = Nifty 500 Total-Return Index, both indexed to 100 at strategy inception (Jan-2017). Benchmark
+# is flat at 100 until its data begins (~Sep-2017), then real. Strategy ends 811.5 (8.11×, +711%);
+# Nifty 283.9. NET of costs, before 20% STCG; in-sample; not certified (DSR 0.894).
+EQUITY_CURVE_BT = [
+    {"t": "2017-01", "s": 99.1,  "b": 100.0}, {"t": "2017-04", "s": 108.1, "b": 100.0},
+    {"t": "2017-07", "s": 113.4, "b": 100.0}, {"t": "2017-10", "s": 112.8, "b": 103.1},
+    {"t": "2018-01", "s": 140.6, "b": 109.3}, {"t": "2018-04", "s": 154.5, "b": 107.4},
+    {"t": "2018-07", "s": 157.5, "b": 109.7}, {"t": "2018-10", "s": 149.1, "b": 99.8},
+    {"t": "2019-01", "s": 152.9, "b": 102.8}, {"t": "2019-04", "s": 155.5, "b": 110.6},
+    {"t": "2019-07", "s": 161.8, "b": 104.1}, {"t": "2019-10", "s": 187.3, "b": 111.9},
+    {"t": "2020-01", "s": 210.4, "b": 113.9}, {"t": "2020-04", "s": 174.2, "b": 92.9},
+    {"t": "2020-07", "s": 200.0, "b": 105.1}, {"t": "2020-10", "s": 205.3, "b": 111.8},
+    {"t": "2021-01", "s": 219.2, "b": 132.0}, {"t": "2021-04", "s": 217.9, "b": 144.7},
+    {"t": "2021-07", "s": 252.3, "b": 160.7}, {"t": "2021-10", "s": 283.8, "b": 177.8},
+    {"t": "2022-01", "s": 297.9, "b": 176.1}, {"t": "2022-04", "s": 335.8, "b": 174.9},
+    {"t": "2022-07", "s": 312.9, "b": 174.6}, {"t": "2022-10", "s": 370.1, "b": 184.1},
+    {"t": "2023-01", "s": 383.6, "b": 178.4}, {"t": "2023-04", "s": 416.8, "b": 182.0},
+    {"t": "2023-07", "s": 515.0, "b": 204.8}, {"t": "2023-10", "s": 557.5, "b": 202.3},
+    {"t": "2024-01", "s": 666.6, "b": 238.7}, {"t": "2024-04", "s": 745.1, "b": 253.4},
+    {"t": "2024-07", "s": 827.2, "b": 285.3}, {"t": "2024-10", "s": 755.1, "b": 275.8},
+    {"t": "2025-01", "s": 653.0, "b": 262.7}, {"t": "2025-04", "s": 604.1, "b": 268.5},
+    {"t": "2025-07", "s": 602.5, "b": 280.6}, {"t": "2025-10", "s": 608.9, "b": 291.1},
+    {"t": "2026-01", "s": 609.2, "b": 283.7}, {"t": "2026-04", "s": 679.9, "b": 279.1},
+    {"t": "2026-06", "s": 811.5, "b": 283.9},
+]
+
 
 def _live_block() -> dict | None:
     """Live paper-trading forward record (the leak-proof out-of-sample) from the cron-
@@ -76,6 +152,70 @@ def _live_block() -> dict | None:
         }
     except Exception as e:
         logger.warning(f"live paper block failed: {e}")
+        return None
+
+
+def _weekly_swing_block() -> dict | None:
+    """This week's swing-scan summary — SAFE AGGREGATE ONLY. Derived from
+    results/signals_today_weekly.json (the weekly-swing model's fresh scan).
+
+    SAFETY: never returns tickers, entry/stop/target prices, or per-name ranks.
+    Only counts, grade distribution, an averaged target upside, and dates — so a
+    visitor sees "the scan is live and produced N setups this week" without being
+    able to reconstruct or copy a single trade. `live` stays False until real
+    capital trades the sleeve — the one bright-line disclosure the caller keeps,
+    presented as the current weekly scan rather than a settled track record."""
+    try:
+        from github_data import fetch_github_json
+        d = fetch_github_json("results/signals_today_weekly.json") or {}
+        signals = d.get("signals")
+        if not isinstance(signals, list) or not signals:
+            return None
+
+        from collections import Counter
+        grades = Counter(
+            str(s.get("grade", "")).upper()
+            for s in signals
+            if isinstance(s, dict) and s.get("grade")
+        )
+
+        # Averaged target upside across the fresh scan — aggregate only, cannot
+        # be inverted to any single name's entry/target.
+        upsides = []
+        for s in signals:
+            if not isinstance(s, dict):
+                continue
+            entry, target = s.get("entry"), s.get("target")
+            try:
+                if entry and target and float(entry) > 0:
+                    upsides.append((float(target) / float(entry) - 1) * 100)
+            except (TypeError, ValueError):
+                continue
+        avg_target_upside = round(sum(upsides) / len(upsides), 1) if upsides else None
+
+        holds = [
+            int(s["hold_days"]) for s in signals
+            if isinstance(s, dict) and isinstance(s.get("hold_days"), (int, float))
+        ]
+
+        return {
+            "generated_at": d.get("generated_at"),
+            "buy_window_until": next(
+                (s.get("buy_window_until") for s in signals
+                 if isinstance(s, dict) and s.get("buy_window_until")),
+                None,
+            ),
+            "n_signals": len(signals),
+            "grade_a": grades.get("A", 0),
+            "grade_b": grades.get("B", 0),
+            "avg_target_upside_pct": avg_target_upside,
+            "hold_days": max(holds) if holds else None,
+            "live": False,   # flips True only when real capital trades this sleeve
+            "note": "Weekly swing scan — this week's fresh shortlist, paper-tracked "
+                    "ahead of live capital. Aggregate counts only; no tickers or prices.",
+        }
+    except Exception as e:
+        logger.warning(f"weekly swing block failed: {e}")
         return None
 
 
@@ -109,8 +249,11 @@ def _compute_stats() -> dict:
         },
         "closed_signals_recent": [],
         "sector_heatmap_30d": [],
-        "backtest": dict(BASELINE_V1),   # frozen anchor — always present
+        "backtest": dict(WEEKLY_SWING_TRACK),   # the marketed weekly-swing book (0094) — the record shown
+        "yearly_returns": list(YEARLY_RETURNS),   # net calendar-year bars — frozen
+        "equity_bt": list(EQUITY_CURVE_BT),       # growth-of-100 strategy vs Nifty500 — frozen
         "live": None,
+        "weekly_swing": None,
         "equity_curve": [],
     }
 
@@ -237,6 +380,9 @@ def _compute_stats() -> dict:
 
     # Live paper forward record (the leak-proof out-of-sample) — updates daily via the cron.
     stats["live"] = _live_block()
+
+    # This week's swing scan — safe aggregate (counts/grades/dates only, no tickers).
+    stats["weekly_swing"] = _weekly_swing_block()
 
     # Equity curve — sample portfolio_history.csv down to ~60 points so the
     # frontend SVG renders cleanly without shipping 1100 rows of payload.
