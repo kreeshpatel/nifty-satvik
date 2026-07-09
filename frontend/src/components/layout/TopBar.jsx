@@ -12,6 +12,7 @@ import { KiteContext } from '@/App';
 import { AuthContext } from '@/context/AuthContext';
 import BrandLogo from './BrandLogo';
 import KiteChip from './KiteChip';
+import HeaderTicker from './HeaderTicker';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useUiScale } from '@/hooks/useUiScale';
 import {
@@ -500,8 +501,12 @@ export function TopBar() {
         })}
       </nav>
 
-      {/* spacer */}
-      <span />
+      {/* Live index ticker — inline in the bar (prototype layout). min-width:0
+          lets the marquee shrink into the flexible column instead of blowing
+          out the grid. */}
+      <div style={{ minWidth: 0, overflow: 'hidden' }}>
+        <HeaderTicker />
+      </div>
 
       {/* Kite integration status — connect / live / disconnect. Global stock
           search lives in the watchlist rail (top-bar search removed). */}

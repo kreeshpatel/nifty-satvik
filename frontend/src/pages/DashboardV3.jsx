@@ -1191,21 +1191,27 @@ export default function DashboardV3() {
 
           {/* Action tiles */}
           <ActionTiles />
+
+          {/* Model health · sector breadth · balance — moved out of the right
+              rail (which now mirrors the prototype's Pick/Tools/Commentary
+              trio) into a main-column grid so nothing useful is lost. */}
+          <div className="dv3-extra-grid">
+            <ModelHealth cronHealth={cronHealth} metrics={metrics} portfolio={portfolio} />
+            <SectorBreadth signals={breadthSource} />
+            <BalanceCard
+              margins={marginsQuery.data}
+              portfolio={portfolio}
+              holdings={holdingsQuery.data ?? []}
+              kiteConnected={!!kite?.connected}
+            />
+          </div>
         </div>
 
-        {/* Right rail — Pick of the week, tools, commentary, model health, breadth, balance */}
+        {/* Right rail — Pick of the week, tools, commentary (prototype trio) */}
         <aside className="dv3-right-rail">
           <PickOfWeek sig={displayCards[0]} />
           <ToolsGrid />
           <MorningCommentary regime={regime} signalsCount={signals.length} />
-          <ModelHealth cronHealth={cronHealth} metrics={metrics} portfolio={portfolio} />
-          <SectorBreadth signals={breadthSource} />
-          <BalanceCard
-            margins={marginsQuery.data}
-            portfolio={portfolio}
-            holdings={holdingsQuery.data ?? []}
-            kiteConnected={!!kite?.connected}
-          />
         </aside>
       </div>
 
