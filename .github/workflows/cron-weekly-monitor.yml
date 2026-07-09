@@ -1,0 +1,55 @@
+name: cron-weekly-monitor
+
+# Daily OBSERVATIONAL re-pricing of the weekly-swing forward-watch book. The weekly engine only
+# recomputes Saturday (cron-weekly-scanner.yml), so all week the dashboard's weekly cards carry
+# Saturday's price / P&L / distance-to-stop. This job re-prices the FROZEN cards against fresh
+# daily bars and flags intra-week events (buy-window fill, stop breach, +2R target, near-stop,
+# window-expired) → results/weekly_monitor.json, which the backend overlays onto the cards.
+#
+# STRICTLY observational — the weekly-book analogue of cron-intraday-scan. It never recomputes the
+# weekly signal set (that would risk mid-week signals off a partial weekly bar and break the
+# cadence the forward record is certified on), never moves a frozen level, and never touches the
+# paper book / NAV / wall log / kill state. Separate output file → no race with the Saturday writer.
+on:
+  workflow_dispatch: {}          # manual "re-price now"
+  schedule:
+    - cron: "45 10 * * 1-5"      # 10:45 UTC = 16:15 IST, after the 15:30 NSE close, weekdays
+
+concurrency:
+  group: cron-weekly-monitor
+  cancel-in-progress: false
+
+permissions:
+  contents: write                # commits results/weekly_monitor.json
+
+jobs:
+  monitor:
+    name: weekly-swing daily monitor (Python 3.12, Ubuntu)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Run weekly monitor
+        run: python scripts/run_weekly_monitor.py
+      - name: Commit monitor state
+        run: |
+          # Author with the owner's GitHub-matched email so Vercel (auto-deploys main) doesn't
+          # BLOCK the commit as an unrecognized author.
+          git config user.name "kreeshpatel"
+          git config user.email "kreeshvasistha@gmail.com"
+          git add results/weekly_monitor.json 2>/dev/null || true
+          git commit -m "chore(weekly-monitor): daily re-price $(date -u +%F)" || echo "no monitor change"
+          git pull --rebase && git push || echo "nothing to push"

@@ -176,6 +176,44 @@ def _read_json(path: Path, default=None):
     return default
 
 
+def _overlay_weekly_monitor(signals: list, monitor: dict) -> tuple[list, dict]:
+    """Overlay the daily observational monitor onto the frozen weekly cards.
+
+    The weekly engine only recomputes Saturday, so each card's `current_price` is Saturday's.
+    The daily monitor (results/weekly_monitor.json, written by scripts/run_weekly_monitor.py)
+    re-prices those cards against fresh daily bars and flags intra-week events. Here we merge
+    its live `current_price`/`close` and attach a per-card `monitor` block — WITHOUT touching
+    the frozen entry/stop/target (those change only at the weekly close). Non-weekly models and
+    a missing/empty monitor are no-ops.
+
+    Returns (signals, meta) where meta carries the monitor's as-of stamp + fired flags so the
+    frontend can show a freshness badge and an event banner without re-deriving them.
+    """
+    if not signals or not isinstance(monitor, dict):
+        return signals, {}
+    by_ticker = {m.get("ticker"): m for m in monitor.get("monitors", []) if m.get("ticker")}
+    if not by_ticker:
+        return signals, {}
+    out = []
+    for sig in signals:
+        m = by_ticker.get(sig.get("ticker"))
+        if not m:
+            out.append(sig)
+            continue
+        enriched = dict(sig)
+        if m.get("current_price") is not None:
+            enriched["current_price"] = m["current_price"]
+            enriched["close"] = m["current_price"]
+        enriched["monitor"] = m
+        out.append(enriched)
+    meta = {
+        "monitor_as_of": monitor.get("as_of"),
+        "monitor_generated_ist": monitor.get("generated_ist"),
+        "monitor_flags": monitor.get("flags", []),
+    }
+    return out, meta
+
+
 def _augment_signals_for_user(signals: list, user: User, db: Session) -> list:
     """Add `actionability` + `user_position` fields to each signal in
     today's envelope, joined against nq_orders + Kite holdings.
@@ -271,6 +309,19 @@ def get_signals(
         generated_at = raw.get("generated_at")
         sizing_capital = raw.get("sizing_capital")
         sizing_risk_pct = raw.get("sizing_risk_pct")
+
+    # ── Daily observational overlay (weekly book only) ─────────────────
+    # The weekly engine recomputes only Saturday, so `current_price` on each
+    # card is up to a week stale mid-week. The daily monitor cron re-prices
+    # the frozen cards and flags intra-week events; overlay it here so live
+    # prices/P&L and events reach every viewer, Kite-connected or not,
+    # without a second signal engine. Frozen entry/stop/target are untouched.
+    monitor_meta: dict = {}
+    if model == "weekly":
+        monitor = _read_json_with_fallback(
+            RESULTS_DIR / "weekly_monitor.json", "results/weekly_monitor.json", {}
+        )
+        signals, monitor_meta = _overlay_weekly_monitor(signals, monitor or {})
 
     portfolio = _read_json_with_fallback(
         RESULTS_DIR / files["portfolio"], f"results/{files['portfolio']}", {}
@@ -403,6 +454,7 @@ def get_signals(
         "n_signals": len(signals),
         "sizing_capital": sizing_capital,
         "sizing_risk_pct": sizing_risk_pct,
+        **monitor_meta,
         "cron_health": {
             "status": cron_status,
             "expected_today": is_trading_day,
