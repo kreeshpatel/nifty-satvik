@@ -87,6 +87,9 @@
   overflow-x: hidden;
   scroll-behavior: smooth;
   min-height: 100vh;
+  /* Render the landing as if the browser were at 80% zoom (real reflow, not a
+     visual scale). Reset to 100% on phones so text doesn't get tiny. */
+  zoom: 0.8;
 }
 
 /* fine dotted starfield / grain — screen-blend, barely-there texture */
@@ -1598,6 +1601,7 @@
 
 /* ═════════════════ MOBILE ═════════════════ */
 @media (max-width: 767px) {
+  [data-page-ctx="landing"] { zoom: 1; }   /* full size on phones */
   [data-page-ctx="landing"] .alm-section { padding: 46px 0; }
   [data-page-ctx="landing"] .alm-hero { padding: 34px 0 24px; }
   [data-page-ctx="landing"] .tp-hero { padding: 34px 0 24px; }
