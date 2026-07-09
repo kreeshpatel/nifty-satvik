@@ -1040,10 +1040,10 @@ function MorningCommentary({ regime, signalsCount }) {
 export default function DashboardV3() {
   const kite          = useContext(KiteContext);
   // The live book is the weekly swing model (momentum is suspended, 2026-07-06),
-  // so the dashboard queries 'weekly' — same as the Research page — otherwise it
+  // so the dashboard queries 'bhanushali' — same as the Research page — otherwise it
   // reads the empty momentum feed and shows no pick / no cards.
-  const signalsQuery  = useSignals({ model: 'weekly' });
-  const watchlistQuery = useWatchlist({ model: 'weekly' });
+  const signalsQuery  = useSignals({ model: 'bhanushali' });
+  const watchlistQuery = useWatchlist({ model: 'bhanushali' });
   const overviewQuery = useOverview();
   const holdingsQuery = useKiteHoldings({ enabled: !!kite?.connected });
   const marginsQuery  = useKiteMargins({ enabled: !!kite?.connected });
@@ -1157,7 +1157,7 @@ export default function DashboardV3() {
                 </div>
               </div>
               <div className="dv3-row-controls">
-                <span className="chip c-warn">Weekly Swing</span>
+                <span className="chip c-warn">Bhanushali</span>
                 <Link to="/premove?filter=today" className="dv3-freshpill">Fresh today <Icon.Arrow width="11" height="11" /></Link>
               </div>
             </div>

@@ -1,4 +1,4 @@
-name: cron-weekly-scanner
+name: cron-bhanushali-scanner
 
 # The 0091 weekly-swing FORWARD-WATCH paper book. A weekly-swing strategy only changes after Friday's
 # weekly close, so it runs on its OWN weekly schedule — every Saturday 6 PM IST — not in the daily
@@ -15,7 +15,7 @@ on:
     - cron: "30 12 * * 6"       # 12:30 UTC Saturday = 18:00 (6 PM) IST Saturday
 
 concurrency:
-  group: cron-weekly-scanner
+  group: cron-bhanushali-scanner
   cancel-in-progress: false
 
 permissions:
@@ -42,9 +42,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
       - name: Run weekly-swing (0093 + Nifty-50 CRS) paper cron
-        run: python scripts/run_weekly_paper_cron.py --start "${{ github.event.inputs.inception || '2026-07-04' }}"
+        run: python scripts/run_bhanushali_cron.py --start "${{ github.event.inputs.inception || '2026-07-04' }}"
       - name: Refresh forward-review scorecard (Oct-1 promote/kill machinery, forward/prereg.md gates)
-        run: python scripts/weekly_review_scorecard.py
+        run: python scripts/bhanushali_review_scorecard.py
       - name: Commit weekly paper state
         run: |
           # Author with the owner's GitHub-matched email so Vercel (auto-deploys main) doesn't

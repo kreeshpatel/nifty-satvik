@@ -38,29 +38,37 @@ GITHUB_RAW = "https://raw.githubusercontent.com/kreeshpatel/nifty-satvik/main"
 GITHUB_API_CONTENTS = "https://api.github.com/repos/kreeshpatel/nifty-satvik/contents"
 
 # ── Two live models, selected by the `?model=` query param ──────────────
-# `momentum` = baseline_v1 (the validated live book, unchanged default).
-# `weekly`   = the 0091 Bhanushali weekly-swing FORWARD-WATCH paper book (finding 0034),
-#              written by scripts/run_weekly_paper_cron.py to results/*_weekly.*. It is
-#              UNDERPOWERED / not certified — surfaced as a second tab, never the default.
+# `bhanushali` = the Bhanushali weekly-swing book — the SYSTEMATIC LIVE model
+#                (momentum suspended 2026-07-06). Written by
+#                scripts/run_bhanushali_cron.py. Internal result files keep their
+#                *_weekly.* names (the cron's git-commit list is keyed to them);
+#                the model is named "bhanushali" everywhere a user/dev sees it.
+# `momentum`   = baseline_v1 (suspended; kept for a manual re-enable).
+# `weekly`     = back-compat alias for `bhanushali` (older links / cached clients).
 _MODELS = {
     "momentum": {
         "today": "signals_today.json", "history": "signals_history.json",
         "analytics": "signal_analytics.json", "portfolio": "paper_portfolio.json",
         "watchlist": "signals_watchlist.json", "config": "models/long_horizon/config.json",
     },
-    "weekly": {
+    "bhanushali": {
         "today": "signals_today_weekly.json", "history": "signals_history_weekly.json",
         "analytics": "signal_analytics_weekly.json", "portfolio": "paper_portfolio_weekly.json",
         "watchlist": None, "config": "models/bhanushali_weekly/config.json",
     },
 }
+# Back-compat: `?model=weekly` resolves to the same Bhanushali book.
+_MODELS["weekly"] = _MODELS["bhanushali"]
+
+# Model names that mean the Bhanushali weekly-swing book (for the monitor overlay).
+_BHANUSHALI_ALIASES = {"bhanushali", "weekly"}
 
 
 def _model_or_400(model: str) -> dict:
     m = _MODELS.get(model)
     if m is None:
         raise HTTPException(status_code=400,
-                            detail=f"Unknown model '{model}'. Use 'momentum' or 'weekly'.")
+                            detail=f"Unknown model '{model}'. Use 'momentum' or 'bhanushali'.")
     return m
 
 
@@ -180,7 +188,7 @@ def _overlay_weekly_monitor(signals: list, monitor: dict) -> tuple[list, dict]:
     """Overlay the daily observational monitor onto the frozen weekly cards.
 
     The weekly engine only recomputes Saturday, so each card's `current_price` is Saturday's.
-    The daily monitor (results/weekly_monitor.json, written by scripts/run_weekly_monitor.py)
+    The daily monitor (results/weekly_monitor.json, written by scripts/run_bhanushali_monitor.py)
     re-prices those cards against fresh daily bars and flags intra-week events. Here we merge
     its live `current_price`/`close` and attach a per-card `monitor` block — WITHOUT touching
     the frozen entry/stop/target (those change only at the weekly close). Non-weekly models and
@@ -279,7 +287,7 @@ def _augment_signals_for_user(signals: list, user: User, db: Session) -> list:
 
 @router.get("/signals")
 def get_signals(
-    model: str = Query("momentum", description="Strategy book: 'momentum' (baseline_v1) or 'weekly' (0091 forward-watch)"),
+    model: str = Query("bhanushali", description="Strategy book: 'bhanushali' (weekly-swing, live) or 'momentum' (suspended)"),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -318,7 +326,7 @@ def get_signals(
     # without a second signal engine. Frozen entry/stop/target are untouched.
     monitor_meta: dict = {}
     review_scorecard = None
-    if model == "weekly":
+    if model in _BHANUSHALI_ALIASES:
         monitor = _read_json_with_fallback(
             RESULTS_DIR / "weekly_monitor.json", "results/weekly_monitor.json", {}
         )
@@ -471,7 +479,7 @@ def get_signals(
 
 @router.get("/signals/history")
 def get_signal_history(
-    model: str = Query("momentum", description="Strategy book: 'momentum' or 'weekly'"),
+    model: str = Query("bhanushali", description="Strategy book: 'bhanushali' or 'momentum'"),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -534,7 +542,7 @@ def get_sell_guidance(
 
 @router.get("/signals/watchlist")
 def get_watchlist(
-    model: str = Query("momentum", description="Strategy book: 'momentum' or 'weekly'"),
+    model: str = Query("bhanushali", description="Strategy book: 'bhanushali' or 'momentum'"),
 ):
     """Borderline candidates from today's scan (conf 0.75-0.92).
 

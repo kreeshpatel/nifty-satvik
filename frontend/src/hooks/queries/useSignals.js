@@ -29,9 +29,10 @@ import { fetchSignals } from '@/services/api';
 
 export const SIGNALS_QUERY_KEY = ['signals'];
 
-// `model`: 'momentum' (baseline_v1, default) or 'weekly' (0091 forward-watch book).
-// It is part of the query key so switching tabs caches each model separately.
-export function useSignals({ model = 'momentum', ...options } = {}) {
+// `model`: 'bhanushali' (weekly-swing, the systematic live book — default) or
+// 'momentum' (baseline_v1, suspended). Part of the query key so each model
+// caches separately. 'weekly' still resolves to bhanushali on the backend.
+export function useSignals({ model = 'bhanushali', ...options } = {}) {
   return useQuery({
     queryKey: [...SIGNALS_QUERY_KEY, model],
     queryFn: () => fetchSignals(model),

@@ -22,7 +22,7 @@ import { fetchWatchlist } from '@/services/api';
 
 export const WATCHLIST_QUERY_KEY = ['signals', 'watchlist'];
 
-export function useWatchlist({ model = 'momentum', ...options } = {}) {
+export function useWatchlist({ model = 'bhanushali', ...options } = {}) {
   return useQuery({
     queryKey: [...WATCHLIST_QUERY_KEY, model],
     queryFn: () => fetchWatchlist(model),

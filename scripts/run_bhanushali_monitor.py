@@ -1,6 +1,6 @@
 """Daily OBSERVATIONAL monitor for the Weekly-Swing forward-watch book.
 
-Why this exists: the weekly-swing engine only recomputes on Saturday (run_weekly_paper_cron.py),
+Why this exists: the weekly-swing engine only recomputes on Saturday (run_bhanushali_cron.py),
 so all week the dashboard's weekly cards carry SATURDAY's price / P&L / distance-to-stop. This job
 re-prices those FROZEN cards against fresh daily bars and flags intra-week events so the owner can
 act on resting broker orders without watching the screen all day.
@@ -20,8 +20,8 @@ The dashboard backend (routers/signals.py) overlays this file's current_price an
 frozen weekly cards, so prices/P&L stay live all week for every viewer — Kite-connected or not —
 without a second signal engine.
 
-    python scripts/run_weekly_monitor.py               # cron (refreshes recent daily bars)
-    python scripts/run_weekly_monitor.py --no-download # offline / local test (cache as-is)
+    python scripts/run_bhanushali_monitor.py               # cron (refreshes recent daily bars)
+    python scripts/run_bhanushali_monitor.py --no-download # offline / local test (cache as-is)
 """
 from __future__ import annotations
 
