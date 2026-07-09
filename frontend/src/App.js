@@ -23,6 +23,7 @@ import HeaderTicker from '@/components/layout/HeaderTicker';
 // Suspense flicker on first paint reads as broken.
 import Login from '@/pages/Login';
 import LandingV2 from '@/pages/LandingV2';
+import InfoPage from '@/pages/InfoPage';
 // NOTE: the legacy `Landing` page (/landing-v1) was retired 2026-07-02 — it carried fabricated
 // stats and a pricing block that contradicted the live invite-only positioning. The route now
 // redirects to `/`. Landing.jsx stays on disk; roll back by reverting this commit.
@@ -431,6 +432,9 @@ function AnimatedRoutes() {
               rollback only — not routed. Will be removed after AdminV2 soaks. */}
           <Route path="/admin" element={<PageTransition><AdminV2 /></PageTransition>} />
         </Route>
+
+        {/* Footer info/legal pages (Disclaimer, Privacy, Terms, About, …) — one per slug */}
+        <Route path="/:slug" element={<PageTransition><InfoPage /></PageTransition>} />
 
         {/* Catch-all — redirect unknown routes to landing */}
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -843,25 +843,25 @@ function LandingV2Shell() {
             <div className="alm-foot-col">
               <h4>Legal</h4>
               <ul>
-                <li><a href="#">Disclaimer</a></li>
-                <li><a href="#">Risk disclosure</a></li>
-                <li><a href="#">Privacy</a></li>
-                <li><a href="#">Terms</a></li>
+                <li><a href="/disclaimer">Disclaimer</a></li>
+                <li><a href="/risk-disclosure">Risk disclosure</a></li>
+                <li><a href="/privacy">Privacy</a></li>
+                <li><a href="/terms">Terms</a></li>
               </ul>
             </div>
             <div className="alm-foot-col">
               <h4>Company</h4>
               <ul>
-                <li><a href="#">About</a></li>
-                <li><a href="#">Founder note</a></li>
-                <li><a href="#">Press</a></li>
-                <li><a href="#">Contact</a></li>
+                <li><a href="/about">About</a></li>
+                <li><a href="/founder-note">Founder note</a></li>
+                <li><a href="/press">Press</a></li>
+                <li><a href="/contact">Contact</a></li>
               </ul>
             </div>
           </div>
           <div className="alm-foot-rule">
             <span>© 2026 Nifty Satvik</span>
-            <span>Made in Bengaluru · NSE data may be delayed</span>
+            <span>Made in Ahmedabad, India</span>
           </div>
           <p className="alm-foot-disc">{DISCLAIMER}</p>
         </div>

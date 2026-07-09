@@ -1577,6 +1577,25 @@
 /* subhead → centered divider label */
 [data-page-ctx="landing"] .alm-subhead { text-align: center; border-top: 0; padding-top: 8px; margin: 40px 0 18px; }
 
+/* ═════════════════ INFO / LEGAL PAGES ═════════════════ */
+[data-page-ctx="landing"] .info-prose { margin-top: 22px; }
+[data-page-ctx="landing"] .info-prose p {
+  font-family: var(--alm-sans); font-size: 15.5px; line-height: 1.7; color: var(--alm-ink-2);
+  margin: 0 0 16px; text-wrap: pretty;
+}
+[data-page-ctx="landing"] .info-prose p:last-child { margin-bottom: 0; }
+[data-page-ctx="landing"] .info-links {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-top: 34px; padding-top: 24px; border-top: 1px solid var(--alm-rule-2);
+}
+[data-page-ctx="landing"] .info-link {
+  font-family: var(--alm-sans); font-size: 12.5px; font-weight: 600; text-decoration: none;
+  color: var(--alm-ink-2); background: var(--alm-surf-2); border: 1px solid var(--alm-rule-2);
+  border-radius: 999px; padding: 7px 14px; transition: border-color 180ms var(--alm-ease), color 180ms var(--alm-ease);
+}
+[data-page-ctx="landing"] .info-link:hover { color: var(--alm-ink); border-color: var(--alm-rule-strong); }
+[data-page-ctx="landing"] .info-link.on { color: #05101f; background: var(--alm-grad); border-color: transparent; }
+
 /* ═════════════════ MOBILE ═════════════════ */
 @media (max-width: 767px) {
   [data-page-ctx="landing"] .alm-section { padding: 46px 0; }
