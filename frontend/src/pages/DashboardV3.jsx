@@ -921,7 +921,10 @@ function PickOfWeek({ sig }) {
   const num = (n) => (n == null ? '—' : Number(n).toLocaleString('en-IN', { maximumFractionDigits: 0 }));
   const reco = sig.entry ?? sig.reco_price ?? null;
   const target = sig.target ?? null;
-  const upside = sig.predicted_return_pct ?? sig.expected_return ?? null;
+  // Real upside to target when the model doesn't supply a predicted return, so
+  // the pick card shows a % instead of "—".
+  const upside = sig.predicted_return_pct ?? sig.expected_return
+    ?? (reco > 0 && target > 0 ? ((target - reco) / reco) * 100 : null);
   return (
     <div className="dv3-pick">
       <span className="dv3-pick-badge">★ Pick of the week</span>
