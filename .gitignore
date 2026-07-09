@@ -49,6 +49,8 @@ results/*
 # Kill-criteria + paper-equity runtime state must persist across cron runs (Stage E/F).
 !results/kill_state.json
 !results/kill_log.jsonl
+# Weekly-swing forward-review scorecard (Oct-1 promote/kill machinery) — cron-refreshed, dashboard-read.
+!results/weekly_review_scorecard.json
 logs/
 dashboard/frontend/results/
 

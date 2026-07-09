@@ -1,0 +1,46 @@
+{
+  "generated_utc": "2026-07-09T12:31:11.581567+00:00",
+  "generated_ist": "2026-07-09 18:01",
+  "book": "weekly-swing-0094-rank",
+  "inception": "2026-07-04",
+  "days_live": 5,
+  "next_review": "2026-10-01",
+  "days_to_review": 84,
+  "review_cadence": "first trading day of Jan/Apr/Jul/Oct (forward/prereg.md \u00a78)",
+  "forward": {
+    "n_closed": 0,
+    "expectancy_R": null,
+    "win_rate_pct": null,
+    "sharpe": null,
+    "maxdd_pct": null,
+    "nav": 1000000.0
+  },
+  "gates": {
+    "readiness": {
+      "rule": ">=40 closed OR 4 quarters (\u00a710.2)",
+      "n_closed": 0,
+      "quarters_elapsed": 0,
+      "ready": false
+    },
+    "promote": {
+      "rule": "expectancy > +0.10R AND MaxDD shallower than -25% (\u00a710.2)",
+      "expectancy_R": null,
+      "maxdd_pct": null,
+      "pass": null
+    },
+    "kill": {
+      "rule": "net Sharpe < 0 (\u00a710.2)",
+      "sharpe": null,
+      "triggered": null
+    },
+    "halt": {
+      "rule": "live MaxDD <= -50% (\u00a74, mechanical)",
+      "maxdd_pct": null,
+      "triggered": false
+    }
+  },
+  "status": "ACCRUING",
+  "headline": "0/40 closed, 0/4 quarters -> not yet evaluable; 84 days to the 2026-10-01 review",
+  "spec_note": "The \u00a710.2 registered proposal names practitioner Engine B + 4xATR; the live forward book is weekly-swing-0094-rank. The Oct-1 review must reconcile which spec is judged (forward/prereg.md \u00a710.2). Gates are surfaced, never applied between review dates; the only mechanical action is the \u00a74 halt.",
+  "authority": "forward/prereg.md (the doc is the authority; this scorecard only reads it)"
+}
