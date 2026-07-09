@@ -223,6 +223,22 @@ function potentialCell(s) {
   return { main: fmtPct1(s._upside), sub: horizon, tone: 'bull' };
 }
 
+// ── Daily-monitor event chip (weekly book) ────────────────────────────
+// Surfaces the intra-week event the daily monitor cron flagged on this card
+// (results/weekly_monitor.json → backend overlay → sig.monitor), without ever
+// touching the frozen entry/stop/target. Only high-signal states show a chip.
+function monitorChip(s) {
+  const m = s.monitor;
+  if (!m) return null;
+  if (m.stop_breached) return { label: '⚠ Stop hit', cls: 'mon-bear' };
+  if (m.target_reached) return { label: '✓ +2R', cls: 'mon-bull' };
+  if (m.kind === 'hold' && m.dist_to_stop_pct != null && m.dist_to_stop_pct <= 2)
+    return { label: 'Near stop', cls: 'mon-warn' };
+  if (m.kind === 'buy' && m.buy_window_open && m.filled_today === false)
+    return { label: 'Gapped — wait', cls: 'mon-warn' };
+  return null;
+}
+
 // ── Regime → commentary ───────────────────────────────────────────────
 function regimeInfo(regime) {
   const rs = (regime?.status || '').toUpperCase();
@@ -300,6 +316,7 @@ function CallRow({ s, onOpen, onAction }) {
   const pot = potentialCell(s);
   const g = (s.grade || 'B')[0].toUpperCase();
   const dayChg = s._dayChangePct;
+  const mon = monitorChip(s);
   return (
     <div className="ri-row" onClick={() => onOpen(s.sym)} role="button" tabIndex={0}
       onKeyDown={(e) => { if (e.key === 'Enter') onOpen(s.sym); }}>
@@ -312,6 +329,7 @@ function CallRow({ s, onOpen, onAction }) {
           </div>
           <div className="ri-scrip-sub">
             {s.sector}{s.isFreshToday && <> · <span className="num-info">fresh</span></>} · {s.ex}
+            {mon && <span className={`ri-mon ${mon.cls}`}>{mon.label}</span>}
           </div>
         </div>
       </div>
@@ -375,6 +393,8 @@ export default function SignalsV3() {
   const quotes = quotesQuery.data ?? null;
 
   const regime = signalsQuery.data?.regime ?? {};
+  const monitorAsOf = signalsQuery.data?.monitor_as_of ?? null;
+  const monitorStamp = signalsQuery.data?.monitor_generated_ist ?? null;
 
   const heldSet = useMemo(() => {
     const list = holdingsQuery.data ?? [];
@@ -458,6 +478,11 @@ export default function SignalsV3() {
           <span className={`chip ${model === 'momentum' ? 'c-bull' : 'c-warn'}`}>
             {model === 'momentum' ? 'Live' : 'Forward-watch · paper'}
           </span>
+          {model === 'weekly' && monitorStamp && (
+            <span className="ri-fresh" title={`Live re-price as of ${monitorAsOf}`}>
+              prices updated {monitorStamp} IST
+            </span>
+          )}
         </div>
       </div>
 

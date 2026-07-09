@@ -372,3 +372,29 @@
 .sizing-calc .sc-note { font-size: 11.5px; color: var(--text-3); margin-top: 10px; line-height: 1.5; }
 .sizing-calc .sc-note b { color: var(--text-2); }
 .sizing-calc .sc-warn { color: var(--warn, #F0B24E); }
+
+/* ── Daily-monitor overlay: intra-week event chip + freshness stamp ── */
+.ri-mon {
+  display: inline-block;
+  margin-left: 7px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 650;
+  letter-spacing: 0.2px;
+  vertical-align: middle;
+  border: 1px solid transparent;
+}
+.ri-mon.mon-bear { background: var(--bear-soft); color: var(--bear); border-color: rgba(255,92,122,0.4); }
+.ri-mon.mon-bull { background: var(--bull-soft); color: var(--bull); border-color: rgba(63,221,138,0.4); }
+.ri-mon.mon-warn { background: var(--warn-soft); color: var(--warn); border-color: rgba(255,180,84,0.4); }
+.ri-mon.mon-info { background: var(--surface-3); color: var(--text-3); border-color: var(--edge-1); }
+
+.ri-fresh {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-3);
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
