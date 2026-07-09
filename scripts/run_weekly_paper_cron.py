@@ -51,6 +51,50 @@ def _last(P, t, key):
     return arr[-1]
 
 
+def _compute_regime(P, mem, as_of):
+    """Market breadth + 10-bar strength across the CURRENT index universe.
+
+    Real and PIT-safe: uses only each name's close series up to `as_of` (no
+    look-ahead). Breadth = advancers − decliners on the latest bar. Strength =
+    % of names trading above their trailing 10-bar mean (0–100). Status is a
+    simple BULL/BEAR/CHOPPY read off the two. VIX stays 0 here — the dashboard
+    overlays the live INDIA VIX quote (the universe cache carries no VIX bar).
+    """
+    from nq.data.membership import ticker_in_index_on
+    d = pd.Timestamp(as_of).date()
+    adv = dec = above = total = 0
+    for t, s in P.items():
+        c = s.get("c")
+        if c is None or len(c) < 11:
+            continue
+        if mem is not None and not ticker_in_index_on(t, d, mem):
+            continue
+        try:
+            last = float(c[-1]); prev = float(c[-2])
+            win = [float(x) for x in c[-10:]]
+            sma10 = sum(win) / len(win)
+        except (TypeError, ValueError, IndexError):
+            continue
+        total += 1
+        if last > prev:
+            adv += 1
+        elif last < prev:
+            dec += 1
+        if last > sma10:
+            above += 1
+    if not total:
+        return {"status": "UNKNOWN", "strength": 0, "vix": 0, "breadth": 0}
+    breadth = adv - dec
+    strength = round(100.0 * above / total)
+    if strength >= 60 and breadth > 0:
+        status = "BULL"
+    elif strength <= 40 and breadth < 0:
+        status = "BEAR"
+    else:
+        status = "CHOPPY"
+    return {"status": status, "strength": int(strength), "vix": 0, "breadth": int(breadth)}
+
+
 def build_envelopes(P, out, ledger, generated_at, mem=None):
     """Map the 0091 live state to the same dashboard envelope shape the momentum book writes.
 
@@ -186,7 +230,7 @@ def build_envelopes(P, out, ledger, generated_at, mem=None):
 
     envelope = {
         "generated_at": generated_at, "model": "weekly-swing-0094-rank", "signals": signals,
-        "regime": {"status": "UNKNOWN", "strength": 0, "vix": 0, "breadth": 0},
+        "regime": _compute_regime(P, mem, generated_at),
         "n_positions": len(positions), "cash": round(float(out["cash"]), 2),
         "note": "forward-watch, modeled fills — 0094 weekly swing (0093-N50 signals, CRS-ranked fills; UNDERPOWERED DSR 0.89, not certified)",
     }
