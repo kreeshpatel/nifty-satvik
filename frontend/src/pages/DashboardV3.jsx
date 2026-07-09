@@ -221,14 +221,25 @@ function RegimeStrip({ regime, indexData, heldCount }) {
     : isBear
       ? 'Trend and breadth are against longs — stay defensive.'
       : 'Mixed tape — no clear trend. Stay selective.';
-  const strength = Math.max(0, Math.min(100, Math.round(regime?.strength ?? 50)));
+  // Strength: real 10-day-strength score only. The backend sends 0 as its
+  // "not computed" sentinel, so treat 0/absent as unknown (—) rather than
+  // fabricating a midpoint — a faked "50/100" bar reads as real data.
+  const strengthRaw = Number(regime?.strength);
+  const strength = Number.isFinite(strengthRaw) && strengthRaw > 0
+    ? Math.max(0, Math.min(100, Math.round(strengthRaw)))
+    : null;
 
-  // VIX: prefer regime.vix, fall back to the live INDIA VIX sparkline.
+  // VIX: prefer regime.vix, else the live INDIA VIX sparkline. Use `||` so the
+  // backend's 0 sentinel falls through (a real VIX is never 0).
   const vixData = indexData?.['INDIA VIX'] ?? indexData?.['INDIAVIX'] ?? null;
-  const vixRaw  = regime?.vix ?? vixData?.ltp ?? vixData?.last ?? vixData?.value ?? null;
-  const vix     = vixRaw != null && isFinite(Number(vixRaw)) ? Number(vixRaw) : null;
+  const vixRaw  = Number(regime?.vix) || Number(vixData?.ltp) || Number(vixData?.last) || Number(vixData?.value) || null;
+  const vix     = vixRaw != null && isFinite(vixRaw) && vixRaw > 0 ? vixRaw : null;
   const vixWord = vix == null ? '—' : vix < 15 ? 'calm' : vix <= 20 ? 'normal' : 'elevated';
-  const breadth = regime?.breadth != null ? Number(regime.breadth) : null;
+
+  // Breadth (adv−dec): backend 0 is also the "not computed" sentinel, so show
+  // — for 0/absent rather than a misleading "+0".
+  const breadthRaw = Number(regime?.breadth);
+  const breadth = Number.isFinite(breadthRaw) && breadthRaw !== 0 ? breadthRaw : null;
 
   const updated = regime?.updated_at || regime?.as_of || regime?.timestamp || null;
   const updatedLabel = updated
@@ -245,8 +256,8 @@ function RegimeStrip({ regime, indexData, heldCount }) {
           The market is <span className={`num-${tone}`}>{label}.</span> {line}
         </div>
         <div className="dv3-rg-strength">
-          <span className="dv3-rg-strength-l">10-DAY STRENGTH · {strength}/100</span>
-          <div className="dv3-rg-bar"><span className={`fill-${tone}`} style={{ width: `${strength}%` }} /></div>
+          <span className="dv3-rg-strength-l">10-DAY STRENGTH · {strength == null ? '—' : `${strength}/100`}</span>
+          <div className="dv3-rg-bar"><span className={`fill-${tone}`} style={{ width: `${strength ?? 0}%` }} /></div>
         </div>
       </div>
       <div className="dv3-rg-stats">
