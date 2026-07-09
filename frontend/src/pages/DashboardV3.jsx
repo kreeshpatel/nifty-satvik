@@ -296,10 +296,14 @@ function TrendingCard({ sig, modelWinRate, brewing = false }) {
   const target = sig.target ?? entry;
   const dir    = target > entry ? 'up' : 'down';
 
-  // Edge from predicted return, or hide if absent
+  // Expected return: prefer the model's predicted return; otherwise the real
+  // upside to target ((target − entry) / entry), which is what the prototype's
+  // "EXP RETURN +9.2%" shows. Both are real data — no fabrication — so the card
+  // reads as a % instead of falling back to the raw R-multiple.
+  const upsidePct = entry > 0 && target > 0 ? ((target - entry) / entry) * 100 : null;
   const edge = sig.predicted_return_pct != null
     ? fmtPct(sig.predicted_return_pct)
-    : null;
+    : (upsidePct != null ? fmtPct(upsidePct) : null);
 
   // Win rate: portfolio-level model win rate as proxy (no per-signal WR).
   // Treat 0 / missing as unavailable — a "0.0%" win rate (e.g. no trade
@@ -776,11 +780,15 @@ function EquityNetWorth({ margins, portfolio, holdings, kiteConnected }) {
     };
   }, [kiteConnected, holdings]);
 
-  const current  = kite ? kite.current  : (portfolio?.total_value ?? null);
-  const invested = kite ? kite.invested : (portfolio?.invested ?? null);
-  const pnl      = kite ? kite.pnl
+  // Prefer Kite's live holdings valuation, but fall back to the paper/overview
+  // portfolio whenever a Kite field is missing — e.g. connected but the
+  // holdings feed hasn't returned live prices yet, which otherwise left the
+  // whole card showing "—" despite a real paper portfolio existing.
+  const current  = (kite && kite.current  != null) ? kite.current  : (portfolio?.total_value ?? null);
+  const invested = (kite && kite.invested != null) ? kite.invested : (portfolio?.invested ?? null);
+  const pnl      = (kite && kite.pnl != null) ? kite.pnl
     : (portfolio?.total_pnl ?? ((current != null && invested != null) ? current - invested : null));
-  const pnlPct   = kite ? kite.pnlPct   : (portfolio?.total_return_pct ?? null);
+  const pnlPct   = (kite && kite.pnlPct != null) ? kite.pnlPct : (portfolio?.total_return_pct ?? null);
   const dayPnl   = portfolio?.day_pnl ?? null;
   const dayPct   = portfolio?.day_return_pct ?? null;
 

@@ -221,7 +221,7 @@ export default function WatchlistRail() {
               <div className="wlr-empty-sm">No match for “{q}”</div>
             ) : results.map((r) => (
               <div key={r.symbol} className="wlr-sr" onClick={() => { openStock(r.symbol); setQ(''); }}>
-                <StockLogo sym={r.symbol} size={26} />
+                <StockLogo sym={r.symbol} size={26} mono />
                 <div className="wlr-sr-l">
                   <div className="wlr-sr-s">{r.symbol}</div>
                   <div className="wlr-sr-e">{(r.exchange || 'NSE')} · {r.name}</div>
@@ -263,7 +263,7 @@ export default function WatchlistRail() {
                 onDragOver={(e) => e.preventDefault()}
                 onDragEnd={onDragEnd}
               >
-                <StockLogo sym={sym} size={27} />
+                <StockLogo sym={sym} size={27} mono />
                 <div className="wlr-l">
                   <div className="wlr-s">
                     {sym}
