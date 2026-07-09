@@ -163,11 +163,17 @@ weekly-monitor cron shipped today, which re-prices the *weekly-swing* forward-wa
 
 ---
 
-## 5. vibe-trading integration (gated on owner go-ahead)
+## 5. vibe-trading integration (owner-approved 2026-07-09)
 
-1. `pip install vibe-trading-ai` (external network install — **needs owner OK**).
-2. Wire `vibe-trading-mcp` so `analyze_options` / options skill / (optionally) `factor_analysis`
-   are callable.
+1. `pip install vibe-trading-ai` — **DONE** (v0.1.10, global env). Verified: the install did **not**
+   touch pandas/numpy (still 3.0.1 / 2.2.6), and `tests/test_stage2_golden.py` still passes 3/3, so
+   the engine invariant is intact. It did shift some web/util deps (starlette, curl_cffi,
+   typing-extensions, python-multipart, fonttools) in the local global env — harmless to the engine
+   and to Fly deployment (which pins its own `requirements.txt`), but a local-backend gotcha to note.
+2. Wire `vibe-trading-mcp` into `.mcp.json` — **DONE** (stdio server; live to the agent after a
+   session restart + trust approval). Options math already smoke-tested via the Python API
+   (`src.tools.options_pricing_tool._bs_price_and_greeks`): a 10% OTM 90d NIFTY put at 14% IV prices
+   to ≈0.11% of spot (~0.43%/yr rolled) — a realistic P0 drag estimate.
 3. Use it for: (a) options premium/Greeks sanity + drag cross-check on RQ1; (b) a **one-off**,
    guarded external IC scan of any *non-technical* Alpha-Zoo factor family (screen, not a swap);
    (c) optionally, an execution-quality Shadow-Account profile of the owner's real Kite fills vs
