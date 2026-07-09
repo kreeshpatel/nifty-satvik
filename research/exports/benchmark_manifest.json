@@ -1,0 +1,30 @@
+{
+  "source": "niftyindices.com getTotalReturnIndexString (gross TRI + NTR)",
+  "index": "NIFTY 500",
+  "n_tri_rows": 2184,
+  "aligned_to": "daily_returns.csv",
+  "strategy_dates": [
+    "2017-09-14",
+    "2026-06-29"
+  ],
+  "missing_tri_on_strategy_dates": 0,
+  "attribution": {
+    "full_period_beta_vs_tri": 1.116,
+    "daily_return_corr": 0.687,
+    "annualized_alpha_pct": 2.52,
+    "worst_drawdown_window": {
+      "peak": "2024-07-11",
+      "trough": "2025-02-28",
+      "strategy_dd_pct": -46.26,
+      "nifty500_tri_return_same_window_pct": -13.1,
+      "beta_explained_dd_pct": -14.62,
+      "residual_factor_dd_pct": -31.64
+    }
+  },
+  "notes": [
+    "tri_close = gross TotalReturnsIndex (full dividend reinvest); ntr_close = net-of-withholding.",
+    "tri_ret recomputed on the STRATEGY trading calendar (join on date, then pct_change).",
+    "beta = cov(ret_net, tri_ret)/var(tri_ret) over common days; alpha annualized x252.",
+    "worst-window decomposition is first-order (constant-beta); use event-study for the path."
+  ]
+}

@@ -1,0 +1,48 @@
+name: cron-intraday-scan
+
+# Cron job #2 (owner request, 2026-07-03): a 14:30-IST SHADOW scan that sees the SAME-DAY forming trend
+# before the 15:30 close. Observational only — it writes results/intraday_scan/*.json and the
+# partial->close confirmation log; it never touches the paper book, wall log, or kill state. Same-day
+# BUYING stays off until the accrued confirmation-survival stats justify proposing it as a
+# pre-registered trial (owner decision). See scripts/run_intraday_scan.py header for the skew notes.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 9 * * 1-5"       # 09:00 UTC = 14:30 IST (IST has no DST), weekdays
+
+concurrency:
+  group: cron-intraday-scan
+  cancel-in-progress: false
+
+permissions:
+  contents: write               # commits the scan JSON + confirmation log
+
+jobs:
+  scan:
+    name: intraday shadow scan (Python 3.12, Ubuntu)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Run intraday shadow scan
+        run: python scripts/run_intraday_scan.py
+      - name: Commit scan artifacts
+        run: |
+          git config user.name "kreeshpatel"
+          git config user.email "kreeshvasistha@gmail.com"
+          git add results/intraday_scan/ 2>/dev/null || true
+          git commit -m "chore(intraday): 14:30 IST shadow scan $(date -u +%F)" || echo "no scan output"
+          git pull --rebase && git push || echo "nothing to push"
