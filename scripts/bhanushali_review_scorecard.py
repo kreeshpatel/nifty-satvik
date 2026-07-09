@@ -12,7 +12,7 @@ moving-the-goalposts is structurally impossible. It ENCODES ONLY pre-registered 
 It NEVER invents a threshold, changes the book, or makes a decision — it surfaces state. Between
 reviews: log and leave it alone. Writes results/weekly_review_scorecard.json + prints the panel.
 
-    python scripts/weekly_review_scorecard.py
+    python scripts/bhanushali_review_scorecard.py
 """
 from __future__ import annotations
 

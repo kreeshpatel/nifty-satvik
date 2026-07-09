@@ -7,7 +7,7 @@ Live == backtest by construction: the same deterministic, PIT-clean engine that 
 +0.87 Sharpe backtest generates the live signals — no re-implementation.
 
 CADENCE — a weekly-swing book only changes after Friday's weekly close, so this runs on its OWN schedule:
-**every Saturday 6 PM IST** (.github/workflows/cron-weekly-scanner.yml). Saturday's download picks up the
+**every Saturday 6 PM IST** (.github/workflows/cron-bhanushali-scanner.yml). Saturday's download picks up the
 just-closed Friday bar; the signals it computes are actionable the following Mon/Tue (buy in the band).
 Idempotent — recomputed from inception each run (see the known mutable-record caveat, finding-0035 TODO).
 
@@ -16,8 +16,8 @@ band. Forward-watch record, NOT a live broker ledger. Clean forward inception (o
 --start = go-live date, so the book only reflects trades from inception forward; empty until fresh
 post-inception bars exist (valid, not an error).
 
-    python scripts/run_weekly_paper_cron.py --start 2026-07-04            # cron (downloads)
-    python scripts/run_weekly_paper_cron.py --start 2025-01-01 --no-download  # local/offline test
+    python scripts/run_bhanushali_cron.py --start 2026-07-04            # cron (downloads)
+    python scripts/run_bhanushali_cron.py --start 2025-01-01 --no-download  # local/offline test
 """
 from __future__ import annotations
 

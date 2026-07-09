@@ -283,7 +283,7 @@ function CommentaryCard({ regime, model, freshCount }) {
   const r = regimeInfo(regime);
   const vix = regime?.vix != null ? Number(regime.vix).toFixed(1) : '—';
   const breadth = regime?.breadth != null ? (regime.breadth > 0 ? `+${regime.breadth}` : `${regime.breadth}`) : '—';
-  const book = model === 'momentum' ? 'momentum' : 'weekly-swing';
+  const book = model === 'momentum' ? 'momentum' : 'bhanushali';
   return (
     <div className="ri-card">
       <div className="ri-card-h">MARKET NOW</div>
@@ -405,7 +405,7 @@ export default function SignalsV3() {
   // MOMENTUM SUSPENDED 2026-07-06 (owner) — cron paused, tab hidden. Flip to
   // false to restore the tab (and re-enable the cron in the same commit).
   const MOMENTUM_SUSPENDED = true;
-  const [model, setModel] = useState(MOMENTUM_SUSPENDED ? 'weekly' : 'momentum');
+  const [model, setModel] = useState(MOMENTUM_SUSPENDED ? 'bhanushali' : 'momentum');
   const [filter, setFilter] = useState('all');
 
   const signalsQuery    = useSignals({ model });
@@ -501,8 +501,8 @@ export default function SignalsV3() {
         <div className="ri-head-r">
           <GlassTabs
             tabs={MOMENTUM_SUSPENDED
-              ? [{ key: 'weekly', label: 'Weekly Swing' }]
-              : [{ key: 'momentum', label: 'Momentum' }, { key: 'weekly', label: 'Weekly Swing' }]}
+              ? [{ key: 'bhanushali', label: 'Bhanushali' }]
+              : [{ key: 'momentum', label: 'Momentum' }, { key: 'bhanushali', label: 'Bhanushali' }]}
             active={model}
             onChange={setModel}
             size="md"
@@ -510,7 +510,7 @@ export default function SignalsV3() {
           <span className={`chip ${model === 'momentum' ? 'c-bull' : 'c-warn'}`}>
             {model === 'momentum' ? 'Live' : 'Forward-watch · paper'}
           </span>
-          {model === 'weekly' && monitorStamp && (
+          {model === 'bhanushali' && monitorStamp && (
             <span className="ri-fresh" title={`Live re-price as of ${monitorAsOf}`}>
               prices updated {monitorStamp} IST
             </span>
@@ -561,7 +561,7 @@ export default function SignalsV3() {
         </div>
 
         <aside className="ri-rail">
-          {model === 'weekly' && <ReviewCard card={reviewScorecard} />}
+          {model === 'bhanushali' && <ReviewCard card={reviewScorecard} />}
           <CommentaryCard regime={regime} model={model} freshCount={freshCount} />
           <SignalStatsCard buyPool={buyPool} />
           <HowCallsMadeCard />

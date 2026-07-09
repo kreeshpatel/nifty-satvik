@@ -48,7 +48,7 @@ jobs:
           python scripts/run_paper_cron.py \
             --mode current \
             --start "${{ github.event.inputs.inception || '2026-06-30' }}"
-      # NOTE: the weekly-swing (0091) book runs in its OWN workflow — cron-weekly-scanner.yml,
+      # NOTE: the weekly-swing (0091) book runs in its OWN workflow — cron-bhanushali-scanner.yml,
       # every Saturday 6 PM IST — because a weekly strategy only changes after Friday's close.
       # It is NOT run here (daily would be redundant and the two jobs would race on results/*_weekly.*).
       - name: Commit persisted paper state

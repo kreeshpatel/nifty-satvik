@@ -1,7 +1,7 @@
-name: cron-weekly-monitor
+name: cron-bhanushali-monitor
 
 # Daily OBSERVATIONAL re-pricing of the weekly-swing forward-watch book. The weekly engine only
-# recomputes Saturday (cron-weekly-scanner.yml), so all week the dashboard's weekly cards carry
+# recomputes Saturday (cron-bhanushali-scanner.yml), so all week the dashboard's weekly cards carry
 # Saturday's price / P&L / distance-to-stop. This job re-prices the FROZEN cards against fresh
 # daily bars and flags intra-week events (buy-window fill, stop breach, +2R target, near-stop,
 # window-expired) → results/weekly_monitor.json, which the backend overlays onto the cards.
@@ -16,7 +16,7 @@ on:
     - cron: "45 10 * * 1-5"      # 10:45 UTC = 16:15 IST, after the 15:30 NSE close, weekdays
 
 concurrency:
-  group: cron-weekly-monitor
+  group: cron-bhanushali-monitor
   cancel-in-progress: false
 
 permissions:
@@ -43,7 +43,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
       - name: Run weekly monitor
-        run: python scripts/run_weekly_monitor.py
+        run: python scripts/run_bhanushali_monitor.py
       - name: Commit monitor state
         run: |
           # Author with the owner's GitHub-matched email so Vercel (auto-deploys main) doesn't
