@@ -194,10 +194,11 @@ export default function WatchlistRail() {
             key={n}
             role="tab"
             aria-selected={activeList === n}
+            aria-label={`Watchlist ${n}`}
             className={`wlr-tab${activeList === n ? ' on' : ''}`}
             onClick={() => selectList(n)}
           >
-            List {n}
+            {n}
           </button>
         ))}
       </div>
@@ -243,7 +244,7 @@ export default function WatchlistRail() {
           <div className="wlr-empty">Loading…</div>
         ) : tickers.length === 0 ? (
           <div className="wlr-empty">
-            {activeList === 2 ? 'List 2 is empty.' : 'This list is empty.'}
+            This list is empty.
             <span>Search above to add stocks you want to track.</span>
           </div>
         ) : localOrder.map((sym, i) => {

@@ -40,9 +40,13 @@ router = APIRouter(prefix="/watchlist", tags=["watchlist"])
 MAX_WATCHLIST = 100
 _TICKER_RE = re.compile(r"^[A-Z0-9&._-]{1,32}$")
 
-# Seed for a brand-new user's list 1 — a handful of liquid Nifty-50 large caps
-# so the rail is never blank on first look. Order here is the display order.
-DEFAULT_LIST_1 = ["RELIANCE", "HDFCBANK", "ICICIBANK", "INFY", "TCS", "LT", "ITC"]
+# Seed for a brand-new user's list 1 — ten liquid Nifty-50 large caps so the
+# rail is never blank on first look. Fully editable afterwards; this is only
+# the default until the user changes it. Order here is the display order.
+DEFAULT_LIST_1 = [
+    "RELIANCE", "HDFCBANK", "ICICIBANK", "INFY", "TCS",
+    "LT", "ITC", "BHARTIARTL", "SBIN", "KOTAKBANK",
+]
 
 
 class AddWatchlistRequest(BaseModel):
