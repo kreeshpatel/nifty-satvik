@@ -40,8 +40,12 @@ from run_bhanushali_weekly_full import CAP_WEEKS  # noqa: E402
 SLOPE_MIN, SLOPE_LOOKBACK, TOUCH_BAND, CRS_LEN = 0.03, 13, 0.07, 40   # the live 0093-N50 params (frozen)
 
 
-def prep_weekly_rank(ohlcv, drop_erratum: bool = False):
-    """The live 0093+Nifty-50 prep, with each entry window carrying its CRS-distance rank."""
+def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None):
+    """The live 0093+Nifty-50 prep, with each entry window carrying its CRS-distance rank.
+
+    index_provider (pre-reg 0096): optional callable(ticker) -> pd.Series to override the CRS
+    denominator per ticker (e.g. the stock's own sector index). Returning None for a ticker falls
+    back to Nifty-50. index_provider=None (default) => Nifty-50 for all => byte-identical 0094 run."""
     n50 = pd.read_csv(CRS.NIFTY50_CSV, parse_dates=["date"]).set_index("date")["nifty50_close"].sort_index()
     P = prep(ohlcv, drop_erratum=drop_erratum)
     for t, s in P.items():
@@ -64,7 +68,10 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False):
         rng = whigh - wlow
         qgreen = (wclose > wopen) & (rng > 0) & ((wclose - wlow) >= 0.5 * rng)
         touch = (wlow <= wsma * (1 + TOUCH_BAND)) & (wclose > wsma)
-        ia = n50.reindex(idx, method="ffill").to_numpy(float)
+        idx_series = index_provider(t) if index_provider is not None else None
+        if idx_series is None:
+            idx_series = n50
+        ia = idx_series.reindex(idx, method="ffill").to_numpy(float)
         iw = np.array([ia[dd[-1]] for dd in weeks])
         rs = np.where(iw > 0, wclose / iw, np.nan)
         rs_sma = pd.Series(rs).rolling(CRS_LEN).mean().to_numpy()

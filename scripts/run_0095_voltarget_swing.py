@@ -74,7 +74,7 @@ def main() -> int:
 
     d_sharpe = cand["sharpe"] - base["sharpe"]
     d_cagr = (cand["cagr"] - base["cagr"]) * 100
-    d_dd_pp = (cand["dd"] - base["dd"]) * -100     # +ve = drawdown got shallower (improved)
+    d_dd_pp = (cand["dd"] - base["dd"]) * 100      # dd are negative; positive = drawdown got shallower (improved)
     d_slice22 = cc - bc
     print(f"\n  dSharpe {d_sharpe:+.3f} | dCAGR {d_cagr:+.2f}pp | dMaxDD {d_dd_pp:+.2f}pp (positive = shallower) "
           f"| Calmar {_calmar(base):.2f}->{_calmar(cand):.2f}")
