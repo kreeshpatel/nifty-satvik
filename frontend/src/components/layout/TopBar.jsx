@@ -440,7 +440,7 @@ export function TopBar() {
         zIndex: 50,
         height: 64,
         display: 'grid',
-        gridTemplateColumns: 'auto auto 1fr auto auto auto',
+        gridTemplateColumns: 'auto 1fr auto auto auto auto',
         alignItems: 'center',
         gap: 14,
         padding: '0 20px',
@@ -453,7 +453,14 @@ export function TopBar() {
       {/* Logo lockup */}
       <BrandLogo to="/dashboard" size={30} wordSize={16} />
 
-      {/* Primary pill tabs */}
+      {/* Live index ticker — inline right after the brand (prototype layout).
+          min-width:0 lets the marquee shrink into the flexible column instead
+          of blowing out the grid. */}
+      <div style={{ minWidth: 0, overflow: 'hidden' }}>
+        <HeaderTicker />
+      </div>
+
+      {/* Primary pill tabs — right-aligned (after the ticker), per the prototype. */}
       <nav
         className="scrollbar-hide"
         style={{
@@ -500,13 +507,6 @@ export function TopBar() {
           );
         })}
       </nav>
-
-      {/* Live index ticker — inline in the bar (prototype layout). min-width:0
-          lets the marquee shrink into the flexible column instead of blowing
-          out the grid. */}
-      <div style={{ minWidth: 0, overflow: 'hidden' }}>
-        <HeaderTicker />
-      </div>
 
       {/* Kite integration status — connect / live / disconnect. Global stock
           search lives in the watchlist rail (top-bar search removed). */}
