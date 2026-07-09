@@ -51,6 +51,17 @@
   font-size: 13px; font-weight: 700; letter-spacing: 0.02em; color: var(--text-1);
 }
 
+/* top-level view tabs — Watchlist · Signals · Held (prototype .rail-tabs) */
+.wlr-viewtabs { display: flex; gap: 16px; align-items: center; }
+.wlr-vtab {
+  background: none; border: 0; padding: 2px 0 7px; cursor: pointer;
+  font-family: var(--font-sans); font-size: 13px; font-weight: 600;
+  color: var(--text-3); border-bottom: 2px solid transparent;
+  transition: color 160ms, border-color 160ms;
+}
+.wlr-vtab:hover { color: var(--text-2); }
+.wlr-vtab.on { color: var(--text-1); border-bottom-color: var(--brand); }
+
 /* two-list switch — small numbered boxes (1 = seeded core, 2 = user's own) */
 .wlr-tabs {
   display: flex; gap: 6px; margin: 0 2px 10px;
