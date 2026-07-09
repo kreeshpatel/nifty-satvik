@@ -317,11 +317,16 @@ def get_signals(
     # prices/P&L and events reach every viewer, Kite-connected or not,
     # without a second signal engine. Frozen entry/stop/target are untouched.
     monitor_meta: dict = {}
+    review_scorecard = None
     if model == "weekly":
         monitor = _read_json_with_fallback(
             RESULTS_DIR / "weekly_monitor.json", "results/weekly_monitor.json", {}
         )
         signals, monitor_meta = _overlay_weekly_monitor(signals, monitor or {})
+        # Forward-review scorecard (Oct-1 promote/kill machinery, forward/prereg.md gates).
+        review_scorecard = _read_json_with_fallback(
+            RESULTS_DIR / "weekly_review_scorecard.json", "results/weekly_review_scorecard.json", None
+        )
 
     portfolio = _read_json_with_fallback(
         RESULTS_DIR / files["portfolio"], f"results/{files['portfolio']}", {}
@@ -454,6 +459,7 @@ def get_signals(
         "n_signals": len(signals),
         "sizing_capital": sizing_capital,
         "sizing_risk_pct": sizing_risk_pct,
+        "review_scorecard": review_scorecard,
         **monitor_meta,
         "cron_health": {
             "status": cron_status,

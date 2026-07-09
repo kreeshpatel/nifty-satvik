@@ -239,6 +239,37 @@ function monitorChip(s) {
   return null;
 }
 
+// ── Forward-review scorecard tile (weekly book — Oct-1 promote/kill machinery) ──
+function ReviewCard({ card }) {
+  if (!card) return null;
+  const status = card.status || 'ACCRUING';
+  const tone = /PROMOTE/.test(status) ? 'bull' : /(KILL|HALT)/.test(status) ? 'bear' : 'warn';
+  const rd = card.gates?.readiness || {};
+  const nClosed = rd.n_closed ?? 0;
+  const quarters = rd.quarters_elapsed ?? 0;
+  const closedPct = Math.min(100, Math.round((nClosed / 40) * 100));
+  return (
+    <div className="ri-card">
+      <div className="ri-card-h">FORWARD REVIEW</div>
+      <div className="rev-statusrow">
+        <span className={`rev-badge rev-${tone}`}>{status}</span>
+        {card.next_review && (
+          <span className="rev-when">{card.next_review} · {card.days_to_review}d</span>
+        )}
+      </div>
+      <div className="rev-prog">
+        <div className="rev-prog-l"><span>Closed trades</span><span className="tnum">{nClosed}/40</span></div>
+        <div className="rev-bar"><span className="rev-bar-fill" style={{ width: `${closedPct}%` }} /></div>
+        <div className="rev-prog-l"><span>Quarters elapsed</span><span className="tnum">{quarters}/4</span></div>
+      </div>
+      <div className="rev-note">
+        Promote/kill is decided only at the {card.next_review || 'quarterly'} review — never between dates.
+        Forward-watch paper, not live capital.
+      </div>
+    </div>
+  );
+}
+
 // ── Regime → commentary ───────────────────────────────────────────────
 function regimeInfo(regime) {
   const rs = (regime?.status || '').toUpperCase();
@@ -395,6 +426,7 @@ export default function SignalsV3() {
   const regime = signalsQuery.data?.regime ?? {};
   const monitorAsOf = signalsQuery.data?.monitor_as_of ?? null;
   const monitorStamp = signalsQuery.data?.monitor_generated_ist ?? null;
+  const reviewScorecard = signalsQuery.data?.review_scorecard ?? null;
 
   const heldSet = useMemo(() => {
     const list = holdingsQuery.data ?? [];
@@ -529,6 +561,7 @@ export default function SignalsV3() {
         </div>
 
         <aside className="ri-rail">
+          {model === 'weekly' && <ReviewCard card={reviewScorecard} />}
           <CommentaryCard regime={regime} model={model} freshCount={freshCount} />
           <SignalStatsCard buyPool={buyPool} />
           <HowCallsMadeCard />
