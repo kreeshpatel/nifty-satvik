@@ -61,29 +61,40 @@ export function useKiteHoldings({ enabled = true } = {}) {
       // Kite sometimes returns an array directly, sometimes { data: [...] }.
       const list = Array.isArray(raw) ? raw : raw?.data ?? [];
       // Quantity normalization. Kite's /portfolio/holdings can split a real
-      // position's shares across THREE fields: `quantity` (settled),
-      // `t1_quantity` (just-bought, settling tomorrow), and
-      // `collateral_quantity` (pledged for margin — e.g. via Kite's "Pledge"
-      // flow). A position that's fully pledged, or freshly bought, reports
-      // quantity=0 even though the holding is real — every UI calc that did
-      // `qty * ltp` on the raw `quantity` alone rendered it as worth ₹0
-      // (value, unrealised P&L, allocation — all zeroed).
+      // position's shares across FOUR fields: `quantity` (settled),
+      // `t1_quantity` (just-bought, settling tomorrow), `collateral_quantity`
+      // (pledged for margin — e.g. via Kite's "Pledge" flow), and
+      // `mtf.quantity` (bought on the Margin Trading Facility — those shares
+      // sit in a separate `mtf` sub-object, not the top-level `quantity`,
+      // because the broker holds them as collateral for the leveraged buy).
+      // A position that's fully pledged, freshly bought, or MTF-funded
+      // reports quantity=0 even though the holding is real — every UI calc
+      // that did `qty * ltp` on the raw `quantity` alone rendered it as
+      // worth ₹0 (value, unrealised P&L, allocation — all zeroed), and any
+      // capital sitting in an MTF position read as leftover "Cash" instead
+      // of an actual holding.
       //
       // We override `quantity` to mean the EFFECTIVE held position (settled
-      // + T+1 + collateral) so all consumers — Dashboard, Portfolio, NQ
-      // positions math — naturally use the right number. Original values
+      // + T+1 + collateral + MTF) so all consumers — Dashboard, Portfolio,
+      // NQ positions math — naturally use the right number. Original values
       // preserved as `settled_quantity` / `t1_quantity` / `collateral_quantity`
-      // for UI affordances that want to badge "T+1: N" or "Pledged: N" on a row.
+      // / `mtf_quantity` for UI affordances that want to badge "T+1: N" or
+      // "Pledged: N" on a row. `product` surfaces 'MTF' instead of Kite's
+      // default 'CNC' so the UI can label the position by how it was
+      // actually funded rather than implying it's a plain cash buy.
       return list.map((h) => {
         const settled = Number(h.quantity) || 0;
         const t1 = Number(h.t1_quantity) || 0;
         const collateral = Number(h.collateral_quantity) || 0;
+        const mtf = Number(h.mtf?.quantity) || 0;
         return {
           ...h,
-          quantity: settled + t1 + collateral,
+          quantity: settled + t1 + collateral + mtf,
           settled_quantity: settled,
           t1_quantity: t1,
           collateral_quantity: collateral,
+          mtf_quantity: mtf,
+          product: mtf > 0 ? 'MTF' : (h.product || 'CNC'),
         };
       });
     },

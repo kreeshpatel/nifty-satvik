@@ -814,6 +814,7 @@ function HoldingsTable({ holdings, isPaper, totalEquity, isLoading }) {
         id: h.tradingsymbol || `kite-${i}`,
         sym: h.tradingsymbol || '—',
         sector: h.sector || 'Other',
+        product: h.product || 'CNC',
         qty,
         avg,
         ltp,
@@ -890,7 +891,7 @@ function HoldingsTable({ holdings, isPaper, totalEquity, isLoading }) {
                   <Logo sym={r.sym} size={32} radius={8} />
                   <div>
                     <div className="pv3-td-name-sym">{r.sym}</div>
-                    <div className="pv3-td-name-full">{r.sector}</div>
+                    <div className="pv3-td-name-full">{r.sector}{r.product === 'MTF' ? ' · MTF' : ''}</div>
                   </div>
                 </div>
                 <div className="pv3-td pv3-td-r tabular-nums">{Math.round(r.qty)}</div>
