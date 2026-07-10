@@ -604,11 +604,21 @@ function SectorCard({ signals }) {
         <div style={{ fontSize: 12.5, color: 'var(--text-3)' }}>No candidates yet — the model runs at 4:15 PM IST on trading days.</div>
       ) : (
         <div className="bubble-stage">
-          {derived.map((s) => (
-            <div key={s.name} className={`bubble ${s.tone}`} style={{ width: s.size, height: s.size, left: s.left, top: s.top }} title={`${formatSectorLabel(s.name)} · ${s.count}`}>
-              <div><div className="n">{s.count}</div><div className="l">{formatSectorLabel(s.name)}</div></div>
-            </div>
-          ))}
+          {derived.map((s) => {
+            // Sector names range from "IT" to "Infrastructure" — scale the
+            // label font down for smaller bubbles and cap its width so it
+            // wraps within the circle instead of overflowing into whatever
+            // bubble sits next to it.
+            const labelSize = Math.max(6.5, Math.min(8.5, s.size * 0.16));
+            return (
+              <div key={s.name} className={`bubble ${s.tone}`} style={{ width: s.size, height: s.size, left: s.left, top: s.top }} title={`${formatSectorLabel(s.name)} · ${s.count}`}>
+                <div style={{ maxWidth: Math.max(s.size - 12, 24) }}>
+                  <div className="n">{s.count}</div>
+                  <div className="l" style={{ fontSize: labelSize }}>{formatSectorLabel(s.name)}</div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

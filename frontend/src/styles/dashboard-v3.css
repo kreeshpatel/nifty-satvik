@@ -869,47 +869,6 @@
 .dv3-trending-card:nth-child(3) { animation-delay: 260ms; }
 .dv3-trending-card:nth-child(4) { animation-delay: 320ms; }
 
-/* ── Equity net-worth bar (prototype) ─────────────────────────── */
-.dv3-networth {
-  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
-  border: 1px solid var(--edge-1);
-  border-radius: var(--r-card);
-  box-shadow: var(--shadow-glass);
-  padding: 16px 20px;
-  margin-bottom: var(--gutter);
-}
-/* Net-worth — ported 1:1 from the prototype's .networth. */
-.dv3-nw-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.dv3-nw-title { font-size: 15px; font-weight: 700; line-height: 1.2; color: var(--text-1); }
-.dv3-nw-title span { font-size: 12px; color: var(--text-3); font-weight: 500; margin-left: 8px; }
-.dv3-nw-link {
-  font-size: 12.5px; font-weight: 600; color: var(--brand);
-  display: inline-flex; align-items: center; gap: 4px; text-decoration: none;
-}
-.dv3-nw-body { display: flex; align-items: flex-end; gap: 36px; flex-wrap: wrap; }
-.dv3-nw-k {
-  font-size: 11px; font-weight: 600; text-transform: uppercase;
-  letter-spacing: 0.04em; color: var(--text-3);
-  display: flex; align-items: center; gap: 5px;
-}
-.dv3-nw-v {
-  font-size: 26px; font-weight: 700; letter-spacing: -0.015em; margin-top: 5px;
-  line-height: 1.15;   /* was inheriting the 1.5 base line-height, inflating the card ~8px vs the prototype */
-  color: var(--text-1); font-variant-numeric: tabular-nums;
-}
-.dv3-nw-v small { font-size: 15px; font-weight: 600; color: var(--text-3); }
-/* Day's P&L sits at the right end of the same body row (prototype .nw-day). */
-.dv3-nw-day { margin-left: auto; text-align: right; }
-.dv3-nw-day .dv3-nw-k { justify-content: flex-end; }
-.dv3-nw-day .dv3-nw-v { font-size: 15px; margin-top: 3px; }
-/* eye toggle lives inside the "Current value" label */
-.dv3-nw-eye-btn {
-  display: inline-grid; place-items: center; padding: 0; border: 0; background: transparent;
-  color: var(--text-3); cursor: pointer; line-height: 0;
-}
-.dv3-nw-eye-btn:hover { color: var(--text-1); }
-.dv3-nw-eye { width: 15px; height: 15px; display: block; }
-
 /* ── Market regime CARD (prototype) ───────────────────────────── */
 /* Regime card — ported 1:1 from the prototype's .regime (compact). */
 .dv3-rg {
