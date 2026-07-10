@@ -987,21 +987,6 @@
 .dv3-mh-k { color: var(--text-2); }
 .dv3-mh-v { font-weight: 700; font-variant-numeric: tabular-nums; }
 
-/* ── Main grid: content column + full-height right rail (prototype) ─── */
-.dv3-main-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 316px;
-  gap: 18px;
-  align-items: start;
-  margin-top: var(--gutter, 16px);
-}
-/* Keep the Pick-of-the-week / tools / commentary rail on the RIGHT down to
-   ~1024px (where the watchlist rail itself hides). The old 1360px breakpoint
-   collapsed the rail to the bottom on common 1280–1360px screens, hiding the
-   pink Pick card the design puts on the right. */
-@media (max-width: 1024px) { .dv3-main-grid { grid-template-columns: 1fr; } }
-.dv3-main-col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
-.dv3-main-col .dv3-row { margin-bottom: 0; }
 
 /* Model health · sector breadth · balance — main-column grid (moved out of
    the right rail so it mirrors the prototype's Pick/Tools/Commentary trio). */

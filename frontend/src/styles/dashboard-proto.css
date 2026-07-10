@@ -24,7 +24,12 @@
 }
 
 .dv3-proto .dash-grid { display: grid; grid-template-columns: minmax(0,1fr) 316px; gap: 18px; align-items: start; }
-@media (max-width: 1360px) { .dv3-proto .dash-grid { grid-template-columns: 1fr; } }
+/* Keep the Pick-of-the-week / tools / commentary rail on the RIGHT down to
+   ~1024px (where the watchlist rail itself hides). A 1360px breakpoint here
+   collapses the rail to the bottom on ordinary 1280–1360px laptop windows at
+   100% browser zoom (zooming to 90% inflates the effective CSS viewport
+   width past 1360px, which is why the bug only showed up at default zoom). */
+@media (max-width: 1024px) { .dv3-proto .dash-grid { grid-template-columns: 1fr; } }
 .dv3-proto .stack { display: flex; flex-direction: column; gap: 16px; }
 
 /* equity net-worth bar */
