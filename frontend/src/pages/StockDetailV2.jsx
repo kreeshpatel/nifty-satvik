@@ -283,10 +283,12 @@ export default function StockDetailV2() {
       </button>
 
       {/* WARMING-UP BANNER — surfaces when initial data hasn't landed in 2s.
-          Render free-tier sleeps after ~15min idle, then takes 15-30s to wake.
+          Not a Render-style sleep/wake (the backend is always-on on Fly.io) —
+          this is a genuinely slow first fetch: a cold 24h instrument-master
+          cache or an uncached historical-candle call (routers/kite.py).
           Showing this banner instead of a silent spinner converts "broken?"
-          into "warming up" — preserves trust and lets the user wait without
-          tab-switching. Auto-clears the moment price or candles arrive. */}
+          into "still loading" — preserves trust and lets the user wait
+          without tab-switching. Auto-clears the moment price or candles land. */}
       {data.warmingUp && (
         <div
           role="status"
@@ -313,7 +315,7 @@ export default function StockDetailV2() {
               animation: 'spDot 1.2s ease-in-out infinite',
             }}
           />
-          Backend warming up — first request after idle takes ~15s. Live data lands automatically.
+          Fetching live data — the first load can take a few seconds. Lands automatically.
           <style>{`@keyframes spDot { 0%,100% { opacity: 0.45 } 50% { opacity: 1 } }`}</style>
         </div>
       )}
@@ -423,8 +425,8 @@ export default function StockDetailV2() {
                 <EmptyCard
                   variant="warn"
                   icon={<AlertCircle size={16} strokeWidth={1.75} />}
-                  title="Backend warming up"
-                  body="The pricing server is unreachable. It usually returns within 30 seconds — reload the page once it's back."
+                  title="Couldn't reach the pricing server"
+                  body="This is usually transient — reload the page in a moment."
                   height={400}
                 />
               ) : (
