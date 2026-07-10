@@ -3,7 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import {
   Search, Bell, User, LogOut, Plug, Loader2, Menu, X,
   LayoutDashboard, LineChart, Briefcase, Layers, ListOrdered,
-  Wallet, BarChart3, BookOpen, Trophy, FlaskConical, Calculator,
+  Wallet, BarChart3, Trophy, Calculator,
   Settings as SettingsIcon, Shield, Minus, Plus,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -51,8 +51,6 @@ const ACCOUNT_LINKS = [
   { to: '/funds',        label: 'Funds',          icon: Wallet },
   { to: '/pnl',          label: 'Reports',        icon: BarChart3 },
   { to: '/track-record', label: 'Track record',   icon: Trophy },
-  { to: '/journal',      label: 'Journal',        icon: BookOpen },
-  { to: '/backtest',     label: 'Backtest',       icon: FlaskConical },
   { to: '/accounting',   label: 'Ledger & charges', icon: Calculator },
 ];
 
