@@ -1,23 +1,25 @@
 /**
  * DashboardV3 — Production dashboard page.
  *
- * Converted from frontend/public/nifty-design/dashboard.jsx (Babel-in-browser artifact).
- * Pattern follows SignalsV3: ES imports, real hooks, graceful fallbacks, compliance strings.
+ * Ported directly from the design prototype (design-proto/nq-research-dashboard.html,
+ * the "v-dash" section) — markup structure and CSS values are taken verbatim from that
+ * file (see styles/dashboard-proto.css), wired to real data instead of the prototype's
+ * mock numbers. The watchlist rail is NOT part of this port — it stays our own build
+ * (two lists + Signals/Held tabs), a deliberate superset of the prototype's simpler rail.
  *
- * Sections:
- *   RegimeStrip  — useSignals().regime + useIndexSparklines()["NIFTY 50"]
- *   TrendingCards (3) — top 3 signals from useSignals()
- *   BacktestCTA  — static, link to /backtest
- *   KiteStrip    — hidden if kite.connected, else shows connect prompt
- *   StocksTable  — useKiteHoldings() with deterministic 12-day perf fallback
- *   SectorBreadth — derived from useSignals().signals grouped by sector
- *   BalanceCard  — useKiteMargins() + useOverview().portfolio
+ * Data sources (unchanged from the pre-port version):
+ *   useSignals({model:'bhanushali'}) — signals + regime + cron_health (live book)
+ *   useWatchlist({model:'bhanushali'}) — brewing/below-gate candidates
+ *   useOverview() — paper portfolio + performance metrics
+ *   useKiteHoldings() / useKiteMargins() — live broker state when connected
+ *   useIndexSparklines() — NIFTY/SENSEX/VIX/... ticker values
+ *   useQuoteBatch() — live day-change for held symbols
  *
  * Compliance: no "guarantee", "will", "sure", "sure-shot" in client-facing strings.
  * DISCLAIMER footer sourced from @/lib/signalCopy.
  */
 
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { KiteContext } from '@/App';
 import { useSignals } from '@/hooks/queries/useSignals';
@@ -27,15 +29,16 @@ import { useKiteHoldings, useKiteMargins } from '@/hooks/queries/useKiteState';
 import { useIndexSparklines } from '@/hooks/queries/useIndexSparklines';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import { DISCLAIMER } from '@/lib/signalCopy';
-import '@/styles/dashboard-v3.css';
+import '@/styles/dashboard-proto.css';
 
 // ─────────────────────────────────────────────────────────────────────
 // Formatters
 // ─────────────────────────────────────────────────────────────────────
 const fmtINR = (n) =>
-  n == null ? '—' : '₹' + Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  n == null ? '—' : Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtPct = (n, plus = true) =>
   n == null ? '—' : (n >= 0 && plus ? '+' : '') + Number(n).toFixed(2) + '%';
+const fmtPct1 = (n) => n == null ? '—' : (n >= 0 ? '+' : '−') + Math.abs(n).toFixed(1) + '%';
 const fmtLakh = (n) => {
   if (n == null) return '—';
   const sign = n < 0 ? '−' : '';
@@ -45,126 +48,30 @@ const fmtLakh = (n) => {
   return sign + '₹' + Math.round(a).toLocaleString('en-IN');
 };
 
-// ─────────────────────────────────────────────────────────────────────
-// Ticker domain map for brand logos
-// ─────────────────────────────────────────────────────────────────────
-const TICKER_DOMAINS = {
-  RELIANCE: 'ril.com', TCS: 'tcs.com', BAJFINANCE: 'bajajfinserv.in',
-  INFY: 'infosys.com', HDFCBANK: 'hdfcbank.com', ICICIBANK: 'icicibank.com',
-  BHARTIARTL: 'airtel.in', LT: 'larsentoubro.com', MARUTI: 'marutisuzuki.com',
-  KOTAKBANK: 'kotak.com', ADANIENT: 'adanienterprises.com', SBIN: 'sbi.co.in',
-  AXISBANK: 'axisbank.com', TATAPOWER: 'tatapower.com', POLYCAB: 'polycab.com',
-  VOLTAS: 'voltas.com', CUMMINSIND: 'cummins.com', TITAN: 'titancompany.com',
-  SUNPHARMA: 'sunpharma.com', DIVISLAB: 'divislabs.com', PERSISTENT: 'persistent.com',
-  WIPRO: 'wipro.com', HINDUNILVR: 'hul.co.in', NESTLEIND: 'nestle.in',
-  // Energy / PSU / commodities
-  ONGC: 'ongcindia.com', NTPC: 'ntpc.co.in', POWERGRID: 'powergrid.in',
-  COALINDIA: 'coalindia.in', IOC: 'iocl.com', BPCL: 'bharatpetroleum.in',
-  GAIL: 'gailonline.com', ADANIGREEN: 'adanigreenenergy.com', TATASTEEL: 'tatasteel.com',
-  JSWSTEEL: 'jsw.in', HINDALCO: 'hindalco.com', VEDL: 'vedantalimited.com',
-  // Financials
-  SBICARD: 'sbicard.com', BAJAJFINSV: 'bajajfinserv.in', HDFCLIFE: 'hdfclife.com',
-  SBILIFE: 'sbilife.co.in', ICICIPRULI: 'iciciprulife.com', INDUSINDBK: 'indusind.com',
-  PNB: 'pnbindia.in', BANKBARODA: 'bankofbaroda.in', CHOLAFIN: 'cholamandalam.com',
-  // IT / Media
-  HCLTECH: 'hcltech.com', TECHM: 'techmahindra.com', LTIM: 'ltimindtree.com',
-  COFORGE: 'coforge.com', MPHASIS: 'mphasis.com', NETWORK18: 'network18online.com',
-  ZEEL: 'zee.com', PVRINOX: 'pvrinox.com',
-  // Auto
-  TATAMOTORS: 'tatamotors.com', MM: 'mahindra.com', BAJAJ_AUTO: 'bajajauto.com',
-  EICHERMOT: 'eichermotors.com', HEROMOTOCO: 'heromotocorp.com', TVSMOTOR: 'tvsmotor.com',
-  ASHOKLEY: 'ashokleyland.com', BOSCHLTD: 'bosch.in',
-  // Pharma / Healthcare
-  DRREDDY: 'drreddys.com', CIPLA: 'cipla.com', APOLLOHOSP: 'apollohospitals.com',
-  AUROPHARMA: 'aurobindo.com', LUPIN: 'lupin.com', BIOCON: 'biocon.com',
-  // FMCG / Consumer
-  ITC: 'itcportal.com', BRITANNIA: 'britannia.co.in', DABUR: 'dabur.com',
-  GODREJCP: 'godrejcp.com', TATACONSUM: 'tataconsumer.com', ASIANPAINT: 'asianpaints.com',
-  PIDILITIND: 'pidilite.com', DMART: 'dmartindia.com', TRENT: 'trentlimited.com',
-  // Industrials / Infra / Cement
-  ULTRACEMCO: 'ultratechcement.com', GRASIM: 'grasim.com', SHREECEM: 'shreecement.com',
-  AMBUJACEM: 'ambujacement.com', ACC: 'acclimited.com', SIEMENS: 'siemens.co.in',
-  ABB: 'abb.com', HAVELLS: 'havells.com', BEL: 'bel-india.in', BHEL: 'bhel.com',
-};
-
 function tickerBg(sym) {
   let h = 0;
   for (const ch of (sym || '')) h = (h + ch.charCodeAt(0) * 13) % 360;
   return `linear-gradient(135deg, hsl(${h} 70% 56%) 0%, hsl(${(h + 38) % 360} 60% 42%) 100%)`;
 }
 
-// Company logo with graceful fallback: brand logo → favicon → monogram
-function Logo({ sym, size = 32, radius = 9 }) {
-  const domain = TICKER_DOMAINS[(sym || '').toUpperCase()];
-  const sources = domain
-    ? [`https://icons.duckduckgo.com/ip3/${domain}.ico`,
-       `https://www.google.com/s2/favicons?domain=${domain}&sz=128`]
-    : [];
-  const [idx, setIdx] = React.useState(0);
-  React.useEffect(() => { setIdx(0); }, [sym]);
-
-  if (idx >= sources.length) {
-    return (
-      <div
-        className="dv3-logo-tile logo-mono"
-        style={{ width: size, height: size, borderRadius: radius, background: tickerBg(sym) }}
-      >
-        {(sym || '??').slice(0, 2)}
-      </div>
-    );
-  }
+// Colored 2-letter monogram — the prototype's `.logo` tile (no favicon fetch;
+// every card in the prototype uses a flat colour tile, not a brand logo).
+// `tint={false}` skips the inline background so an ancestor CSS rule (e.g.
+// `.pick .nm .logo`) can supply a different treatment — inline style would
+// otherwise out-rank that descendant selector.
+function ProtoLogo({ sym, tint = true, style }) {
   return (
-    <div className="dv3-logo-tile" style={{ width: size, height: size, borderRadius: radius }}>
-      <img src={sources[idx]} alt={sym} onError={() => setIdx((i) => i + 1)} />
+    <div className="logo" style={{ ...(tint ? { background: tickerBg(sym) } : {}), ...style }}>
+      {(sym || '??').slice(0, 2).toUpperCase()}
     </div>
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────
-// Sparkline (inline SVG) — used in TrendingCards
-// dir: 'up' | 'down'
-// ─────────────────────────────────────────────────────────────────────
-function Spark({ data, dir, width = 280, height = 48 }) {
-  if (!data || data.length < 2) return null;
-  const min = Math.min(...data);
-  const max = Math.max(...data);
-  const range = max - min || 1;
-  const stroke = dir === 'up' ? 'var(--bull)' : 'var(--bear)';
-  const fill   = dir === 'up' ? 'rgba(63,221,138,0.20)' : 'rgba(255,92,122,0.20)';
-  const padX = 8, padY = 10;
-  const xs = data.map((_, i) => padX + (i * (width - 2 * padX)) / (data.length - 1));
-  const ys = data.map((v) => padY + (height - 2 * padY) * (1 - (v - min) / range));
-  const last = { x: xs[xs.length - 1], y: ys[ys.length - 1] };
-  const peakIdx = data.indexOf(dir === 'up' ? max : min);
-  const path = xs.map((x, i) => `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${ys[i].toFixed(1)}`).join(' ');
-  const areaPath = `${path} L ${xs[xs.length - 1]} ${height - padY} L ${xs[0]} ${height - padY} Z`;
-
-  return (
-    <svg width={width} height={height} className="dv3-spark" aria-hidden="true">
-      <path d={areaPath} fill={fill} />
-      <path
-        d={path}
-        fill="none"
-        stroke={stroke}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        style={{ filter: dir === 'up' ? 'drop-shadow(0 2px 6px rgba(63,221,138,0.5))' : 'drop-shadow(0 2px 6px rgba(255,92,122,0.5))' }}
-      />
-      <circle cx={xs[peakIdx]} cy={ys[peakIdx]} r="2.6" fill={stroke} opacity="0.7" />
-      <circle cx={last.x} cy={last.y} r="3" fill={stroke} />
-      <circle cx={last.x} cy={last.y} r="6.5" fill={stroke} opacity="0.18" />
-    </svg>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────
-// Deterministic sparkline generator seeded from ticker
-// TODO: replace with real per-stock sparkline when endpoint available
-// ─────────────────────────────────────────────────────────────────────
-function genSpark(sym, n = 15) {
+// Deterministic sparkline generator seeded from a string (ticker or index key).
+// TODO: replace with real per-instrument history when a price-history endpoint exists.
+function genSpark(seed, n = 15) {
   let s = 0;
-  for (const c of (sym || 'XX')) s = (s * 131 + c.charCodeAt(0)) % 2147483647;
+  for (const c of (seed || 'XX')) s = (s * 131 + c.charCodeAt(0)) % 2147483647;
   const rand = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return (s % 100000) / 100000; };
   const pts = [];
   let v = 50 + rand() * 20;
@@ -175,591 +82,36 @@ function genSpark(sym, n = 15) {
   return pts;
 }
 
-// ─────────────────────────────────────────────────────────────────────
-// Icons (inline SVG, Lucide-style)
-// ─────────────────────────────────────────────────────────────────────
-const Icon = {
-  Arrow: (p) => (
-    <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M7 17 17 7"/><path d="M7 7h10v10"/>
-    </svg>
-  ),
-  ArrDown: (p) => (
-    <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m6 9 6 6 6-6"/>
-    </svg>
-  ),
-  Bolt: (p) => (
-    <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>
-    </svg>
-  ),
-  Chart: (p) => (
-    <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 4v16h16"/><path d="M4 16l5-5 4 4 7-7"/>
-    </svg>
-  ),
-  Wallet: (p) => (
-    <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 3h-4a2 2 0 0 0-2 2v2h8V5a2 2 0 0 0-2-2z"/><path d="M18 14h.01"/>
-    </svg>
-  ),
-};
-
-// ─────────────────────────────────────────────────────────────────────
-// RegimeStrip — driven from useSignals().regime + useIndexSparklines()
-// ─────────────────────────────────────────────────────────────────────
-function RegimeStrip({ regime, indexData, heldCount }) {
-  const status = (regime?.status || '').toLowerCase();
-  const isBull = status.includes('bull');
-  const isBear = status.includes('bear');
-
-  const label = isBull ? 'Bullish' : isBear ? 'Bearish' : 'Choppy';
-  const tone  = isBull ? 'bull' : isBear ? 'bear' : 'warn';
-  const line  = isBull
-    ? 'Trend and breadth favour longs.'
-    : isBear
-      ? 'Trend and breadth are against longs — stay defensive.'
-      : 'Mixed tape — no clear trend. Stay selective.';
-  // Strength: real 10-day-strength score only. The backend sends 0 as its
-  // "not computed" sentinel, so treat 0/absent as unknown (—) rather than
-  // fabricating a midpoint — a faked "50/100" bar reads as real data.
-  const strengthRaw = Number(regime?.strength);
-  const strength = Number.isFinite(strengthRaw) && strengthRaw > 0
-    ? Math.max(0, Math.min(100, Math.round(strengthRaw)))
-    : null;
-
-  // VIX: prefer regime.vix, else the live INDIA VIX sparkline. Use `||` so the
-  // backend's 0 sentinel falls through (a real VIX is never 0).
-  const vixData = indexData?.['INDIA VIX'] ?? indexData?.['INDIAVIX'] ?? null;
-  const vixRaw  = Number(regime?.vix) || Number(vixData?.ltp) || Number(vixData?.last) || Number(vixData?.value) || null;
-  const vix     = vixRaw != null && isFinite(vixRaw) && vixRaw > 0 ? vixRaw : null;
-  const vixWord = vix == null ? '—' : vix < 15 ? 'calm' : vix <= 20 ? 'normal' : 'elevated';
-
-  // Breadth (adv−dec): backend 0 is also the "not computed" sentinel, so show
-  // — for 0/absent rather than a misleading "+0".
-  const breadthRaw = Number(regime?.breadth);
-  const breadth = Number.isFinite(breadthRaw) && breadthRaw !== 0 ? breadthRaw : null;
-
-  const updated = regime?.updated_at || regime?.as_of || regime?.timestamp || null;
-  const updatedLabel = updated
-    ? new Date(updated).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
-    : null;
-
+// The prototype's per-card spark: viewBox "0 0 200 28", area fill + stroke line.
+// tone: 'bull' (green, filled) | 'warn' (amber, stroke only — brewing cards).
+function SigSpark({ data, tone = 'bull', gradId }) {
+  if (!data || data.length < 2) return null;
+  const min = Math.min(...data), max = Math.max(...data);
+  const range = max - min || 1;
+  const w = 200, h = 28;
+  const xs = data.map((_, i) => (i * w) / (data.length - 1));
+  const ys = data.map((v) => h - ((v - min) / range) * h);
+  const path = xs.map((x, i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${ys[i].toFixed(1)}`).join(' ');
+  const areaPath = `${path} L${xs[xs.length - 1]},${h} L${xs[0]},${h} Z`;
+  const stroke = tone === 'warn' ? '#FFB454' : tone === 'bear' ? '#FF5C7A' : '#3FDD8A';
   return (
-    <div className={`dv3-rg tone-${tone}`}>
-      <div className="dv3-rg-main">
-        <div className="dv3-rg-eyebrow">
-          <span className="dv3-live-dot" /> MARKET REGIME{updatedLabel ? ` · UPDATED ${updatedLabel}` : ''}
-        </div>
-        <div className="dv3-rg-statement">
-          The market is <span className={`num-${tone}`}>{label}.</span> {line}
-        </div>
-        <div className="dv3-rg-strength">
-          <span className="dv3-rg-strength-l">10-DAY STRENGTH · {strength == null ? '—' : `${strength}/100`}</span>
-          <div className="dv3-rg-bar"><span className={`fill-${tone}`} style={{ width: `${strength ?? 0}%` }} /></div>
-        </div>
-      </div>
-      <div className="dv3-rg-stats">
-        <div className="dv3-rg-stat">
-          <div className="dv3-rg-stat-k">INDIA VIX</div>
-          <div className="dv3-rg-stat-v tnum">{vix == null ? '—' : vix.toFixed(1)}</div>
-          <div className="dv3-rg-stat-s">{vixWord}</div>
-        </div>
-        <div className="dv3-rg-stat">
-          <div className="dv3-rg-stat-k">BREADTH</div>
-          <div className={`dv3-rg-stat-v tnum ${breadth != null ? (breadth >= 0 ? 'num-bull' : 'num-bear') : ''}`}>
-            {breadth == null ? '—' : (breadth >= 0 ? '+' : '') + breadth}
-          </div>
-          <div className="dv3-rg-stat-s">adv–dec</div>
-        </div>
-        <div className="dv3-rg-stat">
-          <div className="dv3-rg-stat-k">HELD</div>
-          <div className="dv3-rg-stat-v tnum">{heldCount != null ? `${Math.min(heldCount, 15)}/15` : '—/15'}</div>
-          <div className="dv3-rg-stat-s">slots</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────
-// TrendingCard — maps a signal to the card layout
-// ─────────────────────────────────────────────────────────────────────
-function TrendingCard({ sig, modelWinRate, brewing = false }) {
-  const sym    = sig.ticker || sig.sym || sig.symbol || '??';
-  const name   = sig.name || sym;
-  const sector = sig.sector || '—';
-  const grade  = sig.grade || 'B';
-  const entry  = sig.entry ?? 0;
-  const stop   = sig.stop_loss ?? sig.stop ?? entry;
-  const target = sig.target ?? entry;
-  const dir    = target > entry ? 'up' : 'down';
-
-  // Expected return: prefer the model's predicted return; otherwise the real
-  // upside to target ((target − entry) / entry), which is what the prototype's
-  // "EXP RETURN +9.2%" shows. Both are real data — no fabrication — so the card
-  // reads as a % instead of falling back to the raw R-multiple.
-  const upsidePct = entry > 0 && target > 0 ? ((target - entry) / entry) * 100 : null;
-  const edge = sig.predicted_return_pct != null
-    ? fmtPct(sig.predicted_return_pct)
-    : (upsidePct != null ? fmtPct(upsidePct) : null);
-
-  // Win rate: portfolio-level model win rate as proxy (no per-signal WR).
-  // Treat 0 / missing as unavailable — a "0.0%" win rate (e.g. no trade
-  // history yet) is misleading, so the card falls back to expected return.
-  const wrNum = Number(modelWinRate);
-  const wr = (modelWinRate != null && Number.isFinite(wrNum) && wrNum > 0)
-    ? wrNum.toFixed(1)
-    : null;
-
-  // Decorative trend line — seeded from ticker, not real OHLCV.
-  // TODO: replace with real per-stock sparkline when a price-history endpoint exists.
-  const sparkData = genSpark(sym);
-
-  // Reward-to-risk from the REAL plan levels (not the decorative spark).
-  const rr = (entry > stop && target > entry)
-    ? (target - entry) / (entry - stop)
-    : null;
-  const rMult = rr != null ? rr.toFixed(2) : null;
-
-  // Fallback metric so the card never shows a bare "—": model conviction
-  // (confidence / ml_score, normalised to a %) then the grade.
-  const conviction = sig.confidence ?? sig.ml_score ?? null;
-  const convPct = conviction != null
-    ? Math.round(conviction <= 1 ? conviction * 100 : conviction)
-    : null;
-
-  return (
-    <div className={`dv3-trending-card ${dir === 'up' ? 'is-up' : 'is-down'}`}>
-      <div className="dv3-tc-head">
-        <Logo sym={sym} size={30} radius={8} />
-        <div className="dv3-tc-id">
-          <div className="dv3-tc-sym">
-            {sym}
-            <span className="dv3-tc-grade">{grade}</span>
-          </div>
-          <div className="dv3-tc-name">{name} · {sector}</div>
-        </div>
-        <span className={`dv3-tc-fresh${brewing ? ' dv3-tc-brewing' : ''}`}>
-          {brewing ? 'WATCHLIST' : '● FRESH'}
-        </span>
-      </div>
-
-      <div className="dv3-tc-metrics">
-        <div className="dv3-tc-metric">
-          <span className="dv3-tc-metric-label">
-            {wr != null ? 'Win rate' : convPct != null ? 'Conviction' : 'Grade'}
-          </span>
-          <div className="dv3-tc-metric-row">
-            <span className="dv3-tc-metric-val">
-              {wr != null ? <>{wr}<small>%</small></> : convPct != null ? <>{convPct}<small>%</small></> : grade}
-            </span>
-          </div>
-        </div>
-        <div className="dv3-tc-metric">
-          <span className="dv3-tc-metric-label">Exp. return</span>
-          <div className="dv3-tc-metric-row">
-            {edge ? (
-              <span className={`dv3-tc-metric-val ${dir === 'up' ? 'num-bull' : 'num-bear'}`}>{edge}</span>
-            ) : rMult != null ? (
-              <span className={`dv3-tc-metric-val ${rr >= 2 ? 'num-bull' : ''}`}>{rMult}<small>R</small></span>
-            ) : (
-              <span className="dv3-tc-metric-val">—</span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="dv3-tc-spark">
-        <Spark data={sparkData} dir={dir} width={280} height={48} />
-      </div>
-
-      <div className="dv3-tc-foot">
-        <div className="dv3-tc-level">
-          <span className="micro">ENTRY</span>
-          <span className="t-num-small">{fmtINR(entry)}</span>
-        </div>
-        <div className="dv3-tc-level">
-          <span className="micro">STOP</span>
-          <span className="t-num-small num-bear">{fmtINR(stop)}</span>
-        </div>
-        <div className="dv3-tc-level">
-          <span className="micro">TARGET</span>
-          <span className="t-num-small num-bull">{fmtINR(target)}</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Skeleton for trending card area while loading
-function TrendingCardSkeleton() {
-  return (
-    <>
-      {[0, 1, 2].map((i) => (
-        <div key={i} className="dv3-trending-card dv3-skel" style={{ minHeight: 220 }} aria-hidden="true" />
-      ))}
-    </>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────
-// BacktestCTA — static card, links to /backtest
-// ─────────────────────────────────────────────────────────────────────
-function BacktestCTA() {
-  return (
-    <div className="dv3-bt-cta">
-      <div className="dv3-bt-cta-glow" />
-      <div className="dv3-bt-cta-bg">
-        <svg viewBox="0 0 320 220" preserveAspectRatio="none" width="100%" height="100%" aria-hidden="true">
-          <defs>
-            <linearGradient id="dv3BtBar" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="#7B5BFF" />
-              <stop offset="100%" stopColor="#2C5BFF" />
-            </linearGradient>
-          </defs>
-          {[0,1,2,3,4,5,6,7,8,9].map((i) => {
-            const x = 18 + i * 28;
-            const h = 30 + Math.abs(Math.sin(i * 0.8)) * 110 + i * 4;
-            return <rect key={i} x={x} y={200 - h} width="18" height={h} rx="3" fill="url(#dv3BtBar)" opacity={0.75 + i * 0.02} />;
-          })}
-          <path
-            d="M14 180 L60 155 L100 138 L150 110 L210 75 L290 32"
-            fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"
-            style={{ filter: 'drop-shadow(0 4px 12px rgba(255,255,255,0.5))' }}
-          />
-          <circle cx="290" cy="32" r="5" fill="#fff" />
-          <circle cx="290" cy="32" r="12" fill="#fff" opacity="0.18" />
-        </svg>
-      </div>
-      <div className="dv3-bt-cta-body">
-        <div className="dv3-bt-cta-eyebrow">BACKTEST WORKBENCH</div>
-        <div className="dv3-bt-cta-h">Build a strategy.<br />Walk it forward.</div>
-        <div className="dv3-bt-cta-sub">
-          Score any rule set against 8 years of Nifty 500 bars · 441 stocks · ₹0 in capital.
-        </div>
-        <Link to="/backtest" className="dv3-bt-cta-btn">
-          Open backtest <Icon.Arrow width="14" height="14" />
-        </Link>
-      </div>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────
-// KiteStrip — hidden when kite.connected is true
-// ─────────────────────────────────────────────────────────────────────
-function KiteStrip({ onConnect }) {
-  return (
-    <div className="dv3-kite-strip">
-      <div className="dv3-kite-l">
-        <div className="dv3-kite-eyebrow">CONNECT BROKER</div>
-        <div className="dv3-kite-headline">Place orders straight from a signal.</div>
-        <div className="dv3-kite-sub">
-          Zerodha Kite is the supported execution venue. OAuth-secured, one-tap routing.
-        </div>
-      </div>
-      <div className="dv3-kite-r">
-        <div className="dv3-kite-broker">
-          <div className="dv3-kite-broker-logo">
-            <Icon.Chart width="18" height="18" style={{ color: '#fff' }} />
-          </div>
-          <div className="dv3-kite-broker-text">
-            <div className="t-ui-subhead">Zerodha · Kite Connect</div>
-            <div className="t-ui-footnote">Not connected</div>
-          </div>
-        </div>
-        <button className="dv3-kite-cta" onClick={onConnect}>
-          Connect Kite <Icon.Arrow width="13" height="13" />
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────
-// StocksTable — driven from useKiteHoldings() + useQuoteBatch()
-// ─────────────────────────────────────────────────────────────────────
-function StocksTable({ holdings, quoteData, isLoading }) {
-  const rows = useMemo(() => {
-    if (!holdings?.length) return [];
-    return holdings.slice(0, 8).map((h) => {
-      const sym  = (h.tradingsymbol || h.symbol || '').toUpperCase();
-      const name = h.product_type || sym; // Kite holdings don't include company name; use sym
-      const ltp  = h.last_price ?? 0;
-      const qty  = h.quantity ?? 0;
-      const avgP = h.average_price ?? 0;
-      const dayChg = h.day_change ?? null;
-      const gainPct = ltp > 0 && dayChg != null
-        ? (dayChg / ltp) * 100
-        : h.day_change_percentage ?? null;
-
-      // Quote batch supplies previous_close (Yahoo). High/low are not in the
-      // batch payload, so the table shows holdings-native columns (Qty/Avg/LTP)
-      // which are always present from Kite rather than market-data columns that
-      // would mostly render "—".
-      const q = quoteData?.[sym] ?? {};
-      const prev = q.previous_close ?? null;
-      const mktValue = ltp > 0 && qty > 0 ? ltp * qty : null;
-
-      // Unrealised P&L from real holdings cost basis (no fabricated series).
-      const pnl = (ltp > 0 && avgP > 0 && qty > 0) ? (ltp - avgP) * qty : null;
-      const pnlPct = (pnl != null && avgP > 0 && qty > 0) ? ((ltp - avgP) / avgP) * 100 : null;
-
-      return { sym, name: sym, prev, mktValue, ltp, avgP, qty, dayChg, gainPct, pnl, pnlPct };
-    });
-  }, [holdings, quoteData]);
-
-  const [activeTab, setActiveTab] = React.useState('all');
-
-  const filteredRows = useMemo(() => {
-    if (activeTab === 'gainers') return rows.filter((r) => (r.gainPct ?? 0) > 0);
-    if (activeTab === 'losers')  return rows.filter((r) => (r.gainPct ?? 0) < 0);
-    return rows;
-  }, [rows, activeTab]);
-
-  return (
-    <div className="dv3-stocks-table">
-      <div className="dv3-stocks-table-head">
-        <div className="dv3-stocks-table-title">
-          <div className="t-ui-headline">Holdings</div>
-          <div className="t-ui-footnote">
-            {isLoading ? 'Loading…' : rows.length ? `${rows.length} positions · Kite data` : 'Connect Kite to see positions'}
-          </div>
-        </div>
-        <div className="dv3-stocks-table-tabs">
-          {['all', 'gainers', 'losers'].map((tab) => (
-            <button
-              key={tab}
-              className={`dv3-ttab ${activeTab === tab ? 'active' : ''}`}
-              onClick={() => setActiveTab(tab)}
-            >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="dv3-stocks-table-grid">
-        {/* Headers */}
-        <div className="dv3-th">Company</div>
-        <div className="dv3-th dv3-th-r">Qty</div>
-        <div className="dv3-th dv3-th-r">Avg cost</div>
-        <div className="dv3-th dv3-th-r">LTP</div>
-        <div className="dv3-th dv3-th-r">Change</div>
-        <div className="dv3-th dv3-th-r">Unreal. P&amp;L</div>
-
-        {isLoading ? (
-          <div className="dv3-holdings-empty" style={{ gridColumn: '1 / -1' }}>
-            <div className="dv3-skel" style={{ height: 14, width: '40%', margin: '0 auto', borderRadius: 8 }} />
-          </div>
-        ) : filteredRows.length === 0 ? (
-          <div className="dv3-holdings-empty" style={{ gridColumn: '1 / -1' }}>
-            {rows.length === 0
-              ? 'Connect Kite to see your holdings here.'
-              : `No ${activeTab} right now.`}
-          </div>
-        ) : (
-          filteredRows.map((r) => (
-            <React.Fragment key={r.sym}>
-              <div className="dv3-td dv3-td-name">
-                <Logo sym={r.sym} size={32} radius={8} />
-                <div>
-                  <div className="dv3-td-name-sym">{r.sym}</div>
-                  <div className="dv3-td-name-full">{r.name}</div>
-                </div>
-              </div>
-              <div className="dv3-td dv3-td-r">{r.qty != null ? r.qty : '—'}</div>
-              <div className="dv3-td dv3-td-r">{r.avgP ? fmtINR(r.avgP) : '—'}</div>
-              <div className="dv3-td dv3-td-r">{r.ltp ? fmtINR(r.ltp) : '—'}</div>
-              <div
-                className="dv3-td dv3-td-r"
-                style={{ color: r.gainPct == null ? 'var(--text-3)' : r.gainPct >= 0 ? 'var(--bull)' : 'var(--bear)' }}
-              >
-                {r.gainPct != null ? fmtPct(r.gainPct) : '—'}
-              </div>
-              <div
-                className="dv3-td dv3-td-r"
-                style={{ color: r.pnl == null ? 'var(--text-3)' : r.pnl >= 0 ? 'var(--bull)' : 'var(--bear)' }}
-              >
-                {r.pnl != null ? (
-                  <span>
-                    {r.pnl >= 0 ? '+' : '−'}{fmtINR(Math.abs(r.pnl))}
-                    {r.pnlPct != null && (
-                      <span className="dv3-pnl-pct"> {r.pnlPct >= 0 ? '+' : '−'}{Math.abs(r.pnlPct).toFixed(1)}%</span>
-                    )}
-                  </span>
-                ) : '—'}
-              </div>
-            </React.Fragment>
-          ))
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────
-// SectorBreadth — distribution of today's candidates across sectors.
-// NOTE: the model only surfaces bullish candidates, so a "% bullish" per
-// sector would be tautologically 100%. Instead we show WHERE today's
-// candidates cluster (count per sector) — an honest read of concentration.
-// TODO: a dedicated advance/decline breadth endpoint would let us show
-// true bullish-vs-bearish proportions.
-// ─────────────────────────────────────────────────────────────────────
-const SECTOR_LAYOUT = [
-  { top: 6,   left: 8   },
-  { top: 16,  left: 162 },
-  { top: 148, left: 6   },
-  { top: 150, left: 122 },
-  { top: 172, left: 222 },
-];
-
-function SectorBreadth({ signals }) {
-  // Group today's candidates by sector, count per sector.
-  const { derived, total } = useMemo(() => {
-    if (!signals?.length) return { derived: [], total: 0 };
-    const map = new Map();
-    for (const s of signals) {
-      const sec = s.sector || 'Other';
-      map.set(sec, (map.get(sec) || 0) + 1);
-    }
-    const sorted = Array.from(map.entries())
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5);
-    const maxCount = sorted.length ? sorted[0][1] : 1;
-    const list = sorted.map(([name, count], i) => {
-      const layout = SECTOR_LAYOUT[i] || { top: 100 + i * 30, left: 50 };
-      const size = 80 + Math.round((count / maxCount) * 56);
-      return { name, count, size, top: layout.top, left: layout.left };
-    });
-    return { derived: list, total: signals.length };
-  }, [signals]);
-
-  return (
-    <div className="dv3-card">
-      <div className="dv3-card-head">
-        <div>
-          <div className="t-ui-headline">Signal distribution</div>
-          <div className="t-ui-footnote">Where today's candidates cluster</div>
-        </div>
-      </div>
-
-      {derived.length === 0 ? (
-        <div className="dv3-no-breadth">No candidates yet — the model runs at 4:15 PM IST on trading days.</div>
-      ) : (
-        <>
-          <div className="dv3-bubble-stage">
-            {derived.map((s) => (
-              <div
-                key={s.name}
-                className="dv3-bubble dv3-bubble-bull"
-                style={{ top: s.top, left: s.left, width: s.size, height: s.size }}
-                title={`${s.name} · ${s.count} candidate${s.count === 1 ? '' : 's'}`}
-              >
-                <div className="dv3-bubble-pct">{s.count}</div>
-                <div className="dv3-bubble-name">{s.name}</div>
-              </div>
-            ))}
-          </div>
-          <div className="dv3-bubble-legend">
-            <span className="dv3-leg-summary">
-              <span className="num-bull">{total}</span> candidate{total === 1 ? '' : 's'} across {derived.length} sector{derived.length === 1 ? '' : 's'}
-            </span>
-          </div>
-        </>
+    <svg className="spark" viewBox="0 0 200 28" preserveAspectRatio="none">
+      {tone !== 'warn' && (
+        <defs>
+          <linearGradient id={gradId} x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0" stopColor={stroke} stopOpacity=".35" />
+            <stop offset="1" stopColor={stroke} stopOpacity="0" />
+          </linearGradient>
+        </defs>
       )}
-    </div>
+      {tone !== 'warn' && <path d={areaPath} fill={`url(#${gradId})`} />}
+      <path d={path} fill="none" stroke={stroke} strokeWidth="1.6" />
+    </svg>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// BalanceCard — useKiteMargins() + useOverview().portfolio
-// Falls back to paper-portfolio from overview when Kite not connected.
-// ─────────────────────────────────────────────────────────────────────
-function BalanceCard({ margins, portfolio, holdings, kiteConnected }) {
-  // When Kite-connected, derive everything from REAL account data — never
-  // the paper portfolio (which would mislabel the ₹10L paper capital as a
-  // live Kite balance). Holdings value + cost come from the holdings rows;
-  // cash from margins.available.
-  const kite = useMemo(() => {
-    if (!kiteConnected) return null;
-    const rows = holdings ?? [];
-    let mktValue = 0, cost = 0;
-    for (const h of rows) {
-      const qty = h.quantity ?? 0;
-      const ltp = h.last_price ?? 0;
-      const avg = h.average_price ?? 0;
-      if (qty > 0 && ltp > 0) mktValue += qty * ltp;
-      if (qty > 0 && avg > 0) cost += qty * avg;
-    }
-    const cash = margins?.available ?? null;
-    const pnl = cost > 0 ? mktValue - cost : null;
-    return {
-      total: cash != null ? mktValue + cash : (mktValue || null),
-      cash,
-      invested: mktValue || null,
-      returnPct: cost > 0 ? (pnl / cost) * 100 : null,
-      nPositions: rows.length || null,
-    };
-  }, [kiteConnected, holdings, margins]);
-
-  const totalValue = kite ? kite.total      : (portfolio?.total_value ?? null);
-  const available  = kite ? kite.cash        : (portfolio?.cash ?? null);
-  const used       = kite ? kite.invested    : (portfolio?.invested ?? null);
-  const returnPct  = kite ? kite.returnPct   : (portfolio?.total_return_pct ?? null);
-  const nPositions = kite ? kite.nPositions  : (portfolio?.n_positions ?? null);
-  const investedLabel = kite ? 'Holdings value' : 'Invested';
-
-  return (
-    <div className="dv3-balance-card">
-      <div className="dv3-balance-glow" />
-      <div className="dv3-balance-head">
-        <div>
-          <div className="card-head-title">Portfolio</div>
-          <div className="card-head-sub">
-            {kiteConnected ? 'Kite · live balance' : 'Paper portfolio'}
-          </div>
-        </div>
-        <span className="dv3-plan-chip">
-          {returnPct != null
-            ? <span className={returnPct >= 0 ? 'num-bull' : 'num-bear'}>{fmtPct(returnPct)}</span>
-            : 'PRO'}
-        </span>
-      </div>
-
-      <div className="dv3-balance-stat">{totalValue != null ? fmtLakh(totalValue) : '—'}</div>
-      <div className="dv3-balance-stat-label">TOTAL VALUE</div>
-
-      <div className="dv3-balance-rows">
-        <div className="dv3-balance-row">
-          <span>Available cash</span>
-          <span className="dv3-balance-val">{available != null ? fmtLakh(available) : '—'}</span>
-        </div>
-        <div className="dv3-balance-row">
-          <span>{investedLabel}</span>
-          <span className="dv3-balance-val">{used != null ? fmtLakh(used) : '—'}</span>
-        </div>
-        {nPositions != null && (
-          <div className="dv3-balance-row">
-            <span>Open positions</span>
-            <span className="dv3-balance-val">{nPositions}</span>
-          </div>
-        )}
-      </div>
-
-      <Link to="/portfolio" className="dv3-balance-cta">
-        View portfolio <Icon.Arrow width="13" height="13" />
-      </Link>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────
-// EquityNetWorth — top-of-page net-worth bar (prototype). Same derivation
-// as BalanceCard: real Kite holdings + margins when connected, else the
-// paper portfolio from overview. Additive; never fabricates numbers.
+// EquityNetWorth — prototype .card.networth
 // ─────────────────────────────────────────────────────────────────────
 function EquityNetWorth({ margins, portfolio, holdings, kiteConnected }) {
   const kite = useMemo(() => {
@@ -772,18 +124,12 @@ function EquityNetWorth({ margins, portfolio, holdings, kiteConnected }) {
       if (qty > 0 && avg > 0) cost += qty * avg;
     }
     const pnl = cost > 0 ? mktValue - cost : null;
-    return {
-      current: mktValue || null,
-      invested: cost || null,
-      pnl,
-      pnlPct: cost > 0 ? (pnl / cost) * 100 : null,
-    };
+    return { current: mktValue || null, invested: cost || null, pnl, pnlPct: cost > 0 ? (pnl / cost) * 100 : null };
   }, [kiteConnected, holdings]);
 
-  // Prefer Kite's live holdings valuation, but fall back to the paper/overview
-  // portfolio whenever a Kite field is missing — e.g. connected but the
-  // holdings feed hasn't returned live prices yet, which otherwise left the
-  // whole card showing "—" despite a real paper portfolio existing.
+  // Prefer Kite's live valuation; fall back to the paper/overview portfolio
+  // whenever a Kite field is missing (e.g. connected but holdings have no
+  // live prices yet) — otherwise the card shows "—" despite real paper data.
   const current  = (kite && kite.current  != null) ? kite.current  : (portfolio?.total_value ?? null);
   const invested = (kite && kite.invested != null) ? kite.invested : (portfolio?.invested ?? null);
   const pnl      = (kite && kite.pnl != null) ? kite.pnl
@@ -792,46 +138,44 @@ function EquityNetWorth({ margins, portfolio, holdings, kiteConnected }) {
   const dayPnl   = portfolio?.day_pnl ?? null;
   const dayPct   = portfolio?.day_return_pct ?? null;
 
-  const [hidden, setHidden] = React.useState(false);
+  const [hidden, setHidden] = useState(false);
   const dateLabel = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
   const show = (v) => (hidden ? '••••••' : v);
 
-  const eyeSvg = hidden
-    ? <svg className="dv3-nw-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.9 4.24A9.1 9.1 0 0 1 12 4c7 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19M6.6 6.6A18.5 18.5 0 0 0 2 12s3 8 10 8a9.1 9.1 0 0 0 5.4-1.6"/><path d="m2 2 20 20"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
-    : <svg className="dv3-nw-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8-10-8-10-8z"/><circle cx="12" cy="12" r="3"/></svg>;
-
   return (
-    <div className="dv3-networth">
-      <div className="dv3-nw-top">
-        <div className="dv3-nw-title">My equity net-worth <span>as on {dateLabel}</span></div>
-        <Link to="/portfolio" className="dv3-nw-link">View details <Icon.Arrow width="12" height="12" /></Link>
+    <div className="card networth">
+      <div className="nw-top">
+        <div className="nw-title">My equity net-worth <span>as on {dateLabel}</span></div>
+        <Link className="link" to="/portfolio">View details →</Link>
       </div>
-      <div className="dv3-nw-body">
-        <div className="dv3-nw-item">
-          <div className="dv3-nw-k">
+      <div className="nw-body">
+        <div className="nw-item">
+          <div className="k">
             Current value
-            <button type="button" className="dv3-nw-eye-btn" onClick={() => setHidden((h) => !h)}
-              title={hidden ? 'Show values' : 'Hide values'} aria-label={hidden ? 'Show values' : 'Hide values'}>
-              {eyeSvg}
-            </button>
+            <svg className="nw-eye" viewBox="0 0 24 24" onClick={() => setHidden((h) => !h)}
+              role="button" aria-label={hidden ? 'Show values' : 'Hide values'}>
+              {hidden
+                ? <path d="M1 12s4-7 11-7c2 0 3.8.6 5.3 1.5M23 12s-4 7-11 7c-2 0-3.8-.6-5.3-1.5M1 1l22 22M9.5 9.5a3 3 0 0 0 4.2 4.2" />
+                : <><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" /><circle cx="12" cy="12" r="3" /></>}
+            </svg>
           </div>
-          <div className="dv3-nw-v">{current != null ? show(fmtLakh(current)) : '—'}</div>
+          <div className="v tnum">{current != null ? show(fmtLakh(current)) : '—'}</div>
         </div>
-        <div className="dv3-nw-item">
-          <div className="dv3-nw-k">Invested</div>
-          <div className="dv3-nw-v">{invested != null ? show(fmtLakh(invested)) : '—'}</div>
+        <div className="nw-item">
+          <div className="k">Invested</div>
+          <div className="v tnum">{invested != null ? show(fmtLakh(invested)) : '—'}</div>
         </div>
-        <div className="dv3-nw-item">
-          <div className="dv3-nw-k">Total P&amp;L</div>
-          <div className={`dv3-nw-v ${pnl != null ? (pnl >= 0 ? 'num-bull' : 'num-bear') : ''}`}>
+        <div className="nw-item">
+          <div className="k">Total P&amp;L</div>
+          <div className={`v tnum ${pnl != null ? (pnl >= 0 ? 'bull' : 'bear') : ''}`}>
             {pnl != null ? show(fmtLakh(pnl)) : '—'}
-            {pnlPct != null && !hidden && <small> ({fmtPct(pnlPct)})</small>}
+            {pnlPct != null && !hidden && <small className={pnl >= 0 ? 'bull' : 'bear'}> ({fmtPct(pnlPct)})</small>}
           </div>
         </div>
         {dayPnl != null && (
-          <div className="dv3-nw-item dv3-nw-day">
-            <div className="dv3-nw-k">Day's P&amp;L</div>
-            <div className={`dv3-nw-v ${dayPnl >= 0 ? 'num-bull' : 'num-bear'}`}>
+          <div className="nw-day">
+            <div className="k">Day's P&amp;L</div>
+            <div className={`v tnum ${dayPnl >= 0 ? 'bull' : 'bear'}`}>
               {show(`${dayPnl >= 0 ? '+' : ''}${fmtLakh(dayPnl)}${dayPct != null ? ` (${fmtPct(dayPct)})` : ''}`)}
             </div>
           </div>
@@ -842,68 +186,167 @@ function EquityNetWorth({ margins, portfolio, holdings, kiteConnected }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// ActionTiles — the prototype's vibrant "what you can do" gradient cards.
-// Real routes only (no fake broker actions); crons are scheduled so there
-// is no manual-scan tile.
+// Regime — prototype .regime
 // ─────────────────────────────────────────────────────────────────────
-function ActionTiles() {
-  const tiles = [
-    { cls: 'dv3-qa-teal',   to: '/premove',      title: 'Position sizer', desc: "Size today's top names to your capital & E-margin." },
-    { cls: 'dv3-qa-violet', to: '/track-record', title: 'Track record',   desc: 'Live paper equity curve & closed-trade log.' },
-    { cls: 'dv3-qa-blue',   to: '/pnl',          title: 'Analytics',      desc: 'Performance, attribution & signal stats.' },
-  ];
+function RegimeCard({ regime, indexData, heldCount }) {
+  const status = (regime?.status || '').toLowerCase();
+  const isBull = status.includes('bull');
+  const isBear = status.includes('bear');
+  const label = isBull ? 'Bullish' : isBear ? 'Bearish' : 'Choppy';
+  const tone  = isBull ? 'bull' : isBear ? 'bear' : 'warn';
+  const line  = isBull
+    ? 'Trend and breadth favour longs.'
+    : isBear
+      ? 'Trend and breadth are against longs — stay defensive.'
+      : 'Mixed tape — no clear trend. Stay selective.';
+
+  // Strength: backend sends 0 as its "not computed" sentinel — treat 0/absent
+  // as unknown rather than fabricating a midpoint.
+  const strengthRaw = Number(regime?.strength);
+  const strength = Number.isFinite(strengthRaw) && strengthRaw > 0
+    ? Math.max(0, Math.min(100, Math.round(strengthRaw))) : null;
+
+  const vixData = indexData?.['INDIA VIX'] ?? indexData?.['INDIAVIX'] ?? null;
+  const vixRaw  = Number(regime?.vix) || Number(vixData?.ltp) || Number(vixData?.last) || Number(vixData?.value) || null;
+  const vix     = vixRaw != null && isFinite(vixRaw) && vixRaw > 0 ? vixRaw : null;
+  const vixWord = vix == null ? '—' : vix < 15 ? 'calm' : vix <= 20 ? 'normal' : 'elevated';
+  const vixTone = vix == null ? 'muted' : vix < 20 ? 'bull' : 'warn';
+
+  const breadthRaw = Number(regime?.breadth);
+  const breadth = Number.isFinite(breadthRaw) && breadthRaw !== 0 ? breadthRaw : null;
+
+  const updated = regime?.updated_at || regime?.as_of || regime?.timestamp || null;
+  const updatedLabel = updated
+    ? new Date(updated).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+    : null;
+
   return (
-    <section className="dv3-row">
-      <div className="dv3-actions">
-        {tiles.map((t) => (
-          <Link key={t.to} to={t.to} className={`dv3-qa ${t.cls}`}>
-            <span className="dv3-qa-deco" />
-            <h4>{t.title}</h4>
-            <p>{t.desc}</p>
-            <span className="dv3-qa-go">Open <Icon.Arrow width="12" height="12" /></span>
-          </Link>
-        ))}
+    <div className={`regime tone-${tone}`}>
+      <div className="regime-main">
+        <div className="regime-eyebrow"><span className="dot" /><span className="micro">Market regime{updatedLabel ? ` · updated ${updatedLabel}` : ''}</span></div>
+        <div className="regime-statement">The market is <b>{label}.</b> {line}</div>
+        <div className="strength">
+          <div className="micro">10-day strength{strength == null ? '' : ` · ${strength}/100`}</div>
+          <div className="strength-track"><div className="strength-fill" style={{ width: `${strength ?? 0}%` }} /></div>
+        </div>
       </div>
-    </section>
+      <div className="regime-stats">
+        <div className="rstat"><div className="k">India VIX</div><div className="v tnum">{vix == null ? '—' : vix.toFixed(1)}</div><div className={`d ${vixTone}`}>{vixWord}</div></div>
+        <div className="rstat"><div className="k">Breadth</div><div className={`v tnum ${breadth != null ? (breadth >= 0 ? 'bull' : 'bear') : ''}`}>{breadth == null ? '—' : (breadth >= 0 ? '+' : '') + breadth}</div><div className="d muted">adv−dec</div></div>
+        <div className="rstat"><div className="k">Held</div><div className="v tnum">{heldCount != null ? `${Math.min(heldCount, 15)}/15` : '—/15'}</div><div className="d muted">slots</div></div>
+      </div>
+    </div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// ModelHealth — prototype right-rail card. Shows the model is running and
-// its headline stats, from cron_health (useSignals) + metrics/portfolio
-// (useOverview). Same formatting conventions as PortfolioV3's PerfRibbon.
+// Research-call card — prototype .sig
 // ─────────────────────────────────────────────────────────────────────
-function ModelHealth({ cronHealth, metrics, portfolio }) {
-  const ranToday = cronHealth?.last_run_today;
-  const winRate  = metrics?.win_rate ?? null;
-  const sharpe   = metrics?.sharpe_ratio ?? null;
-  const drawdown = portfolio?.drawdown_pct ?? null;
-  const trades   = metrics?.total_trades ?? null;
+function SigCard({ sig, modelWinRate, brewing, idx }) {
+  const sym    = sig.ticker || sig.sym || sig.symbol || '??';
+  const name   = sig.name || sym;
+  const sector = sig.sector || '—';
+  const grade  = (sig.grade || 'B')[0].toUpperCase();
+  const entry  = sig.entry ?? 0;
+  const stop   = sig.stop_loss ?? sig.stop ?? entry;
+  const target = sig.target ?? entry;
+  const ltp    = sig.current_price ?? sig.close ?? entry;
 
-  const rows = [
-    ['Daily scan', ranToday
-      ? <span className="num-bull">● Ran today</span>
-      : <span className="num-warn">Pending</span>],
-    ['Win rate', winRate != null ? `${Number(winRate).toFixed(1)}%` : '—'],
-    ['Sharpe ratio', sharpe != null ? Number(sharpe).toFixed(2) : '—'],
-    ['Max drawdown', drawdown != null
-      ? <span className="num-bear">{fmtPct(-Math.abs(drawdown))}</span>
-      : '—'],
-    ['Closed trades', trades != null ? `${trades}` : '—'],
-  ];
+  const upsidePct = entry > 0 && target > 0 ? ((target - entry) / entry) * 100 : null;
+  const expReturn = sig.predicted_return_pct != null ? sig.predicted_return_pct : upsidePct;
+
+  const wrNum = Number(modelWinRate);
+  const wr = (modelWinRate != null && Number.isFinite(wrNum) && wrNum > 0) ? wrNum.toFixed(0) : null;
+
+  const toGate = brewing && ltp > 0 ? ((entry - ltp) / ltp) * 100 : null;
+  const sparkData = useMemo(() => genSpark(sym), [sym]);
+  const tone = brewing ? 'warn' : 'bull';
 
   return (
-    <div className="dv3-card dv3-model-health">
-      <div className="dv3-card-head">
-        <div>
-          <div className="t-ui-headline">Model health</div>
-          <div className="t-ui-footnote">Weekly swing · paper</div>
+    <div className={`sig${!brewing ? ' up' : ''}`}>
+      <span className={`sig-tag pill ${brewing ? 'brew' : 'fresh'}`}>{brewing ? '● BREW' : '● FRESH'}</span>
+      <div className="sig-head">
+        <ProtoLogo sym={sym} />
+        <div><div className="sig-sym">{sym}</div><div className="sig-name">{name !== sym ? name : sector}</div></div>
+        <span className={`grade${grade === 'A' ? ' a' : ''}`}>{grade}</span>
+      </div>
+      <div className="sig-metrics">
+        <div className="m"><div className="k">Win rate</div><div className="v bull tnum">{wr != null ? `${wr}%` : '—'}</div></div>
+        {brewing ? (
+          <div className="m"><div className="k">To gate</div><div className="v warn tnum">{toGate != null ? fmtPct1(toGate) : '—'}</div></div>
+        ) : (
+          <div className="m"><div className="k">Exp. return</div><div className="v tnum">{expReturn != null ? fmtPct1(expReturn) : '—'}</div></div>
+        )}
+      </div>
+      <SigSpark data={sparkData} tone={tone} gradId={`sigGrad${idx}`} />
+      <div className="sig-foot">
+        <div className="lvl"><div className="k">Entry</div><div className="v tnum">{fmtINR(entry)}</div></div>
+        <div className="lvl"><div className="k">Stop</div><div className="v bear tnum">{fmtINR(stop)}</div></div>
+        <div className="lvl"><div className="k">Target</div><div className="v bull tnum">{fmtINR(target)}</div></div>
+      </div>
+    </div>
+  );
+}
+
+function SigCardSkeleton() {
+  return (
+    <>
+      {[0, 1, 2, 3].map((i) => (
+        <div key={i} className="sig skeleton-card" style={{ minHeight: 190 }} aria-hidden="true" />
+      ))}
+    </>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Holdings table — prototype .thead/.trow
+// ─────────────────────────────────────────────────────────────────────
+function HoldingsPanel({ holdings, quoteData, isLoading }) {
+  const rows = useMemo(() => {
+    if (!holdings?.length) return [];
+    return holdings.slice(0, 8).map((h) => {
+      const sym = (h.tradingsymbol || h.symbol || '').toUpperCase();
+      const ltp = h.last_price ?? 0;
+      const qty = h.quantity ?? 0;
+      const avgP = h.average_price ?? 0;
+      const dayChg = h.day_change ?? null;
+      const gainPct = ltp > 0 && dayChg != null ? (dayChg / ltp) * 100 : h.day_change_percentage ?? null;
+      const pnl = (ltp > 0 && avgP > 0 && qty > 0) ? (ltp - avgP) * qty : null;
+      return { sym, sector: quoteData?.[sym]?.sector || 'NSE', ltp, qty, avgP, gainPct, pnl };
+    });
+  }, [holdings, quoteData]);
+
+  const [tab, setTab] = useState('all');
+  const gainers = rows.filter((r) => (r.gainPct ?? 0) > 0).length;
+  const losers = rows.filter((r) => (r.gainPct ?? 0) < 0).length;
+  const filtered = tab === 'gainers' ? rows.filter((r) => (r.gainPct ?? 0) > 0)
+    : tab === 'losers' ? rows.filter((r) => (r.gainPct ?? 0) < 0) : rows;
+
+  return (
+    <div className="card panel" style={{ paddingBottom: 6 }}>
+      <div className="panel-head" style={{ marginBottom: 10 }}>
+        <h3>Your holdings</h3>
+        <div className="tabs">
+          <button className={tab === 'all' ? 'on' : ''} onClick={() => setTab('all')}>All {rows.length}</button>
+          <button className={tab === 'gainers' ? 'on' : ''} onClick={() => setTab('gainers')}>Gainers {gainers}</button>
+          <button className={tab === 'losers' ? 'on' : ''} onClick={() => setTab('losers')}>Losers {losers}</button>
         </div>
       </div>
-      {rows.map(([k, v]) => (
-        <div className="dv3-mh-row" key={k}>
-          <span className="dv3-mh-k">{k}</span>
-          <span className="dv3-mh-v">{v}</span>
+      <div className="thead"><span>Company</span><span>Qty</span><span>Avg</span><span>LTP</span><span>Chg</span><span>Unreal. P&amp;L</span></div>
+      {isLoading ? (
+        <div style={{ padding: '16px 8px', color: 'var(--text-3)', fontSize: 13 }}>Loading…</div>
+      ) : filtered.length === 0 ? (
+        <div style={{ padding: '16px 8px', color: 'var(--text-3)', fontSize: 13 }}>
+          {rows.length === 0 ? 'Connect Kite to see your holdings here.' : `No ${tab} right now.`}
+        </div>
+      ) : filtered.map((r) => (
+        <div className="trow" key={r.sym}>
+          <div className="co"><ProtoLogo sym={r.sym} /><div><div className="nm">{r.sym}</div><div className="ex">NSE · {r.sector}</div></div></div>
+          <div className="td tnum">{r.qty || '—'}</div>
+          <div className="td tnum">{r.avgP ? fmtINR(r.avgP) : '—'}</div>
+          <div className="td tnum">{r.ltp ? fmtINR(r.ltp) : '—'}</div>
+          <div><span className={`chgpill tnum ${(r.gainPct ?? 0) >= 0 ? 'up' : 'dn'}`}>{r.gainPct != null ? fmtPct(r.gainPct) : '—'}</span></div>
+          <div className={`td tnum ${r.pnl == null ? '' : r.pnl >= 0 ? 'bull' : 'bear'}`}>{r.pnl != null ? `${r.pnl >= 0 ? '+' : '−'}${fmtINR(Math.abs(r.pnl))}` : '—'}</div>
         </div>
       ))}
     </div>
@@ -911,57 +354,134 @@ function ModelHealth({ cronHealth, metrics, portfolio }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// PickOfWeek — the prototype's magenta "pick of the week" card, driven by
-// the top-ranked signal of the day. Null-safe (renders nothing if no signal).
+// Global indices strip — prototype .gidx/.gi
 // ─────────────────────────────────────────────────────────────────────
-function PickOfWeek({ sig }) {
+const INDEX_LABELS = {
+  NIFTY: 'NIFTY 50', NIFTY50: 'NIFTY 50', SENSEX: 'SENSEX',
+  BANKNIFTY: 'BANK NIFTY', NIFTYBANK: 'BANK NIFTY', INDIAVIX: 'INDIA VIX',
+  VIX: 'INDIA VIX', USDINR: 'USD/INR', NIFTYMIDCAP: 'NIFTY MIDCAP', NIFTYIT: 'NIFTY IT',
+};
+function GlobalIndices({ indexData }) {
+  const items = useMemo(() => {
+    if (!indexData || typeof indexData !== 'object') return [];
+    return Object.keys(indexData).map((k) => {
+      const d = indexData[k] || {};
+      const val = d.last ?? d.ltp ?? d.value;
+      const chg = d.changePct ?? d.change_pct ?? d.change;
+      if (typeof val !== 'number' || !isFinite(val)) return null;
+      return { key: k, label: INDEX_LABELS[k] || k, val, chg: typeof chg === 'number' ? chg : 0 };
+    }).filter(Boolean).slice(0, 4);
+  }, [indexData]);
+  if (!items.length) return null;
+  return (
+    <>
+      <div className="row-head" style={{ marginBottom: 0 }}><span className="sec-title">Global indices</span></div>
+      <div className="gidx">
+        {items.map((it) => {
+          const up = it.chg >= 0;
+          const pts = genSpark(it.key, 6);
+          const min = Math.min(...pts), max = Math.max(...pts), range = max - min || 1;
+          const path = pts.map((v, i) => `${i === 0 ? 'M' : 'L'}${(i * 100 / (pts.length - 1)).toFixed(0)},${(20 - ((v - min) / range) * 18).toFixed(1)}`).join(' ');
+          return (
+            <div className="gi" key={it.key}>
+              <div className="n">{it.label}</div>
+              <div className="v tnum">{it.val.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</div>
+              <div className={`c tnum ${up ? 'bull' : 'bear'}`}>{up ? '▲' : '▼'} {Math.abs(it.chg).toFixed(2)}%</div>
+              <svg viewBox="0 0 100 22" preserveAspectRatio="none"><path d={path} fill="none" stroke={up ? '#3FDD8A' : '#FF5C7A'} strokeWidth="1.5" /></svg>
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Action tiles — prototype .grid3/.qa
+// ─────────────────────────────────────────────────────────────────────
+function ActionTiles() {
+  const tiles = [
+    { cls: 'qa-teal', to: '/premove', title: 'Position sizer', desc: "Size today's top-15 to your own capital & E-margin.", go: 'Size positions →',
+      path: 'M12 3v18M5 8l7-5 7 5M5 8v9l7 4 7-4V8' },
+    { cls: 'qa-violet', to: '/track-record', title: 'Track record', desc: 'Live paper equity, closed-trade log & forward-wall.', go: 'View record →',
+      path: 'M3 3v18h18M7 13l4-4 3 3 5-6' },
+    { cls: 'qa-blue', to: '/premove', title: 'How signals are made', desc: 'The mechanical rules behind the top-15. No black box.', go: 'Methodology →',
+      path: 'M12 2a10 10 0 100 20 10 10 0 000-20zM2 12h20M12 2a15 15 0 010 20' },
+  ];
+  return (
+    <>
+      <div className="row-head" style={{ margin: '4px 0 0' }}><span className="sec-title">What you can do</span></div>
+      <div className="grid3">
+        {tiles.map((t) => (
+          <Link key={t.title} to={t.to} className={`qa ${t.cls}`}>
+            <div className="deco" />
+            <div className="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={t.path} /></svg></div>
+            <h4>{t.title}</h4>
+            <p>{t.desc}</p>
+            <span className="go">{t.go}</span>
+          </Link>
+        ))}
+      </div>
+    </>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Right rail — Pick of the week (prototype .pick)
+// ─────────────────────────────────────────────────────────────────────
+function PickCard({ sig }) {
   if (!sig) return null;
   const sym = sig.ticker || sig.sym || sig.symbol || '';
   const name = sig.name || sig.company || '';
   const num = (n) => (n == null ? '—' : Number(n).toLocaleString('en-IN', { maximumFractionDigits: 0 }));
   const reco = sig.entry ?? sig.reco_price ?? null;
   const target = sig.target ?? null;
-  // Real upside to target when the model doesn't supply a predicted return, so
-  // the pick card shows a % instead of "—".
   const upside = sig.predicted_return_pct ?? sig.expected_return
     ?? (reco > 0 && target > 0 ? ((target - reco) / reco) * 100 : null);
   return (
-    <div className="dv3-pick">
-      <span className="dv3-pick-badge">★ Pick of the week</span>
-      <div className="dv3-pick-nm">
-        <Logo sym={sym} size={30} radius={8} />
-        <h4>{sym}{name ? ` · ${name}` : ''}</h4>
+    <div className="pick">
+      <span className="badge">★ Pick of the week</span>
+      <div className="nm"><ProtoLogo sym={sym} tint={false} /><h4>{sym}{name ? ` · ${name}` : ''}</h4></div>
+      <div className="pick-metrics">
+        <div><div className="k">Reco</div><div className="v tnum">{num(reco)}</div></div>
+        <div><div className="k">Target</div><div className="v tnum">{num(target)}</div></div>
+        <div><div className="k">Upside</div><div className="v tnum">{upside == null ? '—' : fmtPct1(upside)}</div></div>
       </div>
-      <div className="dv3-pick-metrics">
-        <div><div className="k">Reco</div><div className="v">{num(reco)}</div></div>
-        <div><div className="k">Target</div><div className="v">{num(target)}</div></div>
-        <div><div className="k">Upside</div><div className="v">{upside == null ? '—' : fmtPct(upside)}</div></div>
-      </div>
-      <Link to="/premove" className="dv3-pick-btn">Size &amp; view →</Link>
+      <Link className="pick-btn" to="/premove">Size &amp; view →</Link>
+      <div className="pick-dots"><i className="on" /><i /><i /><i /></div>
     </div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// ToolsGrid — the prototype's "Your tools" grid; links to real routes only.
+// Right rail — Your tools (prototype .rcard .opps)
 // ─────────────────────────────────────────────────────────────────────
-function ToolsGrid() {
+const TOOL_ICONS = {
+  sizer:   'M12 3v18M5 8l7-5 7 5',
+  record:  'M3 3v18h18M7 13l4-4 3 3 5-6',
+  report:  'M4 5h16v14H4zM4 10h16',
+  log:     'M3 12h18M3 6h18M3 18h18',
+  journal: 'M4 4h16v16H4zM8 4v16',
+  method:  'M12 2a10 10 0 100 20 10 10 0 000-20zM2 12h20',
+};
+function ToolsCard() {
   const tools = [
-    { to: '/premove', label: 'Position sizer' },
-    { to: '/track-record', label: 'Track record' },
-    { to: '/pnl', label: 'P&L report' },
-    { to: '/orders', label: 'Trade log' },
-    { to: '/journal', label: 'Journal' },
-    { to: '/premove', label: 'Methodology' },
+    { to: '/premove', label: 'Position sizer', icon: 'sizer' },
+    { to: '/track-record', label: 'Track record', icon: 'record' },
+    { to: '/pnl', label: 'P&L report', icon: 'report' },
+    { to: '/orders', label: 'Trade log', icon: 'log' },
+    { to: '/journal', label: 'Journal', icon: 'journal', tag: 'LOG' },
+    { to: '/premove', label: 'Methodology', icon: 'method' },
   ];
   return (
-    <div className="dv3-card dv3-tools-card">
-      <div className="dv3-card-head"><div className="t-ui-headline">Your tools</div></div>
-      <div className="dv3-tools">
+    <div className="card rcard">
+      <h4>Your tools</h4>
+      <div className="opps">
         {tools.map((t) => (
-          <Link key={t.label} to={t.to} className="dv3-tool">
-            <span className="dv3-tool-ic"><Icon.Arrow width="14" height="14" /></span>
-            <span className="dv3-tool-lbl">{t.label}</span>
+          <Link key={t.label} to={t.to} className="opp">
+            {t.tag && <span className="tag">{t.tag}</span>}
+            <div className="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={TOOL_ICONS[t.icon]} /></svg></div>
+            <div className="lbl">{t.label}</div>
           </Link>
         ))}
       </div>
@@ -970,66 +490,105 @@ function ToolsGrid() {
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// MarketIndices — the prototype's index strip, from useIndexSparklines().
-// Defensive on the payload shape ({last,changePct} or {ltp,change_pct}).
+// Right rail — Morning commentary (prototype .commentary)
 // ─────────────────────────────────────────────────────────────────────
-const INDEX_LABELS = {
-  NIFTY: 'NIFTY 50', NIFTY50: 'NIFTY 50', SENSEX: 'SENSEX',
-  BANKNIFTY: 'BANK NIFTY', NIFTYBANK: 'BANK NIFTY', INDIAVIX: 'INDIA VIX',
-  VIX: 'INDIA VIX', USDINR: 'USD/INR', NIFTYMIDCAP: 'NIFTY MIDCAP', NIFTYIT: 'NIFTY IT',
-};
-function MarketIndices({ indexData }) {
-  const items = useMemo(() => {
-    if (!indexData || typeof indexData !== 'object') return [];
-    return Object.keys(indexData).map((k) => {
-      const d = indexData[k] || {};
-      const val = d.last ?? d.ltp ?? d.value;
-      const chg = d.changePct ?? d.change_pct ?? d.change;
-      if (typeof val !== 'number' || !isFinite(val)) return null;
-      return { key: k, label: INDEX_LABELS[k] || k, val, chg: (typeof chg === 'number' ? chg : 0) };
-    }).filter(Boolean).slice(0, 6);
-  }, [indexData]);
-  if (!items.length) return null;
+function CommentaryCard({ regime, signalsCount, generatedAt }) {
+  const raw = (regime?.status || '').toLowerCase();
+  if (!raw) return null;
+  const label = raw.includes('bull') ? 'Bullish' : raw.includes('bear') ? 'Bearish' : 'Choppy';
+  const breadth = regime?.breadth;
+  const dateLabel = generatedAt
+    ? new Date(generatedAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })
+    : null;
   return (
-    <section className="dv3-row">
-      <div className="dv3-row-head"><div><h2 className="dv3-row-title" style={{ fontSize: 16 }}>Market indices</h2></div></div>
-      <div className="dv3-indices">
-        {items.map((it) => (
-          <div className="dv3-idx" key={it.key}>
-            <div className="dv3-idx-n">{it.label}</div>
-            <div className="dv3-idx-v tnum">{it.val.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</div>
-            <div className={`dv3-idx-c tnum ${it.chg >= 0 ? 'num-bull' : 'num-bear'}`}>
-              {it.chg >= 0 ? '▲' : '▼'}{Math.abs(it.chg).toFixed(2)}%
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
+    <div className="commentary">
+      <div className="tag">Model note{dateLabel ? ` · ${dateLabel}` : ''}</div>
+      <h4>The market is {label} today.</h4>
+      <p>
+        {breadth != null ? `Breadth ${breadth >= 0 ? '+' : ''}${breadth} adv−dec. ` : ''}
+        {signalsCount > 0 ? `${signalsCount} names cleared the conviction gate this scan.` : 'No fresh buys cleared the gate this scan.'}
+        {' '}No manual action — the book posts itself.
+      </p>
+      <div className="date">◷ Bhanushali book</div>
+    </div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// MorningCommentary — the prototype's amber note, derived from real regime
-// + breadth + today's signal count (no fabricated text).
+// Right rail — Model health (prototype .rcard .statline/.mini-bar)
 // ─────────────────────────────────────────────────────────────────────
-function MorningCommentary({ regime, signalsCount }) {
-  const raw = (regime?.status || '').toLowerCase();
-  if (!raw) return null;
-  // Same mapping as RegimeStrip: anything not bull/bear reads as "Choppy"
-  // (never the raw "unknown" string).
-  const label = raw.includes('bull') ? 'Bullish' : raw.includes('bear') ? 'Bearish' : 'Choppy';
-  const breadth = regime?.breadth;
+function ModelHealthCard({ cronHealth, metrics, portfolio }) {
+  const ranToday = cronHealth?.last_run_today;
+  const winRate  = metrics?.win_rate ?? null;
+  const sharpe   = metrics?.sharpe_ratio ?? null;
+  const drawdown = portfolio?.drawdown_pct ?? null;
+  const trades   = metrics?.total_trades ?? null;
+  const gatePct  = trades != null ? Math.min(100, Math.round((trades / 30) * 100)) : null;
+
   return (
-    <div className="dv3-commentary">
-      <div className="dv3-comm-tag">Model note</div>
-      <h4>The market is {label} today.</h4>
-      <p>
-        {breadth != null ? `Breadth ${breadth >= 0 ? '+' : ''}${breadth} adv−dec. ` : ''}
-        {signalsCount > 0
-          ? `${signalsCount} names cleared the conviction gate this scan.`
-          : 'No fresh buys cleared the gate this scan.'}
-        {' '}No manual action — the book posts itself.
-      </p>
+    <div className="card rcard">
+      <h4>Model health · today</h4>
+      <div className="statline"><span className="k">Daily cron</span><span className={`v ${ranToday ? 'bull' : 'warn'}`}>{ranToday ? '● Ran today' : 'Pending'}</span></div>
+      <div className="statline"><span className="k">Win rate</span><span className="v tnum">{winRate != null ? `${Number(winRate).toFixed(1)}%` : '—'}</span></div>
+      <div className="statline"><span className="k">Sharpe (paper)</span><span className="v tnum">{sharpe != null ? Number(sharpe).toFixed(2) : '—'}</span></div>
+      <div className="statline"><span className="k">Max drawdown</span><span className="v bear tnum">{drawdown != null ? fmtPct(-Math.abs(drawdown)) : '—'}</span></div>
+      {gatePct != null && (
+        <div className="statline"><span className="k">{trades} of 30 paper gate</span><span className="v"><div className="mini-bar"><i style={{ width: `${gatePct}%` }} /></div></span></div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Right rail — Sector breadth (prototype .rcard .bubble-stage)
+// ─────────────────────────────────────────────────────────────────────
+const SECTOR_LAYOUT = [
+  { top: 6,   left: 8,   size: 74 },
+  { top: 16,  left: 162, size: 60 },
+  { top: 118, left: 6,   size: 52 },
+  { top: 116, left: 122, size: 46 },
+  { top: 138, left: 216, size: 40 },
+];
+const BUBBLE_TONES = ['bub-bull', 'bub-info', 'bub-violet', 'bub-warn', 'bub-info'];
+function SectorCard({ signals }) {
+  const derived = useMemo(() => {
+    if (!signals?.length) return [];
+    const map = new Map();
+    for (const s of signals) map.set(s.sector || 'Other', (map.get(s.sector || 'Other') || 0) + 1);
+    return Array.from(map.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5)
+      .map(([name, count], i) => ({ name, count, ...(SECTOR_LAYOUT[i] || { top: 100 + i * 30, left: 50, size: 40 }), tone: BUBBLE_TONES[i] }));
+  }, [signals]);
+
+  return (
+    <div className="card rcard">
+      <h4>Sector breadth</h4>
+      {derived.length === 0 ? (
+        <div style={{ fontSize: 12.5, color: 'var(--text-3)' }}>No candidates yet — the model runs at 4:15 PM IST on trading days.</div>
+      ) : (
+        <div className="bubble-stage">
+          {derived.map((s) => (
+            <div key={s.name} className={`bubble ${s.tone}`} style={{ width: s.size, height: s.size, left: s.left, top: s.top }} title={`${s.name} · ${s.count}`}>
+              <div><div className="n">{s.count}</div><div className="l">{s.name}</div></div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Scan status ribbon — prototype .scan-status
+// ─────────────────────────────────────────────────────────────────────
+function ScanStatus({ cronHealth, signalsCount }) {
+  return (
+    <div className="scan-status">
+      <span className="dot" />
+      <div>
+        <div className="ss-head">{cronHealth?.last_run_today ? "Today's scan ran on schedule" : 'Next scan at 4:15 PM IST'}{signalsCount ? ` · ${signalsCount} signals` : ''}</div>
+        <div className="ss-sub">Cron {cronHealth?.last_run_today ? 'healthy' : 'pending'} · runs 4:15 PM IST on trading days — the calls post themselves, no manual scan.</div>
+      </div>
+      <Link className="link" to="/premove">See all calls →</Link>
     </div>
   );
 }
@@ -1038,196 +597,115 @@ function MorningCommentary({ regime, signalsCount }) {
 // DashboardV3 — main page export
 // ─────────────────────────────────────────────────────────────────────
 export default function DashboardV3() {
-  const kite          = useContext(KiteContext);
-  // The live book is the weekly swing model (momentum is suspended, 2026-07-06),
-  // so the dashboard queries 'bhanushali' — same as the Research page — otherwise it
-  // reads the empty momentum feed and shows no pick / no cards.
-  const signalsQuery  = useSignals({ model: 'bhanushali' });
+  const kite = useContext(KiteContext);
+  // The live book is Bhanushali (weekly-swing) — momentum is suspended
+  // (2026-07-06) — so the dashboard queries 'bhanushali', same as Research.
+  const signalsQuery   = useSignals({ model: 'bhanushali' });
   const watchlistQuery = useWatchlist({ model: 'bhanushali' });
-  const overviewQuery = useOverview();
-  const holdingsQuery = useKiteHoldings({ enabled: !!kite?.connected });
-  const marginsQuery  = useKiteMargins({ enabled: !!kite?.connected });
-  const indexQuery    = useIndexSparklines();
+  const overviewQuery  = useOverview();
+  const holdingsQuery  = useKiteHoldings({ enabled: !!kite?.connected });
+  const marginsQuery   = useKiteMargins({ enabled: !!kite?.connected });
+  const indexQuery     = useIndexSparklines();
 
-  // Quote batch for holdings — request high/low/prev for held symbols
   const heldSymbols = useMemo(() => {
     const list = holdingsQuery.data ?? [];
     return list.slice(0, 8).map((h) => (h.tradingsymbol || '').toUpperCase()).filter(Boolean);
   }, [holdingsQuery.data]);
-  const quotesQuery = useQuoteBatch(heldSymbols, {
-    enabled: kite?.connected && heldSymbols.length > 0,
-  });
+  const quotesQuery = useQuoteBatch(heldSymbols, { enabled: kite?.connected && heldSymbols.length > 0 });
 
-  // ── Data derivation ──────────────────────────────────────────────
-  // Memoized so downstream useMemo dependencies remain stable across renders.
   const signals    = useMemo(() => signalsQuery.data?.signals ?? [], [signalsQuery.data]);
   const watchlist  = useMemo(() => watchlistQuery.data?.signals ?? [], [watchlistQuery.data]);
-  const regime     = useMemo(() => signalsQuery.data?.regime  ?? {}, [signalsQuery.data]);
+  const regime     = useMemo(() => signalsQuery.data?.regime ?? {}, [signalsQuery.data]);
   const cronHealth = useMemo(() => signalsQuery.data?.cron_health ?? {}, [signalsQuery.data]);
   const portfolio  = useMemo(() => overviewQuery.data?.portfolio ?? {}, [overviewQuery.data]);
   const metrics    = useMemo(() => overviewQuery.data?.metrics ?? {}, [overviewQuery.data]);
-  const winRate    = metrics?.win_rate ?? null; // used as proxy for per-signal model win rate
+  const winRate    = metrics?.win_rate ?? null;
 
-  // Rank helper: A-grade first, then confidence desc.
   const rankByGrade = (list) => [...list].sort((a, b) => {
     const ga = (a.grade || 'B')[0]; const gb = (b.grade || 'B')[0];
     if (ga !== gb) return ga < gb ? -1 : 1;
     return (b.confidence ?? b.ml_score ?? 0) - (a.confidence ?? a.ml_score ?? 0);
   });
 
-  // Top 3 fresh signals; if today's scan produced none, fall back to the
-  // brewing watchlist so the section is never an empty placeholder.
-  const top3 = useMemo(() => (signals.length ? rankByGrade(signals).slice(0, 3) : []), [signals]);
-  const brewing3 = useMemo(
-    () => (!signals.length && watchlist.length ? rankByGrade(watchlist).slice(0, 3) : []),
+  const top4 = useMemo(() => (signals.length ? rankByGrade(signals).slice(0, 4) : []), [signals]);
+  const brewing4 = useMemo(
+    () => (!signals.length && watchlist.length ? rankByGrade(watchlist).slice(0, 4) : []),
     [signals, watchlist]
   );
-  const showingBrewing = top3.length === 0 && brewing3.length > 0;
-  const displayCards = top3.length ? top3 : brewing3;
-
-  // Sector breadth: prefer today's signals, fall back to the watchlist so
-  // a zero-signal day (e.g. choppy regime) still populates the panel.
+  const showingBrewing = top4.length === 0 && brewing4.length > 0;
+  const displayCards = top4.length ? top4 : brewing4;
   const breadthSource = signals.length ? signals : watchlist;
-
   const indexData = indexQuery.data ?? {};
   const sigLoading = signalsQuery.isLoading || watchlistQuery.isLoading;
-
-  // Held slots for the regime card (Kite holdings when connected, else null).
   const heldCount = kite?.connected ? (holdingsQuery.data ?? []).length : null;
-
-  // Connect Kite handler — delegates to existing KiteContext
-  const handleConnectKite = () => {
-    if (kite?.connect) kite.connect();
-  };
-
-  // Build a timestamp label for the regime strip scan notice
-  const scanNote = cronHealth?.last_run_today
-    ? 'Last scan: 4:15 PM IST'
-    : 'Next scan: 4:15 PM IST';
+  const scanNote = cronHealth?.last_run_today ? 'Last scan: 4:15 PM IST' : 'Next scan: 4:15 PM IST';
 
   return (
-    <div className="dv3-page density-regular">
-      {/* ── Equity net-worth bar ─────────────────────────────────── */}
-      <EquityNetWorth
-        margins={marginsQuery.data}
-        portfolio={portfolio}
-        holdings={holdingsQuery.data ?? []}
-        kiteConnected={!!kite?.connected}
-      />
+    <div className="dv3-proto" style={{ maxWidth: 1760, margin: '0 auto', padding: '18px 22px 60px' }}>
+      <div className="dash-grid">
+        {/* CENTER */}
+        <div className="stack">
+          <EquityNetWorth
+            margins={marginsQuery.data}
+            portfolio={portfolio}
+            holdings={holdingsQuery.data ?? []}
+            kiteConnected={!!kite?.connected}
+          />
 
-      {/* ── Main grid: content column + full-height right rail (prototype) ── */}
-      <div className="dv3-main-grid">
-        <div className="dv3-main-col">
-          {/* RegimeStrip */}
-          <RegimeStrip regime={regime} indexData={indexData} heldCount={heldCount} />
+          <RegimeCard regime={regime} indexData={indexData} heldCount={heldCount} />
 
-          {/* Scan-status ribbon */}
-          <div className="dv3-scan-status">
-            <span className="dv3-live-dot" />
-            <div className="dv3-scan-txt">
-              <div className="dv3-scan-head">
-                {cronHealth?.last_run_today ? "Today's scan ran on schedule" : 'Next scan at 4:15 PM IST'}
-                {signals.length ? ` · ${signals.length} signals` : ''}
-              </div>
-              <div className="dv3-scan-sub">
-                Cron {cronHealth?.last_run_today ? 'healthy' : 'pending'} · runs 4:15 PM IST on trading days — the calls post themselves, no manual scan.
+          <ScanStatus cronHealth={cronHealth} signalsCount={signals.length} />
+
+          <div className="card panel">
+            <div className="panel-head">
+              <h3>{showingBrewing ? 'Brewing watchlist' : 'Research calls'}</h3>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <div className="seg"><button className="on">Bhanushali</button></div>
+                <Link className="chip-drop" to="/premove?filter=today">Fresh today ▾</Link>
               </div>
             </div>
-            <Link to="/premove" className="dv3-scan-link">See all calls →</Link>
-          </div>
-
-          {/* Research calls */}
-          <section className="dv3-row">
-            <div className="dv3-row-head">
-              <div>
-                <div className="dv3-row-eyebrow">
-                  {showingBrewing ? 'BREWING · BELOW ENTRY GATE' : 'TODAY · 16:15 IST SCAN'}
-                </div>
-                <h2 className="dv3-row-title">
-                  {showingBrewing ? 'Brewing watchlist' : 'Research calls'}
-                </h2>
-                <div className="dv3-row-sub">
-                  {sigLoading
-                    ? 'Loading…'
-                    : signals.length > 0
-                      ? `${signals.length} of 441 stocks scored above conviction threshold · ${scanNote}`
-                      : showingBrewing
-                        ? `No fresh buys today — ${watchlist.length} names brewing below the entry gate · ${scanNote}`
-                        : `No signals from today's scan · ${scanNote}`}
-                </div>
+            {!sigLoading && (
+              <div className="micro" style={{ marginBottom: 10, textTransform: 'none', letterSpacing: 0, fontWeight: 500, color: 'var(--text-3)' }}>
+                {signals.length > 0
+                  ? `${signals.length} of 441 stocks scored above conviction threshold · ${scanNote}`
+                  : showingBrewing
+                    ? `No fresh buys today — ${watchlist.length} names brewing below the entry gate · ${scanNote}`
+                    : `No signals from today's scan · ${scanNote}`}
               </div>
-              <div className="dv3-row-controls">
-                <span className="chip c-warn">Bhanushali</span>
-                <Link to="/premove?filter=today" className="dv3-freshpill">Fresh today <Icon.Arrow width="11" height="11" /></Link>
-              </div>
-            </div>
-
-            <div className="dv3-trending-grid">
+            )}
+            <div className="callgrid">
               {sigLoading ? (
-                <TrendingCardSkeleton />
+                <SigCardSkeleton />
               ) : displayCards.length === 0 ? (
-                <div className="dv3-no-signals">
+                <div style={{ gridColumn: '1 / -1', padding: '24px 8px', color: 'var(--text-3)', fontSize: 13 }}>
                   No high-conviction signals from today's scan. The model runs at 4:15 PM IST on trading days.
                 </div>
               ) : (
-                displayCards.map((sig) => (
-                  <TrendingCard
-                    key={sig.ticker || sig.sym || sig.symbol}
-                    sig={sig}
-                    modelWinRate={winRate}
-                    brewing={showingBrewing}
-                  />
+                displayCards.map((sig, i) => (
+                  <SigCard key={sig.ticker || sig.sym || sig.symbol} sig={sig} modelWinRate={winRate} brewing={showingBrewing} idx={i} />
                 ))
               )}
-              <BacktestCTA />
             </div>
-
-            {!kite?.connected && <KiteStrip onConnect={handleConnectKite} />}
-          </section>
-
-          {/* Holdings table */}
-          <StocksTable
-            holdings={holdingsQuery.data ?? []}
-            quoteData={quotesQuery.data ?? {}}
-            isLoading={holdingsQuery.isLoading}
-          />
-
-          {/* Market indices strip */}
-          <MarketIndices indexData={indexData} />
-
-          {/* Action tiles */}
-          <ActionTiles />
-
-          {/* Model health · sector breadth · balance — moved out of the right
-              rail (which now mirrors the prototype's Pick/Tools/Commentary
-              trio) into a main-column grid so nothing useful is lost. */}
-          <div className="dv3-extra-grid">
-            <ModelHealth cronHealth={cronHealth} metrics={metrics} portfolio={portfolio} />
-            <SectorBreadth signals={breadthSource} />
-            <BalanceCard
-              margins={marginsQuery.data}
-              portfolio={portfolio}
-              holdings={holdingsQuery.data ?? []}
-              kiteConnected={!!kite?.connected}
-            />
           </div>
+
+          <HoldingsPanel holdings={holdingsQuery.data ?? []} quoteData={quotesQuery.data ?? {}} isLoading={holdingsQuery.isLoading} />
+
+          <GlobalIndices indexData={indexData} />
+
+          <ActionTiles />
         </div>
 
-        {/* Right rail — Pick of the week, tools, commentary (prototype trio) */}
-        <aside className="dv3-right-rail">
-          <PickOfWeek sig={displayCards[0]} />
-          <ToolsGrid />
-          <MorningCommentary regime={regime} signalsCount={signals.length} />
-        </aside>
+        {/* RIGHT RAIL */}
+        <div className="rrail">
+          <PickCard sig={displayCards[0]} />
+          <ToolsCard />
+          <CommentaryCard regime={regime} signalsCount={signals.length} generatedAt={signalsQuery.data?.generated_at} />
+          <ModelHealthCard cronHealth={cronHealth} metrics={metrics} portfolio={portfolio} />
+          <SectorCard signals={breadthSource} />
+        </div>
       </div>
 
-      {/* ── Footer ──────────────────────────────────────────────── */}
-      <footer className="dv3-foot">
-        <div className="dv3-disclaimer">{DISCLAIMER}</div>
-        <div className="dv3-foot-meta">
-          SEBI Research Analyst · Model-generated signals · NSE data delayed 15 min · v2026.06
-        </div>
-      </footer>
+      <div className="disc">{DISCLAIMER}<br />SEBI Research Analyst · Model-generated signals · NSE data delayed 15 min · v2026.07</div>
     </div>
   );
 }
