@@ -139,6 +139,25 @@
 }
 .ri-kv b { font-size: 13.5px; color: var(--text-1); }
 
+/* Position sizer card */
+.ri-sizer-sym { font-size: 14px; font-weight: 600; color: var(--text-1); margin-bottom: 10px; }
+.ri-sizer-entry { font-size: 12px; font-weight: 500; color: var(--text-3); }
+.ri-sizer-label { display: block; font-size: 11px; color: var(--text-3); margin-bottom: 5px; }
+.ri-sizer-input {
+  width: 100%; padding: 8px 10px; margin-bottom: 8px; border-radius: 8px;
+  background: var(--surface-2); border: 1px solid var(--edge-1); color: var(--text-1);
+  font-family: var(--font-sans); font-size: 13px;
+}
+.ri-sizer-input:focus { outline: none; border-color: rgba(79,140,255,0.5); }
+.ri-sizer-note { font-size: 11px; color: var(--text-3); line-height: 1.4; margin-top: 4px; }
+.ri-sizer-btn {
+  width: 100%; margin-top: 12px; padding: 9px 0; border-radius: 8px; border: none;
+  background: rgba(63,221,138,0.16); color: var(--bull); border: 1px solid rgba(63,221,138,0.3);
+  font-family: var(--font-sans); font-size: 12.5px; font-weight: 600; cursor: pointer;
+  transition: background 160ms;
+}
+.ri-sizer-btn:hover { background: rgba(63,221,138,0.26); }
+
 .ri-statrow { display: grid; grid-template-columns: 62px 1fr 26px; align-items: center; gap: 8px; padding: 5px 0; }
 .ri-stat-l { font-size: 12.5px; color: var(--text-2); }
 .ri-bar { height: 6px; border-radius: 999px; background: rgba(255,255,255,0.06); overflow: hidden; }

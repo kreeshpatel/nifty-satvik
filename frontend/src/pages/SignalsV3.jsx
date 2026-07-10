@@ -309,6 +309,50 @@ function StatBar({ label, value, total }) {
   );
 }
 
+// Compact sizer for the right rail — sizes today's top pick against a
+// user-entered capital amount, using the same fixed risk-per-trade budget
+// (RISK_BUDGET) the rest of the page's suggested-qty figures already use, so
+// this card's number always agrees with what a call's own card implies.
+function SizerCard({ pick, navigate }) {
+  const [cash, setCash] = useState('');
+  if (!pick) return null;
+
+  const entry = pick.entry ?? 0;
+  const stop = pick.stop ?? entry;
+  const perShareRisk = Math.max(1, entry - stop);
+  const cashNum = Number(cash) || 0;
+
+  const byRisk = Math.floor(RISK_BUDGET / perShareRisk);
+  const byCash = entry > 0 ? Math.floor(cashNum / entry) : 0;
+  const qty = cashNum > 0 ? Math.max(0, Math.min(byRisk, byCash)) : byRisk;
+  const cost = qty * entry;
+  const riskAmt = qty * perShareRisk;
+
+  return (
+    <div className="ri-card">
+      <div className="ri-card-h">POSITION SIZER</div>
+      <div className="ri-sizer-sym">{pick.sym} <span className="ri-sizer-entry tnum">@ {fmtNum(entry)}</span></div>
+      <label className="ri-sizer-label" htmlFor="ri-sizer-cash">Capital available</label>
+      <input
+        id="ri-sizer-cash"
+        className="ri-sizer-input"
+        type="number"
+        inputMode="decimal"
+        placeholder="e.g. 100000"
+        value={cash}
+        onChange={(e) => setCash(e.target.value)}
+      />
+      <div className="ri-kv"><span>Suggested qty</span><b className="tnum">{qty > 0 ? qty : '—'}</b></div>
+      <div className="ri-kv"><span>Cost</span><b className="tnum">{qty > 0 ? `₹${fmtNum(cost)}` : '—'}</b></div>
+      <div className="ri-kv"><span>Risk at stop</span><b className="num-bear tnum">{qty > 0 ? `₹${fmtNum(riskAmt)}` : '—'}</b></div>
+      <div className="ri-sizer-note">Capped at ₹{RISK_BUDGET.toLocaleString('en-IN')} risk/trade{cashNum > 0 ? ' or your capital, whichever is lower.' : '.'}</div>
+      <button type="button" className="ri-sizer-btn" onClick={() => navigate(`/stock/${encodeURIComponent(pick.sym)}?action=buy`)}>
+        Buy {pick.sym} →
+      </button>
+    </div>
+  );
+}
+
 function SignalStatsCard({ buyPool }) {
   const fresh = buyPool.filter((s) => s.isFreshToday).length;
   const gradeA = buyPool.filter((s) => (s.grade || 'B')[0].toUpperCase() === 'A').length;
@@ -561,6 +605,7 @@ export default function SignalsV3() {
         </div>
 
         <aside className="ri-rail">
+          <SizerCard pick={topPick} navigate={navigate} />
           {model === 'bhanushali' && <ReviewCard card={reviewScorecard} />}
           <CommentaryCard regime={regime} model={model} freshCount={freshCount} />
           <SignalStatsCard buyPool={buyPool} />
