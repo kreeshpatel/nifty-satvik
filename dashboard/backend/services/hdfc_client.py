@@ -124,10 +124,17 @@ def fetch_access_token(request_token: str) -> str:
     api_key = _require_key()
     if not HDFC_API_SECRET:
         raise HdfcApiError("HDFC_API_SECRET is not configured on this service.")
+    # The documented sample sends apiSecret only in the JSON body — and that
+    # sample's own JSON has a trailing comma (invalid JSON), a sign this one
+    # endpoint's docs are unreliable. Every OTHER authenticated call in this
+    # API (e.g. fetch-ltp) takes its credential as a raw `Authorization`
+    # header, not just a body field, so send api_secret both ways here too —
+    # a 401 "authorization not provided" means the header was the missing part.
     data = _call(
         "POST", "/access-token",
         params={"api_key": api_key, "request_token": request_token},
         json_body={"apiSecret": HDFC_API_SECRET},
+        access_token=HDFC_API_SECRET,
     )
     token = data.get("accessToken")
     if not token:
