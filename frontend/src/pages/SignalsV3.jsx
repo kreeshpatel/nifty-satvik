@@ -21,6 +21,7 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { KiteContext } from '@/App';
+import { AuthContext } from '@/context/AuthContext';
 import { useSignals } from '@/hooks/queries/useSignals';
 import { useWatchlist } from '@/hooks/queries/useWatchlist';
 import { useKiteHoldings } from '@/hooks/queries/useKiteState';
@@ -444,6 +445,8 @@ const FILTERS = [
 
 export default function SignalsV3() {
   const kite = useContext(KiteContext);
+  const { user } = useContext(AuthContext);
+  const isAdmin = !!user?.is_admin;
   const navigate = useNavigate();
 
   // MOMENTUM SUSPENDED 2026-07-06 (owner) — cron paused, tab hidden. Flip to
@@ -606,7 +609,7 @@ export default function SignalsV3() {
 
         <aside className="ri-rail">
           <SizerCard pick={topPick} navigate={navigate} />
-          {model === 'bhanushali' && <ReviewCard card={reviewScorecard} />}
+          {isAdmin && model === 'bhanushali' && <ReviewCard card={reviewScorecard} />}
           <CommentaryCard regime={regime} model={model} freshCount={freshCount} />
           <SignalStatsCard buyPool={buyPool} />
           <HowCallsMadeCard />

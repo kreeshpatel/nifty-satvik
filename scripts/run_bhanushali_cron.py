@@ -154,7 +154,16 @@ def build_envelopes(P, out, ledger, generated_at, mem=None):
             "close": round(cur, 2), "signal_date": bought, "bought_date": bought,
             "qty": round(float(p["sh"]), 2), "fill_price": round(entry, 2),
             "nq_position_id": f"{t}__{bought}",              # -> frontend 'holding' action
-            "hold_days": HOLD_DAYS_DISPLAY, "grade": "A" if p["half_done"] else "B",
+            # No `grade` here on purpose: "A"/"B" means "top-5 CRS rank at entry"
+            # on FRESH cards (above). A held position's original entry grade
+            # isn't persisted in `p`, so setting grade="A"/"B" off `half_done`
+            # (whether the half-target scale-out has fired) silently redefines
+            # the same badge to mean something else — a held name looks like
+            # its conviction "downgraded" from A to B as it merely sits at open
+            # risk, with no connection to the actual entry call. Leave it unset;
+            # the frontend's `grade || 'B'` fallback renders a neutral Medium
+            # conviction tag instead of a fabricated flip-flopping one.
+            "hold_days": HOLD_DAYS_DISPLAY,
             "tier": "signal", "status": "ACTIVE",
         }
         if p["pending"] is not None:                          # Friday close said EXIT -> sell Monday open

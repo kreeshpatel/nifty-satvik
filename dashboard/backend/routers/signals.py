@@ -467,6 +467,23 @@ def get_signals(
         # raw signals so the page still renders.
         logger.warning("signals augmentation failed: %s", exc)
 
+    # ── Paper-book visibility gate ──────────────────────────────────────
+    # `status == "ACTIVE"` records (above) are the model's OWN simulated
+    # paper-book positions, not a claim about what any given user actually
+    # owns. A non-admin viewer should only see one of these if it's a real
+    # position of theirs (user_position joined above from Kite/nq_orders) —
+    # otherwise the research feed silently doubled as a leak of internal
+    # paper-trading bookkeeping ("Hold" cards, days-held, etc.) that has
+    # nothing to do with the viewer's own capital. Admin keeps full
+    # visibility for monitoring the book. FRESH (buyable-now) signals are
+    # unaffected — those are the actual research output.
+    if not getattr(user, "is_admin", False):
+        signals = [
+            s for s in signals
+            if s.get("status") != "ACTIVE" or s.get("user_position") is not None
+        ]
+        review_scorecard = None
+
     return {
         "signals": signals,
         "regime": regime_info,

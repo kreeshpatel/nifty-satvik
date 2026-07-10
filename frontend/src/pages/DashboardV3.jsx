@@ -25,7 +25,7 @@ import { KiteContext } from '@/App';
 import { useSignals } from '@/hooks/queries/useSignals';
 import { useWatchlist } from '@/hooks/queries/useWatchlist';
 import { useOverview } from '@/hooks/queries/useOverview';
-import { useKiteHoldings, useKiteMargins } from '@/hooks/queries/useKiteState';
+import { useKiteHoldings } from '@/hooks/queries/useKiteState';
 import { useIndexSparklines } from '@/hooks/queries/useIndexSparklines';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import { DISCLAIMER } from '@/lib/signalCopy';
@@ -113,34 +113,70 @@ function SigSpark({ data, tone = 'bull', gradId }) {
 // ─────────────────────────────────────────────────────────────────────
 // EquityNetWorth — prototype .card.networth
 // ─────────────────────────────────────────────────────────────────────
-function EquityNetWorth({ margins, portfolio, holdings, kiteConnected }) {
+function EquityNetWorth({ holdings, kiteConnected }) {
   const kite = useMemo(() => {
     if (!kiteConnected) return null;
     const rows = holdings ?? [];
-    let mktValue = 0, cost = 0;
+    let mktValue = 0, cost = 0, dayPnl = 0;
     for (const h of rows) {
       const qty = h.quantity ?? 0, ltp = h.last_price ?? 0, avg = h.average_price ?? 0;
       if (qty > 0 && ltp > 0) mktValue += qty * ltp;
       if (qty > 0 && avg > 0) cost += qty * avg;
+      if (qty > 0 && h.day_change != null) dayPnl += Number(h.day_change) * qty;
     }
-    const pnl = cost > 0 ? mktValue - cost : null;
-    return { current: mktValue || null, invested: cost || null, pnl, pnlPct: cost > 0 ? (pnl / cost) * 100 : null };
+    return {
+      current: mktValue, invested: cost, pnl: mktValue - cost,
+      pnlPct: cost > 0 ? ((mktValue - cost) / cost) * 100 : null,
+      dayPnl, dayPct: mktValue > dayPnl ? (dayPnl / (mktValue - dayPnl)) * 100 : null,
+    };
   }, [kiteConnected, holdings]);
 
-  // Prefer Kite's live valuation; fall back to the paper/overview portfolio
-  // whenever a Kite field is missing (e.g. connected but holdings have no
-  // live prices yet) — otherwise the card shows "—" despite real paper data.
-  const current  = (kite && kite.current  != null) ? kite.current  : (portfolio?.total_value ?? null);
-  const invested = (kite && kite.invested != null) ? kite.invested : (portfolio?.invested ?? null);
-  const pnl      = (kite && kite.pnl != null) ? kite.pnl
-    : (portfolio?.total_pnl ?? ((current != null && invested != null) ? current - invested : null));
-  const pnlPct   = (kite && kite.pnlPct != null) ? kite.pnlPct : (portfolio?.total_return_pct ?? null);
-  const dayPnl   = portfolio?.day_pnl ?? null;
-  const dayPct   = portfolio?.day_return_pct ?? null;
+  // This card is "MY equity net-worth" — it must only ever show the user's
+  // real Kite portfolio, never the model's paper-book simulation. There is
+  // deliberately no fallback to a `portfolio` prop here (there used to be
+  // one, to results/paper_portfolio*.json's totals) — a disconnected or
+  // still-loading Kite session showed a fake ₹9.75L "net worth" that had
+  // nothing to do with the user's actual capital. Show an honest empty
+  // state instead until real holdings data is available.
+  const kiteCtx = useContext(KiteContext);
+  const hasRealData = !!kite && (kite.current > 0 || kite.invested > 0);
+  const current  = hasRealData ? kite.current  : null;
+  const invested = hasRealData ? kite.invested : null;
+  const pnl      = hasRealData ? kite.pnl      : null;
+  const pnlPct   = hasRealData ? kite.pnlPct   : null;
+  const dayPnl   = hasRealData ? kite.dayPnl   : null;
+  const dayPct   = hasRealData ? kite.dayPct   : null;
 
   const [hidden, setHidden] = useState(false);
   const dateLabel = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
   const show = (v) => (hidden ? '••••••' : v);
+
+  if (!hasRealData) {
+    return (
+      <div className="card networth">
+        <div className="nw-top">
+          <div className="nw-title">My equity net-worth</div>
+        </div>
+        <div style={{ padding: '10px 2px 4px', fontSize: 13, color: 'var(--text-3)' }}>
+          {kiteConnected
+            ? 'Waiting on live prices from Kite for your holdings.'
+            : (
+              <>
+                Connect Kite to see your real net-worth here.{' '}
+                <button
+                  type="button"
+                  className="link"
+                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', font: 'inherit' }}
+                  onClick={() => kiteCtx?.connect?.()}
+                >
+                  Connect →
+                </button>
+              </>
+            )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="card networth">
@@ -606,7 +642,6 @@ export default function DashboardV3() {
   const watchlistQuery = useWatchlist({ model: 'bhanushali' });
   const overviewQuery  = useOverview();
   const holdingsQuery  = useKiteHoldings({ enabled: !!kite?.connected });
-  const marginsQuery   = useKiteMargins({ enabled: !!kite?.connected });
   const indexQuery     = useIndexSparklines();
 
   const heldSymbols = useMemo(() => {
@@ -648,8 +683,6 @@ export default function DashboardV3() {
         {/* CENTER */}
         <div className="stack">
           <EquityNetWorth
-            margins={marginsQuery.data}
-            portfolio={portfolio}
             holdings={holdingsQuery.data ?? []}
             kiteConnected={!!kite?.connected}
           />
