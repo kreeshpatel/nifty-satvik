@@ -548,6 +548,10 @@ const SECTOR_LAYOUT = [
   { top: 138, left: 216, size: 40 },
 ];
 const BUBBLE_TONES = ['bub-bull', 'bub-info', 'bub-violet', 'bub-warn', 'bub-info'];
+// config.SECTOR_MAP uses underscore compounds (e.g. "Finance_NBFC") for the
+// data layer; render as "Finance/NBFC" so the bubble label reads naturally.
+const formatSectorLabel = (name) => name.replace(/_/g, '/');
+
 function SectorCard({ signals }) {
   const derived = useMemo(() => {
     if (!signals?.length) return [];
@@ -565,8 +569,8 @@ function SectorCard({ signals }) {
       ) : (
         <div className="bubble-stage">
           {derived.map((s) => (
-            <div key={s.name} className={`bubble ${s.tone}`} style={{ width: s.size, height: s.size, left: s.left, top: s.top }} title={`${s.name} · ${s.count}`}>
-              <div><div className="n">{s.count}</div><div className="l">{s.name}</div></div>
+            <div key={s.name} className={`bubble ${s.tone}`} style={{ width: s.size, height: s.size, left: s.left, top: s.top }} title={`${formatSectorLabel(s.name)} · ${s.count}`}>
+              <div><div className="n">{s.count}</div><div className="l">{formatSectorLabel(s.name)}</div></div>
             </div>
           ))}
         </div>

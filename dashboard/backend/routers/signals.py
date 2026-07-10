@@ -17,6 +17,7 @@ from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
 
 from auth import get_current_user
+from config import get_sector
 from database import User, get_db
 
 limiter = Limiter(key_func=get_remote_address)
@@ -184,6 +185,24 @@ def _read_json(path: Path, default=None):
     return default
 
 
+def _stamp_sector(signals: list) -> list:
+    """Attach `sector` (config.SECTOR_MAP, 607 NSE tickers) to each signal
+    that doesn't already carry one. Neither the momentum nor bhanushali cron
+    writes a `sector` field into signals_today*.json, so without this every
+    signal fell into the frontend's `s.sector || 'Other'` fallback — the
+    Dashboard's Sector Breadth card always showed one giant 'Other' bubble
+    instead of a real sector split."""
+    out = []
+    for s in signals:
+        if s.get("sector"):
+            out.append(s)
+            continue
+        copy = dict(s)
+        copy["sector"] = get_sector(s.get("ticker", ""))
+        out.append(copy)
+    return out
+
+
 def _overlay_weekly_monitor(signals: list, monitor: dict) -> tuple[list, dict]:
     """Overlay the daily observational monitor onto the frozen weekly cards.
 
@@ -317,6 +336,8 @@ def get_signals(
         generated_at = raw.get("generated_at")
         sizing_capital = raw.get("sizing_capital")
         sizing_risk_pct = raw.get("sizing_risk_pct")
+
+    signals = _stamp_sector(signals)
 
     # ── Daily observational overlay (weekly book only) ─────────────────
     # The weekly engine recomputes only Saturday, so `current_price` on each
@@ -580,7 +601,7 @@ def get_watchlist(
     # how the entry-tier signals are rendered (TierSection knows about
     # actionability strings already).
     enriched = []
-    for s in signals:
+    for s in _stamp_sector(signals):
         copy = dict(s)
         copy["actionability"] = "WATCHLIST"
         enriched.append(copy)
