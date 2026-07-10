@@ -29,6 +29,7 @@ import { useKiteHoldings } from '@/hooks/queries/useKiteState';
 import { useIndexSparklines } from '@/hooks/queries/useIndexSparklines';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import { DISCLAIMER } from '@/lib/signalCopy';
+import TradeCardModal from '@/components/shared/TradeCardModal';
 import '@/styles/dashboard-proto.css';
 
 // ─────────────────────────────────────────────────────────────────────
@@ -278,7 +279,7 @@ function RegimeCard({ regime, indexData, heldCount }) {
 // ─────────────────────────────────────────────────────────────────────
 // Research-call card — prototype .sig
 // ─────────────────────────────────────────────────────────────────────
-function SigCard({ sig, modelWinRate, brewing, idx }) {
+function SigCard({ sig, modelWinRate, brewing, idx, onOpen }) {
   const sym    = sig.ticker || sig.sym || sig.symbol || '??';
   const name   = sig.name || sym;
   const sector = sig.sector || '—';
@@ -299,7 +300,14 @@ function SigCard({ sig, modelWinRate, brewing, idx }) {
   const tone = brewing ? 'warn' : 'bull';
 
   return (
-    <div className={`sig${!brewing ? ' up' : ''}`}>
+    <div
+      className={`sig${!brewing ? ' up' : ''}`}
+      onClick={() => onOpen?.(sig)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter') onOpen?.(sig); }}
+      style={{ cursor: 'pointer' }}
+    >
       <span className={`sig-tag pill ${brewing ? 'brew' : 'fresh'}`}>{brewing ? '● BREW' : '● FRESH'}</span>
       <div className="sig-head">
         <ProtoLogo sym={sym} />
@@ -646,6 +654,7 @@ function ScanStatus({ cronHealth, signalsCount }) {
 // ─────────────────────────────────────────────────────────────────────
 export default function DashboardV3() {
   const kite = useContext(KiteContext);
+  const [tradeCard, setTradeCard] = useState(null);
   // The live book is Bhanushali (weekly-swing) — momentum is suspended
   // (2026-07-06) — so the dashboard queries 'bhanushali', same as Research.
   const signalsQuery   = useSignals({ model: 'bhanushali' });
@@ -727,7 +736,7 @@ export default function DashboardV3() {
                 </div>
               ) : (
                 displayCards.map((sig, i) => (
-                  <SigCard key={sig.ticker || sig.sym || sig.symbol} sig={sig} modelWinRate={winRate} brewing={showingBrewing} idx={i} />
+                  <SigCard key={sig.ticker || sig.sym || sig.symbol} sig={sig} modelWinRate={winRate} brewing={showingBrewing} idx={i} onOpen={setTradeCard} />
                 ))
               )}
             </div>
@@ -751,6 +760,8 @@ export default function DashboardV3() {
       </div>
 
       <div className="disc">{DISCLAIMER}<br />SEBI Research Analyst · Model-generated signals · NSE data delayed 15 min · v2026.07</div>
+
+      <TradeCardModal sig={tradeCard} open={!!tradeCard} onOpenChange={(o) => !o && setTradeCard(null)} />
     </div>
   );
 }

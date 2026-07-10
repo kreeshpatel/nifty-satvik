@@ -10,6 +10,7 @@ import {
   useUserWatchlist, useAddToWatchlist, useRemoveFromWatchlist, useReorderWatchlist,
 } from '@/hooks/queries/useUserWatchlist';
 import StockLogo from '@/components/shared/StockLogo';
+import TradeCardModal from '@/components/shared/TradeCardModal';
 import '@/styles/watchlist-rail.css';
 
 /**
@@ -135,6 +136,7 @@ export default function WatchlistRail() {
   // Rows for the Signals + Held views (read-only lists, wired to real data).
   const signalRows = useMemo(() => (signalsQuery.data?.signals ?? [])
     .map((s) => ({
+      ...s,
       sym: (s.ticker || s.symbol || s.sym || '').toUpperCase(),
       reco: s.entry ?? s.reco_price ?? null,
       grade: (s.grade || 'B')[0].toUpperCase(),
@@ -152,6 +154,7 @@ export default function WatchlistRail() {
 
   // ── inline depth (one row at a time) ────────────────────────────
   const [expanded, setExpanded] = useState(null);
+  const [tradeCard, setTradeCard] = useState(null);
 
   // ── drag-to-reorder (native HTML5 DnD; no library) ──────────────
   const reorder = useReorderWatchlist(activeList);
@@ -212,6 +215,7 @@ export default function WatchlistRail() {
   }
 
   return (
+    <>
     <aside className="wlr" aria-label="Watchlist">
       <div className="wlr-head">
         <div className="wlr-viewtabs" role="tablist" aria-label="Rail views">
@@ -238,7 +242,7 @@ export default function WatchlistRail() {
           ) : signalRows.length === 0 ? (
             <div className="wlr-empty">No signals right now.<span>The scan posts fresh calls at 4:15 PM IST.</span></div>
           ) : signalRows.map((r) => (
-            <div className="wlr-row" key={r.sym} onClick={() => openStock(r.sym)}>
+            <div className="wlr-row" key={r.sym} onClick={() => setTradeCard(r)}>
               <StockLogo sym={r.sym} size={27} mono />
               <div className="wlr-l">
                 <div className="wlr-s">{r.sym}<span className="wlr-flag" style={{ background: 'var(--info)' }} /></div>
@@ -405,5 +409,7 @@ export default function WatchlistRail() {
       </div>
       </>)}
     </aside>
+    <TradeCardModal sig={tradeCard} open={!!tradeCard} onOpenChange={(o) => !o && setTradeCard(null)} />
+    </>
   );
 }

@@ -31,6 +31,7 @@ import { GlassTabs } from '@/components/shared/GlassTabs';
 import { CONVICTION, DISCLAIMER, STATES } from '@/lib/signalCopy';
 import { EmptyState } from '@/components/shared/EmptyState';
 import PickOfWeek from '@/components/shared/PickOfWeek';
+import TradeCardModal from '@/components/shared/TradeCardModal';
 import '@/styles/signals-v3.css';
 import '@/styles/research-insights.css';
 
@@ -394,8 +395,8 @@ function CallRow({ s, onOpen, onAction }) {
   const dayChg = s._dayChangePct;
   const mon = monitorChip(s);
   return (
-    <div className="ri-row" onClick={() => onOpen(s.sym)} role="button" tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter') onOpen(s.sym); }}>
+    <div className="ri-row" onClick={() => onOpen(s)} role="button" tabIndex={0}
+      onKeyDown={(e) => { if (e.key === 'Enter') onOpen(s); }}>
       <div className="ri-scrip">
         <Logo sym={s.sym} size={34} />
         <div className="ri-scrip-l">
@@ -454,6 +455,7 @@ export default function SignalsV3() {
   const MOMENTUM_SUSPENDED = true;
   const [model, setModel] = useState(MOMENTUM_SUSPENDED ? 'bhanushali' : 'momentum');
   const [filter, setFilter] = useState('all');
+  const [tradeCard, setTradeCard] = useState(null);
 
   const signalsQuery    = useSignals({ model });
   const watchlistQuery  = useWatchlist({ model });
@@ -524,7 +526,6 @@ export default function SignalsV3() {
 
   const freshCount = counts.today ?? 0;
 
-  const openStock = (sym) => navigate(`/stock/${encodeURIComponent(sym)}`);
   const doAction  = (sym, suffix) => navigate(`/stock/${encodeURIComponent(sym)}${suffix}`);
 
   if (signalsQuery.error) {
@@ -602,7 +603,7 @@ export default function SignalsV3() {
                 {filter === 'all' ? STATES.empty : 'No calls match this filter right now.'}
               </div>
             ) : (
-              rows.map((s) => <CallRow key={s.sym} s={s} onOpen={openStock} onAction={doAction} />)
+              rows.map((s) => <CallRow key={s.sym} s={s} onOpen={setTradeCard} onAction={doAction} />)
             )}
           </div>
         </div>
@@ -621,6 +622,8 @@ export default function SignalsV3() {
         <div className="ri-disclaimer">{DISCLAIMER}</div>
         <div className="ri-foot-meta">SEBI Research Analyst · Model-generated signals · Research output only · NSE data delayed 15 min · v2026.07</div>
       </footer>
+
+      <TradeCardModal sig={tradeCard} open={!!tradeCard} onOpenChange={(o) => !o && setTradeCard(null)} />
     </div>
   );
 }
