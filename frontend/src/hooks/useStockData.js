@@ -41,10 +41,12 @@ export function useStockData(symbol) {
   const [errorKind, setErrorKind] = useState(null);
   const [tick, setTick] = useState(null);
   // warmingUp flips true if loading lingers past 2s — surfaced in the UI as
-  // "Backend warming up…" banner so users know we're alive during Render
-  // free-tier cold starts (which take 15-30s). Cleared as soon as price or
-  // candles land. Independent of loading so we don't show the banner on
-  // every fast load.
+  // a "fetching live data" banner so users know we're alive during a slow
+  // first load (a cold 24h instrument-master cache, an uncached historical
+  // candle fetch, etc. — see routers/kite.py). NOT a Render-style cold
+  // start: the backend has run on Fly.io (always-on, min_machines_running=1)
+  // since 2026-06-25 and never sleeps. Cleared as soon as price or candles
+  // land. Independent of loading so we don't show the banner on every fast load.
   const [warmingUp, setWarmingUp] = useState(false);
 
   // Resolve symbol -> token + info

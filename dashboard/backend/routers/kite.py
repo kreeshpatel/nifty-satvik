@@ -568,19 +568,9 @@ async def get_order_trades(
 
 # ── Instruments ──────────────────────────────────────
 
-@router.get("/instruments")
-async def get_instruments(
-    exchange: str = "NSE",
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Get instrument list (cached for 24 hours). Uses owner's Kite session."""
-    now = time.time()
-
-    if _instruments_cache["data"] and (now - _instruments_cache["fetched_at"]) < INSTRUMENTS_CACHE_TTL:
-        return _instruments_cache["data"]
-
-    token = get_owner_kite_token(db)
+def _fetch_and_parse_instruments(exchange: str, token: str) -> list[dict]:
+    """Blocking: downloads Kite's full instrument CSV for an exchange (tens of
+    thousands of rows) and parses it. Runs in a worker thread — see caller."""
     resp = requests.get(
         f"{KITE_API_BASE}/instruments/{exchange}",
         headers={"Authorization": f"token {KITE_API_KEY}:{token}"},
@@ -610,6 +600,29 @@ async def get_instruments(
                 "lot_size": int(inst.get("lot_size", 1)),
                 "tick_size": float(inst.get("tick_size", 0.05)),
             })
+    return instruments
+
+
+@router.get("/instruments")
+async def get_instruments(
+    exchange: str = "NSE",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Get instrument list (cached for 24 hours). Uses owner's Kite session."""
+    now = time.time()
+
+    if _instruments_cache["data"] and (now - _instruments_cache["fetched_at"]) < INSTRUMENTS_CACHE_TTL:
+        return _instruments_cache["data"]
+
+    token = get_owner_kite_token(db)
+    # This was a raw blocking `requests.get` (timeout=30!) plus a manual
+    # row-by-row parse of tens of thousands of instrument rows, run directly
+    # on the event loop with no cache yet — the single worst offender for
+    # "backend warming up" delays (a cold/expired instrument cache stalled
+    # the ENTIRE backend, for every user, for however long that fetch+parse
+    # took). Offload the whole thing to a worker thread.
+    instruments = await asyncio.to_thread(_fetch_and_parse_instruments, exchange, token)
 
     _instruments_cache["data"] = instruments
     _instruments_cache["fetched_at"] = now
@@ -736,7 +749,14 @@ async def get_historical(
             raise HTTPException(status_code=400, detail=f"Invalid {label} date. Use YYYY-MM-DD format.")
 
     token = get_owner_kite_token(db)
-    return kite_get(
+    # Same blocking-call-on-the-event-loop issue as /quote and /instruments —
+    # and this one has no cache at all, so EVERY chart load (any timeframe)
+    # pays the full blocking round trip. Offload to a worker thread; adding
+    # actual caching here is a separate, more involved change (needs a
+    # staleness policy per interval) — this fix only stops it from blocking
+    # every other concurrent request while it runs.
+    return await asyncio.to_thread(
+        kite_get,
         f"/instruments/historical/{instrument_token}/{interval}",
         token,
         params={"from": start, "to": end},
