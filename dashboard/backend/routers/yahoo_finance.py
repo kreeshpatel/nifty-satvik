@@ -6,6 +6,7 @@ Indian stocks use .NS suffix on Yahoo Finance (e.g., RELIANCE.NS).
 
 from fastapi import APIRouter, HTTPException
 from functools import lru_cache
+import asyncio
 import time
 import logging
 
@@ -438,32 +439,50 @@ async def get_quote_batch(symbols: str, exchange: str = "NSE"):
             yf_syms = [_yf_symbol(s, exchange) for s in missing]
             # yf.Tickers accepts space-separated string
             tickers = yf.Tickers(" ".join(yf_syms))
-            # fast_info is much cheaper than .info — only fetches recent price data
-            for sym, yf_sym in zip(missing, yf_syms):
+
+            # `.fast_info` still makes its own blocking HTTP call per ticker —
+            # yfinance has no true single-request bulk quote. Fetching them in
+            # a plain for-loop inside an `async def` endpoint ran N sequential
+            # round trips to Yahoo directly on the event loop, which (a) made
+            # an uncached watchlist take N x ~300-500ms to load and (b) BLOCKED
+            # THE ENTIRE BACKEND for every other user's request meanwhile,
+            # since nothing here was ever handed off to a thread. Push each
+            # fetch into a worker thread and run them concurrently instead —
+            # wall-clock drops to roughly the slowest single call, and the
+            # event loop stays free for other requests the whole time.
+            def _fetch_one(sym: str, yf_sym: str) -> dict | None:
                 try:
                     t = tickers.tickers.get(yf_sym)
                     if t is None:
-                        continue
+                        return None
                     fi = getattr(t, "fast_info", None) or {}
                     last_price = fi.get("last_price") if isinstance(fi, dict) else getattr(fi, "last_price", None)
                     prev_close = fi.get("previous_close") if isinstance(fi, dict) else getattr(fi, "previous_close", None)
                     if last_price is None:
-                        continue
+                        return None
                     change = None
                     change_pct = None
                     if prev_close:
                         change = round(last_price - prev_close, 2)
                         change_pct = round((change / prev_close) * 100, 2)
-                    quote = {
+                    return {
                         "last_price": round(last_price, 2),
                         "previous_close": round(prev_close, 2) if prev_close else None,
                         "change": change,
                         "change_pct": change_pct,
                     }
-                    result[sym] = quote
-                    _cache[f"quote-batch:{sym}:{exchange}"] = (now, quote)
                 except Exception as e:
                     logger.warning(f"Batch quote skip {sym}: {e}")
+                    return None
+
+            fetched = await asyncio.gather(
+                *(asyncio.to_thread(_fetch_one, sym, yf_sym) for sym, yf_sym in zip(missing, yf_syms))
+            )
+            for sym, quote in zip(missing, fetched):
+                if quote is None:
+                    continue
+                result[sym] = quote
+                _cache[f"quote-batch:{sym}:{exchange}"] = (now, quote)
         except Exception as e:
             logger.error(f"Batch quote error: {e}")
             # Partial response is still useful; don't raise
@@ -498,8 +517,13 @@ async def get_index_sparklines():
     try:
         import yfinance as yf
 
-        result = {}
-        for name, yf_sym in YAHOO_INDEX_MAP.items():
+        # Each index needs 2 blocking Yahoo calls (daily history + intraday
+        # 5m candles). Running all 6 indices x 2 calls sequentially in a
+        # for-loop inside an `async def` endpoint meant every 5-minute cache
+        # miss stalled for up to 12 sequential round trips AND blocked the
+        # event loop — every other request on the backend queued behind it.
+        # Fetch all 6 indices concurrently in worker threads instead.
+        def _fetch_index(name: str, yf_sym: str) -> dict | None:
             try:
                 ticker = yf.Ticker(yf_sym)
 
@@ -538,15 +562,22 @@ async def get_index_sparklines():
                             break
 
                 if sparkline or daily_ltp:
-                    result[name] = {
+                    return {
                         "sparkline": sparkline or [],
                         "ltp": daily_ltp or (sparkline[-1] if sparkline else None),
                         "prev_close": prev_close,
                         "change_pct": daily_change_pct,
                     }
+                return None
             except Exception as e:
                 logger.debug(f"Sparkline error for {name}: {e}")
-                continue
+                return None
+
+        names = list(YAHOO_INDEX_MAP.keys())
+        fetched = await asyncio.gather(
+            *(asyncio.to_thread(_fetch_index, name, yf_sym) for name, yf_sym in YAHOO_INDEX_MAP.items())
+        )
+        result = {name: data for name, data in zip(names, fetched) if data is not None}
 
         _set_cached(cache_key, result)
         return result
