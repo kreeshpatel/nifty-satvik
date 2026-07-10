@@ -283,7 +283,7 @@ function CommentaryCard({ regime, model, freshCount }) {
   const r = regimeInfo(regime);
   const vix = regime?.vix != null ? Number(regime.vix).toFixed(1) : '—';
   const breadth = regime?.breadth != null ? (regime.breadth > 0 ? `+${regime.breadth}` : `${regime.breadth}`) : '—';
-  const book = model === 'momentum' ? 'momentum' : 'bhanushali';
+  const book = model === 'momentum' ? 'momentum' : 'systematic';
   return (
     <div className="ri-card">
       <div className="ri-card-h">MARKET NOW</div>
@@ -545,8 +545,8 @@ export default function SignalsV3() {
         <div className="ri-head-r">
           <GlassTabs
             tabs={MOMENTUM_SUSPENDED
-              ? [{ key: 'bhanushali', label: 'Bhanushali' }]
-              : [{ key: 'momentum', label: 'Momentum' }, { key: 'bhanushali', label: 'Bhanushali' }]}
+              ? [{ key: 'bhanushali', label: 'Systematic' }]
+              : [{ key: 'momentum', label: 'Momentum' }, { key: 'bhanushali', label: 'Systematic' }]}
             active={model}
             onChange={setModel}
             size="md"

@@ -73,7 +73,7 @@ export default function TrackRecordV3() {
           className="t-display"
           style={{ margin: 0, color: 'var(--text-1)', fontSize: 'clamp(32px, 4.6vw, 48px)', lineHeight: 1.05 }}
         >
-          Bhanushali strategy, ten years back.
+          The systematic model, ten years back.
         </h1>
         <p className="t-prose" style={{ color: 'var(--text-2)', margin: '12px 0 0', maxWidth: '70ch' }}>
           The live weekly-swing model's own backtest — trend-ranked entries, staged exits, run across
@@ -111,7 +111,7 @@ export default function TrackRecordV3() {
           variant="warn"
           icon={<AlertCircle size={18} strokeWidth={1.75} />}
           title="Couldn't load backtest data"
-          body={error?.message || 'The /api/backtest/bhanushali endpoint failed. Try refreshing the page.'}
+          body={error?.message || 'The backtest data failed to load. Try refreshing the page.'}
           height={320}
         />
       ) : !data ? null : (

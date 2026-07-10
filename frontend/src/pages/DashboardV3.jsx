@@ -507,7 +507,7 @@ function CommentaryCard({ regime, signalsCount, generatedAt }) {
         {signalsCount > 0 ? `${signalsCount} names cleared the conviction gate this scan.` : 'No fresh buys cleared the gate this scan.'}
         {' '}No manual action — the book posts itself.
       </p>
-      <div className="date">◷ Bhanushali book</div>
+      <div className="date">◷ Systematic book</div>
     </div>
   );
 }
@@ -658,7 +658,7 @@ export default function DashboardV3() {
             <div className="panel-head">
               <h3>{showingBrewing ? 'Brewing watchlist' : 'Research calls'}</h3>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <div className="seg"><button className="on">Bhanushali</button></div>
+                <div className="seg"><button className="on">Systematic</button></div>
                 <Link className="chip-drop" to="/premove?filter=today">Fresh today ▾</Link>
               </div>
             </div>
