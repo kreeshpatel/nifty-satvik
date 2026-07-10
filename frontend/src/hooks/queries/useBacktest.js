@@ -21,10 +21,11 @@
  *   - historical: 1 day stale (regenerated monthly by cron)
  */
 import { useQuery } from '@tanstack/react-query';
-import { fetchBacktestLive, fetchBacktestHistorical } from '@/services/api';
+import { fetchBacktestLive, fetchBacktestHistorical, fetchBhanushaliBacktest } from '@/services/api';
 
 export const BACKTEST_LIVE_KEY = ['backtest', 'live'];
 export const BACKTEST_HISTORICAL_KEY = ['backtest', 'historical'];
+export const BACKTEST_BHANUSHALI_KEY = ['backtest', 'bhanushali'];
 
 export function useBacktestLive(options = {}) {
   return useQuery({
@@ -40,6 +41,16 @@ export function useBacktestHistorical(options = {}) {
   return useQuery({
     queryKey: BACKTEST_HISTORICAL_KEY,
     queryFn: fetchBacktestHistorical,
+    staleTime: 24 * 60 * 60 * 1000,
+    gcTime: 7 * 24 * 60 * 60 * 1000,
+    ...options,
+  });
+}
+
+export function useBhanushaliBacktest(options = {}) {
+  return useQuery({
+    queryKey: BACKTEST_BHANUSHALI_KEY,
+    queryFn: fetchBhanushaliBacktest,
     staleTime: 24 * 60 * 60 * 1000,
     gcTime: 7 * 24 * 60 * 60 * 1000,
     ...options,

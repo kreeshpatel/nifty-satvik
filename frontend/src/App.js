@@ -47,6 +47,7 @@ const AccountingV2    = React.lazy(() => import('@/pages/AccountingV2'));
 const OrdersV2        = React.lazy(() => import('@/pages/OrdersV2'));
 const FundsV2         = React.lazy(() => import('@/pages/FundsV2'));
 const TrackRecordV2   = React.lazy(() => import('@/pages/TrackRecordV2'));
+const TrackRecordV3   = React.lazy(() => import('@/pages/TrackRecordV3'));
 const SettingsV2      = React.lazy(() => import('@/pages/SettingsV2'));
 const PrimitivesShowcase = React.lazy(() => import('@/pages/_internal/Primitives'));
 const PreviewDashboard   = React.lazy(() => import('@/pages/_internal/PreviewDashboard'));
@@ -421,7 +422,7 @@ function AnimatedRoutes() {
           <Route path="/funds" element={<PageTransition><FundsV2 /></PageTransition>} />
           <Route path="/pnl" element={<PageTransition><AnalyticsV2 /></PageTransition>} />
           <Route path="/journal" element={<PageTransition><JournalV2 /></PageTransition>} />
-          <Route path="/track-record" element={<PageTransition><TrackRecordV2 /></PageTransition>} />
+          <Route path="/track-record" element={<PageTransition><TrackRecordV3 /></PageTransition>} />
           <Route path="/backtest" element={<PageTransition><BacktestV2 /></PageTransition>} />
           <Route path="/accounting" element={<PageTransition><AccountingV2 /></PageTransition>} />
           <Route path="/settings" element={<PageTransition><SettingsV2 /></PageTransition>} />

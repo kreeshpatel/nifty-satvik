@@ -329,6 +329,128 @@ def historical_blob(user: User = Depends(get_current_user)):
     return data
 
 
+# ── Bhanushali (live weekly-swing model) — its OWN 2017-2026 backtest ────
+#
+# NOT the letter-faithful Bhanushali-taught-rules test (research/findings/
+# 0022 — that was a KILL, break-even-gross/cost-killed on his exact mechanics).
+# This is the deployed model's own lineage: pre-reg 0093/0094 (findings
+# 0037/0038), a CRS-ranked weekly-swing system that borrowed the SMA/pullback
+# STRUCTURE but is quant-refined, PIT-clean, cost-aware. Its own backtest
+# (models/bhanushali_weekly/config.json) is real but UNDERPOWERED
+# (DSR 0.894 < 0.95) and explicitly "not indicative of future results" —
+# an in-sample simulation, not a certified or live-traded track record. The
+# response below carries that framing through so the frontend can't present
+# it as more than it is.
+
+_BHANUSHALI_TRADES_CSV = "research/exports/bhanushali_weekly_rank_0094_trades.csv"
+_BHANUSHALI_CONFIG = "models/bhanushali_weekly/config.json"
+
+
+def _load_bhanushali_trades() -> list[dict]:
+    import csv
+    path = Path(PROJECT_ROOT) / _BHANUSHALI_TRADES_CSV
+    if not path.exists():
+        return []
+    with open(path, encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    trades = []
+    for r in rows:
+        try:
+            trades.append({
+                "ticker": r["tkr"],
+                "entry_date": r["entry_date"],
+                "entry": float(r["entry"]),
+                "exit_date": r["exit_date"],
+                "exit_price": float(r["exit_px"]),
+                "reason": r["reason"],
+                "held_weeks": int(float(r["held_weeks"])) if r["held_weeks"] else 0,
+                "r_multiple": float(r["R"]),
+            })
+        except (ValueError, KeyError):
+            continue  # skip a malformed row rather than 500 the whole page
+    trades.sort(key=lambda t: t["exit_date"])
+    return trades
+
+
+@router.get("/backtest/bhanushali")
+def bhanushali_backtest(user: User = Depends(get_current_user)):
+    import json
+
+    cfg_path = Path(PROJECT_ROOT) / _BHANUSHALI_CONFIG
+    cfg = json.loads(cfg_path.read_text(encoding="utf-8")) if cfg_path.exists() else {}
+    stats = cfg.get("backtest", {})
+
+    trades = _load_bhanushali_trades()
+    risk_pct = float(cfg.get("params", {}).get("risk_pct", 0.02))
+
+    # Equity curve: NAV compounds trade-by-trade in exit-date order, each
+    # trade risking `risk_pct` of NAV (the model's own real sizing rule).
+    # This assumes sequential full-capital deployment, not literal concurrent
+    # positions — the standard, clearly-labeled convention for an R-multiple
+    # trade log; it is NOT a claim about actual historical concurrent margin use.
+    nav = float(INITIAL_NOTIONAL)
+    equity_curve = []
+    cum_r = 0.0
+    cum_r_curve = []
+    for t in trades:
+        nav *= (1 + risk_pct * t["r_multiple"])
+        cum_r += t["r_multiple"]
+        equity_curve.append({"date": t["exit_date"], "nav": round(nav, 2)})
+        cum_r_curve.append({"date": t["exit_date"], "cum_r": round(cum_r, 3)})
+
+    # Yearly breakdown
+    by_year: dict[str, list[dict]] = {}
+    for t in trades:
+        yr = t["exit_date"][:4]
+        by_year.setdefault(yr, []).append(t)
+    yearly = []
+    for yr in sorted(by_year.keys()):
+        yts = by_year[yr]
+        wins = sum(1 for t in yts if t["r_multiple"] > 0)
+        yearly.append({
+            "year": yr,
+            "trades": len(yts),
+            "win_rate": round(wins / len(yts) * 100, 1) if yts else 0,
+            "total_r": round(sum(t["r_multiple"] for t in yts), 2),
+            "avg_r": round(sum(t["r_multiple"] for t in yts) / len(yts), 2) if yts else 0,
+        })
+
+    # Exit-reason breakdown
+    reason_counts: dict[str, int] = {}
+    for t in trades:
+        reason_counts[t["reason"]] = reason_counts.get(t["reason"], 0) + 1
+
+    wins = [t for t in trades if t["r_multiple"] > 0]
+
+    return {
+        "meta": {
+            "model_version": cfg.get("model_version"),
+            "strategy": cfg.get("strategy"),
+            "status": cfg.get("status"),
+            "certification": cfg.get("certification"),
+            "provenance": cfg.get("provenance"),
+            "window": stats.get("window"),
+            "note": stats.get("note"),
+        },
+        "headline": {
+            "net_sharpe": stats.get("net_sharpe"),
+            "net_cagr_pct": stats.get("net_cagr_pct"),
+            "max_dd_pct": stats.get("max_dd_pct"),
+            "win_rate_pct": stats.get("win_rate_pct"),
+            "dsr": stats.get("dsr"),
+            "ci_low": stats.get("ci_low"),
+            "total_trades": len(trades),
+        },
+        "equity_curve": equity_curve,
+        "cum_r_curve": cum_r_curve,
+        "yearly": yearly,
+        "exit_reasons": reason_counts,
+        "recent_trades": list(reversed(trades[-30:])),
+        "best_trade": max(wins, key=lambda t: t["r_multiple"], default=None),
+        "worst_trade": min(trades, key=lambda t: t["r_multiple"], default=None),
+    }
+
+
 # ── Legacy / deprecated ────────────────────────────────
 
 @router.post("/backtest/run")

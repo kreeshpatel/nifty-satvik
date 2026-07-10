@@ -347,6 +347,11 @@ export const fetchBacktestLive = () =>
 export const fetchBacktestHistorical = () =>
   authJson(`${API}/api/backtest/historical`);
 
+// Bhanushali (live weekly-swing model)'s own 2017-2026 backtest — trade log,
+// equity curve, yearly breakdown. See routers/backtest.py for provenance.
+export const fetchBhanushaliBacktest = () =>
+  authJson(`${API}/api/backtest/bhanushali`);
+
 // ========================================
 // Kite (Zerodha) APIs
 // ========================================
@@ -768,6 +773,7 @@ export default {
   runBacktest,
   fetchBacktestLive,
   fetchBacktestHistorical,
+  fetchBhanushaliBacktest,
 
   // Kite
   kiteSessionStatus,
