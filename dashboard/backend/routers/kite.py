@@ -10,6 +10,7 @@ import json
 import hashlib
 import time
 import logging
+import asyncio
 from typing import Optional
 
 import requests
@@ -639,7 +640,14 @@ async def get_quotes(
         return cached[1]
 
     token = get_owner_kite_token(db)
-    data = kite_get("/quote", token, params={"i": instruments.split(",")})
+    # kite_get() is a blocking `requests` call (plus up to 2 retries with a
+    # blocking time.sleep(1) on connection errors) — called directly inside
+    # an `async def` endpoint, it ran on the event loop and stalled every
+    # other concurrent request on the backend for its duration. Offload to a
+    # worker thread so simultaneous quote/depth requests (e.g. several users'
+    # watchlist rails polling at once) run concurrently instead of queueing
+    # behind each other.
+    data = await asyncio.to_thread(kite_get, "/quote", token, params={"i": instruments.split(",")})
     _quote_cache[cache_key] = (now, data)
     return data
 
