@@ -6,6 +6,8 @@
 # SECRETS are NOT here (this file is committed). Set them with `fly secrets set`:
 #   DATABASE_URL  JWT_SECRET  ENCRYPTION_KEY  KITE_API_KEY  KITE_API_SECRET
 #   GITHUB_TOKEN  CRON_SERVICE_TOKEN  (optional: KITE_PROXY_URL, FRONTEND_URL, ANTHROPIC_API_KEY)
+#   HDFC_API_KEY  HDFC_API_SECRET  — InvestRight Open API, market-data (LTP) ONLY,
+#   never order execution (see dashboard/backend/services/hdfc_client.py)
 # See MIGRATION_RENDER_TO_SUPABASE.md for the full inventory + how to generate each.
 
 app = "nifty-satvik-api"

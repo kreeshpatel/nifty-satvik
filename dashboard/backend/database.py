@@ -67,6 +67,27 @@ class KiteSession(Base):
     user = relationship("User", back_populates="kite_session")
 
 
+class HdfcMarketDataSession(Base):
+    """The shared HDFC Securities (InvestRight) access token used ONLY for market
+    data (LTP) — never for orders/holdings/positions, which stay on Kite. There is
+    exactly one row: HDFC's login flow needs a human to answer an OTP each time
+    (no TOTP option confirmed), so this is completed by an admin via
+    /api/admin/hdfc/login/*, not an unattended per-user OAuth flow like Kite.
+
+    `connected_by_user_id` records who last completed the login (audit only).
+    """
+    __tablename__ = "hdfc_market_data_sessions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    access_token_encrypted = Column(Text, nullable=False)
+    obtained_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    # HDFC's token validity period isn't documented anywhere we could find —
+    # nullable until we observe a real expiry (a 401 from /fetch-ltp) and can
+    # start enforcing/tracking it.
+    expires_at = Column(DateTime, nullable=True)
+    connected_by_user_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+
+
 class RefreshToken(Base):
     """
     Refresh-token chain with reuse detection.
