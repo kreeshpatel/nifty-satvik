@@ -22,11 +22,13 @@ import { EmptyCard } from '@/components/shared/EmptyCard';
 import { useBhanushaliBacktest } from '@/hooks/queries/useBacktest';
 import { fmtPct, fmtPrice } from '@/lib/format';
 
+// Matches the trade log's actual `reason` codes (scripts/run_bhanushali_cron.py
+// _STATUS map: trail/stop -> HIT_STOP, time/eos -> EXPIRED).
 const EXIT_REASON_LABEL = {
-  HALF_TARGET: 'Half at Target',
-  TRAIL_STOP: 'Trailing Stop',
-  STOP: 'Stop Loss',
-  TIME: 'Time Exit',
+  trail: 'Trailing Stop',
+  stop: 'Stop Loss',
+  time: 'Time Exit',
+  eos: 'End of Sample',
 };
 
 export default function TrackRecordV3() {

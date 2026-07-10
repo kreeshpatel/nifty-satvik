@@ -9,7 +9,6 @@ Historical = the 2020-2025 backtest, regenerated monthly/quarterly by
 import os
 import sys
 from datetime import date, datetime, timedelta
-from pathlib import Path
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
@@ -17,7 +16,7 @@ from fastapi.responses import JSONResponse
 from auth import get_current_user
 from config import PROJECT_ROOT
 from database import User
-from github_data import fetch_github_json
+from github_data import fetch_github_csv, fetch_github_json
 
 # signal analytics lived in the retired v1 engine (src/trading/signal_tracker); the
 # clean nifty-satvik engine does not carry that module. The /backtest live series is
@@ -347,15 +346,19 @@ _BHANUSHALI_CONFIG = "models/bhanushali_weekly/config.json"
 
 
 def _load_bhanushali_trades() -> list[dict]:
-    import csv
-    path = Path(PROJECT_ROOT) / _BHANUSHALI_TRADES_CSV
-    if not path.exists():
+    # research/ and models/ are excluded from the deploy image (.dockerignore —
+    # kept out to keep the Docker build context lean), so a local Path() read
+    # returns nothing on Fly.io. fetch_github_csv falls back to the
+    # authenticated GitHub Contents API (same pattern as fetch_github_json
+    # below, and as results/* in github_data.py) — that's the only path that
+    # actually resolves in production.
+    df = fetch_github_csv(_BHANUSHALI_TRADES_CSV)
+    if df is None or df.empty:
         return []
-    with open(path, encoding="utf-8") as f:
-        rows = list(csv.DictReader(f))
     trades = []
-    for r in rows:
+    for _, r in df.iterrows():
         try:
+            held_weeks = r["held_weeks"]
             trades.append({
                 "ticker": r["tkr"],
                 "entry_date": r["entry_date"],
@@ -363,10 +366,10 @@ def _load_bhanushali_trades() -> list[dict]:
                 "exit_date": r["exit_date"],
                 "exit_price": float(r["exit_px"]),
                 "reason": r["reason"],
-                "held_weeks": int(float(r["held_weeks"])) if r["held_weeks"] else 0,
+                "held_weeks": int(float(held_weeks)) if held_weeks == held_weeks and held_weeks != "" else 0,
                 "r_multiple": float(r["R"]),
             })
-        except (ValueError, KeyError):
+        except (ValueError, KeyError, TypeError):
             continue  # skip a malformed row rather than 500 the whole page
     trades.sort(key=lambda t: t["exit_date"])
     return trades
@@ -374,10 +377,7 @@ def _load_bhanushali_trades() -> list[dict]:
 
 @router.get("/backtest/bhanushali")
 def bhanushali_backtest(user: User = Depends(get_current_user)):
-    import json
-
-    cfg_path = Path(PROJECT_ROOT) / _BHANUSHALI_CONFIG
-    cfg = json.loads(cfg_path.read_text(encoding="utf-8")) if cfg_path.exists() else {}
+    cfg = fetch_github_json(_BHANUSHALI_CONFIG) or {}
     stats = cfg.get("backtest", {})
 
     trades = _load_bhanushali_trades()
