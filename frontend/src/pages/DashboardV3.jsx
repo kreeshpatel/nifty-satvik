@@ -405,13 +405,11 @@ function ActionTiles() {
       path: 'M12 3v18M5 8l7-5 7 5M5 8v9l7 4 7-4V8' },
     { cls: 'qa-violet', to: '/track-record', title: 'Track record', desc: 'Live paper equity, closed-trade log & forward-wall.', go: 'View record →',
       path: 'M3 3v18h18M7 13l4-4 3 3 5-6' },
-    { cls: 'qa-blue', to: '/premove', title: 'How signals are made', desc: 'The mechanical rules behind the top-15. No black box.', go: 'Methodology →',
-      path: 'M12 2a10 10 0 100 20 10 10 0 000-20zM2 12h20M12 2a15 15 0 010 20' },
   ];
   return (
     <>
       <div className="row-head" style={{ margin: '4px 0 0' }}><span className="sec-title">What you can do</span></div>
-      <div className="grid3">
+      <div className="grid3" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
         {tiles.map((t) => (
           <Link key={t.title} to={t.to} className={`qa ${t.cls}`}>
             <div className="deco" />
