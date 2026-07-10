@@ -60,25 +60,30 @@ export function useKiteHoldings({ enabled = true } = {}) {
     select: (raw) => {
       // Kite sometimes returns an array directly, sometimes { data: [...] }.
       const list = Array.isArray(raw) ? raw : raw?.data ?? [];
-      // T+1 normalization. Kite's /portfolio/holdings reports settled qty
-      // in `quantity` and just-bought (settling tomorrow) in `t1_quantity`.
-      // A fresh buy has quantity=0 and t1_quantity=N — every UI calc that
-      // did `qty * ltp` rendered the position as worth ₹0. Same buy gets
-      // "missing" by services/nq_positions drift detection too.
+      // Quantity normalization. Kite's /portfolio/holdings can split a real
+      // position's shares across THREE fields: `quantity` (settled),
+      // `t1_quantity` (just-bought, settling tomorrow), and
+      // `collateral_quantity` (pledged for margin — e.g. via Kite's "Pledge"
+      // flow). A position that's fully pledged, or freshly bought, reports
+      // quantity=0 even though the holding is real — every UI calc that did
+      // `qty * ltp` on the raw `quantity` alone rendered it as worth ₹0
+      // (value, unrealised P&L, allocation — all zeroed).
       //
-      // We override `quantity` to mean the EFFECTIVE held position
-      // (settled + T+1) so all consumers — Dashboard, Portfolio, NQ
+      // We override `quantity` to mean the EFFECTIVE held position (settled
+      // + T+1 + collateral) so all consumers — Dashboard, Portfolio, NQ
       // positions math — naturally use the right number. Original values
-      // preserved as `settled_quantity` / `t1_quantity` for UI affordances
-      // that want to badge "T+1: N" on a row.
+      // preserved as `settled_quantity` / `t1_quantity` / `collateral_quantity`
+      // for UI affordances that want to badge "T+1: N" or "Pledged: N" on a row.
       return list.map((h) => {
         const settled = Number(h.quantity) || 0;
         const t1 = Number(h.t1_quantity) || 0;
+        const collateral = Number(h.collateral_quantity) || 0;
         return {
           ...h,
-          quantity: settled + t1,
+          quantity: settled + t1 + collateral,
           settled_quantity: settled,
           t1_quantity: t1,
+          collateral_quantity: collateral,
         };
       });
     },

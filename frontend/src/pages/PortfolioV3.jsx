@@ -966,30 +966,34 @@ function AllocCard({ holdings, cash, totalEquity, isPaper, isLoading }) {
   const rows = useMemo(() => {
     if (!holdings || holdings.length === 0) return [];
 
+    // Allocation is computed on INVESTED CAPITAL (cost basis: qty x avg
+    // price), not current market value — so a position doubling in price
+    // doesn't visually inflate "how much of my capital did I put here",
+    // and this bar reflects the actual sizing decision, not price drift.
     const by = {};
     for (const h of holdings) {
       const sector = h.sector || 'Other';
-      const value = isPaper
-        ? (Number(h.current_value) || (Number(h.shares) || 0) * (Number(h.current_price) || 0))
-        : (Number(h.last_price) || 0) * (Number(h.quantity) || 0);
-      by[sector] = (by[sector] || 0) + value;
+      const invested = isPaper
+        ? (Number(h.shares) || 0) * (Number(h.entry_price) || 0)
+        : (Number(h.quantity) || 0) * (Number(h.average_price) || 0);
+      by[sector] = (by[sector] || 0) + invested;
     }
 
     const totalInvested = Object.values(by).reduce((s, v) => s + v, 0);
-    const equity = totalEquity || (totalInvested + (cash || 0));
+    const totalCapital = totalInvested + (cash || 0);
 
     const result = Object.entries(by).map(([name, v]) => ({
       name,
       v,
-      pct: equity > 0 ? (v / equity) * 100 : 0,
+      pct: totalCapital > 0 ? (v / totalCapital) * 100 : 0,
     }));
 
     if (cash != null && cash > 0) {
-      result.push({ name: 'Cash', v: cash, pct: equity > 0 ? (cash / equity) * 100 : 0 });
+      result.push({ name: 'Cash', v: cash, pct: totalCapital > 0 ? (cash / totalCapital) * 100 : 0 });
     }
 
     return result.sort((a, b) => b.v - a.v);
-  }, [holdings, cash, totalEquity, isPaper]);
+  }, [holdings, cash, isPaper]);
 
   const equityLabel = totalEquity != null ? fmtLakh(totalEquity) : '—';
   const posCount = holdings?.length ?? 0;
