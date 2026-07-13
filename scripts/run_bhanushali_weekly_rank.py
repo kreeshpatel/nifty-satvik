@@ -101,18 +101,25 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None):
 
 def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              start: str | None = None, return_state: bool = False,
-             vol_target: tuple | None = None):
+             vol_target: tuple | None = None, eq0: float | None = None,
+             uncapped: bool = False):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
     vol_target (pre-reg 0095): when set = (target_annual, window, floor), de-gross the SIZING equity
     by the shared O-009 scalar so fills shrink when the book's trailing realised vol is above target.
-    None (default) => sizing_eq == eq exactly => byte-identical to the 0094 run of record."""
+    None (default) => sizing_eq == eq exactly => byte-identical to the 0094 run of record.
+
+    eq0: starting-capital override. None (default) => EQ0 (the ₹10L paper book). A very large eq0
+    makes the book UNCAPPED — cash never runs out, so EVERY fillable signal enters and gets tracked
+    (the signal ledger), not just the capital-constrained subset. Per-trade R / return_pct are
+    capital-independent, so an uncapped run is the correct per-signal lifecycle; its NAV is ignored."""
     vt_ann, vt_win, vt_floor = vol_target if vol_target else (0.0, 42, 1.0)
+    _EQ0 = EQ0 if eq0 is None else float(eq0)
     dts = pd.DatetimeIndex(sorted(set().union(*[set(s["dates"]) for s in P.values()])))
     dts = dts[dts >= pd.Timestamp(start or START)]
     didx = {t: {d: i for i, d in enumerate(s["dates"])} for t, s in P.items()}
-    eq = cash = EQ0
+    eq = cash = _EQ0
     op: dict[str, dict] = {}
     orders: dict[str, dict] = {}
     curve = []; T = []; skipped_cash = 0; activations = 0
@@ -188,7 +195,9 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
             scl = vol_target_scalar(np.diff(eh) / eh[:-1], target_annual=vt_ann, floor=vt_floor, window=vt_win)
         else:
             scl = 1.0
-        sizing_eq = eq * scl
+        # Uncapped ledger sizes off a FIXED equity so every signal fills at a sane size even though
+        # `eq`/cash go meaningless (NAV is ignored there); per-trade R/return are size-independent.
+        sizing_eq = (_EQ0 if uncapped else eq) * scl
         for rk, t, i, opn in sorted(cands, key=lambda x: (-x[0], x[1])):   # descending CRS distance
             o_ = orders.get(t)
             if o_ is None or t in op:
@@ -198,7 +207,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
             if en > st:
                 sh = sizing_eq * RISK / (en - st)
                 notion = sh * en * (1 + _cost_leg(s["adv20"][i], sh * en, cost_off))
-                if notion <= cash and sh > 0:
+                if (uncapped or notion <= cash) and sh > 0:   # uncapped: fill EVERY signal (ledger mode)
                     cash -= notion
                     op[t] = dict(en=en, stop=st, risk0=en - st, tp2=en + 2 * (en - st), sh=sh, sh0=sh,
                                  weeks=0, adv=s["adv20"][i], half_done=False, trail=st, pending=None,
@@ -219,7 +228,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                 del orders[t]
         mtm = sum(p["sh"] * (P[t]["c"][didx[t][d]] if d in didx[t] else p["en"]) for t, p in op.items())
         eq = cash + mtm
-        assert cash >= -1e-6
+        assert uncapped or cash >= -1e-6   # uncapped mode lets cash go negative (NAV is ignored there)
         curve.append((d, eq))
         eq_hist.append(eq)
     if not return_state:                       # backtest convention: realize open positions at window end
@@ -250,7 +259,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                 cagr=((e.iloc[-1] / e.iloc[0]) ** (1 / yrs) - 1) if not empty else 0.0,
                 sharpe=r.mean() / r.std() * np.sqrt(252) if (not empty and r.std()) else float("nan"),
                 dd=(e / e.cummax() - 1).min() if not empty else 0.0,
-                mult=(e.iloc[-1] / EQ0) if not empty else 1.0,
+                mult=(e.iloc[-1] / _EQ0) if not empty else 1.0,
                 reasons=reasons, skipped_cash=skipped_cash)
     if return_state:
         out["open_positions"] = op

@@ -95,12 +95,13 @@ def _compute_regime(P, mem, as_of):
     return {"status": status, "strength": int(strength), "vix": 0, "breadth": int(breadth)}
 
 
-def build_envelopes(P, out, ledger, generated_at, mem=None):
-    """Map the 0091 live state to the same dashboard envelope shape the momentum book writes.
+def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
+    """Map the live state to the dashboard envelope.
 
-    Buy-signals come from the LATEST completed week's setup (P[t]['last_signal']) — inception-independent,
-    so they always reflect last Friday's close. Held positions / NAV / closed trades come from the
-    inception-gated paper book (out) — clean-forward, empty until the book has post-inception trades.
+    `out` / `ledger` = the UNCAPPED signal ledger (every signal tracked) — drives the OPEN buy cards,
+    the HOLD/EXIT cards, and the completed history. `out_paper` = the ₹10L paper book, used ONLY for
+    the NAV/equity portfolio. Buy-signals come from the latest completed week (P[t]['last_signal']),
+    minus any name already being followed as a HOLD/EXIT card.
     """
     from nq.data.membership import ticker_in_index_on
     signals = []
@@ -138,6 +139,9 @@ def build_envelopes(P, out, ledger, generated_at, mem=None):
     signals.sort(key=lambda x: -x["crs_rank"])
     for j, sg in enumerate(signals):
         sg["grade"] = "A" if j < 5 else "B"
+    # A name already being followed (HOLD/EXIT card below) must not also show as a fresh buy.
+    held_tickers = set(out["open_positions"])
+    signals = [s for s in signals if s["ticker"] not in held_tickers]
 
     # ── held positions -> HOLDING cards ("Bought on <date>"), or SELL cards when the weekly close
     # decided an exit (pending -> executes Monday open). The Saturday run therefore tells the owner
@@ -227,20 +231,34 @@ def build_envelopes(P, out, ledger, generated_at, mem=None):
         "avg_r": round(float(led["R"].mean()), 2) if n_closed else None,
     }
 
-    # ── portfolio + NAV curve ──
-    curve = out["curve"]
-    nav = float(out["equity"])
+    # ── portfolio + NAV curve — the ₹10L PAPER book (kept for the owner's reference), NOT the
+    #    uncapped ledger. Its positions are only the capital-constrained subset ₹10L could fund. ──
+    paper_positions = {}
+    for t, p in out_paper["open_positions"].items():
+        cur = float(_last(P, t, "c")); entry = float(p["en"])
+        stop = float(p["trail"] if p["half_done"] else p["stop"]); shares = float(p["sh"])
+        ed = str(p["rec"]["entry_date"])[:10] if "rec" in p else None
+        pct = round((cur / entry - 1) * 100, 2) if entry else 0.0
+        paper_positions[t] = {
+            "entry_date": ed, "entry_price": round(entry, 2), "shares": round(shares, 2),
+            "position_size": round(shares * entry, 2), "atr_stop": round(stop, 2),
+            "target": round(float(p["tp2"]), 2), "current_price": round(cur, 2),
+            "current_value": round(shares * cur, 2), "unrealised_pnl": round(shares * (cur - entry), 2),
+            "unrealised_pnl_pct": pct, "days_held": int(p["weeks"] * 5),
+        }
+    curve = out_paper["curve"]
+    nav = float(out_paper["equity"])
     peak = float(curve.cummax().iloc[-1]) if len(curve) else nav
-    portfolio = {"cash": round(float(out["cash"]), 2), "peak_value": round(peak, 2),
-                 "total_value": round(nav, 2), "n_positions": len(positions),
-                 "total_trades": n_closed, "positions": positions}
+    portfolio = {"cash": round(float(out_paper["cash"]), 2), "peak_value": round(peak, 2),
+                 "total_value": round(nav, 2), "n_positions": len(paper_positions),
+                 "total_trades": n_closed, "positions": paper_positions}
     hist_df = (curve.rename("total_value").rename_axis("date").reset_index()
                if len(curve) else pd.DataFrame({"date": [], "total_value": []}))
 
     envelope = {
         "generated_at": generated_at, "model": "weekly-swing-0094-rank", "signals": signals,
         "regime": _compute_regime(P, mem, generated_at),
-        "n_positions": len(positions), "cash": round(float(out["cash"]), 2),
+        "n_positions": len(positions), "cash": round(float(out_paper["cash"]), 2),
         "note": "forward-watch, modeled fills — 0094 weekly swing (0093-N50 signals, CRS-ranked fills; UNDERPOWERED DSR 0.89, not certified)",
     }
     return envelope, sig_hist, analytics, portfolio, hist_df
@@ -311,13 +329,19 @@ def main(argv=None) -> int:
     mem = load_membership()
     # LIVE strategy = 0093 + Nifty-50 with CRS-ranked fills (finding 0038; supersedes arbitrary fill).
     P = R94.prep_weekly_rank(ohlcv)
-    ledger: list = []
-    out = R94.backtest(P, mem, ledger=ledger, start=args.start, return_state=True)
+    # ── ₹10L paper book — realistic capital sim, kept for the NAV/equity portfolio (owner reference).
+    led_paper: list = []
+    out_paper = R94.backtest(P, mem, ledger=led_paper, start=args.start, return_state=True)
+    # ── UNCAPPED signal ledger — every signal tracked (cash never runs out), so a name is followed
+    #    week to week regardless of what ₹10L could afford. This drives the SIGNALS page.
+    led_all: list = []
+    out_all = R94.backtest(P, mem, ledger=led_all, start=args.start, return_state=True, uncapped=True)
     # data's last date = the "as of" the book is current to
     last = max((pd.Timestamp(s["dates"][-1]) for s in P.values()), default=pd.Timestamp(args.start))
     generated_at = str(last.date())
 
-    envelope, sig_hist, analytics, portfolio, hist_df = build_envelopes(P, out, ledger, generated_at, mem)
+    envelope, sig_hist, analytics, portfolio, hist_df = build_envelopes(
+        P, out_all, led_all, out_paper, generated_at, mem)
 
     (sd / "signals_today_weekly.json").write_text(json.dumps(envelope, indent=2, default=str), encoding="utf-8")
     (sd / "signals_history_weekly.json").write_text(json.dumps(sig_hist, indent=2, default=str), encoding="utf-8")
@@ -325,9 +349,10 @@ def main(argv=None) -> int:
     (sd / "paper_portfolio_weekly.json").write_text(json.dumps(portfolio, indent=2, default=str), encoding="utf-8")
     hist_df.to_csv(sd / "portfolio_history_weekly.csv", index=False)
 
-    print(f"weekly paper cron: inception {args.start} | as-of {generated_at} | "
-          f"{len(envelope['signals'])} buy-signals | held {portfolio['n_positions']} | "
-          f"closed {analytics['total_closed']} | NAV {portfolio['total_value']:,.0f} -> {sd}")
+    print(f"weekly cron: inception {args.start} | as-of {generated_at} | "
+          f"{sum(1 for s in envelope['signals'] if s.get('tier') == 'signal' and not s.get('bought_date')):>3} open | "
+          f"tracked-held {len(out_all['open_positions']):>3} | completed {analytics['total_closed']:>3} | "
+          f"paper NAV {portfolio['total_value']:,.0f} -> {sd}")
     return 0
 
 
