@@ -44,5 +44,14 @@ jobs:
           git config user.name "kreeshpatel"
           git config user.email "kreeshvasistha@gmail.com"
           git add results/intraday_scan/ 2>/dev/null || true
-          git commit -m "chore(intraday): 14:30 IST shadow scan $(date -u +%F)" || echo "no scan output"
-          git pull --rebase && git push || echo "nothing to push"
+          if git commit -m "chore(intraday): 14:30 IST shadow scan $(date -u +%F)"; then
+            # --autostash + retry + exit RED on failure (was the silent-drop pattern that swallowed
+            # every shadow scan since inception, so the partial->close survival stats never accrued).
+            for i in 1 2 3; do
+              git pull --rebase --autostash origin main && git push origin main && { echo "pushed scan artifacts"; exit 0; }
+              echo "push attempt $i failed; retrying in 5s..."; sleep 5
+            done
+            echo "::error::scan artifacts committed but could NOT be pushed after 3 tries"; exit 1
+          else
+            echo "no scan output"
+          fi

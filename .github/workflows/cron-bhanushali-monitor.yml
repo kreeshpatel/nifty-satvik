@@ -51,5 +51,15 @@ jobs:
           git config user.name "kreeshpatel"
           git config user.email "kreeshvasistha@gmail.com"
           git add results/weekly_monitor.json 2>/dev/null || true
-          git commit -m "chore(weekly-monitor): daily re-price $(date -u +%F)" || echo "no monitor change"
-          git pull --rebase && git push || echo "nothing to push"
+          if git commit -m "chore(weekly-monitor): daily re-price $(date -u +%F)"; then
+            # --autostash: the OHLCV download leaves unstaged cache changes that abort a plain rebase,
+            # which silently swallowed the push and dropped every day's monitor output. Retry + exit RED
+            # on persistent failure so a drop is visible, not hidden.
+            for i in 1 2 3; do
+              git pull --rebase --autostash origin main && git push origin main && { echo "pushed monitor state"; exit 0; }
+              echo "push attempt $i failed; retrying in 5s..."; sleep 5
+            done
+            echo "::error::monitor state committed but could NOT be pushed after 3 tries"; exit 1
+          else
+            echo "no monitor change"
+          fi
