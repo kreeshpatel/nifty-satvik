@@ -103,12 +103,20 @@
 .ri-cell-main { font-size: 13.5px; font-weight: 600; color: var(--text-1); }
 .ri-cell-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
 
-.ri-act { display: flex; justify-content: flex-end; }
+.ri-act { display: flex; justify-content: flex-end; gap: 6px; }
 .ri-btn {
   min-width: 66px; padding: 7px 12px; border-radius: 8px; border: 1px solid transparent;
   font-family: var(--font-sans); font-size: 12.5px; font-weight: 600; cursor: pointer;
   transition: all 160ms;
 }
+/* Ephemeral "I bought this" toggle — muted until set, then a solid confirmation. */
+.ri-btn-bought {
+  min-width: 0; padding: 7px 10px; background: var(--surface-2); color: var(--text-3);
+  border-color: var(--edge-1);
+}
+.ri-btn-bought:hover:not(:disabled) { color: var(--text-1); border-color: var(--edge-2); }
+.ri-btn-bought.on { background: rgba(63,221,138,0.16); color: var(--bull); border-color: rgba(63,221,138,0.35); }
+.ri-btn-bought:disabled { opacity: 0.4; cursor: default; }
 .ri-btn-buy   { background: rgba(63,221,138,0.16); color: var(--bull); border-color: rgba(63,221,138,0.3); }
 .ri-btn-buy:hover { background: rgba(63,221,138,0.26); }
 .ri-btn-sell  { background: rgba(255,92,122,0.16); color: var(--bear); border-color: rgba(255,92,122,0.3); }
@@ -159,7 +167,46 @@
   font-family: var(--font-sans); font-size: 12.5px; font-weight: 600; cursor: pointer;
   transition: background 160ms;
 }
-.ri-sizer-btn:hover { background: rgba(63,221,138,0.26); }
+.ri-sizer-btn:hover:not(:disabled) { background: rgba(63,221,138,0.26); }
+.ri-sizer-btn:disabled { opacity: 0.45; cursor: default; }
+.ri-sizer-hint { color: var(--text-4); font-weight: 400; }
+
+/* Risk-tier toggle */
+.ri-sizer-tiers { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0 6px; }
+.ri-tier {
+  padding: 7px 0; border-radius: 8px; border: 1px solid var(--edge-1);
+  background: var(--surface-2); color: var(--text-3);
+  font-family: var(--font-sans); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 160ms;
+}
+.ri-tier:hover { color: var(--text-1); }
+.ri-tier.on { background: var(--brand-soft); color: var(--brand-hi); border-color: var(--brand-edge); }
+
+/* Sizer results modal */
+.rsm-dialog { background: var(--surface-1); border: 1px solid var(--edge-1); border-radius: 18px; overflow: hidden; }
+.rsm { padding: 18px 18px 16px; }
+.rsm-h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.rsm-h > span:first-child { font-size: 16px; font-weight: 700; color: var(--text-1); }
+.rsm-hsub { font-size: 11.5px; color: var(--text-3); text-transform: capitalize; }
+.rsm-list { display: flex; flex-direction: column; max-height: 46vh; overflow-y: auto; }
+.rsm-row {
+  display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid var(--edge-1);
+}
+.rsm-row.is-bought { opacity: 0.62; }
+.rsm-sym { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.rsm-badge { font-size: 10.5px; font-weight: 600; }
+.rsm-nums { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; font-size: 12.5px; color: var(--text-2); }
+.rsm-qty { color: var(--text-1); font-weight: 600; }
+.rsm-cost { font-size: 11px; color: var(--text-3); }
+.rsm-risk { font-size: 10.5px; color: var(--text-4); }
+.rsm-totals {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px;
+  padding: 12px; border-radius: 12px; background: var(--surface-2);
+}
+.rsm-totals > div { display: flex; flex-direction: column; gap: 3px; }
+.rsm-totals span { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.04em; }
+.rsm-totals b { font-size: 14px; color: var(--text-1); }
+.rsm-note { margin-top: 12px; font-size: 11px; color: var(--text-3); line-height: 1.5; }
 
 .ri-statrow { display: grid; grid-template-columns: 62px 1fr 26px; align-items: center; gap: 8px; padding: 5px 0; }
 .ri-stat-l { font-size: 12.5px; color: var(--text-2); }

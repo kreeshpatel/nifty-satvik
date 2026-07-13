@@ -176,6 +176,21 @@ const authPost = async (url, body, _retried = false) => {
   return responseBody;
 };
 
+const authPut = async (url, body, _retried = false) => {
+  const res = await authFetch(url, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (res.status === 401 && !_retried && !_isAuthEndpoint(url)) {
+    const ok = await _attemptRefresh();
+    if (ok) return authPut(url, body, true);
+  }
+  const responseBody = await safeJson(res);
+  if (!res.ok) throw buildApiError(res, responseBody, url);
+  return responseBody;
+};
+
 // ========================================
 // Auth APIs
 // ========================================
@@ -548,6 +563,33 @@ export const reorderWatchlist = (order, listNo = 1) =>
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ order, list: listNo }),
   }).then(safeJson);
+
+// ========================================
+// Sizer prefs + ephemeral per-user holdings (Signals page).
+// The user manually marks what they bought; the mark is erased when the model
+// completes the trade. GET /api/signals stays model-only — the page merges the
+// held signal_id set client-side.
+// ========================================
+
+/** Sizing policy constants → { tiers: {medium,high}, position_cap_pct } */
+export const fetchSizerConfig = () => authJson(`${API}/api/sizer/config`);
+
+/** The user's saved sizer prefs → { risk_tier, default_capital } */
+export const fetchSizingPrefs = () => authJson(`${API}/api/me/sizing-prefs`);
+
+/** Update tier and/or remembered capital → { risk_tier, default_capital } */
+export const updateSizingPrefs = (prefs) => authPut(`${API}/api/me/sizing-prefs`, prefs);
+
+/** The user's still-open bought-marks → { holdings: [...] } (completed ones pruned server-side) */
+export const fetchHoldings = () => authJson(`${API}/api/holdings`);
+
+/** Mark a signal bought (idempotent; re-mark overwrites qty). `signal_id` = "{TICKER}__{YYYY-MM-DD}". */
+export const markBought = ({ signal_id, ticker, entry, stop, qty, risk_tier_at_buy }) =>
+  authPost(`${API}/api/holdings`, { signal_id, ticker, entry, stop, qty, risk_tier_at_buy });
+
+/** Manual unmark (sold early / fat-finger) — 204 No Content. */
+export const unmarkBought = (signalId) =>
+  authFetch(`${API}/api/holdings/${encodeURIComponent(signalId)}`, { method: 'DELETE' }).then(safeJson);
 
 // ========================================
 // Admin APIs (require is_admin=true on the user)

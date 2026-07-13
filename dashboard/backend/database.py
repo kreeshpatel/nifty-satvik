@@ -49,6 +49,11 @@ class User(Base):
     last_active = Column(DateTime, nullable=True)
     mfa_enabled = Column(Boolean, default=False, nullable=False)
     mfa_secret_encrypted = Column(Text, nullable=True)
+    # Signals-page position sizer preferences (added 2026-07-13). risk_tier keys
+    # into config.RISK_TIERS ('medium'|'high'); default_capital remembers the last
+    # capital the user sized against so the sizer isn't blank on return.
+    risk_tier = Column(String(16), nullable=False, default="medium", server_default="medium")
+    default_capital = Column(Float, nullable=True)
 
     kite_session = relationship("KiteSession", back_populates="user", uselist=False)
     refresh_tokens = relationship("RefreshToken", back_populates="user")
@@ -296,6 +301,40 @@ class UserWatchlist(Base):
     user = relationship("User")
 
 
+class UserHolding(Base):
+    """Per-user EPHEMERAL 'I bought this signal' marks (Signals page, added 2026-07-13).
+
+    The user manually marks a research recommendation as bought; the row lives ONLY
+    while the trade is open and is ERASED the moment the model completes the trade
+    (target/stop/expiry — see routers/holdings.py, which prunes on read against the
+    weekly history). There is NO lifecycle column and NO permanent per-user track
+    record: the completed-trade record is the model's shared signals_history_weekly.json.
+
+    Keyed by signal_id = '{ticker}__{signal_date}' — the same canonical key used by
+    NQOrder.signal_id and nq_position_id — so a re-signal of the same name in a later
+    week is a distinct record. NOT reused from NQOrder: that table is Kite-execution
+    machinery (kite_order_id + WS fills) feeding the Accounting/Journal FY-P&L pages;
+    a self-reported mark would pollute those. Brand-new table ⇒ create_all() handles it.
+    """
+    __tablename__ = "user_holdings"
+    __table_args__ = (
+        UniqueConstraint("user_id", "signal_id", name="uix_holding_user_signal"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"),
+                     nullable=False, index=True)
+    signal_id = Column(String(128), nullable=False, index=True)   # "{ticker}__{signal_date}"
+    ticker = Column(String(32), nullable=False, index=True)
+    entry = Column(Float, nullable=True)
+    stop = Column(Float, nullable=True)
+    qty = Column(Integer, nullable=True)                          # NULL = mark-only (no capital known)
+    risk_tier_at_buy = Column(String(16), nullable=False, default="medium")
+    bought_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    user = relationship("User")
+
+
 # ── DB Session Dependency ─────────────────────────────
 
 def get_db():
@@ -385,6 +424,14 @@ def init_db():
           END IF;
         END $$;
     """)
+
+    # Signals sizer prefs on users (2026-07-13). New table user_holdings needs
+    # no entry here — create_all() above adds it. These two columns land on the
+    # existing users table, so they get idempotent ALTERs like the MFA block.
+    _run_migration("users.risk_tier",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS risk_tier VARCHAR(16) NOT NULL DEFAULT 'medium'")
+    _run_migration("users.default_capital",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS default_capital DOUBLE PRECISION")
 
     # P2-1: audit_logs append-only + 365-day retention enforcement.
     # The CREATE TRIGGER step needs ACCESS EXCLUSIVE on audit_logs, which

@@ -75,3 +75,14 @@ if "ensure_dirs" not in _g:
     def ensure_dirs():
         for d in ALL_DIRS:
             _Path(d).mkdir(parents=True, exist_ok=True)
+
+
+# ── Signals-page position sizer ───────────────────────
+# Per-trade risk as a FRACTION of the user's capital, by tier. 'high' 2% would be
+# the backtest-of-record's risk/trade; the owner set high=3% ('aggressive') which
+# is ABOVE the validated 2% (more drawdown, not backtest-proven — surfaced in the
+# UI). POSITION_CAP_PCT caps any single position so a tight stop can't concentrate
+# the book (at a 20% cap, medium 2% and high 3% coincide for stops <=10%). Single
+# source of truth — served to the frontend via GET /api/sizer/config.
+RISK_TIERS = {"medium": 0.02, "high": 0.03}
+POSITION_CAP_PCT = 0.20

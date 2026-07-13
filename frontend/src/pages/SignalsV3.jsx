@@ -29,13 +29,23 @@ import { CONVICTION, DISCLAIMER, STATES } from '@/lib/signalCopy';
 import { EmptyState } from '@/components/shared/EmptyState';
 import PickOfWeek from '@/components/shared/PickOfWeek';
 import TradeCardModal from '@/components/shared/TradeCardModal';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { sizePortfolio, SIZER_STATUS } from '@/lib/sizing';
+import { useHoldings, useMarkBought, useUnmarkBought } from '@/hooks/queries/useHoldings';
+import { useSizerConfig, useSizingPrefs, useUpdateSizingPrefs } from '@/hooks/queries/useSizingPrefs';
 import '@/styles/signals-v3.css';
 import '@/styles/research-insights.css';
 
-const RISK_BUDGET = 5000; // ₹ risk per trade for suggested sizing
+// signal_id = "{TICKER}__{signal_date}" — the shared canonical key the per-user
+// ephemeral-holdings layer binds a "bought" mark to (matches NQOrder.signal_id).
+const signalIdOf = (s) => {
+  const t = String(s?.sym || s?.ticker || '').toUpperCase();
+  return s?.signal_id || (t && s?.signal_date ? `${t}__${s.signal_date}` : null);
+};
 
 // ── Formatters ────────────────────────────────────────────────────────
 const fmtNum  = (n) => n == null ? '—' : Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtNum0 = (n) => n == null ? '—' : Math.round(Number(n)).toLocaleString('en-IN');
 const fmtPct1 = (n) => n == null ? '—' : (n >= 0 ? '+' : '−') + Math.abs(n).toFixed(1) + '%';
 
 function todayISO() { return new Date().toISOString().slice(0, 10); }
@@ -155,8 +165,6 @@ function enrichSignal(raw, quotes) {
   // Potential return = % to the +2R target from the MIDDLE of the buy range (fill-dependent).
   const toTarget = buyMid > 0 ? ((target - buyMid) / buyMid) * 100 : upside;
   const zeroRisk = entry === stop;
-  const perShareRisk = Math.max(1, entry - stop);
-  const suggQty = zeroRisk ? 10 : Math.max(1, Math.floor(RISK_BUDGET / perShareRisk));
 
   let buyByStr = null, daysLeft = null;
   if (raw.buy_window_until) {
@@ -196,7 +204,7 @@ function enrichSignal(raw, quotes) {
     _fromEntry: fromEntry,
     _upside: upside,
     _zeroRisk: zeroRisk,
-    _suggQty: suggQty,
+    _signalId: signalIdOf({ sym: ticker, signal_date: raw.signal_date, signal_id: raw.signal_id }),
     buyByStr, daysLeft, dayOf, weekOf,
     hold: raw.hold_days || 10,
     conv: convOf(grade, isWatch),
@@ -296,7 +304,7 @@ function CommentaryCard({ regime, model, freshCount }) {
   const r = regimeInfo(regime);
   const vix = regime?.vix != null ? Number(regime.vix).toFixed(1) : '—';
   const breadth = regime?.breadth != null ? (regime.breadth > 0 ? `+${regime.breadth}` : `${regime.breadth}`) : '—';
-  const book = model === 'momentum' ? 'momentum' : 'systematic';
+  const book = 'weekly-swing';
   return (
     <div className="ri-card">
       <div className="ri-card-h">MARKET NOW</div>
@@ -322,63 +330,152 @@ function StatBar({ label, value, total }) {
   );
 }
 
-// Compact sizer for the right rail — sizes today's top pick against a
-// user-entered capital amount, using the same fixed risk-per-trade budget
-// (RISK_BUDGET) the rest of the page's suggested-qty figures already use, so
-// this card's number always agrees with what a call's own card implies.
-function SizerCard({ pick, navigate }) {
+// Map an enriched signal → the pure sizer's input shape.
+const toSizerSig = (s) => ({
+  signalId: s._signalId, sym: s.sym, entry: s.entry, stop: s.stop, buyHigh: s._buyHigh, ltp: s._ltp,
+});
+
+// Right-rail sizer — risk-as-%-of-capital tiers (from config), funded strongest-first.
+// "Calculate" hands the sized plan up to the SizerResultsModal. Tier + capital persist
+// per-user (useSizingPrefs) so the card isn't blank on return.
+function SizerCard({ buyPool, heldIds, onCalculate }) {
+  const { data: config } = useSizerConfig();
+  const { data: prefs } = useSizingPrefs();
+  const updatePrefs = useUpdateSizingPrefs();
   const [cash, setCash] = useState('');
-  if (!pick) return null;
+  const [tier, setTier] = useState('medium');
 
-  const entry = pick.entry ?? 0;
-  const stop = pick.stop ?? entry;
-  const perShareRisk = Math.max(1, entry - stop);
+  useEffect(() => {
+    if (!prefs) return;
+    setTier(prefs.risk_tier || 'medium');
+    if (prefs.default_capital != null) setCash((c) => (c === '' ? String(prefs.default_capital) : c));
+  }, [prefs]);
+
+  const tiers = config?.tiers || { medium: 0.02, high: 0.03 };
+  const capPct = config?.position_cap_pct ?? 0.20;
+  const tierPct = tiers[tier] ?? 0.02;
   const cashNum = Number(cash) || 0;
+  const nOpen = buyPool.length;
 
-  const byRisk = Math.floor(RISK_BUDGET / perShareRisk);
-  const byCash = entry > 0 ? Math.floor(cashNum / entry) : 0;
-  const qty = cashNum > 0 ? Math.max(0, Math.min(byRisk, byCash)) : byRisk;
-  const cost = qty * entry;
-  const riskAmt = qty * perShareRisk;
+  const chooseTier = (t) => { setTier(t); updatePrefs.mutate({ risk_tier: t }); };
+  const persistCapital = () => { if (cashNum > 0) updatePrefs.mutate({ default_capital: cashNum }); };
+  const calc = () => {
+    const plan = sizePortfolio({
+      signals: buyPool.map(toSizerSig), heldSignalIds: [...heldIds],
+      capital: cashNum, tierPct, capPct,
+    });
+    onCalculate({ ...plan, capital: cashNum, tier, tierPct, capPct });
+  };
 
   return (
     <div className="ri-card">
       <div className="ri-card-h">POSITION SIZER</div>
-      <div className="ri-sizer-sym">{pick.sym} <span className="ri-sizer-entry tnum">@ {fmtNum(entry)}</span></div>
-      <label className="ri-sizer-label" htmlFor="ri-sizer-cash">Capital available</label>
+      <label className="ri-sizer-label" htmlFor="ri-sizer-cash">Capital available <span className="ri-sizer-hint">(free, for new buys)</span></label>
       <input
-        id="ri-sizer-cash"
-        className="ri-sizer-input"
-        type="number"
-        inputMode="decimal"
-        placeholder="e.g. 100000"
-        value={cash}
-        onChange={(e) => setCash(e.target.value)}
+        id="ri-sizer-cash" className="ri-sizer-input" type="number" inputMode="decimal"
+        placeholder="e.g. 2000000" value={cash}
+        onChange={(e) => setCash(e.target.value)} onBlur={persistCapital}
       />
-      <div className="ri-kv"><span>Suggested qty</span><b className="tnum">{qty > 0 ? qty : '—'}</b></div>
-      <div className="ri-kv"><span>Cost</span><b className="tnum">{qty > 0 ? `₹${fmtNum(cost)}` : '—'}</b></div>
-      <div className="ri-kv"><span>Risk at stop</span><b className="num-bear tnum">{qty > 0 ? `₹${fmtNum(riskAmt)}` : '—'}</b></div>
-      <div className="ri-sizer-note">Capped at ₹{RISK_BUDGET.toLocaleString('en-IN')} risk/trade{cashNum > 0 ? ' or your capital, whichever is lower.' : '.'}</div>
-      <button type="button" className="ri-sizer-btn" onClick={() => navigate(`/stock/${encodeURIComponent(pick.sym)}?action=buy`)}>
-        Buy {pick.sym} →
+      <div className="ri-sizer-tiers" role="group" aria-label="Risk tier">
+        {['medium', 'high'].map((t) => (
+          <button
+            key={t} type="button"
+            className={`ri-tier${tier === t ? ' on' : ''}`}
+            onClick={() => chooseTier(t)}
+          >
+            {t === 'medium' ? 'Medium' : 'High'} · {Math.round((tiers[t] ?? 0) * 100)}%
+          </button>
+        ))}
+      </div>
+      <div className="ri-sizer-note">
+        {Math.round(tierPct * 100)}% risk/trade · max {Math.round(capPct * 100)}% per name.
+        {tier === 'high' && <> <span className="num-bear">High is aggressive — above the validated 2%.</span></>}
+      </div>
+      <button
+        type="button" className="ri-sizer-btn" disabled={nOpen === 0 || cashNum <= 0}
+        onClick={calc}
+      >
+        {cashNum <= 0 ? 'Enter capital to size' : `Size ${nOpen} open A-call${nOpen === 1 ? '' : 's'} →`}
       </button>
     </div>
   );
 }
 
-function SignalStatsCard({ buyPool }) {
+// One row inside the sizer results popup.
+function SizerRow({ r, held, onBought }) {
+  const s = r.status;
+  const badge = s === SIZER_STATUS.OUT_OF_RANGE ? { t: 'chased — above buy range', cls: 'warn' }
+    : s === SIZER_STATUS.NOT_FUNDED ? { t: 'no cash left', cls: 'warn' }
+    : s === SIZER_STATUS.BOUGHT ? { t: '✓ bought', cls: 'bull' }
+    : r.rangeUnknown ? { t: 'range unknown', cls: 'warn' } : null;
+  const canBuy = s === SIZER_STATUS.FUNDED && !held;
+  return (
+    <div className={`rsm-row${held || s === SIZER_STATUS.BOUGHT ? ' is-bought' : ''}`}>
+      <div className="rsm-sym">
+        <span className="ri-sym">{r.sym}</span>
+        {badge && <span className={`rsm-badge num-${badge.cls}`}>{badge.t}</span>}
+      </div>
+      <div className="rsm-nums tnum">
+        <span className="rsm-qty">{r.qty > 0 ? `${r.qty} sh` : '—'}</span>
+        <span className="rsm-cost">{r.qty > 0 ? `₹${fmtNum0(r.cost)}` : ''}</span>
+        <span className="rsm-risk">{r.risk > 0 ? `risk ₹${fmtNum0(r.risk)}` : ''}</span>
+      </div>
+      <button
+        type="button"
+        className={`ri-btn ri-btn-bought${held ? ' on' : ''}`}
+        disabled={!canBuy && !held}
+        onClick={() => onBought(r)}
+      >
+        {held ? '✓' : 'Bought'}
+      </button>
+    </div>
+  );
+}
+
+// The "Calculate" popup — the sized plan across every open Grade-A call.
+function SizerResultsModal({ open, onOpenChange, result, heldIds, onMarkBought }) {
+  if (!result) return null;
+  const { rows, totals, capital, tier, tierPct } = result;
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="border-0 p-0 rsm-dialog" style={{ maxWidth: 480 }}>
+        <div className="rsm">
+          <div className="rsm-h">
+            <span>Position plan</span>
+            <span className="rsm-hsub">{tier} · {Math.round(tierPct * 100)}% risk · ₹{fmtNum0(capital)} free</span>
+          </div>
+          <div className="rsm-list">
+            {rows.map((r) => (
+              <SizerRow key={r.signalId || r.sym} r={r} held={heldIds.has(r.signalId)} onBought={onMarkBought} />
+            ))}
+          </div>
+          <div className="rsm-totals">
+            <div><span>Deployed</span><b className="tnum">₹{fmtNum0(totals.deployed)}</b></div>
+            <div><span>At risk</span><b className="tnum">{totals.atRiskPct.toFixed(1)}%</b></div>
+            <div><span>Cash left</span><b className="tnum">₹{fmtNum0(totals.cashLeft)}</b></div>
+            <div><span>Funded</span><b className="tnum">{totals.namesFunded}</b></div>
+          </div>
+          <div className="rsm-note">
+            Indicative sizing — research output, not advice. Names you already hold are excluded;
+            a “Bought” mark is remembered only until the model completes that trade.
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function SignalStatsCard({ buyPool, heldCount }) {
   const fresh = buyPool.filter((s) => s.isFreshToday).length;
-  const gradeA = buyPool.filter((s) => (s.grade || 'B')[0].toUpperCase() === 'A').length;
-  const gradeB = buyPool.filter((s) => (s.grade || 'B')[0].toUpperCase() === 'B').length;
   const avgPot = buyPool.length ? buyPool.reduce((a, s) => a + (s._upside || 0), 0) / buyPool.length : null;
   const avgHz  = buyPool.length ? Math.round(buyPool.reduce((a, s) => a + (s.hold || 0), 0) / buyPool.length) : null;
-  const denom = Math.max(gradeA, gradeB, 1);
+  // A-only book (2026-07-13): every call shown is Grade A, so the old A/B split is gone.
   return (
     <div className="ri-card">
       <div className="ri-card-h">SIGNAL STATS · TODAY</div>
+      <div className="ri-kv"><span>Open A-calls</span><b className="num-info tnum">{buyPool.length}</b></div>
       <div className="ri-kv"><span>Fresh entries</span><b className="num-info tnum">{fresh}</b></div>
-      <StatBar label="Grade A" value={gradeA} total={denom} />
-      <StatBar label="Grade B" value={gradeB} total={denom} />
+      <div className="ri-kv"><span>You're holding</span><b className="tnum">{heldCount}</b></div>
       <div className="ri-kv"><span>Avg potential</span><b className="num-bull tnum">{avgPot == null ? '—' : fmtPct1(avgPot)}</b></div>
       <div className="ri-kv"><span>Avg horizon</span><b className="tnum">{avgHz == null ? '—' : `${avgHz} days`}</b></div>
     </div>
@@ -390,16 +487,18 @@ function HowCallsMadeCard() {
     <div className="ri-card">
       <div className="ri-card-h">HOW CALLS ARE MADE</div>
       <div className="ri-how">
-        Long-only cross-sectional trend-momentum on Nifty-500 large + mid caps. Ranked by 200-day
-        SMA slope over 63 days; top-15 by cross-sectional rank; 10–63 day hold. Fully mechanical —
-        the daily cron scans, grades, and posts the calls; there is no discretionary override.
+        Weekly-swing on NSE large + mid caps. A name qualifies when it's in a weekly uptrend
+        (above a rising 44-week SMA), pulls back and rebounds off it on a strong green weekly
+        candle, and leads the Nifty-50 on relative strength. Only the top-5 by relative-strength
+        rank each week are traded (Grade A). Mechanical — the Saturday cron scans and posts the
+        calls; no discretionary override.
       </div>
     </div>
   );
 }
 
 // ── Calls table ───────────────────────────────────────────────────────
-function CallRow({ s, onOpen, onAction }) {
+function CallRow({ s, onOpen, onAction, held, onToggleBought }) {
   const act = rowAction(s);
   const pot = potentialCell(s);
   const g = (s.grade || 'B')[0].toUpperCase();
@@ -446,6 +545,16 @@ function CallRow({ s, onOpen, onAction }) {
       </div>
 
       <div className="ri-act" onClick={(e) => e.stopPropagation()}>
+        {onToggleBought && ['buy-today', 'closing', 'holding'].includes(s.action) && (
+          <button
+            className={`ri-btn ri-btn-bought${held ? ' on' : ''}`}
+            onClick={() => onToggleBought(s)}
+            title={held ? 'Marked bought — remembered until the trade completes. Click to unmark.'
+                        : 'I bought this — remember it until the trade completes.'}
+          >
+            {held ? '✓ Bought' : 'Bought'}
+          </button>
+        )}
         <button className={`ri-btn ri-btn-${act.cls}`} onClick={() => onAction(s.sym, act.suffix)}>
           {act.label}
         </button>
@@ -472,9 +581,19 @@ export default function SignalsV3() {
   const [model, setModel] = useState('bhanushali');
   const [filter, setFilter] = useState('all');
   const [tradeCard, setTradeCard] = useState(null);
+  const [sizerResult, setSizerResult] = useState(null);   // the "Calculate" popup's sized plan
 
   const signalsQuery    = useSignals({ model });
   const watchlistQuery  = useWatchlist({ model });
+
+  // Per-user ephemeral holdings — merged CLIENT-SIDE (GET /api/signals stays model-only).
+  const holdingsQuery = useHoldings();
+  const heldIds = useMemo(
+    () => new Set((holdingsQuery.data ?? []).map((h) => h.signal_id)),
+    [holdingsQuery.data]
+  );
+  const markBought = useMarkBought();
+  const unmarkBought = useUnmarkBought();
 
   const rawSignals   = useMemo(() => signalsQuery.data?.signals ?? [], [signalsQuery.data]);
   const rawWatchlist = useMemo(() => watchlistQuery.data?.signals ?? [], [watchlistQuery.data]);
@@ -534,6 +653,22 @@ export default function SignalsV3() {
 
   const doAction  = (sym, suffix) => navigate(`/stock/${encodeURIComponent(sym)}${suffix}`);
 
+  // Row "Bought" toggle = mark-only (qty NULL); sized marks come from the sizer modal.
+  const toggleBought = (s) => {
+    const id = s._signalId;
+    if (!id) return;
+    if (heldIds.has(id)) unmarkBought.mutate(id);
+    else markBought.mutate({ signal_id: id, ticker: s.sym, entry: s.entry, stop: s.stop, qty: null });
+  };
+  // Modal "Bought" = sized mark (carries the computed qty + the tier it was sized at).
+  const markSized = (r) => {
+    if (!r?.signalId) return;
+    markBought.mutate({
+      signal_id: r.signalId, ticker: r.sym, entry: r.entry, stop: r.stop,
+      qty: r.qty || null, risk_tier_at_buy: sizerResult?.tier,
+    });
+  };
+
   if (signalsQuery.error) {
     return (
       <div className="ri-app">
@@ -550,7 +685,7 @@ export default function SignalsV3() {
       <div className="ri-head">
         <div className="ri-head-l">
           <h1 className="ri-title">Research Insights</h1>
-          <p className="ri-sub">The model's book — open, hold, exit. Grade <b>A</b> = strongest leaders (funded first), <b>B</b> = secondary. Not advice — your own capital, your own rules.</p>
+          <p className="ri-sub">The model's book — open, hold, exit. Only <b>Grade A</b> (the week's top-5 relative-strength leaders) is traded. Mark what you buy; it's remembered until the trade completes. Not advice — your own capital, your own rules.</p>
         </div>
         <div className="ri-head-r">
           <GlassTabs
@@ -618,16 +753,21 @@ export default function SignalsV3() {
                 {filter === 'all' ? STATES.empty : 'No calls match this filter right now.'}
               </div>
             ) : (
-              rows.map((s) => <CallRow key={s.sym} s={s} onOpen={setTradeCard} onAction={doAction} />)
+              rows.map((s) => (
+                <CallRow
+                  key={s.sym} s={s} onOpen={setTradeCard} onAction={doAction}
+                  held={heldIds.has(s._signalId)} onToggleBought={toggleBought}
+                />
+              ))
             )}
           </div>
         </div>
 
         <aside className="ri-rail">
-          <SizerCard pick={topPick} navigate={navigate} />
+          <SizerCard buyPool={buyPool} heldIds={heldIds} onCalculate={setSizerResult} />
           {isAdmin && model === 'bhanushali' && <ReviewCard card={reviewScorecard} />}
           <CommentaryCard regime={regime} model={model} freshCount={freshCount} />
-          <SignalStatsCard buyPool={buyPool} />
+          <SignalStatsCard buyPool={buyPool} heldCount={heldIds.size} />
           <HowCallsMadeCard />
         </aside>
       </div>
@@ -639,6 +779,10 @@ export default function SignalsV3() {
       </footer>
 
       <TradeCardModal sig={tradeCard} open={!!tradeCard} onOpenChange={(o) => !o && setTradeCard(null)} />
+      <SizerResultsModal
+        open={!!sizerResult} onOpenChange={(o) => !o && setSizerResult(null)}
+        result={sizerResult} heldIds={heldIds} onMarkBought={markSized}
+      />
     </div>
   );
 }

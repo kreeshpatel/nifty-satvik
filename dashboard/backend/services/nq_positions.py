@@ -88,6 +88,44 @@ def _history_active_by_ticker() -> dict[str, dict]:
     return _HISTORY_CACHE["active_by_ticker"]
 
 
+_CLOSED_STATUSES = {"HIT_TARGET", "HIT_STOP", "EXPIRED"}
+
+
+def signal_lifecycle_state(signal_id: str, ticker: str) -> str:
+    """'open' | 'closed' | 'unknown' for a per-user ephemeral holding, from the weekly history.
+
+    Powers erase-on-completion in routers/holdings.py: a holding whose trade the model has
+    COMPLETED (target/stop/expiry) returns 'closed' and is deleted. 'unknown' (a fresh buy not
+    yet written to history) is KEPT — only a positive 'closed' erases.
+
+    Matches signal_id ('{ticker}__{signal_date}') exactly first; falls back to the ticker because
+    a held position's history record can be re-keyed by fill date, not the setup-Friday the buy
+    card (and thus the holding) was keyed by (fault F6, nq_positions docstring)."""
+    idx = _get_history_index()
+    rec = idx.get(signal_id)
+    if rec is not None:
+        st = (rec.get("status") or "").upper()
+        if st in _CLOSED_STATUSES:
+            return "closed"
+        if st == "ACTIVE" or (rec.get("actionability") or "").upper() == "EXIT_REQUIRED":
+            return "open"
+    tku = (ticker or "").upper()
+    has_active = has_closed = False
+    for key, r in idx.items():
+        if key.split("__", 1)[0].upper() != tku:
+            continue
+        st = (r.get("status") or "").upper()
+        if st == "ACTIVE" or (r.get("actionability") or "").upper() == "EXIT_REQUIRED":
+            has_active = True
+        elif st in _CLOSED_STATUSES:
+            has_closed = True
+    if has_active:
+        return "open"
+    if has_closed:
+        return "closed"
+    return "unknown"
+
+
 def invalidate_history_cache() -> None:
     """Force re-read on next call — used by tests and by the optional
     /api/positions/refresh hook if added later."""
