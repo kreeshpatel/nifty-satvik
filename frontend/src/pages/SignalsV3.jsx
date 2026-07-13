@@ -165,10 +165,13 @@ function enrichSignal(raw, heldSet, positionByTicker, quotes) {
     buyByStr = fmtBuyBy(d); daysLeft = daysLeftUntil(d);
   }
 
-  let dayOf = null;
+  let dayOf = null, weekOf = null;
   if (raw.signal_date && action === 'holding') {
-    dayOf = Math.max(1, Math.round((Date.now() - new Date(raw.signal_date)) / 86400000));
-    dayOf = Math.min(dayOf, raw.hold_days || dayOf);
+    const calDays = Math.max(1, Math.round((Date.now() - new Date(raw.signal_date)) / 86400000));
+    dayOf = Math.min(calDays, raw.hold_days || calDays);
+    // The book's cap is 13 WEEKS; dayOf above is calendar days (unit mismatch, fault F9), so express
+    // hold progress in weeks against the real 13-week cap.
+    weekOf = Math.min(13, Math.max(1, Math.ceil(calDays / 7)));
   }
 
   const isWatch = action === 'brewing';
@@ -191,7 +194,7 @@ function enrichSignal(raw, heldSet, positionByTicker, quotes) {
     _upside: upside,
     _zeroRisk: zeroRisk,
     _suggQty: suggQty,
-    buyByStr, daysLeft, dayOf,
+    buyByStr, daysLeft, dayOf, weekOf,
     hold: raw.hold_days || 10,
     conv: convOf(grade, isWatch),
     isFreshToday: raw.signal_date === todayISO(),
@@ -220,7 +223,7 @@ function potentialCell(s) {
   }
   if (s.action === 'holding' || s.action === 'sell-now') {
     // A held trade counts days UP from entry toward the ~13-week (65d) exit.
-    return { main: fmtPct1(s._fromEntry), sub: s.dayOf ? `day ${s.dayOf} of ~${s.hold}` : '', tone: s._fromEntry >= 0 ? 'bull' : 'bear' };
+    return { main: fmtPct1(s._fromEntry), sub: s.weekOf ? `week ${s.weekOf} of 13` : '', tone: s._fromEntry >= 0 ? 'bull' : 'bear' };
   }
   if (s.action === 'closed') {
     // Buy window elapsed and it was never bought — not a live trade, so no day count.
@@ -480,6 +483,8 @@ export default function SignalsV3() {
   const regime = signalsQuery.data?.regime ?? {};
   const monitorAsOf = signalsQuery.data?.monitor_as_of ?? null;
   const monitorStamp = signalsQuery.data?.monitor_generated_ist ?? null;
+  const cronHealth = signalsQuery.data?.cron_health ?? null;
+  const scanTime = signalsQuery.data?.scan_time ?? null;
   const reviewScorecard = signalsQuery.data?.review_scorecard ?? null;
 
   const heldSet = useMemo(() => {
@@ -570,6 +575,19 @@ export default function SignalsV3() {
           )}
         </div>
       </div>
+
+      {/* Stale-data banner (fault F8): the weekly scan runs Saturday; if the published board is
+          >48h old (STALE) or today's expected run hasn't landed (FAILED_TODAY), say so instead of
+          showing an old board as if it were current. */}
+      {cronHealth && cronHealth.status && cronHealth.status !== 'OK' && (
+        <div className="ri-stale-banner">
+          <span className="ri-stale-dot" />
+          {cronHealth.status === 'STALE'
+            ? "These calls may be stale — the weekly scan hasn't refreshed in over 48 hours."
+            : "Today's scan hasn't landed yet — showing the most recent published calls."}
+          {scanTime && <span className="ri-stale-when"> Last scan: {String(scanTime).slice(0, 10)}.</span>}
+        </div>
+      )}
 
       {/* Filter chips */}
       <div className="ri-chips">
