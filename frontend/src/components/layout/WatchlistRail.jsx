@@ -344,8 +344,6 @@ export default function WatchlistRail() {
                   </div>
                 </div>
                 <div className="wlr-actions" onClick={(e) => e.stopPropagation()}>
-                  <button className="wla b" title="Buy" onClick={() => openStock(sym, '?action=buy')}>B</button>
-                  <button className="wla s" title="Sell" onClick={() => openStock(sym, '?action=sell')}>S</button>
                   <button
                     className={`wla${expanded === sym ? ' on' : ''}`}
                     title="Market depth"

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import {
-  Search, Bell, User, LogOut, Plug, Loader2, Menu, X,
+  Search, Bell, User, LogOut, Menu, X,
   LayoutDashboard, LineChart, Trophy,
   Settings as SettingsIcon, Shield, Minus, Plus,
 } from 'lucide-react';
@@ -10,7 +10,6 @@ import { searchStocks } from '@/services/kiteStock';
 import { KiteContext } from '@/App';
 import { AuthContext } from '@/context/AuthContext';
 import BrandLogo from './BrandLogo';
-import KiteChip from './KiteChip';
 import HeaderTicker from './HeaderTicker';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useUiScale } from '@/hooks/useUiScale';
@@ -211,18 +210,6 @@ export function TopBar() {
                 <div style={{ fontSize: 13, color: 'var(--text-1)' }}>{user?.name || 'You'}</div>
                 <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 2 }}>{user?.email}</div>
               </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {!kite?.connected ? (
-                <DropdownMenuItem onSelect={() => kite?.connect?.()} className="gap-2 cursor-pointer">
-                  {kite?.connecting ? <Loader2 size={14} className="animate-spin" /> : <Plug size={14} />}
-                  Connect Kite
-                </DropdownMenuItem>
-              ) : (
-                <DropdownMenuItem onSelect={() => kite?.disconnect?.()} className="gap-2 cursor-pointer">
-                  <Plug size={14} />
-                  Kite · {kite.userId}
-                </DropdownMenuItem>
-              )}
               <DropdownMenuSeparator />
               {ACCOUNT_LINKS.map((l) => {
                 const LIcon = l.icon;
@@ -501,9 +488,7 @@ export function TopBar() {
         })}
       </nav>
 
-      {/* Kite integration status — connect / live / disconnect. Global stock
-          search lives in the watchlist rail (top-bar search removed). */}
-      <KiteChip />
+      {/* Kite connect chip removed 2026-07-13 — research-only product; orders on your broker. */}
 
       {/* Notifications — placeholder until in-app inbox lands. Bell currently
           surfaces the Kite session status (the only ambient signal) and
@@ -611,18 +596,6 @@ export function TopBar() {
             <div style={{ fontSize: 13, color: 'var(--text-1)' }}>{user?.name || 'You'}</div>
             <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 2 }}>{user?.email}</div>
           </DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          {!kite?.connected ? (
-            <DropdownMenuItem onSelect={() => kite?.connect?.()} className="gap-2 cursor-pointer">
-              {kite?.connecting ? <Loader2 size={14} className="animate-spin" /> : <Plug size={14} />}
-              Connect Kite
-            </DropdownMenuItem>
-          ) : (
-            <DropdownMenuItem onSelect={() => kite?.disconnect?.()} className="gap-2 cursor-pointer">
-              <Plug size={14} />
-              Kite · {kite.userId}
-            </DropdownMenuItem>
-          )}
           <DropdownMenuSeparator />
           {ACCOUNT_LINKS.map((l) => {
             const LIcon = l.icon;

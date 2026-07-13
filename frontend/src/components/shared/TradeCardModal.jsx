@@ -55,10 +55,8 @@ export default function TradeCardModal({ sig, open, onOpenChange }) {
   const rr = risk > 0 ? (target - entry) / risk : null;
   const conv = grade === 'A' ? CONVICTION.HIGH : CONVICTION.MED;
 
-  const goBuy = () => {
-    onOpenChange(false);
-    navigate(`/stock/${encodeURIComponent(sym)}?action=buy`);
-  };
+  // Research-only (2026-07-13): no in-app order pad. Both CTAs open the stock's
+  // levels/chart page; the user places the order on their broker.
   const goDetails = () => {
     onOpenChange(false);
     navigate(`/stock/${encodeURIComponent(sym)}`);
@@ -115,23 +113,13 @@ export default function TradeCardModal({ sig, open, onOpenChange }) {
             <div style={{ display: 'flex', gap: 10, marginTop: 22 }}>
               <button
                 type="button"
-                onClick={goBuy}
+                onClick={goDetails}
                 style={{
                   flex: 1, padding: '11px 0', borderRadius: 10, border: 'none', cursor: 'pointer',
                   background: '#fff', color: '#1a1a2e', fontSize: 14, fontWeight: 700,
                 }}
               >
-                Buy {sym} →
-              </button>
-              <button
-                type="button"
-                onClick={goDetails}
-                style={{
-                  padding: '11px 16px', borderRadius: 10, cursor: 'pointer', fontSize: 13, fontWeight: 600,
-                  background: 'rgba(255,255,255,0.12)', color: '#fff', border: '1px solid rgba(255,255,255,0.28)',
-                }}
-              >
-                View details
+                View {sym} levels →
               </button>
             </div>
           </div>

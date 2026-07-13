@@ -216,11 +216,13 @@ function enrichSignal(raw, quotes) {
 // Display order: actionable first, closed last.
 const ACTION_RANK = { 'sell-now': 0, 'buy-today': 1, closing: 2, holding: 3, brewing: 4, closed: 5 };
 
+// Research-only (2026-07-13): no in-app order pad. Every action opens the stock's
+// levels/chart page (/stock/:sym); the user places the order on their broker.
 function rowAction(s) {
   switch (s.action) {
     case 'buy-today':
-    case 'closing':  return { label: 'Buy',   cls: 'buy',   suffix: '?action=buy' };
-    case 'sell-now': return { label: 'Sell',  cls: 'sell',  suffix: '?action=sell' };
+    case 'closing':  return { label: 'Levels', cls: 'buy',   suffix: '' };
+    case 'sell-now': return { label: 'Levels', cls: 'sell',  suffix: '' };
     case 'holding':  return { label: 'Hold',  cls: 'hold',  suffix: '' };
     case 'brewing':  return { label: 'Watch', cls: 'watch', suffix: '' };
     default:         return { label: 'View',  cls: 'view',  suffix: '' };
@@ -731,7 +733,7 @@ export default function SignalsV3() {
       {/* Pick of the week */}
       {!loading && topPick && (
         <div className="ri-pick">
-          <PickOfWeek sig={topPick} to={`/stock/${encodeURIComponent(topPick.sym || '')}`} ctaLabel="Size & buy →" />
+          <PickOfWeek sig={topPick} to={`/stock/${encodeURIComponent(topPick.sym || '')}`} ctaLabel="View levels →" />
         </div>
       )}
 

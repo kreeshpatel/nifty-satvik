@@ -21,7 +21,7 @@
  *   - yahooFundamentals/News/Peers — tab content.
  */
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, AlertCircle, ExternalLink } from 'lucide-react';
 import { PageShell } from '@/components/shared/PageShell';
@@ -30,14 +30,12 @@ import { PriceChart } from '@/components/shared/PriceChart';
 import { DecisionBand } from '@/components/shared/DecisionBand';
 import { StatusChip } from '@/components/shared/StatusChip';
 import { EmptyCard } from '@/components/shared/EmptyCard';
-import { OrderPad } from '@/components/shared/OrderPad';
 import { OrderBookL2 } from '@/components/shared/OrderBookL2';
 import { VolumeProfile } from '@/components/shared/VolumeProfile';
 import { TickerOrderHistory } from '@/components/shared/TickerOrderHistory';
 import { ActiveSignalStrip } from '@/components/shared/ActiveSignalStrip';
 import { SignalDetailDrawer } from '@/components/shared/SignalDetailDrawer';
 import { useStockData } from '@/hooks/useStockData';
-import { useOrderPlacement } from '@/hooks/useOrderPlacement';
 import { useSignalHistory } from '@/hooks/queries/useSignalHistory';
 import {
   yahooFundamentals, yahooNews, yahooPeers,
@@ -107,11 +105,9 @@ function usePeers(symbol, active) {
 export default function StockDetailV2() {
   const { symbol: rawSymbol } = useParams();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const symbol = (rawSymbol || '').toUpperCase();
   const kite = useContext(KiteContext);
 
-  const [orderSide, setOrderSide] = useState(null);
   const [signalDetailOpen, setSignalDetailOpen] = useState(false);
   const [chartType, setChartType] = useState('candle');
   // Panels stack vertically (no tabs) so all four sections render at once.
@@ -136,26 +132,6 @@ export default function StockDetailV2() {
   const newsQuery = useNews(symbol, panelsDeferred);
   const peersQuery = usePeers(symbol, panelsDeferred);
   const historyQuery = useSignalHistory();
-  const { placeOrder, isPending: placingOrder } = useOrderPlacement();
-
-  // Pre-fill state for SELL flows initiated from the Portfolio page.
-  // PortfolioV2 navigates here with `?action=sell&qty=N&signal_id=...`
-  // when the user clicks SELL on a NQ position card.
-  const presetAction = (searchParams.get('action') || '').toUpperCase();
-  const presetQty = Number(searchParams.get('qty')) || null;
-  const presetSignalId = searchParams.get('signal_id') || null;
-
-  // Auto-open the OrderPad if we arrived via a sell intent. Use a one-shot
-  // effect so back-navigation that strips the params doesn't re-open it.
-  const [autoOpenedOnce, setAutoOpenedOnce] = useState(false);
-  useEffect(() => {
-    if (autoOpenedOnce) return;
-    if (!kite?.connected) return;
-    if (presetAction === 'SELL' || presetAction === 'BUY') {
-      setOrderSide(presetAction);
-      setAutoOpenedOnce(true);
-    }
-  }, [presetAction, kite?.connected, autoOpenedOnce]);
 
   const ltp = data.tick?.last_price ?? data.price?.last_price ?? null;
   const change = data.tick?.change ?? data.price?.change ?? 0;
@@ -221,44 +197,6 @@ export default function StockDetailV2() {
     if (typeof tickVol === 'number' && tickVol > 0) return tickVol;
     return candles.length > 0 ? candles[candles.length - 1].volume : null;
   }, [data.tick, data.price, candles]);
-
-  const handleOpenOrder = (side) => {
-    if (!kite?.connected) return;
-    setOrderSide(side);
-  };
-
-  const handlePlaceOrder = async (payload) => {
-    // Don't swallow — OrderPad's confirm dialog needs the rejection to display
-    // the inline error and stay open. Error toasts still fire from the hook's
-    // onError. Drawer close on success is handled by OrderPad via onOpenChange.
-    //
-    // If we arrived via ?action=sell&signal_id=... (from PortfolioV2), preserve
-    // the original signal_id so the SELL row is FIFO-matched to the right
-    // entry — that's what makes realised P&L correct on the Accounting page
-    // and flips the position to CLOSED in /api/positions/nq.
-    const signal = presetSignalId
-      ? (() => {
-          const [tk, sd] = presetSignalId.split('__');
-          return { ticker: tk || symbol, signal_date: sd || new Date().toISOString().slice(0, 10) };
-        })()
-      : { ticker: symbol, signal_date: new Date().toISOString().slice(0, 10) };
-
-    await placeOrder({ payload, signal, variety: 'regular' });
-  };
-
-  // Build a synthetic signal payload so OrderPad's risk-sizing math works.
-  // We don't have a real entry/stop/target — use LTP for entry, ±2% as
-  // sensible placeholders. The user can override in the OrderPad form.
-  const orderPadSignal = useMemo(() => {
-    if (!ltp) return null;
-    return {
-      ticker: symbol,
-      entry: ltp,
-      stop: ltp * 0.98,
-      target: ltp * 1.04,
-      signal_date: new Date().toISOString().slice(0, 10),
-    };
-  }, [symbol, ltp]);
 
   return (
     <PageShell title={`${symbol} — Stock Detail`} disclaimer>
@@ -360,7 +298,6 @@ export default function StockDetailV2() {
           currentPrice={ltp}
           kiteConnected={!!kite?.connected}
           onWhy={() => setSignalDetailOpen(true)}
-          onBuy={() => handleOpenOrder('BUY')}
         />
 
         {/* USER POSITION strip if holding */}
@@ -502,115 +439,16 @@ export default function StockDetailV2() {
         </StackedSection>
       </section>
 
-      {/* ORDER PAD */}
-      <OrderPad
-        open={!!orderSide}
-        onOpenChange={(open) => !open && setOrderSide(null)}
-        // Use the active NQ signal's entry/stop/target for sizing if present;
-        // otherwise the synthetic ±2% scaffold from the orderPadSignal memo.
-        signal={activeSignal || orderPadSignal}
-        side={orderSide}
-        capital={1000000}
-        submitting={placingOrder}
-        onPlace={handlePlaceOrder}
-      />
-
-      {/* SIGNAL DETAIL DRAWER — opened from ActiveSignalStrip "Why?" button */}
+      {/* SIGNAL DETAIL DRAWER — opened from ActiveSignalStrip "Why?" button.
+          Research-only (2026-07-13): no order pad; the drawer shows the signal
+          rationale + levels, users place the order on their broker. */}
       {activeSignal && (
         <SignalDetailDrawer
           signal={activeSignal}
           open={signalDetailOpen}
           onOpenChange={setSignalDetailOpen}
-          onOpenOrderPad={kite?.connected ? () => {
-            setSignalDetailOpen(false);
-            setTimeout(() => handleOpenOrder('BUY'), 220);
-          } : undefined}
         />
       )}
-
-      {/* STICKY DECISION FOOTER — primary action always one tap away.
-          Robinhood-pro pattern: Buy/Sell live here, NOT in the DecisionBand.
-          Visible whether or not Kite is connected — disabled state shows
-          "Connect Kite to trade" so the affordance is always present and
-          the user sees the path to enabling it. */}
-      <div
-        style={{
-          position: 'sticky',
-          bottom: 16,
-          zIndex: 10,
-          marginTop: 24,
-          padding: '12px 16px',
-          background: 'var(--surface-modal)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          border: '1px solid var(--edge-2)',
-          borderRadius: 'var(--r-card)',
-          boxShadow: 'var(--shadow-lg)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          flexWrap: 'wrap',
-        }}
-      >
-        <div className="t-ui-footnote" style={{ color: 'var(--text-3)', flex: 1, minWidth: 200 }}>
-          <span className="t-num-body" style={{ color: 'var(--text-1)', fontSize: 13, marginRight: 6 }}>
-            {symbol}
-          </span>
-          {ltp != null ? (
-            <>
-              LTP {fmtPrice(ltp)}
-              <span
-                style={{
-                  color: tone === 'bull' ? 'var(--bull)' : tone === 'bear' ? 'var(--bear)' : 'var(--text-3)',
-                  marginLeft: 6,
-                }}
-              >
-                {Number(changePct || 0).toFixed(2)}%
-              </span>
-            </>
-          ) : (
-            <span style={{ color: 'var(--text-3)' }}>Loading…</span>
-          )}
-        </div>
-        <button
-          type="button"
-          disabled={!kite?.connected}
-          onClick={() => handleOpenOrder('BUY')}
-          className="t-ui-callout"
-          style={{
-            padding: '10px 22px',
-            background: kite?.connected ? 'var(--brand)' : 'var(--surface-3)',
-            color: kite?.connected ? 'var(--brand-fg)' : 'var(--text-3)',
-            border: `1px solid ${kite?.connected ? 'var(--brand)' : 'var(--edge-1)'}`,
-            borderRadius: 'var(--r-chip)',
-            cursor: kite?.connected ? 'pointer' : 'not-allowed',
-            fontWeight: 600,
-            minWidth: 100,
-          }}
-          title={kite?.connected ? '' : 'Connect Kite to trade'}
-        >
-          {kite?.connected ? 'Buy at LTP' : 'Buy'}
-        </button>
-        <button
-          type="button"
-          disabled={!kite?.connected}
-          onClick={() => handleOpenOrder('SELL')}
-          className="t-ui-callout"
-          style={{
-            padding: '10px 22px',
-            background: 'transparent',
-            color: kite?.connected ? 'var(--bear)' : 'var(--text-3)',
-            border: `1px solid ${kite?.connected ? 'var(--bear)' : 'var(--edge-1)'}`,
-            borderRadius: 'var(--r-chip)',
-            cursor: kite?.connected ? 'pointer' : 'not-allowed',
-            fontWeight: 600,
-            minWidth: 100,
-          }}
-          title={kite?.connected ? '' : 'Connect Kite to trade'}
-        >
-          {kite?.connected ? 'Sell at LTP' : 'Sell'}
-        </button>
-      </div>
     </PageShell>
   );
 }
