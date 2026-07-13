@@ -219,10 +219,15 @@ function potentialCell(s) {
     return { main: 'below gate', sub: dist != null ? `${fmtPct1(dist)} to enter` : '', tone: 'warn' };
   }
   if (s.action === 'holding' || s.action === 'sell-now') {
-    return { main: fmtPct1(s._fromEntry), sub: s.dayOf ? `${s.dayOf}/${s.hold}d held` : '', tone: s._fromEntry >= 0 ? 'bull' : 'bear' };
+    // A held trade counts days UP from entry toward the ~13-week (65d) exit.
+    return { main: fmtPct1(s._fromEntry), sub: s.dayOf ? `day ${s.dayOf} of ~${s.hold}` : '', tone: s._fromEntry >= 0 ? 'bull' : 'bear' };
   }
-  const horizon = s.daysLeft != null ? `~${s.daysLeft} days` : `~${s.hold} days`;
-  return { main: fmtPct1(s._upside), sub: horizon, tone: 'bull' };
+  if (s.action === 'closed') {
+    // Buy window elapsed and it was never bought — not a live trade, so no day count.
+    return { main: '—', sub: 'buy window closed', tone: 'warn' };
+  }
+  // A fresh buy candidate: show the expected hold-to-exit horizon, NOT the buy-window countdown.
+  return { main: fmtPct1(s._upside), sub: `~${s.hold} days to exit`, tone: 'bull' };
 }
 
 // ── Daily-monitor event chip (weekly book) ────────────────────────────
