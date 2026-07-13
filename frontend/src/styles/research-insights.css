@@ -66,7 +66,8 @@
 }
 .ri-thead, .ri-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 96px 96px 126px 88px;
+  /* last col holds two controls (Bought + action), so it's wider than the old single-button 88px */
+  grid-template-columns: minmax(0, 1fr) 88px 92px 112px 150px;
   align-items: center; gap: 10px;
   padding: 12px 16px;
 }
@@ -103,16 +104,16 @@
 .ri-cell-main { font-size: 13.5px; font-weight: 600; color: var(--text-1); }
 .ri-cell-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
 
-.ri-act { display: flex; justify-content: flex-end; gap: 6px; }
+.ri-act { display: flex; justify-content: flex-end; align-items: center; gap: 6px; flex-wrap: nowrap; }
 .ri-btn {
-  min-width: 66px; padding: 7px 12px; border-radius: 8px; border: 1px solid transparent;
-  font-family: var(--font-sans); font-size: 12.5px; font-weight: 600; cursor: pointer;
-  transition: all 160ms;
+  min-width: 54px; padding: 7px 10px; border-radius: 8px; border: 1px solid transparent;
+  font-family: var(--font-sans); font-size: 12px; font-weight: 600; cursor: pointer;
+  white-space: nowrap; transition: all 160ms;
 }
 /* Ephemeral "I bought this" toggle — muted until set, then a solid confirmation. */
 .ri-btn-bought {
-  min-width: 0; padding: 7px 10px; background: var(--surface-2); color: var(--text-3);
-  border-color: var(--edge-1);
+  min-width: 62px; padding: 7px 9px; font-size: 11.5px; background: var(--surface-3);
+  color: var(--text-2); border-color: var(--edge-2);
 }
 .ri-btn-bought:hover:not(:disabled) { color: var(--text-1); border-color: var(--edge-2); }
 .ri-btn-bought.on { background: rgba(63,221,138,0.16); color: var(--bull); border-color: rgba(63,221,138,0.35); }
