@@ -1,0 +1,131 @@
+# forward/prereg_swing.md — Swing-Book Forward-Wall Pre-Registration
+
+**Status:** PRE-REGISTERED (locked before the decision review)
+**Version:** 1.0 (registered 2026-07-13)
+**Strategy:** Bhanushali weekly-swing, ranker of record `weekly-swing-0094` (CRS-strength fill).
+**Anchor:** `0094` on the CORRECTED universe (`dataset-pin-20260701` ohlcv_sha `f8625a8f…` + delisted
+backfill + `delisted_alias_map.json`), via `corrected_universe()`.
+**Author/owner:** Kreesh Patel
+**Companion:** the momentum wall (`forward/prereg.md`) — that book is decommissioned/WATCHED; this is the
+live single-sleeve. This doc governs the swing book ONLY.
+
+---
+
+## 0. Why a forward wall for the swing book
+
+The single-sleeve swing search is out of unbiased in-sample information, for the same reason the momentum
+sleeve was (`forward/prereg.md §0`). At **n_trials = 114** the Deflated-Sharpe bar is high enough that any
+new in-sample cut that "wins" is indistinguishable from a search-max. The 2026-07-13 volume thread
+confirmed it three more ways (§7): every candidate that beat the baseline in-sample was a narrow peak, a
+zero-spread IC, or an unrepresentative-population artifact. **The only remaining source of unbiased
+information is forward data on a book that is not re-fit.**
+
+This document fixes — **before the first decision review** — the rule that decides which grading the live
+product runs. Thresholds here may be **tightened or clarified** with a dated amendment; they may **never be
+relaxed retroactively**. Moving a goalpost after seeing forward data voids that criterion.
+
+## 1. The in-sample reference distribution (what forward is judged against)
+
+Reproduced NET after costs (STT 0.1%/leg + brokerage 0.03%/leg + tiered slippage), corrected universe,
+2017-01-02 → 2026-06-29, via `python scripts/run_bhanushali_weekly_rank.py` (finding 0094 / 0038):
+
+| Book | Sharpe | CAGR | MaxDD | Calmar | Win% | Trades/yr | DSR |
+|---|--:|--:|--:|--:|--:|--:|--:|
+| **base-swing** (all grades, fund strongest-first) | **1.132** | 24.7% | −42.4% | 0.58 | 59.2% | 27 | 0.894 |
+| **A-only** (top-5 CRS per ISO week) | 1.003 | 21.2% | **−36.3%** | 0.58 | 54.9% | 26 | — |
+
+Sub-period (continuous-slice) Sharpe — base / A-only: 2017-18 **1.17 / 0.75**, 2019-21 **1.05 / 1.30**,
+2022-26 **1.19 / 0.90**. Bootstrap 95% Sharpe CI — base [0.47, 1.71], A-only [0.36, 1.54].
+
+**Honest statement of what is and isn't claimed.** A-only is **not** an in-sample edge over all-grades —
+it is **lower return at a shallower drawdown, same Calmar (0.58)**. It is a *defensive product variant*,
+not a return improvement. The forward wall exists to answer two OOS questions that in-sample cannot:
+
+1. **Does the CRS top-5 concentration hold its risk profile forward** — i.e. does A-only keep its
+   shallower-DD / ~equal-Calmar shape on data it was never selected on, or does the concentration bite?
+2. **Does CRS ranking carry any forward signal at all** (0094's open premise — in-sample its rank-IC was
+   real, +0.08, but did not convert to a portfolio win; IC ≠ Sharpe)?
+
+## 2. Books logged forward (hard cap: these two — no third without a recorded swap)
+
+| Book | Status | Rule | Operational log |
+|---|---|---|---|
+| **base-swing** | WATCHED (reconstructable) | All grades, fund strongest-first from the ₹10L-equivalent cash gate. | Reconstructable from the **uncapped signal ledger** `results/signals_history_weekly.json` (every signal, all grades). |
+| **A-only** | **PAPER (live product)** | Trade only the top-5-CRS-per-ISO-week names. | `results/paper_portfolio_weekly.json` (NAV) + `results/signals_history_weekly.json` (designation history). |
+
+Both are written daily/weekly by `scripts/run_bhanushali_cron.py` (§F of `docs/SYSTEM.md`). The A-only book
+is the one carrying the (paper) capital; base-swing is logged-not-traded and reconstructed from the same
+signal ledger, so the two share ONE signal source per run (no divergent-panel risk).
+
+## 3. Capital phase gate (mirrors the momentum wall §1)
+
+A-only is **PAPER** now. It transitions to small real capital ONLY via a dated §10-style amendment once
+the repo paper gate (`skills/portfolio-simulation`) is met: **≥ 30 closed trades AND ~2 months** of paper.
+Phase-A paper measures signal continuation only; it does NOT clear execution-cost reality (real slippage /
+MTF / own-behaviour-under-drawdown) — that is Phase-B, real-capital only.
+
+## 4. The decision (pre-committed)
+
+**When:** the quarterly reviews (first trading day Jan / Apr / Jul / Oct). Primary decision at the
+**12-month review (2027-07-01)**; the **2026-10-01** review is a first read only (too few closed trades to
+decide). Between reviews: **log and leave it alone** — no config or grading change (except the mechanical
+halt, §5).
+
+**What is decided:** which grading the live product runs — **A-only** vs **base-swing (all grades)**.
+
+**Rule (frozen):**
+- **Keep A-only** if, on forward closed trades, it holds its in-sample bargain: forward **MaxDD shallower
+  than base-swing** AND forward **Calmar ≥ base-swing − 0.05**. (The A-only thesis is "shallower DD at ~equal
+  risk-adjusted return"; it must keep *both* halves of that forward, not just give up return.)
+- **Revert to base-swing** if A-only forward MaxDD is **not** shallower than base, OR forward Calmar falls
+  **> 0.10 below** base. (Concentration that neither smooths the ride nor holds Calmar has no reason to exist.)
+- **Insufficient evidence** (< 20 forward closed trades per book, or CIs overlapping on both DD and Calmar):
+  **default to base-swing** — the certified run of record — and carry A-only one more quarter. A-only does not
+  get the benefit of the doubt; it must *earn* its place against the higher-CAGR default.
+
+All three thresholds are **tighten-only**. A relaxation voids this §4 and restarts its clock.
+
+## 5. Mechanical halt (no discretion)
+
+If the **live A-only book** draws down **−50%** from its logged peak NAV, halt new entries, manage open
+positions to exit, and freeze until the next quarterly review. This is the only between-review action.
+
+## 6. Integrity commitments
+
+- **Reproduce-before-trust.** Every number in a review readout must come from the committed pipeline
+  (`run_bhanushali_weekly_rank.py` for the reference, the `*_weekly.json` logs for forward), never a chat
+  transcript.
+- **Sub-period gates use a continuous slice** of one full run (`nq.runner.research.evaluate_overlay`),
+  never a fresh-capital re-run from the sub-window start.
+- **No peeking-driven change.** Config, grading, universe, and thresholds are frozen between reviews.
+- **The forward log is append-only.** The swing book currently logs via the `*_weekly.json` artifacts;
+  hardening them to the momentum wall's hash-chained standard (`nq/paper/forward_wall.py`) is a tracked
+  follow-up, not a blocker for registration (the decision rule above is what this doc pins).
+
+## 7. Closed in-sample threads (pre-committed KILL — do not relitigate without new {data, feature,
+sub-period, formulation})
+
+The 2026-07-13 volume thread (finding 0097) is CLOSED. Three measurements, all rejected on the correct
+population under `backtest-rigor`:
+
+- **HVC as an A+ sub-grader** (split the traded A book by setup-week volume / trailing-L avg, L∈{10…150}):
+  NULL and **wrong-signed** (high-volume A entries mildly *underperform*), every |t| < 2. The A pool
+  (~26 trades/yr) is also below the sub-grade power floor. → grading stays CRS-only.
+- **20-day momentum / volume as a RANKER** (roc20, volsurge, roc20×vol): real IC but **zero tradeable
+  Q5−Q1 spread**; the combo goes negative. CRS remains the best-IC ranker and still doesn't convert to a
+  portfolio win (IC ≠ Sharpe).
+- **Volume FILTER on the raw pool** (keep entries with setup-week vol ≥ k× trailing-20d avg, k-sweep):
+  the only cells that beat baseline are **narrow peaks** (Sharpe collapses > 0.15 one step either side),
+  at **inconsistent thresholds across books** (all-grades 0.85 vs A-only 0.70), **non-monotone** — the
+  `backtest-rigor §C1b` overfit signature. REJECT.
+
+Root cause (all three): the 6-step filter + CRS + ADV≥5cr selection **already absorbs whatever volume was
+proxying for**; layering volume on an already-elite pool adds nothing. These were measurements — **no trial
+spent; n_trials stays 114.**
+
+## 8. What would reopen the single-sleeve search (the bar for trial #115)
+
+Nothing in the technical/volume/momentum/macro zoo already killed. A genuinely new lever means one of:
+a new PIT-clean orthogonal feature (Jaccard-distinct from the killed set), a new data modality, or a new
+sub-period with a mechanism. Absent that, **the forward wall — not a 115th in-sample cut — is the only
+move.**
