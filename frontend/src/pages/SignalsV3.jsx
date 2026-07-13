@@ -10,7 +10,6 @@
  * Data (unchanged from the previous split-pane version):
  *   - useSignals()       → the MODEL's book: open/hold/exit signals + regime + cron_health
  *   - useWatchlist()     → brewing/watchlist signals
- *   - useSignalHistory() → the track record: closed trades (bought → held → exited)
  *   - useQuoteBatch()    → live LTP / day-change overlay
  *   (Kite / personal-position mapping removed 2026-07-13 — this page is model-centric.)
  *
@@ -24,7 +23,6 @@ import { KiteContext } from '@/App';
 import { AuthContext } from '@/context/AuthContext';
 import { useSignals } from '@/hooks/queries/useSignals';
 import { useWatchlist } from '@/hooks/queries/useWatchlist';
-import { useSignalHistory } from '@/hooks/queries/useSignalHistory';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import { GlassTabs } from '@/components/shared/GlassTabs';
 import { CONVICTION, DISCLAIMER, STATES } from '@/lib/signalCopy';
@@ -294,38 +292,6 @@ function regimeInfo(regime) {
 }
 
 // ── Right-rail cards ──────────────────────────────────────────────────
-// Track record — the model's bought stocks and their outcomes.
-function TrackRecordCard({ tr }) {
-  if (!tr) return null;
-  return (
-    <div className="ri-card">
-      <div className="ri-card-h">TRACK RECORD</div>
-      <div className="tr-stats">
-        <div className="tr-stat"><span className="tr-n">{tr.held}</span><span className="tr-l">holding</span></div>
-        <div className="tr-stat"><span className="tr-n">{tr.nClosed}</span><span className="tr-l">closed</span></div>
-        <div className="tr-stat"><span className="tr-n">{tr.winRate != null ? `${Math.round(tr.winRate)}%` : '—'}</span><span className="tr-l">win rate</span></div>
-        <div className="tr-stat"><span className={`tr-n ${(tr.avgRet ?? 0) >= 0 ? 'num-bull' : 'num-bear'}`}>{tr.avgRet != null ? fmtPct1(tr.avgRet) : '—'}</span><span className="tr-l">avg return</span></div>
-      </div>
-      {tr.closed.length > 0 ? (
-        <div className="tr-list">
-          {tr.closed.slice(0, 6).map((c, i) => (
-            <div key={`${c.sym}-${i}`} className="tr-row">
-              <span className="tr-sym">{c.sym}</span>
-              <span className={`tr-tag tr-${c.outcome}`}>{c.outcome}{c.weeks ? ` · ${c.weeks}w` : ''}</span>
-              <span className={`tr-ret tnum ${c.ret >= 0 ? 'num-bull' : 'num-bear'}`}>{fmtPct1(c.ret)}</span>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="tr-empty">
-          No closed trades yet — the book is young. Bought names show as <b>Hold</b> above and move to
-          <b> Exit</b> when the model closes them; each lands here with its result.
-        </div>
-      )}
-    </div>
-  );
-}
-
 function CommentaryCard({ regime, model, freshCount }) {
   const r = regimeInfo(regime);
   const vix = regime?.vix != null ? Number(regime.vix).toFixed(1) : '—';
@@ -509,7 +475,6 @@ export default function SignalsV3() {
 
   const signalsQuery    = useSignals({ model });
   const watchlistQuery  = useWatchlist({ model });
-  const historyQuery    = useSignalHistory({ model });   // track record: closed trades
 
   const rawSignals   = useMemo(() => signalsQuery.data?.signals ?? [], [signalsQuery.data]);
   const rawWatchlist = useMemo(() => watchlistQuery.data?.signals ?? [], [watchlistQuery.data]);
@@ -565,31 +530,6 @@ export default function SignalsV3() {
   );
 
   // Track record: every stock the model bought and its outcome (bought -> held -> exited).
-  const trackRecord = useMemo(() => {
-    const hist = historyQuery.data?.history ?? [];
-    const an = historyQuery.data?.analytics ?? {};
-    const CLOSED = ['HIT_TARGET', 'HIT_STOP', 'EXPIRED'];
-    const closed = hist
-      .filter((h) => CLOSED.includes((h.status || '').toUpperCase()))
-      .map((h) => ({
-        sym: h.ticker,
-        ret: h.return_pct ?? h.pnl_pct ?? 0,
-        outcome: (h.status || '').toUpperCase() === 'HIT_TARGET' ? 'target'
-          : (h.status || '').toUpperCase() === 'HIT_STOP' ? 'stop' : 'expired',
-        exited: h.close_date || h.signal_date,
-        weeks: h.hold_days ? Math.max(1, Math.round(h.hold_days / 5)) : null,
-      }))
-      .reverse();
-    const held = allEnriched.filter((s) => s.action === 'holding' || s.action === 'sell-now');
-    return {
-      closed,
-      held: held.length,
-      nClosed: an.total_closed ?? closed.length,
-      winRate: an.win_rate ?? null,
-      avgRet: an.avg_return_pct ?? null,
-    };
-  }, [historyQuery.data, allEnriched]);
-
   const freshCount = counts.today ?? 0;
 
   const doAction  = (sym, suffix) => navigate(`/stock/${encodeURIComponent(sym)}${suffix}`);
@@ -686,7 +626,6 @@ export default function SignalsV3() {
         <aside className="ri-rail">
           <SizerCard pick={topPick} navigate={navigate} />
           {isAdmin && model === 'bhanushali' && <ReviewCard card={reviewScorecard} />}
-          <TrackRecordCard tr={trackRecord} />
           <CommentaryCard regime={regime} model={model} freshCount={freshCount} />
           <SignalStatsCard buyPool={buyPool} />
           <HowCallsMadeCard />
