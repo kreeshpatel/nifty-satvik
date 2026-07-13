@@ -111,116 +111,6 @@ function SigSpark({ data, tone = 'bull', gradId }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────
-// EquityNetWorth — prototype .card.networth
-// ─────────────────────────────────────────────────────────────────────
-function EquityNetWorth({ holdings, kiteConnected }) {
-  const kite = useMemo(() => {
-    if (!kiteConnected) return null;
-    const rows = holdings ?? [];
-    let mktValue = 0, cost = 0, dayPnl = 0;
-    for (const h of rows) {
-      const qty = h.quantity ?? 0, ltp = h.last_price ?? 0, avg = h.average_price ?? 0;
-      if (qty > 0 && ltp > 0) mktValue += qty * ltp;
-      if (qty > 0 && avg > 0) cost += qty * avg;
-      if (qty > 0 && h.day_change != null) dayPnl += Number(h.day_change) * qty;
-    }
-    return {
-      current: mktValue, invested: cost, pnl: mktValue - cost,
-      pnlPct: cost > 0 ? ((mktValue - cost) / cost) * 100 : null,
-      dayPnl, dayPct: mktValue > dayPnl ? (dayPnl / (mktValue - dayPnl)) * 100 : null,
-    };
-  }, [kiteConnected, holdings]);
-
-  // This card is "MY equity net-worth" — it must only ever show the user's
-  // real Kite portfolio, never the model's paper-book simulation. There is
-  // deliberately no fallback to a `portfolio` prop here (there used to be
-  // one, to results/paper_portfolio*.json's totals) — a disconnected or
-  // still-loading Kite session showed a fake ₹9.75L "net worth" that had
-  // nothing to do with the user's actual capital. Show an honest empty
-  // state instead until real holdings data is available.
-  const kiteCtx = useContext(KiteContext);
-  const hasRealData = !!kite && (kite.current > 0 || kite.invested > 0);
-  const current  = hasRealData ? kite.current  : null;
-  const invested = hasRealData ? kite.invested : null;
-  const pnl      = hasRealData ? kite.pnl      : null;
-  const pnlPct   = hasRealData ? kite.pnlPct   : null;
-  const dayPnl   = hasRealData ? kite.dayPnl   : null;
-  const dayPct   = hasRealData ? kite.dayPct   : null;
-
-  const [hidden, setHidden] = useState(false);
-  const dateLabel = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-  const show = (v) => (hidden ? '••••••' : v);
-
-  if (!hasRealData) {
-    return (
-      <div className="card networth">
-        <div className="nw-top">
-          <div className="nw-title">My equity net-worth</div>
-        </div>
-        <div style={{ padding: '10px 2px 4px', fontSize: 13, color: 'var(--text-3)' }}>
-          {kiteConnected
-            ? 'Waiting on live prices from Kite for your holdings.'
-            : (
-              <>
-                Connect Kite to see your real net-worth here.{' '}
-                <button
-                  type="button"
-                  className="link"
-                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', font: 'inherit' }}
-                  onClick={() => kiteCtx?.connect?.()}
-                >
-                  Connect →
-                </button>
-              </>
-            )}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="card networth">
-      <div className="nw-top">
-        <div className="nw-title">My equity net-worth <span>as on {dateLabel}</span></div>
-        <Link className="link" to="/portfolio">View details →</Link>
-      </div>
-      <div className="nw-body">
-        <div className="nw-item">
-          <div className="k">
-            Current value
-            <svg className="nw-eye" viewBox="0 0 24 24" onClick={() => setHidden((h) => !h)}
-              role="button" aria-label={hidden ? 'Show values' : 'Hide values'}>
-              {hidden
-                ? <path d="M1 12s4-7 11-7c2 0 3.8.6 5.3 1.5M23 12s-4 7-11 7c-2 0-3.8-.6-5.3-1.5M1 1l22 22M9.5 9.5a3 3 0 0 0 4.2 4.2" />
-                : <><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" /><circle cx="12" cy="12" r="3" /></>}
-            </svg>
-          </div>
-          <div className="v tnum">{current != null ? show(fmtLakh(current)) : '—'}</div>
-        </div>
-        <div className="nw-item">
-          <div className="k">Invested</div>
-          <div className="v tnum">{invested != null ? show(fmtLakh(invested)) : '—'}</div>
-        </div>
-        <div className="nw-item">
-          <div className="k">Total P&amp;L</div>
-          <div className={`v tnum ${pnl != null ? (pnl >= 0 ? 'bull' : 'bear') : ''}`}>
-            {pnl != null ? show(fmtLakh(pnl)) : '—'}
-            {pnlPct != null && !hidden && <small className={pnl >= 0 ? 'bull' : 'bear'}> ({fmtPct(pnlPct)})</small>}
-          </div>
-        </div>
-        {dayPnl != null && (
-          <div className="nw-day">
-            <div className="k">Day's P&amp;L</div>
-            <div className={`v tnum ${dayPnl >= 0 ? 'bull' : 'bear'}`}>
-              {show(`${dayPnl >= 0 ? '+' : ''}${fmtLakh(dayPnl)}${dayPct != null ? ` (${fmtPct(dayPct)})` : ''}`)}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────────
 // Regime — prototype .regime
@@ -701,11 +591,8 @@ export default function DashboardV3() {
       <div className="dash-grid">
         {/* CENTER */}
         <div className="stack">
-          <EquityNetWorth
-            holdings={holdingsQuery.data ?? []}
-            kiteConnected={!!kite?.connected}
-          />
-
+          {/* My equity net-worth removed 2026-07-13 — research-only product; users
+              see their net worth on their broker, not here. */}
           <RegimeCard regime={regime} indexData={indexData} heldCount={heldCount} />
 
           <ScanStatus cronHealth={cronHealth} signalsCount={signals.length} />

@@ -31,10 +31,6 @@ const DashboardV2     = React.lazy(() => import('@/pages/DashboardV2'));
 const DashboardV3     = React.lazy(() => import('@/pages/DashboardV3'));
 const SignalsV2       = React.lazy(() => import('@/pages/SignalsV2'));
 const SignalsV3       = React.lazy(() => import('@/pages/SignalsV3'));
-const PortfolioV2     = React.lazy(() => import('@/pages/PortfolioV2'));
-const PortfolioV3     = React.lazy(() => import('@/pages/PortfolioV3'));
-const PositionsV3     = React.lazy(() => import('@/pages/PositionsV3'));
-const AnalyticsV2     = React.lazy(() => import('@/pages/AnalyticsV2'));
 const JournalV2       = React.lazy(() => import('@/pages/JournalV2'));
 const BacktestV2      = React.lazy(() => import('@/pages/BacktestV2'));
 const StockDetailV2   = React.lazy(() => import('@/pages/StockDetailV2'));
@@ -43,9 +39,6 @@ const StockDetailV2   = React.lazy(() => import('@/pages/StockDetailV2'));
 // until V2 is soaked; the route below points at AdminV2.
 const Admin           = React.lazy(() => import('@/pages/Admin'));
 const AdminV2         = React.lazy(() => import('@/pages/AdminV2'));
-const AccountingV2    = React.lazy(() => import('@/pages/AccountingV2'));
-const OrdersV2        = React.lazy(() => import('@/pages/OrdersV2'));
-const FundsV2         = React.lazy(() => import('@/pages/FundsV2'));
 const TrackRecordV2   = React.lazy(() => import('@/pages/TrackRecordV2'));
 const TrackRecordV3   = React.lazy(() => import('@/pages/TrackRecordV3'));
 const SettingsV2      = React.lazy(() => import('@/pages/SettingsV2'));
@@ -414,17 +407,19 @@ function AnimatedRoutes() {
           <Route path="/premove" element={<PageTransition><SignalsV3 /></PageTransition>} />
           {/* SignalsV2 retained at /premove-v2 for rollback */}
           <Route path="/premove-v2" element={<PageTransition><SignalsV2 /></PageTransition>} />
-          <Route path="/portfolio" element={<PageTransition><PortfolioV3 /></PageTransition>} />
-          {/* PortfolioV2 retained at /portfolio-v2 for rollback */}
-          <Route path="/portfolio-v2" element={<PageTransition><PortfolioV2 /></PageTransition>} />
-          <Route path="/positions" element={<PageTransition><PositionsV3 /></PageTransition>} />
-          <Route path="/orders" element={<PageTransition><OrdersV2 /></PageTransition>} />
-          <Route path="/funds" element={<PageTransition><FundsV2 /></PageTransition>} />
-          <Route path="/pnl" element={<PageTransition><AnalyticsV2 /></PageTransition>} />
+          {/* Positions + Portfolio stripped 2026-07-13 (research-only product; users
+              track holdings on their broker). Redirect legacy links to Research. */}
+          <Route path="/portfolio" element={<Navigate to="/premove" replace />} />
+          <Route path="/portfolio-v2" element={<Navigate to="/premove" replace />} />
+          <Route path="/positions" element={<Navigate to="/premove" replace />} />
+          {/* Broker-mirror pages stripped 2026-07-13 (research-only; track on your broker). */}
+          <Route path="/orders" element={<Navigate to="/premove" replace />} />
+          <Route path="/funds" element={<Navigate to="/premove" replace />} />
+          <Route path="/pnl" element={<Navigate to="/premove" replace />} />
+          <Route path="/accounting" element={<Navigate to="/premove" replace />} />
           <Route path="/journal" element={<PageTransition><JournalV2 /></PageTransition>} />
           <Route path="/track-record" element={<PageTransition><TrackRecordV3 /></PageTransition>} />
           <Route path="/backtest" element={<PageTransition><BacktestV2 /></PageTransition>} />
-          <Route path="/accounting" element={<PageTransition><AccountingV2 /></PageTransition>} />
           <Route path="/settings" element={<PageTransition><SettingsV2 /></PageTransition>} />
           <Route path="/stock/:symbol" element={<PageTransition><StockDetailV2 /></PageTransition>} />
           {/* /admin → AdminV2 (4-tab console). Legacy Admin import kept for emergency

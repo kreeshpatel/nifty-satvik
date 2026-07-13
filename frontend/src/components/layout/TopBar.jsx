@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import {
   Search, Bell, User, LogOut, Plug, Loader2, Menu, X,
-  LayoutDashboard, LineChart, Briefcase, Layers, ListOrdered,
-  Wallet, BarChart3, Trophy, Calculator,
+  LayoutDashboard, LineChart, Trophy,
   Settings as SettingsIcon, Shield, Minus, Plus,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -36,22 +35,18 @@ import {
 // v2 (2026-05-21), no "More" dropdown — all routes get top-level visibility.
 // Primary top-nav pills — kept lean. Reports/Journal/Track/Backtest/Ledger/
 // Settings live under the account (avatar) menu instead (see ACCOUNT_LINKS).
+// Research-only product (2026-07-13): Positions + Portfolio stripped — users track
+// holdings and place orders on their own broker. The app just surfaces the research book.
 const PRIMARY_TABS = [
   { to: '/dashboard',    label: 'Dashboard',  icon: LayoutDashboard },
   { to: '/premove',      label: 'Research',   icon: LineChart },
-  { to: '/positions',    label: 'Positions',  icon: Layers },
-  { to: '/portfolio',    label: 'Portfolio',  icon: Briefcase },
 ];
 
-// Secondary pages, tucked into the account dropdown with clearer names.
-// Orders + Funds moved here (2026-07-07) so the top nav mirrors the
-// prototype's Dashboard · Research · Positions · Portfolio set.
+// Research-only product (2026-07-13): broker-mirror pages (Orders, Funds, Reports,
+// Ledger) stripped — users track those on their broker. Only the model's own
+// Track record remains under the account menu.
 const ACCOUNT_LINKS = [
-  { to: '/orders',       label: 'Orders',         icon: ListOrdered },
-  { to: '/funds',        label: 'Funds',          icon: Wallet },
-  { to: '/pnl',          label: 'Reports',        icon: BarChart3 },
   { to: '/track-record', label: 'Track record',   icon: Trophy },
-  { to: '/accounting',   label: 'Ledger & charges', icon: Calculator },
 ];
 
 export function TopBar() {

@@ -22,7 +22,8 @@ import '@/styles/watchlist-rail.css';
 const COLLAPSE_KEY = 'nq_rail_collapsed';
 const LIST_KEY = 'nq_rail_list';
 const VIEW_KEY = 'nq_rail_view';
-const VIEWS = ['watchlist', 'signals', 'held'];
+// 'held' (Kite holdings) removed 2026-07-13 — research-only product; users track holdings on their broker.
+const VIEWS = ['watchlist', 'signals'];
 
 const fmtPrice = (n) =>
   n == null ? '—' : Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -143,15 +144,6 @@ export default function WatchlistRail() {
     }))
     .filter((r) => r.sym), [signalsQuery.data]);
 
-  const heldRows = useMemo(() => (holdingsQuery.data ?? [])
-    .map((h) => {
-      const ltp = Number(h.last_price) || 0;
-      const avg = Number(h.average_price) || 0;
-      const qty = Number(h.quantity) || 0;
-      return { sym: (h.tradingsymbol || '').toUpperCase(), ltp, qty, pnlPct: avg > 0 ? ((ltp - avg) / avg) * 100 : null };
-    })
-    .filter((r) => r.sym && r.qty > 0), [holdingsQuery.data]);
-
   // ── inline depth (one row at a time) ────────────────────────────
   const [expanded, setExpanded] = useState(null);
   const [tradeCard, setTradeCard] = useState(null);
@@ -219,7 +211,7 @@ export default function WatchlistRail() {
     <aside className="wlr" aria-label="Watchlist">
       <div className="wlr-head">
         <div className="wlr-viewtabs" role="tablist" aria-label="Rail views">
-          {[['watchlist', 'Watchlist'], ['signals', 'Signals'], ['held', 'Held']].map(([k, lbl]) => (
+          {[['watchlist', 'Watchlist'], ['signals', 'Signals']].map(([k, lbl]) => (
             <button
               key={k}
               role="tab"
@@ -255,39 +247,6 @@ export default function WatchlistRail() {
               <div className="wlr-actions" onClick={(e) => e.stopPropagation()}>
                 <button className={`wlr-bm${inWatch(r.sym) ? ' on' : ''}`} title={inWatch(r.sym) ? 'In watchlist' : 'Add to watchlist'}
                   onClick={() => (inWatch(r.sym) ? remove.mutate(r.sym) : add.mutate(r.sym))}>{bookmarkSvg}</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* ── HELD view — your Kite holdings ── */}
-      {view === 'held' && (
-        <div className="wlr-list">
-          {!kite?.connected ? (
-            <div className="wlr-empty">Not connected.<span>Connect Kite to see your holdings.</span></div>
-          ) : holdingsQuery.isLoading ? (
-            <div className="wlr-empty">Loading…</div>
-          ) : heldRows.length === 0 ? (
-            <div className="wlr-empty">No holdings yet.<span>Positions you buy show up here.</span></div>
-          ) : heldRows.map((r) => (
-            <div className="wlr-row" key={r.sym} onClick={() => openStock(r.sym)}>
-              <StockLogo sym={r.sym} size={27} mono />
-              <div className="wlr-l">
-                <div className="wlr-s">{r.sym}<span className="wlr-flag" style={{ background: 'var(--bull)' }} /></div>
-                <div className="wlr-e">{r.qty} qty</div>
-              </div>
-              <div className="wlr-r">
-                <div className="wlr-p tnum">{fmtPrice(r.ltp)}</div>
-                <div className={`wlr-c tnum ${(r.pnlPct ?? 0) >= 0 ? 'num-bull' : 'num-bear'}`}>
-                  {r.pnlPct == null ? '—' : (r.pnlPct >= 0 ? '+' : '−') + Math.abs(r.pnlPct).toFixed(2) + '%'}
-                </div>
-              </div>
-              <div className="wlr-actions" onClick={(e) => e.stopPropagation()}>
-                <button className="wla s" title="Sell" onClick={() => openStock(r.sym, '?action=sell')}>S</button>
-                <button className="wla" title="Open chart" onClick={() => openStock(r.sym)}>
-                  <svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 3 6-7" /><path d="M3 21h18" /></svg>
-                </button>
               </div>
             </div>
           ))}
