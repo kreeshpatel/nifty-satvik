@@ -458,10 +458,8 @@ export default function SignalsV3() {
   const isAdmin = !!user?.is_admin;
   const navigate = useNavigate();
 
-  // MOMENTUM SUSPENDED 2026-07-06 (owner) — cron paused, tab hidden. Flip to
-  // false to restore the tab (and re-enable the cron in the same commit).
-  const MOMENTUM_SUSPENDED = true;
-  const [model, setModel] = useState(MOMENTUM_SUSPENDED ? 'bhanushali' : 'momentum');
+  // Bhanushali weekly-swing is the ONLY live model (momentum removed 2026-07-13).
+  const [model, setModel] = useState('bhanushali');
   const [filter, setFilter] = useState('all');
   const [tradeCard, setTradeCard] = useState(null);
 
@@ -558,16 +556,12 @@ export default function SignalsV3() {
         </div>
         <div className="ri-head-r">
           <GlassTabs
-            tabs={MOMENTUM_SUSPENDED
-              ? [{ key: 'bhanushali', label: 'Systematic' }]
-              : [{ key: 'momentum', label: 'Momentum' }, { key: 'bhanushali', label: 'Systematic' }]}
+            tabs={[{ key: 'bhanushali', label: 'Weekly Swing' }]}
             active={model}
             onChange={setModel}
             size="md"
           />
-          <span className={`chip ${model === 'momentum' ? 'c-bull' : 'c-warn'}`}>
-            {model === 'momentum' ? 'Live' : 'Forward-watch · paper'}
-          </span>
+          <span className="chip c-warn">Forward-watch · paper</span>
           {model === 'bhanushali' && monitorStamp && (
             <span className="ri-fresh" title={`Live re-price as of ${monitorAsOf}`}>
               prices updated {monitorStamp} IST

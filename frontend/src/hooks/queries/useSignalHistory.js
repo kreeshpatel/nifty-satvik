@@ -26,7 +26,7 @@ export const SIGNAL_HISTORY_KEY = ['signal-history'];
 // on mount without null-checking. Real fetch settles in the background.
 const HISTORY_PLACEHOLDER = { today: [], history: [], analytics: {}, source: 'placeholder' };
 
-export function useSignalHistory({ model = 'momentum', ...options } = {}) {
+export function useSignalHistory({ model = 'bhanushali', ...options } = {}) {
   return useQuery({
     queryKey: [...SIGNAL_HISTORY_KEY, model],
     queryFn: () => fetchSignalHistory(model),

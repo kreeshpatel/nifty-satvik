@@ -2,7 +2,7 @@
 
 Three layers of positions are served from this router:
 
-  GET /positions           — legacy paper-portfolio positions (results/paper_portfolio.json).
+  GET /positions           — legacy paper-portfolio positions (results/paper_portfolio_weekly.json).
                               Kept for the Kite-disconnected fallback in PortfolioV2.
   GET /positions/nq        — per-user NQ-tracked positions, joined from
                               nq_orders × signals_history × Kite holdings.
@@ -55,7 +55,7 @@ def get_positions(user: User = Depends(get_current_user)):
     /positions/nq + /positions/external.
 
     SECURITY: this serves the admin's single paper-trading portfolio
-    (results/paper_portfolio.json). Gate it to admins like every sibling
+    (results/paper_portfolio_weekly.json). Gate it to admins like every sibling
     paper-data endpoint (overview.py) — previously it had no auth dependency
     at all, exposing the admin's entry prices / shares / P&L to any logged-in
     user. The frontend already tolerates an empty list for non-admins.
@@ -63,7 +63,7 @@ def get_positions(user: User = Depends(get_current_user)):
     if not user.is_admin:
         return []
     try:
-        state = fetch_github_json("results/paper_portfolio.json")
+        state = fetch_github_json("results/paper_portfolio_weekly.json")
         if not state:
             return []
 
@@ -80,7 +80,7 @@ def get_positions(user: User = Depends(get_current_user)):
         # status of the latest signal_date per ticker.
         status_map: dict[str, str] = {}
         try:
-            hist = fetch_github_json("results/signals_history.json")
+            hist = fetch_github_json("results/signals_history_weekly.json")
             hist_rows = hist if isinstance(hist, list) else (
                 (hist or {}).get("signals") or (hist or {}).get("history") or []
             )

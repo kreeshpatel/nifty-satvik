@@ -43,10 +43,9 @@ logger = logging.getLogger("nq_positions")
 _HISTORY_CACHE: dict = {"loaded_at": 0.0, "by_id": {}, "active_by_ticker": {}}
 _HISTORY_TTL = 30.0
 
-# Union BOTH books' history: the momentum file AND the weekly file. A weekly held position's
-# exit context lives in signals_history_weekly.json — reading only the momentum file meant weekly
-# holds never got sell guidance (fault F5, docs/SYSTEM.md).
-_HISTORY_FILES = ("results/signals_history.json", "results/signals_history_weekly.json")
+# The Bhanushali weekly book is the only live model (momentum removed 2026-07-13). Held-position
+# exit context comes from signals_history_weekly.json.
+_HISTORY_FILES = ("results/signals_history_weekly.json",)
 
 
 def _load_history() -> None:

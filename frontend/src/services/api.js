@@ -264,7 +264,7 @@ export const fetchSellGuidance = () =>
 // Today's watchlist — borderline candidates (conf 0.75-0.92) the model
 // surfaced but didn't clear the entry gate. Used by the SignalsV2
 // "Watchlist" tier so users see what the system is monitoring.
-export const fetchWatchlist = (model = 'momentum') =>
+export const fetchWatchlist = (model = 'bhanushali') =>
   authJson(`${API}/api/signals/watchlist?model=${model}`);
 
 // Drift reconciliation: synthesize a SELL nq_order for a position the
@@ -289,7 +289,7 @@ export const fetchNavHistory = (days = 365) =>
 export const fetchPaperHistory = (days = 365) =>
   authJson(`${API}/api/portfolio/paper-history?days=${days}`);
 
-export const fetchSignals = (model = 'momentum') =>
+export const fetchSignals = (model = 'bhanushali') =>
   authJson(`${API}/api/signals?model=${model}`);
 
 export const runSignalScan = () =>
@@ -310,7 +310,7 @@ export const fetchRegime = () =>
 // public GitHub raw URLs and broke when the repo went private (and exposed the
 // paid signals unauthenticated). authJson attaches the bearer token + handles
 // session-expiry detection.
-export const fetchSignalHistory = async (model = 'momentum') => {
+export const fetchSignalHistory = async (model = 'bhanushali') => {
   try {
     const data = await authJson(`${API}/api/signals/history?model=${model}`);
     if (data) return data;

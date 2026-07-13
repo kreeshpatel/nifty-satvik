@@ -1,7 +1,7 @@
 """Backtest API — single consolidated blob for each of live + historical.
 
 Live = aggregated signal track record since LIVE_START (computed on-the-fly
-       from results/signals_history.json).
+       from results/signals_history_weekly.json).
 Historical = the 2020-2025 backtest, regenerated monthly/quarterly by
              scripts/regenerate_backtest.py into results/backtest_data.json.
 """
@@ -20,7 +20,7 @@ from github_data import fetch_github_csv, fetch_github_json
 
 # signal analytics lived in the retired v1 engine (src/trading/signal_tracker); the
 # clean nifty-satvik engine does not carry that module. The /backtest live series is
-# instead derived here from results/signals_history.json, which the paper-book cron
+# instead derived here from results/signals_history_weekly.json, which the paper-book cron
 # now emits (PaperBook.dashboard_files, 2026-07-02). Guard the legacy import so its
 # absence degrades to an empty-analytics stub instead of crashing uvicorn at startup
 # (main.py mounts this router at import time).
@@ -250,7 +250,7 @@ def _build_live_active(history: list[dict]) -> list[dict]:
 
 @router.get("/backtest/live")
 def live_blob(user: User = Depends(get_current_user)):
-    history = fetch_github_json("results/signals_history.json") or []
+    history = fetch_github_json("results/signals_history_weekly.json") or []
     if not isinstance(history, list):
         history = []
     today = date.today()

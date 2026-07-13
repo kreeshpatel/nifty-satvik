@@ -135,8 +135,8 @@ def _live_block() -> dict | None:
     published paper book. Aggregate only — never tickers/prices."""
     try:
         from github_data import fetch_github_json
-        pf = fetch_github_json("results/paper_portfolio.json") or {}
-        an = fetch_github_json("results/signal_analytics.json") or {}
+        pf = fetch_github_json("results/paper_portfolio_weekly.json") or {}
+        an = fetch_github_json("results/signal_analytics_weekly.json") or {}
         nav = pf.get("total_value") or pf.get("nav")
         total_ret = round((float(nav) / INITIAL_CAPITAL - 1) * 100, 2) if nav else None
         return {
@@ -321,7 +321,7 @@ def _compute_stats() -> dict:
     # is anonymized — sector + outcome + return only, never ticker or price.
     try:
         from github_data import fetch_github_json
-        history = fetch_github_json("results/signals_history.json")
+        history = fetch_github_json("results/signals_history_weekly.json")
         if isinstance(history, list) and history:
             closed_states = {"HIT_TARGET", "HIT_STOP", "EXPIRED", "CLOSED"}
             closed = [
@@ -391,7 +391,7 @@ def _compute_stats() -> dict:
     try:
         import pandas as pd
         from github_data import fetch_github_file
-        text = fetch_github_file("results/portfolio_history.csv")
+        text = fetch_github_file("results/portfolio_history_weekly.csv")
         ph = None
         if text:
             from io import StringIO

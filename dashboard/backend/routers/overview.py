@@ -55,7 +55,7 @@ def _paper_payload() -> dict:
     }
 
     try:
-        state = fetch_github_json("results/paper_portfolio.json")
+        state = fetch_github_json("results/paper_portfolio_weekly.json")
         if state:
             positions = state.get("positions", {})
             invested = sum(p.get("current_value", 0) for p in positions.values())
@@ -74,7 +74,7 @@ def _paper_payload() -> dict:
         pass
 
     try:
-        df = fetch_github_csv("results/portfolio_history.csv")
+        df = fetch_github_csv("results/portfolio_history_weekly.csv")
         if df is not None and not df.empty:
             for _, row in df.tail(500).iterrows():
                 equity_curve.append({

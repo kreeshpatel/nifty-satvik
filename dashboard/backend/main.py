@@ -298,7 +298,7 @@ def build_live_payload(is_admin: bool = False) -> dict:
                      "invested": 0, "total_return_pct": 0,
                      "drawdown_pct": 0, "n_positions": 0, "source": "paper"}
         try:
-            state = fetch_github_json("results/paper_portfolio.json")
+            state = fetch_github_json("results/paper_portfolio_weekly.json")
             if state:
                 pos = state.get("positions", {})
                 invested = sum(p.get("current_value", 0) for p in pos.values())

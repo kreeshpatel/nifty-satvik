@@ -125,7 +125,7 @@ P2 (cosmetic/robustness).
 | **F7** | P1 | Live `last_signal` had no weekly-completeness guard | `run_bhanushali_weekly_rank.py` read `weeks[-1]` unconditionally; an off-cadence run surfaced a partial-bar card | ✅ fixed `2026-07-13` — guard: only emit when the last bar's weekday ≥ Friday |
 | **F8** | P2 | Stale weekly file not surfaced on the Research page | frontend never read `cron_health` | ✅ fixed `2026-07-13` — stale banner on STALE/FAILED_TODAY |
 | **F9** | P2 | Day counter mixed calendar days with a 65-**trading**-day horizon (read near-exit ~4 weeks early) | `dayOf` calendar days vs `hold=65` trading days | ✅ fixed `2026-07-13` — shows "week N of 13" |
-| **F13** | P1 | **The landing page, overview, positions, and equity curve all read the SUSPENDED momentum paper book, not the live Bhanushali book** | `landing_stats.py`, `overview.py`, `positions.py`, `main.py` read `results/paper_portfolio.json` / `portfolio_history.csv` / `signals_history.json` (momentum), which the deleted momentum cron no longer updates | 👁 owner decision — repointing to the weekly book is a deliberate design change (the weekly book is ~5 days old with no track record); NOT a silent refactor |
+| **F13** | P1 | The landing page, overview, positions, and equity curve read the momentum paper book, not the live Bhanushali book | `landing_stats.py`, `overview.py`, `positions.py`, `main.py`, `backtest.py`, `signals.py` hardcoded the momentum `results/*` files | ✅ resolved `2026-07-13` — **momentum removed completely**: all readers repointed to the `*_weekly` book, momentum model + tab removed, momentum result files deleted. Landing/track-record now reflects the live Bhanushali book (near-empty until it accrues). Needs a **fly deploy**. |
 | **F10** | P2 | `status_for_user` classified on raw qty while returned `held_qty` is FIFO-capped | `nq_positions.py:297-309` | 👁 stacked same-ticker positions only |
 | **F11** | P2 | Weekly cards carry no `actionability`; rely on the `buy_window_until` fallback | cron doesn't stamp it | 👁 works today; brittle if a run omits `buy_window_until` |
 | **F12** | P2 | Naming drift: workflows/scripts are `bhanushali_*` but every output + model id is `*_weekly`; orphan `.pyc`; 12+ research variants beside the one live script | the weekly→bhanushali rename (#30) was partial | 👁 pick one convention, delete orphans |
@@ -176,12 +176,24 @@ book is not traded. What that means operationally:
   `exit-0071`, `overlay-a5`, `target-sweep`. Not scheduled, not read by the app; recoverable via git.
   The Actions tab is now just CI + the 4 live crons.
 
-**NOT deletable — load-bearing (corrects the earlier "candidates for purge"):**
-- The 9 momentum **result files** (`results/paper_portfolio.json`, `portfolio_history.csv`,
-  `signals_history.json`, `signal_analytics.json`, `paper_trades.json`, …). Audit F13: the **landing
-  page, overview, positions, and equity curve read these** — deleting them would break the app. They
-  are the app's portfolio/track-record data source. The real fix is the F13 design decision (repoint
-  those surfaces to the live weekly book), not deletion.
+**Momentum removed completely (2026-07-13, owner directive).** After confirming (F13) that every
+reader degrades gracefully, all backend surfaces were repointed from the momentum `results/*` files
+to the `*_weekly` book, and the momentum footprint was deleted:
+- Backend readers repointed to weekly: `landing_stats.py`, `overview.py`, `positions.py`, `main.py`,
+  `backtest.py`, `signals.py` (regime/scan/mtime), `nq_positions.py` (history weekly-only).
+- Removed the `momentum` entry from `signals.py::_MODELS` (`?model=momentum` → HTTP 400); `bhanushali`
+  is the sole model, `weekly` a back-compat alias.
+- Frontend: the momentum tab/branch is gone — `SignalsV3.jsx` shows the single **Weekly Swing** book;
+  API default models flipped to `bhanushali`.
+- Deleted 9 momentum result files (`paper_portfolio.json`, `portfolio_history.csv`,
+  `signals_history.json`, `signal_analytics.json`, `paper_trades.json`, `paper_state.json`,
+  `kill_state.json`, `signals_today.json`, `paper_ledger_history.csv`). `results/` now holds only the
+  Bhanushali `*_weekly` files + the scorecard.
+- The two `paper_trades`/`paper_ledger` readers (`overview`, `trades`) degrade to empty — accurate for
+  a book with 0 closed trades; they'll want to derive closed round-trips from `signals_history_weekly`
+  once the book closes trades (tracked as a future enhancement).
+- **Kept:** the momentum engine + research record (`nq/`, `research/findings`, `overlay_registry.md`,
+  `forward/prereg.md`) — the Bhanushali book imports the shared engine, and the record is git history.
 
 **Kept — do NOT delete** (shared or research-record; "right now" is a pause, not a purge):
 - The **shared engine** (`nq/`, `config.py`, and the `run_bhanushali_*` modules the live book
