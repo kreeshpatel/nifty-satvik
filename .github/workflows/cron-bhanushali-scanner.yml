@@ -54,5 +54,17 @@ jobs:
           git add results/signals_today_weekly.json results/signals_history_weekly.json \
                   results/signal_analytics_weekly.json results/paper_portfolio_weekly.json \
                   results/portfolio_history_weekly.csv results/weekly_review_scorecard.json 2>/dev/null || true
-          git commit -m "chore(weekly): Saturday weekly-swing paper state $(date -u +%F)" || echo "no state change"
-          git pull --rebase && git push || echo "nothing to push"
+          if git commit -m "chore(weekly): Saturday weekly-swing paper state $(date -u +%F)"; then
+            # --autostash: the OHLCV download leaves UNSTAGED cache changes that abort a plain
+            # `git pull --rebase`, which silently swallowed the push as "nothing to push" and dropped
+            # the freshly-computed state every week (2026-07-11: 18 signals + 3 holds computed, never
+            # published). Autostash + retry publishes it; a persistent failure now exits RED (visible)
+            # instead of stranding stale picks on the dashboard.
+            for i in 1 2 3; do
+              git pull --rebase --autostash origin main && git push origin main && { echo "pushed weekly state"; exit 0; }
+              echo "push attempt $i failed; retrying in 5s..."; sleep 5
+            done
+            echo "::error::weekly paper state committed but could NOT be pushed after 3 tries — dashboard is stale"; exit 1
+          else
+            echo "no state change"
+          fi
