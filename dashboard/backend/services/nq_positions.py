@@ -40,31 +40,53 @@ logger = logging.getLogger("nq_positions")
 
 # Module-level cache for parsed signals_history.json. Cron writes once per
 # trading day, so 30s is generous; saves ~5ms per request under load.
-_HISTORY_CACHE: dict = {"loaded_at": 0.0, "by_id": {}}
+_HISTORY_CACHE: dict = {"loaded_at": 0.0, "by_id": {}, "active_by_ticker": {}}
 _HISTORY_TTL = 30.0
 
+# Union BOTH books' history: the momentum file AND the weekly file. A weekly held position's
+# exit context lives in signals_history_weekly.json — reading only the momentum file meant weekly
+# holds never got sell guidance (fault F5, docs/SYSTEM.md).
+_HISTORY_FILES = ("results/signals_history.json", "results/signals_history_weekly.json")
 
-def _get_history_index() -> dict[str, dict]:
-    """Returns { signal_id: signal_record } map from signals_history.json.
 
-    Uses logical key '{ticker}__{signal_date}' to match nq_orders.signal_id.
-    """
+def _load_history() -> None:
     now = time.time()
     if (now - _HISTORY_CACHE["loaded_at"]) < _HISTORY_TTL and _HISTORY_CACHE["by_id"]:
-        return _HISTORY_CACHE["by_id"]
-
-    raw = fetch_github_json("results/signals_history.json")
+        return
     by_id: dict[str, dict] = {}
-    if isinstance(raw, list):
+    active: dict[str, list] = {}
+    for path in _HISTORY_FILES:
+        raw = fetch_github_json(path)
+        if not isinstance(raw, list):
+            continue
         for sig in raw:
             tk = sig.get("ticker")
             sd = sig.get("signal_date")
             if tk and sd:
                 by_id[f"{tk}__{sd}"] = sig
-
+            st = (sig.get("status") or "").upper()
+            act = (sig.get("actionability") or "").upper()
+            if tk and (st == "ACTIVE" or act == "EXIT_REQUIRED"):
+                active.setdefault(tk.upper(), []).append(sig)
     _HISTORY_CACHE["by_id"] = by_id
+    # Only UNAMBIGUOUS tickers (exactly one open record) are eligible for the ticker fallback,
+    # so a stacked same-ticker position is never mis-attributed (fault F6).
+    _HISTORY_CACHE["active_by_ticker"] = {t: recs[0] for t, recs in active.items() if len(recs) == 1}
     _HISTORY_CACHE["loaded_at"] = now
-    return by_id
+
+
+def _get_history_index() -> dict[str, dict]:
+    """{ '{ticker}__{signal_date}': record } unioned from BOTH the momentum and weekly history files."""
+    _load_history()
+    return _HISTORY_CACHE["by_id"]
+
+
+def _history_active_by_ticker() -> dict[str, dict]:
+    """{ ticker_upper: record } for tickers with exactly ONE open history record — the safe fallback
+    when the order's signal_id (setup-Friday key) does not match the history record's fill-date key
+    on the weekly book (fault F6)."""
+    _load_history()
+    return _HISTORY_CACHE["active_by_ticker"]
 
 
 def invalidate_history_cache() -> None:
@@ -72,6 +94,7 @@ def invalidate_history_cache() -> None:
     /api/positions/refresh hook if added later."""
     _HISTORY_CACHE["loaded_at"] = 0.0
     _HISTORY_CACHE["by_id"] = {}
+    _HISTORY_CACHE["active_by_ticker"] = {}
 
 
 def _compute_actionability(sig: dict, today: date) -> str:
@@ -271,7 +294,10 @@ def build_nq_positions(
         # hold past prune-window pre-PR5, or fresh deploy with empty
         # history), we degrade gracefully with whatever the order itself
         # tells us.
-        sig = history.get(sig_id) or {}
+        # Exact signal_id first; fall back to the unique open record for this ticker so a weekly
+        # hold (order keyed by setup-Friday, history keyed by fill date) still resolves its exit
+        # context / sell guidance (faults F5 + F6).
+        sig = history.get(sig_id) or _history_active_by_ticker().get(ticker.upper()) or {}
         actionability = _compute_actionability(sig, today) if sig else "BUY_CLOSED"
         signal_status = (sig.get("status") or "ACTIVE").upper()
 

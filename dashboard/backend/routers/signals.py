@@ -277,6 +277,15 @@ def _augment_signals_for_user(signals: list, user: User, db: Session) -> list:
 
     nq_positions = build_nq_positions(user.id, db, kite_holdings=holdings)
     pos_by_signal = {p["signal_id"]: p for p in nq_positions}
+    # Unique-ticker fallback (fault F6): the weekly book keys a FRESH card by its setup-Friday but
+    # the HELD card by the fill date, so a held card's signal_id won't match the user's order
+    # signal_id. Since the weekly book holds at most one position per name, match by ticker when the
+    # id misses — but ONLY for tickers with exactly one position, so momentum's stacked same-ticker
+    # positions never mis-match, and ONLY for held cards (never a fresh buy card).
+    from collections import Counter
+    _tc = Counter((p.get("ticker") or "").upper() for p in nq_positions)
+    pos_by_ticker = {(p.get("ticker") or "").upper(): p
+                     for p in nq_positions if _tc[(p.get("ticker") or "").upper()] == 1}
 
     out = []
     for sig in signals:
@@ -288,6 +297,11 @@ def _augment_signals_for_user(signals: list, user: User, db: Session) -> list:
 
         user_pos = None
         match = pos_by_signal.get(signal_id) if signal_id else None
+        if match is None:
+            is_held_card = bool(sig.get("bought_date") or sig.get("nq_position_id")
+                                or (sig.get("status") or "").upper() == "ACTIVE")
+            if is_held_card and ticker:
+                match = pos_by_ticker.get(ticker.upper())
         if match and match["held_qty"] > 0:
             user_pos = {
                 "held_qty": match["held_qty"],
