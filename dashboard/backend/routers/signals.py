@@ -234,79 +234,23 @@ def _overlay_weekly_monitor(signals: list, monitor: dict) -> tuple[list, dict]:
     return out, meta
 
 
-def _augment_signals_for_user(signals: list, user: User, db: Session) -> list:
-    """Add `actionability` + `user_position` fields to each signal in
-    today's envelope, joined against nq_orders + Kite holdings.
+def _stamp_actionability(signals: list) -> list:
+    """Stamp `actionability` (BUY_OPEN / BUY_CLOSED / EXIT_REQUIRED) on each signal from the
+    cron-written field, with a market-state fallback.
 
-    `actionability` is read straight from the cron-written field on the
-    signal record. For records that predate PR2, we derive it from
-    status/signal_date/buy_window_until as a best-effort fallback.
-
-    `user_position` is null when the user holds zero qty; otherwise it's
-    `{ held_qty, avg_fill_price, status_for_user, sell_guidance }`.
+    The per-user Kite / nq-order position mapping was REMOVED 2026-07-13 — the Signals page shows the
+    MODEL's own book (open / hold / exit), not any viewer's personal holdings. Held/exit state comes
+    from the envelope itself (bought_date + status), written by the paper-book cron; no DB or Kite
+    call is made here. Personal-holding tracking now lives only on the Positions page.
     """
     if not signals:
         return signals
-
-    # Lazy import — keeps signals.py importable in unit tests that don't
-    # touch the DB or Kite.
-    from routers.kite import get_user_kite_token, kite_get
-    from services.nq_positions import (
-        _compute_actionability,
-        build_nq_positions,
-    )
-
+    from services.nq_positions import _compute_actionability
     today = date.today()
-
-    # Best-effort Kite holdings — degrade silently if disconnected.
-    holdings: list = []
-    try:
-        token = get_user_kite_token(user, db)
-        data = kite_get("/portfolio/holdings", token)
-        if isinstance(data, list):
-            holdings = data
-    except Exception:
-        pass
-
-    nq_positions = build_nq_positions(user.id, db, kite_holdings=holdings)
-    pos_by_signal = {p["signal_id"]: p for p in nq_positions}
-    # Unique-ticker fallback (fault F6): the weekly book keys a FRESH card by its setup-Friday but
-    # the HELD card by the fill date, so a held card's signal_id won't match the user's order
-    # signal_id. Since the weekly book holds at most one position per name, match by ticker when the
-    # id misses — but ONLY for tickers with exactly one position, so momentum's stacked same-ticker
-    # positions never mis-match, and ONLY for held cards (never a fresh buy card).
-    from collections import Counter
-    _tc = Counter((p.get("ticker") or "").upper() for p in nq_positions)
-    pos_by_ticker = {(p.get("ticker") or "").upper(): p
-                     for p in nq_positions if _tc[(p.get("ticker") or "").upper()] == 1}
-
     out = []
     for sig in signals:
-        ticker = sig.get("ticker")
-        sd = sig.get("signal_date")
-        signal_id = f"{ticker}__{sd}" if ticker and sd else None
-
-        actionability = sig.get("actionability") or _compute_actionability(sig, today)
-
-        user_pos = None
-        match = pos_by_signal.get(signal_id) if signal_id else None
-        if match is None:
-            is_held_card = bool(sig.get("bought_date") or sig.get("nq_position_id")
-                                or (sig.get("status") or "").upper() == "ACTIVE")
-            if is_held_card and ticker:
-                match = pos_by_ticker.get(ticker.upper())
-        if match and match["held_qty"] > 0:
-            user_pos = {
-                "held_qty": match["held_qty"],
-                "avg_fill_price": match["avg_fill_price"],
-                "status_for_user": match["status_for_user"],
-                "sell_guidance": match["sell_guidance"],
-            }
-
-        # Shallow copy + augment — never mutate the cached signal dict.
         enriched = dict(sig)
-        enriched["actionability"] = actionability
-        enriched["user_position"] = user_pos
+        enriched["actionability"] = sig.get("actionability") or _compute_actionability(sig, today)
         out.append(enriched)
     return out
 
@@ -462,33 +406,17 @@ def get_signals(
     else:
         cron_status = "STALE"
 
-    # ── Augment each signal with actionability + user_position ─────────
-    # This is the read-time join that makes the lifecycle visible to the
-    # SignalsV2 page without each card making a second request. Built
-    # once per /signals call.
+    # ── Stamp actionability (no per-user Kite mapping — model-centric page) ──
+    # The Signals page shows the MODEL's book: OPEN (new buys), HOLD (positions the model holds),
+    # EXIT (positions to close). Held/exit state is written into the envelope by the paper-book cron;
+    # every viewer sees the same model book. Personal-holding tracking lives on the Positions page.
     try:
-        signals = _augment_signals_for_user(signals, user, db)
+        signals = _stamp_actionability(signals)
     except Exception as exc:
-        # Augmentation must never break the existing payload — if the
-        # join fails (e.g. cold cache, transient DB error), serve the
-        # raw signals so the page still renders.
-        logger.warning("signals augmentation failed: %s", exc)
+        logger.warning("actionability stamp failed: %s", exc)
 
-    # ── Paper-book visibility gate ──────────────────────────────────────
-    # `status == "ACTIVE"` records (above) are the model's OWN simulated
-    # paper-book positions, not a claim about what any given user actually
-    # owns. A non-admin viewer should only see one of these if it's a real
-    # position of theirs (user_position joined above from Kite/nq_orders) —
-    # otherwise the research feed silently doubled as a leak of internal
-    # paper-trading bookkeeping ("Hold" cards, days-held, etc.) that has
-    # nothing to do with the viewer's own capital. Admin keeps full
-    # visibility for monitoring the book. FRESH (buyable-now) signals are
-    # unaffected — those are the actual research output.
+    # The Oct-1 review-readiness scorecard stays operator-only.
     if not getattr(user, "is_admin", False):
-        signals = [
-            s for s in signals
-            if s.get("status") != "ACTIVE" or s.get("user_position") is not None
-        ]
         review_scorecard = None
 
     return {

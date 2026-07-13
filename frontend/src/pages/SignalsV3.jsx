@@ -8,11 +8,11 @@
  * row's Buy/Sell action, which deep-links /stock/:sym?action=...).
  *
  * Data (unchanged from the previous split-pane version):
- *   - useSignals()      → active signals + regime + cron_health
- *   - useWatchlist()    → brewing/watchlist signals
- *   - useKiteHoldings() → held tickers for "holding" detection
- *   - useNQPositions()  → NQ-tracked positions (qty/fill per signal)
- *   - useQuoteBatch()   → live LTP / day-change overlay
+ *   - useSignals()       → the MODEL's book: open/hold/exit signals + regime + cron_health
+ *   - useWatchlist()     → brewing/watchlist signals
+ *   - useSignalHistory() → the track record: closed trades (bought → held → exited)
+ *   - useQuoteBatch()    → live LTP / day-change overlay
+ *   (Kite / personal-position mapping removed 2026-07-13 — this page is model-centric.)
  *
  * Compliance: client-facing conviction/section strings sourced from
  *   @/lib/signalCopy. No "guarantee/will/sure" language.
@@ -24,8 +24,7 @@ import { KiteContext } from '@/App';
 import { AuthContext } from '@/context/AuthContext';
 import { useSignals } from '@/hooks/queries/useSignals';
 import { useWatchlist } from '@/hooks/queries/useWatchlist';
-import { useKiteHoldings } from '@/hooks/queries/useKiteState';
-import { useNQPositions } from '@/hooks/queries/useNQPositions';
+import { useSignalHistory } from '@/hooks/queries/useSignalHistory';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import { GlassTabs } from '@/components/shared/GlassTabs';
 import { CONVICTION, DISCLAIMER, STATES } from '@/lib/signalCopy';
@@ -106,24 +105,22 @@ function convOf(grade, isWatch) {
   return { word: CONVICTION.LOW.label, cls: 'conv-c' };
 }
 
-// ── Action derivation (deterministic) ─────────────────────────────────
-function deriveAction(sig, heldSet, positionByTicker) {
+// ── Action derivation (deterministic, MODEL-centric) ──────────────────
+// open/hold/exit are read from the signal envelope written by the paper-book cron — no Kite / no
+// personal positions. EXIT = the model says close it; HOLD = the model holds it; the rest is OPEN.
+function deriveAction(sig) {
   const status = (sig.status || '').toUpperCase();
   const actionability = (sig.actionability || '').toUpperCase();
 
+  // EXIT — a held position the model has flagged to close (weekly close hit target/stop/trail/cap).
   if (actionability === 'EXIT_REQUIRED' || status === 'HIT_TARGET' || status === 'HIT_STOP' || status === 'EXPIRED') {
     return { action: 'sell-now', sellReason: status === 'HIT_TARGET' ? 'target' : 'stop' };
   }
-  if (actionability === 'BUY_CLOSED' || ['CLOSED', 'RESOLVED', 'CANCELLED'].includes(status)) {
-    return { action: 'closed' };
+  // HOLD — the model holds this position (bought, still active), no action this week.
+  if (sig.bought_date || (status === 'ACTIVE' && sig.nq_position_id)) {
+    return { action: 'holding' };
   }
-  const ticker = (sig.ticker || '').toUpperCase();
-  const inKite = heldSet.has(ticker);
-  const pos = positionByTicker.get(ticker);
-  const heldQty = pos?.held_qty ?? sig.user_position?.held_qty ?? 0;
-  if (inKite || heldQty > 0 || (status === 'ACTIVE' && sig.nq_position_id)) {
-    return { action: 'holding', position: pos };
-  }
+  // OPEN — a fresh buy signal, buyable inside its window.
   if (actionability === 'BUY_OPEN' || (!actionability && (sig.tier === 'signal' || !sig.tier))) {
     const today = todayISO();
     if (sig.buy_window_until) {
@@ -134,14 +131,15 @@ function deriveAction(sig, heldSet, positionByTicker) {
     if (sig.signal_date === today) return { action: 'buy-today' };
     return { action: 'closing' };
   }
+  if (actionability === 'BUY_CLOSED' || ['CLOSED', 'RESOLVED', 'CANCELLED'].includes(status)) return { action: 'closed' };
   if (actionability === 'WATCHLIST' || sig.tier === 'watchlist') return { action: 'brewing' };
   if (status === 'ACTIVE') return { action: 'closing' };
   return { action: 'closed' };
 }
 
 // ── Signal enrichment — maps real API fields to UI fields ─────────────
-function enrichSignal(raw, heldSet, positionByTicker, quotes) {
-  const { action, sellReason, position } = deriveAction(raw, heldSet, positionByTicker);
+function enrichSignal(raw, quotes) {
+  const { action, sellReason } = deriveAction(raw);
   const ticker = raw.ticker || raw.sym || '';
   const q = quotes?.[ticker.toUpperCase()] || null;
   const ltp = q?.last_price ?? raw.current_price ?? raw.last_price ?? raw.close ?? raw.entry ?? 0;
@@ -149,12 +147,18 @@ function enrichSignal(raw, heldSet, positionByTicker, quotes) {
   const entry = raw.entry ?? 0;
   const stop = raw.stop ?? entry;
   const target = raw.target ?? entry;
+  // Buy range = the signal week's candle [low, high]; you buy inside this band at the open.
+  const buyLow = raw.entry_low ?? entry;
+  const buyHigh = raw.entry_high ?? entry;
+  const buyMid = ((buyLow + buyHigh) / 2) || entry;
   const rr = entry !== stop ? (target - entry) / (entry - stop) : Infinity;
   const fromEntry = entry > 0 ? ((ltp - entry) / entry) * 100 : 0;
   const upside = entry > 0 ? ((target - entry) / entry) * 100 : 0;
+  // Potential return = % to the +2R target from the MIDDLE of the buy range (fill-dependent).
+  const toTarget = buyMid > 0 ? ((target - buyMid) / buyMid) * 100 : upside;
   const zeroRisk = entry === stop;
   const perShareRisk = Math.max(1, entry - stop);
-  const suggQty = zeroRisk ? (position?.held_qty || 10) : Math.max(1, Math.floor(RISK_BUDGET / perShareRisk));
+  const suggQty = zeroRisk ? 10 : Math.max(1, Math.floor(RISK_BUDGET / perShareRisk));
 
   let buyByStr = null, daysLeft = null;
   if (raw.buy_window_until) {
@@ -187,6 +191,7 @@ function enrichSignal(raw, heldSet, positionByTicker, quotes) {
     action,
     sellReason: sellReason ?? null,
     entry, stop, target,
+    _buyLow: buyLow, _buyHigh: buyHigh, _toTarget: toTarget,
     _ltp: ltp,
     _rr: rr,
     _dayChangePct: dayChangePct,
@@ -229,8 +234,8 @@ function potentialCell(s) {
     // Buy window elapsed and it was never bought — not a live trade, so no day count.
     return { main: '—', sub: 'buy window closed', tone: 'warn' };
   }
-  // A fresh buy candidate: show the expected hold-to-exit horizon, NOT the buy-window countdown.
-  return { main: fmtPct1(s._upside), sub: `~${s.hold} days to exit`, tone: 'bull' };
+  // OPEN buy: potential return = % to the +2R target (from the middle of the buy range).
+  return { main: fmtPct1(s._toTarget), sub: `to target ${fmtNum(s.target)}`, tone: 'bull' };
 }
 
 // ── Daily-monitor event chip (weekly book) ────────────────────────────
@@ -289,6 +294,38 @@ function regimeInfo(regime) {
 }
 
 // ── Right-rail cards ──────────────────────────────────────────────────
+// Track record — the model's bought stocks and their outcomes.
+function TrackRecordCard({ tr }) {
+  if (!tr) return null;
+  return (
+    <div className="ri-card">
+      <div className="ri-card-h">TRACK RECORD</div>
+      <div className="tr-stats">
+        <div className="tr-stat"><span className="tr-n">{tr.held}</span><span className="tr-l">holding</span></div>
+        <div className="tr-stat"><span className="tr-n">{tr.nClosed}</span><span className="tr-l">closed</span></div>
+        <div className="tr-stat"><span className="tr-n">{tr.winRate != null ? `${Math.round(tr.winRate)}%` : '—'}</span><span className="tr-l">win rate</span></div>
+        <div className="tr-stat"><span className={`tr-n ${(tr.avgRet ?? 0) >= 0 ? 'num-bull' : 'num-bear'}`}>{tr.avgRet != null ? fmtPct1(tr.avgRet) : '—'}</span><span className="tr-l">avg return</span></div>
+      </div>
+      {tr.closed.length > 0 ? (
+        <div className="tr-list">
+          {tr.closed.slice(0, 6).map((c, i) => (
+            <div key={`${c.sym}-${i}`} className="tr-row">
+              <span className="tr-sym">{c.sym}</span>
+              <span className={`tr-tag tr-${c.outcome}`}>{c.outcome}{c.weeks ? ` · ${c.weeks}w` : ''}</span>
+              <span className={`tr-ret tnum ${c.ret >= 0 ? 'num-bull' : 'num-bear'}`}>{fmtPct1(c.ret)}</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="tr-empty">
+          No closed trades yet — the book is young. Bought names show as <b>Hold</b> above and move to
+          <b> Exit</b> when the model closes them; each lands here with its result.
+        </div>
+      )}
+    </div>
+  );
+}
+
 function CommentaryCard({ regime, model, freshCount }) {
   const r = regimeInfo(regime);
   const vix = regime?.vix != null ? Number(regime.vix).toFixed(1) : '—';
@@ -427,7 +464,14 @@ function CallRow({ s, onOpen, onAction }) {
       </div>
 
       <div className="ri-cell ri-reco">
-        <div className="ri-cell-main tnum">{fmtNum(s.entry)}</div>
+        {(s.action === 'buy-today' || s.action === 'closing') && s._buyLow != null && s._buyHigh != null && s._buyLow !== s._buyHigh ? (
+          <>
+            <div className="ri-cell-main tnum ri-range">{fmtNum(s._buyLow)}–{fmtNum(s._buyHigh)}</div>
+            <div className="ri-cell-sub">buy range</div>
+          </>
+        ) : (
+          <div className="ri-cell-main tnum">{fmtNum(s.entry)}</div>
+        )}
       </div>
 
       <div className="ri-cell ri-pot">
@@ -465,8 +509,7 @@ export default function SignalsV3() {
 
   const signalsQuery    = useSignals({ model });
   const watchlistQuery  = useWatchlist({ model });
-  const holdingsQuery   = useKiteHoldings({ enabled: !!kite?.connected });
-  const nqPositionsQuery = useNQPositions();
+  const historyQuery    = useSignalHistory({ model });   // track record: closed trades
 
   const rawSignals   = useMemo(() => signalsQuery.data?.signals ?? [], [signalsQuery.data]);
   const rawWatchlist = useMemo(() => watchlistQuery.data?.signals ?? [], [watchlistQuery.data]);
@@ -485,30 +528,19 @@ export default function SignalsV3() {
   const scanTime = signalsQuery.data?.scan_time ?? null;
   const reviewScorecard = signalsQuery.data?.review_scorecard ?? null;
 
-  const heldSet = useMemo(() => {
-    const list = holdingsQuery.data ?? [];
-    return new Set(list.map((h) => (h.tradingsymbol || h.symbol || '').toUpperCase()));
-  }, [holdingsQuery.data]);
-
-  const positionByTicker = useMemo(() => {
-    const map = new Map();
-    for (const p of nqPositionsQuery.data?.positions ?? []) {
-      const t = (p.ticker || p.symbol || '').toUpperCase();
-      if (t) map.set(t, p);
-    }
-    return map;
-  }, [nqPositionsQuery.data]);
-
+  // Model-centric (2026-07-13): open / hold / exit come from the envelope itself (the paper-book
+  // cron writes bought_date + status), NOT from Kite/personal positions. Every viewer sees the
+  // same model book.
   const allEnriched = useMemo(() => {
     const enriched = [
-      ...rawSignals.map((s) => enrichSignal(s, heldSet, positionByTicker, quotes)),
-      ...rawWatchlist.map((s) => enrichSignal({ ...s, actionability: 'WATCHLIST', tier: 'watchlist' }, heldSet, positionByTicker, quotes)),
+      ...rawSignals.map((s) => enrichSignal(s, quotes)),
+      ...rawWatchlist.map((s) => enrichSignal({ ...s, actionability: 'WATCHLIST', tier: 'watchlist' }, quotes)),
     ];
     const seen = new Set();
     return enriched
       .filter((s) => { if (seen.has(s.sym)) return false; seen.add(s.sym); return true; })
       .sort((a, b) => (ACTION_RANK[a.action] ?? 9) - (ACTION_RANK[b.action] ?? 9));
-  }, [rawSignals, rawWatchlist, heldSet, positionByTicker, quotes]);
+  }, [rawSignals, rawWatchlist, quotes]);
 
   const buyPool = useMemo(
     () => allEnriched.filter((s) => s.action === 'buy-today' || s.action === 'closing'),
@@ -532,6 +564,32 @@ export default function SignalsV3() {
     [buyPool, allEnriched]
   );
 
+  // Track record: every stock the model bought and its outcome (bought -> held -> exited).
+  const trackRecord = useMemo(() => {
+    const hist = historyQuery.data?.history ?? [];
+    const an = historyQuery.data?.analytics ?? {};
+    const CLOSED = ['HIT_TARGET', 'HIT_STOP', 'EXPIRED'];
+    const closed = hist
+      .filter((h) => CLOSED.includes((h.status || '').toUpperCase()))
+      .map((h) => ({
+        sym: h.ticker,
+        ret: h.return_pct ?? h.pnl_pct ?? 0,
+        outcome: (h.status || '').toUpperCase() === 'HIT_TARGET' ? 'target'
+          : (h.status || '').toUpperCase() === 'HIT_STOP' ? 'stop' : 'expired',
+        exited: h.close_date || h.signal_date,
+        weeks: h.hold_days ? Math.max(1, Math.round(h.hold_days / 5)) : null,
+      }))
+      .reverse();
+    const held = allEnriched.filter((s) => s.action === 'holding' || s.action === 'sell-now');
+    return {
+      closed,
+      held: held.length,
+      nClosed: an.total_closed ?? closed.length,
+      winRate: an.win_rate ?? null,
+      avgRet: an.avg_return_pct ?? null,
+    };
+  }, [historyQuery.data, allEnriched]);
+
   const freshCount = counts.today ?? 0;
 
   const doAction  = (sym, suffix) => navigate(`/stock/${encodeURIComponent(sym)}${suffix}`);
@@ -552,7 +610,7 @@ export default function SignalsV3() {
       <div className="ri-head">
         <div className="ri-head-l">
           <h1 className="ri-title">Research Insights</h1>
-          <p className="ri-sub">Model-generated calls, graded &amp; level-annotated. Not advice — your own capital, your own rules.</p>
+          <p className="ri-sub">The model's book — open, hold, exit. Grade <b>A</b> = strongest leaders (funded first), <b>B</b> = secondary. Not advice — your own capital, your own rules.</p>
         </div>
         <div className="ri-head-r">
           <GlassTabs
@@ -609,7 +667,7 @@ export default function SignalsV3() {
             <div className="ri-thead">
               <span>Scrip</span>
               <span className="ri-th-r">LTP</span>
-              <span className="ri-th-r">Reco</span>
+              <span className="ri-th-r">Buy range</span>
               <span className="ri-th-r">Potential</span>
               <span />
             </div>
@@ -628,6 +686,7 @@ export default function SignalsV3() {
         <aside className="ri-rail">
           <SizerCard pick={topPick} navigate={navigate} />
           {isAdmin && model === 'bhanushali' && <ReviewCard card={reviewScorecard} />}
+          <TrackRecordCard tr={trackRecord} />
           <CommentaryCard regime={regime} model={model} freshCount={freshCount} />
           <SignalStatsCard buyPool={buyPool} />
           <HowCallsMadeCard />

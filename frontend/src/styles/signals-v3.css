@@ -426,3 +426,22 @@
 }
 .ri-stale-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--warn); box-shadow: 0 0 10px var(--warn); flex-shrink: 0; }
 .ri-stale-when { color: var(--text-3); font-weight: 400; }
+
+/* ── Buy range (Reco column shows the signal week's [low, high]) ── */
+.ri-reco .ri-range { font-size: 13px; letter-spacing: -0.2px; white-space: nowrap; }
+
+/* ── Track-record rail card ── */
+.tr-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 8px; margin-bottom: 12px; }
+.tr-stat { display: flex; flex-direction: column; gap: 2px; }
+.tr-stat .tr-n { font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: var(--text-1); }
+.tr-stat .tr-l { font-size: 10.5px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.4px; }
+.tr-list { display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--edge-1); padding-top: 10px; }
+.tr-row { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.tr-sym { flex: 1; color: var(--text-2); font-weight: 600; }
+.tr-tag { font-family: var(--font-mono); font-size: 10px; padding: 1px 6px; border-radius: 999px; letter-spacing: 0.2px; }
+.tr-tag.tr-target { background: var(--bull-soft); color: var(--bull); }
+.tr-tag.tr-stop { background: var(--bear-soft); color: var(--bear); }
+.tr-tag.tr-expired { background: var(--surface-3); color: var(--text-3); }
+.tr-ret { font-weight: 650; min-width: 52px; text-align: right; }
+.tr-empty { font-size: 11.5px; line-height: 1.5; color: var(--text-3); }
+.tr-empty b { color: var(--text-2); }
