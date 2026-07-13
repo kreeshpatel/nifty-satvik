@@ -1,8 +1,48 @@
 {
-  "cash": 1000000.0,
-  "peak_value": 1000000.0,
-  "total_value": 1000000.0,
-  "n_positions": 0,
+  "cash": 85090.13,
+  "peak_value": 1023141.35,
+  "total_value": 1009371.39,
+  "n_positions": 3,
   "total_trades": 0,
-  "positions": {}
+  "positions": {
+    "DELHIVERY": {
+      "entry_date": "2026-07-06",
+      "entry_price": 510.95,
+      "shares": 400.4,
+      "position_size": 204584.54,
+      "atr_stop": 461.0,
+      "target": 610.85,
+      "current_price": 512.55,
+      "current_value": 205225.17,
+      "unrealised_pnl": 640.63,
+      "unrealised_pnl_pct": 0.31,
+      "days_held": 10
+    },
+    "INDUSINDBK": {
+      "entry_date": "2026-07-06",
+      "entry_price": 968.0,
+      "shares": 333.89,
+      "position_size": 323205.21,
+      "atr_stop": 908.1,
+      "target": 1087.8,
+      "current_price": 1012.55,
+      "current_value": 338079.99,
+      "unrealised_pnl": 14874.78,
+      "unrealised_pnl_pct": 4.6,
+      "days_held": 10
+    },
+    "NESTLEIND": {
+      "entry_date": "2026-07-06",
+      "entry_price": 1450.13,
+      "shares": 265.82,
+      "position_size": 385476.24,
+      "atr_stop": 1374.89,
+      "target": 1600.61,
+      "current_price": 1433.2,
+      "current_value": 380976.1,
+      "unrealised_pnl": -4500.14,
+      "unrealised_pnl_pct": -1.17,
+      "days_held": 10
+    }
+  }
 }

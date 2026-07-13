@@ -1,1 +1,44 @@
-[]
+[
+  {
+    "ticker": "DELHIVERY",
+    "signal_date": "2026-07-06",
+    "status": "ACTIVE",
+    "entry": 510.95,
+    "stop": 461.0,
+    "target": 610.85,
+    "current_price": 512.55,
+    "close_price": 512.55,
+    "pnl_pct": 0.31,
+    "return_pct": 0.31,
+    "days_since": 10,
+    "hold_days": 10
+  },
+  {
+    "ticker": "INDUSINDBK",
+    "signal_date": "2026-07-06",
+    "status": "ACTIVE",
+    "entry": 968.0,
+    "stop": 908.1,
+    "target": 1087.8,
+    "current_price": 1012.55,
+    "close_price": 1012.55,
+    "pnl_pct": 4.6,
+    "return_pct": 4.6,
+    "days_since": 10,
+    "hold_days": 10
+  },
+  {
+    "ticker": "NESTLEIND",
+    "signal_date": "2026-07-06",
+    "status": "ACTIVE",
+    "entry": 1450.13,
+    "stop": 1374.89,
+    "target": 1600.61,
+    "current_price": 1433.2,
+    "close_price": 1433.2,
+    "pnl_pct": -1.17,
+    "return_pct": -1.17,
+    "days_since": 10,
+    "hold_days": 10
+  }
+]
