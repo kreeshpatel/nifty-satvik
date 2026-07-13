@@ -1,7 +1,7 @@
 {
   "cash": 85090.13,
   "peak_value": 1023141.35,
-  "total_value": 1009371.39,
+  "total_value": 1007929.03,
   "n_positions": 3,
   "total_trades": 0,
   "positions": {
@@ -12,10 +12,10 @@
       "position_size": 204584.54,
       "atr_stop": 461.0,
       "target": 610.85,
-      "current_price": 512.55,
-      "current_value": 205225.17,
-      "unrealised_pnl": 640.63,
-      "unrealised_pnl_pct": 0.31,
+      "current_price": 513.65,
+      "current_value": 205665.63,
+      "unrealised_pnl": 1081.09,
+      "unrealised_pnl_pct": 0.53,
       "days_held": 10
     },
     "INDUSINDBK": {
@@ -25,10 +25,10 @@
       "position_size": 323205.21,
       "atr_stop": 908.1,
       "target": 1087.8,
-      "current_price": 1012.55,
-      "current_value": 338079.99,
-      "unrealised_pnl": 14874.78,
-      "unrealised_pnl_pct": 4.6,
+      "current_price": 1015.35,
+      "current_value": 339014.88,
+      "unrealised_pnl": 15809.67,
+      "unrealised_pnl_pct": 4.89,
       "days_held": 10
     },
     "NESTLEIND": {
@@ -38,10 +38,10 @@
       "position_size": 385476.24,
       "atr_stop": 1374.89,
       "target": 1600.61,
-      "current_price": 1433.2,
-      "current_value": 380976.1,
-      "unrealised_pnl": -4500.14,
-      "unrealised_pnl_pct": -1.17,
+      "current_price": 1422.6,
+      "current_value": 378158.39,
+      "unrealised_pnl": -7317.85,
+      "unrealised_pnl_pct": -1.9,
       "days_held": 10
     }
   }
