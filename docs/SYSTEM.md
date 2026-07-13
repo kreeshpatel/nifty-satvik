@@ -120,8 +120,8 @@ P2 (cosmetic/robustness).
 | **F2** | P0 | `cron-bhanushali-monitor` never publishes — `weekly_monitor.json` has never been committed | same fragile push | ✅ fixed `2026-07-13` |
 | **F3** | P0 | `cron-intraday-scan` never publishes — `results/intraday_scan/` never committed; survival stats never accrued | same fragile push | ✅ fixed `2026-07-13` |
 | **F4** | P1 | Live dashboard shows the stale/expired 2026-07-03 board; forward record has a hole at its first data point | downstream of F1 (07-11 run dropped) | 🔧 re-run scanner to publish current week |
-| **F5** | P1 | **Weekly held positions get no exit guidance** — a user whose weekly trade hits its stop is never told to sell | `nq_positions.py:56` hardcodes the momentum `signals_history.json`; the weekly book writes `signals_history_weekly.json` | 🔧 make history-index model-aware (union both files) |
-| **F6** | P1 | **A bought weekly card vanishes from the holder's board next Saturday** | join-key drift: orders keyed by setup-Friday `signal_date`; held/history cards keyed by fill `entry_date` (`run_bhanushali_cron.py:125` vs `:154`; `signals.py:285`) | 🔧 align the join key (see §7) |
+| **F5** | P1 | **Weekly held positions get no exit guidance** — a user whose weekly trade hits its stop is never told to sell | `nq_positions.py` history index hardcoded the momentum `signals_history.json`; the weekly book writes `signals_history_weekly.json` | ✅ fixed `35ce661` — union both files (deploy pending) |
+| **F6** | P1 | **A bought weekly card vanishes from the holder's board next Saturday** | join-key drift: orders keyed by setup-Friday `signal_date`; held/history cards keyed by fill `entry_date` | ✅ fixed `35ce661` — unique-ticker fallback in `nq_positions` + `signals.py` (deploy pending) |
 | **F7** | P1 | Live `last_signal` has no weekly-completeness guard | `run_bhanushali_weekly_rank.py:89-93` reads `weeks[-1]` unconditionally; an off-cadence run surfaces a partial-bar card | 🔧 guard: suppress unless `weeks[-1]` ends on the latest completed Friday |
 | **F8** | P2 | Stale weekly file not surfaced on the Research page | frontend never reads `cron_health` (`SignalsV3.jsx`) | 🔧 render a "data stale / scan failed" banner |
 | **F9** | P2 | Day counter mixes calendar days with a 65-**trading**-day horizon (reads near-exit ~4 weeks early) | `dayOf` calendar days (`SignalsV3.jsx:170`) vs `hold=65` trading days | 🔧 show "week N of 13" |
@@ -161,3 +161,30 @@ differently. The coherent fix:
   scorecard tile surfaces readiness but decides nothing between quarterly dates.
 - **Health check:** `cron_health` goes STALE at >48h; a green cron run must now mean a real publish
   (F1–F3 fixed) — a push failure is a RED run.
+
+---
+
+## 9. Momentum decommission (only-Bhanushali, 2026-07-13)
+
+Owner directive: run **only the Bhanushali weekly-swing strategy right now**. The momentum long-horizon
+book is not traded. What that means operationally:
+
+**Deleted** (`git`-recoverable):
+- `.github/workflows/cron-scanner.yml` — the momentum daily paper cron (was already schedule-suspended).
+
+**Kept — do NOT delete** (shared or research-record; "right now" is a pause, not a purge):
+- The **shared engine** (`nq/`, `config.py`, and the `run_bhanushali_*` modules the live book
+  imports) — deleting any of these breaks the Bhanushali strategy.
+- The **research record** — `research/findings/`, `research/overlay_registry.md`, `diagnostics/`,
+  `forward/prereg.md`. This is the project's core value and includes the Bhanushali arc.
+- The momentum **tab** is already hidden (`SignalsV3.jsx` `MOMENTUM_SUSPENDED = true`, default model
+  `bhanushali`) — no code removed, just not shown.
+
+**Candidates for a deeper purge (owner decision — not done unilaterally):**
+- 6 dormant momentum *research* dispatch workflows: `cpcv-research`, `conviction-c2`, `conviction-c3`,
+  `exit-0071`, `overlay-a5`, `target-sweep` (all `workflow_dispatch`, not scheduled). Clutter the
+  Actions tab; deleting is reversible and breaks no code, but removes momentum-research capability.
+- 9 stale momentum result files (`results/signals_today.json`, `paper_*.json`, `kill_state.json`, …)
+  — read only by the hidden `model=momentum` endpoints; deleting is reversible but several backend
+  endpoints read them, so confirm before removing.
+- Full removal of the `MOMENTUM_SUSPENDED` frontend branch (make `bhanushali` the sole model).
