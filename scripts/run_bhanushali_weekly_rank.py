@@ -84,16 +84,18 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None):
                 continue
             edays = weeks[k + 1]
             s["entry_win"][edays[0]] = (edays, float(wlow[k]), float(whigh[k]), float(crs_dist[k]))
-        # LIVE actionable signal (latest completed week) + its rank — read only by the paper runner.
-        # Completeness guard (fault F7): only surface the live card from a COMPLETED weekly bar. Under
-        # the Saturday-post-close cadence weeks[-1] always ends Friday; an off-cadence/mid-week run
-        # would otherwise emit a card computed on a PARTIAL week (a bar the backtest never scores).
-        # weekday()>=4 = Friday or a Saturday NSE session; a Friday-holiday week safe-fails (no card).
+        # LIVE actionable signal (latest COMPLETED week) + its rank — read only by the paper runner.
+        # Completeness guard (fault F7): only ever surface a card from a COMPLETED weekly bar, never a
+        # partial week the backtest doesn't score. weekday()>=4 = Friday or a Saturday NSE session.
+        # Robustness (2026-07-13): if the run lands MID-WEEK (data extends into a new partial week),
+        # step back to the last COMPLETED week so the board still shows last week's fresh buys — a
+        # Monday-data run otherwise found 0 signals and every card fell through to HOLD.
         s["last_signal"] = None
         _ws = np.nan_to_num(wsig, nan=False)
         li = len(weeks) - 1
-        week_complete = len(weeks) > 0 and pd.Timestamp(s["dates"][weeks[li][-1]]).weekday() >= 4
-        if len(weeks) and week_complete and _ws[li]:
+        if li >= 1 and pd.Timestamp(s["dates"][weeks[li][-1]]).weekday() < 4:
+            li -= 1                                            # current week partial -> last completed week
+        if li >= 0 and pd.Timestamp(s["dates"][weeks[li][-1]]).weekday() >= 4 and _ws[li]:
             s["last_signal"] = {"fri_idx": int(weeks[li][-1]), "lo": float(wlow[li]),
                                 "hi": float(whigh[li]), "rank": float(crs_dist[li])}
     return P

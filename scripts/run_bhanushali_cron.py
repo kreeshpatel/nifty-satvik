@@ -141,14 +141,25 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
         sg["grade"] = "A" if j < 5 else "B"
     # Grade-A only (owner rule): drop Grade-B buy cards entirely — only the top-5-CRS names show.
     signals = [s for s in signals if s["grade"] == "A"]
-    # A name already being followed (HOLD/EXIT card below) must not also show as a fresh buy.
-    held_tickers = set(out["open_positions"])
-    signals = [s for s in signals if s["ticker"] not in held_tickers]
+    # A name FOLLOWED as a hold from a PRIOR week must not also show as a fresh buy. But a name that
+    # only just ENTERED this (still-incomplete) week is inside its buy window — keep it as a BUY card
+    # (with its range), NOT a HOLD (fault 2026-07-13: a mid-week/Monday-data run showed every name as
+    # HOLD with no buy range, because the uncapped tracking book had 'entered' the week's signals).
+    gen = pd.Timestamp(generated_at)
+    cur_week_open = gen.weekday() < 4                          # data ends Mon-Thu => this week not yet closed
+    cur_week_start = (gen - pd.Timedelta(days=int(gen.weekday()))).normalize()   # Monday of gen's week
 
-    # ── held positions -> HOLDING cards ("Bought on <date>"), or SELL cards when the weekly close
-    # decided an exit (pending -> executes Monday open). The Saturday run therefore tells the owner
-    # exactly which held signals to SELL on Monday, on the same card the buy came from. ──
-    for t, p in out["open_positions"].items():
+    def _entered_this_week(p):
+        ed = p.get("rec", {}).get("entry_date")
+        return cur_week_open and ed is not None and pd.Timestamp(ed) >= cur_week_start
+
+    held_prior = {t: p for t, p in out["open_positions"].items() if not _entered_this_week(p)}
+    signals = [s for s in signals if s["ticker"] not in set(held_prior)]
+
+    # ── held positions (entered in a PRIOR week) -> HOLDING cards ("Bought on <date>"), or SELL cards
+    # when the weekly close decided an exit (pending -> executes Monday open). The Saturday run tells
+    # the owner exactly which held signals to SELL on Monday, on the same card the buy came from. ──
+    for t, p in held_prior.items():
         s = P[t]
         cur = float(_last(P, t, "c"))
         entry = float(p["en"])
