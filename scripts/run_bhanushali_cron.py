@@ -139,6 +139,8 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
     signals.sort(key=lambda x: -x["crs_rank"])
     for j, sg in enumerate(signals):
         sg["grade"] = "A" if j < 5 else "B"
+    # Grade-A only (owner rule): drop Grade-B buy cards entirely — only the top-5-CRS names show.
+    signals = [s for s in signals if s["grade"] == "A"]
     # A name already being followed (HOLD/EXIT card below) must not also show as a fresh buy.
     held_tickers = set(out["open_positions"])
     signals = [s for s in signals if s["ticker"] not in held_tickers]
@@ -158,15 +160,7 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
             "close": round(cur, 2), "signal_date": bought, "bought_date": bought,
             "qty": round(float(p["sh"]), 2), "fill_price": round(entry, 2),
             "nq_position_id": f"{t}__{bought}",              # -> frontend 'holding' action
-            # No `grade` here on purpose: "A"/"B" means "top-5 CRS rank at entry"
-            # on FRESH cards (above). A held position's original entry grade
-            # isn't persisted in `p`, so setting grade="A"/"B" off `half_done`
-            # (whether the half-target scale-out has fired) silently redefines
-            # the same badge to mean something else — a held name looks like
-            # its conviction "downgraded" from A to B as it merely sits at open
-            # risk, with no connection to the actual entry call. Leave it unset;
-            # the frontend's `grade || 'B'` fallback renders a neutral Medium
-            # conviction tag instead of a fabricated flip-flopping one.
+            "grade": "A",   # only Grade-A signals are ever entered now, so every hold is A
             "hold_days": HOLD_DAYS_DISPLAY,
             "tier": "signal", "status": "ACTIVE",
         }
@@ -329,13 +323,16 @@ def main(argv=None) -> int:
     mem = load_membership()
     # LIVE strategy = 0093 + Nifty-50 with CRS-ranked fills (finding 0038; supersedes arbitrary fill).
     P = R94.prep_weekly_rank(ohlcv)
-    # ── ₹10L paper book — realistic capital sim, kept for the NAV/equity portfolio (owner reference).
+    # Grade-A only: trade the TOP-5-by-CRS signals of each week. Owner rule — never surface or buy
+    # Grade B; there are always enough strong A names.
+    a_set = R94.grade_a_entries(P)
+    # ── ₹10L paper book — realistic capital sim (A-only), kept for the NAV/equity portfolio.
     led_paper: list = []
-    out_paper = R94.backtest(P, mem, ledger=led_paper, start=args.start, return_state=True)
-    # ── UNCAPPED signal ledger — every signal tracked (cash never runs out), so a name is followed
+    out_paper = R94.backtest(P, mem, ledger=led_paper, start=args.start, return_state=True, a_grade=a_set)
+    # ── UNCAPPED signal ledger — every A signal tracked (cash never runs out), so a name is followed
     #    week to week regardless of what ₹10L could afford. This drives the SIGNALS page.
     led_all: list = []
-    out_all = R94.backtest(P, mem, ledger=led_all, start=args.start, return_state=True, uncapped=True)
+    out_all = R94.backtest(P, mem, ledger=led_all, start=args.start, return_state=True, uncapped=True, a_grade=a_set)
     # data's last date = the "as of" the book is current to
     last = max((pd.Timestamp(s["dates"][-1]) for s in P.values()), default=pd.Timestamp(args.start))
     generated_at = str(last.date())

@@ -99,10 +99,30 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None):
     return P
 
 
+def grade_a_entries(P, top_n: int = 5) -> set:
+    """The set of (ticker, entry_day_idx) whose signal is TOP-N by CRS distance in its setup week —
+    'Grade A'. Passed to backtest(a_grade=...) to trade only A, and used to filter the OPEN cards.
+    Entry windows that start the same ISO week came from the same setup Friday, so ranking them by
+    CRS distance and keeping the top-N is exactly the weekly A/B split shown on the cards."""
+    from collections import defaultdict
+    by_week = defaultdict(list)
+    for t, s in P.items():
+        dates = s["dates"]
+        for e0, win in s["entry_win"].items():
+            iso = pd.Timestamp(dates[e0]).isocalendar()
+            by_week[(int(iso.year), int(iso.week))].append((float(win[3]), t, e0))
+    a = set()
+    for lst in by_week.values():
+        lst.sort(key=lambda x: -x[0])
+        for _rank, t, e0 in lst[:top_n]:
+            a.add((t, e0))
+    return a
+
+
 def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              start: str | None = None, return_state: bool = False,
              vol_target: tuple | None = None, eq0: float | None = None,
-             uncapped: bool = False):
+             uncapped: bool = False, a_grade: set | None = None):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
@@ -179,7 +199,9 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
             if i is None:
                 continue
             if t not in op and t not in orders and i in s["entry_win"]:
-                if mem is None or ticker_in_index_on(t, dd, mem):
+                # a_grade (when passed): only enter TOP-N-by-CRS signals of the setup week (Grade A).
+                is_a = a_grade is None or (t, i) in a_grade
+                if is_a and (mem is None or ticker_in_index_on(t, dd, mem)):
                     days, lo, hi, rk = s["entry_win"][i]
                     orders[t] = {"days": set(days), "lo": lo, "hi": hi, "rank": rk}
                     activations += 1
