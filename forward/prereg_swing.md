@@ -123,6 +123,28 @@ Root cause (all three): the 6-step filter + CRS + ADV≥5cr selection **already 
 proxying for**; layering volume on an already-elite pool adds nothing. These were measurements — **no trial
 spent; n_trials stays 114.**
 
+The 2026-07-14 **entry/exit research arc (finding 0098)** is CLOSED — ~20 configurations (near-SMA entry,
+wide-candle reject, daily-uptrend gate, body-gain cap, trend-hold exit, 25/25/50 exit ladder, all-grades).
+**Every one fails to improve returns**; the frozen `0094` book is the best config. Do not relitigate any of
+them. Root lesson: the edge is *buying strength* and it resists every "make it safer" filter; "confirmation"
+(daily gate) just delays entry into extended, wide-stop fills (it *caused* the HEG −22.8%).
+
+## 7a. WATCHED overlay — max-stop-distance cap (DRAWDOWN lever only)
+
+The one survivor of finding 0098. **Rule:** skip a fill when `(entry − stop)/entry > 15%` (stop = setup-week
+low) — i.e. don't take a trade whose stop sits more than 15% below the entry (the HEG/wide-candle blow-up
+pattern). **Status: WATCHED (logged, not traded).**
+
+- **Thesis is DD, not return.** In-sample it consistently cuts MaxDD (−40% → −30/−32%) across every cap
+  value — mechanically sound (removes wide-stop losers). But its **return response is NON-MONOTONE**
+  (Sharpe 12%→0.955 / 15%→0.760 / 18%→0.938) — a `backtest-rigor §C1b` peak-not-plateau signature — so the
+  return "win" is **noise and is NOT claimed**. Certifiable only on out-of-sample drawdown.
+- **Param frozen by MECHANISM, not fit:** **15%** (a round "don't take stops wider than 15%" rule),
+  deliberately NOT the in-sample-best 12%, to avoid fitting the peak. Tighten-only.
+- **Decision (pre-committed):** at the 12-month review, **promote to the live cfg only if** forward MaxDD
+  is shallower than the un-capped book by **≥3pp AND** forward Calmar is **not worse**. Otherwise it stays
+  watched or is dropped. Never promoted on an in-sample number.
+
 ## 8. What would reopen the single-sleeve search (the bar for trial #115)
 
 Nothing in the technical/volume/momentum/macro zoo already killed. A genuinely new lever means one of:
