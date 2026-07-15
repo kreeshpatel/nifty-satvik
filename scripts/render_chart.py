@@ -136,6 +136,46 @@ def render(t, d0, d1, overlay, box_len=12, box_tight=0.35, sr_len=12, sr_test_ba
     return str(fn)
 
 
+def render_trade(t, entry_date, exit_date, entry, stop, tp2, reason, R, P=None, n50=None, suffix=""):
+    """Render ONE trade for EXIT analysis: weekly candles from ~14wk before entry to ~14wk AFTER exit, with the
+    ENTRY (green ^), the actual EXIT (red v), the MFE peak (gold star), and horizontal entry/stop/+2R lines +
+    the 20-week trail path drawn — so we can SEE where the ideal exit was vs where we actually exited."""
+    if P is None:
+        ohlcv = corrected_universe(); P = R94.prep_weekly_rank(ohlcv)
+    if n50 is None:
+        n50 = pd.read_csv(CRS.NIFTY50_CSV, parse_dates=["date"]).set_index("date")["nifty50_close"].sort_index()
+    w = weekly(t, P, n50); wd = w["wd"]
+    ei = min(range(len(wd)), key=lambda i: abs((wd[i] - pd.Timestamp(entry_date)).days))
+    xi = min(range(len(wd)), key=lambda i: abs((wd[i] - pd.Timestamp(exit_date)).days))
+    a = max(ei - 14, 0); b = min(xi + 15, len(wd)); risk = entry - stop
+    peak_i = ei + int(np.argmax(w["wh"][ei:xi + 1])) if xi >= ei else ei
+    fig, ax = plt.subplots(figsize=(15, 7))
+    for i in range(a, b):
+        up = w["wc"][i] >= w["wo"][i]; col = "#26a69a" if up else "#ef5350"
+        ax.plot([i, i], [w["wl"][i], w["wh"][i]], color=col, lw=0.8, zorder=2)
+        lo, hi = sorted([w["wo"][i], w["wc"][i]])
+        ax.add_patch(Rectangle((i - 0.3, lo), 0.6, max(hi - lo, 1e-6), color=col, zorder=3))
+    x = np.arange(a, b)
+    ax.plot(x, w["ws"][a:b], color="#2962ff", lw=1.4, label="44-wk SMA")
+    ax.plot(x, w["w20"][a:b] * (1 - 0.04), color="#ff9800", lw=1.1, ls="--", label="20-wk trail (×0.96)")
+    ax.axhline(entry, color="#9e9e9e", lw=0.9, ls="-", alpha=0.7)
+    ax.axhline(stop, color="red", lw=0.9, ls=":", alpha=0.8)
+    ax.axhline(tp2, color="green", lw=0.9, ls=":", alpha=0.8)
+    ax.annotate("entry", (a, entry), fontsize=7, color="#616161")
+    ax.annotate("+2R", (a, tp2), fontsize=7, color="green"); ax.annotate("stop", (a, stop), fontsize=7, color="red")
+    ax.scatter([ei], [entry], marker="^", s=200, color="lime", edgecolor="k", zorder=7, label="ENTRY")
+    ax.scatter([xi], [w["wc"][xi]], marker="v", s=200, color="red", edgecolor="k", zorder=7, label=f"EXIT ({reason} {R:+.1f}R)")
+    ax.scatter([peak_i], [w["wh"][peak_i]], marker="*", s=260, color="gold", edgecolor="k", zorder=7,
+               label=f"MFE {(w['wh'][peak_i]-entry)/risk:+.1f}R")
+    ax.axvline(xi, color="red", lw=0.6, alpha=0.3)
+    ax.set_title(f"{t}  entry {str(entry_date)[:10]} → exit {str(exit_date)[:10]}  reason={reason} R={R:+.2f}  (post-exit weeks shown)", fontsize=9)
+    ax.legend(loc="upper left", fontsize=8); ax.grid(alpha=0.15)
+    ax.set_xticks(x[::3]); ax.set_xticklabels([wd[i].strftime("%b-%y") for i in x[::3]], rotation=45, fontsize=7)
+    fn = OUT / f"exit_{t}_{str(entry_date)[:10]}{('_' + suffix) if suffix else ''}.png"
+    fig.tight_layout(); fig.savefig(fn, dpi=88); plt.close(fig)
+    return str(fn)
+
+
 if __name__ == "__main__":
     t = sys.argv[1]; d0 = sys.argv[2]; d1 = sys.argv[3]
     overlay = sys.argv[4] if len(sys.argv) > 4 else "box"
