@@ -381,6 +381,34 @@ real, positive-expectancy entries; box & S/R are BETTER than the base touch per-
 Phase-3 sizing job (slots/sleeves), not an entry-rejection.** All Phase-1 setup evaluation henceforth = uncapped
 per-trade expectancy; the ₹10L portfolio is not computed until sizing.
 
+### E11 — THE HIGH-EXPECTANCY CORES (per-trade), and the DEEP NEAR-SMA TOUCH edge (the session headline)
+Per-trade expectancy by entry-extension-vs-SMA bucket (uncapped), per setup — locates each entry's edge:
+- **TOUCH:** the edge is the DEEP near-SMA touch. ext<5%: N=648, meanR **+1.004**, PF 2.49 (~6× the full-rule
+  +0.159). The 5–10% band is a TRAP: N=1092 (largest bucket), meanR **−0.521**, PF 0.65. 10–20% ~+0.32.
+- **BOX & S/R:** the edge is in the EXTENDED breakouts (they break out above a base ABOVE the SMA, so high ext
+  is normal). Both peak at 20–25% / >25% ext (meanR ~+0.35, PF ~1.9); both weak in the 10–15% zone.
+
+**The deep near-SMA touch (<5% ext) is the strongest, cleanest edge of the whole study — validated 3 ways:**
+| CRS-rank tier | near-SMA (<5%) meanR | rest meanR |
+|---|--:|--:|
+| lowCRS | +0.511 | −0.638 |
+| midCRS | +1.338 | +0.157 |
+| hiCRS | **+1.603** | +0.190 |
+
+1. **Rank-orthogonal:** near-SMA adds +0.9…+1.4R on top of CRS rank in EVERY tier — even the losing lowCRS tier
+   (−0.64) turns POSITIVE (+0.51) when the touch is deep near-SMA. deep-near-SMA × hiCRS = **+1.6R**.
+2. **Regime-persistent:** meanR by year +0.37/+3.74/+1.84/+0.63/+1.56/… incl. **+0.92 (2025), +0.95 (2026)**
+   on N=231 recent — still working where the box/others faded. Only 2024 negative.
+3. **Large sample:** N=648, win 50%, meanR +1.004.
+
+**Interpretation:** the base touch rule's edge IS its deep-near-SMA subset (the genuine pullback/undercut-reclaim
+— DIVISLAB/THYROCARE archetype); the 5–10% band and blow-offs are dilution. CAVEAT (unchanged): you cannot
+MANUFACTURE near-SMA entries with a limit (falling knives, E1) — but you CAN select/overweight the signals that
+naturally fill <5% above the SMA (PIT-safe: the open is observed pre-fill). On the portfolio lens this "rejected"
+(cap artifact, E2); on the correct per-trade lens it is the core edge. **Phase-1 hands Phase-3 three ranked
+cores: (1) deep-near-SMA touch [+1.0R, best], (2) box breakout extended [+0.3, PF 1.9], (3) S/R extended
+[+0.3] — Phase-3 sizing overweights the deep-near-SMA×hiCRS touches (+1.6R) and sizes down the −0.52R 5–10% band.**
+
 ## What this points to (for Phase D/E, measured — not adopted)
 1. **Earlier-entry / RS re-timing** (#1) — the biggest, most-cited lever. Measure fresh.
 2. **Earlier partial exit** (#2, the giveback fix) — measure 1.5R / faster-trail vs the 2R half.
