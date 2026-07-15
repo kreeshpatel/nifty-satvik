@@ -44,7 +44,9 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                      first_touch: bool = False, base_min: int = 0, base_lookback: int = 8,
                      base_band: float = 0.12, decouple_touch_green: bool = False, green_wait: int = 3,
                      box_breakout: bool = False, box_len: int = 8, box_tight: float = 0.30,
-                     trend_pullback: bool = False, tp_band: float = 0.05):
+                     trend_pullback: bool = False, tp_band: float = 0.05,
+                     sr_breakout: bool = False, sr_len: int = 12, sr_test_band: float = 0.03,
+                     sr_recent: int = 2):
     """The live 0093+Nifty-50 prep, with each entry window carrying its CRS-distance rank.
 
     index_provider (pre-reg 0096): optional callable(ticker) -> pd.Series to override the CRS
@@ -148,6 +150,24 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
             _tsig &= np.nan_to_num(wlow > wsma * (1 + TOUCH_BAND), nan=False)    # but NOT a 44-SMA touch (distinct)
             _tsig = _tsig & ~np.nan_to_num(wsig, nan=False)                      # additive to touch+box
             wsig = np.nan_to_num(wsig, nan=False) | _tsig
+        # PHASE-1 setup #4 — SUPPORT/RESISTANCE BREAKOUT: a horizontal resistance (a prior swing high TESTED
+        # >=2 times) that price has sat UNDER, then a GREEN week CLOSES above it in an uptrend. Looser than the
+        # box (#2 needs a tight range); this only needs a tested level + a clean break. Stop = the base low
+        # under the resistance. off => byte-identical 0094.
+        if sr_breakout:
+            _srsig = np.zeros(len(wclose), bool)
+            for _k in range(sr_len, len(wclose)):
+                if not (np.nan_to_num(slope[_k], nan=-9) >= SLOPE_MIN
+                        and np.nan_to_num(qgreen[_k], nan=False) and _rs_term[_k]):
+                    continue
+                _lo = _k - sr_len; _res = whigh[_lo:_k].max()                     # prior swing-high resistance
+                _tested = int(np.sum(whigh[_lo:_k] >= _res * (1 - sr_test_band))) # times the level was hit
+                _sm = wsma[_k]
+                if (_tested >= 2 and wclose[_k - 1] <= _res and wclose[_k] > _res  # sat under, now breaks out
+                        and _sm == _sm and wclose[_k] > _sm):                      # above the 44 (uptrend)
+                    _srsig[_k] = True; _stop_arr[_k] = wlow[_lo:_k].min()          # stop = base low
+            _srsig = _srsig & ~np.nan_to_num(wsig, nan=False)
+            wsig = np.nan_to_num(wsig, nan=False) | _srsig
         s["weekend"] = {dd[-1] for dd in weeks}
         s["entry_win"] = {}
         _wsflag = np.nan_to_num(wsig, nan=False)

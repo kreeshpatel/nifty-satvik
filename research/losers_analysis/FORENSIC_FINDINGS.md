@@ -264,6 +264,33 @@ a **Phase-3 sleeve** (own capital bucket) routed to the forward wall, NOT a cfg 
 continuation, and by extension plain S/R / flag) add weak signals and dilute — pattern-count is not the edge,
 structure + defined risk is. Reversal/oversold stays triple-killed (0020/0022/0024). New cfg: `trend_pullback/tp_band`.
 
+### Lever E6 — SUPPORT/RESISTANCE BREAKOUT (setup #4) — LOOKED GREAT, KILLED BY AUDIT
+Tested-resistance breakout (prior swing high hit ≥2×, price under it, then a green close above in an uptrend;
+stop = 12-wk base low). Determinism-gated (off ⇒ 1.132/255). Raw sweep looked spectacular:
+| arm | Sharpe | CAGR | DD | Calmar | win% | tr | 22-26 | 17-21 |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|
+| base | 1.132 | 24.7% | −42.4% | 0.58 | 59% | 255 | 1.18 | 1.08 |
+| sr 12/3% | 1.099 | 24.6% | −34.3% | 0.72 | 58% | 552 | 0.86 | 1.32 |
+| **box+sr** | **1.381** | **32.4%** | **−29.2%** | **1.11** | 60% | 541 | 0.93 | 1.79 |
+
+**The box+sr 1.381 / Calmar 1.11 is a MIRAGE — killed by the reproduce-before-trust audit** (a result better
+than base is guilty until cleared; construction is PIT-clean — no lookahead — so the flattery is structural):
+1. **Absurd stops:** SR risk% median **33%**, max **87.5%** (stop at the 12-wk base low, far below a breakout
+   entry). A 33% stop almost never triggers → the 58–60% "win rate" is ILLUSORY (wins on any drift), meanR tiny.
+2. **Edge is DEAD recently:** SR-book meanR by year — 2017 1.18, 2020 0.30, 2021 0.23, 2023 0.59, but
+   **2024 0.03 / 2025 0.01 / 2026 0.01** (win 40–51%). The full-sample number averages over a fat bull middle;
+   no edge in the last 3 years. 2022-26 slice 0.93 < base 1.18 — it DEGRADES the recent, decision-relevant regime.
+3. **A different strategy, not a refinement:** 523 of 552 trades are brand-new wide-stop breakout bets, and
+   this is ~arm #15 of the session's setup search → the deflated-Sharpe bar is high and this fails the
+   sub-period gate outright. **KILL.** (Distinct from #2 box: the box's tight-range + box-low stop keeps stops
+   sane and quality real; dropping the tightness constraint here is exactly what let the wide-stop junk in.)
+
+**FINAL Phase-1 setup-library verdict:** of the classic swing patterns, only the base pullback-touch (#1) and
+the flat-base box breakout (#2) survive; trend-continuation (#3) dilutes and S/R breakout (#4) is a
+bull-amplifier mirage. Pattern-count is emphatically NOT the edge — structure + a SANE defined stop is. The
+box is the one keeper (captures GAIL+VBL, real tight stops, holds win%), regime-sensitive → Phase-3 sleeve /
+forward wall. Everything looser is the near-SMA/wide-stop failure in a new costume.
+
 ## What this points to (for Phase D/E, measured — not adopted)
 1. **Earlier-entry / RS re-timing** (#1) — the biggest, most-cited lever. Measure fresh.
 2. **Earlier partial exit** (#2, the giveback fix) — measure 1.5R / faster-trail vs the 2R half.
