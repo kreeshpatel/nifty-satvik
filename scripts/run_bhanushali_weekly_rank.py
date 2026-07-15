@@ -72,6 +72,13 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
         wopen = np.array([o[dd[0]] for dd in weeks]); whigh = np.array([h[dd].max() for dd in weeks])
         wlow = np.array([l[dd].min() for dd in weeks]); wclose = np.array([c[dd[-1]] for dd in weeks])
         wsma = pd.Series(wclose).rolling(44).mean().to_numpy()
+        # weekly HLC + 20-WEEK SMA keyed by the weekend day — READ ONLY by the Phase-2 blow-off / 20wk-trail
+        # exits (the visual exit forensic showed the giveback tell is a weekly blow-off bar closing in its lower
+        # third, and the correct trail reference is the 20-WEEK line, not the 20-day ema20). Extra data only;
+        # not read by the frozen run => byte-identical 0094.
+        _w20wk = pd.Series(wclose).rolling(20).mean().to_numpy()
+        s["wk_hlc"] = {weeks[_j][-1]: (float(whigh[_j]), float(wlow[_j]), float(wclose[_j]),
+                       float(_w20wk[_j]) if _w20wk[_j] == _w20wk[_j] else float("nan")) for _j in range(len(weeks))}
         slope = np.full(len(wsma), np.nan); slope[SLOPE_LOOKBACK:] = wsma[SLOPE_LOOKBACK:] / wsma[:-SLOPE_LOOKBACK] - 1.0
         rng = whigh - wlow
         qgreen = (wclose > wopen) & (rng > 0) & ((wclose - wlow) >= 0.5 * rng)
@@ -271,7 +278,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              chand_pct: float = 0.0, chand_after_r: float = 0.0,
              soft_stop_pct: float = 0.0,
              lh_arm_r: float = 0.0, lh_n: int = 2, no_time_cap: bool = False,
-             trendhold_pct: float = 0.0,
+             trendhold_pct: float = 0.0, blowoff_arm_r: float = 0.0, blowoff_third: float = 0.34,
+             wk20_trail_pct: float | None = None,
              entry_band: float | None = None, entry_strict: bool = False,
              ext_cap: float | None = None, ext_cap_touch_only: bool = False, fill_order: str = "crs"):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
@@ -410,6 +418,21 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                 if p["pending"] is None and trendhold_pct and _mfe_r >= 2.0 and wc < s["ema20"][i] * (1 - trendhold_pct):
                     p["pending"] = ("full", "thold" + ("_half" if p["half_done"] else ""))
                 p["prev_wc"] = wc
+                # PHASE-2 VISUAL exit levers (from the chart forensic): BLOW-OFF bar exit + 20-WEEK trail.
+                _wk = s.get("wk_hlc", {}).get(i)
+                if _wk is not None:
+                    _wH, _wL, _wC, _w20 = _wk
+                    # blow-off: after MFE≥blowoff_arm_r, exit if this week made a NEW high but CLOSED in its lower
+                    # third (long upper wick = momentum exhaustion — the tell on YESBANK/IOB/CENTURYPLY/QUESS).
+                    if (blowoff_arm_r and p["pending"] is None and _mfe_r >= blowoff_arm_r and (_wH - _wL) > 0
+                            and _wH >= p.get("pk_wh", 0.0) and (_wC - _wL) < blowoff_third * (_wH - _wL)):
+                        p["pending"] = ("full", "blowoff" + ("_half" if p["half_done"] else ""))
+                    p["pk_wh"] = max(p.get("pk_wh", 0.0), _wH)
+                    # 20-WEEK trail (the correct reference the charts use): once up ≥2R, exit on a weekly CLOSE
+                    # below the 20-week SMA × (1-pct). Slow enough to let the monsters run, catches the rollover.
+                    if (wk20_trail_pct is not None and p["pending"] is None and _mfe_r >= 2.0
+                            and _w20 == _w20 and _wC < _w20 * (1 - wk20_trail_pct)):
+                        p["pending"] = ("full", "wk20" + ("_half" if p["half_done"] else ""))
                 _cap = 52 if no_time_cap else (cap_weeks if cap_weeks > 0 else CAP_WEEKS)
                 if p["pending"] is None and p["weeks"] >= _cap:
                     p["pending"] = ("full", "time")

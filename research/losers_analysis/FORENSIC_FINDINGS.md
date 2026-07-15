@@ -501,6 +501,33 @@ next-version. The bigger capture (cap-removal, +0.14R/trade) is real but a Phase
 holds). Loss side is irreducible (soft-stop rejected 3×). Exit is characterized; the deep-near-SMA and
 cap-removal both route to Phase-3 sizing.
 
+### PHASE-2 VISUAL exit forensic (owner: chart the trades, mark entry/exit, AI the best exit — NO sizing)
+Built `render_chart.render_trade()` + `render_exit_gallery.py` — 16 trades with ENTRY/EXIT/MFE marked + weeks
+AFTER exit. Two AI agents READ the chart images and judged the ideal exit. The two archetypes need OPPOSITE
+fixes (confirming the textual forensic, now visually):
+- **Batch A (cap-severed monsters): exited TOO EARLY** — 6/8 kept trending after exit (ALKYLAMINE/KALYANKJIL/
+  SWANENERGY/DIVISLAB/GUJGAS all doubled+), no reversal tell at the exit → fix = remove cap, trail the 20-WEEK line.
+- **Batch B (givebacks): exited TOO LATE** — 5/6 winners topped on the SAME candle: a **blow-off bar with a
+  long upper wick that closes in its lower third** (YESBANK/IOB/CENTURYPLY/QUESS/THYROCARE) → fix = exit on that
+  exhaustion bar after 2R+. Also surfaced: the engine trails on `ema20` = a **20-DAY** SMA, but the strategy &
+  every chart reference the **20-WEEK** line — a real mismatch (the trail sits far below a parabola → givebacks).
+
+Implemented the visual rule (weekly HLC + 20wk SMA stored read-only; blowoff_arm_r + wk20_trail_pct + no_time_cap):
+| exit | meanR | win% | PF | Sharpe | 22-26 | 17-21 |
+|---|--:|--:|--:|--:|--:|--:|
+| base | +0.481 | 59% | 2.20 | 1.132 | 1.18 | 1.08 |
+| **no_cap + 20wk-trail(4%) + blowoff@2.5R** | **+0.616** | 54% | 2.13 | 1.034 | **1.28** | 0.79 |
+| no_cap + 20wk-trail (no blowoff) | +0.547 | 52% | 1.90 | 0.743 | 0.93 | 0.61 |
+
+**PHASE-2 EXIT — FINAL (per-trade lens): the visually-derived exit is the best found — meanR +0.481→+0.616
+(+28%), PF held ~2.1, and the RECENT regime IMPROVES (22-26 Sharpe 1.18→1.28).** Three chart-traceable pieces:
+(1) 20-WEEK trail (fixing the 20-day bug) + no cap → monsters run; (2) blow-off-bar exit armed at 2.5R (2.0R
+cuts too early) → banks givebacks near the peak; it's what makes 22-26 improve. The full-sample capped Sharpe
+(1.034) sits just under base ONLY from longer holds (168 vs 255 trades = capital efficiency = Phase 3, per owner
+"no sizing now"). Determinism preserved (all off ⇒ 1.132/255). New cfg: `blowoff_arm_r/blowoff_third/
+wk20_trail_pct`. The lock-in ratchet remains the cap-KEEPING alternative; the visual exit is the cap-REMOVING
+one (better per-trade, needs Phase-3 sizing for the capped Sharpe). Both route forward; owner picks at Phase 3.
+
 ## What this points to (for Phase D/E, measured — not adopted)
 1. **Earlier-entry / RS re-timing** (#1) — the biggest, most-cited lever. Measure fresh.
 2. **Earlier partial exit** (#2, the giveback fix) — measure 1.5R / faster-trail vs the 2R half.
