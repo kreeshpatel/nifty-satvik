@@ -553,6 +553,32 @@ cherry-picked.** Two of the four exit archetypes (early-cut winners, blow-off gi
 capture loss and both are fixed; slow-bleeds partly fixed; stops are the irreducible floor. Tool:
 `render_random_exit_gallery.py` (seeded, stratified). Phase-2 exit is now MAPPED and validated on random data.
 
+### PER-YEAR TRADE-LEVEL SCORECARD (pre-Phase-3 baseline; entry+exit only, R is size-independent = no sizing)
+Trade-Sharpe = mean(R)/std(R) across the year's trades (size-free Sharpe analogue), by ENTRY year.
+
+**BASE 0094 (base entry + base exit) — 255 trades | ALL: win 59%, meanR +0.481, tradeSharpe 0.30**
+| yr | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 | 2026 |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|
+| N | 13 | 30 | 19 | 36 | 30 | 28 | 25 | 32 | 27 | 15 |
+| win% | 85 | 47 | 95 | 42 | 60 | 61 | 80 | 41 | 48 | 80 |
+| meanR | +1.15 | +0.28 | +0.90 | +0.25 | +0.42 | +0.69 | +0.94 | +0.05 | −0.04 | +1.15 |
+| tSharpe | 0.80 | 0.19 | 0.90 | 0.12 | 0.30 | 0.39 | 0.64 | 0.04 | −0.03 | 0.73 |
+
+**BASE entry + PHASE-2 exit (no_cap + 20wk-trail + blow-off@2.5R) — 168 trades | ALL: win 54%, meanR +0.616, tSharpe 0.33**
+| yr | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 | 2026 |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|
+| N | 12 | 23 | 13 | 26 | 15 | 16 | 17 | 18 | 18 | 10 |
+| win% | 75 | 30 | 54 | 62 | 53 | 56 | 88 | 44 | 28 | 70 |
+| meanR | +1.16 | −0.13 | +0.70 | +0.65 | +0.28 | +1.01 | +1.80 | +0.49 | −0.35 | +1.30 |
+| tSharpe | 0.56 | −0.08 | 0.31 | 0.36 | 0.17 | 0.41 | 1.30 | 0.28 | −0.24 | 0.88 |
+
+**Reads:** (1) base is real but regime-dependent — strong 2017/2019/2022/2023/2026, flat-to-weak 2024-25 (win
+41/48%, ~0R). (2) The Phase-2 exit lifts per-trade return **+28%** (meanR +0.481→+0.616) and amplifies the good
+years (2023 +0.94→**+1.80R**, tSharpe 0.64→1.30) with fewer/longer-hold trades (168 vs 255). (3) It is
+HIGHER-variance year-to-year — helps trending years, hurts choppy ones (2018 +0.28→−0.13, 2025 −0.04→−0.35);
+it leans into the tape, doesn't fix a bad regime. (4) Let-winners-run signature: win 59→54% but bigger wins.
+This is the pre-Phase-3 trade-level baseline; sizing/portfolio-management is Phase 3 (live).
+
 ## What this points to (for Phase D/E, measured — not adopted)
 1. **Earlier-entry / RS re-timing** (#1) — the biggest, most-cited lever. Measure fresh.
 2. **Earlier partial exit** (#2, the giveback fix) — measure 1.5R / faster-trail vs the 2R half.
