@@ -86,6 +86,52 @@ Still open (next loop pass): a **targeted first-touch preference** (the 4 cases 
 TRIVENI, TIMKEN26 — where the earlier fire PASSED all gates but the harness funded a later blow-off; a
 fill-order fix, distinct from drop_rs which also admits noise). Plus the **data-hygiene fix** (CSBBANK/DCAL).
 
+## WINNER forensic — 42 R≥2 runners, 4 AI agents (the contrast)
+Same method, run on the winners to find what separates them from the false-touch losers. The verdict is
+blunt and consistent across all 4 batches:
+
+**At the entry bar, most winners are INDISTINGUISHABLE from the losers.** 9 of every ~11 runners were also
+extended (>10% over SMA); several were textbook blow-offs with the SAME wide stops that defined the losing
+cohort — GMMPFAUDLR (+38% over SMA, 21% stop, 2.73R), AUBANK (+23.6%, 14.7% stop, 2.51R), BAJFINANCE
+(+20.6%, 13.3% stop, 2.34R), KALYANKJIL (+25.6%, 18.7% stop, 2.95R), GVT&D (+26%, 2.15R). **Extension and
+stop-width do NOT separate winners from losers.** This is why every entry-filter lever rejects.
+
+Three things actually separate them, in order of skill-vs-luck:
+1. **Regime dominates (mostly LUCK).** The runners cluster hard in the Mar–Oct 2020 COVID V and the 2021
+   bull; almost none fire in a flat/falling tape. GMM & VIPIND are pure survivorship — mechanically identical
+   to losers, saved only by the tape. **GAEL is the tell:** the same base-then-thrust setup in the weak
+   Jan-2022 tape took −17.6% first-2wk heat and barely scraped 2R. The market, not the entry bar, supplies
+   the fuel.
+2. **A real pre-touch BASE / pullback into the rising SMA (the REPEATABLE part).** Every high-quality winner
+   spent multiple weeks *basing on* or *genuinely declining into* the rising SMA before the signal (repeated
+   touch-weeks, or several consecutive down-weeks toward the line): THYROCARE, DIVISLAB, PRESTIGE, HINDZINC,
+   APLLTD, ALKYLAMINE, TEAMLEASE, CENTURYPLY, MAZDOCK, BAJAJFINSV, RELCAPITAL, RRKABEL, LINDEINDIA, J&KBANK.
+   The losers' "touch" was a **lone blow-off wick descending from far overhead** with NO base underneath. The
+   best variants (THYROCARE, DIVISLAB, SUVEN, HAVELLS, WELCORP) actually pierced BELOW the SMA and reclaimed,
+   at low extension (5.9–7.3%).
+3. **Immediate follow-through / tight signal candle.** Cleanest winners never gave back the entry gain
+   (PRESTIGE MAE −0.7, CENTURYPLY −1.2, HINDZINC −1.3, RRKABEL −0.5, IIFL −0.7) and had tight signal candles →
+   low risk% (HINDZINC 8.4%, PRESTIGE 8.1%, SAIL 6.4%, IIFL 6.8%). MAE is partly *outcome* not predictor —
+   but the tight-candle/low-risk% subset is a genuine PRE-entry quality tell.
+
+**Synthesis — why the wall is the wall:** discriminator #1 is unforecastable, #3 is mostly post-entry, and #2
+(base quality) is a chart-pattern the current 4-rule signal does not measure. The false-touch blow-off and
+the fat-tail runner are the *same bar* unless you can see the base beneath it. That is the one remaining
+testable, non-relitigated lever → the pre-touch base filter below.
+
+## Phase D result 2 — early-MAE cut (test discriminator #3: cut deep-early-drawdown trades)
+| lever | Sharpe | CAGR | MaxDD | verdict |
+|---|--:|--:|--:|---|
+| early_cut 8% / 2wk | 0.588 | 10.8% | −42.9% | REJECT |
+| early_cut 10% / 2wk | 0.676 | 13.1% | −47.5% | REJECT |
+| early_cut 12% / 2wk | 0.854 | 16.9% | −39.8% | REJECT |
+| early_cut 12% / 3wk | 1.032 | 22.1% | −41.2% | REJECT (−0.10 Sharpe, −2.6pp CAGR) |
+
+**Verdict:** cutting deep first-2wk drawdown spares NO net edge — the runners that took −7% to −17% heat and
+held (ALKYLAMINE −6.3, APLLTD −12.3, GAEL −17.6, KEC −13.8, GODFRYPHLP −15, KALYANKJIL −9.3, J&KBANK −10.8)
+are cut by the same rule that cuts the losers. Confirms discriminator #3 is post-entry / non-separable: the
+early heat of a survivor and a stop-out look identical until they resolve. per-trade≠portfolio, 4th time.
+
 ## What this points to (for Phase D/E, measured — not adopted)
 1. **Earlier-entry / RS re-timing** (#1) — the biggest, most-cited lever. Measure fresh.
 2. **Earlier partial exit** (#2, the giveback fix) — measure 1.5R / faster-trail vs the 2R half.

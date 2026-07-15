@@ -41,7 +41,8 @@ SLOPE_MIN, SLOPE_LOOKBACK, TOUCH_BAND, CRS_LEN = 0.03, 13, 0.07, 40   # the live
 
 
 def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, drop_rs: bool = False,
-                     first_touch: bool = False):
+                     first_touch: bool = False, base_min: int = 0, base_lookback: int = 8,
+                     base_band: float = 0.12):
     """The live 0093+Nifty-50 prep, with each entry window carrying its CRS-distance rank.
 
     index_provider (pre-reg 0096): optional callable(ticker) -> pd.Series to override the CRS
@@ -80,7 +81,20 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
         # forensic lever 1: the RS>SMA40(RS) gate blocks the earlier clean near-SMA touch and only clears
         # on the blow-off week; drop_rs lets those earlier touches fire (crs_dist still ranks the fills).
         _rs_term = np.ones(len(rs), bool) if drop_rs else np.nan_to_num(rs > rs_sma, nan=False)
-        wsig = (slope >= SLOPE_MIN) & qgreen & touch & (wclose > wsma) & _rs_term
+        # forensic lever (winner contrast): the runners had a real BASE near the SMA in the weeks BEFORE the
+        # signal; losers fired on a lone blow-off wick descending from far overhead. base_min>0 requires at
+        # least base_min of the prior base_lookback weeks to have CLOSED within base_band of the SMA (i.e. a
+        # recent base near the line preceded the touch). base_min=0 => off => byte-identical 0094.
+        if base_min > 0:
+            _near = np.nan_to_num(wclose <= wsma * (1 + base_band), nan=False) & np.nan_to_num(wclose > 0, nan=False)
+            _base_ok = np.zeros(len(wclose), bool)
+            for _k in range(len(wclose)):
+                _lo = max(_k - base_lookback, 0)
+                if _k > _lo and _near[_lo:_k].sum() >= base_min:
+                    _base_ok[_k] = True
+        else:
+            _base_ok = np.ones(len(wclose), bool)
+        wsig = (slope >= SLOPE_MIN) & qgreen & touch & (wclose > wsma) & _rs_term & _base_ok
         s["weekend"] = {dd[-1] for dd in weeks}
         s["entry_win"] = {}
         _wsflag = np.nan_to_num(wsig, nan=False)
@@ -134,7 +148,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              start: str | None = None, return_state: bool = False,
              vol_target: tuple | None = None, eq0: float | None = None,
              uncapped: bool = False, a_grade: set | None = None,
-             tp_on_high: bool = False):
+             tp_on_high: bool = False, early_cut_pct: float = 0.0, early_cut_weeks: int = 2):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
@@ -203,6 +217,26 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                 p["stt"] += hp * STT_PCT
                 if "rec" in p:
                     p["rec"].update(half_date=d, half_px=round(float(px), 2))
+            # forensic lever: early-MAE cut — winners work immediately (median 1st-2wk MAE −3.9%) while
+            # losers dig deep (−8.3%); cut a position that draws down > early_cut_pct% within the first
+            # early_cut_weeks weeks (frees the slot for a fresh runner). Off (early_cut_pct=0) => byte-identical.
+            if (early_cut_pct and p["pending"] is None and not p["half_done"]
+                    and p["weeks"] <= early_cut_weeks):
+                lvl = p["en"] * (1 - early_cut_pct / 100.0)
+                if s["l"][i] <= lvl:
+                    px = min(s["o"][i], lvl)
+                    xp = p["sh"] * px
+                    got = xp * (1 - _cost_leg(p["adv"], xp, cost_off))
+                    cash += got; p["proceeds"] += got; p["stt"] += xp * STT_PCT
+                    R = (px - p["en"]) / p["risk0"]
+                    T.append(dict(R=R, reason="earlycut", held=p["weeks"], half=False))
+                    if "rec" in p:
+                        p["rec"].update(exit_date=d, exit_px=round(float(px), 2), reason="earlycut",
+                                        held_weeks=p["weeks"], R=round(float(R), 3),
+                                        net_pnl=round(float(p["proceeds"] - p["cash_out"]), 2),
+                                        stt_paid=round(float(p["stt"]), 2))
+                        ledger.append(p["rec"])
+                    del op[t]; continue
             if i in s["weekend"]:
                 p["weeks"] += 1
                 wc = s["c"][i]
