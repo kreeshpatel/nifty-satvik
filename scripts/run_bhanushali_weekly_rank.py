@@ -46,7 +46,8 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                      box_breakout: bool = False, box_len: int = 8, box_tight: float = 0.30,
                      trend_pullback: bool = False, tp_band: float = 0.05,
                      sr_breakout: bool = False, sr_len: int = 12, sr_test_band: float = 0.03,
-                     sr_recent: int = 2):
+                     sr_recent: int = 2, sr_pivot: bool = False, sr_piv_len: int = 14,
+                     sr_piv_band: float = 0.03, sr_piv_stop: float = 0.06):
     """The live 0093+Nifty-50 prep, with each entry window carrying its CRS-distance rank.
 
     index_provider (pre-reg 0096): optional callable(ticker) -> pd.Series to override the CRS
@@ -168,6 +169,31 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                     _srsig[_k] = True; _stop_arr[_k] = wlow[_lo:_k].min()          # stop = base low
             _srsig = _srsig & ~np.nan_to_num(wsig, nan=False)
             wsig = np.nan_to_num(wsig, nan=False) | _srsig
+        # PHASE-1 setup #4b — PROPER pivot-based S/R breakout (chart-validated, replaces the crude trailing-high
+        # version whose 33% stops were a mirage). A resistance LEVEL = >=2 PIVOT HIGHS clustered within
+        # sr_piv_band of each other (price rejected there repeatedly); a green week closes above it in an
+        # uptrend; stop = level*(1-sr_piv_stop) — just below the broken resistance (now support). off => identical.
+        if sr_pivot:
+            _piv = np.zeros(len(whigh), bool)
+            for _i in range(2, len(whigh) - 2):
+                if whigh[_i] >= whigh[_i - 2:_i + 3].max():
+                    _piv[_i] = True
+            _spsig = np.zeros(len(wclose), bool)
+            for _k in range(sr_piv_len, len(wclose)):
+                if not (np.nan_to_num(slope[_k], nan=-9) >= SLOPE_MIN
+                        and np.nan_to_num(qgreen[_k], nan=False) and _rs_term[_k]):
+                    continue
+                _pv = [whigh[_i] for _i in range(_k - sr_piv_len, _k - 1) if _piv[_i]]
+                if len(_pv) < 2:
+                    continue
+                _lvl = float(np.median(_pv))
+                _near = int(np.sum([abs(p / _lvl - 1) <= sr_piv_band for p in _pv]))
+                _sm = wsma[_k]
+                if (_near >= 2 and wclose[_k - 1] <= _lvl and wclose[_k] > _lvl
+                        and _sm == _sm and wclose[_k] > _sm):
+                    _spsig[_k] = True; _stop_arr[_k] = _lvl * (1 - sr_piv_stop)   # tight stop below the level
+            _spsig = _spsig & ~np.nan_to_num(wsig, nan=False)
+            wsig = np.nan_to_num(wsig, nan=False) | _spsig
         s["weekend"] = {dd[-1] for dd in weeks}
         s["entry_win"] = {}
         _wsflag = np.nan_to_num(wsig, nan=False)

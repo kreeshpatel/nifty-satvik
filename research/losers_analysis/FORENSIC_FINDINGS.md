@@ -291,6 +291,34 @@ bull-amplifier mirage. Pattern-count is emphatically NOT the edge — structure 
 box is the one keeper (captures GAIL+VBL, real tight stops, holds win%), regime-sensitive → Phase-3 sleeve /
 forward wall. Everything looser is the near-SMA/wide-stop failure in a new costume.
 
+### E7 — CHART-VALIDATION corrects the record (owner: "read the actual charts, never kill blind")
+Owner pushed back: the box/S/R detectors were built from OHLCV heuristics that were NEVER visually checked, so
+neither the box's "regime-sensitivity" nor the S/R "kill" could be trusted. Built `scripts/render_chart.py`
+(weekly candles + SMA44/20 + the detector's overlays) and READ the charts. Two verdicts changed:
+
+**Box breakout — the loose detector was momentum-chasing junk; the TIGHT one is real.** Rendering GAIL showed
+`box_tight=0.35` firing 7× UP the trend (drawing "boxes" over rising 12-wk windows → "close>box-high" = just a
+new high; 20-27% stops). Tightening to a real flat base (`box_len≈8, box_tight≈0.15`) fires only on genuine
+consolidations (GAIL's ₹92-103 and the circled ₹105-120 base; VBL's ₹93-107 launch base). Portfolio: the tight
+box is **regime-BALANCED** (box8/15%: Sh 1.098, 22-26 **1.07** / 17-21 **1.11**, DD −38, win 56%) whereas the
+loose box was carried by the bull (17-21 1.46 / 22-26 0.65). Same headline Sharpe, but now honest and robust —
+the loose version's flattering Calmar 0.66 was a bull-market momentum artifact. **The tight box is the keeper.**
+
+**S/R breakout — the "KILL" (E6) was on a BROKEN detector.** Rendering showed the "resistance" was the rising
+trailing 12-wk high (not a tested horizontal level) and the stop was the 12-wk low (→33%). Rebuilt properly:
+resistance = ≥2 PIVOT HIGHS clustered within 3% (price rejected there repeatedly), green close above, stop 6%
+below the level (broken resistance=support). Visually correct on GAIL (level ₹113-118, the 3× rejection the
+owner circled). Portfolio with the CORRECT detector (median risk now **13%**, not 33%): **Sh 0.810, win 52%,
+22-26 0.87** — honest but BELOW base. So E6's 1.381 was pure wide-stop illusion (stops that never trigger
+inflate win rate AND return); the real S/R breakout is a genuine-but-mediocre setup, not an edge. Not a
+wrongful kill anymore, not a keeper either.
+
+**Durable lesson:** a detector's portfolio number is meaningless until you SEE that it marks what a human sees
+(reproduce-before-trust, extended to chart geometry). `render_chart.py` is now the standing tool for validating
+any pattern detector before trusting its backtest. New cfg: `sr_pivot/sr_piv_len/sr_piv_band/sr_piv_stop`.
+Corrected setup-library verdict: base pullback + TIGHT box breakout are the two keepers; loose box, trend-
+continuation, and (properly-detected) S/R all fall short. The box → Phase-3 sleeve / forward wall.
+
 ## What this points to (for Phase D/E, measured — not adopted)
 1. **Earlier-entry / RS re-timing** (#1) — the biggest, most-cited lever. Measure fresh.
 2. **Earlier partial exit** (#2, the giveback fix) — measure 1.5R / faster-trail vs the 2R half.
