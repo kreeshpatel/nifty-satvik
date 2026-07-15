@@ -356,6 +356,31 @@ is the value of see→diagnose→measure over assume: the refinements looked rig
 wrong on the data. New cfg (`box_close_range`, `box_maxrunup`) kept default-off (byte-identical 1.132/255),
 recorded as tested-and-rejected. The box stands as-is → Phase-3 sleeve / forward wall.
 
+### E10 — METHOD CORRECTION (owner): judge ENTRIES per-trade (uncapped), NOT the ₹10L portfolio
+Owner, mid-Phase-1: the ₹10L / 15-slot cap is a Phase-3 SIZING question; judging entries by the capped
+portfolio Sharpe conflates "good entry?" with "was capital free when it fired?". Adding a setup floods the cap
+→ good signals skipped for cash → the portfolio number punishes the ENTRY for a SIZING problem. Correct lens =
+per-trade expectancy on the UNCAPPED signal set (every signal fills, R capital-independent).
+
+**PER-TRADE EXPECTANCY (uncapped) — overturns the portfolio-based verdicts:**
+| setup | N | win% | meanR | medR | PF |
+|---|--:|--:|--:|--:|--:|
+| TOUCH (base) | 3045 | 46% | +0.159 | **−0.34** | 1.17 |
+| **BOX breakout (8/15)** | 655 | 58% | **+0.279** | +0.24 | **1.70** |
+| **S/R pivot** | 985 | 50% | **+0.293** | +0.03 | 1.45 |
+
+**The base touch is the WEAKEST entry per-trade** (46% win, median trade LOSES −0.34R, carried by its 20% R≥2
+fat tail). The **box (+0.279, PF 1.70) and S/R (+0.293) are markedly BETTER entries** — ~2× the base's
+expectancy, median trade a winner. The capped portfolio Sharpe ranked them backwards because the 15-slot cap
+starved them — a SIZING artifact, not entry quality. **This overturns E4/E6/E7: the box is not merely
+"additive/regime-sensitive," it is a higher-expectancy entry; the S/R pivot is not "mediocre 0.81," it is the
+HIGHEST-expectancy entry.** (Prior capped verdicts stand as portfolio/sizing facts, not entry-quality facts.)
+Box per-trade meanR by year is positive most years (2021 +0.47, 2023 +0.91) but ~0 in 2024-26 — the entry edge
+has faded recently, like everything. **Phase-1 conclusion (corrected): base pullback + box + S/R pivot are all
+real, positive-expectancy entries; box & S/R are BETTER than the base touch per-trade. Harvesting them is a
+Phase-3 sizing job (slots/sleeves), not an entry-rejection.** All Phase-1 setup evaluation henceforth = uncapped
+per-trade expectancy; the ₹10L portfolio is not computed until sizing.
+
 ## What this points to (for Phase D/E, measured — not adopted)
 1. **Earlier-entry / RS re-timing** (#1) — the biggest, most-cited lever. Measure fresh.
 2. **Earlier partial exit** (#2, the giveback fix) — measure 1.5R / faster-trail vs the 2R half.
