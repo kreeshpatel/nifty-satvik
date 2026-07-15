@@ -475,6 +475,32 @@ results: (a) the lock-in ratchet is the clean adopt-now (better per-trade AND Sh
 (all off ⇒ 1.132/255): `lh_arm_r/lh_n/no_time_cap/trendhold_pct` + earlier `lockin_mfe/lockin_at`. NEXT: run the
 exit on the FIXED Phase-1 entry (deep near-SMA touch + box + S/R), not the pre-decided 255 (owner directive).
 
+### EXIT on the FIXED Phase-1 entry (owner directive) — surfaces the FILTER-vs-SIZING truth
+Reproduced the fixed entry = deep near-SMA touch (ext_cap 0.05, TOUCH-ONLY via origin-aware fill) + box(8/15)
++ sr_pivot, and re-ran the exit on that book (252 trades). Determinism preserved (all off ⇒ 1.132/255).
+| exit | meanR | win% | Sharpe | 22-26 | 17-21 |
+|---|--:|--:|--:|--:|--:|
+| base exit | +0.310 | 56% | 0.764 | 0.72 | 0.79 |
+| + lock 2.75→1.5 | +0.341 | 56% | 0.897 | 0.61 | 1.18 |
+| + no_cap + lh3@2R | +0.414 | 49% | 0.572 | 0.49 | 0.63 |
+
+**Key finding: the fixed-entry book is WORSE on the capped book (Sh 0.764 vs base 1.132) — and it's a real
+result, not a bug.** The deep-near-SMA edge (E11) was measured UNCAPPED (per-signal); on the CAPPED book the
+CRS-rank fill ALREADY cherry-picks good touches (incl. strong EXTENDED ones that win), so hard-filtering to
+<5% ext (ext_cap) DROPS CRS-strong winners → the book degrades. **This proves E11's own caveat: the deep-
+near-SMA edge is a Phase-3 SIZING overlay (overweight the good ones), NOT an entry FILTER — wiring it as a hard
+gate is the wrong tool.** So the "fixed entry" for exit-testing is better taken as the setup LIBRARY (touch +
+box + S/R) with the near-SMA emphasis deferred to sizing. **The EXIT conclusion is robust across both books:
+the lock-in ratchet (2.75→1.5) is the clean improvement (lifts meanR/PF/Sharpe on the fixed book too:
+0.764→0.897); cap-removal is per-trade-up / capital-costly everywhere.** New cfg: `ext_cap_touch_only` +
+origin-tagged entry_win (0=touch,1=box,2=trend,3=sr) — the foundation Phase-3 sizing needs to weight setups.
+
+**PHASE-2 EXIT VERDICT:** adopt the **lock-in giveback ratchet (MFE≥2.5R → lock 1.5R)** as the exit refinement
+— robust, small (+0.04 Sharpe), improves per-trade AND Sharpe on every book, mechanism-sound → forward-wall/
+next-version. The bigger capture (cap-removal, +0.14R/trade) is real but a Phase-3 sizing tradeoff (longer
+holds). Loss side is irreducible (soft-stop rejected 3×). Exit is characterized; the deep-near-SMA and
+cap-removal both route to Phase-3 sizing.
+
 ## What this points to (for Phase D/E, measured — not adopted)
 1. **Earlier-entry / RS re-timing** (#1) — the biggest, most-cited lever. Measure fresh.
 2. **Earlier partial exit** (#2, the giveback fix) — measure 1.5R / faster-trail vs the 2R half.

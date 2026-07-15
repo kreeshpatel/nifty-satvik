@@ -123,6 +123,7 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
         # ARMS an additive signal: a tight base (range<=box_tight) that held ABOVE the SMA for box_len weeks in
         # an uptrend, then a GREEN week CLOSES above the box high. Stop = box low. off => byte-identical 0094.
         _stop_arr = wlow.astype(float).copy()
+        _origin = np.where(np.nan_to_num(wsig, nan=False), 0, -1).astype(int)   # 0=touch, 1=box, 2=trend, 3=sr
         if box_breakout:
             _bsig = np.zeros(len(wclose), bool)
             for _k in range(box_len, len(wclose)):
@@ -149,7 +150,9 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                         and _rs_term[_k] and np.nan_to_num(_base_ok[_k], nan=False)):
                     _bsig[_k] = True; _stop_arr[_k] = _bl               # breakout — stop at the box low
             # additive: a week already firing the touch signal keeps its own (tighter) stop
-            wsig = np.nan_to_num(wsig, nan=False) | (_bsig & ~np.nan_to_num(wsig, nan=False))
+            _new_box = _bsig & ~np.nan_to_num(wsig, nan=False)
+            wsig = np.nan_to_num(wsig, nan=False) | _new_box
+            _origin[_new_box] = 1
         # PHASE-1 setup #3 — TREND CONTINUATION (owner's VBL case): a leader in a strong 44-SMA uptrend that
         # rides ABOVE the line and pulls back only shallowly — to the 20-WEEK MA — never reaching the 44-SMA
         # touch band. Distinct from setup #1 (needs low near the 44) and #2 (needs a tight flat base). Arms when
@@ -163,6 +166,7 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
             _tsig &= np.nan_to_num(wlow > wsma * (1 + TOUCH_BAND), nan=False)    # but NOT a 44-SMA touch (distinct)
             _tsig = _tsig & ~np.nan_to_num(wsig, nan=False)                      # additive to touch+box
             wsig = np.nan_to_num(wsig, nan=False) | _tsig
+            _origin[_tsig] = 2
         # PHASE-1 setup #4 — SUPPORT/RESISTANCE BREAKOUT: a horizontal resistance (a prior swing high TESTED
         # >=2 times) that price has sat UNDER, then a GREEN week CLOSES above it in an uptrend. Looser than the
         # box (#2 needs a tight range); this only needs a tested level + a clean break. Stop = the base low
@@ -206,6 +210,7 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                     _spsig[_k] = True; _stop_arr[_k] = _lvl * (1 - sr_piv_stop)   # tight stop below the level
             _spsig = _spsig & ~np.nan_to_num(wsig, nan=False)
             wsig = np.nan_to_num(wsig, nan=False) | _spsig
+            _origin[_spsig] = 3
         s["weekend"] = {dd[-1] for dd in weeks}
         s["entry_win"] = {}
         _wsflag = np.nan_to_num(wsig, nan=False)
@@ -218,7 +223,7 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                 continue
             edays = weeks[k + 1]
             s["entry_win"][edays[0]] = (edays, float(_stop_arr[k]), float(whigh[k]), float(crs_dist[k]),
-                                        float(wsma[k]) if wsma[k] == wsma[k] else float(_stop_arr[k]))
+                                        float(wsma[k]) if wsma[k] == wsma[k] else float(_stop_arr[k]), int(_origin[k]))
         # LIVE actionable signal (latest COMPLETED week) + its rank — read only by the paper runner.
         # Completeness guard (fault F7): only ever surface a card from a COMPLETED weekly bar, never a
         # partial week the backtest doesn't score. weekday()>=4 = Friday or a Saturday NSE session.
@@ -268,7 +273,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              lh_arm_r: float = 0.0, lh_n: int = 2, no_time_cap: bool = False,
              trendhold_pct: float = 0.0,
              entry_band: float | None = None, entry_strict: bool = False,
-             ext_cap: float | None = None, fill_order: str = "crs"):
+             ext_cap: float | None = None, ext_cap_touch_only: bool = False, fill_order: str = "crs"):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
@@ -418,8 +423,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                 # a_grade (when passed): only enter TOP-N-by-CRS signals of the setup week (Grade A).
                 is_a = a_grade is None or (t, i) in a_grade
                 if is_a and (mem is None or ticker_in_index_on(t, dd, mem)):
-                    days, lo, hi, rk, sma_sig = s["entry_win"][i]
-                    orders[t] = {"days": set(days), "lo": lo, "hi": hi, "rank": rk, "sma": sma_sig}
+                    days, lo, hi, rk, sma_sig, _org = s["entry_win"][i]
+                    orders[t] = {"days": set(days), "lo": lo, "hi": hi, "rank": rk, "sma": sma_sig, "origin": _org}
                     activations += 1
             o_ = orders.get(t)
             if o_ is not None and i in o_["days"] and t not in op:
@@ -441,7 +446,10 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     # PHASE-1 entry lever: fill-time extension cap. The 20%+ blow-off fills are near-dead
                     # money (per-trade 47-51% win, ~0R) while <10% fires win 87%; skip a fill whose OPEN is
                     # > ext_cap over the signal-week SMA (PIT-safe: the open is observed before we buy).
-                    if ext_cap is not None and opn > o_["sma"] * (1 + ext_cap):
+                    # ext_cap_touch_only: apply the cap ONLY to touch-origin fills (origin 0) — the box/S/R
+                    # breakouts are EXTENDED by nature (that IS their edge), so a <5% cap must not touch them.
+                    if (ext_cap is not None and (not ext_cap_touch_only or o_.get("origin", 0) == 0)
+                            and opn > o_["sma"] * (1 + ext_cap)):
                         continue
                     cands.append((o_["rank"], t, i, opn))
         # vol-target de-gross (pre-reg 0095): scale the sizing equity by the shared O-009 scalar,
