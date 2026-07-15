@@ -106,7 +106,8 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
             if first_touch and ((k >= 1 and _wsflag[k - 1]) or (k >= 2 and _wsflag[k - 2])):
                 continue
             edays = weeks[k + 1]
-            s["entry_win"][edays[0]] = (edays, float(wlow[k]), float(whigh[k]), float(crs_dist[k]))
+            s["entry_win"][edays[0]] = (edays, float(wlow[k]), float(whigh[k]), float(crs_dist[k]),
+                                        float(wsma[k]) if wsma[k] == wsma[k] else float(wlow[k]))
         # LIVE actionable signal (latest COMPLETED week) + its rank — read only by the paper runner.
         # Completeness guard (fault F7): only ever surface a card from a COMPLETED weekly bar, never a
         # partial week the backtest doesn't score. weekday()>=4 = Friday or a Saturday NSE session.
@@ -148,7 +149,9 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              start: str | None = None, return_state: bool = False,
              vol_target: tuple | None = None, eq0: float | None = None,
              uncapped: bool = False, a_grade: set | None = None,
-             tp_on_high: bool = False, early_cut_pct: float = 0.0, early_cut_weeks: int = 2):
+             tp_on_high: bool = False, early_cut_pct: float = 0.0, early_cut_weeks: int = 2,
+             entry_band: float | None = None, entry_strict: bool = False,
+             ext_cap: float | None = None, fill_order: str = "crs"):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
@@ -260,13 +263,31 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                 # a_grade (when passed): only enter TOP-N-by-CRS signals of the setup week (Grade A).
                 is_a = a_grade is None or (t, i) in a_grade
                 if is_a and (mem is None or ticker_in_index_on(t, dd, mem)):
-                    days, lo, hi, rk = s["entry_win"][i]
-                    orders[t] = {"days": set(days), "lo": lo, "hi": hi, "rank": rk}
+                    days, lo, hi, rk, sma_sig = s["entry_win"][i]
+                    orders[t] = {"days": set(days), "lo": lo, "hi": hi, "rank": rk, "sma": sma_sig}
                     activations += 1
             o_ = orders.get(t)
             if o_ is not None and i in o_["days"] and t not in op:
                 opn = s["o"][i]
-                if o_["lo"] < opn < o_["hi"]:
+                if entry_band is not None:
+                    # PHASE-1 entry lever: buy NEAR the SMA, not the chased next-open. Rest a limit at
+                    # SMA_signal*(1+entry_band); fill only if the week trades down to it (a pullback toward
+                    # the line), at px = min(open, limit). If the open is already at/below the limit, fill at
+                    # the open (it opened near the SMA). If price never reaches the limit within the entry
+                    # window, entry_strict skips the trade (near-SMA-only); else falls back to the 0094 open.
+                    lim = o_["sma"] * (1 + entry_band)
+                    if opn <= lim:
+                        cands.append((o_["rank"], t, i, opn))
+                    elif s["l"][i] <= lim and o_["lo"] < lim < o_["hi"]:
+                        cands.append((o_["rank"], t, i, lim))
+                    elif (not entry_strict) and i == max(o_["days"]) and o_["lo"] < opn < o_["hi"]:
+                        cands.append((o_["rank"], t, i, opn))     # window's last day: fallback fill at open
+                elif o_["lo"] < opn < o_["hi"]:
+                    # PHASE-1 entry lever: fill-time extension cap. The 20%+ blow-off fills are near-dead
+                    # money (per-trade 47-51% win, ~0R) while <10% fires win 87%; skip a fill whose OPEN is
+                    # > ext_cap over the signal-week SMA (PIT-safe: the open is observed before we buy).
+                    if ext_cap is not None and opn > o_["sma"] * (1 + ext_cap):
+                        continue
                     cands.append((o_["rank"], t, i, opn))
         # vol-target de-gross (pre-reg 0095): scale the sizing equity by the shared O-009 scalar,
         # computed from PRIOR-day book returns only. Off (vol_target=None) => scl==1.0 => sizing_eq==eq.
@@ -278,7 +299,15 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
         # Uncapped ledger sizes off a FIXED equity so every signal fills at a sane size even though
         # `eq`/cash go meaningless (NAV is ignored there); per-trade R/return are size-independent.
         sizing_eq = (_EQ0 if uncapped else eq) * scl
-        for rk, t, i, opn in sorted(cands, key=lambda x: (-x[0], x[1])):   # descending CRS distance
+        # PHASE-1 entry lever: fill PRIORITY under the capital cap. Default 'crs' = strongest-CRS-first (the
+        # 0094 run of record). 'near_sma' fills the candidate CLOSEST to the SMA first (lower extension = the
+        # 90%-win 5–10% bucket) so scarce capital funds the higher-quality near-SMA fires before the extended
+        # ones. Trade SET is unchanged (no trades dropped); only order under the cap changes. 'crs' => identical.
+        if fill_order == "near_sma":
+            _key = lambda x: (orders[x[1]]["sma"] and x[3] / orders[x[1]]["sma"], x[1])   # ascending extension
+        else:
+            _key = lambda x: (-x[0], x[1])                                                # descending CRS distance
+        for rk, t, i, opn in sorted(cands, key=_key):
             o_ = orders.get(t)
             if o_ is None or t in op:
                 continue

@@ -132,6 +132,85 @@ held (ALKYLAMINE −6.3, APLLTD −12.3, GAEL −17.6, KEC −13.8, GODFRYPHLP �
 are cut by the same rule that cuts the losers. Confirms discriminator #3 is post-entry / non-separable: the
 early heat of a survivor and a stop-out look identical until they resolve. per-trade≠portfolio, 4th time.
 
+## PHASE 1 — ENTRY refinement (owner's staged program: entry → exit → sizing)
+Owner directive 2026-07-15: refine the ENTRY first (base indicator = 44-SMA); define WHEN to buy relative to
+the SMA (near-SMA / percentile distance), goal = enter EARLY / lower-extension instead of chasing the blow-off.
+
+### The per-trade truth — bucket the 255 base trades by entry extension vs signal-week SMA
+| entry ext vs SMA | n | mean R | win% | sumR |
+|---|--:|--:|--:|--:|
+| 0–5% | 3 | 0.85 | 67% | 2.5 |
+| **5–10%** | 20 | **1.12** | **90%** | 22.3 |
+| 10–15% | 72 | 0.60 | 65% | 43.5 |
+| 15–20% | 62 | 0.60 | 58% | 37.2 |
+| **20–25%** | 45 | **0.045** | **47%** | 2.0 |
+| >25% | 53 | 0.28 | 51% | 15.1 |
+
+**Near-SMA (<10% ext): n=23, meanR 1.08, win 87%. Extended (≥10%): n=232, meanR 0.42, win 56%.** The owner's
+intuition is CORRECT per-trade — naturally-near-SMA entries are far higher quality — BUT only ~9% of fires
+are naturally near the line, and the 20%+ blow-offs are near-dead money (47–51% win, ~0 R). Median entry ext
+is 17.6%; even R≥2 runners have median ext 15.6% (the fuel comes from extension), losers 19.5%.
+
+### Lever E1 — near-SMA LIMIT entry (rest a buy at SMA×(1+band), fill on a pullback). REJECT — and instructive
+| arm | Sharpe | CAGR | MaxDD | win% | tr |
+|---|--:|--:|--:|--:|--:|
+| base | 1.132 | 24.7% | −42.4% | 59% | 255 |
+| band 5% non-strict | 0.261 | 3.2% | −61.2% | 47% | 221 |
+| band 5% STRICT (skip if no pullback) | 0.345 | 4.8% | −39.0% | **41%** | 145 |
+| band 3% STRICT | 0.033 | −0.9% | −43.3% | **41%** | 126 |
+
+**You cannot MANUFACTURE a near-SMA fill.** Resting a limit at the SMA forces *extended* names to come back to
+the line — and the ones that do are the failing ones (falling knives), so win rate collapses 59→41%. The
+naturally-near-SMA winners (bucket above) fired the signal *while already* near the line; they are a different
+population than "extended name dragged back by a limit." This mechanically explains why "enter near the SMA"
+as a pullback rule is the anti-edge in a trend-momentum book: the thrust AWAY from the SMA is the signal.
+
+### Lever E2 — fill-time EXTENSION CAP (skip fills whose open > cap% over SMA; drop the dead blow-off tail)
+PIT-safe (the open is observed before the buy). Determinism-gated (off ⇒ 1.132/255).
+| cap | Sharpe | ΔSh | CAGR | MaxDD | Calmar | win% | tr |
+|---|--:|--:|--:|--:|--:|--:|--:|
+| base | 1.132 | — | 24.7% | −42.4% | 0.58 | 59% | 255 |
+| 12% | 0.529 | −0.60 | 9.2% | −42.0% | 0.22 | 46% | 202 |
+| 15% | 0.969 | −0.16 | 19.5% | −37.9% | 0.52 | 54% | 208 |
+| 18% | 0.917 | −0.22 | 18.6% | **−32.5%** | 0.57 | 52% | 217 |
+| 20% | 0.941 | −0.19 | 18.9% | −37.3% | 0.51 | 56% | 220 |
+| **22%** | 0.983 | −0.15 | 19.9% | **−32.4%** | **0.61** | 54% | 235 |
+| 25% | 0.662 | −0.47 | 12.3% | −35.4% | 0.35 | 55% | 239 |
+
+**Verdict: REJECT on Sharpe (every arm below base), but cap 18–22% is a real DEFENSIVE variant** — DD −42→−32
+(≈10pp shallower), Calmar 0.58→0.61, at a CAGR cost 24.7→~20%. Same return↔drawdown trade as drop_rs and the
+A-only swing decision — NOT a return edge. cap 12% over-cuts (kills the 90%-win 5–10% *and* the solid 10–20%
+buckets → win 46%). The fat-tail runners live in the extended buckets too (>25% bucket meanR 0.28, +15 sumR),
+so capping trims CAGR alongside DD. This is the 7th independent lever to hit the per-trade≠portfolio wall.
+
+### Lever E3 — near-SMA FILL PRIORITY (fund the closest-to-SMA candidate first under the capital cap)
+The 5–10% bucket wins 90%; currently fills go strongest-CRS-first (which funds the extended names first). Does
+preferring near-SMA fills — WITHOUT dropping trades or forcing pullbacks — raise quality? Determinism-gated.
+| arm | Sharpe | ΔSh | CAGR | MaxDD | win% | tr |
+|---|--:|--:|--:|--:|--:|--:|
+| base (crs priority) | 1.132 | — | 24.7% | −42.4% | 59% | 255 |
+| near_sma priority | 0.330 | −0.80 | 4.8% | −49.5% | 47% | 240 |
+| near_sma + ext_cap 22% | 0.780 | −0.35 | 15.7% | −39.7% | 51% | 227 |
+**REJECT, and the deepest confirmation yet:** even *prioritizing* the high-quality near-SMA fires (no pullback
+forced, no trades dropped) collapses to −0.80 Sharpe — because under the capital cap it **displaces the
+CRS-strongest extended names, which are the runners.** The momentum leaders fund the fat tail; any capital
+reallocated toward "quality/near-SMA" starves it. The CRS-strongest-first fill order is load-bearing.
+
+### PHASE-1 ENTRY — FINAL VERDICT (8 levers, entry space exhausted)
+The owner's "buy near the SMA / enter early" is **correct per-trade** (near-SMA fires win 87% at 1.08R) but
+**portfolio-negative every way it can be implemented:**
+- **Force it** (near-SMA limit): drags extended names back to the line, fills the failing ones → win 59→41%.
+- **Select it** (ext_cap): defensive-only — DD −42→−32, but −Sharpe/−CAGR (trims the fat tail with the dregs).
+- **Prioritise it** (near_sma fill order): displaces the CRS-leaders that fund the runners → −0.80 Sharpe.
+- **Enter earlier in time** (drop_rs ~neutral, first_touch reject): the later "blow-off" fire IS the winner.
+
+**The extended entry IS the edge** — extension = momentum fuel; the median R≥2 runner enters 15.6% over the SMA,
+and the CRS-strongest-first fill order concentrates the fat tail. The base 0094 entry is near-optimal for
+return; it cannot be refined upward. **Only shippable entry change = a DEFENSIVE cap (ext_cap ~20%)** — a
+robust DD reducer (−10pp DD, holds in both continuous-slice sub-periods: 2022-26 −34→−27, 2017-21 −42→−32),
+Sharpe cost −0.15 → a forward-wall candidate (owner decision), analogous to the A-only swing variant. NOT a
+config change (fails the +0.10 Sharpe bar). This is the 8th independent lever to hit per-trade≠portfolio.
+
 ## What this points to (for Phase D/E, measured — not adopted)
 1. **Earlier-entry / RS re-timing** (#1) — the biggest, most-cited lever. Measure fresh.
 2. **Earlier partial exit** (#2, the giveback fix) — measure 1.5R / faster-trail vs the 2R half.

@@ -68,30 +68,48 @@ winners from losers.** This is the mechanical reason every entry/stop/sizing fil
 
 ---
 
-## Part 3 — Every proposed fix, MEASURED (the per-trade≠portfolio wall, 5×)
+## Part 3 — Every proposed fix, MEASURED (the per-trade≠portfolio wall)
 
+Grouped by the owner's staged program. **ENTRY levers are the current phase.**
+
+**ENTRY (Phase 1) — the buy trigger vs the 44-SMA**
 | lever | what it encodes | Sharpe | CAGR | MaxDD | verdict |
 |---|---|--:|--:|--:|---|
-| **base 0094** | — | 1.132 | 24.7% | −42.4% | — |
-| tp_on_high | book +2R half on intraweek HIGH | 0.709 | 13.3% | −49.7% | REJECT (truncates runners) |
+| **base 0094** (chase next open) | — | 1.132 | 24.7% | −42.4% | — |
+| near-SMA LIMIT, strict (band 5%) | rest a buy at the SMA, fill on pullback | 0.345 | 4.8% | −39.0% | **REJECT** — win 59→41%, catches falling knives |
+| ext_cap 12% | drop fills >12% over SMA | 0.529 | 9.2% | −42.0% | REJECT (over-cuts the good buckets) |
+| ext_cap 22% | drop only the dead ≥22% blow-off tail | 0.983 | 19.9% | **−32.4%** | REJECT on Sharpe; **defensive** (−10pp DD, Calmar 0.61) → wall |
+| near_sma fill-priority | fund closest-to-SMA candidate first | 0.330 | 4.8% | −49.5% | **REJECT** — displaces the CRS-leaders that fund runners |
 | drop_rs | let RS-blocked earlier touches fire | 1.095 | 23.8% | −38.9% | ~NEUTRAL (better DD, win 59→53%) |
 | first_touch | keep first fire, skip later blow-off | 0.863 | 17.8% | −39.5% | REJECT (the later fire IS the winner) |
+| base_min (pre-touch base) | require a base near SMA before touch | 0.815 | 15.4% | −53.5% | REJECT (DD WORSE) |
+
+_Per-trade truth: near-SMA fires (<10% ext) win **87%** at 1.08R vs extended (≥10%) 56%/0.42R — but only ~9%
+of fires are naturally near the line, and the ≥20% blow-offs are dead money (47–51% win, ~0R). The owner's
+near-SMA instinct is right per-trade, but (a) it's unmanufacturable — a pullback limit drags extended names
+back to the line and fills the failing ones (win 59→41%); (b) as a selection cap it's defensive-only. The
+extended entry IS the edge (median R≥2 runner enters 15.6% over the SMA — extension = momentum fuel)._
+
+**EXIT (Phase 2, blocked) / SIZING (Phase 3, blocked)**
+| lever | what it encodes | Sharpe | CAGR | MaxDD | verdict |
+|---|---|--:|--:|--:|---|
+| tp_on_high | book +2R half on intraweek HIGH | 0.709 | 13.3% | −49.7% | REJECT (truncates runners) |
 | early_cut 12%/3wk | cut deep first-2wk drawdown | 1.032 | 22.1% | −41.2% | REJECT (cuts survivors too) |
-| base_min K3/L8/12% | require a real base near SMA before touch | 0.815 | 15.4% | −53.5% | REJECT (−0.32 Sh, DD −11pp WORSE) |
-| base_min K2/L6/10% | (looser base requirement) | 0.692 | 12.5% | −40.3% | REJECT (−0.44 Sharpe) |
 
 _base_min swept K∈{2,3,4}, L∈{6,8,10,12}, band∈{8,10,12}% — **every arm rejects**, best only 0.815, and
 several make drawdown WORSE (K4/L12 → −60.8%). Requiring a pre-touch base does not isolate the winning
 subset; it just thins the book, and because regime (not the bar) drives the outcome, thinning drops fat-tail
 runners faster than losers._
 
-**Consistent verdict (6 levers, per-trade≠portfolio wall):** the AI-found patterns are genuinely present
-*per trade*, but every entry/exit/stop/base fix trades return for drawdown because the extended blow-off
-entries and the fat-tail runners are the **same trades** — the winner forensic proved base-quality and
-extension co-occur in the runners too. drop_rs is the only ~neutral one (better DD, flat return). **This
-independently re-derives, bottom-up from AI reasoning over every trade, the program's standing conclusion:
-the entry bar cannot separate winners from losers — regime does, and regime is unforecastable in-sample. 0094
-is a plateau, not a peak; the forward wall is the only certifier.**
+**Consistent verdict (8 levers, per-trade≠portfolio wall):** the AI-found patterns are genuinely present
+*per trade*, but every entry/exit/base fix trades return for drawdown because the extended blow-off entries and
+the fat-tail runners are the **same trades**. **Phase-1 entry is exhausted:** the owner's "buy near the SMA" is
+right per-trade (near-SMA fires win 87%) but portfolio-negative every way — forced (limit → 41% win), selected
+(cap → defensive-only), or prioritised (fill order → displaces the CRS-leaders, −0.80). The extended entry IS
+the edge; the CRS-strongest-first fill order is load-bearing. **This independently re-derives, bottom-up from AI
+reasoning over every trade, the program's standing conclusion: the entry bar cannot separate winners from
+losers — regime does, unforecastable in-sample. 0094 is a plateau; the forward wall is the only certifier.**
+Only shippable entry artifact: a DEFENSIVE ext_cap ~20% (−10pp DD, robust across slices) → wall, owner decision.
 
 ---
 
