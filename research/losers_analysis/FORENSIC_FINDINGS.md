@@ -239,6 +239,31 @@ GAIL gap) but regime-sensitive → forward-wall candidate WITH a choppy-regime g
 NOT a blind cfg flip.** The right home is a Phase-3 sizing sleeve (size the box book separately so it doesn't
 starve the touch book), or a regime gate — both owner decisions. New cfg lever: `box_breakout/box_len/box_tight`.
 
+### Lever E5 — SWING SETUP LIBRARY (owner's VBL case + "trend/breakout/S-R, all the patterns")
+Owner (via VBL 2021-24, another leader that rode ABOVE the SMA and never touched — base traded it 4× and
+missed the ₹85→₹650 ride) wants a LIBRARY of swing setups, not just the 44-touch. Built + measured additively,
+all determinism-gated (off ⇒ 1.132/255):
+
+| setup | Sharpe | CAGR | DD | Calmar | win% | tr | 22-26 | 17-21 |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|
+| base (pullback-to-44SMA) | 1.132 | 24.7% | −42.4% | 0.58 | 59% | 255 | 1.18 | 1.08 |
+| **#2 box breakout** (E4) | 1.073 | 22.2% | −33.8% | 0.66 | 59% | 411 | 0.65 | 1.46 |
+| #3 trend-continuation (pullback to 20wk) | 0.841 | 18.5% | −38.9% | 0.48 | **51%** | 281 | 0.68 | 0.98 |
+| #2+#3 combined | 0.870 | 18.0% | −38.3% | 0.47 | 54% | 393 | — | — |
+
+**Verdict: the box breakout is the ONLY additive setup that holds quality; loose trend-continuation REJECTS.**
+Trend-continuation catches VBL moves (2018-04 +2.45R, 2021-05 +1.65R) but floods weak signals (2020-01 −4.58R,
+several −1R) → win 59→51%. The discriminator is STRUCTURE: the box demands a tight base + a defined stop at
+the box low (quality filter); a plain pullback-to-20wk has neither → the near-SMA falling-knife failure again.
+Adding #3 to #2 drags box down (1.073→0.870). VBL IS captured by both, but only the box keeps portfolio quality.
+
+**PHASE-1 ENTRY — FULL LIBRARY VERDICT:** of the classic swing patterns, only TWO survive as portfolio-worthy —
+the base pullback-touch and the flat-base/box breakout. The box is the keeper (captures GAIL+VBL, holds win%,
+better Calmar) but is regime-sensitive (great 2017-21, weak 2022-26) and crowds the 15-slot cap → its home is
+a **Phase-3 sleeve** (own capital bucket) routed to the forward wall, NOT a cfg flip. Loose patterns (trend-
+continuation, and by extension plain S/R / flag) add weak signals and dilute — pattern-count is not the edge,
+structure + defined risk is. Reversal/oversold stays triple-killed (0020/0022/0024). New cfg: `trend_pullback/tp_band`.
+
 ## What this points to (for Phase D/E, measured — not adopted)
 1. **Earlier-entry / RS re-timing** (#1) — the biggest, most-cited lever. Measure fresh.
 2. **Earlier partial exit** (#2, the giveback fix) — measure 1.5R / faster-trail vs the 2R half.

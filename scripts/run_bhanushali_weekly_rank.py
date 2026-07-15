@@ -43,7 +43,8 @@ SLOPE_MIN, SLOPE_LOOKBACK, TOUCH_BAND, CRS_LEN = 0.03, 13, 0.07, 40   # the live
 def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, drop_rs: bool = False,
                      first_touch: bool = False, base_min: int = 0, base_lookback: int = 8,
                      base_band: float = 0.12, decouple_touch_green: bool = False, green_wait: int = 3,
-                     box_breakout: bool = False, box_len: int = 8, box_tight: float = 0.30):
+                     box_breakout: bool = False, box_len: int = 8, box_tight: float = 0.30,
+                     trend_pullback: bool = False, tp_band: float = 0.05):
     """The live 0093+Nifty-50 prep, with each entry window carrying its CRS-distance rank.
 
     index_provider (pre-reg 0096): optional callable(ticker) -> pd.Series to override the CRS
@@ -134,6 +135,19 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                     _bsig[_k] = True; _stop_arr[_k] = _bl               # breakout — stop at the box low
             # additive: a week already firing the touch signal keeps its own (tighter) stop
             wsig = np.nan_to_num(wsig, nan=False) | (_bsig & ~np.nan_to_num(wsig, nan=False))
+        # PHASE-1 setup #3 — TREND CONTINUATION (owner's VBL case): a leader in a strong 44-SMA uptrend that
+        # rides ABOVE the line and pulls back only shallowly — to the 20-WEEK MA — never reaching the 44-SMA
+        # touch band. Distinct from setup #1 (needs low near the 44) and #2 (needs a tight flat base). Arms when
+        # in an uptrend the week's low tags the 20wk MA (within tp_band) while still ABOVE the 44-SMA, closes
+        # green above the 20wk. Stop = pullback low. off => byte-identical 0094.
+        if trend_pullback:
+            _w20 = pd.Series(wclose).rolling(20).mean().to_numpy()
+            _tsig = (np.nan_to_num(slope, nan=-9) >= SLOPE_MIN) & np.nan_to_num(qgreen, nan=False) & _rs_term
+            _tsig &= np.nan_to_num(wlow <= _w20 * (1 + tp_band), nan=False)      # pulled back to the 20wk MA
+            _tsig &= np.nan_to_num(wclose > _w20, nan=False)                     # closed back above the 20wk
+            _tsig &= np.nan_to_num(wlow > wsma * (1 + TOUCH_BAND), nan=False)    # but NOT a 44-SMA touch (distinct)
+            _tsig = _tsig & ~np.nan_to_num(wsig, nan=False)                      # additive to touch+box
+            wsig = np.nan_to_num(wsig, nan=False) | _tsig
         s["weekend"] = {dd[-1] for dd in weeks}
         s["entry_win"] = {}
         _wsflag = np.nan_to_num(wsig, nan=False)
