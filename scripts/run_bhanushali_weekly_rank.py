@@ -280,6 +280,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              lh_arm_r: float = 0.0, lh_n: int = 2, no_time_cap: bool = False,
              trendhold_pct: float = 0.0, blowoff_arm_r: float = 0.0, blowoff_third: float = 0.34,
              wk20_trail_pct: float | None = None,
+             risk_pct: float | None = None, max_positions: int = 0,
              entry_band: float | None = None, entry_strict: bool = False,
              ext_cap: float | None = None, ext_cap_touch_only: bool = False, fill_order: str = "crs"):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
@@ -493,22 +494,25 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
             _key = lambda x: (orders[x[1]]["sma"] and x[3] / orders[x[1]]["sma"], x[1])   # ascending extension
         else:
             _key = lambda x: (-x[0], x[1])                                                # descending CRS distance
+        _risk = RISK if risk_pct is None else risk_pct         # PHASE-3 sizing: per-trade risk (default 2%)
         for rk, t, i, opn in sorted(cands, key=_key):
             o_ = orders.get(t)
             if o_ is None or t in op:
                 continue
+            if max_positions and len(op) >= max_positions:     # PHASE-3 sizing: hard concurrent-position cap
+                break
             s = P[t]
             en = opn; st = o_["lo"]
             if en > st:
-                sh = sizing_eq * RISK / (en - st)
+                sh = sizing_eq * _risk / (en - st)
                 notion = sh * en * (1 + _cost_leg(s["adv20"][i], sh * en, cost_off))
                 if (uncapped or notion <= cash) and sh > 0:   # uncapped: fill EVERY signal (ledger mode)
                     cash -= notion
                     op[t] = dict(en=en, stop=st, risk0=en - st, tp2=en + 2 * (en - st), sh=sh, sh0=sh,
                                  weeks=0, adv=s["adv20"][i], half_done=False, trail=st, pending=None,
                                  stt=sh * en * STT_PCT, cash_out=notion, proceeds=0.0)
-                    rp = sh * (en - st) / sizing_eq * 100      # 2% of SIZING equity (== eq when vol_target off)
-                    assert 1.99 <= rp <= 2.01, f"sizing {rp:.3f}"
+                    rp = sh * (en - st) / sizing_eq * 100      # risk as % of SIZING equity
+                    assert _risk * 100 - 0.02 <= rp <= _risk * 100 + 0.02, f"sizing {rp:.3f}"
                     if ledger is not None:
                         op[t]["rec"] = dict(tkr=t, entry_date=d, entry=round(float(en), 2),
                                             stop0=round(float(st), 2), rank=round(float(rk), 4),

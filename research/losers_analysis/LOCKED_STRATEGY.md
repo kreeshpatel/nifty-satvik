@@ -45,3 +45,24 @@ The trade engine is fixed; Phase 3 tunes HOW MUCH capital each trade gets. Lever
    slots or faster rotation so good signals aren't skipped for cash.
 5. **Vol-target de-gross** (O-009 / `vol_target`, already built) — shrink gross when trailing vol is high.
 Phase 3 is judged on the **portfolio** (Sharpe/CAGR/MaxDD/Calmar) — sizing is exactly the entry→portfolio bridge.
+
+## PHASE 3 — RESULT (2026-07-15): sizing is 2% risk, no caps — every other lever fails robustly
+Wired `risk_pct` + `max_positions` sizing knobs (default off ⇒ 1.132/255). Locked-engine portfolio baseline
+(2% risk, ₹10L): **Sh 1.034 / CAGR 21.2% / MaxDD −34.8% / Calmar 0.61** (vs base 0094 1.132/24.7/−42.4/0.58 —
+already 8pp shallower DD, higher Calmar). Every sizing lever tested against it:
+- **Per-trade risk:** 2% is optimal. Lower (1.0–1.5%, fit more trades) → Sh 0.79–1.01 (the ~19.7k skipped
+  signals are LOW-CRS-rank noise; the fill already takes the best, so fitting more dilutes). Higher (2.5%) → 0.77.
+- **max_positions:** KNIFE-EDGE OVERFIT — Sharpe jumps 7→1.155, 8→0.917, 9→0.928, 10→1.118, 11→0.940, 12–14→0.855.
+  A 0.24-Sharpe swing per 1-position change = noise. REJECTED (do not tune).
+- **Box/S/R sleeve (with capital):** dilutes Sharpe (0.855 in the stable maxpos range vs 1.034 touch-only);
+  only helps DRAWDOWN (−32.5 vs −34.8, stable). A drawdown-only option, not a Sharpe edge.
+- **Vol-target de-gross (O-009):** tighter targets (20/25%) → WORSE (0.85/0.94, cut returns > DD); loosest (30%)
+  ≈ off. No lever.
+
+**PHASE-3 VERDICT: sizing = 2% risk on the ₹10L book, no artificial position cap, no vol-target, no
+Sharpe-sleeves — the disciplined answer, reached by rejecting the knife-edge overfits (reproduce-before-trust).**
+The three-phase arc's net gain is a MORE DEFENSIVE strategy: DD −42.4→−34.8, Calmar 0.58→0.61, for a small
+Sharpe/CAGR give — **the EXIT did the work; entry and sizing were already robustly optimal.** Box/S/R sleeve
+remains a live/forward-wall DRAWDOWN option (−2pp DD at a Sharpe cost). Sizing DECISIONS (which of the
+capital-constrained signals to take in real time) are the live-portfolio-management layer, per owner. New cfg:
+`risk_pct`, `max_positions`. STRATEGY COMPLETE across all 3 phases; forward wall certifies live.
