@@ -211,6 +211,34 @@ robust DD reducer (−10pp DD, holds in both continuous-slice sub-periods: 2022-
 Sharpe cost −0.15 → a forward-wall candidate (owner decision), analogous to the A-only swing variant. NOT a
 config change (fails the +0.10 Sharpe bar). This is the 8th independent lever to hit per-trade≠portfolio.
 
+### Lever E4 — FLAT-BASE / DARVAS-BOX BREAKOUT (owner's GAIL case — an ADDITIVE setup, not a filter)
+The owner flagged GAIL 2023: a stock that NEVER pulled back to touch the SMA — it consolidated in a tight
+range ABOVE the rising line (~108–133) and let the SMA rise INTO it (a TIME correction), then broke out
++50%. The touch rule (`low<=SMA*1.07`) is blind to it — GAIL's base held 8–19% above the SMA and the low
+only grazed the band on one week (filtered by green/RS). **GAIL was never traded.** New cfg-gated ADDITIVE
+signal `box_breakout`: a tight base (range<=box_tight) that held ABOVE the SMA for box_len weeks in an
+uptrend, then a GREEN close above the box high → buy, stop at the box low. Determinism-gated (off ⇒ 1.132/255).
+
+| arm | Sharpe | ΔSh | CAGR | MaxDD | Calmar | win% | tr | new |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|
+| base | 1.132 | — | 24.7% | −42.4% | 0.58 | 59% | 255 | — |
+| **box 12wk/35%** | 1.073 | −0.06 | 22.2% | **−33.8%** | **0.66** | **59%** | 411 | +156 |
+| box 6wk/25% | 0.984 | −0.15 | 21.7% | −34.0% | 0.64 | 58% | 371 | +116 |
+
+**This is the best-behaving lever found — the ONLY one that ADDS trades while HOLDING win rate (59%) and
+IMPROVING Calmar (0.58→0.66, DD −42→−34).** And it captures GAIL: the uncapped signal set books
+**GAIL 2023-11-07 @ ₹111 = +4.76R** (the exact breakout the owner circled), plus 2023-08-03 +0.18R. Every
+other lever traded return for DD or cut trades; this adds a genuinely new *setup class* (time-correction
+base breakouts — the MAZDOCK/BAJFINANCE/HINDPETRO/RRKABEL winner archetype the forensic named).
+
+**The catch — NOT sub-period robust (fails the continuous-slice gate):** box12/35 is a big win in the
+trending 2017–21 era (Sharpe 1.08→1.47, DD −42→−31) but DEGRADES the choppy 2022–26 era (Sharpe 1.18→0.65) —
+base breakouts fail more in chop, and +156 signals crowd the 15-slot capital cap. So the flattering
+full-sample Calmar is carried by the bull years. **Verdict: a real, valuable NEW setup (solves the owner's
+GAIL gap) but regime-sensitive → forward-wall candidate WITH a choppy-regime guard / separate sleeve sizing,
+NOT a blind cfg flip.** The right home is a Phase-3 sizing sleeve (size the box book separately so it doesn't
+starve the touch book), or a regime gate — both owner decisions. New cfg lever: `box_breakout/box_len/box_tight`.
+
 ## What this points to (for Phase D/E, measured — not adopted)
 1. **Earlier-entry / RS re-timing** (#1) — the biggest, most-cited lever. Measure fresh.
 2. **Earlier partial exit** (#2, the giveback fix) — measure 1.5R / faster-trail vs the 2R half.
