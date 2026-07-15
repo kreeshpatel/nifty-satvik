@@ -409,6 +409,43 @@ naturally fill <5% above the SMA (PIT-safe: the open is observed pre-fill). On t
 cores: (1) deep-near-SMA touch [+1.0R, best], (2) box breakout extended [+0.3, PF 1.9], (3) S/R extended
 [+0.3] — Phase-3 sizing overweights the deep-near-SMA×hiCRS touches (+1.6R) and sizes down the −0.52R 5–10% band.**
 
+## PHASE 2 — EXIT (per-trade lens). Characterization + the giveback-ratchet (first genuine improvement)
+### Exit characterization (capped 255 book of record) — where R leaks
+| exit | N | % | meanR | meanMFE | capture |
+|---|--:|--:|--:|--:|--:|
+| time cap (13wk) | 164 | 64% | +1.02 | 2.06R | 49% |
+| stop | 66 | 26% | −1.32 | 0.50R | — |
+| trail | 19 | 7% | +1.88 | 4.10R | 46% |
+
+Overall we capture only **27%** of the average trade's MFE (0.48R kept vs 1.81R MFE). Structural cause: **the
+trail activates only AFTER the 2R half books** — a trade that runs to ~1.8R MFE but never hits 2R has NO trail,
+only the stop and the 13wk clock → it rides the cap and gives it back. Giveback quantified: 116 trades reached
+≥1.5R MFE, 22% finished <1R (mean giveback 1.54R); of 80 that touched ≥2R intraweek, 26% never booked the half
+(the 2R-on-close miss / TRIVENI).
+
+### Exit variants — every BLUNT fix cuts the runners (per-trade meanR)
+base +0.481 | trail-before-2R +0.185 (win 59→42%) | tp_on_high +0.322 | lock 2.0→1.0 +0.410 | cap-26wk +0.477.
+The base exit's low MFE-capture is the PRICE of letting the fat tail run (19 trail-runners at 4.1R MFE + the
+dip-then-recover survivors). Extending the cap is per-trade-neutral → the 13wk clock isn't costing us.
+
+### ★ THE GIVEBACK RATCHET — lock 1.5R once MFE ≥ 2.5R (first genuine improvement of the session)
+Surgical MFE-conditional lock-in: raise the stop to en+1.5R only after intraweek MFE reaches 2.5R.
+| setting | meanR | Sharpe | 22-26 | 17-21 | win% | PF |
+|---|--:|--:|--:|--:|--:|--:|
+| base | +0.481 | 1.132 | 1.18 | 1.08 | 59% | 2.20 |
+| 2.5R→1.5R | +0.500 | 1.168 | 1.19 | 1.13 | 60% | 2.24 |
+| **2.75R→1.5R** | +0.500 | **1.173** | 1.18 | **1.16** | 60% | 2.24 |
+| 2.75R→1.75R | +0.497 | 1.170 | 1.18 | 1.15 | — | — |
+
+**Improves every metric (meanR, win%, PF, Sharpe) AND both sub-periods, with DD unchanged (−42.4).** A stable
+PLATEAU (2.5-2.75R → 1.5-1.75R all ~+0.500 / Sh ~1.17), not a spike → not overfit. Works where tp_on_high
+failed because it RAISES THE STOP but lets the position run — a runner that hits 2.5R and continues to 5R still
+captures 5R (the lock never triggers); it bites ONLY when a trade peaks at 2.5R+ then reverses (exactly the
+giveback leak). Determinism-gated (`lockin_mfe=0` off ⇒ 1.132/255). **Honest size: SMALL (+0.04 Sharpe /
++0.02R) — below the +0.10 promotion bar → forward-wall / next-version candidate, NOT a blind cfg flip.** But
+it's real, robust, mechanism-sound — the giveback fix the forensic (§2/§2b) pointed at, finally landing. New
+cfg: `lockin_mfe/lockin_at` (+ tested-neutral `trail_always/trail_after/cap_weeks`).
+
 ## What this points to (for Phase D/E, measured — not adopted)
 1. **Earlier-entry / RS re-timing** (#1) — the biggest, most-cited lever. Measure fresh.
 2. **Earlier partial exit** (#2, the giveback fix) — measure 1.5R / faster-trail vs the 2R half.

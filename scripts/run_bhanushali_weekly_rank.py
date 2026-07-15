@@ -261,6 +261,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              vol_target: tuple | None = None, eq0: float | None = None,
              uncapped: bool = False, a_grade: set | None = None,
              tp_on_high: bool = False, early_cut_pct: float = 0.0, early_cut_weeks: int = 2,
+             trail_always: bool = False, trail_after: int = 2, cap_weeks: int = 0,
+             lockin_mfe: float = 0.0, lockin_at: float = 1.0,
              entry_band: float | None = None, entry_strict: bool = False,
              ext_cap: float | None = None, fill_order: str = "crs"):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
@@ -354,15 +356,26 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
             if i in s["weekend"]:
                 p["weeks"] += 1
                 wc = s["c"][i]
+                # PHASE-2 exit lever: lock-in ratchet — once a trade's intraweek MFE reaches lockin_mfe R, raise
+                # the stop to lock in lockin_at R (attacks the giveback: trades peak at 2R+ then drift to the
+                # 13wk cap at ~1R). off (lockin_mfe=0) => no ratchet.
+                if lockin_mfe and p["weeks"] >= 1:
+                    _mfe_r = (s["h"][i] - p["en"]) / p["risk0"] if p["risk0"] > 0 else 0.0
+                    if _mfe_r >= lockin_mfe:
+                        p["stop"] = max(p["stop"], p["en"] + lockin_at * p["risk0"])
                 if wc <= p["stop"]:
                     p["pending"] = ("full", "stop" + ("_half" if p["half_done"] else ""))
                 elif not p["half_done"] and wc >= p["tp2"]:
                     p["pending"] = ("half", "half")
-                elif p["half_done"]:
+                # PHASE-2 exit lever: trail_always applies the 20SMA*(1-TRAIL_PCT) trail even BEFORE the 2R half
+                # books (after trail_after weeks) — the base engine has NO trail until 2R, so a trade that runs
+                # to ~1.8R MFE but never hits 2R rides the 13wk cap and gives it all back. off => byte-identical.
+                elif p["half_done"] or (trail_always and p["weeks"] >= trail_after):
                     p["trail"] = max(p["trail"], s["ema20"][i] * (1 - TRAIL_PCT))
                     if wc < p["trail"]:
                         p["pending"] = ("full", "trail")
-                if p["pending"] is None and p["weeks"] >= CAP_WEEKS:
+                _cap = cap_weeks if cap_weeks > 0 else CAP_WEEKS
+                if p["pending"] is None and p["weeks"] >= _cap:
                     p["pending"] = ("full", "time")
         # ── activate windows, then fill candidates STRONGEST-CRS-FIRST (the 0094 change) ──
         cands = []
