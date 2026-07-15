@@ -263,6 +263,10 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              tp_on_high: bool = False, early_cut_pct: float = 0.0, early_cut_weeks: int = 2,
              trail_always: bool = False, trail_after: int = 2, cap_weeks: int = 0,
              lockin_mfe: float = 0.0, lockin_at: float = 1.0,
+             chand_pct: float = 0.0, chand_after_r: float = 0.0,
+             soft_stop_pct: float = 0.0,
+             lh_arm_r: float = 0.0, lh_n: int = 2, no_time_cap: bool = False,
+             trendhold_pct: float = 0.0,
              entry_band: float | None = None, entry_strict: bool = False,
              ext_cap: float | None = None, fill_order: str = "crs"):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
@@ -363,8 +367,20 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     _mfe_r = (s["h"][i] - p["en"]) / p["risk0"] if p["risk0"] > 0 else 0.0
                     if _mfe_r >= lockin_mfe:
                         p["stop"] = max(p["stop"], p["en"] + lockin_at * p["risk0"])
+                # PHASE-2 exit lever: CHANDELIER — a peak-based trailing stop (highest high since entry ×
+                # (1-chand_pct)), engaged once MFE ≥ chand_after_r R. Trails the PEAK (not an MA), so it protects
+                # the giveback from the high-water mark. off (chand_pct=0) => byte-identical.
+                if chand_pct and p["weeks"] >= 1:
+                    p["peak_h"] = max(p.get("peak_h", p["en"]), s["h"][i])
+                    _mfe_r = (p["peak_h"] - p["en"]) / p["risk0"] if p["risk0"] > 0 else 0.0
+                    if _mfe_r >= chand_after_r:
+                        p["stop"] = max(p["stop"], p["peak_h"] * (1 - chand_pct))
                 if wc <= p["stop"]:
                     p["pending"] = ("full", "stop" + ("_half" if p["half_done"] else ""))
+                # PHASE-2 exit lever: SOFT STOP — cut on a trend break (weekly close < 20d-SMA×(1-soft_stop_pct))
+                # BEFORE the hard stop is hit, to trim the −1.32R stop-outs. off (0) => byte-identical.
+                elif soft_stop_pct and wc < s["ema20"][i] * (1 - soft_stop_pct):
+                    p["pending"] = ("full", "soft" + ("_half" if p["half_done"] else ""))
                 elif not p["half_done"] and wc >= p["tp2"]:
                     p["pending"] = ("half", "half")
                 # PHASE-2 exit lever: trail_always applies the 20SMA*(1-TRAIL_PCT) trail even BEFORE the 2R half
@@ -374,7 +390,22 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     p["trail"] = max(p["trail"], s["ema20"][i] * (1 - TRAIL_PCT))
                     if wc < p["trail"]:
                         p["pending"] = ("full", "trail")
-                _cap = cap_weeks if cap_weeks > 0 else CAP_WEEKS
+                # PHASE-2 AI-derived exit (exit forensic): the giveback tell is a blow-off then LOWER weekly
+                # closes while still above the loose trail; the bigger leak is the 13wk cap severing live trends.
+                # lh_arm_r>0: once MFE ≥ lh_arm_r R, exit on lh_n consecutive LOWER weekly closes (the topping
+                # tell) — lets winners run but cuts the round-trip. trendhold_pct: also exit if close < 20SMA×
+                # (1-trendhold_pct) once up ≥2R (confirmed trend break). no_time_cap: drop the 13wk clock (52wk
+                # backstop) so trend-intact winners run. All off => byte-identical.
+                p["pk"] = max(p.get("pk", p["en"]), s["h"][i])
+                _mfe_r = (p["pk"] - p["en"]) / p["risk0"] if p["risk0"] > 0 else 0.0
+                if p["pending"] is None and lh_arm_r and _mfe_r >= lh_arm_r:
+                    p["lc"] = (p.get("lc", 0) + 1) if wc < p.get("prev_wc", 1e18) else 0
+                    if p["lc"] >= lh_n:
+                        p["pending"] = ("full", "lhexit" + ("_half" if p["half_done"] else ""))
+                if p["pending"] is None and trendhold_pct and _mfe_r >= 2.0 and wc < s["ema20"][i] * (1 - trendhold_pct):
+                    p["pending"] = ("full", "thold" + ("_half" if p["half_done"] else ""))
+                p["prev_wc"] = wc
+                _cap = 52 if no_time_cap else (cap_weeks if cap_weeks > 0 else CAP_WEEKS)
                 if p["pending"] is None and p["weeks"] >= _cap:
                     p["pending"] = ("full", "time")
         # ── activate windows, then fill candidates STRONGEST-CRS-FIRST (the 0094 change) ──

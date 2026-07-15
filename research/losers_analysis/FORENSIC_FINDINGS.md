@@ -446,6 +446,35 @@ giveback leak). Determinism-gated (`lockin_mfe=0` off ⇒ 1.132/255). **Honest s
 it's real, robust, mechanism-sound — the giveback fix the forensic (§2/§2b) pointed at, finally landing. New
 cfg: `lockin_mfe/lockin_at` (+ tested-neutral `trail_always/trail_after/cap_weeks`).
 
+## PHASE 2 — AI EXIT FORENSIC (5 agents, 95 giveback + 66 stop-out trades) + the AI-derived exit
+Agents reasoned over each trade's weekly hold-path (entry→exit + 8 weeks after) to judge the exit. Ranked leaks:
+1. **The 13-week TIME CAP is the #1 capture loss** — ~55-60% of "giveback" trades were EXIT_OK_KEPT_RUNNING: the
+   cap severed a still-trending winner that ran 4-27R AFTER exit (ALKYLAMINE +2R-half → 27.6R, MAZDOCK → 16.6R,
+   NAUKRI → 5.1R, GUJGAS → 4.8R, DIVISLAB → 6.8R). They peaked ON the exit week, close above a rising 20-SMA.
+2. **The +2R half-book caps the monsters** (same names — half sold at 2R while the runner went 8-27R).
+3. **The true giveback-with-a-tell leak lives almost entirely in TRAIL exits** (~19-35%): the x0.96 20-SMA trail
+   is too loose. Tell = a blow-off week closing in its lower third, then 1-2 LOWER weekly closes/highs, while
+   still far above the trail. But the trail is ALSO too tight for single-wick shakeouts (IBVENTURES→8.9R,
+   RHIM→7.45R, VIPIND→5.3R resumed after being stopped) → cut on a CLOSE break, not a wick.
+4. **Loss side mostly irreducible:** only 25% of stop-outs cuttable (median +0.5R); 60%+ gaps/immediate-fails
+   where the 20-SMA sits far below the stop and never fires first. Soft-stop only as a confirmed-break exit on
+   aged/fading positions, never blanket (whipsaws recoveries) — confirms the mechanical soft-stop REJECT.
+
+### AI-derived exit (hold-while-trending + lower-close tell) — the per-trade≠portfolio split, on the exit
+| exit | meanR | win% | PF | Sharpe | tr |
+|---|--:|--:|--:|--:|--:|
+| base | +0.481 | 59% | 2.20 | 1.132 | 255 |
+| no_cap + lh3@2R (lower-close tell) | **+0.622** | 51% | 2.06 | 0.786 | 160 |
+| lock-in 2.75→1.5 (keeps cap) | +0.500 | 60% | 2.24 | **1.173** | 254 |
+
+**Removing the cap is a big PER-TRADE win (+0.481→+0.622, +29%) — the AI was right the cap cuts winners — but
+the capped Sharpe DROPS (1.13→0.79) because trends held to their end occupy a slot ~2× longer (only 160 trades
+complete vs 255). That's a CAPITAL-EFFICIENCY cost = a Phase-3 sizing problem, not an exit failure.** Two honest
+results: (a) the lock-in ratchet is the clean adopt-now (better per-trade AND Sharpe, no holding-period cost);
+(b) cap-removal + lower-close tell captures more R but needs Phase-3 sizing to pay for the longer holds. New cfg
+(all off ⇒ 1.132/255): `lh_arm_r/lh_n/no_time_cap/trendhold_pct` + earlier `lockin_mfe/lockin_at`. NEXT: run the
+exit on the FIXED Phase-1 entry (deep near-SMA touch + box + S/R), not the pre-decided 255 (owner directive).
+
 ## What this points to (for Phase D/E, measured — not adopted)
 1. **Earlier-entry / RS re-timing** (#1) — the biggest, most-cited lever. Measure fresh.
 2. **Earlier partial exit** (#2, the giveback fix) — measure 1.5R / faster-trail vs the 2R half.
