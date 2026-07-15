@@ -338,6 +338,24 @@ SEEN failure, not param-fishing): (1) **robust/trimmed range** so a single spike
 MA / near a multi-year high) to avoid ASTRAL-type tops. Tools now standing: `render_chart.py` (single) +
 `render_gallery.py` (batch winners/losers/misses). Detector-validation-before-backtest is the workflow.
 
+### E9 — the two chart-revealed box tunings, IMPLEMENTED + TESTED → both REJECTED (and why)
+Acted on E8's two directions. Seeing + numeric diagnosis + portfolio measurement killed both:
+- **Trimmed/close-range** (fix the MAZDOCK "miss"): the numeric diagnostic showed MAZDOCK never was a box miss —
+  its base **dipped BELOW the 44-SMA in Jun-2022** (close ₹117.6 vs SMA ₹127), so the "held above SMA" gate
+  correctly excluded it; it's a PULLBACK, caught by the touch rule (+7.32R). Using close-range instead just
+  loosens the tightness test → +105 trades, Sh 1.098→1.029, 22-26 1.07→0.87 (the loose-box dilution again). REJECT.
+- **Late-cycle run-up guard** (fix the ASTRAL top): rendering showed a 52-wk run-up>150% guard removes the WRONG
+  fire — it killed ASTRAL's Aug-2021 (early-cycle, ~winner) and KEPT the Jan-2022 top (its steepest year ended
+  Aug-21, not Jan-22). Portfolio: Sh 1.098→0.980. A cycle top is not separable from a valid breakout by 1-yr
+  run-up. REJECT.
+
+**Verdict: the plain tight box (box_len=8, box_tight=0.15, hi-lo range, held-above-SMA) is already the best
+version — both "obvious" fixes make it worse.** Not every failure has a fix "around it": MAZDOCK is correctly a
+touch trade; the ASTRAL/MCX losses are the irreducible late-cycle/macro risks the base rule also carries. This
+is the value of see→diagnose→measure over assume: the refinements looked right on the failure charts and were
+wrong on the data. New cfg (`box_close_range`, `box_maxrunup`) kept default-off (byte-identical 1.132/255),
+recorded as tested-and-rejected. The box stands as-is → Phase-3 sleeve / forward wall.
+
 ## What this points to (for Phase D/E, measured — not adopted)
 1. **Earlier-entry / RS re-timing** (#1) — the biggest, most-cited lever. Measure fresh.
 2. **Earlier partial exit** (#2, the giveback fix) — measure 1.5R / faster-trail vs the 2R half.

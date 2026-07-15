@@ -44,6 +44,7 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                      first_touch: bool = False, base_min: int = 0, base_lookback: int = 8,
                      base_band: float = 0.12, decouple_touch_green: bool = False, green_wait: int = 3,
                      box_breakout: bool = False, box_len: int = 8, box_tight: float = 0.30,
+                     box_close_range: bool = False, box_maxrunup: float = 0.0,
                      trend_pullback: bool = False, tp_band: float = 0.05,
                      sr_breakout: bool = False, sr_len: int = 12, sr_test_band: float = 0.03,
                      sr_recent: int = 2, sr_pivot: bool = False, sr_piv_len: int = 14,
@@ -128,8 +129,19 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                 if not (np.nan_to_num(slope[_k], nan=-9) >= SLOPE_MIN):
                     continue
                 _bh = whigh[_k - box_len:_k].max(); _bl = wlow[_k - box_len:_k].min()
-                if not (_bl > 0 and (_bh - _bl) / _bl <= box_tight):
+                # tightness test: CLOSE-range (box_close_range) ignores lone wick spikes that inflate the hi-lo
+                # range and wrongly reject a real base (the MAZDOCK miss — an Apr-22 spike blocked a tight base).
+                if box_close_range:
+                    _ch = wclose[_k - box_len:_k].max(); _cl = wclose[_k - box_len:_k].min()
+                    _tight_ok = (_cl > 0 and (_ch - _cl) / _cl <= box_tight)
+                else:
+                    _tight_ok = (_bl > 0 and (_bh - _bl) / _bl <= box_tight)
+                if not _tight_ok:
                     continue                                            # base not tight enough
+                # late-cycle guard: skip a breakout on a name already parabolic (52-wk run-up > box_maxrunup) —
+                # the ASTRAL top was a REAL box that broke out after a 3x year and rolled over. off (0) => no guard.
+                if box_maxrunup and _k >= 52 and wclose[_k - 52] > 0 and wclose[_k] / wclose[_k - 52] - 1 > box_maxrunup:
+                    continue
                 _sm = wsma[_k]
                 if not (_sm == _sm and np.nanmin(wclose[_k - box_len:_k]) > _sm):
                     continue                                            # base did not hold above the SMA

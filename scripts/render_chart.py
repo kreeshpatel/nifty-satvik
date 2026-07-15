@@ -42,7 +42,8 @@ def weekly(t, P, n50):
     return dict(wo=wo, wh=wh, wl=wl, wc=wc, wv=wv, wd=wd, ws=ws, w20=w20, slope=slope, qg=qg, rsok=rsok)
 
 
-def render(t, d0, d1, overlay, box_len=12, box_tight=0.35, sr_len=12, sr_test_band=0.03, suffix=""):
+def render(t, d0, d1, overlay, box_len=12, box_tight=0.35, sr_len=12, sr_test_band=0.03, suffix="",
+           box_close_range=False, box_maxrunup=0.0):
     ohlcv = corrected_universe(); P = R94.prep_weekly_rank(ohlcv)
     n50 = pd.read_csv(CRS.NIFTY50_CSV, parse_dates=["date"]).set_index("date")["nifty50_close"].sort_index()
     w = weekly(t, P, n50)
@@ -68,7 +69,14 @@ def render(t, d0, d1, overlay, box_len=12, box_tight=0.35, sr_len=12, sr_test_ba
             if not (np.nan_to_num(w["slope"][k], nan=-9) >= SLOPE_MIN):
                 continue
             bh = w["wh"][k - box_len:k].max(); bl = w["wl"][k - box_len:k].min()
-            if not (bl > 0 and (bh - bl) / bl <= box_tight):
+            if box_close_range:
+                ch = w["wc"][k - box_len:k].max(); cl = w["wc"][k - box_len:k].min()
+                tight_ok = (cl > 0 and (ch - cl) / cl <= box_tight)
+            else:
+                tight_ok = (bl > 0 and (bh - bl) / bl <= box_tight)
+            if not tight_ok:
+                continue
+            if box_maxrunup and k >= 52 and w["wc"][k - 52] > 0 and w["wc"][k] / w["wc"][k - 52] - 1 > box_maxrunup:
                 continue
             sm = w["ws"][k]
             if not (sm == sm and np.nanmin(w["wc"][k - box_len:k]) > sm):
