@@ -144,3 +144,6 @@ diagnostics/research/*.log
 diagnostics/cpcv_long_horizon_*.json
 diagnostics/long_horizon_tradelog.csv
 results/signals_long_horizon.json
+
+# regenerable AI-forensic trade packets
+research/losers_analysis/packets/
