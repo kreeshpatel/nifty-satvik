@@ -17,14 +17,16 @@ Stop = signal-week low.
 > NOT entry-filter changes — a hard <5% filter DEGRADES the capped book (CRS-rank already selects). So the
 > locked ENTRY is the base touch; box/S/R/deep-near-SMA enter in Phase 3 as sleeves/weights.
 
-## EXIT (locked = Phase-2 visual exit)
+## EXIT (locked = Phase-2 visual exit; adopted LIVE 2026-07-15, see ADR-0008 / finding 0099)
 - Book **half at +2R** (`tp2 = en + 2×risk`).
 - **NO time cap** (`no_time_cap=True`; 52-wk safety backstop) — the 13-wk cap severed live trends (the #1
-  capture loss, validated on the random 60-trade map: 45% of winners cut early).
-- **Trail the remainder on the 20-WEEK close** (`wk20_trail_pct=0.04`) — exit on weekly close < 20wk-SMA×0.96
-  once up ≥2R. (Fixes the real bug: the base trailed on `ema20` = a 20-DAY SMA.)
+  capture loss, validated on the random 60-trade map: 45% of winners cut early). **This is the main driver.**
 - **Blow-off-bar exit after 2.5R** (`blowoff_arm_r=2.5`) — exit when a week makes a new high but CLOSES in its
-  lower third (long upper wick = exhaustion) — banks the giveback cohort near the peak.
+  lower third (long upper wick = exhaustion) — banks the giveback cohort near the peak. **The second driver.**
+- **20-week-close backstop** (`wk20_trail_pct=0.04`) — a *rarely-firing* wider backstop.
+  **CORRECTION:** the config KEEPS the existing **20-DAY-SMA (`ema20`) ratchet trail** as the primary trail (it is
+  the `elif p["half_done"]` branch, always active after the half books); the 20-week line is only a backstop. So
+  this is NOT a "20-week replaces the 20-day bug" swap — the real drivers are **no-cap + the blow-off exit.**
 
 **Reproduce (per-trade engine of record for Phase 3):**
 ```

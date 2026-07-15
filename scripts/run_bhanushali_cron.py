@@ -40,9 +40,16 @@ import run_bhanushali_weekly_rank as R94  # noqa: E402  — LIVE strategy: 0093-
 
 INCEPTION_DEFAULT = "2026-07-04"
 TARGET_R = 2                     # 0091 books half at +2R -> the displayed target
-HOLD_DAYS_DISPLAY = 65          # ~13-week cap in trading days, for the card's "hold ~N days"
+HOLD_DAYS_DISPLAY = 65          # soft "hold ~N days" card hint only. The P2 exit is TREND-FOLLOWING (no hard
+                                # cap; 52-week backstop) so actual holds vary widely — this is a nominal guide.
+# LIVE EXIT (2026-07-15 owner decision — Phase-2 exit; see docs/decisions ADR + config_CHANGELOG). Replaces the
+# 13-week time cap with a no-cap hold + a blow-off-bar exit @2.5R (+ a 20-week-close backstop). Owner-override of
+# the forward-wall route (ships a portfolio Sharpe/CAGR give for -8pp drawdown + fewer/higher-return trades). The
+# backtest() DEFAULTS are left OFF so the frozen 0094 research run stays byte-identical (1.132/255).
+P2_EXIT = dict(no_time_cap=True, wk20_trail_pct=0.04, blowoff_arm_r=2.5)
 # closed-trade exit reason -> the status vocabulary the frontend/history views already understand
 _STATUS = {"target3": "HIT_TARGET", "trail": "HIT_STOP", "stop": "HIT_STOP", "stop_half": "HIT_STOP",
+           "wk20": "HIT_STOP", "wk20_half": "HIT_STOP", "blowoff": "HIT_STOP", "blowoff_half": "HIT_STOP",
            "time": "EXPIRED", "eos": "EXPIRED"}
 
 
@@ -339,11 +346,11 @@ def main(argv=None) -> int:
     a_set = R94.grade_a_entries(P)
     # ── ₹10L paper book — realistic capital sim (A-only), kept for the NAV/equity portfolio.
     led_paper: list = []
-    out_paper = R94.backtest(P, mem, ledger=led_paper, start=args.start, return_state=True, a_grade=a_set)
+    out_paper = R94.backtest(P, mem, ledger=led_paper, start=args.start, return_state=True, a_grade=a_set, **P2_EXIT)
     # ── UNCAPPED signal ledger — every A signal tracked (cash never runs out), so a name is followed
     #    week to week regardless of what ₹10L could afford. This drives the SIGNALS page.
     led_all: list = []
-    out_all = R94.backtest(P, mem, ledger=led_all, start=args.start, return_state=True, uncapped=True, a_grade=a_set)
+    out_all = R94.backtest(P, mem, ledger=led_all, start=args.start, return_state=True, uncapped=True, a_grade=a_set, **P2_EXIT)
     # data's last date = the "as of" the book is current to
     last = max((pd.Timestamp(s["dates"][-1]) for s in P.values()), default=pd.Timestamp(args.start))
     generated_at = str(last.date())

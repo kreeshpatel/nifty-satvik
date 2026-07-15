@@ -1,10 +1,11 @@
 {
-  "model_version": "weekly-swing-0094-rank",
+  "model_version": "weekly-swing-0094-rank-p2exit",
   "strategy": "BHANUSHALI_WEEKLY_SMA_CRS_RANKED",
   "status": "FORWARD_WATCH",
   "horizon": "weekly",
   "inception": "2026-07-04",
   "certification": "UNDERPOWERED (DSR 0.894 < 0.95 — closest ever); forward wall is the only certifier — not promoted",
+  "live_exit_change": "2026-07-15 (owner decision, sole capital-at-risk): the LIVE exit was changed from the 13-week cap + 20-day-SMA trail to a TREND-FOLLOWING no-cap hold + a blow-off-bar exit @2.5R (+ 20-week-close backstop). Owner-OVERRIDE of the forward-wall route: it ships a portfolio Sharpe/CAGR give (1.132->1.034, 24.7->21.2%) for -8pp drawdown (-42.4->-34.8%), higher Calmar (0.58->0.61), +28% per-trade return (+0.481->+0.616R) and FEWER/longer-held trades (255->168) — the owner's rationale (eases the capital-contention/selection bottleneck). NOTE: win rate is LOWER (59%->54%), gain is bigger avg wins not more of them. Fails the standard dSharpe>=+0.10 promote gate; adopted as a defensive/selection variant. See docs/decisions ADR + research/config_CHANGELOG.md + finding 0099. The frozen 0094 research run (backtest defaults OFF) stays byte-identical 1.132/255.",
   "provenance": "pre-reg 0093/0094, findings 0037/0038 (Nifty-50 CRS signals + CRS-ranked fills, ordering-probe verified)",
   "params_derived_through": "2026-07-04",
   "params": {
@@ -20,10 +21,11 @@
     "crs_rule": "take signal only if weekly RS = stock/Nifty-50 is above its own 40-week SMA",
     "fill_ranking": "descending CRS distance = RS/SMA40(RS) - 1 at the signal week (finding 0038); fund strongest first",
     "risk_pct": 0.02,
-    "cap_weeks": 13,
+    "cap_weeks": 0,
+    "cap_weeks_note": "0094 research run used a 13-week cap; the LIVE exit removed it (52-week backstop) — see live_exit_change / exits",
     "target_r": 2,
     "entry": "in-range open the week after a green weekly bounce off the 44-week SMA",
-    "exits": "half at +2R; remainder trails the 20-day SMA -4% (ratchet); stop = signal-week low; decided at the weekly close, filled Monday; 13-week cap"
+    "exits": "half at +2R; then TREND-FOLLOWING: hold while trending, exit on (a) a BLOW-OFF weekly bar after 2.5R MFE — a new high that closes in the lower third of its weekly range (exhaustion), (b) the 20-day-SMA -4% ratchet trail, or (c) a 20-week-close -4% backstop; stop = signal-week low; NO time cap (52-week safety backstop); decided at the weekly close, filled Monday. Owner P2 exit, 2026-07-15. The 0094 research default (cfg levers OFF) is still half@2R + 20-day trail + 13-week cap."
   },
   "backtest": {
     "universe": "corrected (pinned + backfill + aliases)",
@@ -35,5 +37,17 @@
     "ci_low": 0.474,
     "dsr": 0.894,
     "note": "in-sample; ranked fill verified by adversarial ordering probe (desc best, asc worst); slices +1.17/+1.05/+1.19; leakage-clean. Not indicative of future results."
+  },
+  "live_backtest_p2exit": {
+    "universe": "corrected (pinned + backfill + aliases)",
+    "window": "2017-2026",
+    "net_sharpe": 1.034,
+    "net_cagr_pct": 21.2,
+    "max_dd_pct": -34.8,
+    "calmar": 0.61,
+    "win_rate_pct": 54,
+    "trades": 168,
+    "per_trade_meanR": 0.616,
+    "note": "the LIVE exit (P2). In-sample; a Sharpe/CAGR give for -8pp drawdown + higher per-trade capture vs the 0094 reference above. Reproduce: backtest(prep_weekly_rank(ohlcv), no_time_cap=True, wk20_trail_pct=0.04, blowoff_arm_r=2.5). Not indicative of future results."
   }
 }
