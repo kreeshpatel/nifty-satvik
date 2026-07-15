@@ -319,6 +319,25 @@ any pattern detector before trusting its backtest. New cfg: `sr_pivot/sr_piv_len
 Corrected setup-library verdict: base pullback + TIGHT box breakout are the two keepers; loose box, trend-
 continuation, and (properly-detected) S/R all fall short. The box → Phase-3 sleeve / forward wall.
 
+### E8 — BOX DETECTOR validation gallery (owner: "see it on many stocks first")
+`scripts/render_gallery.py` rendered the tight box (8wk/15%) on box-driven WINNERS + LOSERS + known MISSES
+(195 box-new trades total). Read the charts; systematic assessment:
+| chart | seen | class |
+|---|---|---|
+| KEI +4.05R | tight ₹1500-1700 base → clean mid-trend breakout → ₹2700 | correct, textbook |
+| MCX −2.72R | correct ₹205-225 base + breakout, then COVID gap through stop (later ran to ₹330) | correct, macro-killed |
+| ASTRAL −1.69R | REAL box but broke out at the CYCLE TOP after a 3× run → bull trap | correct, late-cycle fail |
+| MAZDOCK (miss) | real base but an Apr-22 spike widened the 8wk range >15% → rejected (touch caught it +7.32R) | tightness too fragile |
+
+**Verdict from SEEING (not inferring):** the tight box draws GENUINE consolidations — no loser was a *false*
+box. Its losses are the SAME failure modes as the base rule (macro crashes, late-cycle exhaustion breakouts),
+not detector error → explains why it lands at ~base quality, not a plateau-breaker. Its MISSES come from one
+fixable flaw: a lone prior spike inflates the range test. Two chart-revealed tuning directions (each fixes a
+SEEN failure, not param-fishing): (1) **robust/trimmed range** so a single spike doesn't block a real base
+(recovers MAZDOCK-type); (2) **late-cycle guard** (don't buy a breakout already stretched far above a longer
+MA / near a multi-year high) to avoid ASTRAL-type tops. Tools now standing: `render_chart.py` (single) +
+`render_gallery.py` (batch winners/losers/misses). Detector-validation-before-backtest is the workflow.
+
 ## What this points to (for Phase D/E, measured — not adopted)
 1. **Earlier-entry / RS re-timing** (#1) — the biggest, most-cited lever. Measure fresh.
 2. **Earlier partial exit** (#2, the giveback fix) — measure 1.5R / faster-trail vs the 2R half.

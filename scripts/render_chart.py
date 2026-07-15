@@ -42,7 +42,7 @@ def weekly(t, P, n50):
     return dict(wo=wo, wh=wh, wl=wl, wc=wc, wv=wv, wd=wd, ws=ws, w20=w20, slope=slope, qg=qg, rsok=rsok)
 
 
-def render(t, d0, d1, overlay, box_len=12, box_tight=0.35, sr_len=12, sr_test_band=0.03):
+def render(t, d0, d1, overlay, box_len=12, box_tight=0.35, sr_len=12, sr_test_band=0.03, suffix=""):
     ohlcv = corrected_universe(); P = R94.prep_weekly_rank(ohlcv)
     n50 = pd.read_csv(CRS.NIFTY50_CSV, parse_dates=["date"]).set_index("date")["nifty50_close"].sort_index()
     w = weekly(t, P, n50)
@@ -122,7 +122,7 @@ def render(t, d0, d1, overlay, box_len=12, box_tight=0.35, sr_len=12, sr_test_ba
     ax.set_title(f"{t}  weekly  {d0}..{d1}   overlay={overlay}   fires={fired}", fontsize=10)
     ax.legend(loc="upper left"); ax.grid(alpha=0.15); axv.grid(alpha=0.15)
     ax.set_xticks(x[::4]); ax.set_xticklabels([wd[i].strftime("%b-%y") for i in x[::4]], rotation=45, fontsize=8)
-    fn = OUT / f"chart_{t}_{overlay}.png"
+    fn = OUT / f"chart_{t}_{overlay}{('_' + suffix) if suffix else ''}.png"
     fig.tight_layout(); fig.savefig(fn, dpi=90); plt.close(fig)
     print(f"saved {fn}  | fires: {fired}")
     return str(fn)
