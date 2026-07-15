@@ -75,6 +75,12 @@ existed. **So "enter earlier" is real, and its lever is the RS/slope timing (#1)
 | base 0094 | 1.132 | 24.7% | −42.4% | — |
 | **tp_on_high** (book +2R half on intraweek HIGH, resting limit) | 0.709 | 13.3% | −49.7% | **REJECT** — fixes TRIVENI (−1.0→+1.2R) per-trade but truncates the runners; classic per-trade≠portfolio |
 | **drop_rs** (let the RS-blocked earlier touches fire) | 1.095 | 23.8% | −38.9% | **~NEUTRAL** — RS gate does little; ~flat return, 3.5pp shallower DD, but win 59→53% (admits weaker signals). NOT the CAGR boost the stories implied |
+| **first_touch** (keep the first fire of a run, skip the later blow-off) | 0.863 | 17.8% | −39.5% | **REJECT** — −0.27 Sharpe / −6.9pp CAGR; the later "blow-off" fire is often the momentum winner, so skipping it removes runners |
+
+**Consistent verdict across all 3 levers:** the AI-found patterns (false-touch blow-off, RS-lag, giveback)
+are genuinely present *per trade*, but every fix trades **return for drawdown** — the extended/blow-off
+entries and the fat-tail runners are the **same trades**. drop_rs is the only ~neutral one (better DD,
+flat return). This reproduces, from a fresh bottom-up loser forensic, the per-trade≠portfolio wall.
 
 Still open (next loop pass): a **targeted first-touch preference** (the 4 cases — TATASPONGE, TRENT,
 TRIVENI, TIMKEN26 — where the earlier fire PASSED all gates but the harness funded a later blow-off; a

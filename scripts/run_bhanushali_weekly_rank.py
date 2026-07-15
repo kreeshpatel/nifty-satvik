@@ -40,7 +40,8 @@ from run_bhanushali_weekly_full import CAP_WEEKS  # noqa: E402
 SLOPE_MIN, SLOPE_LOOKBACK, TOUCH_BAND, CRS_LEN = 0.03, 13, 0.07, 40   # the live 0093-N50 params (frozen)
 
 
-def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, drop_rs: bool = False):
+def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, drop_rs: bool = False,
+                     first_touch: bool = False):
     """The live 0093+Nifty-50 prep, with each entry window carrying its CRS-distance rank.
 
     index_provider (pre-reg 0096): optional callable(ticker) -> pd.Series to override the CRS
@@ -82,8 +83,13 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
         wsig = (slope >= SLOPE_MIN) & qgreen & touch & (wclose > wsma) & _rs_term
         s["weekend"] = {dd[-1] for dd in weeks}
         s["entry_win"] = {}
-        for k in np.flatnonzero(np.nan_to_num(wsig, nan=False)):
+        _wsflag = np.nan_to_num(wsig, nan=False)
+        for k in np.flatnonzero(_wsflag):
             if k + 1 >= len(weeks):
+                continue
+            # forensic lever: first-touch — if the prior 1-2 weeks also fired, this is a LATER fire up the
+            # same leg (the blow-off); keep only the FIRST fire of a consecutive run. Off => byte-identical.
+            if first_touch and ((k >= 1 and _wsflag[k - 1]) or (k >= 2 and _wsflag[k - 2])):
                 continue
             edays = weeks[k + 1]
             s["entry_win"][edays[0]] = (edays, float(wlow[k]), float(whigh[k]), float(crs_dist[k]))
