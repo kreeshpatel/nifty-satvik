@@ -40,7 +40,7 @@ from run_bhanushali_weekly_full import CAP_WEEKS  # noqa: E402
 SLOPE_MIN, SLOPE_LOOKBACK, TOUCH_BAND, CRS_LEN = 0.03, 13, 0.07, 40   # the live 0093-N50 params (frozen)
 
 
-def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None):
+def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, drop_rs: bool = False):
     """The live 0093+Nifty-50 prep, with each entry window carrying its CRS-distance rank.
 
     index_provider (pre-reg 0096): optional callable(ticker) -> pd.Series to override the CRS
@@ -76,7 +76,10 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None):
         rs = np.where(iw > 0, wclose / iw, np.nan)
         rs_sma = pd.Series(rs).rolling(CRS_LEN).mean().to_numpy()
         crs_dist = rs / rs_sma - 1.0                                    # the FROZEN rank
-        wsig = (slope >= SLOPE_MIN) & qgreen & touch & (wclose > wsma) & np.nan_to_num(rs > rs_sma, nan=False)
+        # forensic lever 1: the RS>SMA40(RS) gate blocks the earlier clean near-SMA touch and only clears
+        # on the blow-off week; drop_rs lets those earlier touches fire (crs_dist still ranks the fills).
+        _rs_term = np.ones(len(rs), bool) if drop_rs else np.nan_to_num(rs > rs_sma, nan=False)
+        wsig = (slope >= SLOPE_MIN) & qgreen & touch & (wclose > wsma) & _rs_term
         s["weekend"] = {dd[-1] for dd in weeks}
         s["entry_win"] = {}
         for k in np.flatnonzero(np.nan_to_num(wsig, nan=False)):
@@ -124,7 +127,8 @@ def grade_a_entries(P, top_n: int = 5) -> set:
 def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              start: str | None = None, return_state: bool = False,
              vol_target: tuple | None = None, eq0: float | None = None,
-             uncapped: bool = False, a_grade: set | None = None):
+             uncapped: bool = False, a_grade: set | None = None,
+             tp_on_high: bool = False):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
@@ -181,6 +185,18 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                         ledger.append(p["rec"])
                     del op[t]
                     continue
+            # forensic lever 2b: book the +2R half at a RESTING LIMIT the day the intraweek HIGH crosses
+            # 2R (not the weekly close), capturing gains that spike through 2R then close below (e.g.
+            # TRIVENI H512 vs target 495). Off (tp_on_high=False) => byte-identical.
+            if tp_on_high and p["pending"] is None and not p["half_done"] and s["h"][i] >= p["tp2"]:
+                px = p["tp2"]
+                half = p["sh0"] * 0.5; hp = half * px
+                got = hp * (1 - _cost_leg(p["adv"], hp, cost_off))
+                cash += got; p["proceeds"] += got
+                p["sh"] -= half; p["half_done"] = True
+                p["stt"] += hp * STT_PCT
+                if "rec" in p:
+                    p["rec"].update(half_date=d, half_px=round(float(px), 2))
             if i in s["weekend"]:
                 p["weeks"] += 1
                 wc = s["c"][i]

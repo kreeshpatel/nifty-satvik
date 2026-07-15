@@ -69,6 +69,17 @@ always blocked by the RS-vs-own-SMA gate or the slope gate (occasionally the gre
 pullback bar). In the other half the name was chronically extended / in a downtrend and no clean pullback
 existed. **So "enter earlier" is real, and its lever is the RS/slope timing (#1), not a new filter.**
 
+## Phase D results (measured on the capped book, pinned, determinism-gated)
+| lever | Sharpe | CAGR | MaxDD | verdict |
+|---|--:|--:|--:|---|
+| base 0094 | 1.132 | 24.7% | −42.4% | — |
+| **tp_on_high** (book +2R half on intraweek HIGH, resting limit) | 0.709 | 13.3% | −49.7% | **REJECT** — fixes TRIVENI (−1.0→+1.2R) per-trade but truncates the runners; classic per-trade≠portfolio |
+| **drop_rs** (let the RS-blocked earlier touches fire) | 1.095 | 23.8% | −38.9% | **~NEUTRAL** — RS gate does little; ~flat return, 3.5pp shallower DD, but win 59→53% (admits weaker signals). NOT the CAGR boost the stories implied |
+
+Still open (next loop pass): a **targeted first-touch preference** (the 4 cases — TATASPONGE, TRENT,
+TRIVENI, TIMKEN26 — where the earlier fire PASSED all gates but the harness funded a later blow-off; a
+fill-order fix, distinct from drop_rs which also admits noise). Plus the **data-hygiene fix** (CSBBANK/DCAL).
+
 ## What this points to (for Phase D/E, measured — not adopted)
 1. **Earlier-entry / RS re-timing** (#1) — the biggest, most-cited lever. Measure fresh.
 2. **Earlier partial exit** (#2, the giveback fix) — measure 1.5R / faster-trail vs the 2R half.
