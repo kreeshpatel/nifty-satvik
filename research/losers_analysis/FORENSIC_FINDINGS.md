@@ -528,6 +528,31 @@ cuts too early) → banks givebacks near the peak; it's what makes 22-26 improve
 wk20_trail_pct`. The lock-in ratchet remains the cap-KEEPING alternative; the visual exit is the cap-REMOVING
 one (better per-trade, needs Phase-3 sizing for the capped Sharpe). Both route forward; owner picks at Phase 3.
 
+### UNBIASED EXIT MAP — 60 RANDOM trades (20 winners / 20 losers / 20 stops), 6 vision agents
+Owner: the hand-picked gallery was biased; random-sample instead. Seeded (RandomState 20260715) 20 GOOD +
+20 BAD(non-stop) + 20 STOP from the 255 ledger; 6 agents READ the marked charts and classified each exit.
+| category | exited EARLY (cut short) | exited LATE (gave back) | exit RIGHT / unavoidable |
+|---|--:|--:|--:|
+| Winners (20) | **9 (45%)** | 8 (40%) | 3 (15%) |
+| Losers (20) | 5 (25%) | **9 (45%)** | 6 (30%) |
+| Stop-outs (20) | — | — | **16 stop_ok (80%)** / 4 stop_late (20%) |
+
+**Priority-ordered exit problems (unbiased):**
+1. **Time cap cuts winners EARLY and manufactures losers** — 45% of winners severed mid-trend (SUVEN,
+   ALKYLAMINE, SIEMENS, JKCEMENT, PRAJIND ran multiples after), plus several "losers" are trades time-capped
+   at a small loss RIGHT BEFORE they broke out (TRENT +27% after, TIMKEN, BLS, SUDARSCHEM). → remove cap, trail 20-wk.
+2. **Blow-off giveback = the #1 LATE tell** — ~40% of winners + ~45% of losers topped on a post-2R blow-off bar
+   (long upper wick) then round-tripped (MAZDOCK, SWANENERGY, LINDEINDIA, INTELLECT, DELTACORP, TRIVENI). → blow-off exit after 2R.
+3. **Slow-bleed losers** (GULFOILLUB, MANPASAND, HFCL, PRSMJOHNSN, GODREJAGRO) → 20-week close-break exits cheaper (near breakeven).
+4. **Stops 80% irreducible** — gaps (JSL/AARTIIND COVID, ATGL-Hindenburg) + clean stops on weak ENTRIES; only
+   20% (ADANIPOWER/SUNDARMFIN/RPOWER/GSPL slow-bleeds) cuttable by the 20-wk trail-break.
+
+**CONCLUSION: the random sample VALIDATES the visually-derived exit (no cap + 20-week trail + blow-off-bar exit
+@~2.5R) — all 3 top problems are fixed by that one rule set, and the unbiased draw proves it wasn't
+cherry-picked.** Two of the four exit archetypes (early-cut winners, blow-off givebacks) are the bulk of the
+capture loss and both are fixed; slow-bleeds partly fixed; stops are the irreducible floor. Tool:
+`render_random_exit_gallery.py` (seeded, stratified). Phase-2 exit is now MAPPED and validated on random data.
+
 ## What this points to (for Phase D/E, measured — not adopted)
 1. **Earlier-entry / RS re-timing** (#1) — the biggest, most-cited lever. Measure fresh.
 2. **Earlier partial exit** (#2, the giveback fix) — measure 1.5R / faster-trail vs the 2R half.
