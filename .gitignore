@@ -148,3 +148,10 @@ results/signals_long_horizon.json
 # regenerable AI-forensic trade packets
 research/losers_analysis/packets/
 research/losers_analysis/exit_packets/
+
+# Swing research-loop artifacts — regenerable, too big for git. The .md records under
+# research/substrate/ ARE committed; the rendered chart galleries and the trade substrate
+# are rebuilt by scripts/build_substrate.py + scripts/render_{forensic,exit}_charts.py.
+/research/substrate/vision_charts/
+/research/substrate/exit_charts/
+/research/substrate/trades.parquet
