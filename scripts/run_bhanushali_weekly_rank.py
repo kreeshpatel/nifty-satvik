@@ -308,7 +308,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              risk_pct: float | None = None, max_positions: int = 0,
              entry_band: float | None = None, entry_strict: bool = False,
              ext_cap: float | None = None, ext_cap_touch_only: bool = False, fill_order: str = "crs",
-             exit_by_origin: dict | None = None):
+             exit_by_origin: dict | None = None, conv_score: dict | None = None):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
@@ -482,7 +482,10 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                 is_a = a_grade is None or (t, i) in a_grade
                 if is_a and (mem is None or ticker_in_index_on(t, dd, mem)):
                     days, lo, hi, rk, sma_sig, _org = s["entry_win"][i]
-                    orders[t] = {"days": set(days), "lo": lo, "hi": hi, "rank": rk, "sma": sma_sig, "origin": _org}
+                    orders[t] = {"days": set(days), "lo": lo, "hi": hi, "rank": rk, "sma": sma_sig, "origin": _org,
+                                 # L3 conviction fill-ranking: the candidate's score, looked up at ACTIVATION
+                                 # by (ticker, entry-window key) — i.e. from the completed signal week, PIT-safe.
+                                 "conv": (conv_score.get((t, i), 0.0) if conv_score else 0.0)}
                     activations += 1
             o_ = orders.get(t)
             if o_ is not None and i in o_["days"] and t not in op:
@@ -526,6 +529,11 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
         # ones. Trade SET is unchanged (no trades dropped); only order under the cap changes. 'crs' => identical.
         if fill_order == "near_sma":
             _key = lambda x: (orders[x[1]]["sma"] and x[3] / orders[x[1]]["sma"], x[1])   # ascending extension
+        elif fill_order == "conviction":
+            # L3: fund the highest-CONVICTION candidate first (a trained multi-feature score) instead of
+            # the strongest CRS. The book funds only ~2.6% of activated signals, so WHO gets the scarce
+            # cash is the dominant decision. Trade SET is unchanged (nothing added/dropped) — only order.
+            _key = lambda x: (-orders[x[1]].get("conv", 0.0), x[1])
         else:
             _key = lambda x: (-x[0], x[1])                                                # descending CRS distance
         _risk = RISK if risk_pct is None else risk_pct         # PHASE-3 sizing: per-trade risk (default 2%)

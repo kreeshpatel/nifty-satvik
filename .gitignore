@@ -155,3 +155,6 @@ research/losers_analysis/exit_packets/
 /research/substrate/vision_charts/
 /research/substrate/exit_charts/
 /research/substrate/trades.parquet
+
+# Monte-Carlo per-sim rows — regenerable (scripts/diag_random_selection.py)
+/research/substrate/random_selection_sims.csv
