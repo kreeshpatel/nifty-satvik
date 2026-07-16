@@ -48,7 +48,8 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                      trend_pullback: bool = False, tp_band: float = 0.05,
                      sr_breakout: bool = False, sr_len: int = 12, sr_test_band: float = 0.03,
                      sr_recent: int = 2, sr_pivot: bool = False, sr_piv_len: int = 14,
-                     sr_piv_band: float = 0.03, sr_piv_stop: float = 0.06):
+                     sr_piv_band: float = 0.03, sr_piv_stop: float = 0.06,
+                     zoo_origins: tuple = (), zoo_params: dict | None = None):
     """The live 0093+Nifty-50 prep, with each entry window carrying its CRS-distance rank.
 
     index_provider (pre-reg 0096): optional callable(ticker) -> pd.Series to override the CRS
@@ -71,6 +72,11 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
         o, h, l = s["o"], s["h"], s["l"]
         wopen = np.array([o[dd[0]] for dd in weeks]); whigh = np.array([h[dd].max() for dd in weeks])
         wlow = np.array([l[dd].min() for dd in weeks]); wclose = np.array([c[dd[-1]] for dd in weeks])
+        # weekly VOLUME (sum), aligned to the same ISO-week groups — read only by the zoo detectors
+        # (VCP/flag volume tests). Extra data; the frozen 0094 run never reads it => byte-identical.
+        _vraw = (ohlcv[t]["Volume"].reindex(pd.DatetimeIndex(s["dates"])).to_numpy(float)
+                 if "Volume" in ohlcv[t].columns else np.full(len(c), np.nan))
+        wvol = np.array([np.nansum(_vraw[dd]) for dd in weeks])
         wsma = pd.Series(wclose).rolling(44).mean().to_numpy()
         # weekly HLC + 20-WEEK SMA keyed by the weekend day — READ ONLY by the Phase-2 blow-off / 20wk-trail
         # exits (the visual exit forensic showed the giveback tell is a weekly blow-off bar closing in its lower
@@ -132,7 +138,7 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
         _stop_arr = wlow.astype(float).copy()
         _origin = np.where(np.nan_to_num(wsig, nan=False), 0, -1).astype(int)   # 0=touch, 1=box, 2=trend, 3=sr
         if box_breakout:
-            _bsig = np.zeros(len(wclose), bool)
+            _bsig = np.zeros(len(wclose), bool); _box_lo = np.full(len(wclose), np.nan)
             for _k in range(box_len, len(wclose)):
                 if not (np.nan_to_num(slope[_k], nan=-9) >= SLOPE_MIN):
                     continue
@@ -155,9 +161,12 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                     continue                                            # base did not hold above the SMA
                 if (np.nan_to_num(qgreen[_k], nan=False) and wclose[_k] > _bh
                         and _rs_term[_k] and np.nan_to_num(_base_ok[_k], nan=False)):
-                    _bsig[_k] = True; _stop_arr[_k] = _bl               # breakout — stop at the box low
-            # additive: a week already firing the touch signal keeps its own (tighter) stop
+                    _bsig[_k] = True; _box_lo[_k] = _bl                 # breakout — stop at the box low
+            # additive: a week already firing the touch signal keeps its own (tighter) stop.
+            # (Assign the box stop ONLY to NEW box weeks — writing _stop_arr in-loop corrupted the
+            #  stop of touch weeks that also met the box condition; masked-assign fixes that.)
             _new_box = _bsig & ~np.nan_to_num(wsig, nan=False)
+            _stop_arr[_new_box] = _box_lo[_new_box]
             wsig = np.nan_to_num(wsig, nan=False) | _new_box
             _origin[_new_box] = 1
         # PHASE-1 setup #3 — TREND CONTINUATION (owner's VBL case): a leader in a strong 44-SMA uptrend that
@@ -179,7 +188,7 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
         # box (#2 needs a tight range); this only needs a tested level + a clean break. Stop = the base low
         # under the resistance. off => byte-identical 0094.
         if sr_breakout:
-            _srsig = np.zeros(len(wclose), bool)
+            _srsig = np.zeros(len(wclose), bool); _sr_lo = np.full(len(wclose), np.nan)
             for _k in range(sr_len, len(wclose)):
                 if not (np.nan_to_num(slope[_k], nan=-9) >= SLOPE_MIN
                         and np.nan_to_num(qgreen[_k], nan=False) and _rs_term[_k]):
@@ -189,15 +198,16 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                 _sm = wsma[_k]
                 if (_tested >= 2 and wclose[_k - 1] <= _res and wclose[_k] > _res  # sat under, now breaks out
                         and _sm == _sm and wclose[_k] > _sm):                      # above the 44 (uptrend)
-                    _srsig[_k] = True; _stop_arr[_k] = wlow[_lo:_k].min()          # stop = base low
+                    _srsig[_k] = True; _sr_lo[_k] = wlow[_lo:_k].min()             # stop = base low
             _srsig = _srsig & ~np.nan_to_num(wsig, nan=False)
+            _stop_arr[_srsig] = _sr_lo[_srsig]                                     # only NEW weeks (don't corrupt touch stops)
             wsig = np.nan_to_num(wsig, nan=False) | _srsig
         # PHASE-1 setup #4b — PROPER pivot-based S/R breakout (chart-validated, replaces the crude trailing-high
         # version whose 33% stops were a mirage). A resistance LEVEL = >=2 PIVOT HIGHS clustered within
         # sr_piv_band of each other (price rejected there repeatedly); a green week closes above it in an
         # uptrend; stop = level*(1-sr_piv_stop) — just below the broken resistance (now support). off => identical.
         if sr_pivot:
-            _piv = np.zeros(len(whigh), bool)
+            _piv = np.zeros(len(whigh), bool); _sp_lo = np.full(len(wclose), np.nan)
             for _i in range(2, len(whigh) - 2):
                 if whigh[_i] >= whigh[_i - 2:_i + 3].max():
                     _piv[_i] = True
@@ -214,10 +224,25 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                 _sm = wsma[_k]
                 if (_near >= 2 and wclose[_k - 1] <= _lvl and wclose[_k] > _lvl
                         and _sm == _sm and wclose[_k] > _sm):
-                    _spsig[_k] = True; _stop_arr[_k] = _lvl * (1 - sr_piv_stop)   # tight stop below the level
+                    _spsig[_k] = True; _sp_lo[_k] = _lvl * (1 - sr_piv_stop)      # tight stop below the level
             _spsig = _spsig & ~np.nan_to_num(wsig, nan=False)
+            _stop_arr[_spsig] = _sp_lo[_spsig]                                    # only NEW weeks (don't corrupt touch stops)
             wsig = np.nan_to_num(wsig, nan=False) | _spsig
             _origin[_spsig] = 3
+        # PHASE-1 setups #5-9 — the TraderLion pattern zoo (VCP / flag / cup&handle / ascending base /
+        # double bottom). Pure detectors in nq.research.setups, wired here ADDITIVELY (each & ~wsig, so
+        # touch/box/trend/sr are never relabeled) with origins 4-8. zoo_origins=() (default) => off =>
+        # byte-identical 0094. Chart-validated before trust (scripts/render_chart.py).
+        if zoo_origins:
+            from nq.research import setups as _zoo
+            _zp = zoo_params or {}
+            for _org in zoo_origins:
+                _zsig, _zstop = _zoo.ZOO[_org][1](wopen, whigh, wlow, wclose, wvol, wsma, slope,
+                                                  _rs_term, **_zp.get(_org, {}))
+                _znew = np.nan_to_num(_zsig, nan=False) & ~np.nan_to_num(wsig, nan=False)
+                _stop_arr[_znew] = _zstop[_znew]
+                wsig = np.nan_to_num(wsig, nan=False) | _znew
+                _origin[_znew] = _org
         s["weekend"] = {dd[-1] for dd in weeks}
         s["entry_win"] = {}
         _wsflag = np.nan_to_num(wsig, nan=False)
@@ -282,7 +307,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              wk20_trail_pct: float | None = None,
              risk_pct: float | None = None, max_positions: int = 0,
              entry_band: float | None = None, entry_strict: bool = False,
-             ext_cap: float | None = None, ext_cap_touch_only: bool = False, fill_order: str = "crs"):
+             ext_cap: float | None = None, ext_cap_touch_only: bool = False, fill_order: str = "crs",
+             exit_by_origin: dict | None = None):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
@@ -374,6 +400,14 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
             if i in s["weekend"]:
                 p["weeks"] += 1
                 wc = s["c"][i]
+                # CONTEXT-ROUTER: resolve this position's exit params by its setup origin. Stage-3 showed
+                # each branch wants a different exit (touch -> P2 book+blowoff; box -> let-run). Absent key
+                # falls back to the global arg; exit_by_origin=None (default) => the global args exactly
+                # => byte-identical to the frozen run.
+                _eo = exit_by_origin.get(p.get("origin", 0)) if exit_by_origin else None
+                _blow = _eo.get("blowoff_arm_r", blowoff_arm_r) if _eo else blowoff_arm_r
+                _wk20p = _eo.get("wk20_trail_pct", wk20_trail_pct) if _eo else wk20_trail_pct
+                _ntc = _eo.get("no_time_cap", no_time_cap) if _eo else no_time_cap
                 # PHASE-2 exit lever: lock-in ratchet — once a trade's intraweek MFE reaches lockin_mfe R, raise
                 # the stop to lock in lockin_at R (attacks the giveback: trades peak at 2R+ then drift to the
                 # 13wk cap at ~1R). off (lockin_mfe=0) => no ratchet.
@@ -425,16 +459,16 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     _wH, _wL, _wC, _w20 = _wk
                     # blow-off: after MFE≥blowoff_arm_r, exit if this week made a NEW high but CLOSED in its lower
                     # third (long upper wick = momentum exhaustion — the tell on YESBANK/IOB/CENTURYPLY/QUESS).
-                    if (blowoff_arm_r and p["pending"] is None and _mfe_r >= blowoff_arm_r and (_wH - _wL) > 0
+                    if (_blow and p["pending"] is None and _mfe_r >= _blow and (_wH - _wL) > 0
                             and _wH >= p.get("pk_wh", 0.0) and (_wC - _wL) < blowoff_third * (_wH - _wL)):
                         p["pending"] = ("full", "blowoff" + ("_half" if p["half_done"] else ""))
                     p["pk_wh"] = max(p.get("pk_wh", 0.0), _wH)
                     # 20-WEEK trail (the correct reference the charts use): once up ≥2R, exit on a weekly CLOSE
                     # below the 20-week SMA × (1-pct). Slow enough to let the monsters run, catches the rollover.
-                    if (wk20_trail_pct is not None and p["pending"] is None and _mfe_r >= 2.0
-                            and _w20 == _w20 and _wC < _w20 * (1 - wk20_trail_pct)):
+                    if (_wk20p is not None and p["pending"] is None and _mfe_r >= 2.0
+                            and _w20 == _w20 and _wC < _w20 * (1 - _wk20p)):
                         p["pending"] = ("full", "wk20" + ("_half" if p["half_done"] else ""))
-                _cap = 52 if no_time_cap else (cap_weeks if cap_weeks > 0 else CAP_WEEKS)
+                _cap = 52 if _ntc else (cap_weeks if cap_weeks > 0 else CAP_WEEKS)
                 if p["pending"] is None and p["weeks"] >= _cap:
                     p["pending"] = ("full", "time")
         # ── activate windows, then fill candidates STRONGEST-CRS-FIRST (the 0094 change) ──
@@ -510,7 +544,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     cash -= notion
                     op[t] = dict(en=en, stop=st, risk0=en - st, tp2=en + 2 * (en - st), sh=sh, sh0=sh,
                                  weeks=0, adv=s["adv20"][i], half_done=False, trail=st, pending=None,
-                                 stt=sh * en * STT_PCT, cash_out=notion, proceeds=0.0)
+                                 stt=sh * en * STT_PCT, cash_out=notion, proceeds=0.0,
+                                 origin=int(o_.get("origin", 0)))   # CONTEXT-ROUTER: per-branch exit lookup
                     rp = sh * (en - st) / sizing_eq * 100      # risk as % of SIZING equity
                     assert _risk * 100 - 0.02 <= rp <= _risk * 100 + 0.02, f"sizing {rp:.3f}"
                     if ledger is not None:
