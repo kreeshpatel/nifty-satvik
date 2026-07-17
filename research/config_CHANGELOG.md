@@ -5,6 +5,32 @@ Format: date — model — what changed — why — evidence — reversal.
 
 ---
 
+## 2026-07-16 — weekly-swing (Bhanushali) — LIVE EXIT switched to config P (owner-override; product build Phase A)
+- **Model:** `weekly-swing-0094-rank-p2exit-disc` -> `weekly-swing-0094-rank-P`
+  (`models/bhanushali_weekly/config.json`; `P_EXIT` in `scripts/run_bhanushali_cron.py`).
+- **What changed (EXIT only; entry, stop, sizing unchanged):** the P2 trend exit (no-cap hold + blow-off
+  @2.5R + 20wk trail) is replaced by config P — a THREE-TRANCHE scaled exit: 40% @ +2R (intraweek limit),
+  40% on the blow-off exhaustion pattern (new-high week closing lower-third, armed +2.5R), 20% runner to a
+  weekly close below the 44-week SMA.
+- **Why:** owner decision to ship P and build the product (per-user memory, Research UI, guidance) around
+  it. P maximises the fat tail.
+- **Evidence (A-only book, in-sample):** full Sharpe 1.055 -> 1.227, CAGR 20.2 -> 27.2%, MaxDD -31.2 ->
+  -39.5%, max winner 16.7R -> 40.8R, trades 184 -> 130, **2022-26 gate 1.04 -> 0.91**.
+- **Honesty:** OWNER-OVERRIDE against the research recommendation. P fails the 2022-26 gate, runs a
+  -39.5% DD (against the owner's own drawdown priority), and is WORSE from a cold start than the prior LIVE
+  book (COLD_START_DIST.md: 1yr median +9% vs +17%). In-sample at trial 129; no DSR gate passes it. Adopted
+  for its amplified fat tail; the owner accepts the drawdown and regime risk.
+- **Cards:** now carry `pattern` (entry structure), `exit_plan` (the 3 tranches with price levels +
+  plain-English do-this), and `exit_stage` (which tranches have booked). Held-card exit messages are
+  P-aware (pattern / sma_break / stop).
+- **Guards:** frozen 0094 research run byte-identical 1.132/255 (`backtest()` defaults OFF);
+  `test_stage2_golden` 3 passed; cron smoke-tested offline (exit 0, held cards carry exit_stage).
+- **Reversal:** swap `**P_EXIT` -> `**P2_EXIT` at the two `backtest()` call sites and revert `model_version`.
+- **Refs:** ADR `docs/decisions/0010-swing-config-P.md`; `research/substrate/FINDING_pattern_exit.md`;
+  `research/substrate/COLD_START_DIST.md`.
+
+---
+
 ## 2026-07-16 — weekly-swing (Bhanushali) — DISCIPLINE config added (owner-override on risk appetite)
 - **Model:** `weekly-swing-0094-rank-p2exit` → `weekly-swing-0094-rank-p2exit-disc`
   (`models/bhanushali_weekly/config.json`; `LIVE_DISCIPLINE` in `scripts/run_bhanushali_cron.py`).
