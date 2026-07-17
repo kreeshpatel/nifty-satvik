@@ -167,7 +167,13 @@ def main():
             pool = pool.iloc[rng.choice(len(pool), n, replace=False)]
         return pool.assign(bucket=lab)
 
-    loss = t[t.R < 0]; stop = t[t.reason.astype(str).str.startswith("stop")]; good = t[t.R >= 2]
+    # DISJOINT buckets (owner 2026-07-16: "AEGISLOG is written twice in loss random and stopped random").
+    # Overlapping buckets waste review time — the same chart opens twice — and they hid a real bucket:
+    # losers that did NOT stop out (they bled away via the trail/blow-off/time). Those are a different
+    # failure and worth their own eyes. So: STOPPED = stopped out; LOSS = lost WITHOUT stopping.
+    stop = t[t.reason.astype(str).str.startswith("stop")]
+    loss = t[(t.R < 0) & (~t.index.isin(stop.index))]
+    good = t[t.R >= 2]
     # MATCHED CONTROL — mandatory. A loser-only list is defined BY outcome, so every entry in it looks
     # bad and the reader infers the entry style is the cause (EXT_IS_THE_ENGINE.md: this is exactly how
     # the "we buy too high" false inference was manufactured). Ship winners that LOOK like the losers —
@@ -175,17 +181,21 @@ def main():
     # The threshold is DERIVED from the losers, never hardcoded: a fixed ">=20%" silently returns an
     # EMPTY control on any book that caps extension (e.g. the spec book's ext_cap=0.20), which would
     # quietly reintroduce the very bias this bucket exists to prevent.
-    ext_thr = float(loss.ext_vs_sma.median())
-    hi_ext = t[(t.R >= 2) & (t.ext_vs_sma >= ext_thr)]
-    print(f"pools -> losses {len(loss)} | stopped {len(stop)} | good R>=2 {len(good)} | "
-          f"WINNERS at >= the losers' median ext ({ext_thr:.1f}%): {len(hi_ext)}")
+    ext_thr = float(pd.concat([loss, stop]).ext_vs_sma.median())
+    print(f"pools -> losses-that-did-NOT-stop {len(loss)} | stopped {len(stop)} | good R>=2 {len(good)}")
+    b1 = take(loss, 30, "LOSS_NO_STOP"); b2 = take(stop, 30, "STOPPED_RANDOM")
+    b3 = take(good, 20, "GOOD_RANDOM")
+    # The matched control is drawn from winners NOT already sampled above, at or beyond the LOSERS' own
+    # median extension — a threshold derived from the data, never hardcoded (a fixed ">=20%" silently
+    # empties on any book that caps extension, reintroducing the loser-only bias this bucket prevents).
+    hi_ext = good[(good.ext_vs_sma >= ext_thr) & (~good.index.isin(b3.index))]
+    print(f"matched control: winners at >= the losers' median ext ({ext_thr:.1f}%), not already sampled: {len(hi_ext)}")
     assert len(hi_ext) >= 5, f"matched control too thin ({len(hi_ext)}) — do NOT ship a loser-only list"
-    b1 = take(loss, 30, "LOSS_RANDOM"); b2 = take(stop, 30, "STOPPED_RANDOM"); b3 = take(good, 20, "GOOD_RANDOM")
     b4 = take(hi_ext, 15, "WINNER_MATCHED")
-    ov = len(set(b1.index) & set(b2.index))
-    print(f"overlap LOSS n STOPPED: {ov} trades appear in both buckets (expected — most stops are losses)")
+    allb = pd.concat([b1, b2, b3, b4])
+    assert not allb.index.duplicated().any(), "buckets must be DISJOINT — no chart reviewed twice"
 
-    allx = pd.concat([b1, b2, b3, b4])
+    allx = allb
     for c in ("signal_week", "entry_date", "exit_date"):
         allx[c] = pd.to_datetime(allx[c]).dt.strftime("%Y-%m-%d")
     allx = allx[COLS].round(2)

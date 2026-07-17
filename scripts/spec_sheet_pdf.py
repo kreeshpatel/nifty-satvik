@@ -164,7 +164,7 @@ def build_pdf(path, m, n_trades, sample, book, ext_thr):
     # 6 — the CSV
     F += [Paragraph("6 · The trade list (tv_review_80.csv)", st["h2"]),
           P("<b>Random</b> samples — deliberately not the extremes, so you see the typical case. "
-            "Buckets can overlap (most stops are losses).")]
+            "Buckets are <b>disjoint</b> — no chart appears twice.")]
     F += [P("<b>Read WINNER_MATCHED alongside the losers — it is there to stop a specific mistake.</b> "
             "A loser list is defined <i>by outcome</i>, so every entry in it looks bad, and it is very easy "
             "to conclude the entry style caused the loss. WINNER_HIGH_EXT holds <b>winners with the same "
@@ -172,7 +172,8 @@ def build_pdf(path, m, n_trades, sample, book, ext_thr):
             "damning, find the winner that looks identical before concluding anything.")]
     prof = [["Bucket", "n", "Definition", "mean %move", "meanR", "mean MFE"]]
     for b, g in sample.groupby("bucket", sort=False):
-        defn = {"LOSS_RANDOM": "R &lt; 0", "STOPPED_RANDOM": "exited via the stop",
+        defn = {"LOSS_NO_STOP": "R &lt; 0 <b>and did NOT stop out</b> — bled away via trail / blow-off / time",
+                "STOPPED_RANDOM": "exited via the stop",
                 "GOOD_RANDOM": "R &ge; 2",
                 "WINNER_MATCHED": f"R &ge; 2 <b>and</b> entry &ge;{ext_thr:.1f}% above the SMA "
                                   f"(the losers' median) — <b>the matched control</b>"}.get(b, "")
