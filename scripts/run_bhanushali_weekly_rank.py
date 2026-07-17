@@ -530,6 +530,20 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     p["half_done"] = True                       # informational (cards/ledger)
                     if "rec" in p and _tag == "t1_done":
                         p["rec"].update(half_date=d, half_px=round(float(_lvl), 2))
+                # OWNER 2026-07-16: runner_cap_r — a profit cap on the remaining runner. Once the
+                # intraweek high reaches runner_cap_r x R (e.g. 6R), book ALL remaining shares at that
+                # level (resting limit). Caps the lottery-ticket runner so a monster is banked, not given
+                # back. Absent key => 0.0 => no cap (runner rides to the SMA break). Runs AFTER the
+                # tp1/tp2 tranches so it only ever touches frac_left.
+                _cap_r = scaled_exit.get("runner_cap_r", 0.0)
+                if _cap_r and p["pending"] is None and p["frac_left"] > 1e-9 and p["sh"] > 0:
+                    _clvl = p["en"] + _cap_r * p["risk0"]
+                    if s["h"][i] >= _clvl:
+                        _xp = p["sh"] * _clvl
+                        _got = _xp * (1 - _cost_leg(p["adv"], _xp, cost_off))
+                        cash += _got; p["proceeds"] += _got; p["stt"] += _xp * STT_PCT
+                        p["realized_r"] += p["frac_left"] * _cap_r
+                        p["frac_left"] = 0.0; p["sh"] = 0.0
                 if p["frac_left"] <= 1e-9 or p["sh"] <= 0:      # fully out on targets alone
                     T.append(dict(R=p["realized_r"], reason="targets", held=p["weeks"], half=True))
                     if "rec" in p:
@@ -545,11 +559,16 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                 wc = s["c"][i]
                 if scaled_exit:
                     # only two weekly decisions remain: the hard stop, and the runner's SMA break.
+                    # OWNER 2026-07-16: runner_sma_buffer lets the runner ride THROUGH SMA touches — exit
+                    # only on a weekly close below wsma*(1-buffer), e.g. 15% below the 44w SMA. The last
+                    # 70/30 test bled because the runner sold AT the SMA (~14% below entry); a buffer keeps
+                    # it in until a real breakdown. Absent key => 0.0 => the original at-SMA break.
+                    _buf = scaled_exit.get("runner_sma_buffer", 0.0)
                     if wc <= p["stop"]:
                         p["pending"] = ("full", "stop" + ("_part" if p["t1_done"] else ""))
                     else:
                         _sm = s.get("wsma_at", {}).get(i, float("nan"))
-                        if _sm == _sm and wc < _sm:
+                        if _sm == _sm and wc < _sm * (1.0 - _buf):
                             p["pending"] = ("full", "sma_break")
                     continue
                 # CONTEXT-ROUTER: resolve this position's exit params by its setup origin. Stage-3 showed
