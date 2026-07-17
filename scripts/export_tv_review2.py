@@ -131,12 +131,19 @@ def main():
         return pool.assign(bucket=lab)
 
     loss = t[t.R < 0]; stop = t[t.reason.astype(str).str.startswith("stop")]; good = t[t.R >= 2]
-    print(f"pools -> losses {len(loss)} | stopped {len(stop)} | good R>=2 {len(good)}")
+    # MATCHED CONTROL — mandatory. A loser-only list is defined BY outcome, so every entry in it looks
+    # bad and the reader infers the entry style is the cause (EXT_IS_THE_ENGINE.md: this is exactly how
+    # the "we buy too high" false inference was manufactured). Ship winners that LOOK like the losers —
+    # same high-extension, big-candle profile — so entry style can be judged against a real control.
+    hi_ext = t[(t.R >= 2) & (t.ext_vs_sma >= 20)]
+    print(f"pools -> losses {len(loss)} | stopped {len(stop)} | good R>=2 {len(good)} | "
+          f"WINNERS at >=20% ext {len(hi_ext)}")
     b1 = take(loss, 30, "LOSS_RANDOM"); b2 = take(stop, 30, "STOPPED_RANDOM"); b3 = take(good, 20, "GOOD_RANDOM")
+    b4 = take(hi_ext, 15, "WINNER_HIGH_EXT")
     ov = len(set(b1.index) & set(b2.index))
     print(f"overlap LOSS n STOPPED: {ov} trades appear in both buckets (expected — most stops are losses)")
 
-    allx = pd.concat([b1, b2, b3])
+    allx = pd.concat([b1, b2, b3, b4])
     for c in ("signal_week", "entry_date", "exit_date"):
         allx[c] = pd.to_datetime(allx[c]).dt.strftime("%Y-%m-%d")
     allx = allx[COLS].round(2)

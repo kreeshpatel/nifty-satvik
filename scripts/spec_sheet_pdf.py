@@ -164,12 +164,18 @@ def build_pdf(path, m, n_trades, sample):
 
     # 6 — the CSV
     F += [Paragraph("6 · The trade list (tv_review_80.csv)", st["h2"]),
-          P("Three <b>random</b> samples — deliberately not the extremes, so you see the typical case. "
+          P("<b>Random</b> samples — deliberately not the extremes, so you see the typical case. "
             "Buckets can overlap (most stops are losses).")]
+    F += [P("<b>Read WINNER_HIGH_EXT alongside the losers — it is there to stop a specific mistake.</b> "
+            "A loser list is defined <i>by outcome</i>, so every entry in it looks bad, and it is very easy "
+            "to conclude the entry style caused the loss. WINNER_HIGH_EXT holds <b>winners with the same "
+            "profile</b> — entered &ge;20% above the 44w SMA, off a big candle. If a loser's chart looks "
+            "damning, find the winner that looks identical before concluding anything.")]
     prof = [["Bucket", "n", "Definition", "mean %move", "meanR", "mean MFE"]]
     for b, g in sample.groupby("bucket", sort=False):
         defn = {"LOSS_RANDOM": "R &lt; 0", "STOPPED_RANDOM": "exited via the stop",
-                "GOOD_RANDOM": "R &ge; 2"}.get(b, "")
+                "GOOD_RANDOM": "R &ge; 2",
+                "WINNER_HIGH_EXT": "R &ge; 2 <b>and</b> entry &ge;20% above the SMA — the matched control"}.get(b, "")
         prof.append([b, len(g), defn, f"{g.pct_move.mean():+.1f}%", f"{g.R.mean():+.2f}",
                      f"{g.mfe_pct.mean():+.1f}%"])
     F += [_table(prof, [32 * mm, 8 * mm, 34 * mm, 22 * mm, 16 * mm, 20 * mm], st)]
@@ -212,6 +218,11 @@ def build_pdf(path, m, n_trades, sample):
         ["Only small candles (&le;5%, solid body)", "0.37", "Candle size doesn't predict the average "
          "return (&rho;=−0.02) but it strongly predicts the <b>excursion</b> (&rho;=+0.11; MFE 15% vs 27%). "
          "Small candles win more often (60%) and go nowhere. <b>R and reward are the same variable.</b>"],
+        ["Cap the entry extension / don't buy far above the SMA", "1.29 &rarr; 0.47", "<b>Extension IS "
+         "relative strength</b> — high-RS names are extended <i>because</i> of the strength that makes "
+         "them win. On the traded book the 15-25% and &gt;25% extension buckets contribute <b>69% of all "
+         "R</b>; Spearman(ext, R) = −0.09. Filtering them pushes CRS below its own pool's random mean. "
+         "Killed in 5 forms: near_sma, ext_cap, pool-filter, stratified-CRS, bucket-prior."],
         ["RSI-oversold filter", "killed 3×", "The indicator <i>subtracts</i> from the dip setup."],
         ["Grade-A only (top-5 CRS/week)", "1.17 vs 1.29", "A defensive variant, not a return edge."],
         ["The whole indicator zoo at this horizon", "IC ≈ 0", "RSI / MACD / Stochastic / Williams / CCI / "
