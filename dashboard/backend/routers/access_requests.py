@@ -159,7 +159,7 @@ async def approve_access_request(
     and marks the request as approved.
     """
     from audit import log_event
-    from auth import pwd_context
+    from auth import pwd_context, validate_password_strength
 
     req = db.query(AccessRequest).filter(AccessRequest.id == request_id).first()
     if not req:
@@ -170,8 +170,12 @@ async def approve_access_request(
     if existing:
         raise HTTPException(status_code=409, detail=f"A user with email {req.email} already exists")
 
-    if not body.password or len(body.password) < 6:
-        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    # Enforce the SAME complexity bar as the self-serve reset path (auth.validate_password_strength):
+    # 12+ chars, 3-of-4 character classes, breach/blocklist check. Previously this admin-facing intake
+    # path only required len >= 6, making the route that creates real subscribers weaker than reset.
+    if not body.password:
+        raise HTTPException(status_code=400, detail="Password is required.")
+    validate_password_strength(body.password, email=req.email)
 
     # Create the user
     new_user = User(

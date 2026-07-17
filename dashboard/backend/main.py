@@ -124,10 +124,16 @@ extra_origin = os.environ.get("ALLOWED_ORIGIN", "")
 if extra_origin:
     ALLOWED_ORIGINS.extend([o.strip() for o in extra_origin.split(",") if o.strip()])
 
-# Allow any Vercel deployment of this project (production, preview, branch URLs).
-# Matches: niftyquant.vercel.app, niftyquant-git-*.vercel.app,
-# niftyquant-*-kreeshpatels-projects.vercel.app, etc.
-ALLOWED_ORIGIN_REGEX = r"https://([a-z0-9-]+\.)*vercel\.app"
+# Allow THIS project's Vercel preview/branch deployments only. Tightened from an open
+# `*.vercel.app` wildcard (r"https://([a-z0-9-]+\.)*vercel\.app"), which permitted ANY Vercel
+# site — including an attacker-deployed one — as a browser origin. Preview URLs carry both the
+# `niftyquant` project prefix AND the `kreeshpatels-projects` team slug; an attacker cannot
+# create a project under someone else's team scope, so the slug is the un-forgeable anchor.
+# Production `niftyquant.vercel.app` is in ALLOWED_ORIGINS above; any custom domain or bare-format
+# preview URL is added at deploy time via the ALLOWED_ORIGIN env var (handled above).
+# Matches e.g.: niftyquant-git-main-kreeshpatels-projects.vercel.app,
+#               niftyquant-abc123-kreeshpatels-projects.vercel.app
+ALLOWED_ORIGIN_REGEX = r"https://niftyquant-[a-z0-9-]+-kreeshpatels-projects\.vercel\.app$"
 
 app.add_middleware(
     CORSMiddleware,

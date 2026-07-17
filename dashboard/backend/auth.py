@@ -633,30 +633,44 @@ def _verify_totp_code(secret: str, code: str) -> bool:
 
 def _send_password_reset_email(email: str, reset_url: str) -> None:
     """
-    Send a password-reset email. Falls back to logging the URL when no
-    transactional-email service is configured (current state). When SMTP/
-    SES/Resend is wired up later, swap this implementation only.
+    Send a password-reset email. Falls back to logging ONLY that a reset was
+    requested when no transactional-email service is configured (current state).
+    When SMTP/SES/Resend is wired up later, swap this implementation only.
 
-    Logging the URL is not a security regression in our current setup
-    because Render server logs are admin-only, and the alternative would
-    be silently dropping the request — which is worse UX. The audit log
-    captures the request itself with the user_id + IP regardless.
+    The full reset URL embeds a live ~30-minute account-takeover token, so it is
+    NOT written to logs by default — host logs (Fly) are not a safe place for a
+    live credential, and anyone with log access would hold a takeover link. For
+    the manual bootstrap workflow (operator DMs the link to the user), set
+    LOG_RESET_URLS=1 to opt into logging the URL — dev/operator use only. The
+    audit log records the request (user_id + IP) regardless.
     """
+    log_url = os.getenv("LOG_RESET_URLS", "").strip().lower() in ("1", "true", "yes")
     smtp_host = os.getenv("SMTP_HOST", "")
     if not smtp_host:
-        logger.warning(
-            "Password reset requested for %s but no SMTP_HOST configured. "
-            "Reset URL (admin must DM to user manually): %s",
-            email, reset_url,
-        )
+        if log_url:
+            logger.warning(
+                "Password reset for %s — no SMTP_HOST; reset URL (LOG_RESET_URLS on, DM manually): %s",
+                email, reset_url,
+            )
+        else:
+            logger.warning(
+                "Password reset requested for %s but no SMTP_HOST configured; URL withheld from logs "
+                "(set LOG_RESET_URLS=1 for manual delivery).", email,
+            )
         return
     # Stub for future SMTP integration — intentionally not implemented now.
     # When wiring this up, use smtplib.SMTP_SSL with SMTP_HOST/PORT/USER/
     # PASSWORD env vars and a from-address of FROM_EMAIL.
-    logger.warning(
-        "SMTP_HOST is set but the email-send path isn't implemented yet. "
-        "Falling back to log-only for %s — URL: %s", email, reset_url,
-    )
+    if log_url:
+        logger.warning(
+            "SMTP_HOST set but the email-send path isn't implemented yet; log-only for %s — URL: %s",
+            email, reset_url,
+        )
+    else:
+        logger.warning(
+            "SMTP_HOST set but the email-send path isn't implemented yet; reset requested for %s "
+            "(URL withheld from logs; set LOG_RESET_URLS=1 for manual delivery).", email,
+        )
 
 
 class ForgotPasswordRequest(BaseModel):
