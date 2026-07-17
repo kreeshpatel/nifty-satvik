@@ -275,6 +275,11 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                 wsig = np.nan_to_num(wsig, nan=False) | _znew
                 _origin[_znew] = _org
         s["weekend"] = {dd[-1] for dd in weeks}
+        # WEEKLY ATR(10) in PRICE units — read only by the `stop_atr_mult` lever (owner spec 2026-07-16).
+        # Measured: weekly ATR median = 7.83% of price, so 1.0x ~= today's 7.1% median stop width. (The
+        # repo's "2.5x/4x ATR" results are DAILY-ATR multiples; daily ATR ~3.5%, so they do NOT transfer.)
+        _watr = pd.Series(whigh - wlow).rolling(10).mean().to_numpy()
+        s["atr_at"] = {}
         s["entry_win"] = {}
         _wsflag = np.nan_to_num(wsig, nan=False)
         for k in np.flatnonzero(_wsflag):
@@ -287,6 +292,7 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
             edays = weeks[k + 1]
             s["entry_win"][edays[0]] = (edays, float(_stop_arr[k]), float(whigh[k]), float(crs_dist[k]),
                                         float(wsma[k]) if wsma[k] == wsma[k] else float(_stop_arr[k]), int(_origin[k]))
+            s["atr_at"][edays[0]] = float(_watr[k]) if _watr[k] == _watr[k] else float("nan")
         # LIVE actionable signal (latest COMPLETED week) + its rank — read only by the paper runner.
         # Completeness guard (fault F7): only ever surface a card from a COMPLETED weekly bar, never a
         # partial week the backtest doesn't score. weekday()>=4 = Friday or a Saturday NSE session.
@@ -340,7 +346,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              entry_band: float | None = None, entry_strict: bool = False,
              ext_cap: float | None = None, ext_cap_touch_only: bool = False, fill_order: str = "crs",
              exit_by_origin: dict | None = None, conv_score: dict | None = None,
-             ext_floor: float | None = None, entry_mode: str = "in_range"):
+             ext_floor: float | None = None, entry_mode: str = "in_range",
+             stop_atr_mult: float | None = None):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
@@ -515,6 +522,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                 if is_a and (mem is None or ticker_in_index_on(t, dd, mem)):
                     days, lo, hi, rk, sma_sig, _org = s["entry_win"][i]
                     orders[t] = {"days": set(days), "lo": lo, "hi": hi, "rank": rk, "sma": sma_sig, "origin": _org,
+                                 "atr": s.get("atr_at", {}).get(i, float("nan")),   # weekly ATR at the signal week
                                  # L3 conviction fill-ranking: the candidate's score, looked up at ACTIVATION
                                  # by (ticker, entry-window key) — i.e. from the completed signal week, PIT-safe.
                                  "conv": (conv_score.get((t, i), 0.0) if conv_score else 0.0)}
@@ -603,6 +611,15 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                 break
             s = P[t]
             en = opn; st = o_["lo"]
+            # OWNER SPEC 2026-07-16 — ATR stop. The taught buy-stop (entry at the signal HIGH, stop at the
+            # signal LOW) makes the WHOLE candle the risk (~12.8%), which is precisely why pre-reg 0088
+            # died: position size halves and the R-multiple collapses. stop_atr_mult replaces the candle
+            # low with entry - mult x weekly ATR, so the risk width is preserved (1.0x ~= 7.8% ~= today's
+            # 7.1%) and 0088's failure cause is neutralised. None => the taught low => byte-identical.
+            if stop_atr_mult:
+                _atr = o_.get("atr", float("nan"))
+                if _atr == _atr and _atr > 0:
+                    st = en - stop_atr_mult * _atr
             if en > st:
                 sh = sizing_eq * _risk / (en - st)
                 notion = sh * en * (1 + _cost_leg(s["adv20"][i], sh * en, cost_off))
