@@ -424,6 +424,22 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     p["stt"] += hp * STT_PCT; p["pending"] = None
                     if "rec" in p:
                         p["rec"].update(half_date=d, half_px=round(float(px), 2))
+                elif act == "part":
+                    # OWNER 2026-07-16 scaled PATTERN tranche: book a FRACTION at next Monday open (a
+                    # weekly-close decision, e.g. a blow-off exhaustion bar), realize its R at the actual
+                    # fill, and KEEP the position open for the remaining runner. Partial-exit sibling of
+                    # the intraweek tp1/tp2 tranches; only fires when scaled_exit carries pattern_frac.
+                    _pf = p.pop("pending_frac", 0.0)
+                    _shx = min(p["sh0"] * _pf, p["sh"])
+                    if _shx > 0:
+                        _xp = _shx * px
+                        _got = _xp * (1 - _cost_leg(p["adv"], _xp, cost_off))
+                        cash += _got; p["proceeds"] += _got; p["stt"] += _xp * STT_PCT
+                        p["sh"] -= _shx
+                        p["realized_r"] += _pf * (px - p["en"]) / p["risk0"]
+                        p["frac_left"] = max(p["frac_left"] - _pf, 0.0)
+                        p["half_done"] = True
+                    p["pending"] = None
                 else:
                     xp = p["sh"] * px
                     got = xp * (1 - _cost_leg(p["adv"], xp, cost_off))
@@ -558,18 +574,34 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                 p["weeks"] += 1
                 wc = s["c"][i]
                 if scaled_exit:
-                    # only two weekly decisions remain: the hard stop, and the runner's SMA break.
+                    # Weekly decisions for the scaled book: hard stop, the PATTERN tranche (blow-off
+                    # exhaustion), and the runner's SMA break.
                     # OWNER 2026-07-16: runner_sma_buffer lets the runner ride THROUGH SMA touches — exit
-                    # only on a weekly close below wsma*(1-buffer), e.g. 15% below the 44w SMA. The last
-                    # 70/30 test bled because the runner sold AT the SMA (~14% below entry); a buffer keeps
-                    # it in until a real breakdown. Absent key => 0.0 => the original at-SMA break.
+                    # only on a weekly close below wsma*(1-buffer). Absent key => 0.0 => at-SMA break.
+                    # OWNER 2026-07-16: pattern_frac books a middle tranche on the BLOW-OFF pattern (a new
+                    # high closing in its lower third once MFE>=pattern_arm_r — the validated topping tell,
+                    # the one 'pattern' with exit value here; the zoo entry detectors are IC~0, 0079). So a
+                    # 40/40/20 book = 40% @2R (intraweek tp1) + 40% on the blow-off pattern + 20% runner to
+                    # the 44w SMA. Absent key => 0.0 => no pattern tranche.
                     _buf = scaled_exit.get("runner_sma_buffer", 0.0)
+                    _pf = scaled_exit.get("pattern_frac", 0.0)
+                    _parm = scaled_exit.get("pattern_arm_r", 2.5)
+                    _third = scaled_exit.get("pattern_third", 0.34)
+                    p["pk"] = max(p.get("pk", p["en"]), s["h"][i])
+                    _mfe_r = (p["pk"] - p["en"]) / p["risk0"] if p["risk0"] > 0 else 0.0
+                    _wk = s.get("wk_hlc", {}).get(i)
                     if wc <= p["stop"]:
-                        p["pending"] = ("full", "stop" + ("_part" if p["t1_done"] else ""))
+                        p["pending"] = ("full", "stop" + ("_part" if p["t1_done"] or p.get("pt_done") else ""))
+                    elif (_pf and not p.get("pt_done") and _wk is not None and _mfe_r >= _parm
+                          and (_wk[0] - _wk[1]) > 0 and _wk[0] >= p.get("pk_wh", 0.0)
+                          and (_wk[2] - _wk[1]) < _third * (_wk[0] - _wk[1])):
+                        p["pending"] = ("part", "pattern"); p["pending_frac"] = _pf; p["pt_done"] = True
                     else:
                         _sm = s.get("wsma_at", {}).get(i, float("nan"))
                         if _sm == _sm and wc < _sm * (1.0 - _buf):
                             p["pending"] = ("full", "sma_break")
+                    if _wk is not None:
+                        p["pk_wh"] = max(p.get("pk_wh", 0.0), _wk[0])
                     continue
                 # CONTEXT-ROUTER: resolve this position's exit params by its setup origin. Stage-3 showed
                 # each branch wants a different exit (touch -> P2 book+blowoff; box -> let-run). Absent key
