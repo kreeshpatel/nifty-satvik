@@ -419,6 +419,14 @@ def get_signals(
     if not getattr(user, "is_admin", False):
         review_scorecard = None
 
+    # Stage-2 immutable floor: freeze each signal the FIRST time it is served. Idempotent +
+    # best-effort — never overwrites an existing snapshot and never breaks serving on a fault.
+    try:
+        from services.signal_snapshots import freeze_signals
+        freeze_signals(db, signals, scan_time)
+    except Exception:
+        pass
+
     return {
         "signals": signals,
         "regime": regime_info,
@@ -448,6 +456,22 @@ def get_signals(
             "last_run_today": last_run_today,
         },
     }
+
+
+@router.get("/signals/snapshot/{signal_id}")
+def get_signal_snapshot(
+    signal_id: str,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """The IMMUTABLE frozen snapshot of a signal as first published — the card a user acted
+    on, which never changes on a model recompute (Stage-2). Powers dispute defensibility and
+    'why did it say X' reproducibility. 404 if the signal_id was never frozen."""
+    from services.signal_snapshots import get_snapshot
+    snap = get_snapshot(db, signal_id)
+    if snap is None:
+        raise HTTPException(status_code=404, detail="No frozen snapshot for that signal_id")
+    return snap
 
 
 @router.get("/signals/history")

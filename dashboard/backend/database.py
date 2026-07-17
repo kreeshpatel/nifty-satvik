@@ -335,6 +335,43 @@ class UserHolding(Base):
     user = relationship("User")
 
 
+class SignalSnapshot(Base):
+    """IMMUTABLE, hash-chained frozen snapshot of a signal as it was FIRST published.
+
+    The research engine is idempotent — the cron recomputes the whole book from inception
+    every Saturday (docs/PRODUCT_STATE_AND_DATA.md §2). But a card a user acted on is a
+    CONTRACT: its entry band / stop / target / exit_plan must never change retroactively
+    because the model recomputed off revised data. So the first time a signal_id is served,
+    we freeze it here and never touch it again.
+
+    - Append-only: a DB trigger (init_db, like audit_logs) blocks UPDATE/DELETE.
+    - Hash-chained: content_hash = sha256(canonical fields + prev_hash) links each row to
+      the prior one, so the whole chain is tamper-evident (dispute defensibility + leak
+      provenance). model-GLOBAL (not per-user); the shared frozen record of what was shown.
+    - Keyed by signal_id = "{ticker}__{signal_date}" — the canonical key shared with
+      UserHolding / NQOrder, so a re-signal in a later week is a distinct frozen row.
+
+    Created on startup by Base.metadata.create_all(); the trigger is added by init_db().
+    """
+    __tablename__ = "signal_snapshots"
+    id = Column(Integer, primary_key=True, index=True)
+    signal_id = Column(String(80), unique=True, nullable=False, index=True)
+    ticker = Column(String(32), nullable=False)
+    signal_date = Column(String(16), nullable=False)
+    entry = Column(Float, nullable=False)
+    stop = Column(Float, nullable=False)
+    target = Column(Float, nullable=True)
+    entry_low = Column(Float, nullable=True)
+    entry_high = Column(Float, nullable=True)
+    exit_plan_json = Column(Text, nullable=True)          # the frozen exit_plan, JSON-serialised
+    actionability = Column(String(32), nullable=True)
+    generated_at = Column(String(32), nullable=True)      # the envelope's as-of when first frozen
+    status = Column(String(16), nullable=False, default="OK")   # OK | QUARANTINED (integrity gate)
+    content_hash = Column(String(64), nullable=False)
+    prev_hash = Column(String(64), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
 # ── DB Session Dependency ─────────────────────────────
 
 def get_db():
@@ -466,3 +503,22 @@ def init_db():
     # once a day so this gives natural cadence without a separate cron.
     _run_migration("audit_logs_retention_purge",
         "DELETE FROM audit_logs WHERE timestamp < NOW() - INTERVAL '365 days'")
+
+    # Stage-2: signal_snapshots is FULLY immutable (append-only, no updates, no deletes) —
+    # a card a user acted on is a contract that must never change on a model recompute.
+    # Same trigger pattern as audit_logs, but stricter (no retention-window delete).
+    _run_migration("signal_snapshots_protect_function", """
+        CREATE OR REPLACE FUNCTION signal_snapshots_protect()
+        RETURNS TRIGGER AS $$
+        BEGIN
+            RAISE EXCEPTION 'signal_snapshots is immutable (append-only): % blocked', TG_OP;
+        END;
+        $$ LANGUAGE plpgsql
+    """)
+    _run_migration("signal_snapshots_protect_trigger_drop",
+        "DROP TRIGGER IF EXISTS signal_snapshots_protect_trigger ON signal_snapshots")
+    _run_migration("signal_snapshots_protect_trigger_create", """
+        CREATE TRIGGER signal_snapshots_protect_trigger
+        BEFORE UPDATE OR DELETE ON signal_snapshots
+        FOR EACH ROW EXECUTE FUNCTION signal_snapshots_protect()
+    """)
