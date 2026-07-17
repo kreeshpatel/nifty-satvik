@@ -308,7 +308,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              risk_pct: float | None = None, max_positions: int = 0,
              entry_band: float | None = None, entry_strict: bool = False,
              ext_cap: float | None = None, ext_cap_touch_only: bool = False, fill_order: str = "crs",
-             exit_by_origin: dict | None = None, conv_score: dict | None = None):
+             exit_by_origin: dict | None = None, conv_score: dict | None = None,
+             ext_floor: float | None = None):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
@@ -511,6 +512,13 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     # breakouts are EXTENDED by nature (that IS their edge), so a <5% cap must not touch them.
                     if (ext_cap is not None and (not ext_cap_touch_only or o_.get("origin", 0) == 0)
                             and opn > o_["sma"] * (1 + ext_cap)):
+                        continue
+                    # OWNER GUARD (chart review 2026-07-16): the signal requires close>SMA, but the
+                    # in-range fill (0089) can still land BELOW the line if the entry week opens down
+                    # through it (e.g. KENNAMET -1.5%, NAVA -1.8%) — buying a name that has already
+                    # broken back under support. ext_floor skips those fills. None => byte-identical.
+                    if (ext_floor is not None and o_["sma"] > 0
+                            and opn <= o_["sma"] * (1 + ext_floor)):
                         continue
                     cands.append((o_["rank"], t, i, opn))
         # vol-target de-gross (pre-reg 0095): scale the sizing equity by the shared O-009 scalar,
