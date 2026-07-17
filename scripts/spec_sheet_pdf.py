@@ -46,22 +46,21 @@ def _table(rows, widths, st, header=True):
     return t
 
 
-def build_pdf(path, m, n_trades, sample):
+def build_pdf(path, m, n_trades, sample, book, ext_thr):
     st = _styles()
     doc = SimpleDocTemplate(str(path), pagesize=A4, topMargin=14 * mm, bottomMargin=14 * mm,
                             leftMargin=15 * mm, rightMargin=15 * mm,
-                            title="Weekly swing book — rules spec sheet")
+                            title=f"Weekly swing book — rules spec sheet ({book['label']})")
     W = doc.width
     F = []
     P = lambda s: Paragraph(s, st["p"])          # noqa: E731
 
     F += [Paragraph("Weekly swing book — rules spec sheet", st["h1"]),
-          Paragraph("Model <b>weekly-swing-0094-rank-p2exit</b> · the LIVE book of record · generated for "
-                    "manual TradingView review · 2026-07-16", st["small"]),
+          Paragraph(f"<b>{book['label']}</b> · generated for manual TradingView review · 2026-07-16", st["small"]),
           Spacer(1, 5)]
 
     F += [P("<b>Read this first.</b> Every rule below is transcribed from the engine as it runs today. "
-            "The trades in <b>tv_review_80.csv</b> were produced by exactly these rules and nothing else. "
+            "The trades in the accompanying CSV were produced by exactly these rules and nothing else. "
             "If a chart looks wrong to you, one of these rules is the reason — the job is to find which. "
             "Rules that <i>sound</i> right but are not implemented are listed in §7 (already tested "
             "and killed), so please check there before proposing one.")]
@@ -75,7 +74,7 @@ def build_pdf(path, m, n_trades, sample):
         ["Period", "2017-01-01 to the data cutoff"],
         ["Starting capital", "Rs 10,00,000"],
         ["Risk per trade", "2.0% of sizing equity"],
-        ["Position cap", "<b>None.</b> Size is whatever 2% risk implies (median ~14% of equity per name)"],
+        ["Position cap", book["poscap"]],
         ["Costs", "STT 0.1% per leg + an ADV-based impact/slippage model on every leg"],
         ["Result of record", f"Sharpe <b>{m['sharpe']:.4f}</b> · <b>{m['trades']}</b> trades "
                              f"(this CSV samples {n_trades} of them after split-cleaning)"],
@@ -104,8 +103,10 @@ def build_pdf(path, m, n_trades, sample):
 
     # 3 — fill
     F += [Paragraph("3 · Fill — the week AFTER the signal", st["h2"])]
-    F += [_table([
-        ["Step", "Rule"],
+    _fill = [["Step", "Rule"]]
+    if book.get("ext_rule"):
+        _fill.append(["<b>Extension cap</b>", book["ext_rule"]])
+    F += [_table(_fill + [
         ["Window", "The signal week's <b>low</b> and <b>high</b> define a price band. We look at each daily "
                    "bar of the following week."],
         ["Trigger", "Fill at the <b>first daily OPEN that falls inside [signal-week low, signal-week high]</b>. "
@@ -124,12 +125,10 @@ def build_pdf(path, m, n_trades, sample):
     F += [Paragraph("4 · Stop and size", st["h2"])]
     F += [_table([
         ["Item", "Rule"],
-        ["Stop level", "The <b>signal week's LOW</b>. Fixed for the life of the trade (it never moves down; "
-                       "see the trail in §5)."],
-        ["R", "1R = entry − stop. Median across the book is <b>14.2% of the entry price</b>."],
+        ["Stop level", book["stop_rule"]],
+        ["R", book["r_note"]],
         ["Shares", "equity × 2% ÷ (entry − stop). Wider stop ⇒ smaller position."],
-        ["Consequence", "Notional per name = 2% ÷ R%. At the median R of 14.2%, one name is ~14% of the "
-                        "book, so ~7 names fit."],
+        ["Consequence", book["consequence"]],
     ], [26 * mm, W - 26 * mm], st)]
 
     # 5 — exits
@@ -166,7 +165,7 @@ def build_pdf(path, m, n_trades, sample):
     F += [Paragraph("6 · The trade list (tv_review_80.csv)", st["h2"]),
           P("<b>Random</b> samples — deliberately not the extremes, so you see the typical case. "
             "Buckets can overlap (most stops are losses).")]
-    F += [P("<b>Read WINNER_HIGH_EXT alongside the losers — it is there to stop a specific mistake.</b> "
+    F += [P("<b>Read WINNER_MATCHED alongside the losers — it is there to stop a specific mistake.</b> "
             "A loser list is defined <i>by outcome</i>, so every entry in it looks bad, and it is very easy "
             "to conclude the entry style caused the loss. WINNER_HIGH_EXT holds <b>winners with the same "
             "profile</b> — entered &ge;20% above the 44w SMA, off a big candle. If a loser's chart looks "
@@ -175,7 +174,8 @@ def build_pdf(path, m, n_trades, sample):
     for b, g in sample.groupby("bucket", sort=False):
         defn = {"LOSS_RANDOM": "R &lt; 0", "STOPPED_RANDOM": "exited via the stop",
                 "GOOD_RANDOM": "R &ge; 2",
-                "WINNER_HIGH_EXT": "R &ge; 2 <b>and</b> entry &ge;20% above the SMA — the matched control"}.get(b, "")
+                "WINNER_MATCHED": f"R &ge; 2 <b>and</b> entry &ge;{ext_thr:.1f}% above the SMA "
+                                  f"(the losers' median) — <b>the matched control</b>"}.get(b, "")
         prof.append([b, len(g), defn, f"{g.pct_move.mean():+.1f}%", f"{g.R.mean():+.2f}",
                      f"{g.mfe_pct.mean():+.1f}%"])
     F += [_table(prof, [32 * mm, 8 * mm, 34 * mm, 22 * mm, 16 * mm, 20 * mm], st)]
@@ -203,6 +203,14 @@ def build_pdf(path, m, n_trades, sample):
     F += [Paragraph("7 · Already tested and KILLED — please do not re-propose these", st["h2"]),
           P("Each of these was implemented, frozen, run against the 2022-26 slice, and lost. The baseline "
             "to beat is <b>1.29</b>; buying trades <b>at random</b> from the signal pool scores <b>0.74</b>.")]
+    if book.get("ext_rule"):
+        F += [P("<b>Note for this book.</b> Two rows below (the 5% R cap, the 20% per-name cap) look like "
+                "what this config does — they are not. Those arms capped R at <b>5%</b> <i>and</i> replaced "
+                "the exit with 2R/3R targets, which is what killed them. This book caps R at the milder "
+                "<b>10%</b> and <b>leaves the exit alone</b>, and it came in <b>return-neutral</b> "
+                "(Sharpe 1.03&rarr;1.11 full, 1.29&rarr;1.21 on 2022-26 — both noise). The lesson of the "
+                "whole table: <b>the fat tail lives in the exit.</b> Entry and sizing discipline is roughly "
+                "free; truncating the right tail is fatal.")]
     F += [_table([
         ["Idea", "Result", "Why it failed"],
         ["Buy-stop entry (wait for the signal high)", "0.22 (pre-reg 0088)", "Entry at the high + stop at "
