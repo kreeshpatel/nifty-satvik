@@ -14,13 +14,31 @@ import { toast } from 'sonner';
 import {
   fetchExecutionPositions,
   fetchExecutionPosition,
+  fetchReconciliation,
   recordBuy,
   recordSell,
 } from '@/services/api';
 import { HOLDINGS_KEY } from './useHoldings';
 
 export const EXECUTION_KEY = ['user', 'execution', 'positions'];
+export const RECONCILIATION_KEY = ['user', 'execution', 'reconciliation'];
 export const executionPositionKey = (signalId) => ['user', 'execution', 'position', signalId];
+
+/** The user's OPEN reconciliation action items (model plan − their ledger). */
+export function useReconciliation(options = {}) {
+  return useQuery({
+    queryKey: RECONCILIATION_KEY,
+    queryFn: fetchReconciliation,
+    select: (data) => ({
+      asOf: data?.as_of ?? null,
+      nOpen: data?.n_open ?? 0,
+      items: Array.isArray(data?.action_items) ? data.action_items : [],
+    }),
+    staleTime: 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    ...options,
+  });
+}
 
 /** The user's durable positions → array of { signal_id, ticker, remaining_qty, realized_pnl, ... }. */
 export function useExecutionPositions(options = {}) {
@@ -59,9 +77,10 @@ function useRecordEvent(mutationFn, verb) {
               (pos.realized_pnl ? ` · realized ₹${Math.round(pos.realized_pnl).toLocaleString('en-IN')}` : '') },
         );
       }
-      // The ledger changed → refresh positions, this position's trail, and the legacy held-set.
+      // The ledger changed → refresh positions, this position's trail, outstanding actions, held-set.
       qc.invalidateQueries({ queryKey: EXECUTION_KEY });
       if (vars?.signal_id) qc.invalidateQueries({ queryKey: executionPositionKey(vars.signal_id) });
+      qc.invalidateQueries({ queryKey: RECONCILIATION_KEY });
       qc.invalidateQueries({ queryKey: HOLDINGS_KEY });
     },
     onError: (err) => toast.error(`Could not record ${verb.toLowerCase()}`, { description: err?.message }),

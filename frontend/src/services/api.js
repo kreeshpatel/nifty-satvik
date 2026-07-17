@@ -616,6 +616,9 @@ export const recordSell = ({ signal_id, qty, price, tranche, executed_at, note, 
 /** Append a CORRECTING event that supersedes a prior one (audit-safe; never edits in place). */
 export const correctExecution = (payload) => authPost(`${API}/api/execution/correct`, payload);
 
+/** The user's OPEN reconciliation action items (model plan − their ledger) → { n_open, action_items }. */
+export const fetchReconciliation = () => authJson(`${API}/api/execution/reconciliation`);
+
 // ========================================
 // Admin APIs (require is_admin=true on the user)
 // ========================================

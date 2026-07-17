@@ -23,6 +23,7 @@ from sqlalchemy.orm import Session
 from database import get_db, User, ExecutionEvent
 from auth import get_current_user
 from services import execution_ledger as ledger
+from services import reconciliation as recon
 from services.signal_snapshots import get_snapshot
 
 logger = logging.getLogger("execution")
@@ -171,3 +172,26 @@ def get_position(signal_id: str, user: User = Depends(get_current_user), db: Ses
         raise HTTPException(status_code=404, detail="No events for this position")
     state = _position_payload(db, user.id, sig, events[0]["ticker"])
     return {**state, "events": events}
+
+
+def _model_state() -> tuple[dict, dict]:
+    """The shared model state the reconciliation diffs against: the weekly envelope + the daily
+    monitor flags, read from the SAME source the signals page uses (GitHub-first, disk fallback)."""
+    from routers.signals import _read_json_with_fallback, RESULTS_DIR
+    envelope = _read_json_with_fallback(
+        RESULTS_DIR / "signals_today_weekly.json", "results/signals_today_weekly.json", {}) or {}
+    monitor = _read_json_with_fallback(
+        RESULTS_DIR / "weekly_monitor.json", "results/weekly_monitor.json", {}) or {}
+    if isinstance(envelope, list):                    # some readers return a bare signals list
+        envelope = {"signals": envelope}
+    return envelope, monitor
+
+
+@router.get("/reconciliation")
+def reconciliation(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """The user's OPEN action items: model plan minus their ledger (Stage-4b). Derived on demand, so a
+    capture popup that records the missing fill resolves the item on the next read — no extra state."""
+    envelope, monitor = _model_state()
+    rows = db.query(ExecutionEvent).filter(ExecutionEvent.user_id == user.id).all()
+    stops = {s: _frozen_stop(s, db) for s in {r.signal_id for r in rows}}
+    return recon.reconcile_user(db, user.id, envelope, monitor, stops=stops)
