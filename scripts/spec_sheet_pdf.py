@@ -172,8 +172,7 @@ def build_pdf(path, m, n_trades, sample, book, ext_thr):
             "damning, find the winner that looks identical before concluding anything.")]
     prof = [["Bucket", "n", "Definition", "mean %move", "meanR", "mean MFE"]]
     for b, g in sample.groupby("bucket", sort=False):
-        defn = {"LOSS_NO_STOP": "R &lt; 0 <b>and did NOT stop out</b> — bled away via trail / blow-off / time",
-                "STOPPED_RANDOM": "exited via the stop",
+        defn = {"LOSS_RANDOM": "R &lt; 0 (any exit reason — on this book nearly every loss is a stop-out)",
                 "GOOD_RANDOM": "R &ge; 2",
                 "WINNER_MATCHED": f"R &ge; 2 <b>and</b> entry &ge;{ext_thr:.1f}% above the SMA "
                                   f"(the losers' median) — <b>the matched control</b>"}.get(b, "")

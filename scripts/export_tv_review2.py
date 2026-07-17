@@ -63,6 +63,20 @@ BOOKS = {
         consequence="Notional per name = 2% ÷ R%. At R = 9.2% one name wants ~22% of the book, so only "
                     "~4-5 names fit (the base fits ~7). <b>This concentration is the real cost of the "
                     "R cap</b> — returns were unchanged."),
+    "live": dict(
+        kw=dict(ext_cap=0.20, max_risk_pct=0.10, max_notional_pct=0.20), a_only=True,
+        label="LIVE — weekly-swing-0094-rank-p2exit-disc (A-only + discipline, as shipped 2026-07-16)",
+        poscap="<b>20% of sizing equity per name</b> (max_notional_pct) — a guardrail against single-name "
+               "blowup. Concentration is load-bearing (FINDING_more_slots), not a cost.",
+        ext_rule="<b>Extension cap — skip the trade entirely if the fill price is more than 20% above "
+                 "the signal-week 44w SMA.</b> Pure selection; the stop is untouched.",
+        stop_rule="<b>max(signal-week LOW, entry × 0.90)</b> — R capped at 10%. When the candle low is "
+                  "further, the stop is <b>lifted off the candle</b> to the −10% line (a deliberate "
+                  "deviation from the taught rule, per the owner).",
+        r_note="1R = entry − stop, capped at 10%. Median across the LIVE book is <b>~9.1%</b>.",
+        consequence="Notional per name = 2% ÷ R%. At R ≈ 9% one name is ~20% (the cap binds), so ~4-5 "
+                    "names are held. Grade filter: <b>A-only</b> — only the top-5-by-CRS signals of each "
+                    "setup week are traded."),
 }
 COLS = ["bucket", "tv_symbol", "signal_week", "sig_ctl_pct", "sig_body_frac", "sig_range_pct",
         "entry_date", "entry", "stop", "risk_pct", "ext_vs_sma", "crs_rank",
@@ -135,8 +149,9 @@ def main():
     base = R94.backtest(P, mem, start="2017-01-01", eq0=EQ0, **P2_EXIT)
     assert abs(base["sharpe"] - 1.0342) < 0.001 and base["trades"] == 168, "R1 baseline FAILED"
 
+    a_set = R94.grade_a_entries(P) if book.get("a_only") else None
     led = []
-    m = R94.backtest(P, mem, ledger=led, start="2017-01-01", eq0=EQ0, **book["kw"], **P2_EXIT)
+    m = R94.backtest(P, mem, ledger=led, start="2017-01-01", eq0=EQ0, a_grade=a_set, **book["kw"], **P2_EXIT)
     print(f"book = {which}: {book['label']}")
     print(f"  Sharpe {m['sharpe']:.4f} / {m['trades']} trades\n")
 
@@ -174,32 +189,26 @@ def main():
             pool = pool.iloc[rng.choice(len(pool), n, replace=False)]
         return pool.assign(bucket=lab)
 
-    # DISJOINT buckets (owner 2026-07-16: "AEGISLOG is written twice in loss random and stopped random").
-    # Overlapping buckets waste review time — the same chart opens twice — and they hid a real bucket:
-    # losers that did NOT stop out (they bled away via the trail/blow-off/time). Those are a different
-    # failure and worth their own eyes. So: STOPPED = stopped out; LOSS = lost WITHOUT stopping.
-    stop = t[t.reason.astype(str).str.startswith("stop")]
-    loss = t[(t.R < 0) & (~t.index.isin(stop.index))]
+    # 60-trade review list (owner 2026-07-16). On THIS book a separate "stopped" bucket would just
+    # duplicate the loss bucket — nearly every loss is a stop-out (only ~4 are not), which is exactly the
+    # AEGISLOG double-listing the owner flagged. So ONE loss bucket = every R<0 trade, regardless of exit
+    # reason. Composition: 30 losses + 20 winners + 10 matched control = 60. DISJOINT by construction.
+    loss = t[t.R < 0]
     good = t[t.R >= 2]
     # MATCHED CONTROL — mandatory. A loser-only list is defined BY outcome, so every entry in it looks
-    # bad and the reader infers the entry style is the cause (EXT_IS_THE_ENGINE.md: this is exactly how
-    # the "we buy too high" false inference was manufactured). Ship winners that LOOK like the losers —
-    # same extension profile — so entry style can be judged against a real control.
-    # The threshold is DERIVED from the losers, never hardcoded: a fixed ">=20%" silently returns an
-    # EMPTY control on any book that caps extension (e.g. the spec book's ext_cap=0.20), which would
-    # quietly reintroduce the very bias this bucket exists to prevent.
-    ext_thr = float(pd.concat([loss, stop]).ext_vs_sma.median())
-    print(f"pools -> losses-that-did-NOT-stop {len(loss)} | stopped {len(stop)} | good R>=2 {len(good)}")
-    b1 = take(loss, 30, "LOSS_NO_STOP"); b2 = take(stop, 30, "STOPPED_RANDOM")
+    # bad and the reader infers the entry style is the cause (EXT_IS_THE_ENGINE.md: exactly how the
+    # "we buy too high" false inference was manufactured). Ship winners that LOOK like the losers — same
+    # extension profile — so entry style can be judged against a real control. Threshold DERIVED from the
+    # losers, never hardcoded (a fixed ">=20%" silently empties on any book that caps extension).
+    ext_thr = float(loss.ext_vs_sma.median())
+    print(f"pools -> losses (R<0) {len(loss)} | winners R>=2 {len(good)}")
+    b1 = take(loss, 30, "LOSS_RANDOM")
     b3 = take(good, 20, "GOOD_RANDOM")
-    # The matched control is drawn from winners NOT already sampled above, at or beyond the LOSERS' own
-    # median extension — a threshold derived from the data, never hardcoded (a fixed ">=20%" silently
-    # empties on any book that caps extension, reintroducing the loser-only bias this bucket prevents).
     hi_ext = good[(good.ext_vs_sma >= ext_thr) & (~good.index.isin(b3.index))]
     print(f"matched control: winners at >= the losers' median ext ({ext_thr:.1f}%), not already sampled: {len(hi_ext)}")
     assert len(hi_ext) >= 5, f"matched control too thin ({len(hi_ext)}) — do NOT ship a loser-only list"
-    b4 = take(hi_ext, 15, "WINNER_MATCHED")
-    allb = pd.concat([b1, b2, b3, b4])
+    b4 = take(hi_ext, 10, "WINNER_MATCHED")
+    allb = pd.concat([b1, b3, b4])
     assert not allb.index.duplicated().any(), "buckets must be DISJOINT — no chart reviewed twice"
 
     allx = allb
