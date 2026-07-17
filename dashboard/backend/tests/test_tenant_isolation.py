@@ -264,35 +264,6 @@ def test_trades_export_non_admin_blocked(
 
 
 # -------------------------------------------------------------------
-# /kite — per-user KiteSession isolation
-# -------------------------------------------------------------------
-
-
-def test_kite_session_status_isolated_per_user(
-    client: TestClient, make_user: Any, auth_cookies: Any
-) -> None:
-    """Each user's /kite/session GET reflects only their own session
-    state. One user having a session should never leak into another."""
-    from database import KiteSession, SessionLocal
-
-    user_a = make_user(name="UserA", is_admin=False)
-    user_b = make_user(name="UserB", is_admin=False)
-
-    # Directly insert a KiteSession row for user_a in the test DB
-    # Note: fixtures rewire get_db, but we need to hit the same engine
-    # The client fixture's override uses `engine` — open a session on it.
-    # Simpler path: use the session fixture directly.
-
-    r_a = client.get("/api/kite/session/status", cookies=auth_cookies(user_a))
-    r_b = client.get("/api/kite/session/status", cookies=auth_cookies(user_b))
-
-    # Both should succeed with auth; both should show "no session" since
-    # neither actually has a KiteSession row in the test DB.
-    assert r_a.status_code == 200
-    assert r_b.status_code == 200
-
-
-# -------------------------------------------------------------------
 # Admin operations — require is_admin
 # -------------------------------------------------------------------
 
@@ -317,33 +288,6 @@ def test_admin_users_endpoint_allows_admin(
 
 # -------------------------------------------------------------------
 # Cross-user attempted access — the big one
-# -------------------------------------------------------------------
-
-
-def test_user_cannot_see_other_users_via_kite_endpoints(
-    client: TestClient, make_user: Any, auth_cookies: Any
-) -> None:
-    """Critical: User B's cookie must only reach User B's data.
-
-    We can't fully test this without a live Kite session to differ
-    responses — but we CAN verify that each user's /kite/session
-    call returns user-scoped status and doesn't leak another user's
-    kite_user_id.
-    """
-    user_a = make_user(name="UserA", is_admin=False)
-    user_b = make_user(name="UserB", is_admin=False)
-
-    r_a = client.get("/api/kite/session/status", cookies=auth_cookies(user_a))
-    r_b = client.get("/api/kite/session/status", cookies=auth_cookies(user_b))
-
-    # Both have no session; neither body should contain the other's email
-    # or user_id. Basic smoke check on leakage.
-    body_a = r_a.text
-    body_b = r_b.text
-    assert user_b.email not in body_a
-    assert user_a.email not in body_b
-
-
 def test_invalid_cookie_rejected(client: TestClient) -> None:
     """A forged or expired JWT cookie must 401."""
     r = client.get(

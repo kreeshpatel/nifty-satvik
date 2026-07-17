@@ -492,19 +492,11 @@ def get_sell_guidance(
     SignalsV2 page uses this to render the 'Held — Sell Guidance' tier
     headline without pulling all NQ positions just to filter client-side.
     """
-    from routers.kite import get_user_kite_token, kite_get
     from services.nq_positions import build_nq_positions
 
-    holdings: list = []
-    try:
-        token = get_user_kite_token(user, db)
-        data = kite_get("/portfolio/holdings", token)
-        if isinstance(data, list):
-            holdings = data
-    except Exception:
-        pass
-
-    positions = build_nq_positions(user.id, db, kite_holdings=holdings)
+    # No per-user broker connection (ADR 0011) — self-reported fills only. Build off the
+    # per-user NQOrder ledger with no Kite holdings join (Stage-4/5 wire the self-report source).
+    positions = build_nq_positions(user.id, db, kite_holdings=[])
     actionable = [p for p in positions if p["status_for_user"] == "ACTIONABLE_SELL"]
     return {
         "positions": actionable,

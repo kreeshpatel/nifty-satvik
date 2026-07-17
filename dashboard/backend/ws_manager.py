@@ -112,43 +112,6 @@ class WSManager:
         # Send to all connected clients (simplified - send all ticks to all)
         await self.broadcast(message)
 
-    async def broadcast_order_update(self, order_data: dict):
-        """Broadcast order update to all clients.
-
-        Side effect: if this Kite order matches a row in `nq_orders` (the
-        NiftyQuant-executed orders table), patch its status / fill / net.
-        This is the hook that turns a PENDING-tracked order into a filled
-        journal entry automatically when Kite confirms the fill.
-
-        The DB session is short-lived (open → patch → close) so we don't
-        hold a connection across WS frames. Failures are logged but never
-        block the broadcast — the UI update is more important than the
-        tracking row in the worst case.
-        """
-        # Patch the nq_orders row first, so the row is up to date by the
-        # time the frontend invalidates its query cache on receiving the
-        # broadcast message.
-        try:
-            from database import SessionLocal
-            from routers.nq_orders import patch_from_kite_update
-            if SessionLocal is not None:
-                db = SessionLocal()
-                try:
-                    patched = patch_from_kite_update(db, order_data)
-                    if patched is not None:
-                        logger.info(
-                            "nq_orders patched: kite_order_id=%s → %s",
-                            order_data.get("order_id"), patched.status,
-                        )
-                finally:
-                    db.close()
-        except Exception as e:
-            # Never let an nq_orders patch failure interfere with the WS push.
-            logger.warning(f"nq_orders patch failed (non-fatal): {e}")
-
-        message = json.dumps({"type": "order_update", "data": order_data})
-        await self.broadcast(message)
-
     def init_kite_ticker(self, api_key: str, access_token: str):
         """Initialize KiteTicker connection (called after auth)."""
         try:
