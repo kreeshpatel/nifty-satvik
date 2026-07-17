@@ -50,14 +50,79 @@ CAP_WEEKS = 13            # ~3-month time cap; flag when a held position nears i
 IST = timezone(timedelta(hours=5, minutes=30))
 
 
-def _last_close_open_sma(df: pd.DataFrame) -> tuple[float, float, float, pd.Timestamp] | None:
-    """(last_close, last_open, 20-day SMA of close, last-bar date) from a raw OHLCV frame."""
+class _Bar:
+    """The last daily bar of a ticker, with the fields the tranche mapper needs."""
+    __slots__ = ("close", "open", "high", "low", "sma20", "date")
+
+    def __init__(self, close, open_, high, low, sma20, dt):
+        self.close, self.open, self.high, self.low, self.sma20, self.date = close, open_, high, low, sma20, dt
+
+
+def _last_bar(df: pd.DataFrame) -> "_Bar | None":
+    """The last daily bar (close/open/high/low + 20-day SMA of close + bar date) from a raw frame."""
     if df is None or len(df) == 0 or "Close" not in df.columns:
         return None
     c = df["Close"].astype(float)
     o = df["Open"].astype(float) if "Open" in df.columns else c
+    h = df["High"].astype(float) if "High" in df.columns else c
+    lo = df["Low"].astype(float) if "Low" in df.columns else c
     sma20 = float(c.tail(20).mean()) if len(c) >= 1 else float("nan")
-    return float(c.iloc[-1]), float(o.iloc[-1]), sma20, pd.Timestamp(df.index[-1])
+    return _Bar(float(c.iloc[-1]), float(o.iloc[-1]), float(h.iloc[-1]), float(lo.iloc[-1]),
+                sma20, pd.Timestamp(df.index[-1]))
+
+
+def _r_multiple(price: float, entry: float, stop: float) -> float | None:
+    """How many R above entry `price` sits, where 1R = entry - stop (the initial risk)."""
+    risk = entry - stop
+    return (price - entry) / risk if risk > 0 else None
+
+
+def _tranche_status(tr: dict, bar: "_Bar", entry: float, stop: float) -> dict:
+    """Map ONE frozen exit tranche to its live intra-week status.
+
+    The keystone cadence rule lives here: the +2R target tranche is a resting broker LIMIT, so it
+    is the ONLY tranche that can be `actionable` intra-week. The blow-off `pattern` and the 44w-SMA
+    `runner` are WEEKLY-CLOSE decisions — this daily job may only WATCH them (never `actionable`),
+    because acting on a partial-week bar would break the weekly decision cadence the paper record is
+    certified on. The Saturday recompute is what actually decides those two tranches.
+    """
+    typ = tr.get("type")
+    pct = tr.get("pct")
+    lvl = tr.get("level")
+    out = {"type": typ, "pct": pct, "level": lvl, "actionable": False, "status": "", "hit": False}
+
+    if typ == "target" and lvl:
+        # Booked with a resting limit order — intra-week actionable the moment price trades through it.
+        hit = bar.high >= float(lvl) if bar.high else bar.close >= float(lvl)
+        dist = round((float(lvl) / bar.close - 1) * 100, 2) if bar.close else None
+        out.update(hit=bool(hit), actionable=bool(hit), dist_pct=dist,
+                   status=(f"reached — your resting limit to sell {pct}% should fill"
+                           if hit else f"{dist:.1f}% away" if dist is not None else "n/a"))
+
+    elif typ == "pattern":
+        # Blow-off / exhaustion tranche — decided ONLY at the weekly close. Never actionable here.
+        arm = tr.get("arm")
+        r = _r_multiple(bar.close, entry, stop)
+        armed = bool(arm is not None and r is not None and r >= float(arm))
+        rng = bar.high - bar.low
+        weak_close = bool(rng > 0 and (bar.close - bar.low) / rng < 0.5 and bar.high >= bar.close)
+        out.update(actionable=False, armed=armed, r_multiple=round(r, 2) if r is not None else None,
+                   weak_close_today=weak_close,
+                   status=(f"armed (>+{arm}R): a blow-off/exhaustion WEEKLY close would sell {pct}% — "
+                           f"decided at Saturday's recompute, not intra-week"
+                           + (" · possible exhaustion bar today (daily proxy)" if armed and weak_close else "")
+                           if armed else f"watching — sells {pct}% on a blow-off weekly close (Sat decides)"))
+
+    elif typ == "runner":
+        # Held to the 44w-SMA; exits ONLY on a weekly CLOSE below it. Never actionable intra-week.
+        below = bool(lvl and bar.close < float(lvl))
+        dist = round((bar.close / float(lvl) - 1) * 100, 2) if lvl else None
+        out.update(actionable=False, below_sma=below, dist_pct=dist,
+                   status=(f"below the 44w-SMA {lvl} intra-week ({dist:+.1f}%) — only a Friday weekly "
+                           f"close confirms the runner exit (Sat decides)" if below
+                           else f"{dist:+.1f}% vs the 44w-SMA {lvl}; hold the last {pct}% runner"
+                                if dist is not None else f"hold the last {pct}% runner to the 44w-SMA"))
+    return out
 
 
 def _refresh(tickers: list[str], do_download: bool) -> dict:
@@ -87,10 +152,10 @@ def build_monitor(envelope: dict, ohlcv: dict) -> dict:
 
     for sig in envelope.get("signals", []):
         t = sig.get("ticker")
-        px = _last_close_open_sma(ohlcv.get(t))
-        if px is None:
+        bar = _last_bar(ohlcv.get(t))
+        if bar is None:
             continue
-        last_close, last_open, sma20, bar_dt = px
+        last_close, last_open, sma20, bar_dt = bar.close, bar.open, bar.sma20, bar.date
         as_of = bar_dt if as_of is None or bar_dt > as_of else as_of
         frozen_price = float(sig.get("current_price") or sig.get("close") or last_close)
         is_held = bool(sig.get("bought_date"))
@@ -113,21 +178,62 @@ def build_monitor(envelope: dict, ohlcv: dict) -> dict:
             dist_tgt = round((target / last_close - 1) * 100, 2) if last_close and target else None
             stop_breach = bool(stop and last_close <= stop)
             target_hit = bool(target and last_close >= target)
+            r_now = _r_multiple(last_close, entry, stop)
             rec.update({
                 "entry": round(entry, 2), "stop": round(stop, 2), "target": round(target, 2),
                 "pnl_pct": pnl_pct, "dist_to_stop_pct": dist_stop, "dist_to_target_pct": dist_tgt,
+                "r_multiple": round(r_now, 2) if r_now is not None else None,
                 "stop_breached": stop_breach, "target_reached": target_hit,
                 # informational: where next Saturday's ratchet trail would sit if it recomputed now.
                 # NOT an active level — the trail only moves at the weekly close.
                 "implied_trail_sma20": round(sma20 * (1 - TRAIL_PCT), 2) if pd.notna(sma20) else None,
             })
+
+            # Map the FROZEN 3-tranche exit plan (config P, or whatever LIVE_EXIT the Saturday cron
+            # froze onto the card) to its live intra-week status. The monitor is config-agnostic: it
+            # reports whatever tranches the card carries, so a P->P2 swap needs no change here.
+            plan = sig.get("exit_plan") or {}
+            tranches = plan.get("tranches") if isinstance(plan, dict) else None
+            tranche_live: list[dict] = []
+            plan_tags: list[str] = []
+            for tr in (tranches or []):
+                st = _tranche_status(tr, bar, entry, stop)
+                tranche_live.append(st)
+                typ, pct = st["type"], st["pct"]
+                if typ == "target":
+                    plan_tags.append(f"Sell {pct}% at Rs {tr.get('level')} (+2R) — resting limit"
+                                     + (" (REACHED)" if st["hit"] else ""))
+                    if st["hit"]:
+                        flags.append({"ticker": t, "event": "TRANCHE_TARGET_2R", "severity": "action",
+                                      "message": f"{t}: +2R target {tr.get('level')} reached (last {last_close:.2f}) — "
+                                                 f"your resting limit to sell {pct}% should fill (intra-week OK)."})
+                elif typ == "pattern":
+                    plan_tags.append(f"Sell {pct}% on a blow-off/exhaustion WEEKLY close (Sat decides)")
+                    if st.get("armed"):
+                        flags.append({"ticker": t, "event": "PATTERN_ARMED", "severity": "info",
+                                      "message": f"{t}: trading above +{tr.get('arm')}R "
+                                                 f"(now {st.get('r_multiple')}R) — a blow-off/exhaustion WEEKLY close "
+                                                 f"would sell {pct}%. NOT actionable intra-week; the Saturday recompute decides."
+                                                 + (" Possible exhaustion bar today (daily proxy)." if st.get("weak_close_today") else "")})
+                elif typ == "runner":
+                    plan_tags.append(f"Hold {pct}% runner to the 44w-SMA {tr.get('level')}")
+                    if st.get("below_sma"):
+                        flags.append({"ticker": t, "event": "RUNNER_BELOW_SMA", "severity": "warn",
+                                      "message": f"{t}: closed {last_close:.2f} below its 44w-SMA runner line {tr.get('level')} "
+                                                 f"intra-week. NOT actionable — only a FRIDAY WEEKLY close confirms the "
+                                                 f"runner exit; the Saturday recompute decides."})
+            rec["tranches"] = tranche_live
+            rec["plan_tags"] = plan_tags
+
+            # Stop is the risk line (not a profit tranche) — a weekly-close confirmation, flagged here for lead time.
             if stop_breach:
                 flags.append({"ticker": t, "event": "STOP_BREACH", "severity": "high",
-                              "message": f"{t} closed {last_close:.2f} at/under its stop {stop:.2f} — weekly close will confirm the exit"})
-            elif target_hit:
+                              "message": f"{t} closed {last_close:.2f} at/under its stop {stop:.2f} — the weekly close will confirm the exit"})
+            elif not tranches and target_hit:
+                # Legacy fallback: card with no frozen exit_plan — keep the old single 2R flag.
                 flags.append({"ticker": t, "event": "TARGET_2R", "severity": "info",
                               "message": f"{t} reached +2R target {target:.2f} (last {last_close:.2f}) — sell half is due at the weekly close"})
-            elif dist_stop is not None and dist_stop <= NEAR_PCT:
+            elif dist_stop is not None and 0 < dist_stop <= NEAR_PCT:
                 flags.append({"ticker": t, "event": "NEAR_STOP", "severity": "warn",
                               "message": f"{t} is {dist_stop:.1f}% above its stop {stop:.2f}"})
         else:
@@ -158,10 +264,14 @@ def build_monitor(envelope: dict, ohlcv: dict) -> dict:
         "model": envelope.get("model", "weekly-swing-0094-rank"),
         "source": "signals_today_weekly.json",
         "note": ("OBSERVATIONAL re-pricing of the frozen Saturday weekly signals — live current_price + "
-                 "intra-week event flags. Does NOT recompute signals or move any frozen level; the paper "
-                 "record is untouched and the weekly decision cadence is unchanged."),
+                 "intra-week event flags mapped to the frozen exit tranches. Does NOT recompute signals "
+                 "or move any frozen level; the paper record is untouched and the weekly decision cadence "
+                 "is unchanged. ONLY the +2R target tranche (a resting broker limit) is actionable "
+                 "intra-week; the blow-off pattern and the 44w-SMA runner are decided ONLY at the Saturday "
+                 "weekly recompute and are flagged here as WATCH-only, never actionable."),
         "n_monitored": len(monitors),
         "n_flags": len(flags),
+        "n_actionable": sum(1 for f in flags if f.get("severity") == "action"),
         "monitors": monitors,
         "flags": flags,
     }
