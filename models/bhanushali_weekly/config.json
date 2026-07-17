@@ -41,13 +41,25 @@
   "live_backtest_p2exit": {
     "universe": "corrected (pinned + backfill + aliases)",
     "window": "2017-2026",
+    "grade_filter": "A-only (top-5 CRS per setup week) — matches the traded book",
+    "net_sharpe": 1.004,
+    "net_cagr_pct": 20.9,
+    "max_dd_pct": -36.4,
+    "calmar": 0.57,
+    "win_rate_pct": 54,
+    "trades": 171,
+    "per_trade_meanR": 0.61,
+    "note": "The LIVE book as ACTUALLY TRADED: P2 exit AND the Grade-A-only owner rule. run_bhanushali_cron.py builds a_set = grade_a_entries(P) and runs the paper book with a_grade=a_set (line ~349); the buy cards are likewise filtered to grade=='A' (line ~150). Reproduce: backtest(prep_weekly_rank(ohlcv), a_grade=grade_a_entries(prep_weekly_rank(ohlcv)), no_time_cap=True, wk20_trail_pct=0.04, blowoff_arm_r=2.5). NOTE the cron itself passes return_state=True (open positions are NOT realized — correct for a live book); this backtest figure uses the default return_state=False so end-of-window positions are realized. In-sample; a Sharpe/CAGR give for drawdown + higher per-trade capture vs the 0094 reference above. Not indicative of future results.",
+    "corrected_2026_07_16": "AUDIT FIX: this block previously carried the ALL-GRADES numbers (1.034 / 21.2% / -34.8% / 0.61 / 168 tr / 0.616R) and a Reproduce line that OMITTED a_grade — so the documented headline did not reproduce the book that actually trades. The all-grades variant remains a valid research reference and is statistically INDISTINGUISHABLE from the traded book: the 22-26 continuous-slice gap is 1.29 (all-grades) vs 1.17 (A-only) = 0.12, well inside the random-selection null's sigma of 0.24 (research/substrate/MONTECARLO_null.md). A-only is a board/discipline choice, not a return decision. See research/substrate/STRATEGY_AUDIT.md."
+  },
+  "all_grades_reference_p2exit": {
+    "note": "Research reference only — NOT the traded book. Same P2 exit, no a_grade filter. Reproduce: backtest(prep_weekly_rank(ohlcv), no_time_cap=True, wk20_trail_pct=0.04, blowoff_arm_r=2.5).",
     "net_sharpe": 1.034,
     "net_cagr_pct": 21.2,
     "max_dd_pct": -34.8,
     "calmar": 0.61,
     "win_rate_pct": 54,
     "trades": 168,
-    "per_trade_meanR": 0.616,
-    "note": "the LIVE exit (P2). In-sample; a Sharpe/CAGR give for -8pp drawdown + higher per-trade capture vs the 0094 reference above. Reproduce: backtest(prep_weekly_rank(ohlcv), no_time_cap=True, wk20_trail_pct=0.04, blowoff_arm_r=2.5). Not indicative of future results."
+    "per_trade_meanR": 0.616
   }
 }
