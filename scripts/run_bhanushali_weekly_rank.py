@@ -52,7 +52,8 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                      zoo_origins: tuple = (), zoo_params: dict | None = None,
                      require_progress: bool = False, slope_min: float | None = None,
                      prior_above_n: int = 0, prior_above_lookback: int = 4,
-                     max_ctl_pct: float | None = None, min_body_frac: float | None = None):
+                     max_ctl_pct: float | None = None, min_body_frac: float | None = None,
+                     open_progress: bool = False):
     """The live 0093+Nifty-50 prep, with each entry window carrying its CRS-distance rank.
 
     index_provider (pre-reg 0096): optional callable(ticker) -> pd.Series to override the CRS
@@ -177,8 +178,19 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                 _rng2 = whigh - wlow
                 _body = np.nan_to_num(np.where(_rng2 > 0, (wclose - wopen) / np.where(_rng2 > 0, _rng2, 1.0),
                                                0.0) >= min_body_frac, nan=False)
+            # OWNER LEVER 2026-07-16 (chart review r3, ASAHIINDIA + COHANCE) — "the open price of current
+            # week should be higher than the previous". The signal week must OPEN above the prior week's
+            # OPEN, i.e. the setup is not forming inside a downswing. DISTINCT from require_progress,
+            # which compares CLOSES and passes on both of the owner's cases:
+            #   ASAHIINDIA 2024-07-22  open 610.67 vs prior 651.40 -> blocked (close test passes)
+            #   COHANCE    2025-02-17  open 1090.00 vs prior 1165.05 -> blocked (close test passes)
+            # PIT-safe (signal-week condition). False => off => byte-identical.
+            _oprog = np.ones(len(wclose), bool)
+            if open_progress:
+                _oprog = np.zeros(len(wclose), bool)
+                _oprog[1:] = wopen[1:] > wopen[:-1]
             wsig = ((slope >= _slope_floor) & qgreen & touch & (wclose > wsma) & _rs_term & _base_ok
-                    & _prog & _prior_above & _small & _body)
+                    & _prog & _prior_above & _small & _body & _oprog)
         # PHASE-1 entry lever (owner's GAIL case): the flat-base / Darvas-box breakout. Some leaders never pull
         # BACK to the SMA — they consolidate in a tight range ABOVE the rising line and let the SMA rise INTO
         # them (a TIME correction), then break out. The touch rule (low<=SMA*1.07) is blind to this. box_breakout
