@@ -51,7 +51,8 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                      sr_piv_band: float = 0.03, sr_piv_stop: float = 0.06,
                      zoo_origins: tuple = (), zoo_params: dict | None = None,
                      require_progress: bool = False, slope_min: float | None = None,
-                     prior_above_n: int = 0, prior_above_lookback: int = 4):
+                     prior_above_n: int = 0, prior_above_lookback: int = 4,
+                     max_ctl_pct: float | None = None, min_body_frac: float | None = None):
     """The live 0093+Nifty-50 prep, with each entry window carrying its CRS-distance rank.
 
     index_provider (pre-reg 0096): optional callable(ticker) -> pd.Series to override the CRS
@@ -159,8 +160,25 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                     _lo = max(_k - prior_above_lookback, 0)
                     if _k > _lo and _ab[_lo:_k].sum() >= prior_above_n:
                         _prior_above[_k] = True
+            # OWNER LEVER 2026-07-16 — "only buy trades that had a solid green candle of less than 5
+            # percent ... so this solves the problem of R". A SELECTION lever, not a stop truncation:
+            # the stop IS the signal-week low, so (close - low)/close is R itself. Requiring it small
+            # picks trades whose geometry is naturally tight, instead of forcing the stop up (which is
+            # what max_risk_pct did, and it lost — FINDING_owner_6040_poscap.md). PIT-safe: signal-week
+            # values only. None => off => byte-identical.
+            _small = np.ones(len(wclose), bool)
+            if max_ctl_pct is not None:
+                _small = np.nan_to_num((wclose - wlow) / wclose <= max_ctl_pct, nan=False)
+            # "SOLID green" — the body (open->close) must be a real fraction of the candle's range, not a
+            # doji/wick. qgreen only asks close>open and close in the upper half. (Owner's SOBHA note:
+            # "it should have been green as well as a body".) None => off => byte-identical.
+            _body = np.ones(len(wclose), bool)
+            if min_body_frac is not None:
+                _rng2 = whigh - wlow
+                _body = np.nan_to_num(np.where(_rng2 > 0, (wclose - wopen) / np.where(_rng2 > 0, _rng2, 1.0),
+                                               0.0) >= min_body_frac, nan=False)
             wsig = ((slope >= _slope_floor) & qgreen & touch & (wclose > wsma) & _rs_term & _base_ok
-                    & _prog & _prior_above)
+                    & _prog & _prior_above & _small & _body)
         # PHASE-1 entry lever (owner's GAIL case): the flat-base / Darvas-box breakout. Some leaders never pull
         # BACK to the SMA — they consolidate in a tight range ABOVE the rising line and let the SMA rise INTO
         # them (a TIME correction), then break out. The touch rule (low<=SMA*1.07) is blind to this. box_breakout
