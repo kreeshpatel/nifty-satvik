@@ -16,6 +16,42 @@ Worse, we measured that this book is **chaotic under fill perturbation** — G1 
 0.42, yet G1+G2 together 0.97. Individual verdicts on this book are close to noise. **A coherent spec,
 tested once, is the only honest read.**
 
+## Review round 2 (2026-07-16) — 4 more observations
+
+| # | Observation | Verdict |
+|---|---|---|
+| 6 | **TARIL "entry was not fulfilled"** | **Correct per rule, not a bug.** Signal-wk high 486.85; Mon/Tue/Wed opened 497.79/514.59/516.79 (all ABOVE, so no in-range fill), Thu 3/27 opened 480.80 — inside (373.84, 486.85) → filled. Under the taught buy-stop you'd have entered Monday ~497.79. Same in-range-vs-buystop deviation (lever C3). |
+| 7 | **KAYNES "exit should be at next week's open 5510, not 4409"** | **NOT a bug — our fill is exactly right.** 2025-12-08 (Monday) OPEN **= 4409.50**, precisely what we booked. 5510 was the open of **2025-12-01**, the *previous* Monday. Stop hit at Fri 12-05's close (4353.50 < stop 5405) → filled Mon 12-08 open. **BUT the underlying point is real** — see "the stop is not a stop" below. |
+| 8 | **ZFCVINDIA "already below our SMA and one candle we bought it"** | **CORRECT — a genuine structural flaw.** → lever **C5**. |
+| 9 | **RCF "price was below the SMA, how did the setup happen"** | **CORRECT — same flaw.** → lever **C5**. |
+
+### C5 — the cleanest flaw found (verified)
+
+The touch rule is `low <= SMA*1.07 AND close > SMA`. It **cannot distinguish**:
+- a genuine **PULLBACK** — price *above* the SMA, dips to touch it, bounces ← the intent
+- a **RECOVERY THROUGH** the SMA from below — price *under* the line for weeks, one big candle crosses up
+
+Both satisfy it. And the 44w SMA **lags**, so `slope` still reads "rising" after weeks of price below it.
+
+| case | prior 6 weeks (close vs SMA) | signal week |
+|---|---|---|
+| **ZFCVINDIA** 2024-05-31 | −7.0, −6.9, −9.1, −10.3, −9.1, **−9.8%** (6 straight BELOW) | ONE **+30%** candle (2231.9→2894.6) closes **+15.0%** above → fires, slope reads +6.2% |
+| **RCF** 2024-11-29 | +1.6, −12.3, −4.3, −3.0, −8.0, **−9.3%** (5 of 6 BELOW) | ONE **+15%** candle (153.3→176.1) closes **+6.0%** above → fires, slope +4.4% |
+
+**Lever `prior_above_n` / `prior_above_lookback`** — require ≥ n of the prior lookback weeks to have CLOSED
+**ABOVE** the SMA (i.e. we were already in an uptrend above the line). Distinct from the existing
+`base_min`, which requires closes NEAR/below the SMA within a band — the opposite concept. **Verified: at
+`prior_above_n=2, lookback=4` it KILLS both the ZFCVINDIA and RCF signals**, and is inert at 0.
+
+### "The stop is not a stop" — a real modelling property (no lever; recorded)
+
+KAYNES exited at **−2.03R**, not −1R. Our stop is checked at the **weekly close** and filled at the
+**Monday open**, so an intra-week collapse blows straight through it: a hard stop order at 5405 would have
+filled ~5405 on **Dec 3** (that day's low was 5274). This is why the worst list is full of R worse than −1
+(DHFL −4.49, MANPASAND −2.56). **The backtest therefore takes losses a real hard stop would not** — it is
+pessimistic, not optimistic. Whether to model an intra-week hard stop is a separate question, and the
+repo's own appendix warns the tight candle-low stop "exits on 2-3% noise" — the classic trade-off.
+
 ## The five observations → the levers
 
 | # | Owner's observation (all verified TRUE) | Lever | Default |
@@ -25,6 +61,7 @@ tested once, is the only honest read.**
 | 3 | SOBHA — "the next candle did not have a body; it should have been green as well as a body" | `entry_mode="buystop"` | `"in_range"` |
 | 4 | RAIN — "was not even in a proper visible uptrend" | `slope_min` | None (=3%/13wk) |
 | 5 | KENNAMET — "was already under the 44SMA" (fill −1.5%; NAVA −1.8%) | `ext_floor` | None |
+| 8,9 | ZFCVINDIA / RCF — "already below our SMA and one candle we bought it" | `prior_above_n` / `prior_above_lookback` | 0 (off) |
 
 ## The levers as implemented (`scripts/run_bhanushali_weekly_rank.py`)
 
@@ -57,6 +94,7 @@ All default OFF ⇒ byte-identical. `ext_cap`/`ext_floor` are honoured inside th
 ## Open decisions before the run (must be frozen — R4, no sweeps)
 
 1. **`slope_min` value.** 0.03 is the current weak floor. "Visible" needs a declared number.
+1b. **`prior_above_n` / `prior_above_lookback`.** Verified that (2, 4) kills ZFCVINDIA + RCF. Freeze the pair before the run.
 2. **Stop rule under buystop.** Keep the taught signal-week low (accepting ~12.8% risk width), or pair the
    buystop with a tighter/ATR stop (a new formulation that addresses 0088's actual failure cause)?
 3. **Which levers are IN.** All four, or a subset?

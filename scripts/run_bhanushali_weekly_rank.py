@@ -50,7 +50,8 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                      sr_recent: int = 2, sr_pivot: bool = False, sr_piv_len: int = 14,
                      sr_piv_band: float = 0.03, sr_piv_stop: float = 0.06,
                      zoo_origins: tuple = (), zoo_params: dict | None = None,
-                     require_progress: bool = False, slope_min: float | None = None):
+                     require_progress: bool = False, slope_min: float | None = None,
+                     prior_above_n: int = 0, prior_above_lookback: int = 4):
     """The live 0093+Nifty-50 prep, with each entry window carrying its CRS-distance rank.
 
     index_provider (pre-reg 0096): optional callable(ticker) -> pd.Series to override the CRS
@@ -141,7 +142,25 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
             if require_progress:
                 _prog = np.zeros(len(wclose), bool)
                 _prog[1:] = wclose[1:] > wclose[:-1]
-            wsig = (slope >= _slope_floor) & qgreen & touch & (wclose > wsma) & _rs_term & _base_ok & _prog
+            # OWNER LEVER C5 — "it was already BELOW our SMA and one candle we bought it"
+            # (ZFCVINDIA 2024-05-31: 6 straight weeks -7..-10% BELOW the SMA, then ONE +30% candle closes
+            #  +15% above -> fires. RCF 2024-11-29: 5 of 6 weeks below, one +15% candle -> fires.)
+            # The touch rule (low<=SMA*1.07 AND close>SMA) cannot distinguish a genuine PULLBACK (price
+            # above the line, dips to it, bounces) from a RECOVERY THROUGH the line from below — both
+            # satisfy it. The 44w SMA lags, so slope still reads "rising" after weeks of price below it.
+            # prior_above_n>0 requires >= n of the prior `prior_above_lookback` weeks to have CLOSED ABOVE
+            # the SMA, i.e. we were already in an uptrend above the line. (Distinct from base_min, which
+            # requires closes NEAR/below the SMA within a band.) 0 => off => byte-identical.
+            _prior_above = np.ones(len(wclose), bool)
+            if prior_above_n > 0:
+                _ab = np.nan_to_num(wclose > wsma, nan=False)
+                _prior_above = np.zeros(len(wclose), bool)
+                for _k in range(len(wclose)):
+                    _lo = max(_k - prior_above_lookback, 0)
+                    if _k > _lo and _ab[_lo:_k].sum() >= prior_above_n:
+                        _prior_above[_k] = True
+            wsig = ((slope >= _slope_floor) & qgreen & touch & (wclose > wsma) & _rs_term & _base_ok
+                    & _prog & _prior_above)
         # PHASE-1 entry lever (owner's GAIL case): the flat-base / Darvas-box breakout. Some leaders never pull
         # BACK to the SMA — they consolidate in a tight range ABOVE the rising line and let the SMA rise INTO
         # them (a TIME correction), then break out. The touch rule (low<=SMA*1.07) is blind to this. box_breakout
