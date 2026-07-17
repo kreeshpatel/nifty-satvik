@@ -592,6 +592,31 @@ export const unmarkBought = (signalId) =>
   authFetch(`${API}/api/holdings/${encodeURIComponent(signalId)}`, { method: 'DELETE' }).then(safeJson);
 
 // ========================================
+// Self-reported execution ledger (Stage 4, ADR 0011). The site instructs; the user
+// executes on their own broker and reports each fill (qty + price) via a popup. Every
+// write is an APPEND to the durable execution_events ledger. Responses carry the derived
+// { position } (remaining_qty / avg_buy_price / realized_pnl) and any soft { warnings }.
+// ========================================
+
+/** Every durable position (OPEN + CLOSED) → { positions: [...] }. */
+export const fetchExecutionPositions = () => authJson(`${API}/api/execution/positions`);
+
+/** One position: derived state + full event audit trail → { ...state, events: [...] }. */
+export const fetchExecutionPosition = (signalId) =>
+  authJson(`${API}/api/execution/position/${encodeURIComponent(signalId)}`);
+
+/** Record a self-reported BUY (qty + price). Allows averaging in. */
+export const recordBuy = ({ signal_id, ticker, qty, price, executed_at, risk_tier_at_buy, note }) =>
+  authPost(`${API}/api/execution/buy`, { signal_id, ticker, qty, price, executed_at, risk_tier_at_buy, note });
+
+/** Record a partial-aware self-reported SELL (qty + price + optional tranche + today's range). */
+export const recordSell = ({ signal_id, qty, price, tranche, executed_at, note, day_low, day_high }) =>
+  authPost(`${API}/api/execution/sell`, { signal_id, qty, price, tranche, executed_at, note, day_low, day_high });
+
+/** Append a CORRECTING event that supersedes a prior one (audit-safe; never edits in place). */
+export const correctExecution = (payload) => authPost(`${API}/api/execution/correct`, payload);
+
+// ========================================
 // Admin APIs (require is_admin=true on the user)
 // ========================================
 

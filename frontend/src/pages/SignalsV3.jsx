@@ -29,6 +29,7 @@ import { CONVICTION, DISCLAIMER, STATES } from '@/lib/signalCopy';
 import { EmptyState } from '@/components/shared/EmptyState';
 import PickOfWeek from '@/components/shared/PickOfWeek';
 import TradeCardModal from '@/components/shared/TradeCardModal';
+import ExecutionCaptureModal from '@/components/shared/ExecutionCaptureModal';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { sizePortfolio, SIZER_STATUS } from '@/lib/sizing';
 import { useHoldings, useMarkBought, useUnmarkBought } from '@/hooks/queries/useHoldings';
@@ -655,20 +656,34 @@ export default function SignalsV3() {
 
   const doAction  = (sym, suffix) => navigate(`/stock/${encodeURIComponent(sym)}${suffix}`);
 
-  // Row "Bought" toggle = mark-only (qty NULL); sized marks come from the sizer modal.
+  // Self-reported execution capture (Stage 4): { mode:'buy'|'sell', sig, sizerQty, tranche } | null.
+  const [capture, setCapture] = useState(null);
+
+  // Row "Bought" toggle: not-held → open the BUY capture popup; already-held → open the SELL popup.
   const toggleBought = (s) => {
     const id = s._signalId;
     if (!id) return;
-    if (heldIds.has(id)) unmarkBought.mutate(id);
-    else markBought.mutate({ signal_id: id, ticker: s.sym, entry: s.entry, stop: s.stop, qty: null });
+    const sig = { sym: s.sym, signalId: id, entry: s.entry, stop: s.stop,
+                  target: s.target, exitLevel: s.exitLevel, current_price: s.ltp ?? s.current_price };
+    setCapture(heldIds.has(id) ? { mode: 'sell', sig, tranche: 'target' } : { mode: 'buy', sig });
   };
-  // Modal "Bought" = sized mark (carries the computed qty + the tier it was sized at).
+  // Sizer modal "Bought": open the BUY capture popup pre-filled with the sized qty (close the sizer first).
   const markSized = (r) => {
     if (!r?.signalId) return;
-    markBought.mutate({
-      signal_id: r.signalId, ticker: r.sym, entry: r.entry, stop: r.stop,
-      qty: r.qty || null, risk_tier_at_buy: sizerResult?.tier,
-    });
+    setSizerResult(null);
+    setCapture({ mode: 'buy', sizerQty: r.qty || null,
+                 sig: { sym: r.sym, signalId: r.signalId, entry: r.entry, stop: r.stop } });
+  };
+  // After a fill is recorded, keep the ephemeral held-set (row highlighting) in sync with the ledger:
+  // a buy or a partial sell means "held"; a full exit (nothing left) clears the mark.
+  const onRecorded = (res, { signalId }) => {
+    const pos = res?.position;
+    if (!signalId || !pos) return;
+    if (pos.remaining_qty > 0) {
+      markBought.mutate({ signal_id: signalId, ticker: pos.ticker, qty: pos.remaining_qty });
+    } else {
+      unmarkBought.mutate(signalId);
+    }
   };
 
   if (signalsQuery.error) {
@@ -784,6 +799,11 @@ export default function SignalsV3() {
       <SizerResultsModal
         open={!!sizerResult} onOpenChange={(o) => !o && setSizerResult(null)}
         result={sizerResult} heldIds={heldIds} onMarkBought={markSized}
+      />
+      <ExecutionCaptureModal
+        open={!!capture} mode={capture?.mode} sig={capture?.sig}
+        sizerQty={capture?.sizerQty} tranche={capture?.tranche}
+        onClose={() => setCapture(null)} onRecorded={onRecorded}
       />
     </div>
   );
