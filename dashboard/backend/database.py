@@ -335,6 +335,50 @@ class UserHolding(Base):
     user = relationship("User")
 
 
+class ExecutionEvent(Base):
+    """Per-user, append-only SELF-REPORTED execution ledger (Stage-4, docs/EXECUTION_CAPTURE_SPEC.md).
+
+    With no broker connection (ADR 0011) the site only INSTRUCTS; the user executes on their own
+    broker and reports each fill (qty + price) via a popup. Those reports land here as immutable
+    EVENTS — one row per buy or partial sell — and this list IS the durable truth-of-record for a
+    user's position, cost basis, and realized P&L. It supersedes the ephemeral, buy-only,
+    erase-on-completion `UserHolding` mark:
+
+    - APPEND-ONLY: a DB trigger (init_db, like signal_snapshots) blocks UPDATE/DELETE. A mistake is
+      fixed by a NEW correcting event (`corrects_event_id` points at the row it supersedes), never an
+      in-place edit — so the audit trail the dispute/integrity thread requires is preserved.
+    - DURABLE: the position and its closed record survive model completion (no erase). A user's
+      permanent per-user track record lives here, distinct from the model's shared paper history.
+    - PARTIAL-AWARE: config P exits in three tranches (40%@2R / 40% pattern / 20% runner), so a SELL
+      is rarely the whole position. Each event carries the qty + price for THAT fill; remaining qty and
+      realized P&L are derived (quantity-weighted) in services/execution_ledger.py — never from the
+      model's clean 2R/2.5R/SMA numbers.
+    - Keyed by signal_id = '{ticker}__{signal_date}' (the canonical key) so a re-signal is a distinct
+      position and a stale prior-episode hold is representable.
+    - fill_source is always 'self_reported' — never presented as broker-verified. Kept OUT of the dead
+      NQOrder/Kite tables so self-reports never mix with the retired broker-execution machinery.
+
+    Created on startup by create_all(); the append-only trigger is added by init_db().
+    """
+    __tablename__ = "execution_events"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    signal_id = Column(String(128), nullable=False, index=True)   # "{ticker}__{signal_date}"
+    ticker = Column(String(32), nullable=False, index=True)
+    side = Column(String(4), nullable=False)                       # BUY | SELL
+    qty = Column(Integer, nullable=False)                          # shares in THIS event (> 0)
+    price = Column(Float, nullable=False)                          # self-reported execution price (> 0)
+    tranche = Column(String(16), nullable=True)                    # sell tag: target|pattern|runner|manual
+    fill_source = Column(String(24), nullable=False, default="self_reported")
+    corrects_event_id = Column(Integer, nullable=True)             # this event supersedes that row (audit)
+    note = Column(String(256), nullable=True)
+    executed_at = Column(DateTime, nullable=True)                  # when the user says the fill happened
+    risk_tier_at_buy = Column(String(16), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+    user = relationship("User")
+
+
 class SignalSnapshot(Base):
     """IMMUTABLE, hash-chained frozen snapshot of a signal as it was FIRST published.
 
@@ -521,4 +565,24 @@ def init_db():
         CREATE TRIGGER signal_snapshots_protect_trigger
         BEFORE UPDATE OR DELETE ON signal_snapshots
         FOR EACH ROW EXECUTE FUNCTION signal_snapshots_protect()
+    """)
+
+    # Stage-4: execution_events is the durable, APPEND-ONLY self-reported ledger (ADR 0011). A user's
+    # position/cost-basis/realized-P&L is derived from these rows, so they must never be edited or
+    # deleted in place — a correction is a NEW event (corrects_event_id). Same immutable trigger as
+    # signal_snapshots; blocks UPDATE/DELETE so the audit trail is tamper-evident for disputes.
+    _run_migration("execution_events_protect_function", """
+        CREATE OR REPLACE FUNCTION execution_events_protect()
+        RETURNS TRIGGER AS $$
+        BEGIN
+            RAISE EXCEPTION 'execution_events is append-only (self-reported ledger): % blocked', TG_OP;
+        END;
+        $$ LANGUAGE plpgsql
+    """)
+    _run_migration("execution_events_protect_trigger_drop",
+        "DROP TRIGGER IF EXISTS execution_events_protect_trigger ON execution_events")
+    _run_migration("execution_events_protect_trigger_create", """
+        CREATE TRIGGER execution_events_protect_trigger
+        BEFORE UPDATE OR DELETE ON execution_events
+        FOR EACH ROW EXECUTE FUNCTION execution_events_protect()
     """)
