@@ -353,7 +353,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              ext_floor: float | None = None, entry_mode: str = "in_range",
              stop_atr_mult: float | None = None, buystop_buffer: float = 0.0,
              scaled_exit: dict | None = None, hard_stop: bool = False,
-             max_risk_pct: float | None = None):
+             max_risk_pct: float | None = None, max_notional_pct: float | None = None):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
@@ -711,6 +711,12 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                 st = max(st, en * (1.0 - max_risk_pct))
             if en > st:
                 sh = sizing_eq * _risk / (en - st)
+                # OWNER 2026-07-16: hard cap on capital per name. Risk-sizing alone puts 2%/5% = 40% of the
+                # book into one name once R is capped at 5%; this bounds any single position at
+                # max_notional_pct of the sizing equity (so effective per-trade risk falls below _risk when
+                # the stop is tight). None => uncapped => byte-identical.
+                if max_notional_pct is not None and en > 0:
+                    sh = min(sh, sizing_eq * max_notional_pct / en)
                 notion = sh * en * (1 + _cost_leg(s["adv20"][i], sh * en, cost_off))
                 if (uncapped or notion <= cash) and sh > 0:   # uncapped: fill EVERY signal (ledger mode)
                     cash -= notion
@@ -720,7 +726,13 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                                  origin=int(o_.get("origin", 0)),   # CONTEXT-ROUTER: per-branch exit lookup
                                  frac_left=1.0, realized_r=0.0, t1_done=False, t2_done=False)
                     rp = sh * (en - st) / sizing_eq * 100      # risk as % of SIZING equity
-                    assert _risk * 100 - 0.02 <= rp <= _risk * 100 + 0.02, f"sizing {rp:.3f}"
+                    # The notional cap legitimately UNDER-sizes (that is what a cap does), so the strict
+                    # sizing invariant only applies when uncapped. Capped, risk may only be REDUCED —
+                    # never exceeded. (The strict form guards the finding-0022 under-sizing bug.)
+                    if max_notional_pct is None:
+                        assert _risk * 100 - 0.02 <= rp <= _risk * 100 + 0.02, f"sizing {rp:.3f}"
+                    else:
+                        assert rp <= _risk * 100 + 0.02, f"sizing over cap {rp:.3f}"
                     if ledger is not None:
                         op[t]["rec"] = dict(tkr=t, entry_date=d, entry=round(float(en), 2),
                                             stop0=round(float(st), 2), rank=round(float(rk), 4),
