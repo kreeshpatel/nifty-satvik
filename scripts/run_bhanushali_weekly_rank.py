@@ -279,6 +279,10 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
         # Measured: weekly ATR median = 7.83% of price, so 1.0x ~= today's 7.1% median stop width. (The
         # repo's "2.5x/4x ATR" results are DAILY-ATR multiples; daily ATR ~3.5%, so they do NOT transfer.)
         _watr = pd.Series(whigh - wlow).rolling(10).mean().to_numpy()
+        # 44-WEEK SMA keyed by the weekend day — read only by the scaled_exit runner tranche
+        # ("ride until a weekly close below the SMA"). Extra data => byte-identical when unused.
+        s["wsma_at"] = {weeks[_j][-1]: (float(wsma[_j]) if wsma[_j] == wsma[_j] else float("nan"))
+                        for _j in range(len(weeks))}
         s["atr_at"] = {}
         s["entry_win"] = {}
         _wsflag = np.nan_to_num(wsig, nan=False)
@@ -347,7 +351,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              ext_cap: float | None = None, ext_cap_touch_only: bool = False, fill_order: str = "crs",
              exit_by_origin: dict | None = None, conv_score: dict | None = None,
              ext_floor: float | None = None, entry_mode: str = "in_range",
-             stop_atr_mult: float | None = None):
+             stop_atr_mult: float | None = None, buystop_buffer: float = 0.0,
+             scaled_exit: dict | None = None):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
@@ -394,7 +399,10 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     cash += got; p["proceeds"] += got
                     p["stt"] += xp * STT_PCT
                     r_rest = (px - p["en"]) / p["risk0"]
-                    R = 0.5 * 2.0 + 0.5 * r_rest if p["half_done"] else r_rest
+                    if scaled_exit:
+                        R = p["realized_r"] + p["frac_left"] * r_rest   # 60%@2R + 20%@3R + runner
+                    else:
+                        R = 0.5 * 2.0 + 0.5 * r_rest if p["half_done"] else r_rest
                     T.append(dict(R=R, reason=rs, held=p["weeks"], half=p["half_done"]))
                     if "rec" in p:
                         p["rec"].update(exit_date=d, exit_px=round(float(px), 2), reason=rs,
@@ -436,9 +444,54 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                                         stt_paid=round(float(p["stt"]), 2))
                         ledger.append(p["rec"])
                     del op[t]; continue
+            # OWNER SCALED EXIT (2026-07-16): 60% @2R + 20% @3R as RESTING LIMITS (fill AT the target,
+            # intraweek — a real broker order), then a 20% RUNNER held until a weekly close below the 44w
+            # SMA. Replaces the P2 trend-following exit entirely. scaled_exit=None => byte-identical.
+            if scaled_exit and p["pending"] is None:
+                for _tag, _rk, _fk in (("t1_done", "tp1_r", "tp1_frac"), ("t2_done", "tp2_r", "tp2_frac")):
+                    if p[_tag]:
+                        continue
+                    if _tag == "t2_done" and not p["t1_done"]:
+                        break                                   # tiers book in order
+                    _lvl = p["en"] + scaled_exit[_rk] * p["risk0"]
+                    if s["h"][i] < _lvl:
+                        break
+                    _f = scaled_exit[_fk]
+                    _shx = min(p["sh0"] * _f, p["sh"])
+                    if _shx <= 0:
+                        p[_tag] = True; continue
+                    _xp = _shx * _lvl
+                    _got = _xp * (1 - _cost_leg(p["adv"], _xp, cost_off))
+                    cash += _got; p["proceeds"] += _got; p["stt"] += _xp * STT_PCT
+                    p["sh"] -= _shx
+                    p["realized_r"] += _f * scaled_exit[_rk]
+                    p["frac_left"] = max(p["frac_left"] - _f, 0.0)
+                    p[_tag] = True
+                    p["half_done"] = True                       # informational (cards/ledger)
+                    if "rec" in p and _tag == "t1_done":
+                        p["rec"].update(half_date=d, half_px=round(float(_lvl), 2))
+                if p["frac_left"] <= 1e-9 or p["sh"] <= 0:      # fully out on targets alone
+                    T.append(dict(R=p["realized_r"], reason="targets", held=p["weeks"], half=True))
+                    if "rec" in p:
+                        p["rec"].update(exit_date=d, exit_px=round(float(p["en"] + scaled_exit["tp2_r"] * p["risk0"]), 2),
+                                        reason="targets", held_weeks=p["weeks"], R=round(float(p["realized_r"]), 3),
+                                        net_pnl=round(float(p["proceeds"] - p["cash_out"]), 2),
+                                        stt_paid=round(float(p["stt"]), 2))
+                        ledger.append(p["rec"])
+                    del op[t]; continue
+
             if i in s["weekend"]:
                 p["weeks"] += 1
                 wc = s["c"][i]
+                if scaled_exit:
+                    # only two weekly decisions remain: the hard stop, and the runner's SMA break.
+                    if wc <= p["stop"]:
+                        p["pending"] = ("full", "stop" + ("_part" if p["t1_done"] else ""))
+                    else:
+                        _sm = s.get("wsma_at", {}).get(i, float("nan"))
+                        if _sm == _sm and wc < _sm:
+                            p["pending"] = ("full", "sma_break")
+                    continue
                 # CONTEXT-ROUTER: resolve this position's exit params by its setup origin. Stage-3 showed
                 # each branch wants a different exit (touch -> P2 book+blowoff; box -> let-run). Absent key
                 # falls back to the global arg; exit_by_origin=None (default) => the global args exactly
@@ -552,7 +605,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     # signal high, at max(open, trigger). NOTE the known cost (pre-reg 0088): entry at the
                     # HIGH with the stop at the LOW makes the whole candle the risk (~12.8% vs ~7%).
                     # entry_mode="in_range" (default) => byte-identical.
-                    _trig = o_["hi"]
+                    _trig = o_["hi"] * (1.0 + buystop_buffer)
                     if s["h"][i] >= _trig:
                         _px = max(opn, _trig)
                         if (ext_cap is not None and (not ext_cap_touch_only or o_.get("origin", 0) == 0)
@@ -628,7 +681,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     op[t] = dict(en=en, stop=st, risk0=en - st, tp2=en + 2 * (en - st), sh=sh, sh0=sh,
                                  weeks=0, adv=s["adv20"][i], half_done=False, trail=st, pending=None,
                                  stt=sh * en * STT_PCT, cash_out=notion, proceeds=0.0,
-                                 origin=int(o_.get("origin", 0)))   # CONTEXT-ROUTER: per-branch exit lookup
+                                 origin=int(o_.get("origin", 0)),   # CONTEXT-ROUTER: per-branch exit lookup
+                                 frac_left=1.0, realized_r=0.0, t1_done=False, t2_done=False)
                     rp = sh * (en - st) / sizing_eq * 100      # risk as % of SIZING equity
                     assert _risk * 100 - 0.02 <= rp <= _risk * 100 + 0.02, f"sizing {rp:.3f}"
                     if ledger is not None:
@@ -652,7 +706,10 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
         for t, p in op.items():
             i = len(P[t]["c"]) - 1; ex = P[t]["c"][i]
             r_rest = (ex - p["en"]) / p["risk0"]
-            R = 0.5 * 2.0 + 0.5 * r_rest if p["half_done"] else r_rest
+            if scaled_exit:
+                R = p["realized_r"] + p["frac_left"] * r_rest
+            else:
+                R = 0.5 * 2.0 + 0.5 * r_rest if p["half_done"] else r_rest
             T.append(dict(R=R, reason="eos", held=p["weeks"], half=p["half_done"]))
             if ledger is not None and "rec" in p:
                 xp = p["sh"] * ex
