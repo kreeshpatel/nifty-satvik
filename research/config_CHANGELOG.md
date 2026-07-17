@@ -5,6 +5,42 @@ Format: date — model — what changed — why — evidence — reversal.
 
 ---
 
+## 2026-07-16 — weekly-swing (Bhanushali) — DISCIPLINE config added (owner-override on risk appetite)
+- **Model:** `weekly-swing-0094-rank-p2exit` → `weekly-swing-0094-rank-p2exit-disc`
+  (`models/bhanushali_weekly/config.json`; `LIVE_DISCIPLINE` in `scripts/run_bhanushali_cron.py`).
+- **What changed (entry SELECTION + stop + sizing bound; the exit is untouched):**
+  - `ext_cap=0.20` — skip any fill priced **>20% above the signal-week 44w SMA**. Pure selection; the stop
+    is untouched. The rule-faithful half.
+  - `max_risk_pct=0.10` — stop = `max(signal-week low, entry × 0.90)`. **This LIFTS the stop off the candle
+    low** when the low is further — a deliberate deviation from the taught rule, per the owner.
+  - `max_notional_pct=0.20` — no name above 20% of sizing equity. **Guardrail against single-name blowup,
+    NOT a diversification benefit** (see evidence).
+- **Why:** owner review of live trades against charts — *"i dont care even if it gave good returns, then our
+  book is badly traded … max 20 percent is fine, if more than 10 percent then our R is distorted"*. Median R
+  of 13.7% made a −2R exit a −27% move; holds ran 19 weeks; fills landed 20-40% over the SMA (KNRCON +40.1%).
+- **Evidence (A-ONLY book = what actually trades; parity-checked vs the recorded 1.004/171 — PASS):**
+  Sharpe **1.004 → 1.055**, CAGR 20.9 → 20.2%, **MaxDD −36.4 → −31.2% (+5.2pp)**, trades 171 → 184,
+  **median R 13.7 → 9.1%**, **mean hold 19.1 → 12.4wk**, win 54 → 51%, **2022-26 slice 1.17 → 1.04** (the one
+  negative). Pre-registered `research/preregistry_owner_discipline.md` BEFORE the run (R4); trial 115→116.
+- **Honesty:** **NOT an edge claim and NOT certified.** +0.05 full-sample vs −0.13 on the 22-26 slice —
+  opposite signs = noise; the book is chaotic under fill perturbation (G1 0.47 / G2 0.42 / G1+G2 0.97). At
+  cumulative trial **122 no DSR gate passes** this, and none is claimed — it fails no gate because it was
+  never submitted as an improvement. It ships for the **risk-appetite** properties (R ≤ 9.1%, holds −35%,
+  DD −5.2pp), which are structural, not statistical.
+- **Corrections recorded:** (1) the owner's stated mechanism was inverted — notional = `risk% ÷ R%`, so a
+  wide stop makes positions *small*; capping R **concentrated** the book 14% → 22%/name, hence the notional
+  cap. (2) That concentration is a **feature**: `FINDING_more_slots` (trials 120→122) measured 4-5 names
+  **1.21** > 7 **0.97** > 10 **0.81** → the null 0.74. An earlier draft called it "the real cost of the R
+  cap"; that was wrong.
+- **Guards:** frozen 0094 research run **byte-identical 1.132/255** (all levers default OFF); full suite
+  **120 passed**.
+- **Reversal:** delete `**LIVE_DISCIPLINE` from the two `backtest()` call sites in
+  `scripts/run_bhanushali_cron.py` and revert `model_version`.
+- **Refs:** ADR `docs/decisions/0009-swing-discipline-config.md`; `research/substrate/FINDING_owner_discipline.md`;
+  `research/substrate/FINDING_more_slots.md`.
+
+---
+
 ## 2026-07-15 — weekly-swing (Bhanushali) — EXIT changed (Phase-2, owner-override)
 - **Model:** `weekly-swing-0094-rank` → `weekly-swing-0094-rank-p2exit` (`models/bhanushali_weekly/config.json`).
 - **What changed (EXIT only; entry, stop, sizing unchanged):** the 13-week time cap + 20-day-SMA trail were

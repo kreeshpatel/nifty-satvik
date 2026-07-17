@@ -1,5 +1,5 @@
 {
-  "model_version": "weekly-swing-0094-rank-p2exit",
+  "model_version": "weekly-swing-0094-rank-p2exit-disc",
   "strategy": "BHANUSHALI_WEEKLY_SMA_CRS_RANKED",
   "status": "FORWARD_WATCH",
   "horizon": "weekly",
@@ -38,6 +38,22 @@
     "dsr": 0.894,
     "note": "in-sample; ranked fill verified by adversarial ordering probe (desc best, asc worst); slices +1.17/+1.05/+1.19; leakage-clean. Not indicative of future results."
   },
+  "live_discipline_change": "2026-07-16 (owner decision, sole capital-at-risk): the LIVE book adds ext_cap=0.20 (skip any fill priced >20% above the signal-week 44w SMA — a pure SELECTION rule; the stop is untouched), max_risk_pct=0.10 (stop = max(signal-week low, entry*0.90) — this LIFTS the stop off the candle low when the low is further, a deliberate DEVIATION from the taught rule per the owner's instruction that R above 10% is distorted), and max_notional_pct=0.20 (a GUARDRAIL against runaway single-name risk, NOT a performance lever — FINDING_more_slots showed concentration is load-bearing: 4-5 names 1.21 > 7 names 0.97 > 10 names 0.81 on the 22-26 slice). Owner-OVERRIDE on RISK APPETITE, not an edge claim: the owner pre-accepted a return cost. On the A-only traded book: Sharpe 1.004->1.055, CAGR 20.9->20.2%, MaxDD -36.4->-31.2% (+5.2pp), median R 13.7->9.1%, mean hold 19.1->12.4wk, win 54->51%, 2022-26 slice 1.17->1.04 (the one negative). RETURN-NEUTRAL and NOT CERTIFIED — no DSR gate passes a +0.05 in-sample delta at cumulative trial 122; it fails no gate because it was never an edge claim. See docs/decisions/0009-swing-discipline-config.md + research/config_CHANGELOG.md + research/substrate/FINDING_owner_discipline.md + research/preregistry_owner_discipline.md. The frozen 0094 research run (backtest defaults OFF) stays byte-identical 1.132/255.",
+  "live_backtest_discipline": {
+    "universe": "corrected (pinned + backfill + aliases)",
+    "window": "2017-2026",
+    "grade_filter": "A-only (top-5 CRS per setup week) — matches the traded book",
+    "net_sharpe": 1.055,
+    "net_cagr_pct": 20.2,
+    "max_dd_pct": -31.2,
+    "win_rate_pct": 51,
+    "trades": 184,
+    "per_trade_meanR": 0.61,
+    "median_risk_pct": 9.1,
+    "mean_hold_weeks": 12.4,
+    "slice_2022_26": 1.04,
+    "note": "THE LIVE BOOK AS OF 2026-07-16. Reproduce: backtest(prep_weekly_rank(ohlcv), a_grade=grade_a_entries(prep_weekly_rank(ohlcv)), ext_cap=0.20, max_risk_pct=0.10, max_notional_pct=0.20, no_time_cap=True, wk20_trail_pct=0.04, blowoff_arm_r=2.5). In-sample; return-neutral vs the p2exit block below, adopted for the drawdown and the R/hold discipline. Not indicative of future results."
+  },
   "live_backtest_p2exit": {
     "universe": "corrected (pinned + backfill + aliases)",
     "window": "2017-2026",
@@ -49,7 +65,7 @@
     "win_rate_pct": 54,
     "trades": 171,
     "per_trade_meanR": 0.61,
-    "note": "The LIVE book as ACTUALLY TRADED: P2 exit AND the Grade-A-only owner rule. run_bhanushali_cron.py builds a_set = grade_a_entries(P) and runs the paper book with a_grade=a_set (line ~349); the buy cards are likewise filtered to grade=='A' (line ~150). Reproduce: backtest(prep_weekly_rank(ohlcv), a_grade=grade_a_entries(prep_weekly_rank(ohlcv)), no_time_cap=True, wk20_trail_pct=0.04, blowoff_arm_r=2.5). NOTE the cron itself passes return_state=True (open positions are NOT realized — correct for a live book); this backtest figure uses the default return_state=False so end-of-window positions are realized. In-sample; a Sharpe/CAGR give for drawdown + higher per-trade capture vs the 0094 reference above. Not indicative of future results.",
+    "note": "SUPERSEDED 2026-07-16 by live_backtest_discipline (this is now the PRIOR live book, retained as the comparison baseline). The LIVE book as ACTUALLY TRADED at the time: P2 exit AND the Grade-A-only owner rule. run_bhanushali_cron.py builds a_set = grade_a_entries(P) and runs the paper book with a_grade=a_set (line ~349); the buy cards are likewise filtered to grade=='A' (line ~150). Reproduce: backtest(prep_weekly_rank(ohlcv), a_grade=grade_a_entries(prep_weekly_rank(ohlcv)), no_time_cap=True, wk20_trail_pct=0.04, blowoff_arm_r=2.5). NOTE the cron itself passes return_state=True (open positions are NOT realized — correct for a live book); this backtest figure uses the default return_state=False so end-of-window positions are realized. In-sample; a Sharpe/CAGR give for drawdown + higher per-trade capture vs the 0094 reference above. Not indicative of future results.",
     "corrected_2026_07_16": "AUDIT FIX: this block previously carried the ALL-GRADES numbers (1.034 / 21.2% / -34.8% / 0.61 / 168 tr / 0.616R) and a Reproduce line that OMITTED a_grade — so the documented headline did not reproduce the book that actually trades. The all-grades variant remains a valid research reference and is statistically INDISTINGUISHABLE from the traded book: the 22-26 continuous-slice gap is 1.29 (all-grades) vs 1.17 (A-only) = 0.12, well inside the random-selection null's sigma of 0.24 (research/substrate/MONTECARLO_null.md). A-only is a board/discipline choice, not a return decision. See research/substrate/STRATEGY_AUDIT.md."
   },
   "all_grades_reference_p2exit": {

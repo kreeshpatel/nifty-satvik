@@ -85,7 +85,12 @@ def find_splits(ohlcv, dem):
 
 
 def weekly_meta(P):
-    """(ticker, entry_day_idx) -> signal-week date + that candle's geometry + the SMA."""
+    """(ticker, FILL date) -> signal-week date + that candle's geometry + the SMA.
+
+    Keyed on EVERY day of each entry window, not just its first day. The fill is the first daily OPEN
+    that prints inside the band, which is frequently Tue/Wed/Thu — keying on the window's Monday alone
+    silently dropped ~17% of trades from the review exports (971 -> 809) via the dropna that follows.
+    """
     meta = {}
     for t, s in P.items():
         dates = pd.DatetimeIndex(s["dates"])
@@ -103,17 +108,19 @@ def weekly_meta(P):
         wl = np.array([l[d].min() for d in weeks]); wo = np.array([o[d[0]] for d in weeks])
         wsma = pd.Series(wc).rolling(44).mean().to_numpy()
         d2w = {i: wp for wp, d in enumerate(weeks) for i in d}
-        for e0 in s["entry_win"]:
+        for e0, win in s["entry_win"].items():
             k = d2w.get(e0, 0) - 1
             if k < 1:
                 continue
             rng = wh[k] - wl[k]
-            meta[(t, dates[e0])] = dict(
+            rec = dict(
                 signal_week=dates[weeks[k][-1]],
                 sig_ctl_pct=(wc[k] - wl[k]) / wc[k] * 100,
                 sig_body_frac=((wc[k] - wo[k]) / rng) if rng > 0 else np.nan,
                 sig_range_pct=rng / wl[k] * 100 if wl[k] > 0 else np.nan,
                 sma=wsma[k])
+            for _d in win[0]:                    # every day of the window — the fill may be any of them
+                meta[(t, dates[_d])] = rec
     return meta
 
 

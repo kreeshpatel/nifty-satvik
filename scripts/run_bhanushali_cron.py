@@ -47,6 +47,24 @@ HOLD_DAYS_DISPLAY = 65          # soft "hold ~N days" card hint only. The P2 exi
 # the forward-wall route (ships a portfolio Sharpe/CAGR give for -8pp drawdown + fewer/higher-return trades). The
 # backtest() DEFAULTS are left OFF so the frozen 0094 research run stays byte-identical (1.132/255).
 P2_EXIT = dict(no_time_cap=True, wk20_trail_pct=0.04, blowoff_arm_r=2.5)
+# LIVE DISCIPLINE (2026-07-16 owner decision — see docs/decisions/0009 + config_CHANGELOG +
+# research/substrate/FINDING_owner_discipline.md). Owner-OVERRIDE on RISK APPETITE, not an edge claim:
+# the owner pre-accepted a return cost ("i dont care even if it gave good returns, then our book is badly
+# traded ... max 20 percent is fine, if more than 10 percent then our R is distorted").
+#   ext_cap 0.20         skip any fill priced >20% above the signal-week 44w SMA (pure SELECTION; the
+#                        stop is untouched — this is the rule-faithful half).
+#   max_risk_pct 0.10    stop = max(signal-week low, entry x 0.90). NOTE this LIFTS the stop off the
+#                        candle low when the low is further, which DEVIATES from the taught rule by
+#                        explicit owner instruction.
+#   max_notional_pct 0.20  no name exceeds 20% of sizing equity. A GUARDRAIL against runaway single-name
+#                        risk — NOT a performance lever: FINDING_more_slots showed concentration is
+#                        load-bearing (4-5 names 1.21 > 7 names 0.97 > 10 names 0.81 on the 22-26 slice).
+# Measured on the A-ONLY book that actually trades (parity-checked against the recorded 1.004/171):
+#   Sharpe 1.004->1.055, CAGR 20.9->20.2%, MaxDD -36.4->-31.2% (+5.2pp), median R 13.7->9.1%,
+#   mean hold 19.1->12.4wk, win 54->51%, 2022-26 slice 1.17->1.04 (the one negative).
+# Return-neutral, NOT certified: no DSR gate passes a +0.05 in-sample delta at cumulative trial 122.
+# backtest() DEFAULTS stay OFF so the frozen 0094 research run is byte-identical (1.132/255).
+LIVE_DISCIPLINE = dict(ext_cap=0.20, max_risk_pct=0.10, max_notional_pct=0.20)
 # closed-trade exit reason -> the status vocabulary the frontend/history views already understand
 _STATUS = {"target3": "HIT_TARGET", "trail": "HIT_STOP", "stop": "HIT_STOP", "stop_half": "HIT_STOP",
            "wk20": "HIT_STOP", "wk20_half": "HIT_STOP", "blowoff": "HIT_STOP", "blowoff_half": "HIT_STOP",
@@ -346,11 +364,13 @@ def main(argv=None) -> int:
     a_set = R94.grade_a_entries(P)
     # ── ₹10L paper book — realistic capital sim (A-only), kept for the NAV/equity portfolio.
     led_paper: list = []
-    out_paper = R94.backtest(P, mem, ledger=led_paper, start=args.start, return_state=True, a_grade=a_set, **P2_EXIT)
+    out_paper = R94.backtest(P, mem, ledger=led_paper, start=args.start, return_state=True, a_grade=a_set,
+                             **LIVE_DISCIPLINE, **P2_EXIT)
     # ── UNCAPPED signal ledger — every A signal tracked (cash never runs out), so a name is followed
     #    week to week regardless of what ₹10L could afford. This drives the SIGNALS page.
     led_all: list = []
-    out_all = R94.backtest(P, mem, ledger=led_all, start=args.start, return_state=True, uncapped=True, a_grade=a_set, **P2_EXIT)
+    out_all = R94.backtest(P, mem, ledger=led_all, start=args.start, return_state=True, uncapped=True,
+                           a_grade=a_set, **LIVE_DISCIPLINE, **P2_EXIT)
     # data's last date = the "as of" the book is current to
     last = max((pd.Timestamp(s["dates"][-1]) for s in P.values()), default=pd.Timestamp(args.start))
     generated_at = str(last.date())
