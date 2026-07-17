@@ -49,7 +49,8 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                      sr_breakout: bool = False, sr_len: int = 12, sr_test_band: float = 0.03,
                      sr_recent: int = 2, sr_pivot: bool = False, sr_piv_len: int = 14,
                      sr_piv_band: float = 0.03, sr_piv_stop: float = 0.06,
-                     zoo_origins: tuple = (), zoo_params: dict | None = None):
+                     zoo_origins: tuple = (), zoo_params: dict | None = None,
+                     require_progress: bool = False, slope_min: float | None = None):
     """The live 0093+Nifty-50 prep, with each entry window carrying its CRS-distance rank.
 
     index_provider (pre-reg 0096): optional callable(ticker) -> pd.Series to override the CRS
@@ -129,7 +130,18 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                 if _k <= _armed and _greenok[_k]:
                     wsig[_k] = True; _armed = -1                 # first green after the touch — consume the arm
         else:
-            wsig = (slope >= SLOPE_MIN) & qgreen & touch & (wclose > wsma) & _rs_term & _base_ok
+            # OWNER RULE-FAITHFUL LEVERS (chart review 2026-07-16), default OFF => byte-identical.
+            #  slope_min:        C4 — "not even in a proper visible uptrend" (RAIN). The live floor is a
+            #                    weak 3%/13wk; a visible uptrend needs a higher bar. None => SLOPE_MIN.
+            #  require_progress: C1/C2 — "the setup candle should close ABOVE the previous candle"
+            #                    (APOLLOHOSP/RAINBOW). qgreen only checks close>open, so a green candle
+            #                    inside a downswing qualifies (RAINBOW closed 1444.8 vs prior 1454.3).
+            _slope_floor = SLOPE_MIN if slope_min is None else slope_min
+            _prog = np.ones(len(wclose), bool)
+            if require_progress:
+                _prog = np.zeros(len(wclose), bool)
+                _prog[1:] = wclose[1:] > wclose[:-1]
+            wsig = (slope >= _slope_floor) & qgreen & touch & (wclose > wsma) & _rs_term & _base_ok & _prog
         # PHASE-1 entry lever (owner's GAIL case): the flat-base / Darvas-box breakout. Some leaders never pull
         # BACK to the SMA — they consolidate in a tight range ABOVE the rising line and let the SMA rise INTO
         # them (a TIME correction), then break out. The touch rule (low<=SMA*1.07) is blind to this. box_breakout
@@ -309,7 +321,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              entry_band: float | None = None, entry_strict: bool = False,
              ext_cap: float | None = None, ext_cap_touch_only: bool = False, fill_order: str = "crs",
              exit_by_origin: dict | None = None, conv_score: dict | None = None,
-             ext_floor: float | None = None):
+             ext_floor: float | None = None, entry_mode: str = "in_range"):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
@@ -504,6 +516,25 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                         cands.append((o_["rank"], t, i, lim))
                     elif (not entry_strict) and i == max(o_["days"]) and o_["lo"] < opn < o_["hi"]:
                         cands.append((o_["rank"], t, i, opn))     # window's last day: fallback fill at open
+                elif entry_mode == "buystop":
+                    # OWNER RULE-FAITHFUL LEVER C3 (chart review 2026-07-16): the taught rule is
+                    # "buy Rs1 ABOVE the green candle's high" — a buy-stop, i.e. only enter if strength
+                    # CONTINUES. The 0089 in-range fill enters on the next open regardless, so every
+                    # reviewed trade filled BELOW the signal high (APOLLOHOSP -157.8, SOBHA -44.5) and some
+                    # below the SMA (KENNAMET -1.5%). Here we fill only if the week trades through the
+                    # signal high, at max(open, trigger). NOTE the known cost (pre-reg 0088): entry at the
+                    # HIGH with the stop at the LOW makes the whole candle the risk (~12.8% vs ~7%).
+                    # entry_mode="in_range" (default) => byte-identical.
+                    _trig = o_["hi"]
+                    if s["h"][i] >= _trig:
+                        _px = max(opn, _trig)
+                        if (ext_cap is not None and (not ext_cap_touch_only or o_.get("origin", 0) == 0)
+                                and _px > o_["sma"] * (1 + ext_cap)):
+                            continue
+                        if (ext_floor is not None and o_["sma"] > 0
+                                and _px <= o_["sma"] * (1 + ext_floor)):
+                            continue
+                        cands.append((o_["rank"], t, i, _px))
                 elif o_["lo"] < opn < o_["hi"]:
                     # PHASE-1 entry lever: fill-time extension cap. The 20%+ blow-off fills are near-dead
                     # money (per-trade 47-51% win, ~0R) while <10% fires win 87%; skip a fill whose OPEN is
