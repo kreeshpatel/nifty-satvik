@@ -352,7 +352,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              exit_by_origin: dict | None = None, conv_score: dict | None = None,
              ext_floor: float | None = None, entry_mode: str = "in_range",
              stop_atr_mult: float | None = None, buystop_buffer: float = 0.0,
-             scaled_exit: dict | None = None):
+             scaled_exit: dict | None = None, hard_stop: bool = False):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
@@ -444,6 +444,35 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                                         stt_paid=round(float(p["stt"]), 2))
                         ledger.append(p["rec"])
                     del op[t]; continue
+            # OWNER HARD STOP (2026-07-16): a REAL standing stop order. The engine's default checks the
+            # stop only at the WEEKLY CLOSE and fills the next Monday open, which is why losses routinely
+            # blow past 1R (KAYNES booked -2.03R when a hard stop at 5405 would have filled ~5405 on Dec 3).
+            # Here the stop is live on every DAILY bar: fill AT the stop (face value) when the session trades
+            # through it, or at the OPEN when the session GAPS below it (you cannot get a price the market
+            # jumped past). Priority over the targets when both could trigger in one session (intraday order
+            # is unknowable -> take the pessimistic branch). hard_stop=False => byte-identical.
+            if hard_stop and p["pending"] is None:
+                _op = s["o"][i]
+                _hit = _op if _op < p["stop"] else (p["stop"] if s["l"][i] <= p["stop"] else None)
+                if _hit is not None:
+                    _xp = p["sh"] * _hit
+                    _got = _xp * (1 - _cost_leg(p["adv"], _xp, cost_off))
+                    cash += _got; p["proceeds"] += _got; p["stt"] += _xp * STT_PCT
+                    _rr = (_hit - p["en"]) / p["risk0"]
+                    if scaled_exit:
+                        _R = p["realized_r"] + p["frac_left"] * _rr
+                    else:
+                        _R = 0.5 * 2.0 + 0.5 * _rr if p["half_done"] else _rr
+                    _rsn = "hardstop_gap" if _op < p["stop"] else "hardstop"
+                    T.append(dict(R=_R, reason=_rsn, held=p["weeks"], half=p["half_done"]))
+                    if "rec" in p:
+                        p["rec"].update(exit_date=d, exit_px=round(float(_hit), 2), reason=_rsn,
+                                        held_weeks=p["weeks"], R=round(float(_R), 3),
+                                        net_pnl=round(float(p["proceeds"] - p["cash_out"]), 2),
+                                        stt_paid=round(float(p["stt"]), 2))
+                        ledger.append(p["rec"])
+                    del op[t]; continue
+
             # OWNER SCALED EXIT (2026-07-16): 60% @2R + 20% @3R as RESTING LIMITS (fill AT the target,
             # intraweek — a real broker order), then a 20% RUNNER held until a weekly close below the 44w
             # SMA. Replaces the P2 trend-following exit entirely. scaled_exit=None => byte-identical.
