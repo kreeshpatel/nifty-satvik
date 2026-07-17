@@ -352,7 +352,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              exit_by_origin: dict | None = None, conv_score: dict | None = None,
              ext_floor: float | None = None, entry_mode: str = "in_range",
              stop_atr_mult: float | None = None, buystop_buffer: float = 0.0,
-             scaled_exit: dict | None = None, hard_stop: bool = False):
+             scaled_exit: dict | None = None, hard_stop: bool = False,
+             max_risk_pct: float | None = None):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
@@ -702,6 +703,12 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                 _atr = o_.get("atr", float("nan"))
                 if _atr == _atr and _atr > 0:
                     st = en - stop_atr_mult * _atr
+            # OWNER 2026-07-16: cap R. The signal-week low sits a median 14% below entry, so 2R needs a
+            # ~28% gain and the taught 2R/3R targets almost never fire (exit mix was sma_break 76%).
+            # max_risk_pct raises the stop to entry*(1-max_risk_pct) when the candle low is further away,
+            # so R is capped and 2R/3R become reachable. None => the candle low => byte-identical.
+            if max_risk_pct is not None:
+                st = max(st, en * (1.0 - max_risk_pct))
             if en > st:
                 sh = sizing_eq * _risk / (en - st)
                 notion = sh * en * (1 + _cost_leg(s["adv20"][i], sh * en, cost_off))
