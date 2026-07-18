@@ -7,7 +7,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { searchStocks } from '@/services/kiteStock';
-import { KiteContext } from '@/App';
 import { AuthContext } from '@/context/AuthContext';
 import BrandLogo from './BrandLogo';
 import HeaderTicker from './HeaderTicker';
@@ -52,7 +51,6 @@ const ACCOUNT_LINKS = [
 export function TopBar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const kite = useContext(KiteContext);
   const { user, logout } = useContext(AuthContext);
   const isMobile = useIsMobile();
 
@@ -140,8 +138,7 @@ export function TopBar() {
   // Mobile gets a different chrome:
   //   [hamburger]  [logo]  [search-icon]  [user-avatar]
   // Desktop keeps the full pill-tab layout. Drawer (full-screen sheet) lists
-  // every route + Kite controls + sign-out — same affordances as desktop,
-  // just stacked vertically.
+  // every route + sign-out — same affordances as desktop, just stacked vertically.
   if (isMobile) {
     return (
       <>
@@ -498,17 +495,11 @@ export function TopBar() {
         title="Notifications"
         type="button"
         onClick={() => {
-          const scanLabel = '16:15 IST every weekday';
-          if (kite?.connected) {
-            toast.info(`Kite connected · ${kite.userId || 'session live'}`, {
-              description: `Next signal scan: ${scanLabel}. Inbox view ships with v3.`,
-            });
-          } else {
-            toast.warning('Kite session disconnected', {
-              description: 'Reconnect from the user menu to place orders. Daily expiry: 6 AM IST.',
-              action: { label: 'Reconnect', onClick: () => kite?.connect?.() },
-            });
-          }
+          // No broker link (ADR 0011) — surface the scan cadence, never a "reconnect to place
+          // orders" prompt for something the product doesn't do.
+          toast.info('Signal scan · 16:15 IST every weekday', {
+            description: 'The weekly book recomputes Saturday; weekday runs re-price your open cards.',
+          });
         }}
         style={{
           width: 36,
@@ -535,23 +526,9 @@ export function TopBar() {
         }}
       >
         <Bell size={16} />
-        {kite?.connected && (
-          <span
-            style={{
-              position: 'absolute',
-              top: 7,
-              right: 7,
-              width: 7,
-              height: 7,
-              borderRadius: '50%',
-              background: 'var(--bull)',
-              border: '2px solid #07091c',
-            }}
-          />
-        )}
       </button>
 
-      {/* User pill / Kite status */}
+      {/* User pill */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button

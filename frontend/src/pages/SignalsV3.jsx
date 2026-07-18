@@ -451,7 +451,8 @@ function SizerResultsModal({ open, onOpenChange, result, heldIds, onMarkBought }
     ? fundedUntaken[0] : null;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="border-0 p-0 rsm-dialog" style={{ maxWidth: 480 }}>
+      <DialogContent className="border-0 p-0 rsm-dialog" style={{ maxWidth: 480 }}
+                     srTitle="Position plan — take this week's book">
         <div className="rsm">
           <div className="rsm-h">
             <span>Take this week&rsquo;s book ({rows.length})</span>
@@ -524,7 +525,10 @@ function CallRow({ s, onOpen, onAction, held, onToggleBought }) {
   const mon = monitorChip(s);
   return (
     <div className="ri-row" onClick={() => onOpen(s)} role="button" tabIndex={0}
-      onKeyDown={(e) => { if (e.key === 'Enter') onOpen(s); }}>
+      onKeyDown={(e) => {
+        // Native buttons fire on BOTH Enter and Space; a role="button" div must do the same.
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(s); }
+      }}>
       <div className="ri-scrip">
         <Logo sym={s.sym} size={34} />
         <div className="ri-scrip-l">
@@ -843,7 +847,8 @@ export default function SignalsV3() {
       {/* Stage 6c — cold-start onboarding: shown once (durable server-side flag), sets forward-honest
           expectations before the first trade. Dismissable only via the acknowledgement. */}
       <Dialog open={showColdStart} onOpenChange={() => {}}>
-        <DialogContent className="border-0 p-0 rsm-dialog" style={{ maxWidth: 460 }}>
+        <DialogContent className="border-0 p-0 rsm-dialog" style={{ maxWidth: 460 }}
+                     srTitle="Before your first trade — what normal looks like">
           <div className="rsm ecm">
             <div className="rsm-h"><span>{COLD_START.title}</span></div>
             <ul className="ecm-coldstart-points">

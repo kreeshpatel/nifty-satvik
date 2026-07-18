@@ -5,7 +5,6 @@
  * instead of as a stack of muted-gray panels):
  *   1. Profile         — info tone, read-only (name, email, role) from /api/auth/me
  *   2. Security        — brand tone, opt-in TOTP MFA
- *   3. Broker          — Kite status drives tone (bull when connected,
  *                        warn when disconnected/expired)
  *   4. Notifications   — muted tone, email toggles (localStorage for now)
  *   5. Theme           — muted tone, locked-dark display
@@ -18,14 +17,12 @@ import { QRCodeSVG } from 'qrcode.react';
 import { PageShell } from '@/components/shared/PageShell';
 import { StatusChip } from '@/components/shared/StatusChip';
 import { AuthContext } from '@/context/AuthContext';
-import { KiteContext } from '@/App';
 import { fetchMfaStatus, mfaSetup, mfaVerify, mfaDisable } from '@/services/api';
 
 const NOTIFICATION_PREFS_KEY = 'nq_notif_prefs';
 
 export default function SettingsV2() {
   const { user, logout } = useContext(AuthContext);
-  const kite = useContext(KiteContext);
   const [notifPrefs, setNotifPrefs] = useState({ signal_fired: true, stop_hit: true, daily_summary: false });
   const [activeTab, setActiveTab] = useState('account');
 
@@ -57,7 +54,6 @@ export default function SettingsV2() {
         <nav className="settings-nav" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {[
             { id: 'account', label: 'Account' },
-            { id: 'kite', label: 'Kite connection' },
             { id: 'notifications', label: 'Notifications' },
             { id: 'risk', label: 'Risk caps' },
             { id: 'security', label: 'Security' },
@@ -105,74 +101,6 @@ export default function SettingsV2() {
                 <div style={{ color: 'var(--text-3)', fontSize: 12, marginTop: 6 }}>
                   Profile fields are read-only. Email and name changes require admin support — drop a note via Settings → Notifications.
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* KITE CONNECTION */}
-          {activeTab === 'kite' && (
-            <div>
-              <h2 style={{ fontSize: 18, fontWeight: 600, color: 'var(--text-1)', margin: '0 0 22px' }}>Kite connection</h2>
-              <div style={{ display: 'grid', gap: 16, maxWidth: 480 }}>
-                <div>
-                  <label style={{
-                    display: 'block',
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: 10,
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    color: 'var(--text-3)',
-                    marginBottom: 6,
-                    fontWeight: 600,
-                  }}>Status</label>
-                  <div style={{
-                    padding: '0 12px',
-                    height: 36,
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid var(--edge-1)',
-                    borderRadius: 10,
-                    color: 'var(--text-1)',
-                    fontSize: 14,
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}>
-                    {kite?.connected ? `Connected · ${kite.userId || 'Active'}` : 'Disconnected'}
-                  </div>
-                </div>
-                {kite?.connected ? (
-                  <button
-                    type="button"
-                    onClick={kite.disconnect}
-                    style={{
-                      background: 'transparent',
-                      color: 'var(--text-2)',
-                      border: '1px solid var(--edge-1)',
-                      padding: '10px 22px',
-                      borderRadius: 10,
-                      fontSize: 13,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Disconnect
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={kite?.connect}
-                    style={{
-                      background: 'var(--brand)',
-                      color: 'var(--brand-fg)',
-                      border: '1px solid var(--brand)',
-                      padding: '10px 22px',
-                      borderRadius: 10,
-                      fontSize: 13,
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Connect Kite →
-                  </button>
-                )}
               </div>
             </div>
           )}

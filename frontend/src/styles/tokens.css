@@ -231,3 +231,35 @@
     /* --dur-tick intentionally retained */
   }
 }
+
+/* ────────────────────────────────────────────────────────────────────────
+   ACCESSIBILITY BASELINE (2026-07-18 audit — Web Interface Guidelines)
+   Keyboard focus was effectively invisible: several stylesheets set
+   `outline: none` on buttons/inputs/rows without providing a replacement,
+   so keyboard users had no idea where they were. This layer restores a
+   visible, brand-consistent ring app-wide via :focus-visible (mouse clicks
+   stay clean; only keyboard/AT focus shows the ring).
+   ──────────────────────────────────────────────────────────────────────── */
+:where(a, button, input, select, textarea, summary, [tabindex]:not([tabindex="-1"]), [role="button"], [role="tab"]):focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+/* Compound controls (a field wrapping an input) show the ring on the wrapper. */
+:where(label, .field, .ecm-field):focus-within {
+  outline: none;
+}
+
+/* Respect the OS "reduce motion" setting globally. Individual stylesheets
+   opt into richer motion; this is the safety net so nothing animates for
+   users who asked it not to (vestibular disorders, low-power devices). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

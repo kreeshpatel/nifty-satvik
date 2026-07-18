@@ -131,7 +131,8 @@ export default function ExecutionCaptureModal({
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose?.()}>
-      <DialogContent className="border-0 p-0 rsm-dialog" style={{ maxWidth: 400 }}>
+      <DialogContent className="border-0 p-0 rsm-dialog" style={{ maxWidth: 400 }}
+                     srTitle={`${isSell ? 'Record a sell' : 'Record a buy'} — ${sig.sym}`}>
         <div className="rsm ecm">
           <div className="rsm-h">
             <span>{isSell ? 'Record a sell' : 'Record a buy'} · {sig.sym}</span>

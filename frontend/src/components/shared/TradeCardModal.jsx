@@ -64,7 +64,8 @@ export default function TradeCardModal({ sig, open, onOpenChange }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="border-0 bg-transparent shadow-none p-0" style={{ maxWidth: 380 }}>
+      <DialogContent className="border-0 bg-transparent shadow-none p-0" style={{ maxWidth: 380 }}
+                     srTitle={sig ? `${sig.sym || sig.ticker} — trade card` : 'Trade card'}>
         <div
           style={{
             position: 'relative', overflow: 'hidden', borderRadius: 20, padding: '22px 24px 24px',

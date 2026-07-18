@@ -27,6 +27,7 @@ import { useWatchlist } from '@/hooks/queries/useWatchlist';
 import { useOverview } from '@/hooks/queries/useOverview';
 import { useIndexSparklines } from '@/hooks/queries/useIndexSparklines';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
+import { useExecutionPositions } from '@/hooks/queries/useExecution';
 import { DISCLAIMER } from '@/lib/signalCopy';
 import TradeCardModal from '@/components/shared/TradeCardModal';
 import '@/styles/dashboard-proto.css';
@@ -270,7 +271,7 @@ function HoldingsPanel({ holdings, quoteData, isLoading }) {
         <div style={{ padding: '16px 8px', color: 'var(--text-3)', fontSize: 13 }}>Loading…</div>
       ) : filtered.length === 0 ? (
         <div style={{ padding: '16px 8px', color: 'var(--text-3)', fontSize: 13 }}>
-          {rows.length === 0 ? 'Connect Kite to see your holdings here.' : `No ${tab} right now.`}
+          {rows.length === 0 ? 'No holdings yet — record a buy from Research and it shows up here.' : `No ${tab} right now.`}
         </div>
       ) : filtered.map((r) => (
         <div className="trow" key={r.sym}>
@@ -549,15 +550,33 @@ export default function DashboardV3() {
   const signalsQuery   = useSignals({ model: 'bhanushali' });
   const watchlistQuery = useWatchlist({ model: 'bhanushali' });
   const overviewQuery  = useOverview();
-  // No per-user broker holdings (ADR 0011); the holdings panel renders its empty state.
-  const holdingsQuery  = { data: [], isLoading: false };
   const indexQuery     = useIndexSparklines();
 
-  const heldSymbols = useMemo(() => {
-    const list = holdingsQuery.data ?? [];
-    return list.slice(0, 8).map((h) => (h.tradingsymbol || '').toUpperCase()).filter(Boolean);
-  }, [holdingsQuery.data]);
-  const quotesQuery = useQuoteBatch(heldSymbols, { enabled: kite?.connected && heldSymbols.length > 0 });
+  // Holdings = the user's OWN self-reported positions from the execution ledger (ADR 0011 — there is
+  // no broker link). Mapped to the panel's existing row shape and priced with owner quotes, exactly
+  // like the Portfolio page, so the dashboard and /portfolio never disagree.
+  const execQuery = useExecutionPositions();
+  const openPositions = useMemo(
+    () => (execQuery.data ?? []).filter((p) => (Number(p.remaining_qty) || 0) > 0),
+    [execQuery.data]);
+  const heldSymbols = useMemo(
+    () => [...new Set(openPositions.map((p) => (p.ticker || '').toUpperCase()).filter(Boolean))].slice(0, 8),
+    [openPositions]);
+  const quotesQuery = useQuoteBatch(heldSymbols, { enabled: heldSymbols.length > 0 });
+  const holdingsQuery = useMemo(() => ({
+    isLoading: execQuery.isLoading,
+    data: openPositions.slice(0, 8).map((p) => {
+      const q = quotesQuery.data?.[(p.ticker || '').toUpperCase()] || null;
+      const avg = Number(p.avg_buy_price) || 0;
+      return {
+        tradingsymbol: p.ticker,
+        quantity: Number(p.remaining_qty) || 0,
+        average_price: avg,
+        last_price: q?.last_price != null ? Number(q.last_price) : avg,  // fall back to cost, never 0
+        day_change_percentage: q?.change_pct ?? null,
+      };
+    }),
+  }), [openPositions, quotesQuery.data, execQuery.isLoading]);
 
   const signals    = useMemo(() => signalsQuery.data?.signals ?? [], [signalsQuery.data]);
   const watchlist  = useMemo(() => watchlistQuery.data?.signals ?? [], [watchlistQuery.data]);
