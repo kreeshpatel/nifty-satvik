@@ -266,7 +266,7 @@ def build_monitor(envelope: dict, ohlcv: dict) -> dict:
         "generated_utc": datetime.now(timezone.utc).isoformat(),
         "generated_ist": datetime.now(IST).strftime("%Y-%m-%d %H:%M"),
         "as_of": str(as_of.date()) if as_of is not None else None,
-        "model": envelope.get("model", "weekly-swing-0094-rank"),
+        "model": envelope.get("model", "weekly-swing-0094-rank-P"),
         "source": "signals_today_weekly.json",
         "note": ("OBSERVATIONAL re-pricing of the frozen Saturday weekly signals — live current_price + "
                  "intra-week event flags mapped to the frozen exit tranches. Does NOT recompute signals "

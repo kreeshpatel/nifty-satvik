@@ -34,7 +34,6 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from config import RESULTS_DIR  # noqa: E402
 from nq.data.membership import load_membership  # noqa: E402
 from nq.data.ohlcv import OHLCV_CACHE, load_ohlcv_cache  # noqa: E402
-import run_bhanushali_weekly_full as W89  # noqa: E402  (engine family; kept for imports)
 import run_bhanushali_weekly_crs as CRS  # noqa: E402  (Nifty-50 CSV path + index plumbing)
 import run_bhanushali_weekly_rank as R94  # noqa: E402  — LIVE strategy: 0093-N50 + ranked fill (finding 0038)
 
@@ -396,7 +395,7 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
                if len(curve) else pd.DataFrame({"date": [], "total_value": []}))
 
     envelope = {
-        "generated_at": generated_at, "model": "weekly-swing-0094-rank", "signals": signals,
+        "generated_at": generated_at, "model": "weekly-swing-0094-rank-P", "signals": signals,
         "regime": _compute_regime(P, mem, generated_at),
         "n_positions": len(positions), "cash": round(float(out_paper["cash"]), 2),
         "note": "forward-watch, modeled fills — 0094 weekly swing (0093-N50 signals, CRS-ranked fills; UNDERPOWERED DSR 0.89, not certified)",
