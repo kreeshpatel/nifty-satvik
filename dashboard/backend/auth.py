@@ -18,6 +18,7 @@ from passlib.context import CryptContext
 from jose import jwt, JWTError
 import pyotp
 
+from netutil import client_ip
 from database import get_db, User, RefreshToken, PasswordResetToken
 from crypto import encrypt as _crypto_encrypt, decrypt as _crypto_decrypt
 
@@ -324,7 +325,7 @@ async def login(body: LoginRequest, request: Request, db: Session = Depends(get_
     from audit import log_event
 
     user = db.query(User).filter(User.email == body.email.lower().strip()).first()
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
 
     if not user:
         log_event(db, None, "LOGIN_FAILED", f"Unknown email: {body.email}", ip)
@@ -459,7 +460,7 @@ async def logout(
         ).update({RefreshToken.revoked_at: datetime.utcnow()})
         db.commit()
 
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     if user_id:
         log_event(db, user_id, "LOGOUT", None, ip)
 
@@ -499,7 +500,7 @@ async def refresh(
     if not refresh_token_raw:
         raise HTTPException(status_code=401, detail="No refresh token")
 
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     token_hash = hash_token(refresh_token_raw)
 
     # Look up regardless of revoked_at / expires_at — we need to distinguish
@@ -698,7 +699,7 @@ async def forgot_password(
     from audit import log_event
 
     email = body.email.lower().strip()
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     user = db.query(User).filter(User.email == email, User.is_active == True).first()
 
     if user:
@@ -735,7 +736,7 @@ async def reset_password(
     """Consume a single-use reset token and set a new password."""
     from audit import log_event
 
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     token_hash = hash_token(body.token)
 
     db_token = db.query(PasswordResetToken).filter(
@@ -795,7 +796,7 @@ async def login_mfa(
     """Second step of MFA login — exchange pending-token + TOTP code for a session."""
     from audit import log_event
 
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     user_id = _decode_mfa_pending_token(body.mfa_pending_token)
     if user_id is None:
         raise HTTPException(status_code=401, detail="Invalid or expired MFA token. Please sign in again.")
@@ -871,7 +872,7 @@ async def mfa_verify(
 
     user.mfa_enabled = True
     db.commit()
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     log_event(db, user.id, "MFA_ENABLED", None, ip)
     return {"status": "ok"}
 
@@ -896,7 +897,7 @@ async def mfa_disable(
     user.mfa_enabled = False
     user.mfa_secret_encrypted = None
     db.commit()
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     log_event(db, user.id, "MFA_DISABLED", None, ip)
     return {"status": "ok"}
 
@@ -930,7 +931,7 @@ async def register(body: RegisterRequest, request: Request, db: Session = Depend
     db.commit()
     db.refresh(user)
 
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     log_event(db, admin.id, "ACCOUNT_CREATED", f"Created user {email} (id={user.id})", ip)
 
     return {"id": user.id, "email": user.email, "name": user.name}

@@ -6,6 +6,7 @@ All routes require is_admin=True.
 import time
 import logging
 from datetime import datetime, timezone, timedelta
+from netutil import client_ip
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Depends, Query, Request
@@ -120,7 +121,7 @@ async def deactivate_user(
     db.query(KiteSession).filter(KiteSession.user_id == user_id).delete()
     db.commit()
 
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     log_event(db, admin.id, "USER_DEACTIVATED", f"Deactivated user {user.email} (id={user_id})", ip)
 
     return {"status": "success", "message": f"User {user.email} deactivated"}
@@ -145,7 +146,7 @@ async def activate_user(
     user.locked_until = None
     db.commit()
 
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     log_event(db, admin.id, "USER_ACTIVATED", f"Activated user {user.email} (id={user_id})", ip)
 
     return {"status": "success", "message": f"User {user.email} activated"}
@@ -169,7 +170,7 @@ async def unlock_user(
     user.locked_until = None
     db.commit()
 
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     log_event(db, admin.id, "ACCOUNT_UNLOCKED", f"Unlocked user {user.email} (id={user_id})", ip)
 
     return {"status": "success", "message": f"User {user.email} unlocked"}
@@ -196,7 +197,7 @@ async def reset_password(
     user.locked_until = None
     db.commit()
 
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     log_event(db, admin.id, "PASSWORD_RESET", f"Reset password for {user.email} (id={user_id})", ip)
 
     return {"status": "success", "email": user.email, "temp_password": temp_password}
@@ -215,7 +216,7 @@ async def revoke_kite_session(
     db.query(KiteSession).filter(KiteSession.user_id == user_id).delete()
     db.commit()
 
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     log_event(db, admin.id, "KITE_REVOKED", f"Revoked Kite session for user_id={user_id}", ip)
 
     return {"status": "success"}
@@ -312,11 +313,11 @@ async def manual_refresh_kite(
         result = refresh_admin_session()
     except Exception as e:
         logger.error(f"Manual Kite refresh failed: {e}")
-        ip = request.client.host if request.client else "unknown"
+        ip = client_ip(request)
         log_event(db, admin.id, "KITE_REFRESH_FAILED", str(e)[:500], ip)
         raise HTTPException(status_code=500, detail=f"Refresh failed: {str(e)[:200]}")
 
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     log_event(db, admin.id, "KITE_MANUAL_REFRESH",
               f"Manually refreshed Kite session for {result.get('kite_user_id')}", ip)
 

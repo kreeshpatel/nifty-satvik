@@ -16,8 +16,7 @@ load_dotenv()  # Load .env file for KITE_API_KEY, KITE_API_SECRET, etc.
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from slowapi import Limiter
-from slowapi.util import get_remote_address
+from slowapi import Limiter  # noqa: F401 — re-exported type for tooling
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
@@ -89,7 +88,7 @@ if not os.getenv("GITHUB_TOKEN"):
     )
 
 
-limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"])
+from ratelimit import limiter  # keyed on the real client IP behind Fly (netutil.client_ip)
 app = FastAPI(title="NiftyQuant Dashboard", version="2.0.0")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, lambda req, exc: JSONResponse(
