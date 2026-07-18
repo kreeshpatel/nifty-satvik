@@ -19,7 +19,6 @@
 
 import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { KiteContext } from '@/App';
 import { AuthContext } from '@/context/AuthContext';
 import { useSignals } from '@/hooks/queries/useSignals';
 import { useWatchlist } from '@/hooks/queries/useWatchlist';
@@ -332,17 +331,6 @@ function CommentaryCard({ regime, model, freshCount }) {
   );
 }
 
-function StatBar({ label, value, total }) {
-  const pct = total > 0 ? Math.round((value / total) * 100) : 0;
-  return (
-    <div className="ri-statrow">
-      <span className="ri-stat-l">{label}</span>
-      <span className="ri-bar"><span className="ri-bar-fill" style={{ width: `${pct}%` }} /></span>
-      <span className="ri-stat-v tnum">{value}</span>
-    </div>
-  );
-}
-
 // Map an enriched signal → the pure sizer's input shape.
 const toSizerSig = (s) => ({
   signalId: s._signalId, sym: s.sym, entry: s.entry, stop: s.stop, buyHigh: s._buyHigh, ltp: s._ltp,
@@ -601,7 +589,6 @@ const FILTERS = [
 ];
 
 export default function SignalsV3() {
-  const kite = useContext(KiteContext);
   const { user } = useContext(AuthContext);
   const isAdmin = !!user?.is_admin;
   const navigate = useNavigate();

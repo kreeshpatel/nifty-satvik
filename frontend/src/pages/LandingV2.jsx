@@ -8,7 +8,6 @@
  *
  * Behaviour unchanged from the previous version:
  *   - FAQ accordion   → useState(openFaq) single-open index
- *   - Sector tabs     → useState(activeSector) + SECTORS data map
  *   - Weekly scan     → conditional section, safe aggregate from /api/landing-stats
  *   - All "Request access" CTAs → RequestAccessModal (real POST /api/access-requests)
  *
@@ -20,7 +19,6 @@ import { useState, useEffect } from 'react';
 import { RegimeProvider } from '@/context/RegimeContext';
 import DashboardMockup from '@/components/landing/DashboardMockup';
 import RequestAccessModal from '@/components/landing/RequestAccessModal';
-import kiteMark from '@/assets/brand/kite-logo.png';
 import brandLogo from '@/assets/brand/nifty-satvik-logo.png';
 import { DISCLAIMER } from '@/lib/signalCopy';
 import '@/styles/landing-v2.css';
@@ -76,78 +74,6 @@ const fmt = (v, opts = {}) => {
   return `${sign && n > 0 ? '+' : ''}${s}${suffix}`;
 };
 
-/* ─── Sector tab data ─── */
-const SECTORS = {
-  largecap: {
-    key: 'largecap',
-    label: 'Large-cap · Nifty 100',
-    name: 'Nifty 100 · Large-cap universe',
-    meta: 'Illustrative — the universe Nifty Satvik scans daily',
-    pct: '100 names',
-    linePath: 'M0 240 L60 220 L120 200 L180 195 L240 170 L300 155 L360 130 L420 115 L480 90 L540 75 L600 60',
-    fillPath: 'M0 240 L60 220 L120 200 L180 195 L240 170 L300 155 L360 130 L420 115 L480 90 L540 75 L600 60 L600 280 L0 280 Z',
-    endCx: 600, endCy: 60,
-    rows: [
-      { sym: 'RELIANCE', name: 'Reliance Industries', price: '₹2,948.20', chg: '+2.18%', tone: 'bull' },
-      { sym: 'TCS',      name: 'Tata Consultancy',   price: '₹4,128.50', chg: '+1.62%', tone: 'bull' },
-      { sym: 'HDFCBANK', name: 'HDFC Bank',          price: '₹1,748.20', chg: '+1.05%', tone: 'bull' },
-      { sym: 'INFY',     name: 'Infosys',            price: '₹1,842.10', chg: '−0.77%', tone: 'bear' },
-      { sym: 'ICICIBANK',name: 'ICICI Bank',         price: '₹1,218.60', chg: '+1.05%', tone: 'bull' },
-    ],
-  },
-  midcap: {
-    key: 'midcap',
-    label: 'Mid-cap · Nifty 150',
-    name: 'Nifty Midcap 150',
-    meta: 'Illustrative — the universe Nifty Satvik scans daily',
-    pct: '150 names',
-    linePath: 'M0 250 L60 235 L120 220 L180 200 L240 195 L300 165 L360 145 L420 110 L480 85 L540 55 L600 35',
-    fillPath: 'M0 250 L60 235 L120 220 L180 200 L240 195 L300 165 L360 145 L420 110 L480 85 L540 55 L600 35 L600 280 L0 280 Z',
-    endCx: 600, endCy: 35,
-    rows: [
-      { sym: 'TATAPOWER', name: 'Tata Power',        price: '₹468.40',   chg: '+3.42%', tone: 'bull' },
-      { sym: 'POLYCAB',   name: 'Polycab India',     price: '₹7,124.00', chg: '+2.84%', tone: 'bull' },
-      { sym: 'VOLTAS',    name: 'Voltas Ltd',        price: '₹1,684.20', chg: '+1.92%', tone: 'bull' },
-      { sym: 'CUMMINSIND',name: 'Cummins India',     price: '₹3,842.50', chg: '+1.64%', tone: 'bull' },
-      { sym: 'JUBLFOOD',  name: 'Jubilant FoodWorks',price: '₹612.80',   chg: '−0.82%', tone: 'bear' },
-    ],
-  },
-  smallcap: {
-    key: 'smallcap',
-    label: 'Small-cap · Nifty 250',
-    name: 'Nifty Smallcap 250',
-    meta: 'Illustrative — the universe Nifty Satvik scans daily',
-    pct: '250 names',
-    linePath: 'M0 260 L60 250 L120 232 L180 240 L240 200 L300 180 L360 140 L420 100 L480 85 L540 45 L600 22',
-    fillPath: 'M0 260 L60 250 L120 232 L180 240 L240 200 L300 180 L360 140 L420 100 L480 85 L540 45 L600 22 L600 280 L0 280 Z',
-    endCx: 600, endCy: 22,
-    rows: [
-      { sym: 'CRAFTSMAN', name: 'Craftsman Automation', price: '₹4,820.00', chg: '+4.62%', tone: 'bull' },
-      { sym: 'JBCHEPHARM',name: 'JB Chemicals',         price: '₹1,842.40', chg: '+3.18%', tone: 'bull' },
-      { sym: 'CDSL',      name: 'Central Depository',   price: '₹1,684.00', chg: '+2.42%', tone: 'bull' },
-      { sym: 'BLUEDART',  name: 'Blue Dart Express',    price: '₹7,242.00', chg: '+1.94%', tone: 'bull' },
-      { sym: 'IIFL',      name: 'IIFL Finance',         price: '₹412.60',   chg: '−1.42%', tone: 'bear' },
-    ],
-  },
-  banking: {
-    key: 'banking',
-    label: 'Banking · BankNifty',
-    name: 'BankNifty universe',
-    meta: 'Illustrative — the universe Nifty Satvik scans daily',
-    pct: 'Bank Nifty',
-    linePath: 'M0 245 L60 240 L120 225 L180 210 L240 215 L300 195 L360 180 L420 165 L480 140 L540 115 L600 85',
-    fillPath: 'M0 245 L60 240 L120 225 L180 210 L240 215 L300 195 L360 180 L420 165 L480 140 L540 115 L600 85 L600 280 L0 280 Z',
-    endCx: 600, endCy: 85,
-    rows: [
-      { sym: 'HDFCBANK',  name: 'HDFC Bank',            price: '₹1,748.20', chg: '+1.05%', tone: 'bull' },
-      { sym: 'ICICIBANK', name: 'ICICI Bank',            price: '₹1,218.60', chg: '+1.05%', tone: 'bull' },
-      { sym: 'SBIN',      name: 'State Bank of India',   price: '₹768.40',   chg: '+1.62%', tone: 'bull' },
-      { sym: 'KOTAKBANK', name: 'Kotak Mahindra Bank',   price: '₹1,842.60', chg: '+0.80%', tone: 'bull' },
-      { sym: 'AXISBANK',  name: 'Axis Bank',             price: '₹1,124.20', chg: '−0.42%', tone: 'bear' },
-    ],
-  },
-};
-const SECTOR_KEYS = ['largecap', 'midcap', 'smallcap', 'banking'];
 
 /* ─── FAQ items ─── */
 const FAQ_ITEMS = [
@@ -403,7 +329,6 @@ function YearlyReturns({ data }) {
 function LandingV2Shell() {
   const [requestOpen, setRequestOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState(null);
-  const [activeSector, setActiveSector] = useState('largecap');
   const [stats, setStats] = useState(STATS_FALLBACK);
 
   useEffect(() => {
@@ -439,7 +364,6 @@ function LandingV2Shell() {
   const alphaPP = Math.round(last.s - last.b);            // strategy − benchmark, in points
 
   const openModal = () => setRequestOpen(true);
-  const sector = SECTORS[activeSector];
   const scrollTo = (id) => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth' }); };
 
   return (

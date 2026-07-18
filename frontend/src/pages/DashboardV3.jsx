@@ -21,7 +21,6 @@
 
 import React, { useContext, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { KiteContext } from '@/App';
 import { useSignals } from '@/hooks/queries/useSignals';
 import { useWatchlist } from '@/hooks/queries/useWatchlist';
 import { useOverview } from '@/hooks/queries/useOverview';
@@ -40,14 +39,6 @@ const fmtINR = (n) =>
 const fmtPct = (n, plus = true) =>
   n == null ? '—' : (n >= 0 && plus ? '+' : '') + Number(n).toFixed(2) + '%';
 const fmtPct1 = (n) => n == null ? '—' : (n >= 0 ? '+' : '−') + Math.abs(n).toFixed(1) + '%';
-const fmtLakh = (n) => {
-  if (n == null) return '—';
-  const sign = n < 0 ? '−' : '';
-  const a = Math.abs(n);
-  if (a >= 1e7) return sign + '₹' + (a / 1e7).toFixed(2) + 'Cr';
-  if (a >= 1e5) return sign + '₹' + (a / 1e5).toFixed(2) + 'L';
-  return sign + '₹' + Math.round(a).toLocaleString('en-IN');
-};
 
 function tickerBg(sym) {
   let h = 0;
@@ -133,7 +124,7 @@ function RegimeCard({ regime, indexData, heldCount }) {
 // ─────────────────────────────────────────────────────────────────────
 // Research-call card — prototype .sig
 // ─────────────────────────────────────────────────────────────────────
-function SigCard({ sig, brewing, idx, onOpen }) {
+function SigCard({ sig, brewing, onOpen }) {
   const sym    = sig.ticker || sig.sym || sig.symbol || '??';
   const name   = sig.name || sym;
   const sector = sig.sector || '—';
@@ -545,7 +536,6 @@ export default function DashboardV3() {
   const cronHealth = useMemo(() => signalsQuery.data?.cron_health ?? {}, [signalsQuery.data]);
   const portfolio  = useMemo(() => overviewQuery.data?.portfolio ?? {}, [overviewQuery.data]);
   const metrics    = useMemo(() => overviewQuery.data?.metrics ?? {}, [overviewQuery.data]);
-  const winRate    = metrics?.win_rate ?? null;
 
   const rankByGrade = (list) => [...list].sort((a, b) => {
     const ga = (a.grade || 'B')[0]; const gb = (b.grade || 'B')[0];
@@ -606,7 +596,7 @@ export default function DashboardV3() {
                 </div>
               ) : (
                 displayCards.map((sig, i) => (
-                  <SigCard key={sig.ticker || sig.sym || sig.symbol} sig={sig} brewing={showingBrewing} idx={i} onOpen={setTradeCard} />
+                  <SigCard key={sig.ticker || sig.sym || sig.symbol} sig={sig} brewing={showingBrewing} onOpen={setTradeCard} />
                 ))
               )}
             </div>
