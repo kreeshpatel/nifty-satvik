@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import {
   Search, Bell, User, LogOut, Menu, X,
-  LayoutDashboard, LineChart, Trophy, Briefcase,
+  LayoutDashboard, LineChart, Trophy, Briefcase, ListChecks,
   Settings as SettingsIcon, Shield, Minus, Plus,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -36,6 +36,7 @@ import {
 // Research-only product (2026-07-13): Positions + Portfolio stripped — users track
 // holdings and place orders on their own broker. The app just surfaces the research book.
 const PRIMARY_TABS = [
+  { to: '/this-week',    label: 'This week',  icon: ListChecks },
   { to: '/dashboard',    label: 'Dashboard',  icon: LayoutDashboard },
   { to: '/premove',      label: 'Research',   icon: LineChart },
   { to: '/portfolio',    label: 'Portfolio',  icon: Briefcase },

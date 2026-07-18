@@ -40,6 +40,7 @@ const AdminV2         = React.lazy(() => import('@/pages/AdminV2'));
 const TrackRecordV2   = React.lazy(() => import('@/pages/TrackRecordV2'));
 const TrackRecordV3   = React.lazy(() => import('@/pages/TrackRecordV3'));
 const PortfolioV3     = React.lazy(() => import('@/pages/PortfolioV3'));
+const ThisWeek        = React.lazy(() => import('@/pages/ThisWeek'));
 const SettingsV2      = React.lazy(() => import('@/pages/SettingsV2'));
 const PrimitivesShowcase = React.lazy(() => import('@/pages/_internal/Primitives'));
 const PreviewDashboard   = React.lazy(() => import('@/pages/_internal/PreviewDashboard'));
@@ -222,6 +223,9 @@ function AnimatedRoutes() {
         {/* Authenticated app — wrapped with sidebar + KiteContext */}
         <Route element={<ProtectedAppLayout />}>
           <Route path="/dashboard" element={<PageTransition><DashboardV3 /></PageTransition>} />
+          {/* The single "what to do this week" surface — consolidates the buys (Research),
+              the exits (Portfolio's outstanding strip) and the monitor flags into one list. */}
+          <Route path="/this-week" element={<PageTransition><ThisWeek /></PageTransition>} />
           <Route path="/premove" element={<PageTransition><SignalsV3 /></PageTransition>} />
           {/* Portfolio RESURRECTED 2026-07-18 (Stage 5): a per-user self-report holdings page
               sourced from the execution ledger + owner quotes (ADR 0011), NOT Kite. Positions
