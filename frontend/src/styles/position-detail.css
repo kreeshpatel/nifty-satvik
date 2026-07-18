@@ -1,0 +1,117 @@
+/* position-detail.css — one trade's whole story. House tokens only, so it inherits the current
+   dark theme and any future theme swap for free. */
+
+.pd-page { max-width: 900px; margin: 0 auto; padding: 26px 22px 40px; }
+
+/* ── Header ── */
+.pd-head { margin-bottom: 20px; }
+.pd-kicker {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--text-3);
+}
+.pd-title {
+  font-size: 28px; font-weight: 700; letter-spacing: -0.02em; color: var(--text-1);
+  margin: 6px 0 0; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.pd-status {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 999px; border: 1px solid var(--edge-1);
+}
+.pd-status-open { color: var(--bull); border-color: rgba(63, 221, 138, 0.32); background: var(--bull-soft); }
+.pd-status-closed { color: var(--text-3); background: var(--surface-2); }
+.pd-sub { font-size: 12.5px; color: var(--text-3); margin-top: 8px; line-height: 1.5; }
+
+/* ── KPI strip ── */
+.pd-kpis {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 24px;
+}
+.pd-kpi {
+  background: var(--surface-1); border: 1px solid var(--edge-1); border-radius: 12px;
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 5px;
+}
+.pd-kpi-k { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); font-weight: 600; }
+.pd-kpi-v { font-size: 18px; font-weight: 700; color: var(--text-1); }
+
+/* ── Sections ── */
+.pd-section { margin-bottom: 26px; }
+.pd-section-h { display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+.pd-section-h h2 {
+  font-size: 15px; font-weight: 700; color: var(--text-1); margin: 0;
+  display: flex; align-items: center; gap: 8px;
+}
+.pd-section-sub { font-size: 11.5px; color: var(--text-3); }
+.pd-count {
+  font-size: 11px; font-weight: 700; color: var(--text-2); background: var(--surface-3);
+  border-radius: 999px; padding: 2px 8px; font-variant-numeric: tabular-nums;
+}
+
+/* ── The frozen plan ── */
+.pd-plan {
+  background: var(--surface-1); border: 1px solid var(--edge-1); border-radius: 14px; padding: 16px 18px;
+}
+.pd-plan-levels { display: flex; gap: 28px; flex-wrap: wrap; padding-bottom: 14px; }
+.pd-plan-levels > div { display: flex; flex-direction: column; gap: 4px; }
+.pd-k { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-3); font-weight: 600; }
+.pd-plan-levels span:last-child { font-size: 15px; font-weight: 700; color: var(--text-1); }
+
+.pd-tranches { list-style: none; margin: 0; padding: 14px 0 0; border-top: 1px solid var(--edge-1); }
+.pd-tranche { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; font-size: 12.5px; color: var(--text-2); }
+.pd-tranche-mark {
+  width: 20px; height: 20px; flex-shrink: 0; border-radius: 50%;
+  display: grid; place-items: center; font-size: 10.5px; font-weight: 700;
+  background: var(--surface-3); color: var(--text-3); border: 1px solid var(--edge-1);
+}
+.pd-tranche.is-done .pd-tranche-mark { background: var(--bull-soft); color: var(--bull); border-color: rgba(63, 221, 138, 0.35); }
+.pd-tranche-body b { color: var(--text-1); }
+.pd-tranche-state {
+  margin-left: 8px; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--text-3); font-weight: 600;
+}
+.pd-tranche.is-done .pd-tranche-state { color: var(--bull); }
+
+/* ── Timeline ── */
+.pd-timeline { list-style: none; margin: 0; padding: 0; position: relative; }
+.pd-timeline::before {
+  content: ''; position: absolute; left: 5px; top: 10px; bottom: 10px;
+  width: 1px; background: var(--edge-1);
+}
+.pd-event { display: flex; gap: 14px; padding: 10px 0; position: relative; }
+.pd-event-dot {
+  width: 11px; height: 11px; border-radius: 50%; background: currentColor;
+  margin-top: 5px; flex-shrink: 0; z-index: 1;
+  box-shadow: 0 0 0 3px var(--surface-0);
+}
+.pd-event.is-superseded { opacity: 0.45; }
+.pd-event.is-superseded .pd-event-top b { text-decoration: line-through; }
+.pd-event-body { min-width: 0; flex: 1; }
+.pd-event-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13px; color: var(--text-2); }
+.pd-event-val { color: var(--text-3); }
+.pd-event-meta { font-size: 11.5px; color: var(--text-3); margin-top: 3px; line-height: 1.5; }
+.pd-note-inline { font-style: italic; }
+.pd-badge {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700;
+  padding: 2px 7px; border-radius: 999px; background: var(--surface-3); color: var(--text-3);
+}
+.pd-badge-fix { background: var(--warn-soft); color: var(--warn); }
+
+/* ── Notes / states ── */
+.pd-card { background: var(--surface-1); border: 1px solid var(--edge-1); border-radius: 14px; padding: 18px 20px; }
+.pd-muted { color: var(--text-3); font-size: 13px; }
+.pd-note, .pd-open-note {
+  background: var(--surface-1); border: 1px solid var(--edge-1); border-radius: 12px;
+  padding: 12px 14px; font-size: 12px; line-height: 1.55; color: var(--text-3);
+}
+.pd-open-note { margin-top: 12px; }
+
+/* ── Footer ── */
+.pd-foot { margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--edge-1); }
+.pd-link { font-size: 12.5px; color: var(--brand); text-decoration: none; margin-right: 18px; }
+.pd-link:hover { text-decoration: underline; }
+.pd-disclaimer { margin-top: 12px; font-size: 11px; line-height: 1.5; color: var(--text-3); max-width: 90ch; }
+
+@media (max-width: 760px) {
+  .pd-page { padding: 20px 14px 32px; }
+  .pd-title { font-size: 22px; }
+  .pd-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pd-plan-levels { gap: 18px; }
+}

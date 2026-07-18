@@ -16,6 +16,7 @@ import {
   fetchExecutionPosition,
   fetchReconciliation,
   fetchDiscipline,
+  fetchSignalSnapshot,
   recordBuy,
   recordSell,
 } from '@/services/api';
@@ -61,6 +62,19 @@ export function useExecutionPositions(options = {}) {
     select: (data) => (Array.isArray(data?.positions) ? data.positions : []),
     staleTime: 30 * 1000,
     gcTime: 10 * 60 * 1000,
+    ...options,
+  });
+}
+
+/** The frozen snapshot for a signal — the plan as first published (never re-written by a recompute).
+ *  404s for signals frozen before the snapshot floor shipped, so callers must tolerate null. */
+export function useSignalSnapshot(signalId, options = {}) {
+  return useQuery({
+    queryKey: ['signals', 'snapshot', signalId],
+    queryFn: () => fetchSignalSnapshot(signalId),
+    enabled: !!signalId,
+    retry: false,                       // a 404 here is expected, not a transient failure
+    staleTime: 60 * 60 * 1000,          // immutable by construction — cache hard
     ...options,
   });
 }

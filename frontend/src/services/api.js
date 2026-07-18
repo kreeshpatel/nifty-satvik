@@ -528,6 +528,10 @@ export const recordSell = ({ signal_id, qty, price, tranche, executed_at, note, 
 /** Append a CORRECTING event that supersedes a prior one (audit-safe; never edits in place). */
 export const correctExecution = (payload) => authPost(`${API}/api/execution/correct`, payload);
 
+/** The IMMUTABLE frozen snapshot of a signal as first published (the card you acted on). 404 if never frozen. */
+export const fetchSignalSnapshot = (signalId) =>
+  authJson(`${API}/api/signals/snapshot/${encodeURIComponent(signalId)}`);
+
 /** The user's OPEN reconciliation action items (model plan − their ledger) → { n_open, action_items }. */
 export const fetchReconciliation = () => authJson(`${API}/api/execution/reconciliation`);
 
