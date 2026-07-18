@@ -27,7 +27,6 @@ import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import { GlassTabs } from '@/components/shared/GlassTabs';
 import { CONVICTION, DISCLAIMER, STATES, DISCIPLINE, COLD_START, LESSONS } from '@/lib/signalCopy';
 import { EmptyState } from '@/components/shared/EmptyState';
-import PickOfWeek from '@/components/shared/PickOfWeek';
 import TradeCardModal from '@/components/shared/TradeCardModal';
 import ExecutionCaptureModal from '@/components/shared/ExecutionCaptureModal';
 import DisciplineCard from '@/components/shared/DisciplineCard';
@@ -300,9 +299,13 @@ function ReviewCard({ card }) {
 // ── Regime → commentary ───────────────────────────────────────────────
 function regimeInfo(regime) {
   const rs = (regime?.status || '').toUpperCase();
-  if (rs.includes('BULL')) return { label: 'Bullish', tone: 'bull', line: 'Trend and breadth favour longs.' };
-  if (rs.includes('BEAR')) return { label: 'Bearish', tone: 'bear', line: 'Defensive — trend and breadth are against longs.' };
-  return { label: 'Choppy', tone: 'warn', line: 'Mixed tape — no clear trend. Stay selective.' };
+  // No status yet = NOT LOADED, which is not the same as "choppy". Previously an empty regime fell
+  // through to a definitive "The market is Choppy. Mixed tape — stay selective." while breadth and
+  // VIX both still rendered "—" — an authoritative market call generated from no data.
+  if (!rs) return { known: false, label: null, tone: 'muted', line: '' };
+  if (rs.includes('BULL')) return { known: true, label: 'Bullish', tone: 'bull', line: 'Trend and breadth favour longs.' };
+  if (rs.includes('BEAR')) return { known: true, label: 'Bearish', tone: 'bear', line: 'Defensive — trend and breadth are against longs.' };
+  return { known: true, label: 'Choppy', tone: 'warn', line: 'Mixed tape — no clear trend. Stay selective.' };
 }
 
 // ── Right-rail cards ──────────────────────────────────────────────────
@@ -314,13 +317,17 @@ function CommentaryCard({ regime, model, freshCount }) {
   return (
     <div className="ri-card">
       <div className="ri-card-h">MARKET NOW</div>
-      <div className="ri-comm-title">
-        The market is <span className={`num-${r.tone}`}>{r.label}.</span> {r.line}
+      <div className="ri-comm-title" aria-live="polite">
+        {r.known
+          ? <>The market is <span className={`num-${r.tone}`}>{r.label}.</span> {r.line}</>
+          : <span style={{ color: 'var(--text-3)' }}>Reading today&rsquo;s market&hellip;</span>}
       </div>
-      <div className="ri-comm-body">
-        Breadth {breadth} adv–dec · India VIX {vix}. {freshCount} fresh {book} name{freshCount === 1 ? '' : 's'} cleared
-        the conviction gate at today's scan. The calls post themselves — no manual action.
-      </div>
+      {r.known && (
+        <div className="ri-comm-body">
+          Breadth {breadth} adv–dec · India VIX {vix}. {freshCount} fresh {book} name{freshCount === 1 ? '' : 's'} cleared
+          the conviction gate at today's scan. The calls post themselves — no manual action.
+        </div>
+      )}
     </div>
   );
 }
@@ -780,13 +787,6 @@ export default function SignalsV3() {
         ))}
       </div>
 
-      {/* Pick of the week */}
-      {!loading && topPick && (
-        <div className="ri-pick">
-          <PickOfWeek sig={topPick} to={`/stock/${encodeURIComponent(topPick.sym || '')}`} ctaLabel="View levels →" />
-        </div>
-      )}
-
       {/* Body: table + right rail */}
       <div className="ri-grid">
         <div className="ri-main">
@@ -822,9 +822,14 @@ export default function SignalsV3() {
           <DisciplineCard />
           {isAdmin && model === 'bhanushali' && <ReviewCard card={reviewScorecard} />}
           <CommentaryCard regime={regime} model={model} freshCount={freshCount} />
-          <SignalStatsCard buyPool={buyPool} heldCount={heldIds.size} />
-          <HowCallsMadeCard />
         </aside>
+      </div>
+
+      {/* Reference — static context, moved out of the rail so the rail stays actionable and the
+          page doesn't leave a tall empty column beside a short call list. */}
+      <div className="ri-reference">
+        <SignalStatsCard buyPool={buyPool} heldCount={heldIds.size} />
+        <HowCallsMadeCard />
       </div>
 
       {/* Footer */}
