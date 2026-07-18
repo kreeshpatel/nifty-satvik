@@ -5,6 +5,7 @@
 /* v2 design tokens (retail-pro direction, locked 2026-04-24) — additive to legacy.
    Tokens defined here override anything redefined below in :root. */
 @import './styles/tokens.css';
+@import './styles/theme-quiet.css';   /* opt-in prototype theme: <html data-theme="quiet"> */
 @import './styles/typography.css';
 
 /* Legacy Apple Liquid Glass — being retired page-by-page through Phase 1+ of

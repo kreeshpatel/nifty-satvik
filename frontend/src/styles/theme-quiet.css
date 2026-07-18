@@ -1,0 +1,84 @@
+/* ────────────────────────────────────────────────────────────────────────────
+   THEME · "QUIET INSTRUMENT" (dark)  — PROTOTYPE, opt-in via <html data-theme="quiet">
+   ────────────────────────────────────────────────────────────────────────────
+   The concept: the chrome is near-monochrome warm ink; the ONLY chroma in the
+   product is the market data itself (bull / bear / warn). That does three things
+   the current navy+blue system cannot:
+
+     1. It stops looking like every other dark fintech dashboard. The generic
+        blue→purple palette is the single most over-used look in the category.
+     2. It fits the name. "Satvik" = pure, clean, calm — a restrained, colourless
+        instrument, not a neon terminal.
+     3. It makes the numbers the loudest thing on screen. When the interface has
+        no colour of its own, a green +22.5% or a red stop reads instantly.
+
+   Warmth is the differentiator: the base is a neutral-to-warm ink (not blue-black)
+   and text is a bone/ivory rather than blue-white, so the UI reads like paper under
+   low light instead of a screen. Accent = bone, so buttons/focus feel letterpressed.
+
+   IMPLEMENTATION NOTE: this file overrides ONLY design tokens — zero component
+   changes. That is deliberate: it proves the token layer is the single source of
+   truth, and it is exactly the mechanism the LIGHT theme will use later (a second
+   [data-theme] block), so the white theme becomes a palette, not a rewrite.
+
+   Typography is intentionally unchanged (DM Sans everywhere) — the display-font
+   question is a separate, previously-locked owner decision.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+:root[data-theme="quiet"] {
+  /* ── ACCENT — bone. The chrome's only "brand" colour, so market colour stands alone. */
+  --brand:            #E9E3D6;
+  --brand-hi:         #F4EFE4;
+  --brand-lo:         #D3CCBC;
+  --brand-soft:       rgba(233, 227, 214, 0.10);
+  --brand-edge:       rgba(233, 227, 214, 0.28);
+  --brand-fg:         #101014;                      /* ink text on a bone button */
+  --brand-ink:        #101014;
+  --brand-grad:       linear-gradient(135deg, #E9E3D6 0%, #CFC7B6 100%);
+
+  /* ── SURFACES — warm ink, not blue-black. */
+  --surface-0:        #0B0B0D;
+  --surface-1:        rgba(255, 251, 242, 0.035);
+  --surface-2:        rgba(255, 251, 242, 0.062);
+  --surface-3:        rgba(255, 251, 242, 0.095);
+  --surface-modal:    rgba(20, 20, 23, 0.97);
+
+  --surface-solid-0:  #0B0B0D;
+  --surface-solid-1:  #131316;
+  --surface-solid-2:  #1A1A1E;
+  --surface-solid-3:  #222227;
+
+  /* ── EDGES — warm hairlines. */
+  --edge-1:           rgba(255, 249, 236, 0.075);
+  --edge-2:           rgba(255, 249, 236, 0.135);
+  --edge-3:           rgba(255, 249, 236, 0.20);
+  --edge-brand:       var(--brand-edge);
+
+  /* ── TEXT — bone/ivory, warm neutrals (reads as paper, not screen). */
+  --text-1:           #F2EDE1;
+  --text-2:           #B5AFA2;
+  --text-3:           #7E7970;
+  --text-4:           #514D47;
+
+  /* ── MARKET SEMANTICS — the only chroma. Tuned for the warm ink base. */
+  --bull:             #4FCF8B;
+  --bull-soft:        rgba(79, 207, 139, 0.14);
+  --bear:             #F2606B;
+  --bear-soft:        rgba(242, 96, 107, 0.14);
+  --warn:             #E0A653;
+  --warn-soft:        rgba(224, 166, 83, 0.14);
+  --info:             #8FB8C9;                       /* de-saturated, informational only */
+  --info-soft:        rgba(143, 184, 201, 0.14);
+  --info-edge:        rgba(143, 184, 201, 0.34);
+}
+
+/* The featured "pick of the week" wash follows the accent: a bone glow on ink
+   instead of a coloured gradient, so "featured" is a change in LIGHT, not in hue. */
+:root[data-theme="quiet"] .dv3-pick,
+:root[data-theme="quiet"] .dv3-proto .pick {
+  background:
+    linear-gradient(140deg, rgba(233, 227, 214, 0.10) 0%, rgba(233, 227, 214, 0.035) 45%,
+                    var(--surface-solid-1) 100%),
+    var(--surface-solid-1);
+  border: 1px solid var(--edge-2);
+}
