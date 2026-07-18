@@ -15,6 +15,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useExecutionPosition, useRecordBuy, useRecordSell } from '@/hooks/queries/useExecution';
+import { DISCIPLINE } from '@/lib/signalCopy';
 
 const TRANCHE_LABEL = {
   target: 'Tranche 1 · 40% at the +2R target',
@@ -43,6 +44,9 @@ export default function ExecutionCaptureModal({
 
   const [qty, setQty] = useState('');
   const [price, setPrice] = useState('');
+  // Stage 6: co-instructed resting orders (buy mode). Instruct-only (ADR 0011) — the checkbox
+  // records what the user says they did; unticked never blocks the save.
+  const [restingPlaced, setRestingPlaced] = useState(false);
 
   // The disciplined default price: buy → the model entry; sell → the flagged tranche's level.
   const defaultPrice = useMemo(() => {
@@ -65,6 +69,7 @@ export default function ExecutionCaptureModal({
     if (!open) return;
     setQty(String(defaultQty ?? ''));
     setPrice(String(defaultPrice ?? ''));
+    setRestingPlaced(false);
   }, [open, defaultQty, defaultPrice]);
 
   const qtyNum = Number(qty);
@@ -73,6 +78,26 @@ export default function ExecutionCaptureModal({
   const validPrice = Number.isFinite(priceNum) && priceNum > 0;
 
   const remainderAfter = isSell && remaining != null && validQty ? remaining - qtyNum : null;
+
+  // Stage 6 behavioral guards. R at this sell price (1R = entry - stop, from the frozen card).
+  const rAtPrice = useMemo(() => {
+    const e = Number(sig?.entry), s = Number(sig?.stop);
+    return validPrice && e > 0 && s > 0 && e > s ? (priceNum - e) / (e - s) : null;
+  }, [sig, validPrice, priceNum]);
+  // Winner-cut / fat-tail interstitial: a manual (off-plan) sell, or one that closes the whole
+  // position while in profit — the single most expensive user behaviour in the research record.
+  const showFatTail = isSell && (tranche === 'manual' || !tranche
+    || (remainderAfter != null && remainderAfter <= 0 && tranche === 'runner'))
+    && (rAtPrice == null || rAtPrice > 0);
+  // Pattern-exit reframe: the blow-off exit always fires after a down-week, so it FEELS like
+  // selling the bottom — reframe with the R captured, on schedule.
+  const showPatternReframe = isSell && tranche === 'pattern';
+  // Co-instructed resting orders (buy mode): the 2R partial limit + the stop.
+  const restingLevels = useMemo(() => {
+    const e = Number(sig?.entry), s = Number(sig?.stop);
+    if (!(e > 0 && s > 0 && e > s)) return null;
+    return { limit2r: Number(sig?.target) || e + 2 * (e - s), stop: s };
+  }, [sig]);
 
   // Inline soft warnings (mirror the server's; shown live so the user sees them before saving).
   const warn = useMemo(() => {
@@ -97,7 +122,8 @@ export default function ExecutionCaptureModal({
       );
     } else {
       recordBuy.mutate(
-        { signal_id: signalId, ticker: sig.sym, qty: qtyNum, price: priceNum },
+        { signal_id: signalId, ticker: sig.sym, qty: qtyNum, price: priceNum,
+          note: restingLevels ? `resting orders placed: ${restingPlaced ? 'yes' : 'no'}` : undefined },
         { onSuccess: done },
       );
     }
@@ -150,6 +176,28 @@ export default function ExecutionCaptureModal({
           {warn.map((w, i) => (
             <div key={i} className="ecm-warn num-warn">⚠ {w}</div>
           ))}
+
+          {/* Stage 6 — behavioral guards. Copy nudges; never block (their capital, their report). */}
+          {showFatTail && (
+            <div className="ecm-guard ecm-guard-bear">{DISCIPLINE.fatTail}</div>
+          )}
+          {showPatternReframe && (
+            <div className="ecm-guard ecm-guard-info">{DISCIPLINE.patternExitReframe(rAtPrice)}</div>
+          )}
+          {!isSell && restingLevels && (
+            <div className="ecm-coinstruct">
+              <div className="ecm-guard ecm-guard-info">{DISCIPLINE.coInstruct}</div>
+              <div className="ecm-coinstruct-orders tnum">
+                <span>1 · SELL 40% limit @ {money(restingLevels.limit2r)} (the +2R target)</span>
+                <span>2 · Stop-loss @ {money(restingLevels.stop)}</span>
+              </div>
+              <label className="ecm-coinstruct-check">
+                <input type="checkbox" checked={restingPlaced}
+                       onChange={(e) => setRestingPlaced(e.target.checked)} />
+                <span>I placed both resting orders on my broker</span>
+              </label>
+            </div>
+          )}
 
           <div className="ecm-actions">
             <button type="button" className="ri-btn" onClick={() => onClose?.()} disabled={busy}>

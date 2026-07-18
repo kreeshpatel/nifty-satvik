@@ -15,6 +15,7 @@ import {
   fetchExecutionPositions,
   fetchExecutionPosition,
   fetchReconciliation,
+  fetchDiscipline,
   recordBuy,
   recordSell,
 } from '@/services/api';
@@ -22,7 +23,19 @@ import { HOLDINGS_KEY } from './useHoldings';
 
 export const EXECUTION_KEY = ['user', 'execution', 'positions'];
 export const RECONCILIATION_KEY = ['user', 'execution', 'reconciliation'];
+export const DISCIPLINE_KEY = ['user', 'execution', 'discipline'];
 export const executionPositionKey = (signalId) => ['user', 'execution', 'position', signalId];
+
+/** The six-leg discipline gauge priced on the Sharpe null segment [0.67 … 1.03] (Stage 6). */
+export function useDiscipline(options = {}) {
+  return useQuery({
+    queryKey: DISCIPLINE_KEY,
+    queryFn: fetchDiscipline,
+    staleTime: 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    ...options,
+  });
+}
 
 /** The user's OPEN reconciliation action items (model plan − their ledger). */
 export function useReconciliation(options = {}) {
@@ -77,10 +90,12 @@ function useRecordEvent(mutationFn, verb) {
               (pos.realized_pnl ? ` · realized ₹${Math.round(pos.realized_pnl).toLocaleString('en-IN')}` : '') },
         );
       }
-      // The ledger changed → refresh positions, this position's trail, outstanding actions, held-set.
+      // The ledger changed → refresh positions, this position's trail, outstanding actions,
+      // the discipline gauge, and the held-set.
       qc.invalidateQueries({ queryKey: EXECUTION_KEY });
       if (vars?.signal_id) qc.invalidateQueries({ queryKey: executionPositionKey(vars.signal_id) });
       qc.invalidateQueries({ queryKey: RECONCILIATION_KEY });
+      qc.invalidateQueries({ queryKey: DISCIPLINE_KEY });
       qc.invalidateQueries({ queryKey: HOLDINGS_KEY });
     },
     onError: (err) => toast.error(`Could not record ${verb.toLowerCase()}`, { description: err?.message }),

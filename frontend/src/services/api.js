@@ -619,6 +619,16 @@ export const correctExecution = (payload) => authPost(`${API}/api/execution/corr
 /** The user's OPEN reconciliation action items (model plan − their ledger) → { n_open, action_items }. */
 export const fetchReconciliation = () => authJson(`${API}/api/execution/reconciliation`);
 
+/** The six-leg discipline gauge, priced on the Sharpe null segment → { legs, score, sharpe_now, ... }. */
+export const fetchDiscipline = () => authJson(`${API}/api/execution/discipline`);
+
+/** Durable per-user onboarding-journey flags → { flags: { flag: {set_at, value} } }. */
+export const fetchJourneyFlags = () => authJson(`${API}/api/journey`);
+
+/** Set a journey flag (set-once; re-POST is a no-op) → { flag, already_set }. */
+export const setJourneyFlag = (flag, value) =>
+  authPost(`${API}/api/journey/${encodeURIComponent(flag)}`, value ? { value } : {});
+
 // ========================================
 // Admin APIs (require is_admin=true on the user)
 // ========================================
