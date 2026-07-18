@@ -1,0 +1,13 @@
+{
+  "generated_utc": "2026-07-18T10:31:26.286369+00:00",
+  "generated_ist": "2026-07-18 16:01",
+  "as_of": null,
+  "model": "weekly-swing-0094-rank",
+  "source": "signals_today_weekly.json",
+  "note": "OBSERVATIONAL re-pricing of the frozen Saturday weekly signals \u2014 live current_price + intra-week event flags mapped to the frozen exit tranches. Does NOT recompute signals or move any frozen level; the paper record is untouched and the weekly decision cadence is unchanged. ONLY the +2R target tranche (a resting broker limit) is actionable intra-week; the blow-off pattern and the 44w-SMA runner are decided ONLY at the Saturday weekly recompute and are flagged here as WATCH-only, never actionable.",
+  "n_monitored": 0,
+  "n_flags": 0,
+  "n_actionable": 0,
+  "monitors": [],
+  "flags": []
+}
