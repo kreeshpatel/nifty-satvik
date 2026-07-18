@@ -19,7 +19,7 @@
  * DISCLAIMER footer sourced from @/lib/signalCopy.
  */
 
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSignals } from '@/hooks/queries/useSignals';
 import { useWatchlist } from '@/hooks/queries/useWatchlist';
@@ -495,7 +495,6 @@ function ScanStatus({ cronHealth, signalsCount }) {
 // DashboardV3 — main page export
 // ─────────────────────────────────────────────────────────────────────
 export default function DashboardV3() {
-  const kite = useContext(KiteContext);
   const [tradeCard, setTradeCard] = useState(null);
   // The live book is Bhanushali (weekly-swing) — momentum is suspended
   // (2026-07-06) — so the dashboard queries 'bhanushali', same as Research.
