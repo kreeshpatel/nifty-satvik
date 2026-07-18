@@ -22,6 +22,7 @@ from sqlalchemy.orm import Session
 
 from database import get_db, User, ExecutionEvent
 from auth import get_current_user
+from services import discipline as disc
 from services import execution_ledger as ledger
 from services import reconciliation as recon
 from services.signal_snapshots import get_snapshot
@@ -195,3 +196,21 @@ def reconciliation(user: User = Depends(get_current_user), db: Session = Depends
     rows = db.query(ExecutionEvent).filter(ExecutionEvent.user_id == user.id).all()
     stops = {s: _frozen_stop(s, db) for s in {r.signal_id for r in rows}}
     return recon.reconcile_user(db, user.id, envelope, monitor, stops=stops)
+
+
+@router.get("/discipline")
+def discipline_score(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """The Stage-6 behavioral gauge: six-leg geometric discipline score computed from the user's
+    ledger vs the model book, priced on the Sharpe null segment [0.67 … 1.03]. Derived on demand —
+    recording a fill (or taking a skipped buy) moves it on the next read."""
+    envelope, _monitor = _model_state()
+    rows = db.query(ExecutionEvent).filter(ExecutionEvent.user_id == user.id).all()
+    snapshots = {}
+    for sid in {r.signal_id for r in rows}:
+        try:
+            snap = get_snapshot(db, sid)
+            if snap:
+                snapshots[sid] = snap
+        except Exception:  # noqa: BLE001 — a missing snapshot just omits the fidelity leg for that sid
+            pass
+    return disc.compute_score(db, user.id, envelope, snapshots)

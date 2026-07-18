@@ -335,6 +335,29 @@ class UserHolding(Base):
     user = relationship("User")
 
 
+class UserJourneyFlag(Base):
+    """Durable per-user onboarding / journey memory (Stage-6, docs/PRODUCT_SYNTHESIS.md Phase D).
+
+    One row per (user, flag) — e.g. 'cold_start_acked', 'lesson_first_buy_seen',
+    'lesson_first_drawdown_seen'. The onboarding journey unlocks just-in-time lessons off the user's
+    OWN events (first buy, first 2R, first drawdown) and must remember what was already shown across
+    sessions/devices, so it lives server-side, keyed to the user id — not in localStorage. Set-once
+    semantics (re-POST of the same flag is a no-op); value carries optional context JSON.
+    Brand-new table ⇒ create_all() handles it.
+    """
+    __tablename__ = "user_journey_flags"
+    __table_args__ = (
+        UniqueConstraint("user_id", "flag", name="uix_journey_user_flag"),
+    )
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    flag = Column(String(64), nullable=False, index=True)
+    value_json = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    user = relationship("User")
+
+
 class ExecutionEvent(Base):
     """Per-user, append-only SELF-REPORTED execution ledger (Stage-4, docs/EXECUTION_CAPTURE_SPEC.md).
 
