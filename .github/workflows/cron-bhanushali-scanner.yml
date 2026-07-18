@@ -37,6 +37,24 @@ jobs:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: pyproject.toml
+      # Persist the OHLCV cache across runs so the cron does a cheap ~25-day per-ticker TOP-UP instead of
+      # re-downloading all ~500 names' full history every week (faster + resilient: a transient yfinance
+      # miss falls back to cached bars instead of dropping the name). The key rolls with the month, so the
+      # FIRST run each month rebuilds the whole cache clean on one adjustment basis (bounds dividend drift);
+      # a rolling per-run suffix + month restore-key makes it a true mutable cache within the month. The
+      # cron's corporate-action guard re-fetches any name a split re-adjusted mid-month.
+      - name: OHLCV cache key
+        id: ohlcvkey
+        run: |
+          echo "month=$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
+          echo "stamp=$(date -u +%Y-%m-%dT%H%M%S)" >> "$GITHUB_OUTPUT"
+      - name: Restore/save OHLCV cache
+        uses: actions/cache@v4
+        with:
+          path: data/ohlcv.pkl
+          key: ohlcv-live-${{ steps.ohlcvkey.outputs.month }}-${{ steps.ohlcvkey.outputs.stamp }}
+          restore-keys: |
+            ohlcv-live-${{ steps.ohlcvkey.outputs.month }}-
       - name: Install
         run: |
           python -m pip install --upgrade pip
@@ -53,7 +71,8 @@ jobs:
           git config user.email "kreeshvasistha@gmail.com"
           git add results/signals_today_weekly.json results/signals_history_weekly.json \
                   results/signal_analytics_weekly.json results/paper_portfolio_weekly.json \
-                  results/portfolio_history_weekly.csv results/weekly_review_scorecard.json 2>/dev/null || true
+                  results/portfolio_history_weekly.csv results/weekly_review_scorecard.json \
+                  results/weekly_sma_panel.csv 2>/dev/null || true
           if git commit -m "chore(weekly): Saturday weekly-swing paper state $(date -u +%F)"; then
             # --autostash: the OHLCV download leaves UNSTAGED cache changes that abort a plain
             # `git pull --rebase`, which silently swallowed the push as "nothing to push" and dropped

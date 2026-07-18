@@ -403,13 +403,27 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
     return envelope, sig_hist, analytics, portfolio, hist_df
 
 
+MIN_CACHED_BARS = 300         # a name with fewer cached bars can't warm-up the 44w SMA -> full download
+ADJ_JUMP = 0.005              # >0.5% shift on an overlapping close = a corporate action re-adjusted history
+
+
 def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
     """Return the LIVE OHLCV cache, refreshed with recent bars unless --no-download.
 
-    Self-sufficient so the weekly book can run in its OWN Saturday workflow (no momentum
-    step to download first). Mirrors run_paper_cron's incremental logic: cold cache -> full
-    history from (inception - history_days); warm cache -> last 15 days merged. Saturday runs
-    pick up the just-closed Friday bar (NSE shut Sat, so yfinance returns through Friday).
+    PER-TICKER incremental (2026-07-18): names already deep in the cache get a cheap ~25-day top-up;
+    only NEW / thin names get the full 44-week warm-up window. This is faster than the old
+    all-500-names full pull AND more resilient — a transient yfinance miss on a top-up keeps the
+    cached history (the name stays in the week's computation instead of vanishing). The 44-week SMA
+    is still recomputed from the FULL cached series each run, so settled history is never re-fetched.
+
+    Requires the OHLCV cache to persist across runs (actions/cache in the workflow); when it doesn't
+    (a truly cold checkout) every name is "new" and the behaviour is identical to a full download.
+
+    CORPORATE-ACTION GUARD: a split/bonus re-bases yfinance's whole adjusted history (auto_adjust),
+    but a top-up only refreshes recent days — so old cached bars would stay on the pre-split basis, a
+    discontinuity that silently poisons the 44-week SMA. We detect it on the overlap (old vs fresh
+    close on a shared date) and re-fetch that ticker's full history clean. The monthly cache-key roll
+    (workflow) bounds slow dividend-adjustment drift with a periodic clean rebuild.
     """
     ohlcv = load_ohlcv_cache(OHLCV_CACHE) or {}
     if not do_download:
@@ -419,15 +433,50 @@ def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
     from run_cpcv import build_universe
     universe = build_universe("current")
     hist_start = (pd.to_datetime(start) - pd.Timedelta(days=history_days)).date().isoformat()
-    dl_start = hist_start if not ohlcv else (date.today() - timedelta(days=15)).isoformat()
-    print(f"downloading OHLCV {dl_start}.. for {len(universe)} names ...", flush=True)
+    today = date.today().isoformat()
+    inc_start = (date.today() - timedelta(days=25)).isoformat()   # 25d overlaps a weekly gap comfortably
+
+    cold = [t for t in universe if t not in ohlcv or ohlcv[t] is None or len(ohlcv[t]) < MIN_CACHED_BARS]
+    warm = [t for t in universe if t not in cold]
+    print(f"OHLCV refresh: {len(cold)} full-history + {len(warm)} incremental (of {len(universe)}) ...", flush=True)
     try:
-        fresh = download_ohlcv(universe, start=dl_start, end=date.today().isoformat())
-        ohlcv = merge_ohlcv(ohlcv, fresh) if ohlcv else fresh
+        if cold:
+            ohlcv = merge_ohlcv(ohlcv, download_ohlcv(cold, start=hist_start, end=today)) if ohlcv \
+                else download_ohlcv(cold, start=hist_start, end=today)
+        if warm:
+            fresh = download_ohlcv(warm, start=inc_start, end=today)
+            readjusted = _detect_readjusted(ohlcv, fresh)
+            ohlcv = merge_ohlcv(ohlcv, fresh)
+            if readjusted:
+                print(f"corporate-action re-adjust -> clean full re-fetch of {len(readjusted)}: "
+                      f"{readjusted[:8]}", flush=True)
+                ohlcv = merge_ohlcv(ohlcv, download_ohlcv(readjusted, start=hist_start, end=today))
         save_ohlcv_cache(ohlcv, OHLCV_CACHE)
     except Exception as exc:  # noqa: BLE001 — a download hiccup must not lose the existing cache/book
         print(f"download failed ({type(exc).__name__}: {exc}); using cached bars", flush=True)
     return ohlcv
+
+
+def _detect_readjusted(old: dict, fresh: dict) -> list[str]:
+    """Tickers whose overlapping close shifted > ADJ_JUMP between the cache and a fresh top-up — i.e.
+    yfinance re-adjusted the whole series for a split/bonus. Those need a clean full re-fetch so the
+    44-week SMA isn't computed across mixed adjustment bases. Pure."""
+    hits = []
+    for t, df in (fresh or {}).items():
+        o = (old or {}).get(t)
+        if o is None or df is None or len(o) == 0 or len(df) == 0 or "Close" not in o or "Close" not in df:
+            continue
+        common = o.index.intersection(df.index)
+        if len(common) == 0:
+            continue
+        d0 = common[0]
+        try:
+            oc, nc = float(o.loc[d0, "Close"]), float(df.loc[d0, "Close"])
+        except Exception:  # noqa: BLE001
+            continue
+        if oc > 0 and abs(nc / oc - 1.0) > ADJ_JUMP:
+            hits.append(t)
+    return hits
 
 
 def _refresh_nifty50(do_download: bool) -> None:
@@ -449,6 +498,49 @@ def _refresh_nifty50(do_download: bool) -> None:
         print(f"nifty-50 refreshed -> {merged['date'].max().date()} ({len(merged)} rows)", flush=True)
     except Exception as exc:  # noqa: BLE001
         print(f"nifty-50 refresh failed ({type(exc).__name__}: {exc}); using committed CSV", flush=True)
+
+
+def _write_sma_panel(P: dict, a_set, generated_at: str, sd: Path) -> None:
+    """Per-stock 44-week-SMA AUDIT PANEL for the latest completed week (transparency, not an input).
+
+    One row per universe name: the exact 44w SMA the cards use (`_sma44_now`), the week's OHLC, and the
+    setup gates evaluated on the SAME numbers, so the owner (or an inner-circle reviewer) can verify why
+    ANY name is or isn't a setup without re-running the engine. Overwrites weekly — a single snapshot,
+    not an append log. It is NEVER read back by the cron; the engine always recomputes from raw OHLCV.
+    The line is a 44-week SMA (never EMA) — see the R94 engine + docs/decisions/0010.
+    """
+    a_set = a_set or set()
+    rows = []
+    for t, s in P.items():
+        wk = s.get("wk_hlc") or {}
+        if not wk:
+            continue
+        j = max(wk)                                            # latest week's weekend day-index
+        hi, lo, cl = wk[j][0], wk[j][1], wk[j][2]
+        sma = _sma44_now(P, t)
+        smaok = sma == sma                                    # not NaN
+        fired = s.get("last_signal") is not None
+        rows.append({
+            "ticker": t,
+            "week_ending": str(pd.Timestamp(s["dates"][j]).date()),
+            "weekly_close": round(float(cl), 2),
+            "weekly_low": round(float(lo), 2),
+            "weekly_high": round(float(hi), 2),
+            "sma44": round(float(sma), 2) if smaok else None,
+            "close_above_sma": bool(smaok and cl > sma),
+            "touch_ok": bool(smaok and lo <= sma * 1.07),     # low within 7% above (or below) the SMA
+            "dist_to_sma_pct": round((cl / sma - 1) * 100, 2) if smaok and sma else None,
+            "is_signal": bool(fired),
+            "is_grade_a": bool(t in a_set),
+            "crs_rank_dist": round(float(s["last_signal"]["rank"]), 4) if fired else None,
+        })
+    if not rows:
+        return
+    df = pd.DataFrame(rows).sort_values(["is_grade_a", "is_signal", "ticker"], ascending=[False, False, True])
+    df.insert(0, "as_of", generated_at)
+    df.to_csv(sd / "weekly_sma_panel.csv", index=False)
+    print(f"sma panel: {len(df)} names | {int(df['is_signal'].sum())} signals | "
+          f"{int(df['is_grade_a'].sum())} grade-A -> {sd / 'weekly_sma_panel.csv'}", flush=True)
 
 
 def main(argv=None) -> int:
@@ -492,6 +584,7 @@ def main(argv=None) -> int:
     (sd / "signal_analytics_weekly.json").write_text(json.dumps(analytics, indent=2, default=str), encoding="utf-8")
     (sd / "paper_portfolio_weekly.json").write_text(json.dumps(portfolio, indent=2, default=str), encoding="utf-8")
     hist_df.to_csv(sd / "portfolio_history_weekly.csv", index=False)
+    _write_sma_panel(P, a_set, generated_at, sd)
 
     print(f"weekly cron: inception {args.start} | as-of {generated_at} | "
           f"{sum(1 for s in envelope['signals'] if s.get('tier') == 'signal' and not s.get('bought_date')):>3} open | "
