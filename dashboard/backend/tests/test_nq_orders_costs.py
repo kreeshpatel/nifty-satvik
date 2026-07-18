@@ -5,7 +5,7 @@ leaving the Accounting page's tax KPIs at 0 and net_pnl == gross. The cost model
 mirrors config.py delivery equity: brokerage on both legs, and STT on BOTH legs
 (0.1% per leg — buy AND sell; sell-only is the intraday/F&O rule, not delivery).
 """
-from routers.nq_orders import _compute_costs
+from services.costs import _compute_costs
 from config import BROKERAGE_PCT, STT_PCT
 
 

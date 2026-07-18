@@ -11,7 +11,7 @@
  *   useSignals({model:'bhanushali'}) — signals + regime + cron_health (live book)
  *   useWatchlist({model:'bhanushali'}) — brewing/below-gate candidates
  *   useOverview() — paper portfolio + performance metrics
- *   useKiteHoldings() / useKiteMargins() — live broker state when connected
+ *   (per-user broker state removed per ADR 0011 — holdings panel shows its empty state)
  *   useIndexSparklines() — NIFTY/SENSEX/VIX/... ticker values
  *   useQuoteBatch() — live day-change for held symbols
  *
@@ -25,7 +25,6 @@ import { KiteContext } from '@/App';
 import { useSignals } from '@/hooks/queries/useSignals';
 import { useWatchlist } from '@/hooks/queries/useWatchlist';
 import { useOverview } from '@/hooks/queries/useOverview';
-import { useKiteHoldings } from '@/hooks/queries/useKiteState';
 import { useIndexSparklines } from '@/hooks/queries/useIndexSparklines';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import { DISCLAIMER } from '@/lib/signalCopy';
@@ -550,7 +549,8 @@ export default function DashboardV3() {
   const signalsQuery   = useSignals({ model: 'bhanushali' });
   const watchlistQuery = useWatchlist({ model: 'bhanushali' });
   const overviewQuery  = useOverview();
-  const holdingsQuery  = useKiteHoldings({ enabled: !!kite?.connected });
+  // No per-user broker holdings (ADR 0011); the holdings panel renders its empty state.
+  const holdingsQuery  = { data: [], isLoading: false };
   const indexQuery     = useIndexSparklines();
 
   const heldSymbols = useMemo(() => {

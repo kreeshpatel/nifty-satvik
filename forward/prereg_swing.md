@@ -151,3 +151,22 @@ Nothing in the technical/volume/momentum/macro zoo already killed. A genuinely n
 a new PIT-clean orthogonal feature (Jaccard-distinct from the killed set), a new data modality, or a new
 sub-period with a mechanism. Absent that, **the forward wall — not a 115th in-sample cut — is the only
 move.**
+
+## 9. Amendment 2026-07-15 — live EXIT changed to the Phase-2 exit (owner-override; ADR-0008 / finding 0099)
+The live cron (`scripts/run_bhanushali_cron.py`) now applies `P2_EXIT = {no_time_cap, wk20_trail_pct=0.04,
+blowoff_arm_r=2.5}` to **both** `backtest()` calls, so **both forward-logged books now run the Phase-2 exit**
+(no time cap + blow-off-bar exit @2.5R + 20-week backstop; the 20-day-SMA ratchet trail retained). This is an
+**owner-override** (sole capital-at-risk): the change is a **defensive/selection variant** (in-sample Sharpe
+1.132→1.034, CAGR 24.7→21.2%, **MaxDD −42.4→−34.8%, Calmar 0.58→0.61**, per-trade +28%, trades 255→168) that
+**FAILS the standard ΔSharpe≥+0.10 gate** and touches the 0098-KILL exit area — so it did **not** travel the
+forward-wall certification route; it was registered (trial #115) and adopted directly. See
+`research/config_CHANGELOG.md` + ADR `docs/decisions/0008-swing-exit-change.md` + finding 0099.
+
+Consequences for this wall:
+- The **§1 in-sample reference distribution (0094 exit) is unchanged** — it stays the documented anchor and is
+  reproducible offline with `P2_EXIT` OFF (`backtest(prep_weekly_rank(ohlcv))` = 1.132/255, byte-identical).
+- The **§4 A-only vs base-swing GRADING decision continues**, now measured on the P2-exit books (both books
+  shifted together, so the grading comparison is unaffected in kind).
+- The forward log no longer carries a live 0094-exit shadow; the 0094 exit is the offline reference only. If a
+  live 0094-exit shadow is later wanted for the wall, that is a recorded third book (a §2 swap).
+- **Reversal:** flip `P2_EXIT` OFF in the cron → both live books revert byte-identical to the frozen 0094 exit.

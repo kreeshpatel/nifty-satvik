@@ -40,10 +40,125 @@ import run_bhanushali_weekly_rank as R94  # noqa: E402  — LIVE strategy: 0093-
 
 INCEPTION_DEFAULT = "2026-07-04"
 TARGET_R = 2                     # 0091 books half at +2R -> the displayed target
-HOLD_DAYS_DISPLAY = 65          # ~13-week cap in trading days, for the card's "hold ~N days"
-# closed-trade exit reason -> the status vocabulary the frontend/history views already understand
-_STATUS = {"target3": "HIT_TARGET", "trail": "HIT_STOP", "stop": "HIT_STOP", "stop_half": "HIT_STOP",
+HOLD_DAYS_DISPLAY = 65          # soft "hold ~N days" card hint only. The P2 exit is TREND-FOLLOWING (no hard
+                                # cap; 52-week backstop) so actual holds vary widely — this is a nominal guide.
+# LIVE EXIT (2026-07-15 owner decision — Phase-2 exit; see docs/decisions ADR + config_CHANGELOG). Replaces the
+# 13-week time cap with a no-cap hold + a blow-off-bar exit @2.5R (+ a 20-week-close backstop). Owner-override of
+# the forward-wall route (ships a portfolio Sharpe/CAGR give for -8pp drawdown + fewer/higher-return trades). The
+# backtest() DEFAULTS are left OFF so the frozen 0094 research run stays byte-identical (1.132/255).
+P2_EXIT = dict(no_time_cap=True, wk20_trail_pct=0.04, blowoff_arm_r=2.5)
+# LIVE DISCIPLINE (2026-07-16 owner decision — see docs/decisions/0009 + config_CHANGELOG +
+# research/substrate/FINDING_owner_discipline.md). Owner-OVERRIDE on RISK APPETITE, not an edge claim:
+# the owner pre-accepted a return cost ("i dont care even if it gave good returns, then our book is badly
+# traded ... max 20 percent is fine, if more than 10 percent then our R is distorted").
+#   ext_cap 0.20         skip any fill priced >20% above the signal-week 44w SMA (pure SELECTION; the
+#                        stop is untouched — this is the rule-faithful half).
+#   max_risk_pct 0.10    stop = max(signal-week low, entry x 0.90). NOTE this LIFTS the stop off the
+#                        candle low when the low is further, which DEVIATES from the taught rule by
+#                        explicit owner instruction.
+#   max_notional_pct 0.20  no name exceeds 20% of sizing equity. A GUARDRAIL against runaway single-name
+#                        risk — NOT a performance lever: FINDING_more_slots showed concentration is
+#                        load-bearing (4-5 names 1.21 > 7 names 0.97 > 10 names 0.81 on the 22-26 slice).
+# Measured on the A-ONLY book that actually trades (parity-checked against the recorded 1.004/171):
+#   Sharpe 1.004->1.055, CAGR 20.9->20.2%, MaxDD -36.4->-31.2% (+5.2pp), median R 13.7->9.1%,
+#   mean hold 19.1->12.4wk, win 54->51%, 2022-26 slice 1.17->1.04 (the one negative).
+# Return-neutral, NOT certified: no DSR gate passes a +0.05 in-sample delta at cumulative trial 122.
+# backtest() DEFAULTS stay OFF so the frozen 0094 research run is byte-identical (1.132/255).
+LIVE_DISCIPLINE = dict(ext_cap=0.20, max_risk_pct=0.10, max_notional_pct=0.20)
+# LIVE EXIT = config P (2026-07-16 owner decision — see docs/decisions/0010 + config_CHANGELOG +
+# research/substrate/FINDING_pattern_exit.md). A THREE-TRANCHE scaled exit that REPLACES the P2 trend exit:
+#   40% booked at +2R (resting limit, intraweek)
+#   40% booked on the BLOW-OFF exhaustion pattern (a new-high week closing in its lower third, armed at
+#       +2.5R MFE — the one validated 'pattern' exit; the zoo entry detectors are IC~0, finding 0079)
+#   20% runner held until a weekly close below the 44-week SMA
+# Owner-OVERRIDE (like the P2 exit + discipline adoptions): P maximises the fat tail (in-sample CAGR 27.2%,
+# maxR 40.8R) but FAILS the 2022-26 gate (0.91) and runs a -39.5% DD; adopted on owner call, sole
+# capital-at-risk. backtest() DEFAULTS stay OFF so the frozen 0094 research run is byte-identical (1.132/255).
+P_EXIT = dict(scaled_exit=dict(tp1_r=2.0, tp1_frac=0.40, tp2_r=3.0, tp2_frac=0.0,
+                               pattern_frac=0.40, pattern_arm_r=2.5, runner_sma_buffer=0.0))
+
+# ── THE LIVE EXIT — the single swap point (Stage-1 config-swappable interface) ──────────────
+# Build the product against THIS object + the card schema in `_exit_plan` below, NOT against
+# config P's specific numbers. To change the live book's exit, change ONLY `LIVE_EXIT`: the two
+# backtest() calls and the card `exit_plan` both read it, so nothing downstream hard-codes P.
+# Currently config P (docs/decisions/0010). To revert to the P2 trend exit: `LIVE_EXIT = P2_EXIT`
+# (which has no `scaled_exit` key, so `_exit_plan` falls to its non-scaled branch automatically).
+LIVE_EXIT = P_EXIT
+# closed-trade exit reason -> the status vocabulary the frontend/history views already understand.
+# Scaled-exit (config P) reasons: targets / sma_break / stop / stop_part / pattern / eos.
+_STATUS = {"target3": "HIT_TARGET", "targets": "HIT_TARGET", "trail": "HIT_STOP", "stop": "HIT_STOP",
+           "stop_half": "HIT_STOP", "stop_part": "HIT_STOP", "sma_break": "HIT_STOP", "pattern": "HIT_TARGET",
+           "wk20": "HIT_STOP", "wk20_half": "HIT_STOP", "blowoff": "HIT_STOP", "blowoff_half": "HIT_STOP",
            "time": "EXPIRED", "eos": "EXPIRED"}
+
+
+def _exit_plan(entry, stop, sma44, exit_cfg=None):
+    """The card exit plan — the stable, config-AGNOSTIC interface the UI renders. Tranches are
+    DERIVED from `exit_cfg` (defaults to LIVE_EXIT), so swapping the live config changes the card
+    automatically; nothing hard-codes config P's numbers.
+
+    SCHEMA (stable):
+        { "entry_pattern": str,
+          "tranches": [ { "pct": int, "type": "target"|"pattern"|"runner",
+                          "level": float|None,   # a price (target/runner)
+                          "arm": float,           # pattern-arm price (pattern only)
+                          "do": str } ] }
+
+    entry/stop define R; sma44 is the current 44-week SMA (the runner's exit reference)."""
+    cfg = (exit_cfg if exit_cfg is not None else LIVE_EXIT).get("scaled_exit")
+    r = entry - stop
+    smaok = sma44 == sma44                                  # not NaN
+
+    # Non-scaled (trend) exit, e.g. the P2 revert: half at 2R, then trail the rest.
+    if not cfg:
+        tp = round(entry + 2.0 * r, 2)
+        return {"entry_pattern": "44-week SMA pullback", "tranches": [
+            {"pct": 50, "type": "target", "level": tp,
+             "do": f"Sell half at Rs {tp:,.2f} (the +2R target) — a resting limit order."},
+            {"pct": 50, "type": "runner", "level": round(float(sma44), 2) if smaok else None,
+             "do": ("Hold the rest as a trend runner; exit on a blow-off/exhaustion week or a weekly "
+                    "close below the 20-week trail.")},
+        ]}
+
+    tranches = []
+    tp1_frac = int(round(cfg.get("tp1_frac", 0) * 100))
+    if tp1_frac:
+        lvl = round(entry + cfg["tp1_r"] * r, 2)
+        tranches.append({"pct": tp1_frac, "type": "target", "level": lvl,
+                         "do": f"Sell {tp1_frac}% at Rs {lvl:,.2f} (the +{cfg['tp1_r']:g}R target) — a resting limit order."})
+    tp2_frac = int(round(cfg.get("tp2_frac", 0) * 100))
+    if tp2_frac:
+        lvl = round(entry + cfg["tp2_r"] * r, 2)
+        tranches.append({"pct": tp2_frac, "type": "target", "level": lvl,
+                         "do": f"Sell {tp2_frac}% at Rs {lvl:,.2f} (the +{cfg['tp2_r']:g}R target)."})
+    pat_frac = int(round(cfg.get("pattern_frac", 0) * 100))
+    if pat_frac:
+        arm_r = cfg.get("pattern_arm_r", 2.5)
+        arm = round(entry + arm_r * r, 2)
+        tranches.append({"pct": pat_frac, "type": "pattern", "arm": arm,
+                         "do": (f"Sell {pat_frac}% on a blow-off/exhaustion week (a new high that CLOSES in the lower "
+                                f"third of its range) once price has reached Rs {arm:,.2f} (+{arm_r:g}R). The Saturday scan flags it.")})
+    runner = 100 - sum(t["pct"] for t in tranches)
+    if runner > 0:
+        buf = cfg.get("runner_sma_buffer", 0.0)
+        lvl = round(float(sma44) * (1 - buf), 2) if smaok else None
+        below = f" ({int(round(buf * 100))}% below)" if buf else ""
+        if smaok:
+            do = (f"Hold the last {runner}% as a runner. Exit only on a weekly CLOSE below the 44-week SMA{below} "
+                  f"(now ~Rs {sma44:,.2f})." if not buf else
+                  f"Hold the last {runner}% as a runner. Exit only on a weekly CLOSE more than {int(round(buf*100))}% "
+                  f"below the 44-week SMA (~Rs {lvl:,.2f}).")
+        else:
+            do = f"Hold the last {runner}% as a runner; exit on a weekly close below the 44-week SMA."
+        tranches.append({"pct": runner, "type": "runner", "level": lvl, "do": do})
+    return {"entry_pattern": "44-week SMA pullback", "tranches": tranches}
+
+
+def _sma44_now(P, t):
+    """The most recent 44-week SMA for ticker t (the runner's exit reference)."""
+    wa = P[t].get("wsma_at") or {}
+    vals = [v for v in wa.values() if v == v]
+    return vals[-1] if vals else float("nan")
 
 
 def _last(P, t, key):
@@ -134,6 +249,9 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
             "crs_rank": round(float(ls.get("rank", 0.0)), 4),
             "grade": "B", "tier": "signal", "status": "FRESH",
             "buy_window": "buy Mon–Fri this week, at the open inside the band [low, high] — fund strongest CRS rank first",
+            # config-P surfacing: the entry pattern + the full 3-tranche exit plan with price levels.
+            "pattern": "44-week SMA pullback",
+            "exit_plan": _exit_plan(entry, stop, _sma44_now(P, t)),
         })
     # strongest-first on the page; top-5 flagged A so the grade filter surfaces the priority names
     signals.sort(key=lambda x: -x["crs_rank"])
@@ -174,16 +292,33 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
             "grade": "A",   # only Grade-A signals are ever entered now, so every hold is A
             "hold_days": HOLD_DAYS_DISPLAY,
             "tier": "signal", "status": "ACTIVE",
+            # config-P surfacing: the exit plan + which tranches have already booked (exit_stage).
+            "pattern": "44-week SMA pullback",
+            "exit_plan": _exit_plan(entry, float(p["stop"]), _sma44_now(P, t)),
+            "exit_stage": {
+                "target_40_booked": bool(p.get("t1_done")),   # 40% @ +2R
+                "pattern_40_booked": bool(p.get("pt_done")),  # 40% on the blow-off pattern
+                "runner_20_open": round(float(p.get("frac_left", 1.0)), 2) > 0.01,
+                "fraction_remaining": round(float(p.get("frac_left", 1.0)), 2),
+            },
         }
-        if p["pending"] is not None:                          # Friday close said EXIT -> sell Monday open
+        if p["pending"] is not None:                          # Friday close said EXIT -> act Monday open
             act, reason = p["pending"]
             rec["actionability"] = "EXIT_REQUIRED"
-            if act == "half":
-                rec["status"] = "HIT_TARGET"                  # frontend: sell-now, 'target' tone
-                rec["why"] = "+2R target hit at the weekly close — SELL HALF at Monday's open, keep the rest on the trail"
+            if act == "part" and reason == "pattern":         # blow-off exhaustion -> book the 40% pattern tranche
+                rec["status"] = "HIT_TARGET"
+                rec["why"] = ("Blow-off/exhaustion week detected — SELL the 40% pattern tranche at Monday's "
+                              "open. Keep the 20% runner until a weekly close below the 44-week SMA.")
+            elif reason.startswith("stop"):
+                rec["status"] = "HIT_STOP"
+                rec["why"] = "Weekly close below the stop — SELL the remaining position at Monday's open."
+            elif reason == "sma_break":
+                rec["status"] = "HIT_STOP"
+                rec["why"] = ("Weekly close below the 44-week SMA — the runner's trend has broken. SELL the "
+                              "remaining position at Monday's open.")
             else:
                 rec["status"] = "ACTIVE"
-                rec["why"] = f"weekly close triggered exit ({reason}) — SELL the full position at Monday's open"
+                rec["why"] = f"Weekly close triggered an exit ({reason}) — SELL the remaining position at Monday's open."
         signals.append(rec)
 
     # ── held positions ──
@@ -339,11 +474,13 @@ def main(argv=None) -> int:
     a_set = R94.grade_a_entries(P)
     # ── ₹10L paper book — realistic capital sim (A-only), kept for the NAV/equity portfolio.
     led_paper: list = []
-    out_paper = R94.backtest(P, mem, ledger=led_paper, start=args.start, return_state=True, a_grade=a_set)
+    out_paper = R94.backtest(P, mem, ledger=led_paper, start=args.start, return_state=True, a_grade=a_set,
+                             **LIVE_DISCIPLINE, **LIVE_EXIT)
     # ── UNCAPPED signal ledger — every A signal tracked (cash never runs out), so a name is followed
     #    week to week regardless of what ₹10L could afford. This drives the SIGNALS page.
     led_all: list = []
-    out_all = R94.backtest(P, mem, ledger=led_all, start=args.start, return_state=True, uncapped=True, a_grade=a_set)
+    out_all = R94.backtest(P, mem, ledger=led_all, start=args.start, return_state=True, uncapped=True,
+                           a_grade=a_set, **LIVE_DISCIPLINE, **LIVE_EXIT)
     # data's last date = the "as of" the book is current to
     last = max((pd.Timestamp(s["dates"][-1]) for s in P.values()), default=pd.Timestamp(args.start))
     generated_at = str(last.date())

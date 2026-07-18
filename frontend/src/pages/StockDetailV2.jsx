@@ -32,7 +32,6 @@ import { StatusChip } from '@/components/shared/StatusChip';
 import { EmptyCard } from '@/components/shared/EmptyCard';
 import { OrderBookL2 } from '@/components/shared/OrderBookL2';
 import { VolumeProfile } from '@/components/shared/VolumeProfile';
-import { TickerOrderHistory } from '@/components/shared/TickerOrderHistory';
 import { ActiveSignalStrip } from '@/components/shared/ActiveSignalStrip';
 import { SignalDetailDrawer } from '@/components/shared/SignalDetailDrawer';
 import { useStockData } from '@/hooks/useStockData';
@@ -398,17 +397,16 @@ export default function StockDetailV2() {
         {/* DEPTH ROW — order book · volume profile · your history.
             Tagged bull because these are the action-near widgets — what
             the price IS doing right now and whether you've traded it. */}
-        <StackedSection label="Depth · Volume · Your history" tone="bull">
+        <StackedSection label="Depth · Volume" tone="bull">
           <div
             className="dq-decision-row"
             style={{ display: 'grid', gap: 16, gridTemplateColumns: '1fr' }}
           >
             <OrderBookL2 symbol={symbol} height={340} tick={data.tick} />
             <VolumeProfile todayVolume={todayVolume} history={volumeHistory} height={340} />
-            <TickerOrderHistory ticker={symbol} height={340} />
             <style>{`
               @media (min-width: 1024px) {
-                .dq-decision-row { grid-template-columns: 5fr 4fr 3fr; }
+                .dq-decision-row { grid-template-columns: 5fr 4fr; }
               }
             `}</style>
           </div>

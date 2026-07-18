@@ -11,7 +11,6 @@ import { DataTable } from '@/components/shared/DataTable';
 import { RegimeHeader } from '@/components/shared/RegimeHeader';
 import { SignalCard } from '@/components/shared/SignalCard';
 import { SignalDetailDrawer } from '@/components/shared/SignalDetailDrawer';
-import { OrderPad } from '@/components/shared/OrderPad';
 import { CommandBar } from '@/components/shared/CommandBar';
 import { fmtPrice, fmtINR, fmtPct } from '@/lib/format';
 
@@ -286,20 +285,17 @@ export default function PrimitivesShowcase() {
               signal={SAMPLE_SIGNAL}
               priceSeries={SAMPLE_ARC_UP}
               onOpenDetail={(s) => { setSelectedSignal(s); setDetailOpen(true); }}
-              onOpenOrderPad={(s) => { setSelectedSignal(s); setOrderOpen(true); }}
             />
             <SignalCard
               signal={SAMPLE_SIGNAL_IN_ZONE}
               priceSeries={SAMPLE_ARC_FLAT}
               heldByUser
               onOpenDetail={(s) => { setSelectedSignal(s); setDetailOpen(true); }}
-              onOpenOrderPad={(s) => { setSelectedSignal(s); setOrderOpen(true); }}
             />
             <SignalCard
               signal={SAMPLE_SIGNAL_CHASE}
               priceSeries={SAMPLE_ARC_UP}
               onOpenDetail={(s) => { setSelectedSignal(s); setDetailOpen(true); }}
-              onOpenOrderPad={(s) => { setSelectedSignal(s); setOrderOpen(true); }}
             />
           </div>
         </Section>
@@ -385,25 +381,6 @@ export default function PrimitivesShowcase() {
         priceSeries={SAMPLE_ARC_UP}
         open={detailOpen}
         onOpenChange={setDetailOpen}
-        onOpenOrderPad={(s) => {
-          setDetailOpen(false);
-          setSelectedSignal(s);
-          setTimeout(() => setOrderOpen(true), 200);
-        }}
-      />
-      <OrderPad
-        open={orderOpen}
-        onOpenChange={setOrderOpen}
-        signal={selectedSignal}
-        side="BUY"
-        capital={1000000}
-        marginAvailable={163892}
-        onPlace={async (payload) => {
-          // In prod, this calls Phase 2's useOrderPlacement. Here, we log.
-          // eslint-disable-next-line no-console
-          console.log('placeOrder', payload);
-          setOrderOpen(false);
-        }}
       />
       <CommandBar
         open={commandOpen}

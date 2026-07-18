@@ -21,17 +21,74 @@
  * DISCLAIMER footer sourced from @/lib/signalCopy.
  */
 
-import React, { useState, useContext, useMemo } from 'react';
-import { KiteContext } from '@/App';
+import React, { useState, useMemo } from 'react';
 import { useOverview } from '@/hooks/queries/useOverview';
 import { useNavHistory } from '@/hooks/queries/useNavHistory';
 import { usePaperHistory } from '@/hooks/queries/usePaperHistory';
-import { useKiteHoldings, useKiteMargins } from '@/hooks/queries/useKiteState';
 import { usePaperPositions } from '@/hooks/queries/usePaperPositions';
+import { useExecutionPositions, useReconciliation } from '@/hooks/queries/useExecution';
+import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import { useTrades, flattenTrades } from '@/hooks/queries/useTrades';
 import { useSignals } from '@/hooks/queries/useSignals';
 import { DISCLAIMER } from '@/lib/signalCopy';
 import '@/styles/portfolio-v3.css';
+
+// A self-reported ledger position (Stage 4) joined to an owner quote, mapped to the same shape the
+// page's "your holdings" sections read. Cost basis + realized P&L are the ledger's truth; the current
+// price is the owner's live quote. No cash / total-NAV is fabricated (ADR 0011 — we don't hold the
+// user's broker balance), so value = Σ(remaining × quote) only.
+function ledgerHoldingToRow(pos, quotes) {
+  const q = quotes?.[(pos.ticker || '').toUpperCase()] || null;
+  const avg = Number(pos.avg_buy_price) || 0;
+  const ltp = q?.last_price != null ? Number(q.last_price) : avg;   // fall back to cost if no quote yet
+  return {
+    tradingsymbol: pos.ticker,
+    sector: pos.sector || 'Other',
+    quantity: Number(pos.remaining_qty) || 0,
+    average_price: avg,
+    last_price: ltp,
+    day_change_percentage: q?.change_pct ?? null,
+    product: 'SELF',
+  };
+}
+
+// Outstanding reconciliation items (Stage 4b): what the model plan expects of the user's held names
+// that their ledger doesn't yet reflect. Severity mirrors the P cadence (high/action/warn/info).
+function ActionItemsStrip({ items }) {
+  if (!items || items.length === 0) return null;
+  const sevCls = { high: 'num-bear', action: 'num-bull', warn: 'num-warn', info: 'num-info' };
+  return (
+    <div className="pv3-actions-strip">
+      <div className="pv3-actions-head">
+        <span className="pv3-t-ui-micro">OUTSTANDING · MODEL vs YOUR LEDGER</span>
+        <span className="pv3-t-ui-footnote">{items.length} to reconcile · record the fill to clear it</span>
+      </div>
+      <ul className="pv3-actions-list">
+        {items.slice(0, 6).map((it, i) => (
+          <li key={`${it.signal_id}-${it.type}-${i}`} className="pv3-action-item">
+            <span className={`pv3-action-dot ${sevCls[it.severity] || 'num-info'}`} />
+            <span className="pv3-action-sym">{it.ticker}</span>
+            <span className="pv3-action-msg">{it.message}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// A CLOSED ledger position mapped to the closed-trades table shape (realized figures from the ledger).
+function ledgerClosedToTrade(pos) {
+  const avg = Number(pos.avg_buy_price) || 0;
+  const pnl = Number(pos.realized_pnl) || 0;
+  const qty = Number(pos.total_sold_qty) || Number(pos.total_bought_qty) || 0;
+  const exit = avg > 0 && qty > 0 ? avg + pnl / qty : avg;          // implied avg exit from realized P&L
+  const day = pos.last_event_at ? String(pos.last_event_at).slice(0, 10) : null;
+  return {
+    ticker: pos.ticker, qty, entry_price: avg, exit_price: Number(exit.toFixed(2)),
+    return_pct: pos.realized_pnl_pct ?? null, net_pnl: pnl,
+    entry_date: null, exit_date: day, hold_days: null, exit_reason: 'self-reported',
+  };
+}
 
 // ─────────────────────────────────────────────────────────────────────
 // Formatters
@@ -139,14 +196,15 @@ function StateStrip({ kiteConnected, regime, drawdownPct }) {
   return (
     <div className="pv3-regime-strip">
       <div className="pv3-regime-left">
+        {/* kiteConnected is repurposed as "is the user's own book" (true) vs the model paper ref (false). */}
         <span className={`pv3-live-dot ${!kiteConnected ? 'pv3-dot-info' : ''}`} />
         <span className="pv3-regime-eyebrow">
-          {kiteConnected ? 'LIVE' : 'PAPER'}
+          {kiteConnected ? 'YOURS' : 'PAPER'}
         </span>
         <span className="pv3-regime-statement">
-          Portfolio is{' '}
+          Showing{' '}
           <em className={kiteConnected ? 'num-bull' : 'num-info'}>
-            {kiteConnected ? 'Live' : 'Paper'}
+            {kiteConnected ? 'your holdings' : "the model's paper book"}
           </em>
           <span className="pv3-sep">·</span>
           <span>
@@ -844,10 +902,10 @@ function HoldingsTable({ holdings, isPaper, totalEquity, isLoading }) {
             {isLoading
               ? 'Loading…'
               : rows.length > 0
-                ? `${rows.length} open · ${isPaper ? 'paper portfolio' : 'synced with Kite'}`
+                ? `${rows.length} open · ${isPaper ? 'model paper book' : 'your self-reported holdings'}`
                 : isPaper
                   ? 'No paper positions yet'
-                  : 'Connect Kite to see live holdings'}
+                  : 'No holdings recorded yet'}
           </div>
         </div>
         <div className="pv3-stocks-table-tabs">
@@ -878,7 +936,7 @@ function HoldingsTable({ holdings, isPaper, totalEquity, isLoading }) {
         ) : filtered.length === 0 ? (
           <div className="pv3-holdings-empty" style={{ gridColumn: '1 / -1' }}>
             {rows.length === 0
-              ? (isPaper ? 'No paper positions yet.' : 'Connect Kite to see your holdings here.')
+              ? (isPaper ? 'No paper positions yet.' : 'No holdings yet — record a buy from the Research page.')
               : `No ${activeTab === 'to-exit' ? 'exit candidates' : activeTab} right now.`}
           </div>
         ) : (
@@ -1013,7 +1071,7 @@ function AllocCard({ holdings, cash, totalEquity, isPaper, isLoading }) {
         <Skel w="100%" h={16} radius={8} />
       ) : rows.length === 0 ? (
         <div className="pv3-alloc-empty">
-          {isPaper ? 'No paper positions yet.' : 'Connect Kite to see allocation.'}
+          {isPaper ? 'No paper positions yet.' : 'No holdings to allocate yet.'}
         </div>
       ) : (
         <>
@@ -1343,23 +1401,19 @@ function ActivityPanel({ holdings, trades, isLoading }) {
 }
 
 export default function PortfolioV3() {
-  const kite = useContext(KiteContext);
-  const kiteConnected = !!kite?.connected;
-
-  // Two views only: Paper (the model's paper portfolio) and Live (real Kite
-  // account). The selector defaults to Live when Kite is connected, else
-  // Paper — and follows the connection until the user picks explicitly.
-  const [modeOverride, setModeOverride] = useState(null);
+  // Two views: YOURS (the user's own self-reported holdings, from the Stage-4 execution ledger) and
+  // PAPER (the model's ₹10L paper book, a labeled REFERENCE — not the user's return). Defaults to
+  // Yours. No Kite (ADR 0011): the user executes on their own broker and reports fills.
+  const [mode, setMode] = useState('yours');
   const [ptab, setPtab] = useState('overview');   // sub-tab: overview | positions | closed | activity
-  const mode = modeOverride ?? (kiteConnected ? 'live' : 'paper');
   const isPaper = mode === 'paper';
 
   const overviewQuery   = useOverview();
-  const navHistoryQuery = useNavHistory();          // live Kite NAV (Live view)
-  const paperHistoryQuery = usePaperHistory();      // ₹10L paper-broker ledger (Paper view)
-  const holdingsQuery   = useKiteHoldings({ enabled: kiteConnected });
-  const marginsQuery    = useKiteMargins({ enabled: kiteConnected });
-  const paperQuery      = usePaperPositions(); // always on — Paper view works regardless of Kite
+  const navHistoryQuery = useNavHistory();          // model NAV (only surfaced in the Paper reference view)
+  const paperHistoryQuery = usePaperHistory();      // ₹10L paper-broker ledger (Paper reference view)
+  const paperQuery      = usePaperPositions();      // the model's paper positions (Paper reference view)
+  const execQuery       = useExecutionPositions();  // the user's OWN durable positions (Yours view)
+  const reconQuery      = useReconciliation({ enabled: !isPaper });  // outstanding model-vs-ledger items
   const tradesQuery     = useTrades({ perPage: 50 });
   const signalsQuery    = useSignals();
 
@@ -1370,13 +1424,21 @@ export default function PortfolioV3() {
   const navHistory = navHistoryQuery.data ?? null;
   const paperHistory = paperHistoryQuery.data ?? null;
 
-  const kiteHoldings = useMemo(() => holdingsQuery.data ?? [], [holdingsQuery.data]);
-  const paperPos     = useMemo(() => paperQuery.data ?? [], [paperQuery.data]);
-  const margins      = marginsQuery.data ?? null;
+  const paperPos    = useMemo(() => paperQuery.data ?? [], [paperQuery.data]);
+  const execPos     = useMemo(() => execQuery.data ?? [], [execQuery.data]);
+  const openExec    = useMemo(() => execPos.filter((p) => (Number(p.remaining_qty) || 0) > 0), [execPos]);
+  const closedExec  = useMemo(() => execPos.filter((p) => (Number(p.remaining_qty) || 0) <= 0
+                                                          && (Number(p.total_bought_qty) || 0) > 0), [execPos]);
 
-  // Synthesize a single view-model so every section reads uniform fields,
-  // whichever mode is active. Live figures are computed from REAL Kite data
-  // (never the paper ₹10L); paper figures come from the overview hook.
+  // Live quotes for the user's held names (owner market-data), joined for current price / unrealized.
+  const heldTickers = useMemo(
+    () => [...new Set(openExec.map((p) => (p.ticker || '').toUpperCase()).filter(Boolean))], [openExec]);
+  const quotesQuery = useQuoteBatch(heldTickers, { enabled: !isPaper && heldTickers.length > 0 });
+  const quotes = quotesQuery.data ?? null;
+
+  const yoursHoldings = useMemo(() => openExec.map((p) => ledgerHoldingToRow(p, quotes)), [openExec, quotes]);
+
+  // Synthesize a single view-model so every section reads uniform fields, whichever mode is active.
   const view = useMemo(() => {
     if (isPaper) {
       return {
@@ -1386,31 +1448,36 @@ export default function PortfolioV3() {
         totalEquity: paperPortfolio?.total_value ?? null,
       };
     }
-    const mktValue = kiteHoldings.reduce((s, h) => s + (Number(h.last_price) || 0) * (Number(h.quantity) || 0), 0);
-    const cost     = kiteHoldings.reduce((s, h) => s + (Number(h.average_price) || 0) * (Number(h.quantity) || 0), 0);
-    const liveCash = margins?.available ?? null;
-    const total    = liveCash != null ? mktValue + liveCash : (mktValue || null);
-    const livePortfolio = {
-      total_value: total,
-      cash: liveCash,
-      invested: mktValue || null,
+    // YOURS: value + unrealized computed from the ledger (cost basis) × owner quotes. No cash / NAV
+    // is invented — we don't hold the user's broker balance (ADR 0011), so totalEquity = market value.
+    const mktValue = yoursHoldings.reduce((s, h) => s + (Number(h.last_price) || 0) * (Number(h.quantity) || 0), 0);
+    const cost     = yoursHoldings.reduce((s, h) => s + (Number(h.average_price) || 0) * (Number(h.quantity) || 0), 0);
+    const realized = closedExec.reduce((s, p) => s + (Number(p.realized_pnl) || 0), 0);
+    const yoursPortfolio = {
+      total_value: mktValue || null,
+      cash: null,                                   // not tracked — self-report has no broker cash
+      invested: cost || null,
       total_return_pct: cost > 0 ? ((mktValue - cost) / cost) * 100 : null,
-      drawdown_pct: null,          // not computable without a live NAV peak
-      n_positions: kiteHoldings.length || null,
+      realized_pnl: realized,
+      drawdown_pct: null,
+      n_positions: yoursHoldings.length || null,
     };
-    return { holdings: kiteHoldings, portfolio: livePortfolio, cash: liveCash, totalEquity: total };
-  }, [isPaper, paperPos, paperPortfolio, kiteHoldings, margins]);
+    return { holdings: yoursHoldings, portfolio: yoursPortfolio, cash: null, totalEquity: mktValue || null };
+  }, [isPaper, paperPos, paperPortfolio, yoursHoldings, closedExec]);
 
   const activeHoldings = view.holdings;
   const cash           = view.cash;
   const totalEquity    = view.totalEquity;
 
-  // Trades (flatten infinite query)
-  const trades = useMemo(() => flattenTrades(tradesQuery.data), [tradesQuery.data]);
+  // Closed trades: the model's paper round-trips in the Paper view; the user's own realized ledger
+  // round-trips in the Yours view.
+  const modelTrades = useMemo(() => flattenTrades(tradesQuery.data), [tradesQuery.data]);
+  const yoursTrades = useMemo(() => closedExec.map(ledgerClosedToTrade), [closedExec]);
+  const trades = isPaper ? modelTrades : yoursTrades;
 
-  const isOverviewLoading = overviewQuery.isLoading;
-  const isHoldingsLoading = isPaper ? paperQuery.isLoading : holdingsQuery.isLoading;
-  const liveDisconnected = !isPaper && !kiteConnected;
+  const isOverviewLoading = isPaper ? overviewQuery.isLoading : execQuery.isLoading;
+  const isHoldingsLoading = isPaper ? paperQuery.isLoading : execQuery.isLoading;
+  const closedLoading     = isPaper ? tradesQuery.isLoading : execQuery.isLoading;
 
   return (
     <div className="pv3-page density-regular">
@@ -1422,7 +1489,7 @@ export default function PortfolioV3() {
         drawdownPct={view.portfolio?.drawdown_pct}
       />
 
-      {/* Page title + Paper/Live selector */}
+      {/* Page title + Yours/Paper selector */}
       <section className="pv3-row pv3-head-row">
         <div className="pv3-row-head">
           <div>
@@ -1430,28 +1497,26 @@ export default function PortfolioV3() {
             <h2 className="pv3-row-title">Portfolio</h2>
             <div className="pv3-t-ui-footnote">
               {isPaper
-                ? 'Paper portfolio · model-traded, no real capital'
-                : kiteConnected
-                  ? 'Live mark-to-market · Kite connected'
-                  : 'Live view · connect Kite to populate'}
+                ? "The model's paper book · a labeled reference, not your return"
+                : 'Your holdings · from what you reported, priced live · no broker link'}
             </div>
           </div>
           <div className="pv3-mode-toggle" role="tablist" aria-label="Portfolio view">
             <button
               role="tab"
-              aria-selected={isPaper}
-              className={`pv3-mode-btn ${isPaper ? 'active' : ''}`}
-              onClick={() => setModeOverride('paper')}
+              aria-selected={!isPaper}
+              className={`pv3-mode-btn ${!isPaper ? 'active' : ''}`}
+              onClick={() => setMode('yours')}
             >
-              Paper
+              Yours
             </button>
             <button
               role="tab"
-              aria-selected={!isPaper}
-              className={`pv3-mode-btn ${!isPaper ? 'active' : ''}`}
-              onClick={() => setModeOverride('live')}
+              aria-selected={isPaper}
+              className={`pv3-mode-btn ${isPaper ? 'active' : ''}`}
+              onClick={() => setMode('paper')}
             >
-              Live
+              Paper (ref)
             </button>
           </div>
         </div>
@@ -1474,15 +1539,12 @@ export default function PortfolioV3() {
         </nav>
       </section>
 
-      {/* Live-but-disconnected prompt */}
-      {liveDisconnected && (
+      {/* Empty-ledger prompt — the user hasn't recorded any buys yet */}
+      {!isPaper && !isHoldingsLoading && activeHoldings.length === 0 && closedExec.length === 0 && (
         <section className="pv3-row">
           <div className="pv3-connect-banner">
-            <span>Connect your Zerodha Kite account to see live holdings, cash and P&amp;L.</span>
-            <button className="pv3-connect-btn" onClick={kite?.connect}>
-              <Icon.Plug width="13" height="13" />
-              Connect Kite
-            </button>
+            <span>No holdings yet. When you buy a call on your broker, record it from the Research
+              page — your positions and realized P&amp;L will show up here.</span>
           </div>
         </section>
       )}
@@ -1490,6 +1552,9 @@ export default function PortfolioV3() {
       {/* OVERVIEW — NAV + equity curve + performance + risk + allocation */}
       {ptab === 'overview' && (
         <>
+          {!isPaper && (reconQuery.data?.items?.length ?? 0) > 0 && (
+            <section className="pv3-row"><ActionItemsStrip items={reconQuery.data.items} /></section>
+          )}
           <section className="pv3-row">
             <EquityHero
               portfolio={view.portfolio}
@@ -1497,7 +1562,7 @@ export default function PortfolioV3() {
               navHistory={navHistory}
               paperHistory={paperHistory}
               isPaper={isPaper}
-              margins={margins}
+              margins={null}
               holdings={view.holdings}
               paperPositions={isPaper ? paperPos : []}
               isLoading={isOverviewLoading}
@@ -1532,8 +1597,8 @@ export default function PortfolioV3() {
       {ptab === 'closed' && (
         <>
           <section className="pv3-row"><RealizedStrip trades={trades} /></section>
-          <section className="pv3-row"><ClosedTradesTable trades={trades} isLoading={tradesQuery.isLoading} /></section>
-          <section className="pv3-row"><MonthlyPnl trades={trades} isLoading={tradesQuery.isLoading} /></section>
+          <section className="pv3-row"><ClosedTradesTable trades={trades} isLoading={closedLoading} /></section>
+          <section className="pv3-row"><MonthlyPnl trades={trades} isLoading={closedLoading} /></section>
         </>
       )}
 
@@ -1543,7 +1608,7 @@ export default function PortfolioV3() {
           <ActivityPanel
             holdings={isPaper ? paperPos : []}
             trades={trades}
-            isLoading={tradesQuery.isLoading || (isPaper && paperQuery.isLoading)}
+            isLoading={closedLoading || (isPaper && paperQuery.isLoading)}
           />
         </section>
       )}

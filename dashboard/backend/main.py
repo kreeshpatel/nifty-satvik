@@ -16,13 +16,12 @@ load_dotenv()  # Load .env file for KITE_API_KEY, KITE_API_SECRET, etc.
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from slowapi import Limiter
-from slowapi.util import get_remote_address
+from slowapi import Limiter  # noqa: F401 — re-exported type for tooling
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
 from ws_manager import WSManager
-from routers import overview, positions, signals, backtest, trades, kite, yahoo_finance, admin, access_requests, landing_stats, nq_orders, watchlist, holdings, hdfc, hdfc_market_data
+from routers import overview, positions, signals, backtest, trades, kite, yahoo_finance, admin, access_requests, landing_stats, watchlist, holdings, hdfc, hdfc_market_data, execution, journey
 from config import INITIAL_CAPITAL
 from github_data import fetch_github_json
 from database import init_db, SessionLocal
@@ -89,7 +88,7 @@ if not os.getenv("GITHUB_TOKEN"):
     )
 
 
-limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"])
+from ratelimit import limiter  # keyed on the real client IP behind Fly (netutil.client_ip)
 app = FastAPI(title="NiftyQuant Dashboard", version="2.0.0")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, lambda req, exc: JSONResponse(
@@ -124,10 +123,16 @@ extra_origin = os.environ.get("ALLOWED_ORIGIN", "")
 if extra_origin:
     ALLOWED_ORIGINS.extend([o.strip() for o in extra_origin.split(",") if o.strip()])
 
-# Allow any Vercel deployment of this project (production, preview, branch URLs).
-# Matches: niftyquant.vercel.app, niftyquant-git-*.vercel.app,
-# niftyquant-*-kreeshpatels-projects.vercel.app, etc.
-ALLOWED_ORIGIN_REGEX = r"https://([a-z0-9-]+\.)*vercel\.app"
+# Allow THIS project's Vercel preview/branch deployments only. Tightened from an open
+# `*.vercel.app` wildcard (r"https://([a-z0-9-]+\.)*vercel\.app"), which permitted ANY Vercel
+# site — including an attacker-deployed one — as a browser origin. Preview URLs carry both the
+# `niftyquant` project prefix AND the `kreeshpatels-projects` team slug; an attacker cannot
+# create a project under someone else's team scope, so the slug is the un-forgeable anchor.
+# Production `niftyquant.vercel.app` is in ALLOWED_ORIGINS above; any custom domain or bare-format
+# preview URL is added at deploy time via the ALLOWED_ORIGIN env var (handled above).
+# Matches e.g.: niftyquant-git-main-kreeshpatels-projects.vercel.app,
+#               niftyquant-abc123-kreeshpatels-projects.vercel.app
+ALLOWED_ORIGIN_REGEX = r"https://niftyquant-[a-z0-9-]+-kreeshpatels-projects\.vercel\.app$"
 
 app.add_middleware(
     CORSMiddleware,
@@ -272,9 +277,10 @@ app.include_router(yahoo_finance.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
 app.include_router(access_requests.router, prefix="/api")
 app.include_router(landing_stats.router, prefix="/api")
-app.include_router(nq_orders.router, prefix="/api")
 app.include_router(watchlist.router, prefix="/api")
 app.include_router(holdings.router, prefix="/api")
+app.include_router(execution.router, prefix="/api")
+app.include_router(journey.router, prefix="/api")
 app.include_router(hdfc.router, prefix="/api")
 app.include_router(hdfc_market_data.router, prefix="/api")
 

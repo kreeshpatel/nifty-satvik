@@ -144,3 +144,20 @@ diagnostics/research/*.log
 diagnostics/cpcv_long_horizon_*.json
 diagnostics/long_horizon_tradelog.csv
 results/signals_long_horizon.json
+
+# regenerable AI-forensic trade packets
+research/losers_analysis/packets/
+research/losers_analysis/exit_packets/
+
+# Swing research-loop artifacts — regenerable, too big for git. The .md records under
+# research/substrate/ ARE committed; the rendered chart galleries and the trade substrate
+# are rebuilt by scripts/build_substrate.py + scripts/render_{forensic,exit}_charts.py.
+/research/substrate/vision_charts/
+/research/substrate/exit_charts/
+/research/substrate/trades.parquet
+
+# Monte-Carlo per-sim rows — regenerable (scripts/diag_random_selection.py)
+/research/substrate/random_selection_sims.csv
+/research/substrate/pool_filter_sims.csv
+/research/substrate/crs_dissect_sims.csv
+/research/substrate/cold_start_sims.csv

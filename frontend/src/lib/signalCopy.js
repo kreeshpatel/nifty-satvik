@@ -56,6 +56,56 @@ export const STATES = {
   error:        "Couldn't load signals. Pull to refresh, or try again shortly.",
   windowClosed: 'Entry window has closed — we no longer recommend buying this here.',
   noWatchlist:  'Nothing brewing right now.',
+  // Stage 6: between scans, doing nothing IS the strategy — suppress the urge to fiddle.
+  idle:         'Nothing to buy right now — and that’s the strategy working. The next scan is Saturday; between scans, sitting on your hands is what the backtest assumes you do.',
+};
+
+// ── Stage 6 — the discipline harness copy (PRODUCT_SYNTHESIS §1). Forward-honest; never a promise. ──
+export const DISCIPLINE = {
+  title: 'DISCIPLINE · YOUR BOOK vs THE MODEL’S',
+  explain: 'In research, cherry-picking names from the ranked book regressed toward a ~0.74 Sharpe null — '
+    + 'barely better than random picks. Taking the whole book with the planned exits measured ~1.03. This gauge '
+    + 'is where your recorded behaviour sits on that span. An estimate from your own ledger, not a promised return.',
+  legLabels: {
+    coverage: 'Took the buys', fidelity: 'Inside entry band', timing: 'On time',
+    exit_adherence: 'Exited on plan', hold_through: 'Held through', concentration: 'Spread evenly',
+  },
+  skipFriction: (rank, ticker) =>
+    `Skipping #${rank} ${ticker} is where cherry-picking regresses toward the 0.74 null — the ranked book only works taken whole.`,
+  fatTail: 'Cutting a winner early doesn’t shave a little return — it removes the rare 10–40R monster that '
+    + 'carries the whole book. In the research record, the winner-cut was the single most expensive user behaviour.',
+  patternExitReframe: (r) =>
+    `You’re booking a ${r != null ? `+${r.toFixed(1)}R ` : ''}winner on schedule. The down-week from the high IS the exhaustion signal — this exit always feels like selling the bottom, and it isn’t.`,
+  coInstruct: 'Place both resting orders on your broker NOW, while you’re here: the partial-profit '
+    + 'limit and the stop-loss. The plan’s edge is execution-sensitive — a resting order fires without you watching.',
+};
+
+// Stage 6c — cold-start onboarding (shown once; forward-honest expectations).
+export const COLD_START = {
+  title: 'Before your first trade — what normal looks like',
+  points: [
+    'This is a weekly-swing book: ~5 names, held weeks to months, decided once a week at the Saturday scan. Most days there is nothing to do — that’s by design, not neglect.',
+    'Roughly 4 in 10 positions hit their stop. A losing streak and a double-digit drawdown (−11% has been normal in research) are expected parts of the path, not a sign it broke.',
+    'The record says the return comes from a few big winners carried to plan. The costly mistakes are skipping ranked names and cutting winners early — the app will nudge you when either is about to happen.',
+    'You execute on your own broker and report fills here. The model’s paper book is a reference, never a promise of your return.',
+  ],
+  ack: 'I understand — lumpy is normal',
+};
+
+// Stage 6c — just-in-time lessons, keyed by journey flag. Unlocked by the user's OWN events.
+export const LESSONS = {
+  lesson_first_buy: {
+    title: 'First buy recorded',
+    body: 'Two resting orders make the plan real: the partial-profit limit and the stop-loss. Place both on your broker now — they execute the plan while you’re not watching.',
+  },
+  lesson_first_2r: {
+    title: 'First +2R partial — this is the machine working',
+    body: 'You just booked the planned 40% at 2R. The rest of the position is now playing for the fat tail — let the runner run; the 44-week SMA decides its exit, not a feeling.',
+  },
+  lesson_first_drawdown: {
+    title: 'Your first drawdown — this is the normal part',
+    body: 'Every path through the research record includes stretches like this (−11% was typical). The measured mistake is de-risking mid-drawdown; the plan’s stops already cap each name’s downside.',
+  },
 };
 
 export const TOOLTIPS = {

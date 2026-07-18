@@ -25,13 +25,17 @@ import { useSignals } from '@/hooks/queries/useSignals';
 import { useWatchlist } from '@/hooks/queries/useWatchlist';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import { GlassTabs } from '@/components/shared/GlassTabs';
-import { CONVICTION, DISCLAIMER, STATES } from '@/lib/signalCopy';
+import { CONVICTION, DISCLAIMER, STATES, DISCIPLINE, COLD_START, LESSONS } from '@/lib/signalCopy';
 import { EmptyState } from '@/components/shared/EmptyState';
 import PickOfWeek from '@/components/shared/PickOfWeek';
 import TradeCardModal from '@/components/shared/TradeCardModal';
+import ExecutionCaptureModal from '@/components/shared/ExecutionCaptureModal';
+import DisciplineCard from '@/components/shared/DisciplineCard';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { toast } from 'sonner';
 import { sizePortfolio, SIZER_STATUS } from '@/lib/sizing';
 import { useHoldings, useMarkBought, useUnmarkBought } from '@/hooks/queries/useHoldings';
+import { useJourney } from '@/hooks/queries/useJourney';
 import { useSizerConfig, useSizingPrefs, useUpdateSizingPrefs } from '@/hooks/queries/useSizingPrefs';
 import '@/styles/signals-v3.css';
 import '@/styles/research-insights.css';
@@ -438,12 +442,19 @@ function SizerRow({ r, held, onBought }) {
 function SizerResultsModal({ open, onOpenChange, result, heldIds, onMarkBought }) {
   if (!result) return null;
   const { rows, totals, capital, tier, tierPct } = result;
+  // Stage 6 — rank-named skip friction: rows are strongest-first, so the first funded row the user
+  // hasn't taken is the highest-ranked skip. Named, costed, never blocking (their capital).
+  const fundedUntaken = rows
+    .map((r, i) => ({ r, rank: i + 1 }))
+    .filter(({ r }) => r.status === SIZER_STATUS.FUNDED && !heldIds.has(r.signalId));
+  const topSkip = fundedUntaken.length > 0 && fundedUntaken.length < rows.length
+    ? fundedUntaken[0] : null;
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="border-0 p-0 rsm-dialog" style={{ maxWidth: 480 }}>
         <div className="rsm">
           <div className="rsm-h">
-            <span>Position plan</span>
+            <span>Take this week&rsquo;s book ({rows.length})</span>
             <span className="rsm-hsub">{tier} · {Math.round(tierPct * 100)}% risk · ₹{fmtNum0(capital)} free</span>
           </div>
           <div className="rsm-list">
@@ -457,6 +468,11 @@ function SizerResultsModal({ open, onOpenChange, result, heldIds, onMarkBought }
             <div><span>Cash left</span><b className="tnum">₹{fmtNum0(totals.cashLeft)}</b></div>
             <div><span>Funded</span><b className="tnum">{totals.namesFunded}</b></div>
           </div>
+          {topSkip && (
+            <div className="rsm-friction">
+              {DISCIPLINE.skipFriction(topSkip.rank, topSkip.r.sym)}
+            </div>
+          )}
           <div className="rsm-note">
             Indicative sizing — research output, not advice. Names you already hold are excluded;
             a “Bought” mark is remembered only until the model completes that trade.
@@ -655,20 +671,50 @@ export default function SignalsV3() {
 
   const doAction  = (sym, suffix) => navigate(`/stock/${encodeURIComponent(sym)}${suffix}`);
 
-  // Row "Bought" toggle = mark-only (qty NULL); sized marks come from the sizer modal.
+  // Self-reported execution capture (Stage 4): { mode:'buy'|'sell', sig, sizerQty, tranche } | null.
+  const [capture, setCapture] = useState(null);
+
+  // Stage 6c — onboarding journey: durable per-user memory; lessons unlock off the user's OWN events.
+  const journey = useJourney();
+  const showColdStart = !journey.isLoading && !journey.seen('cold_start_acked');
+  const fireLesson = (key) => {
+    const flag = key;                                     // journey flag == LESSONS key
+    if (journey.seen(flag) || !LESSONS[flag]) return;
+    const l = LESSONS[flag];
+    toast.info(l.title, { description: l.body, duration: 12000 });
+    journey.mark(flag);
+  };
+
+  // Row "Bought" toggle: not-held → open the BUY capture popup; already-held → open the SELL popup.
   const toggleBought = (s) => {
     const id = s._signalId;
     if (!id) return;
-    if (heldIds.has(id)) unmarkBought.mutate(id);
-    else markBought.mutate({ signal_id: id, ticker: s.sym, entry: s.entry, stop: s.stop, qty: null });
+    const sig = { sym: s.sym, signalId: id, entry: s.entry, stop: s.stop,
+                  target: s.target, exitLevel: s.exitLevel, current_price: s.ltp ?? s.current_price };
+    setCapture(heldIds.has(id) ? { mode: 'sell', sig, tranche: 'target' } : { mode: 'buy', sig });
   };
-  // Modal "Bought" = sized mark (carries the computed qty + the tier it was sized at).
+  // Sizer modal "Bought": open the BUY capture popup pre-filled with the sized qty (close the sizer first).
   const markSized = (r) => {
     if (!r?.signalId) return;
-    markBought.mutate({
-      signal_id: r.signalId, ticker: r.sym, entry: r.entry, stop: r.stop,
-      qty: r.qty || null, risk_tier_at_buy: sizerResult?.tier,
-    });
+    setSizerResult(null);
+    setCapture({ mode: 'buy', sizerQty: r.qty || null,
+                 sig: { sym: r.sym, signalId: r.signalId, entry: r.entry, stop: r.stop } });
+  };
+  // After a fill is recorded, keep the ephemeral held-set (row highlighting) in sync with the ledger:
+  // a buy or a partial sell means "held"; a full exit (nothing left) clears the mark. Also fires the
+  // event-unlocked just-in-time lessons (Stage 6c) — first buy, first +2R partial.
+  const onRecorded = (res, { mode: recMode, signalId }) => {
+    const pos = res?.position;
+    if (!signalId || !pos) return;
+    if (pos.remaining_qty > 0) {
+      markBought.mutate({ signal_id: signalId, ticker: pos.ticker, qty: pos.remaining_qty });
+    } else {
+      unmarkBought.mutate(signalId);
+    }
+    if (recMode === 'buy') fireLesson('lesson_first_buy');
+    if (recMode === 'sell' && capture?.tranche === 'target' && (pos.realized_pnl ?? 0) > 0) {
+      fireLesson('lesson_first_2r');
+    }
   };
 
   if (signalsQuery.error) {
@@ -752,7 +798,9 @@ export default function SignalsV3() {
               Array.from({ length: 6 }).map((_, i) => <div key={i} className="ri-row-skel skeleton-card" />)
             ) : rows.length === 0 ? (
               <div className="ri-empty">
-                {filter === 'all' ? STATES.empty : 'No calls match this filter right now.'}
+                {filter === 'all'
+                  ? (buyPool.length === 0 ? STATES.idle : STATES.empty)
+                  : 'No calls match this filter right now.'}
               </div>
             ) : (
               rows.map((s) => (
@@ -767,6 +815,7 @@ export default function SignalsV3() {
 
         <aside className="ri-rail">
           <SizerCard buyPool={buyPool} heldIds={heldIds} onCalculate={setSizerResult} />
+          <DisciplineCard />
           {isAdmin && model === 'bhanushali' && <ReviewCard card={reviewScorecard} />}
           <CommentaryCard regime={regime} model={model} freshCount={freshCount} />
           <SignalStatsCard buyPool={buyPool} heldCount={heldIds.size} />
@@ -785,6 +834,31 @@ export default function SignalsV3() {
         open={!!sizerResult} onOpenChange={(o) => !o && setSizerResult(null)}
         result={sizerResult} heldIds={heldIds} onMarkBought={markSized}
       />
+      <ExecutionCaptureModal
+        open={!!capture} mode={capture?.mode} sig={capture?.sig}
+        sizerQty={capture?.sizerQty} tranche={capture?.tranche}
+        onClose={() => setCapture(null)} onRecorded={onRecorded}
+      />
+
+      {/* Stage 6c — cold-start onboarding: shown once (durable server-side flag), sets forward-honest
+          expectations before the first trade. Dismissable only via the acknowledgement. */}
+      <Dialog open={showColdStart} onOpenChange={() => {}}>
+        <DialogContent className="border-0 p-0 rsm-dialog" style={{ maxWidth: 460 }}>
+          <div className="rsm ecm">
+            <div className="rsm-h"><span>{COLD_START.title}</span></div>
+            <ul className="ecm-coldstart-points">
+              {COLD_START.points.map((p, i) => <li key={i}>{p}</li>)}
+            </ul>
+            <div className="ecm-actions" style={{ gridTemplateColumns: '1fr' }}>
+              <button type="button" className="ri-sizer-btn ecm-confirm"
+                      onClick={() => journey.mark('cold_start_acked')}>
+                {COLD_START.ack}
+              </button>
+            </div>
+            <div className="rsm-note">{DISCLAIMER}</div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

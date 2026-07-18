@@ -6,6 +6,8 @@ plus admin endpoints for reviewing and managing requests.
 import re
 import logging
 from datetime import datetime
+from netutil import client_ip, normalize_email
+from ratelimit import limiter
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Depends, Request, Query
@@ -29,6 +31,7 @@ class AccessRequestCreate(BaseModel):
 
 
 @router.post("/access-requests")
+@limiter.limit("5/hour")  # public form — stop scripted spam without a CAPTCHA (inner-circle product)
 async def submit_access_request(
     body: AccessRequestCreate,
     request: Request,
@@ -48,7 +51,20 @@ async def submit_access_request(
     trading_experience = (body.trading_experience or "")[:255]
     message = (body.message or "")[:2000]
 
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
+
+    # Alias-normalized dedupe: a.b+x@gmail.com == ab@gmail.com. One pending request per person —
+    # a duplicate returns the same success message (no enumeration, no extra row).
+    canonical = normalize_email(email)
+    pending = db.query(AccessRequest).filter(AccessRequest.status == "pending").all()
+    dup = next((r for r in pending if normalize_email(r.email) == canonical), None)
+    if dup:
+        logger.info(f"Duplicate access request absorbed for {email} (canonical of id={dup.id})")
+        return {
+            "status": "success",
+            "message": "We'll review your request and get back to you within 24-48 hours.",
+            "id": dup.id,
+        }
 
     new_req = AccessRequest(
         name=name,
@@ -136,7 +152,7 @@ async def reject_access_request(
     req.reviewed_by = admin.id
     db.commit()
 
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     log_event(db, admin.id, "ACCESS_REQUEST_REJECTED", f"Rejected access request from {req.email}", ip)
 
     return {"status": "success"}
@@ -159,19 +175,27 @@ async def approve_access_request(
     and marks the request as approved.
     """
     from audit import log_event
-    from auth import pwd_context
+    from auth import pwd_context, validate_password_strength
 
     req = db.query(AccessRequest).filter(AccessRequest.id == request_id).first()
     if not req:
         raise HTTPException(status_code=404, detail="Request not found")
 
-    # Check if a user with this email already exists
-    existing = db.query(User).filter(User.email == req.email).first()
+    # Check if a user with this email already exists — compared on the ALIAS-NORMALIZED form
+    # (gmail dots/+suffix), so one person can't hold two accounts via aliases. User count is tiny
+    # (inner-circle product), so the in-Python comparison is fine.
+    canonical = normalize_email(req.email)
+    existing = next((u for u in db.query(User).all() if normalize_email(u.email) == canonical), None)
     if existing:
-        raise HTTPException(status_code=409, detail=f"A user with email {req.email} already exists")
+        raise HTTPException(status_code=409,
+                            detail=f"A user with email {existing.email} already exists (alias match)")
 
-    if not body.password or len(body.password) < 6:
-        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    # Enforce the SAME complexity bar as the self-serve reset path (auth.validate_password_strength):
+    # 12+ chars, 3-of-4 character classes, breach/blocklist check. Previously this admin-facing intake
+    # path only required len >= 6, making the route that creates real subscribers weaker than reset.
+    if not body.password:
+        raise HTTPException(status_code=400, detail="Password is required.")
+    validate_password_strength(body.password, email=req.email)
 
     # Create the user
     new_user = User(
@@ -191,7 +215,7 @@ async def approve_access_request(
     db.commit()
     db.refresh(new_user)
 
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     log_event(db, admin.id, "ACCESS_REQUEST_APPROVED", f"Approved {req.email} (user_id={new_user.id})", ip)
 
     return {
@@ -220,7 +244,7 @@ async def delete_access_request(
     db.delete(req)
     db.commit()
 
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     log_event(db, admin.id, "ACCESS_REQUEST_DELETED", f"Deleted access request from {email}", ip)
 
     return {"status": "success"}

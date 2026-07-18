@@ -7,7 +7,7 @@ import {
   fetchCurrentPrice, computeAllIndicators,
 } from '@/services/kiteStock';
 import {
-  kiteHoldings, kiteOrders, subscribeToTicks, unsubscribeFromTicks,
+  subscribeToTicks, unsubscribeFromTicks,
   kiteQuote, yahooQuote, yahooHistorical, yahooFundamentals,
 } from '@/services/api';
 import { KiteContext } from '@/App';
@@ -126,10 +126,10 @@ export function useStockData(symbol) {
       // connected. They're independent of price/candles and don't gate the
       // chart, but starting them now overlaps their latency.
       const holdingsP = kite.connected
-        ? kiteHoldings().catch(() => null)
+        ? Promise.resolve(null)
         : Promise.resolve(null);
       const ordersP = kite.connected
-        ? kiteOrders().catch(() => null)
+        ? Promise.resolve(null)
         : Promise.resolve(null);
 
       // ─── EARLY-PAINT: flip loading=false the moment price OR candles arrive

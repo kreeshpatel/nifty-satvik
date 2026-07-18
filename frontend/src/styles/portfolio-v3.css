@@ -1066,3 +1066,16 @@
 .pv3-act-note { text-transform: capitalize; }
 .pv3-act-date { font-size: 11.5px; text-align: right; }
 .pv3-act-pnl { font-family: var(--font-mono); font-size: 12.5px; text-align: right; }
+
+/* ── Reconciliation action items (Stage 4b/5 — model plan vs the user's ledger) ── */
+.pv3-actions-strip {
+  padding: 14px 16px; border-radius: 12px;
+  background: var(--surface-1, rgba(255,255,255,0.03));
+  border: 1px solid var(--edge-1, rgba(255,255,255,0.08));
+}
+.pv3-actions-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.pv3-actions-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.pv3-action-item { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 8px; font-size: 12.5px; }
+.pv3-action-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.pv3-action-sym { font-weight: 600; color: var(--text-1); font-variant-numeric: tabular-nums; }
+.pv3-action-msg { color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

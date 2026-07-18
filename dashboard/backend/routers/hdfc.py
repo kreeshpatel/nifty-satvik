@@ -18,6 +18,7 @@ an admin makes from the UI):
         -> whether a session exists and when it was obtained
 """
 from __future__ import annotations
+from netutil import client_ip
 
 import logging
 from datetime import datetime
@@ -92,7 +93,7 @@ def hdfc_login_verify(
         access_token = hdfc_client.fetch_access_token(final_request_token)
     except HdfcApiError as exc:
         logger.error(f"HDFC login/verify failed: {exc}")
-        ip = request.client.host if request.client else "unknown"
+        ip = client_ip(request)
         log_event(db, admin.id, "HDFC_LOGIN_FAILED", str(exc)[:500], ip)
         raise HTTPException(status_code=502, detail=f"HDFC login failed: {exc}")
 
@@ -110,7 +111,7 @@ def hdfc_login_verify(
         db.add(session)
     db.commit()
 
-    ip = request.client.host if request.client else "unknown"
+    ip = client_ip(request)
     log_event(db, admin.id, "HDFC_LOGIN_SUCCESS", "HDFC market-data session connected", ip)
 
     return {"connected": True, "obtained_at": session.obtained_at.isoformat()}

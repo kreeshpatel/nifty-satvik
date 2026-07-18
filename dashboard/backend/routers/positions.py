@@ -34,7 +34,6 @@ from auth import get_current_user
 from config import get_sector
 from database import User, get_db
 from github_data import fetch_github_json, fetch_github_csv
-from routers.kite import get_user_kite_token, kite_get
 from services.nq_positions import (
     build_external_holdings,
     build_nq_positions,
@@ -140,42 +139,18 @@ def get_positions(user: User = Depends(get_current_user)):
 # ── NQ vs External (V2) ────────────────────────────────────────────────
 
 def _safe_kite_holdings(user: User, db: Session) -> list[dict]:
-    """Best-effort fetch. If Kite is disconnected, return empty list so
-    the NQ position view degrades gracefully (no live prices, no drift
-    detection — but the user still sees what they bought and the entry
-    context). The frontend renders a Kite-disconnected banner separately."""
-    try:
-        token = get_user_kite_token(user, db)
-    except HTTPException:
-        return []
-    try:
-        data = kite_get("/portfolio/holdings", token)
-        return data if isinstance(data, list) else []
-    except Exception as exc:
-        logger.warning("Kite holdings fetch failed: %s", exc)
-        return []
+    """No per-user broker connection (ADR 0011) — the user self-reports fills.
+    Returns []; build_nq_positions() degrades gracefully off the per-user NQOrder
+    ledger (no Kite qty/last-price join). The self-report source is wired in the
+    Stage-4 execution ledger + Stage-5 quote join."""
+    return []
 
 
 def _safe_kite_margins(user: User, db: Session) -> dict | None:
-    """Best-effort margins fetch. Returns the equity-segment dict (with
-    available + utilised fields) or None on any failure. Used by the
-    NAV snapshot — never raises."""
-    try:
-        token = get_user_kite_token(user, db)
-    except HTTPException:
-        return None
-    try:
-        raw = kite_get("/user/margins", token)
-        eq = (raw or {}).get("equity") or {}
-        avail = eq.get("available") or {}
-        util = eq.get("utilised") or {}
-        return {
-            "available": avail.get("live_balance") or avail.get("cash") or 0,
-            "used": util.get("debits") or 0,
-        }
-    except Exception as exc:
-        logger.warning("Kite margins fetch failed: %s", exc)
-        return None
+    """No per-user broker connection (ADR 0011) — no Kite margins. Returns None;
+    the NAV snapshot guards on None (no junk row). Self-report NAV source lands in
+    Stage 5."""
+    return None
 
 
 @router.get("/positions/nq")
