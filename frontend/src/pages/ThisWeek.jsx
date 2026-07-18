@@ -21,13 +21,69 @@ import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useSignals } from '@/hooks/queries/useSignals';
 import { useReconciliation, useExecutionPositions, useRecordBuy } from '@/hooks/queries/useExecution';
-import { useSizerConfig, useSizingPrefs } from '@/hooks/queries/useSizingPrefs';
+import { useSizerConfig, useSizingPrefs, useUpdateSizingPrefs } from '@/hooks/queries/useSizingPrefs';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import ExecutionCaptureModal from '@/components/shared/ExecutionCaptureModal';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { DISCLAIMER } from '@/lib/signalCopy';
 import { sizePortfolio, SIZER_STATUS } from '@/lib/sizing';
 import '@/styles/this-week.css';
+
+/**
+ * CapitalPrompt — the one setting the product cannot work without, asked where it bites.
+ *
+ * Capital used to be settable from exactly one input on one page (the Research rail sizer), saved
+ * on BLUR — type a value, click a nav pill, lose it. A first-run user's first Saturday was a list
+ * of buys with no quantities and a pointer to go find another page. This asks inline, explains why,
+ * and commits on submit (Enter or the button) so a value can't evaporate on navigation.
+ */
+function CapitalPrompt({ nBuys, tiers }) {
+  const updatePrefs = useUpdateSizingPrefs();
+  const [cash, setCash] = useState('');
+  const [tier, setTier] = useState('medium');
+  const cashNum = Number(cash) || 0;
+
+  const submit = (e) => {
+    e.preventDefault();
+    if (cashNum <= 0) return;
+    updatePrefs.mutate({ default_capital: cashNum, risk_tier: tier });
+  };
+
+  return (
+    <form className="tw-capital" onSubmit={submit}>
+      <div className="tw-capital-h">Set your capital to size this week’s book</div>
+      <p className="tw-capital-body">
+        {nBuys === 1 ? 'There is 1 buy open' : `There are ${nBuys} buys open`}, but quantities need
+        your capital. The model risks a fixed % of it per trade — nothing is sent anywhere, and you
+        can change it any time from Research.
+      </p>
+      <div className="tw-capital-row">
+        <input
+          className="tw-capital-input" type="number" inputMode="decimal" autoFocus
+          placeholder="e.g. 2000000" aria-label="Capital available for new buys"
+          value={cash} onChange={(e) => setCash(e.target.value)}
+        />
+        <div className="tw-capital-tiers" role="group" aria-label="Risk tier">
+          {['medium', 'high'].map((t) => (
+            <button
+              key={t} type="button"
+              className={`tw-tier${tier === t ? ' on' : ''}`}
+              onClick={() => setTier(t)}
+            >
+              {t === 'medium' ? 'Medium' : 'High'} · {Math.round((tiers?.[t] ?? (t === 'medium' ? 0.02 : 0.03)) * 100)}%
+            </button>
+          ))}
+        </div>
+        <button type="submit" className="tw-btn tw-btn-primary" disabled={cashNum <= 0 || updatePrefs.isPending}>
+          {updatePrefs.isPending ? 'Saving…' : 'Size the book'}
+        </button>
+      </div>
+      <div className="tw-capital-note">
+        Medium (2%) is the validated tier — high is above what the research supports.
+      </div>
+    </form>
+  );
+}
 
 const IST_OFFSET_MIN = 330;
 const fmtNum = (n) => (n == null ? '—' : Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }));
@@ -222,9 +278,13 @@ export default function ThisWeek() {
             <span className="tw-section-sub">
               {capital
                 ? `Sized to ${money0(capital)} · ${tier} · ${Math.round(tierPct * 100)}% risk per trade`
-                : 'Set your capital on Research → Position sizer to see quantities'}
+                : 'Quantities need your capital — set it below'}
             </span>
           </div>
+
+          {!capital && !prefsQuery.isLoading && (
+            <CapitalPrompt nBuys={buyCandidates.length} tiers={cfgQuery.data?.tiers} />
+          )}
 
           {fundedRows.length > 1 && (
             <div className="tw-bulk">

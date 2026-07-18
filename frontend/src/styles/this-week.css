@@ -99,6 +99,37 @@
 .tw-modal-actions { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; margin-top: 14px; }
 .tw-modal-actions .tw-btn { width: 100%; text-align: center; }
 
+/* ── First-run capital prompt ── */
+/* Brand-tinted rather than neutral: this is the one blocking setup step, so it should read as the
+   next action on the page, not as another card of information. */
+.tw-capital {
+  background: var(--brand-soft); border: 1px solid var(--brand-edge); border-radius: 14px;
+  padding: 16px 18px; margin-bottom: 14px;
+}
+.tw-capital-h { font-size: 14px; font-weight: 700; color: var(--text-1); margin-bottom: 6px; }
+.tw-capital-body { font-size: 12.5px; line-height: 1.55; color: var(--text-2); margin: 0 0 14px; max-width: 68ch; }
+.tw-capital-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.tw-capital-input {
+  flex: 1 1 190px; min-width: 0; padding: 9px 12px; border-radius: 9px;
+  background: var(--surface-0); border: 1px solid var(--edge-2); color: var(--text-1);
+  font-size: 14px; font-variant-numeric: tabular-nums;
+}
+.tw-capital-input:focus { outline: none; border-color: var(--brand); }
+.tw-capital-tiers { display: flex; gap: 6px; }
+.tw-tier {
+  padding: 8px 12px; border-radius: 9px; font-size: 12px; font-weight: 600; cursor: pointer;
+  background: var(--surface-1); border: 1px solid var(--edge-2); color: var(--text-3);
+}
+.tw-tier:hover { color: var(--text-1); }
+.tw-tier.on { background: var(--surface-0); border-color: var(--brand); color: var(--brand); }
+.tw-capital-note { margin-top: 10px; font-size: 11.5px; color: var(--text-3); }
+
+@media (max-width: 620px) {
+  .tw-capital-row { flex-direction: column; align-items: stretch; }
+  .tw-capital-tiers { justify-content: stretch; }
+  .tw-tier { flex: 1; }
+}
+
 /* ── Footer ── */
 .tw-foot { margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--edge-1); }
 .tw-link { font-size: 12.5px; color: var(--brand); text-decoration: none; margin-right: 18px; }
