@@ -17,7 +17,7 @@ const PAGES = {
     title: 'Disclaimer',
     body: [
       'Nifty Satvik publishes systematic research and decision-support signals. It is not a SEBI-registered investment adviser or research analyst, and nothing on this site is personalised investment advice.',
-      'Every order is placed by you, in your own Zerodha Kite account. We never manage your capital or execute trades on your behalf.',
+      'Every order is placed by you, in your own broker account. We never manage your capital or execute trades on your behalf.',
       'Past performance — including every backtested figure shown here — is not indicative of future returns. The backtests are in-sample, lumpy, and carry deep drawdowns, and no real capital has traded the strategy.',
       DISCLAIMER,
     ],
@@ -36,9 +36,9 @@ const PAGES = {
     kicker: 'Legal',
     title: 'Privacy',
     body: [
-      'We collect only what is needed to run the product: your account details and, if you connect Zerodha Kite, a short-lived OAuth session token. We never see or store your Kite password.',
+      'We collect only what is needed to run the product: your account details and the trades you choose to record yourself. We never connect to your broker, so we hold no broker credentials, no OAuth token and no access to your account.',
       'Market and stock data is fetched centrally and cached; only your own account data is stored per user.',
-      'We do not sell your data. You can revoke Kite access in one click at any time — your journal and track-record data stay readable to you.',
+      'We do not sell your data. Your recorded trades and track record stay readable to you, and you can ask for them to be exported or deleted at any time.',
     ],
   },
   terms: {
@@ -46,7 +46,7 @@ const PAGES = {
     title: 'Terms',
     body: [
       'Nifty Satvik is private and invite-only — not a paid subscription. Access is granted, not purchased, and can be revoked at any time.',
-      'You bring your own Zerodha account and sign every order yourself. We provide research and decision-support output only, never discretionary management of your funds.',
+      'You bring your own broker account and place every order yourself. We provide research and decision-support output only, never discretionary management of your funds.',
       'No outcome is guaranteed. The service is provided as-is, subject to market risk, and may change or pause without notice.',
     ],
   },
@@ -54,7 +54,7 @@ const PAGES = {
     kicker: 'Company',
     title: 'About',
     body: [
-      'Nifty Satvik is a systematic swing-signal research tool for the Nifty 500. Every weekday it scores the large- and mid-cap universe and surfaces a small, graded shortlist — each idea with an explicit entry, stop and target, one click from Zerodha Kite.',
+      'Nifty Satvik is a systematic swing-signal research tool for the Nifty 500. Every weekday it scores the large- and mid-cap universe and surfaces a small, graded shortlist — each idea with an explicit entry, stop and target that you execute in your own broker account.',
       'The discipline is the product: walk-forward validation, pre-registered research, drawdowns shown in full, and a single codebase computing the features for both the backtest and the live signal.',
       'Built in Ahmedabad, India.',
     ],

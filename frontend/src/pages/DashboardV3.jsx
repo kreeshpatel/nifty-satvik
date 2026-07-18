@@ -405,13 +405,15 @@ const TOOL_ICONS = {
   method:  'M12 2a10 10 0 100 20 10 10 0 000-20zM2 12h20',
 };
 function ToolsCard() {
+  // Only routes that actually EXIST. Three of the previous six pointed at stripped routes and
+  // silently bounced the user somewhere unrelated (/pnl and /orders -> Research, /journal ->
+  // Portfolio), and "Methodology" pointed at Research, which is not a methodology page — Research
+  // already carries the "How calls are made" card. Portfolio was missing entirely despite being
+  // the page where the user's own holdings and realized P&L live.
   const tools = [
     { to: '/premove', label: 'Position sizer', icon: 'sizer' },
+    { to: '/portfolio', label: 'Your portfolio', icon: 'report' },
     { to: '/track-record', label: 'Track record', icon: 'record' },
-    { to: '/pnl', label: 'P&L report', icon: 'report' },
-    { to: '/orders', label: 'Trade log', icon: 'log' },
-    { to: '/journal', label: 'Journal', icon: 'journal', tag: 'LOG' },
-    { to: '/premove', label: 'Methodology', icon: 'method' },
   ];
   return (
     <div className="card rcard">

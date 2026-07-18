@@ -277,3 +277,17 @@
 /* Cold-start onboarding modal */
 .ecm-coldstart-points { margin: 10px 0 0; padding-left: 18px; display: flex; flex-direction: column;
   gap: 8px; font-size: 12.5px; line-height: 1.5; color: var(--text-2); }
+
+/* Reference row — the static context cards (signal stats, how calls are made) moved out of the
+   right rail. The rail was ~5 cards tall against a call list that is often 1-5 rows, so scrolling
+   left a tall empty column beside it. Two columns on desktop, stacking on narrow windows. */
+.ri-reference {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .ri-reference { grid-template-columns: minmax(0, 1fr); }
+}
