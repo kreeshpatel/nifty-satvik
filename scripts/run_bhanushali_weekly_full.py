@@ -1,5 +1,13 @@
 """Pre-reg 0089 — fully-weekly six-step: in-range open entry + weekly-close/Monday exits.
 
+⚠ NOT THE LIVE STRATEGY — RESEARCH-REPRODUCIBILITY ONLY (owner ruling 2026-07-18).
+This 0089-era engine builds its weekly trend line as a 44-week **EMA** (`ewm(span=44)` in
+prep_weekly below). The owner's taught rule — and the LIVE book — use a true 44-week **SMA**:
+see `run_bhanushali_weekly_rank.py` (R94, `rolling(44).mean()`), which is what
+`run_bhanushali_cron.py` actually runs. This module is kept ONLY so the recorded findings
+(0089→0091, the CRS/rank parity checks, and the diag_* scripts) remain re-runnable.
+Never wire prep_weekly's EMA line into a live signal path.
+
 Weekly 44-EMA trend + a green weekly bounce off it (low within 7%) = the signal week. Entry: the FOLLOWING
 week, buy at the first day whose OPEN prints inside the signal week's [low, high] range (a cheaper in-range
 fill, not 0088's breakout). Stop = signal-week low. 0085 exit LEVELS (half@+2R, 20-EMA -4% ratchet trail,
