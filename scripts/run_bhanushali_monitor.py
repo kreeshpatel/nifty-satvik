@@ -126,14 +126,19 @@ def _tranche_status(tr: dict, bar: "_Bar", entry: float, stop: float) -> dict:
 
 
 def _refresh(tickers: list[str], do_download: bool) -> dict:
-    """Return the OHLCV cache, refreshed with the last ~20 days for just the envelope's tickers.
+    """Return the OHLCV cache, refreshed for just the envelope's tickers.
 
     Cheap by design — only the handful of names on the weekly cards, not the whole universe. A
-    download hiccup is non-fatal: we fall back to whatever the cache already holds."""
+    download hiccup is non-fatal: we fall back to whatever the cache already holds.
+
+    The window is ~120 calendar days (~80 trading bars), NOT the ~20 the monitor itself needs:
+    download_ohlcv() drops any name with < 50 usable bars, so a 20-day pull returns ZERO names on
+    a fresh checkout (the GitHub runner has no local cache) and the monitor silently re-priced
+    nothing — the bug that shipped an empty weekly_monitor.json on the first cloud run."""
     ohlcv = load_ohlcv_cache(OHLCV_CACHE) or {}
     if not do_download or not tickers:
         return ohlcv
-    dl_start = (date.today() - timedelta(days=20)).isoformat()
+    dl_start = (date.today() - timedelta(days=120)).isoformat()
     try:
         fresh = download_ohlcv(tickers, start=dl_start, end=date.today().isoformat())
         ohlcv = merge_ohlcv(ohlcv, fresh) if ohlcv else fresh
