@@ -26,7 +26,7 @@ import { useOverview } from '@/hooks/queries/useOverview';
 import { useNavHistory } from '@/hooks/queries/useNavHistory';
 import { usePaperHistory } from '@/hooks/queries/usePaperHistory';
 import { usePaperPositions } from '@/hooks/queries/usePaperPositions';
-import { useExecutionPositions } from '@/hooks/queries/useExecution';
+import { useExecutionPositions, useReconciliation } from '@/hooks/queries/useExecution';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import { useTrades, flattenTrades } from '@/hooks/queries/useTrades';
 import { useSignals } from '@/hooks/queries/useSignals';
@@ -50,6 +50,30 @@ function ledgerHoldingToRow(pos, quotes) {
     day_change_percentage: q?.change_pct ?? null,
     product: 'SELF',
   };
+}
+
+// Outstanding reconciliation items (Stage 4b): what the model plan expects of the user's held names
+// that their ledger doesn't yet reflect. Severity mirrors the P cadence (high/action/warn/info).
+function ActionItemsStrip({ items }) {
+  if (!items || items.length === 0) return null;
+  const sevCls = { high: 'num-bear', action: 'num-bull', warn: 'num-warn', info: 'num-info' };
+  return (
+    <div className="pv3-actions-strip">
+      <div className="pv3-actions-head">
+        <span className="pv3-t-ui-micro">OUTSTANDING · MODEL vs YOUR LEDGER</span>
+        <span className="pv3-t-ui-footnote">{items.length} to reconcile · record the fill to clear it</span>
+      </div>
+      <ul className="pv3-actions-list">
+        {items.slice(0, 6).map((it, i) => (
+          <li key={`${it.signal_id}-${it.type}-${i}`} className="pv3-action-item">
+            <span className={`pv3-action-dot ${sevCls[it.severity] || 'num-info'}`} />
+            <span className="pv3-action-sym">{it.ticker}</span>
+            <span className="pv3-action-msg">{it.message}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 // A CLOSED ledger position mapped to the closed-trades table shape (realized figures from the ledger).
@@ -1389,6 +1413,7 @@ export default function PortfolioV3() {
   const paperHistoryQuery = usePaperHistory();      // ₹10L paper-broker ledger (Paper reference view)
   const paperQuery      = usePaperPositions();      // the model's paper positions (Paper reference view)
   const execQuery       = useExecutionPositions();  // the user's OWN durable positions (Yours view)
+  const reconQuery      = useReconciliation({ enabled: !isPaper });  // outstanding model-vs-ledger items
   const tradesQuery     = useTrades({ perPage: 50 });
   const signalsQuery    = useSignals();
 
@@ -1527,6 +1552,9 @@ export default function PortfolioV3() {
       {/* OVERVIEW — NAV + equity curve + performance + risk + allocation */}
       {ptab === 'overview' && (
         <>
+          {!isPaper && (reconQuery.data?.items?.length ?? 0) > 0 && (
+            <section className="pv3-row"><ActionItemsStrip items={reconQuery.data.items} /></section>
+          )}
           <section className="pv3-row">
             <EquityHero
               portfolio={view.portfolio}
