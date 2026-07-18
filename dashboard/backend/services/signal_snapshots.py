@@ -70,6 +70,11 @@ def freeze_signals(db, signals: list[dict], generated_at: str | None) -> int:
     existing snapshot (that is the whole point). Idempotent; best-effort (never raises)."""
     frozen = 0
     try:
+        # The chain tail is read from the DB ONCE, then carried through the loop in Python.
+        # (The session is autoflush=False, so a per-iteration query would NOT see rows added
+        # earlier in this same batch — that bug flattened a whole batch to prev_hash NULL.)
+        prev = db.query(SignalSnapshot).order_by(SignalSnapshot.id.desc()).first()
+        prev_hash = prev.content_hash if prev else None
         for sig in signals or []:
             sid = _signal_id(sig)
             entry, stop = sig.get("entry"), sig.get("stop")
@@ -77,8 +82,6 @@ def freeze_signals(db, signals: list[dict], generated_at: str | None) -> int:
                 continue
             if db.query(SignalSnapshot).filter(SignalSnapshot.signal_id == sid).first():
                 continue                                  # already frozen — immutable
-            prev = db.query(SignalSnapshot).order_by(SignalSnapshot.id.desc()).first()
-            prev_hash = prev.content_hash if prev else None
             canonical = _canonical(sig)
             row = SignalSnapshot(
                 signal_id=sid, ticker=sig.get("ticker"), signal_date=str(sig.get("signal_date")),
@@ -91,6 +94,7 @@ def freeze_signals(db, signals: list[dict], generated_at: str | None) -> int:
                 content_hash=_content_hash(canonical, prev_hash), prev_hash=prev_hash,
             )
             db.add(row)
+            prev_hash = row.content_hash              # chain the NEXT row in this batch to this one
             frozen += 1
         if frozen:
             db.commit()

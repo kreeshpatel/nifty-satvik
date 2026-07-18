@@ -51,6 +51,10 @@ results/*
 !results/kill_log.jsonl
 # Weekly-swing forward-review scorecard (Oct-1 promote/kill machinery) — cron-refreshed, dashboard-read.
 !results/weekly_review_scorecard.json
+# The daily monitor's output MUST be committable — cron-bhanushali-monitor.yml `git add`s it, and
+# without this whitelist the add silently no-ops (|| true) and the backend's intra-week overlay
+# (live re-price + exit-tranche flags) never reaches production. Found dead 2026-07-18.
+!results/weekly_monitor.json
 logs/
 dashboard/frontend/results/
 

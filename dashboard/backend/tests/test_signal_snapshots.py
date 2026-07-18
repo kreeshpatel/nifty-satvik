@@ -56,6 +56,25 @@ def test_hash_chain_links_rows(engine: Any) -> None:
     assert b["prev_hash"] == a["content_hash"]    # chained to the prior snapshot
 
 
+def test_hash_chain_links_within_one_batch(engine: Any) -> None:
+    """A whole envelope freezes in ONE call (the production path). With autoflush=False a
+    per-iteration DB read can't see rows added earlier in the batch — the bug that flattened
+    the first live batch to prev_hash NULL. The chain must link inside a single batch."""
+    db = _session(engine)
+    batch = [
+        {**SIG, "ticker": "AAA"},
+        {**SIG, "ticker": "BBB", "entry": 400.0, "stop": 360.0},
+        {**SIG, "ticker": "CCC", "entry": 500.0, "stop": 450.0},
+    ]
+    assert freeze_signals(db, batch, "2026-07-18") == 3
+    a = get_snapshot(db, "AAA__2026-07-17")
+    b = get_snapshot(db, "BBB__2026-07-17")
+    c = get_snapshot(db, "CCC__2026-07-17")
+    assert a["prev_hash"] is None
+    assert b["prev_hash"] == a["content_hash"]
+    assert c["prev_hash"] == b["content_hash"]
+
+
 def test_integrity_gate_quarantines_bad_signal(engine: Any) -> None:
     db = _session(engine)
     bad = {**SIG, "ticker": "BADCO", "entry": 100.0, "stop": 120.0}  # stop above entry
