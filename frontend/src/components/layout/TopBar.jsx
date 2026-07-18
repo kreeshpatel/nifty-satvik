@@ -419,7 +419,9 @@ export function TopBar() {
         zIndex: 50,
         height: 64,
         display: 'grid',
-        gridTemplateColumns: 'auto 1fr auto auto auto auto',
+        // 5 columns for 5 children (logo · ticker · pills · bell · user). The 6th was the Kite
+        // connect chip, removed 2026-07-13 — the stale track outlived it.
+        gridTemplateColumns: 'auto 1fr auto auto auto',
         alignItems: 'center',
         gap: 14,
         padding: '0 20px',

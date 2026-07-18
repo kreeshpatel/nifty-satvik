@@ -11,7 +11,7 @@
  *   6. Danger zone     — bear tone, sign-out as a text link
  */
 import React, { useContext, useEffect, useState } from 'react';
-import { LogOut, User as UserIcon, Plug, Bell, Palette, ShieldCheck, Loader2 } from 'lucide-react';
+import { LogOut, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { QRCodeSVG } from 'qrcode.react';
 import { PageShell } from '@/components/shared/PageShell';

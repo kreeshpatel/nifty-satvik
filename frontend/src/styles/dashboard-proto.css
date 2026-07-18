@@ -132,7 +132,6 @@
 .dv3-proto .sig-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 11px; }
 .dv3-proto .m .k { font-size: 9.5px; color: var(--text-3); text-transform: uppercase; letter-spacing: .03em; font-weight: 600; margin-bottom: 2px; }
 .dv3-proto .m .v { font-size: 18px; font-weight: 600; letter-spacing: -.01em; }
-.dv3-proto .spark { width: 100%; height: 28px; display: block; margin-bottom: 11px; }
 .dv3-proto .sig-foot { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding-top: 10px; border-top: 1px solid var(--edge-1); }
 .dv3-proto .lvl { text-align: center; }
 .dv3-proto .lvl .k { font-size: 9px; color: var(--text-4); text-transform: uppercase; letter-spacing: .04em; font-weight: 600; }

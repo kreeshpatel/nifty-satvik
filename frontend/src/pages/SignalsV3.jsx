@@ -19,13 +19,12 @@
 
 import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { KiteContext } from '@/App';
 import { AuthContext } from '@/context/AuthContext';
 import { useSignals } from '@/hooks/queries/useSignals';
 import { useWatchlist } from '@/hooks/queries/useWatchlist';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import { GlassTabs } from '@/components/shared/GlassTabs';
-import { CONVICTION, DISCLAIMER, STATES, DISCIPLINE, COLD_START, LESSONS } from '@/lib/signalCopy';
+import { CONVICTION, DISCLAIMER, STATES, DISCIPLINE, LESSONS } from '@/lib/signalCopy';
 import { EmptyState } from '@/components/shared/EmptyState';
 import TradeCardModal from '@/components/shared/TradeCardModal';
 import ExecutionCaptureModal from '@/components/shared/ExecutionCaptureModal';
@@ -332,17 +331,6 @@ function CommentaryCard({ regime, model, freshCount }) {
   );
 }
 
-function StatBar({ label, value, total }) {
-  const pct = total > 0 ? Math.round((value / total) * 100) : 0;
-  return (
-    <div className="ri-statrow">
-      <span className="ri-stat-l">{label}</span>
-      <span className="ri-bar"><span className="ri-bar-fill" style={{ width: `${pct}%` }} /></span>
-      <span className="ri-stat-v tnum">{value}</span>
-    </div>
-  );
-}
-
 // Map an enriched signal → the pure sizer's input shape.
 const toSizerSig = (s) => ({
   signalId: s._signalId, sym: s.sym, entry: s.entry, stop: s.stop, buyHigh: s._buyHigh, ltp: s._ltp,
@@ -601,7 +589,6 @@ const FILTERS = [
 ];
 
 export default function SignalsV3() {
-  const kite = useContext(KiteContext);
   const { user } = useContext(AuthContext);
   const isAdmin = !!user?.is_admin;
   const navigate = useNavigate();
@@ -686,8 +673,8 @@ export default function SignalsV3() {
   const [capture, setCapture] = useState(null);
 
   // Stage 6c — onboarding journey: durable per-user memory; lessons unlock off the user's OWN events.
+  // (The cold-start briefing moved to ColdStartGate in the app layout so it can't be walked past.)
   const journey = useJourney();
-  const showColdStart = !journey.isLoading && !journey.seen('cold_start_acked');
   const fireLesson = (key) => {
     const flag = key;                                     // journey flag == LESSONS key
     if (journey.seen(flag) || !LESSONS[flag]) return;
@@ -848,27 +835,6 @@ export default function SignalsV3() {
         sizerQty={capture?.sizerQty} tranche={capture?.tranche}
         onClose={() => setCapture(null)} onRecorded={onRecorded}
       />
-
-      {/* Stage 6c — cold-start onboarding: shown once (durable server-side flag), sets forward-honest
-          expectations before the first trade. Dismissable only via the acknowledgement. */}
-      <Dialog open={showColdStart} onOpenChange={() => {}}>
-        <DialogContent className="border-0 p-0 rsm-dialog" style={{ maxWidth: 460 }}
-                     srTitle="Before your first trade — what normal looks like">
-          <div className="rsm ecm">
-            <div className="rsm-h"><span>{COLD_START.title}</span></div>
-            <ul className="ecm-coldstart-points">
-              {COLD_START.points.map((p, i) => <li key={i}>{p}</li>)}
-            </ul>
-            <div className="ecm-actions" style={{ gridTemplateColumns: '1fr' }}>
-              <button type="button" className="ri-sizer-btn ecm-confirm"
-                      onClick={() => journey.mark('cold_start_acked')}>
-                {COLD_START.ack}
-              </button>
-            </div>
-            <div className="rsm-note">{DISCLAIMER}</div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

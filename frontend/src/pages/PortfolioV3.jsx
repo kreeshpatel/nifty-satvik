@@ -15,7 +15,6 @@
  *                 // TODO: monthly P&L endpoint or position-size on trades
  *   HoldingsTable — useKiteHoldings (connected) OR usePaperPositions (else)
  *   AllocCard   — stacked bar + ranked list by sector (Kite or paper)
- *   ClosedCard  — useTrades() first 5 entries
  *
  * Compliance: no "guarantee", "will", "sure", "sure-shot" in client-facing strings.
  * DISCLAIMER footer sourced from @/lib/signalCopy.
@@ -93,8 +92,6 @@ function ledgerClosedToTrade(pos) {
 // ─────────────────────────────────────────────────────────────────────
 // Formatters
 // ─────────────────────────────────────────────────────────────────────
-const fmtINR = (n) =>
-  n == null ? '—' : '₹' + Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtNum = (n) =>
   n == null ? '—' : Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtPct = (n) =>
@@ -123,7 +120,7 @@ const TICKER_DOMAINS = {
   AXISBANK: 'axisbank.com', TATAPOWER: 'tatapower.com', POLYCAB: 'polycab.com',
   VOLTAS: 'voltas.com', CUMMINSIND: 'cummins.com', TITAN: 'titancompany.com',
   SUNPHARMA: 'sunpharma.com', DIVISLAB: 'divislabs.com', PERSISTENT: 'persistent.com',
-  WIPRO: 'wipro.com', HINDUNILVR: 'hul.co.in', BHARTIARTL: 'airtel.in',
+  WIPRO: 'wipro.com', HINDUNILVR: 'hul.co.in',
 };
 
 function tickerBg(sym) {
@@ -159,13 +156,6 @@ function Logo({ sym, size = 30, radius = 8 }) {
 // ─────────────────────────────────────────────────────────────────────
 // Icons
 // ─────────────────────────────────────────────────────────────────────
-const Icon = {
-  Arrow:   (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>,
-  Plug:    (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22v-5"/><path d="M9 7V2"/><path d="M15 7V2"/><path d="M6 13V8a6 6 0 0 1 12 0v5a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z"/></svg>,
-  Alert:   (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>,
-  Shield:  (p) => <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
-};
-
 // ─────────────────────────────────────────────────────────────────────
 // Skeleton
 // ─────────────────────────────────────────────────────────────────────
@@ -788,13 +778,6 @@ function MonthlyPnl({ trades, isLoading }) {
 // Status: sell-target / sell-stop / hold derived from hold_days vs target proximity
 // ─────────────────────────────────────────────────────────────────────
 
-// Status chip map — derived from row data since status isn't a Kite field
-function deriveHoldingStatus(row) {
-  if (row._status) return row._status;
-  // Paper positions may have a status indicator from the signal
-  return 'hold';
-}
-
 // Derive the Holdings "Status" chip for a paper position from the LIVE model
 // state. The backend joins each position to signals_history and attaches
 // `signal_status` (the cron's track_signals re-evaluates every held signal
@@ -1101,10 +1084,12 @@ function AllocCard({ holdings, cash, totalEquity, isPaper, isLoading }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// SECTION 8 — ClosedCard
-// Source: useTrades() first 5 entries, exit_reason → reason styling
-// P&L: return_pct from real trade data (qty not in shape — labelled as %)
+// MAIN PAGE
 // ─────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────
+// Paper sub-tabs — Positions / Closed Trades / Activity (+ P&L strips)
+// ─────────────────────────────────────────────────────────────────────
+// exit_reason → [chip label, tone]. Consumed by reasonChip below.
 const RSN_MAP = {
   target:     ['TGT',  'won'],
   hit_target: ['TGT',  'won'],
@@ -1117,61 +1102,6 @@ const RSN_MAP = {
   EXPIRED:    ['TIME', 'neu'],
 };
 
-function ClosedCard({ trades, isLoading }) {
-  const recent = useMemo(() => (trades ?? []).slice(0, 5), [trades]);
-
-  const totalRetPct = recent.reduce((s, t) => s + (Number(t.return_pct) || 0), 0);
-
-  return (
-    <div className="pv3-card">
-      <div className="pv3-card-head">
-        <div>
-          <div className="pv3-t-ui-headline">Recently closed</div>
-          <div className="pv3-t-ui-footnote">model track record · last {recent.length} trades</div>
-        </div>
-        {recent.length > 0 && (
-          <span className={`pv3-t-num-small ${totalRetPct >= 0 ? 'num-bull' : 'num-bear'}`}>
-            {fmtPct(totalRetPct)} combined
-          </span>
-        )}
-      </div>
-
-      {isLoading ? (
-        Array.from({ length: 3 }).map((_, i) => <Skel key={i} w="100%" h={32} radius={6} />)
-      ) : recent.length === 0 ? (
-        <div className="pv3-closed-empty">No closed trades yet.</div>
-      ) : (
-        <div className="pv3-closed-list">
-          {recent.map((t, i) => {
-            const reason = t.exit_reason || '';
-            const r = RSN_MAP[reason] || RSN_MAP[reason.toLowerCase()] || ['—', 'neu'];
-            const retPct = Number(t.return_pct) ?? null;
-            return (
-              <div key={`${t.ticker}-${t.exit_date}-${i}`} className="pv3-cl-row">
-                <Logo sym={t.ticker} size={26} radius={6} />
-                <span className="pv3-cl-sym">{t.ticker}</span>
-                <span className={`pv3-cl-rsn ${r[1]}`}>{r[0]}</span>
-                <span className="pv3-cl-held pv3-t-num-small pv3-dim">
-                  {t.hold_days != null ? `${Math.round(t.hold_days)}d` : '—'}
-                </span>
-                <span className={`pv3-cl-pnl pv3-t-num-small ${retPct == null ? '' : retPct >= 0 ? 'num-bull' : 'num-bear'}`}>
-                  {retPct != null ? fmtPct(retPct) : '—'}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────
-// MAIN PAGE
-// ─────────────────────────────────────────────────────────────────────
-// ─────────────────────────────────────────────────────────────────────
-// Paper sub-tabs — Positions / Closed Trades / Activity (+ P&L strips)
-// ─────────────────────────────────────────────────────────────────────
 function reasonChip(reason) {
   const k = String(reason || '');
   if (RSN_MAP[k]) return RSN_MAP[k];
@@ -1589,7 +1519,6 @@ export default function PortfolioV3() {
               ? <PositionsTable holdings={paperPos} isLoading={isHoldingsLoading} />
               : <HoldingsTable holdings={activeHoldings} isPaper={isPaper} totalEquity={totalEquity} isLoading={isHoldingsLoading} />}
           </section>
-          <section className="pv3-row"><AllocCard holdings={activeHoldings} cash={cash} totalEquity={totalEquity} isPaper={isPaper} isLoading={isHoldingsLoading} /></section>
         </>
       )}
 

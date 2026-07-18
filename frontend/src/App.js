@@ -50,6 +50,7 @@ const ForgotPassword = React.lazy(() => import('@/pages/ForgotPassword'));
 const ResetPassword  = React.lazy(() => import('@/pages/ResetPassword'));
 import PageTransition from '@/components/PageTransition';
 import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
+import ColdStartGate from '@/components/shared/ColdStartGate';
 import { cn } from '@/lib/utils';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { AuthProvider, AuthContext } from '@/context/AuthContext';
@@ -138,6 +139,9 @@ function ProtectedAppLayout() {
             <Outlet />
           </main>
         </div>
+        {/* Gates every authenticated route, not just /premove — a first-run user must not be able to
+            reach the record-a-buy flow without reading what a normal drawdown looks like. */}
+        <ColdStartGate />
       </div>
     </KiteContext.Provider>
   );
@@ -146,7 +150,8 @@ function ProtectedAppLayout() {
 function LoginGuard() {
   const { user, loading } = useContext(AuthContext);
   if (loading) return null;
-  if (user) return <Navigate to="/dashboard" replace />;
+  // Land on the answer to "what do I do this week", not the read-only dashboard.
+  if (user) return <Navigate to="/this-week" replace />;
   return <Login />;
 }
 
