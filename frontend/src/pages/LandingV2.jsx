@@ -153,11 +153,11 @@ const SECTOR_KEYS = ['largecap', 'midcap', 'smallcap', 'banking'];
 const FAQ_ITEMS = [
   {
     q: 'Is Nifty Satvik SEBI-registered?',
-    a: 'No. Nifty Satvik is not a SEBI-registered investment advisor or research analyst. We publish research and decision-support signals — not personalised investment advice — and we never manage your capital. Every order is placed by you, in your own Zerodha Kite account.',
+    a: 'No. Nifty Satvik is not a SEBI-registered investment advisor or research analyst. We publish research and decision-support signals — not personalised investment advice — and we never manage your capital. Every order is placed by you, in your own broker account.',
   },
   {
-    q: 'Do I need a Zerodha Kite account?',
-    a: 'For one-click routing, yes — Kite Connect is the only execution venue we integrate with today. You can still use Nifty Satvik without Kite — you\'ll just place orders manually in your own broker.',
+    q: 'Do I need a particular broker?',
+    a: 'No. Nifty Satvik does not connect to your broker and never places an order for you. You get the week\'s book — entry, stop, target and a size — and you place those orders yourself, wherever you trade. You then record what actually filled, so the app can measure your book against the model\'s plan.',
   },
   {
     q: "What's the minimum capital to start?",
@@ -172,8 +172,8 @@ const FAQ_ITEMS = [
     a: 'Nothing today. Nifty Satvik is private and invite-only — not a paid subscription. You bring your own Zerodha account; we don\'t charge a fee or manage your money. Revoke access anytime — your journal and track-record data stay readable.',
   },
   {
-    q: 'What happens on a flat or bearish day?',
-    a: 'The dashboard says so plainly — "No fresh signals today — next scan at 16:15 IST." The system is designed to underfit; on many weekdays it surfaces zero A-grade signals. Patience is part of the edge.',
+    q: 'What happens in a flat or bearish week?',
+    a: 'The app says so plainly — "Nothing to do this week." The system is designed to underfit; plenty of weeks surface zero new A-grade names, and most days there is no action at all. Patience is part of the edge.',
   },
 ];
 
@@ -473,8 +473,9 @@ function LandingV2Shell() {
           <div className="tp-badge">Systematic swing signals · Nifty 500</div>
           <h1 className="tp-hero-title">Trade only when the market says <span className="tp-script">yes</span>.</h1>
           <p className="tp-hero-sub">
-            Nifty Satvik scores 441 stocks every weekday at 16:15 IST. Wake up to the day's A-grade
-            signals — each with an explicit entry, stop and target, and a one-click route to Zerodha Kite.
+            Nifty Satvik ranks the Nifty 500 every Saturday evening and hands you the week's book —
+            each name with an explicit entry, stop and target, sized to your capital. You place the
+            orders in your own broker; open positions are watched every trading day.
           </p>
           <div className="tp-hero-cta">
             <button className="tp-btn tp-btn-primary" onClick={openModal}>Request access<ArrowIcon /></button>
@@ -485,8 +486,8 @@ function LandingV2Shell() {
 
           <div className="tp-trust">
             <span className="tp-trust-item"><span className="tp-trust-ic"><MarkIcon size={15} /></span><span className="tp-trust-t">NSE market data</span></span>
-            <span className="tp-trust-item"><span className="tp-trust-ic kite"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4v16h16" /><path d="M4 16l5-5 4 4 7-7" /></svg></span><span className="tp-trust-t">Zerodha Kite Connect</span></span>
-            <span className="tp-trust-item"><span className="tp-trust-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg></span><span className="tp-trust-t">OAuth 2.0 — you sign every order</span></span>
+            <span className="tp-trust-item"><span className="tp-trust-ic"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4v16h16" /><path d="M4 16l5-5 4 4 7-7" /></svg></span><span className="tp-trust-t">Point-in-time, no lookahead</span></span>
+            <span className="tp-trust-item"><span className="tp-trust-ic"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg></span><span className="tp-trust-t">Your broker, your orders</span></span>
           </div>
         </div>
       </section>
@@ -585,10 +586,10 @@ function LandingV2Shell() {
           </div>
           <div className="tp-steps">
             {[
-              ['Scan', 'Every weekday after the 15:30 NSE close we refresh point-in-time prices and fundamentals across the full Nifty 500 large- and mid-cap universe. No lookahead, ever.'],
+              ['Scan', 'Every Saturday evening we refresh point-in-time prices and fundamentals across the full Nifty 500 large- and mid-cap universe and rebuild the book. Open positions are re-checked every trading day. No lookahead, ever.'],
               ['Rank', 'Each name is scored cross-sectionally on trend quality and risk. The ranking rule is proprietary and frozen — derived once from history, then never touched.'],
               ['Screen', 'Only the top-ranked names that also pass strict liquidity and solvency filters survive. Most days that is one or two. Often zero — and that restraint is part of the edge.'],
-              ['Risk-size', 'Each survivor ships as a complete plan — entry, a hard stop, a target, and a size set to a fixed risk budget with a volatility cap — ready to route to Kite.'],
+              ['Risk-size', 'Each survivor ships as a complete plan — entry, a hard stop, a target, and a size set to a fixed risk budget with a volatility cap — ready to place with your broker.'],
             ].map(([title, desc], i) => (
               <div className={`tp-card tp-step${i === 1 ? ' on' : ''}`} key={title}>
                 <div className="tp-step-no">0{i + 1}</div>
@@ -653,7 +654,7 @@ function LandingV2Shell() {
               {[
                 ['Conviction + grade', 'A cross-sectional rank of trend quality against risk, distilled into an A–D grade. Only the top grades ship as signals.'],
                 ['Entry, stop, target', 'Concrete prices — an ATR-based stop and a fixed profit target — not a vague “buy now and hope.”'],
-                ['Position size', 'Scaled to your account and capped so risk per trade stays bounded. You approve it and route it to Kite.'],
+                ['Position size', 'Scaled to your capital and capped so risk per trade stays bounded. You decide whether to take it, and place it yourself.'],
                 ['Exit logic', 'A multi-week horizon with a hard stop, a target, a trailing stop, and a time cap. The rule tells you when to leave — target, stop, or time.'],
               ].map(([k, v]) => (
                 <div key={k} className="alm-lrow">
@@ -756,11 +757,11 @@ function LandingV2Shell() {
               {[
                 ['No subscription', 'No monthly plan, no paywall. Access is granted, not purchased.',
                   <><rect x="3" y="6" width="18" height="12" rx="2" /><path d="M3 10h18M5 4.5l14 15" /></>],
-                ['Your account, your orders', 'You connect your own Zerodha Kite in one step and sign every order yourself. We never hold or manage your capital.',
+                ['Your account, your orders', 'We never connect to your broker, hold your capital, or place an order. You execute every trade yourself and report the fills.',
                   <><path d="M12 3.5l7 3v5c0 5-3.5 7.8-7 9.5-3.5-1.7-7-4.5-7-9.5v-5z" /><path d="M9 12l2 2 4-4" /></>],
                 ['Small by design', 'Onboarded in small batches, so the dashboard stays fast and the feedback loop stays real.',
                   <><circle cx="9" cy="9" r="3" /><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5" /><circle cx="17.5" cy="10" r="2" /><path d="M16 14.5c2 .4 3.5 2 3.5 4.5" /></>],
-                ['Leave anytime', 'Revoke Kite access in one click. Your journal and track-record data stay readable.',
+                ['Leave anytime', 'Nothing to revoke — we hold no broker access. Your journal and track-record data stay readable.',
                   <><path d="M14 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 8l-4 4 4 4M6 12h9" /></>],
               ].map(([t, d, icon]) => (
                 <div key={t} className="alm-access-item">
@@ -829,7 +830,7 @@ function LandingV2Shell() {
                 <span className="alm-brand-mark" style={{ width: 30, height: 30 }}><img src={brandLogo} alt="Nifty Satvik" /></span>
                 <span className="alm-brand-name">Nifty Satvik<span>Systematic Signals</span></span>
               </a>
-              <p className="alm-foot-tag">AI-graded swing-trading signals for the Nifty 500. Walk-forward validated and one-click executable through Zerodha Kite.</p>
+              <p className="alm-foot-tag">Systematic swing-trading research for the Nifty 500. You place every order with your own broker.</p>
             </div>
             <div className="alm-foot-col">
               <h4>Product</h4>

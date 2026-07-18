@@ -68,50 +68,6 @@ function ProtoLogo({ sym, tint = true, style }) {
   );
 }
 
-// Deterministic sparkline generator seeded from a string (ticker or index key).
-// TODO: replace with real per-instrument history when a price-history endpoint exists.
-function genSpark(seed, n = 15) {
-  let s = 0;
-  for (const c of (seed || 'XX')) s = (s * 131 + c.charCodeAt(0)) % 2147483647;
-  const rand = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return (s % 100000) / 100000; };
-  const pts = [];
-  let v = 50 + rand() * 20;
-  for (let i = 0; i < n; i++) {
-    v = Math.max(10, Math.min(90, v + (rand() - 0.46) * 10));
-    pts.push(v);
-  }
-  return pts;
-}
-
-// The prototype's per-card spark: viewBox "0 0 200 28", area fill + stroke line.
-// tone: 'bull' (green, filled) | 'warn' (amber, stroke only — brewing cards).
-function SigSpark({ data, tone = 'bull', gradId }) {
-  if (!data || data.length < 2) return null;
-  const min = Math.min(...data), max = Math.max(...data);
-  const range = max - min || 1;
-  const w = 200, h = 28;
-  const xs = data.map((_, i) => (i * w) / (data.length - 1));
-  const ys = data.map((v) => h - ((v - min) / range) * h);
-  const path = xs.map((x, i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${ys[i].toFixed(1)}`).join(' ');
-  const areaPath = `${path} L${xs[xs.length - 1]},${h} L${xs[0]},${h} Z`;
-  const stroke = tone === 'warn' ? '#FFB454' : tone === 'bear' ? '#FF5C7A' : '#3FDD8A';
-  return (
-    <svg className="spark" viewBox="0 0 200 28" preserveAspectRatio="none">
-      {tone !== 'warn' && (
-        <defs>
-          <linearGradient id={gradId} x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0" stopColor={stroke} stopOpacity=".35" />
-            <stop offset="1" stopColor={stroke} stopOpacity="0" />
-          </linearGradient>
-        </defs>
-      )}
-      {tone !== 'warn' && <path d={areaPath} fill={`url(#${gradId})`} />}
-      <path d={path} fill="none" stroke={stroke} strokeWidth="1.6" />
-    </svg>
-  );
-}
-
-
 // ─────────────────────────────────────────────────────────────────────
 // Regime — prototype .regime
 // ─────────────────────────────────────────────────────────────────────
@@ -177,7 +133,7 @@ function RegimeCard({ regime, indexData, heldCount }) {
 // ─────────────────────────────────────────────────────────────────────
 // Research-call card — prototype .sig
 // ─────────────────────────────────────────────────────────────────────
-function SigCard({ sig, modelWinRate, brewing, idx, onOpen }) {
+function SigCard({ sig, brewing, idx, onOpen }) {
   const sym    = sig.ticker || sig.sym || sig.symbol || '??';
   const name   = sig.name || sym;
   const sector = sig.sector || '—';
@@ -190,12 +146,12 @@ function SigCard({ sig, modelWinRate, brewing, idx, onOpen }) {
   const upsidePct = entry > 0 && target > 0 ? ((target - entry) / entry) * 100 : null;
   const expReturn = sig.predicted_return_pct != null ? sig.predicted_return_pct : upsidePct;
 
-  const wrNum = Number(modelWinRate);
-  const wr = (modelWinRate != null && Number.isFinite(wrNum) && wrNum > 0) ? wrNum.toFixed(0) : null;
+  // Reward:risk is genuinely per-stock and derived from this card's own levels. It replaces a
+  // model-WIDE win rate that was printed identically on every card as if it described that name.
+  const risk = entry > 0 && stop > 0 && entry > stop ? entry - stop : null;
+  const rr = risk && target > entry ? (target - entry) / risk : null;
 
   const toGate = brewing && ltp > 0 ? ((entry - ltp) / ltp) * 100 : null;
-  const sparkData = useMemo(() => genSpark(sym), [sym]);
-  const tone = brewing ? 'warn' : 'bull';
 
   return (
     <div
@@ -213,14 +169,13 @@ function SigCard({ sig, modelWinRate, brewing, idx, onOpen }) {
         <span className={`grade${grade === 'A' ? ' a' : ''}`}>{grade}</span>
       </div>
       <div className="sig-metrics">
-        <div className="m"><div className="k">Win rate</div><div className="v bull tnum">{wr != null ? `${wr}%` : '—'}</div></div>
+        <div className="m"><div className="k">Reward : risk</div><div className="v tnum">{rr != null ? `${rr.toFixed(1)} : 1` : '—'}</div></div>
         {brewing ? (
           <div className="m"><div className="k">To gate</div><div className="v warn tnum">{toGate != null ? fmtPct1(toGate) : '—'}</div></div>
         ) : (
           <div className="m"><div className="k">Exp. return</div><div className="v tnum">{expReturn != null ? fmtPct1(expReturn) : '—'}</div></div>
         )}
       </div>
-      <SigSpark data={sparkData} tone={tone} gradId={`sigGrad${idx}`} />
       <div className="sig-foot">
         <div className="lvl"><div className="k">Entry</div><div className="v tnum">{fmtINR(entry)}</div></div>
         <div className="lvl"><div className="k">Stop</div><div className="v bear tnum">{fmtINR(stop)}</div></div>
@@ -321,15 +276,11 @@ function GlobalIndices({ indexData }) {
       <div className="gidx">
         {items.map((it) => {
           const up = it.chg >= 0;
-          const pts = genSpark(it.key, 6);
-          const min = Math.min(...pts), max = Math.max(...pts), range = max - min || 1;
-          const path = pts.map((v, i) => `${i === 0 ? 'M' : 'L'}${(i * 100 / (pts.length - 1)).toFixed(0)},${(20 - ((v - min) / range) * 18).toFixed(1)}`).join(' ');
           return (
             <div className="gi" key={it.key}>
               <div className="n">{it.label}</div>
               <div className="v tnum">{it.val.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</div>
               <div className={`c tnum ${up ? 'bull' : 'bear'}`}>{up ? '▲' : '▼'} {Math.abs(it.chg).toFixed(2)}%</div>
-              <svg viewBox="0 0 100 22" preserveAspectRatio="none"><path d={path} fill="none" stroke={up ? '#3FDD8A' : '#FF5C7A'} strokeWidth="1.5" /></svg>
             </div>
           );
         })}
@@ -509,7 +460,7 @@ function SectorCard({ signals }) {
     <div className="card rcard">
       <h4>Sector breadth</h4>
       {derived.length === 0 ? (
-        <div style={{ fontSize: 12.5, color: 'var(--text-3)' }}>No candidates yet — the model runs at 4:15 PM IST on trading days.</div>
+        <div style={{ fontSize: 12.5, color: 'var(--text-3)' }}>No candidates yet — the book is rebuilt at the Saturday 6:00 PM IST scan.</div>
       ) : (
         <div className="bubble-stage">
           {derived.map((s) => {
@@ -541,8 +492,8 @@ function ScanStatus({ cronHealth, signalsCount }) {
     <div className="scan-status">
       <span className="dot" />
       <div>
-        <div className="ss-head">{cronHealth?.last_run_today ? "Today's scan ran on schedule" : 'Next scan at 4:15 PM IST'}{signalsCount ? ` · ${signalsCount} signals` : ''}</div>
-        <div className="ss-sub">Cron {cronHealth?.last_run_today ? 'healthy' : 'pending'} · runs 4:15 PM IST on trading days — the calls post themselves, no manual scan.</div>
+        <div className="ss-head">{cronHealth?.last_run_today ? "Latest scan ran on schedule" : 'Next scan Saturday 6:00 PM IST'}{signalsCount ? ` · ${signalsCount} signals` : ''}</div>
+        <div className="ss-sub">Cron {cronHealth?.last_run_today ? 'healthy' : 'pending'} · book rebuilt Saturday 6:00 PM IST, open positions re-checked each trading day — no manual scan.</div>
       </div>
       <Link className="link" to="/premove">See all calls →</Link>
     </div>
@@ -612,8 +563,11 @@ export default function DashboardV3() {
   const breadthSource = signals.length ? signals : watchlist;
   const indexData = indexQuery.data ?? {};
   const sigLoading = signalsQuery.isLoading || watchlistQuery.isLoading;
-  const heldCount = kite?.connected ? (holdingsQuery.data ?? []).length : null;
-  const scanNote = cronHealth?.last_run_today ? 'Last scan: 4:15 PM IST' : 'Next scan: 4:15 PM IST';
+  // From the execution ledger, not Kite. This was gated on kite?.connected, which is permanently
+  // false (ADR 0011 — no per-user broker connection), so it rendered "—/15" forever while the
+  // holdings table directly below it listed the very positions it claimed not to know about.
+  const heldCount = execQuery.isLoading ? null : openPositions.length;
+  const scanNote = cronHealth?.last_run_today ? 'Last scan: Sat 6:00 PM IST' : 'Next scan: Sat 6:00 PM IST';
 
   return (
     <div className="dv3-proto" style={{ maxWidth: 1760, margin: '0 auto', padding: '18px 22px 60px' }}>
@@ -637,10 +591,10 @@ export default function DashboardV3() {
             {!sigLoading && (
               <div className="micro" style={{ marginBottom: 10, textTransform: 'none', letterSpacing: 0, fontWeight: 500, color: 'var(--text-3)' }}>
                 {signals.length > 0
-                  ? `${signals.length} of 441 stocks scored above conviction threshold · ${scanNote}`
+                  ? `${signals.length} name${signals.length === 1 ? '' : 's'} scored above the conviction threshold · ${scanNote}`
                   : showingBrewing
-                    ? `No fresh buys today — ${watchlist.length} names brewing below the entry gate · ${scanNote}`
-                    : `No signals from today's scan · ${scanNote}`}
+                    ? `No fresh buys — ${watchlist.length} names brewing below the entry gate · ${scanNote}`
+                    : `No signals from the latest scan · ${scanNote}`}
               </div>
             )}
             <div className="callgrid">
@@ -648,11 +602,11 @@ export default function DashboardV3() {
                 <SigCardSkeleton />
               ) : displayCards.length === 0 ? (
                 <div style={{ gridColumn: '1 / -1', padding: '24px 8px', color: 'var(--text-3)', fontSize: 13 }}>
-                  No high-conviction signals from today's scan. The model runs at 4:15 PM IST on trading days.
+                  No high-conviction names in the current book. It is rebuilt at the Saturday 6:00 PM IST scan.
                 </div>
               ) : (
                 displayCards.map((sig, i) => (
-                  <SigCard key={sig.ticker || sig.sym || sig.symbol} sig={sig} modelWinRate={winRate} brewing={showingBrewing} idx={i} onOpen={setTradeCard} />
+                  <SigCard key={sig.ticker || sig.sym || sig.symbol} sig={sig} brewing={showingBrewing} idx={i} onOpen={setTradeCard} />
                 ))
               )}
             </div>
