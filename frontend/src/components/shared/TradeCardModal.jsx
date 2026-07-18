@@ -15,12 +15,15 @@ import { fmtINR, fmtPct } from '@/lib/format';
  * (existing, unchanged for now) stock detail page.
  *
  * Card color follows grade so different picks read as visually distinct
- * "cards" rather than one static template — A-grade warm (matches the
- * Pick-of-the-week treatment), B-grade cool.
+ * "cards" rather than one static template — A-grade brand-blue (matches the
+ * Pick-of-the-week treatment), B-grade cooler.
  */
+// Restyled 2026-07-18 (UI audit): Grade A was magenta->purple, the only element in that hue family
+// and off-brand. A is now the brand-blue "featured" wash; B stays cooler/deeper so the two grades
+// remain instantly distinguishable without leaving the navy system.
 const GRADE_THEME = {
-  A: 'linear-gradient(135deg, #8E1E63 0%, #B12A6E 45%, #6E2CC0 100%)',
-  B: 'linear-gradient(135deg, #1E3A6E 0%, #1F5FA8 55%, #1E8FA8 100%)',
+  A: 'linear-gradient(135deg, rgba(79,140,255,0.30) 0%, rgba(79,140,255,0.12) 48%, rgba(13,18,48,0.96) 100%)',
+  B: 'linear-gradient(135deg, rgba(91,199,255,0.16) 0%, rgba(30,58,110,0.34) 55%, rgba(13,18,48,0.96) 100%)',
 };
 
 function Stat({ k, v, tone }) {

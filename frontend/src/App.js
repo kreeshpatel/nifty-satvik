@@ -23,9 +23,10 @@ import WatchlistRail from '@/components/layout/WatchlistRail';
 import Login from '@/pages/Login';
 import LandingV2 from '@/pages/LandingV2';
 import InfoPage from '@/pages/InfoPage';
-// NOTE: the legacy `Landing` page (/landing-v1) was retired 2026-07-02 — it carried fabricated
-// stats and a pricing block that contradicted the live invite-only positioning. The route now
-// redirects to `/`. Landing.jsx stays on disk; roll back by reverting this commit.
+// NOTE: the legacy `Landing` page + its exclusive components were DELETED 2026-07-18. They carried
+// fabricated stats, a pricing block contradicting the invite-only positioning, and the RETIRED-v1
+// strategy in plain text (Features.jsx named the old LightGBM model / feature count). Unrouted since
+// 2026-07-02, but a disclosure landmine one route change away. /landing-v1 still redirects to `/`.
 
 const DashboardV3     = React.lazy(() => import('@/pages/DashboardV3'));
 const SignalsV3       = React.lazy(() => import('@/pages/SignalsV3'));
