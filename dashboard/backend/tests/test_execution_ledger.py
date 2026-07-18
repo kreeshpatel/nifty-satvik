@@ -139,3 +139,29 @@ def test_position_audit_trail_endpoint(client: TestClient, make_user: Any, auth_
 def test_execution_routes_require_auth(client: TestClient) -> None:
     assert client.get("/api/execution/positions").status_code == 401
     assert client.post("/api/execution/buy", json={"signal_id": SIG, "qty": 1, "price": 1.0}).status_code == 401
+
+
+# ── tenant isolation (user-data mapping audit, 2026-07-18) ─────────
+
+def test_execution_ledger_is_tenant_isolated(client: TestClient, make_user: Any, auth_cookies: Any) -> None:
+    """User B must never see, sum over, or CORRECT user A's events — even on the same signal_id."""
+    a, b = make_user(name="Alpha"), make_user(name="Beta")
+    ck_a, ck_b = auth_cookies(a), auth_cookies(b)
+
+    r = client.post("/api/execution/buy",
+                    json={"signal_id": SIG, "ticker": "LTFOODS", "qty": 100, "price": 100.0}, cookies=ck_a)
+    a_event_id = r.json()["event"]["id"]
+
+    # B sees an empty book, not A's position
+    assert client.get("/api/execution/positions", cookies=ck_b).json()["positions"] == []
+    assert client.get(f"/api/execution/position/{SIG}", cookies=ck_b).status_code == 404
+    # B cannot append a "correction" over A's event (would rewrite A's history)
+    resp = client.post("/api/execution/correct",
+                       json={"corrects_event_id": a_event_id, "signal_id": SIG, "ticker": "LTFOODS",
+                             "side": "BUY", "qty": 1, "price": 1.0}, cookies=ck_b)
+    assert resp.status_code == 404
+    # B's discipline gauge + reconciliation see only B's (empty) ledger
+    assert client.get("/api/execution/discipline", cookies=ck_b).json()["legs"]["fidelity"] is None
+    assert client.get("/api/execution/reconciliation", cookies=ck_b).json()["n_positions"] == 0
+    # and A's own view is intact
+    assert client.get("/api/execution/positions", cookies=ck_a).json()["positions"][0]["remaining_qty"] == 100
