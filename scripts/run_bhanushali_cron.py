@@ -509,7 +509,11 @@ def _write_sma_panel(P: dict, a_set, generated_at: str, sd: Path) -> None:
     not an append log. It is NEVER read back by the cron; the engine always recomputes from raw OHLCV.
     The line is a 44-week SMA (never EMA) — see the R94 engine + docs/decisions/0010.
     """
+    # grade_a_entries returns (ticker, entry_day_idx) tuples, so a name is Grade-A NOW iff its LATEST
+    # entry window is in the top-N set. Reduce to bare tickers keyed on that latest window.
     a_set = a_set or set()
+    a_tickers = {t for (t, s) in P.items()
+                 if (s.get("entry_win") and (t, max(s["entry_win"])) in a_set)}
     rows = []
     for t, s in P.items():
         wk = s.get("wk_hlc") or {}
@@ -531,7 +535,9 @@ def _write_sma_panel(P: dict, a_set, generated_at: str, sd: Path) -> None:
             "touch_ok": bool(smaok and lo <= sma * 1.07),     # low within 7% above (or below) the SMA
             "dist_to_sma_pct": round((cl / sma - 1) * 100, 2) if smaok and sma else None,
             "is_signal": bool(fired),
-            "is_grade_a": bool(t in a_set),
+            # Grade-A = fired THIS completed week AND top-5 by CRS that week. is_signal & !is_grade_a = a
+            # Grade-B fire (not traded). A name whose last fire was weeks ago is not currently actionable.
+            "is_grade_a": bool(fired and t in a_tickers),
             "crs_rank_dist": round(float(s["last_signal"]["rank"]), 4) if fired else None,
         })
     if not rows:
