@@ -110,7 +110,7 @@
     font-weight: 500;
     text-align: left;
     cursor: pointer;
-    transition: all 160ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition: background-color 160ms cubic-bezier(0.2, 0.7, 0.2, 1), border-color 160ms cubic-bezier(0.2, 0.7, 0.2, 1), color 160ms cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 160ms cubic-bezier(0.2, 0.7, 0.2, 1), transform 160ms cubic-bezier(0.2, 0.7, 0.2, 1), opacity 160ms cubic-bezier(0.2, 0.7, 0.2, 1);
     width: 100%;
 }
 .pd2-rail-btn:hover { background: rgba(255, 255, 255, 0.04); color: var(--text-1); }
@@ -140,7 +140,7 @@
     font-size: 12px;
     text-align: left;
     cursor: pointer;
-    transition: all 160ms;
+    transition: background-color 160ms, border-color 160ms, color 160ms, box-shadow 160ms, transform 160ms, opacity 160ms;
 }
 .pd2-rail-sub:hover { color: var(--text-1); background: rgba(255, 255, 255, 0.03); }
 .pd2-rail-sub.active {
@@ -1031,7 +1031,7 @@
     font-weight: 600;
     letter-spacing: 0.04em;
     cursor: pointer;
-    transition: all 160ms;
+    transition: background-color 160ms, border-color 160ms, color 160ms, box-shadow 160ms, transform 160ms, opacity 160ms;
 }
 .pd2-filter-chip:hover { background: rgba(255,255,255,0.09); color: var(--text-1); }
 .pd2-filter-chip.active {
@@ -1660,7 +1660,7 @@
     font-weight: 600;
     letter-spacing: 0.04em;
     cursor: pointer;
-    transition: all 160ms;
+    transition: background-color 160ms, border-color 160ms, color 160ms, box-shadow 160ms, transform 160ms, opacity 160ms;
 }
 .pd2-toggle-chip:hover { background: rgba(255,255,255,0.08); color: var(--text-1); }
 .pd2-toggle-chip.active {

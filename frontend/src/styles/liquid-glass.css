@@ -232,7 +232,7 @@
   font-weight: 600;
   border: none;
   min-height: 44px;
-  transition: all 100ms ease-out;
+  transition: background-color 100ms ease-out, border-color 100ms ease-out, color 100ms ease-out, box-shadow 100ms ease-out, transform 100ms ease-out, opacity 100ms ease-out;
 }
 
 .btn-primary:active {
@@ -249,7 +249,7 @@
   font-size: 17px;
   font-weight: 600;
   min-height: 44px;
-  transition: all 100ms ease-out;
+  transition: background-color 100ms ease-out, border-color 100ms ease-out, color 100ms ease-out, box-shadow 100ms ease-out, transform 100ms ease-out, opacity 100ms ease-out;
 }
 
 .btn-destructive {

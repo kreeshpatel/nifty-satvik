@@ -65,6 +65,7 @@ export default function RequestAccessModal({ open, onOpenChange }) {
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent
+        srTitle="Request access to Nifty Satvik"
         className="text-white w-[calc(100vw-32px)] max-w-md max-h-[90dvh] overflow-y-auto"
         style={{
           background: "var(--surface-1)",

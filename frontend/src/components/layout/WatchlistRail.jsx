@@ -234,7 +234,17 @@ export default function WatchlistRail() {
           ) : signalRows.length === 0 ? (
             <div className="wlr-empty">No signals right now.<span>The scan posts fresh calls at 4:15 PM IST.</span></div>
           ) : signalRows.map((r) => (
-            <div className="wlr-row" key={r.sym} onClick={() => setTradeCard(r)}>
+            <div
+              className="wlr-row"
+              key={r.sym}
+              role="button"
+              tabIndex={0}
+              aria-label={`Open ${r.sym} trade card`}
+              onClick={() => setTradeCard(r)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setTradeCard(r); }
+              }}
+            >
               <StockLogo sym={r.sym} size={27} mono />
               <div className="wlr-l">
                 <div className="wlr-s">{r.sym}<span className="wlr-flag" style={{ background: 'var(--info)' }} /></div>
