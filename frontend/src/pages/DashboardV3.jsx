@@ -117,10 +117,14 @@ function SigSpark({ data, tone = 'bull', gradId }) {
 // ─────────────────────────────────────────────────────────────────────
 function RegimeCard({ regime, indexData, heldCount }) {
   const status = (regime?.status || '').toLowerCase();
+  // A missing status means the regime hasn't loaded yet — NOT a choppy market. Previously this fell
+  // through to "The market is Choppy. Mixed tape — no clear trend. Stay selective." while every
+  // number still showed "—", i.e. an authoritative market call fabricated from empty data.
+  const known = Boolean(status);
   const isBull = status.includes('bull');
   const isBear = status.includes('bear');
   const label = isBull ? 'Bullish' : isBear ? 'Bearish' : 'Choppy';
-  const tone  = isBull ? 'bull' : isBear ? 'bear' : 'warn';
+  const tone  = !known ? 'muted' : isBull ? 'bull' : isBear ? 'bear' : 'warn';
   const line  = isBull
     ? 'Trend and breadth favour longs.'
     : isBear
@@ -151,7 +155,11 @@ function RegimeCard({ regime, indexData, heldCount }) {
     <div className={`regime tone-${tone}`}>
       <div className="regime-main">
         <div className="regime-eyebrow"><span className="dot" /><span className="micro">Market regime{updatedLabel ? ` · updated ${updatedLabel}` : ''}</span></div>
-        <div className="regime-statement">The market is <b>{label}.</b> {line}</div>
+        <div className="regime-statement" aria-live="polite">
+          {known
+            ? <>The market is <b>{label}.</b> {line}</>
+            : <span style={{ color: 'var(--text-3)' }}>Reading today&rsquo;s market&hellip;</span>}
+        </div>
         <div className="strength">
           <div className="micro">10-day strength{strength == null ? '' : ` · ${strength}/100`}</div>
           <div className="strength-track"><div className="strength-fill" style={{ width: `${strength ?? 0}%` }} /></div>

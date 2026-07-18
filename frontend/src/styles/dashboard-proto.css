@@ -175,23 +175,24 @@
 .dv3-proto .rrail { display: flex; flex-direction: column; gap: 16px; }
 .dv3-proto .pick {
   position: relative; overflow: hidden; padding: 18px; border-radius: var(--r-panel);
-  background: linear-gradient(140deg, #8E1E63 0%, #B12A6E 45%, #6E2CC0 100%);
-  box-shadow: 0 12px 34px rgba(150,30,110,.4), inset 0 1px 0 rgba(255,255,255,.14);
+  background: linear-gradient(140deg, rgba(79,140,255,0.16) 0%, rgba(79,140,255,0.06) 42%, var(--surface-1) 100%), var(--surface-solid-1);
+  border: 1px solid var(--brand-edge);
+  box-shadow: 0 12px 34px rgba(4,8,24,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
 }
 .dv3-proto .pick::before {
   content: ""; position: absolute; right: -30px; top: -30px; width: 150px; height: 150px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,255,255,.2), transparent 68%);
+  background: radial-gradient(circle, rgba(79,140,255,0.20), transparent 70%);
 }
-.dv3-proto .pick .badge { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: #fff; opacity: .92; }
+.dv3-proto .pick .badge { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 5px; font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--brand); }
 .dv3-proto .pick .nm { position: relative; z-index: 1; display: flex; align-items: center; gap: 9px; margin-top: 10px; }
 .dv3-proto .pick .nm .logo { width: 30px; height: 30px; background: rgba(255,255,255,.2); font-size: 11px; }
-.dv3-proto .pick .nm h4 { font-size: 16px; font-weight: 700; color: #fff; }
+.dv3-proto .pick .nm h4 { font-size: 16px; font-weight: 700; color: var(--text-1); }
 .dv3-proto .pick-metrics { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 14px; }
-.dv3-proto .pick-metrics .k { font-size: 9.5px; color: rgba(255,255,255,.72); text-transform: uppercase; letter-spacing: .04em; font-weight: 600; }
-.dv3-proto .pick-metrics .v { font-size: 13.5px; font-weight: 700; color: #fff; margin-top: 3px; }
+.dv3-proto .pick-metrics .k { font-size: 9.5px; color: var(--text-3); text-transform: uppercase; letter-spacing: .04em; font-weight: 600; }
+.dv3-proto .pick-metrics .v { font-size: 13.5px; font-weight: 700; color: var(--text-1); margin-top: 3px; }
 .dv3-proto .pick-btn {
   position: relative; z-index: 1; display: inline-block; margin-top: 14px; padding: 8px 16px; border-radius: 8px;
-  background: #fff; color: #7a1a55; font-size: 12.5px; font-weight: 700; text-decoration: none;
+  background: var(--brand); color: var(--brand-fg); font-size: 12.5px; font-weight: 600; text-decoration: none;
   transition: transform .15s var(--ease-out-quart, cubic-bezier(.25,1,.5,1));
 }
 .dv3-proto .pick-btn:hover { transform: translateX(3px); }
