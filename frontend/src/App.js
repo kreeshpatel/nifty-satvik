@@ -27,11 +27,8 @@ import InfoPage from '@/pages/InfoPage';
 // stats and a pricing block that contradicted the live invite-only positioning. The route now
 // redirects to `/`. Landing.jsx stays on disk; roll back by reverting this commit.
 
-const DashboardV2     = React.lazy(() => import('@/pages/DashboardV2'));
 const DashboardV3     = React.lazy(() => import('@/pages/DashboardV3'));
-const SignalsV2       = React.lazy(() => import('@/pages/SignalsV2'));
 const SignalsV3       = React.lazy(() => import('@/pages/SignalsV3'));
-const JournalV2       = React.lazy(() => import('@/pages/JournalV2'));
 const BacktestV2      = React.lazy(() => import('@/pages/BacktestV2'));
 const StockDetailV2   = React.lazy(() => import('@/pages/StockDetailV2'));
 // AdminV2 is the canonical admin console (4-tab layout). The legacy Admin
@@ -46,9 +43,6 @@ const SettingsV2      = React.lazy(() => import('@/pages/SettingsV2'));
 const PrimitivesShowcase = React.lazy(() => import('@/pages/_internal/Primitives'));
 const PreviewDashboard   = React.lazy(() => import('@/pages/_internal/PreviewDashboard'));
 
-// Kite OAuth callback page — eagerly imported so the redirect bounce is
-// instant. Outside ProtectedAppLayout so no chrome flashes during exchange.
-const AuthCallback = React.lazy(() => import('@/pages/AuthCallback'));
 const ForgotPassword = React.lazy(() => import('@/pages/ForgotPassword'));
 const ResetPassword  = React.lazy(() => import('@/pages/ResetPassword'));
 import PageTransition from '@/components/PageTransition';
@@ -56,7 +50,6 @@ import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 import { cn } from '@/lib/utils';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { AuthProvider, AuthContext } from '@/context/AuthContext';
-import { useOrderUpdates } from '@/hooks/useOrderUpdates';
 
 // One-time cleanup of the dead V1/V2 redesign feature flag. Earlier builds
 // gated the V2 amber design behind localStorage.nq_redesign_v2; the legacy
@@ -81,12 +74,6 @@ export const KiteContext = React.createContext({
  */
 function ProtectedAppLayout() {
   const { user, loading } = useContext(AuthContext);
-
-  // One-shot WS subscription: invalidate order/holdings/stats queries on
-  // every backend-broadcast `order_update` frame. Mounted at layout level
-  // because useWebSocket uses a module-level singleton — page-level mounts
-  // would close/reopen the socket on every navigation.
-  useOrderUpdates();
 
   // Defensive scroll-lock cleanup — runs on every navigation within the
   // authenticated app, not just on mount. Lenis (only active on /) leaks
@@ -231,21 +218,10 @@ function AnimatedRoutes() {
             the redesign doesn't affect paying users. */}
         <Route path="/preview-dashboard" element={<PageTransition><PreviewDashboard /></PageTransition>} />
 
-        {/* Kite OAuth callback — Zerodha redirects here with ?request_token=...
-            Public route (no ProtectedAppLayout) so the chrome doesn't flash
-            during the ~500ms exchange. The component itself requires the NQ
-            session cookie to call kiteExchangeToken; if missing it toasts
-            "sign in first" and redirects to /login. See pages/AuthCallback.jsx. */}
-        <Route path="/auth/callback" element={<AuthCallback />} />
-
         {/* Authenticated app — wrapped with sidebar + KiteContext */}
         <Route element={<ProtectedAppLayout />}>
           <Route path="/dashboard" element={<PageTransition><DashboardV3 /></PageTransition>} />
-          {/* DashboardV2 retained at /dashboard-v2 for rollback */}
-          <Route path="/dashboard-v2" element={<PageTransition><DashboardV2 /></PageTransition>} />
           <Route path="/premove" element={<PageTransition><SignalsV3 /></PageTransition>} />
-          {/* SignalsV2 retained at /premove-v2 for rollback */}
-          <Route path="/premove-v2" element={<PageTransition><SignalsV2 /></PageTransition>} />
           {/* Portfolio RESURRECTED 2026-07-18 (Stage 5): a per-user self-report holdings page
               sourced from the execution ledger + owner quotes (ADR 0011), NOT Kite. Positions
               (the Kite-mirror page) stays stripped. */}
@@ -257,7 +233,8 @@ function AnimatedRoutes() {
           <Route path="/funds" element={<Navigate to="/premove" replace />} />
           <Route path="/pnl" element={<Navigate to="/premove" replace />} />
           <Route path="/accounting" element={<Navigate to="/premove" replace />} />
-          <Route path="/journal" element={<PageTransition><JournalV2 /></PageTransition>} />
+          {/* Journal (nq-orders Kite machinery) removed per ADR 0011 — your own record lives on /portfolio. */}
+          <Route path="/journal" element={<Navigate to="/portfolio" replace />} />
           <Route path="/track-record" element={<PageTransition><TrackRecordV3 /></PageTransition>} />
           <Route path="/backtest" element={<PageTransition><BacktestV2 /></PageTransition>} />
           <Route path="/settings" element={<PageTransition><SettingsV2 /></PageTransition>} />

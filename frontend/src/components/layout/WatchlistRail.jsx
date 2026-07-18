@@ -5,7 +5,6 @@ import { searchStocks } from '@/services/kiteStock';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import { useKiteQuote } from '@/hooks/queries/useKiteQuote';
 import { useSignals } from '@/hooks/queries/useSignals';
-import { useKiteHoldings } from '@/hooks/queries/useKiteState';
 import {
   useUserWatchlist, useAddToWatchlist, useRemoveFromWatchlist, useReorderWatchlist,
 } from '@/hooks/queries/useUserWatchlist';
@@ -108,7 +107,8 @@ export default function WatchlistRail() {
   // ── model context: flag watched names that are held or have a live signal ──
   const kite = useContext(KiteContext);
   const signalsQuery = useSignals();
-  const holdingsQuery = useKiteHoldings({ enabled: !!kite?.connected });
+  // No per-user broker holdings (ADR 0011) — the rail no longer badges held names from Kite.
+  const holdingsQuery = { data: [] };
 
   const heldSet = useMemo(() => {
     const s = new Set();

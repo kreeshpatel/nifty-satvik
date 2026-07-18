@@ -261,21 +261,9 @@ export const fetchPositions = () =>
 // signal context (entry/stop/target/days) and live Kite price. Powers
 // PortfolioV2's "Nifty Satvik Positions" section and SignalsV2 "Held"
 // tier. Returns { positions, count, kite_connected, updated_at }.
-export const fetchNQPositions = () =>
-  authJson(`${API}/api/positions/nq`);
-
-// Kite holdings minus NQ-attributed qty — drives PortfolioV2's
-// "Other Kite Holdings" section. Same-ticker overlap is handled by
-// strict NQ-recorded qty subtraction on the backend.
-export const fetchExternalHoldings = () =>
-  authJson(`${API}/api/positions/external`);
-
 // Active sell-now recommendations for held positions (target / stop /
 // time triggered). Convenience filter over /positions/nq used by the
 // SignalsV2 page for the urgency banner.
-export const fetchSellGuidance = () =>
-  authJson(`${API}/api/signals/sell-guidance`);
-
 // Today's watchlist — borderline candidates (conf 0.75-0.92) the model
 // surfaced but didn't clear the entry gate. Used by the SignalsV2
 // "Watchlist" tier so users see what the system is monitoring.
@@ -286,9 +274,6 @@ export const fetchWatchlist = (model = 'bhanushali') =>
 // user closed externally on Kite (qty in NQ records exceeds Kite truth).
 // Posts to a dedicated endpoint that creates the row already-COMPLETE,
 // so FIFO matching reflects the realised P&L immediately.
-export const reconcileDrift = ({ signal_id, qty, fill_price, notes }) =>
-  authPost(`${API}/api/nq-orders/reconcile`, { signal_id, qty, fill_price, notes });
-
 // Per-user NAV time series for the Equity Curve. Rows are written
 // opportunistically by /api/positions/nq (every dashboard load), so
 // history starts on the day this shipped and grows organically. No
@@ -454,27 +439,6 @@ const kitePost = async (url, body) => {
   }
 };
 
-export const kiteSessionStatus = () =>
-  kiteJson(`${API}/api/kite/session/status`);
-
-export const kiteExchangeToken = async (requestToken) =>
-  kitePost(`${API}/api/kite/session/token`, { request_token: requestToken });
-
-export const kiteLogout = () =>
-  authFetch(`${API}/api/kite/session/logout`, { method: 'POST' }).then(r => r.json());
-
-export const kiteHoldings = () =>
-  kiteJson(`${API}/api/kite/holdings`);
-
-export const kitePositions = () =>
-  kiteJson(`${API}/api/kite/positions`);
-
-export const kiteMargins = () =>
-  kiteJson(`${API}/api/kite/margins`);
-
-export const kiteOrders = () =>
-  kiteJson(`${API}/api/kite/orders`);
-
 export const kiteLTP = (instruments = []) => {
   const tokens = Array.isArray(instruments) ? instruments.join(',') : instruments;
   return kiteJson(`${API}/api/kite/ltp-via-history?tokens=${tokens}`);
@@ -482,58 +446,6 @@ export const kiteLTP = (instruments = []) => {
 
 export const kiteHistorical = (token, interval, from, to) =>
   kiteJson(`${API}/api/kite/historical/${token}/${interval}?start=${from}&end=${to}`);
-
-export const placeOrder = async (variety, data) =>
-  kitePost(`${API}/api/kite/orders/${variety}`, data);
-
-export const cancelOrder = async (variety, orderId) =>
-  authFetch(`${API}/api/kite/orders/${variety}/${orderId}`, { method: 'DELETE' })
-    .then(r => r.json())
-    .then(detectKiteSessionExpired);
-
-// ========================================
-// NQ Orders — Nifty Satvik-executed orders (Accounting + Journal source)
-// ========================================
-
-/**
- * Record an order that was just placed on Kite via our UI. Called immediately
- * after a successful placeOrder(). Only orders tracked through here appear
- * on the Accounting + Journal pages — external Kite trades stay invisible to
- * those pages by design.
- */
-export const createNQOrder = ({ kite_order_id, signal_id, ticker, action, qty, placed_price, notes }) =>
-  authPost(`${API}/api/nq-orders`, {
-    kite_order_id,
-    signal_id,
-    ticker,
-    action,
-    qty,
-    placed_price,
-    notes,
-  });
-
-/**
- * List NQ orders with optional filters. Used by both Accounting (year/month)
- * and Journal (status=COMPLETE) pages.
- */
-export const listNQOrders = (params = {}) => {
-  const qs = new URLSearchParams();
-  Object.entries(params).forEach(([k, v]) => { if (v != null && v !== '') qs.set(k, v); });
-  const suffix = qs.toString();
-  return authJson(`${API}/api/nq-orders${suffix ? `?${suffix}` : ''}`);
-};
-
-/** Aggregate FY P&L + tax split. period: 'fy' | 'ytd' | 'all' | '30d' */
-export const fetchNQOrderStats = (period = 'fy') =>
-  authJson(`${API}/api/nq-orders/stats?period=${encodeURIComponent(period)}`);
-
-/** Journal rationale upsert. */
-export const updateNQOrderNotes = (orderId, notes) =>
-  authFetch(`${API}/api/nq-orders/${orderId}/notes`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ notes }),
-  }).then(safeJson);
 
 // ========================================
 // Watchlist APIs (per-user saved stocks — the left rail)
@@ -794,21 +706,6 @@ export const closeWebSocket = () => {
 export const getKiteLoginUrl = (apiKey) =>
   `https://kite.zerodha.com/connect/login?v=3&api_key=${apiKey}`;
 
-export const handleKiteCallback = async () => {
-  const params = new URLSearchParams(window.location.search);
-  const requestToken = params.get('request_token');
-
-  if (!requestToken) return null;
-
-  try {
-    const session = await kiteExchangeToken(requestToken);
-    window.history.replaceState({}, document.title, window.location.pathname);
-    return session;
-  } catch (error) {
-    console.error('Kite token exchange failed:', error);
-    throw error;
-  }
-};
 
 // ========================================
 // Utility Functions
@@ -855,20 +752,11 @@ export default {
   fetchBacktestHistorical,
   fetchBhanushaliBacktest,
 
-  // Kite
-  kiteSessionStatus,
-  kiteExchangeToken,
-  kiteLogout,
-  kiteHoldings,
-  kitePositions,
-  kiteMargins,
-  kiteOrders,
+  // Kite (owner market-data only — per-user session/trading removed per ADR 0011)
   kiteLTP,
   kiteHistorical,
   kiteInstruments,
   kiteQuote,
-  placeOrder,
-  cancelOrder,
 
   // Yahoo Finance
   yahooFundamentals,
@@ -888,7 +776,6 @@ export default {
 
   // Auth
   getKiteLoginUrl,
-  handleKiteCallback,
 
   // Utils
   handleApiError,
