@@ -41,6 +41,7 @@ const Admin           = React.lazy(() => import('@/pages/Admin'));
 const AdminV2         = React.lazy(() => import('@/pages/AdminV2'));
 const TrackRecordV2   = React.lazy(() => import('@/pages/TrackRecordV2'));
 const TrackRecordV3   = React.lazy(() => import('@/pages/TrackRecordV3'));
+const PortfolioV3     = React.lazy(() => import('@/pages/PortfolioV3'));
 const SettingsV2      = React.lazy(() => import('@/pages/SettingsV2'));
 const PrimitivesShowcase = React.lazy(() => import('@/pages/_internal/Primitives'));
 const PreviewDashboard   = React.lazy(() => import('@/pages/_internal/PreviewDashboard'));
@@ -245,10 +246,11 @@ function AnimatedRoutes() {
           <Route path="/premove" element={<PageTransition><SignalsV3 /></PageTransition>} />
           {/* SignalsV2 retained at /premove-v2 for rollback */}
           <Route path="/premove-v2" element={<PageTransition><SignalsV2 /></PageTransition>} />
-          {/* Positions + Portfolio stripped 2026-07-13 (research-only product; users
-              track holdings on their broker). Redirect legacy links to Research. */}
-          <Route path="/portfolio" element={<Navigate to="/premove" replace />} />
-          <Route path="/portfolio-v2" element={<Navigate to="/premove" replace />} />
+          {/* Portfolio RESURRECTED 2026-07-18 (Stage 5): a per-user self-report holdings page
+              sourced from the execution ledger + owner quotes (ADR 0011), NOT Kite. Positions
+              (the Kite-mirror page) stays stripped. */}
+          <Route path="/portfolio" element={<PageTransition><PortfolioV3 /></PageTransition>} />
+          <Route path="/portfolio-v2" element={<Navigate to="/portfolio" replace />} />
           <Route path="/positions" element={<Navigate to="/premove" replace />} />
           {/* Broker-mirror pages stripped 2026-07-13 (research-only; track on your broker). */}
           <Route path="/orders" element={<Navigate to="/premove" replace />} />

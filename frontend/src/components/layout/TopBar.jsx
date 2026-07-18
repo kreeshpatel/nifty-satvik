@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import {
   Search, Bell, User, LogOut, Menu, X,
-  LayoutDashboard, LineChart, Trophy,
+  LayoutDashboard, LineChart, Trophy, Briefcase,
   Settings as SettingsIcon, Shield, Minus, Plus,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -39,6 +39,7 @@ import {
 const PRIMARY_TABS = [
   { to: '/dashboard',    label: 'Dashboard',  icon: LayoutDashboard },
   { to: '/premove',      label: 'Research',   icon: LineChart },
+  { to: '/portfolio',    label: 'Portfolio',  icon: Briefcase },
 ];
 
 // Research-only product (2026-07-13): broker-mirror pages (Orders, Funds, Reports,
