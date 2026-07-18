@@ -427,17 +427,29 @@ def get_signals(
     except Exception:
         pass
 
-    return {
-        "signals": signals,
-        "regime": regime_info,
-        "portfolio": {
+    # Per-user mapping (tenant contract, test_signals_portfolio_block_is_per_user): the paper
+    # portfolio is the MODEL's shared ₹10L book, not any user's account. Only the admin/owner sees
+    # it here (labeled source="paper"); every other user gets a zeroed block (source="none") so the
+    # model's NAV can never read as their own balance. A user's real position state lives in THEIR
+    # execution ledger (/api/execution/*), never in this shared envelope.
+    if user.is_admin:
+        portfolio_block = {
+            "source": "paper",
             "cash": portfolio.get("cash", 0),
             "total_value": portfolio.get("cash", 0) + sum(
                 p.get("current_value", 0) for p in portfolio.get("positions", {}).values()
             ),
             "positions": len(portfolio.get("positions", {})),
             "total_trades": portfolio.get("total_trades", 0),
-        },
+        }
+    else:
+        portfolio_block = {"source": "none", "cash": 0, "total_value": 0,
+                           "positions": 0, "total_trades": 0}
+
+    return {
+        "signals": signals,
+        "regime": regime_info,
+        "portfolio": portfolio_block,
         "model": {
             "version": model_meta.get("version", "unknown"),
             "trained_at": model_meta.get("last_trained") or model_meta.get("trained_at"),
