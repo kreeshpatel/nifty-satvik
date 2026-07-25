@@ -295,7 +295,10 @@ export default function ThisWeek() {
                   </div>
                 </div>
               </div>
-              <div className="tw-row-r"><span className="tw-qty">no action</span></div>
+              <div className="tw-row-r">
+                <span className="tw-qty">no action</span>
+                <Link className="tw-btn" to={`/position/${encodeURIComponent(p.signal_id)}`}>Story</Link>
+              </div>
             </div>
           ))}
         </section>

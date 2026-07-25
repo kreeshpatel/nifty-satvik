@@ -41,6 +41,7 @@ const TrackRecordV2   = React.lazy(() => import('@/pages/TrackRecordV2'));
 const TrackRecordV3   = React.lazy(() => import('@/pages/TrackRecordV3'));
 const PortfolioV3     = React.lazy(() => import('@/pages/PortfolioV3'));
 const ThisWeek        = React.lazy(() => import('@/pages/ThisWeek'));
+const PositionDetail  = React.lazy(() => import('@/pages/PositionDetail'));
 const SettingsV2      = React.lazy(() => import('@/pages/SettingsV2'));
 const PrimitivesShowcase = React.lazy(() => import('@/pages/_internal/Primitives'));
 const PreviewDashboard   = React.lazy(() => import('@/pages/_internal/PreviewDashboard'));
@@ -231,6 +232,8 @@ function AnimatedRoutes() {
               sourced from the execution ledger + owner quotes (ADR 0011), NOT Kite. Positions
               (the Kite-mirror page) stays stripped. */}
           <Route path="/portfolio" element={<PageTransition><PortfolioV3 /></PageTransition>} />
+          {/* One trade's whole story: the frozen plan vs the fills you actually recorded. */}
+          <Route path="/position/:signalId" element={<PageTransition><PositionDetail /></PageTransition>} />
           <Route path="/portfolio-v2" element={<Navigate to="/portfolio" replace />} />
           <Route path="/positions" element={<Navigate to="/premove" replace />} />
           {/* Broker-mirror pages stripped 2026-07-13 (research-only; track on your broker). */}
