@@ -1,7 +1,7 @@
 {
   "cash": 198560.0,
   "peak_value": 1029572.87,
-  "total_value": 1012185.29,
+  "total_value": 991807.38,
   "n_positions": 4,
   "total_trades": 0,
   "positions": {
@@ -12,11 +12,11 @@
       "position_size": 200000.0,
       "atr_stop": 461.0,
       "target": 610.85,
-      "current_price": 492.15,
-      "current_value": 192641.15,
-      "unrealised_pnl": -7358.85,
-      "unrealised_pnl_pct": -3.68,
-      "days_held": 10
+      "current_price": 462.55,
+      "current_value": 181054.89,
+      "unrealised_pnl": -18945.11,
+      "unrealised_pnl_pct": -9.47,
+      "days_held": 15
     },
     "INDUSINDBK": {
       "entry_date": "2026-07-06",
@@ -25,11 +25,11 @@
       "position_size": 200000.0,
       "atr_stop": 908.1,
       "target": 1087.8,
-      "current_price": 1027.2,
-      "current_value": 212231.39,
-      "unrealised_pnl": 12231.39,
-      "unrealised_pnl_pct": 6.12,
-      "days_held": 10
+      "current_price": 996.05,
+      "current_value": 205795.45,
+      "unrealised_pnl": 5795.45,
+      "unrealised_pnl_pct": 2.9,
+      "days_held": 15
     },
     "NESTLEIND": {
       "entry_date": "2026-07-06",
@@ -38,11 +38,11 @@
       "position_size": 200000.0,
       "atr_stop": 1374.89,
       "target": 1600.61,
-      "current_price": 1427.2,
-      "current_value": 196837.64,
-      "unrealised_pnl": -3162.36,
-      "unrealised_pnl_pct": -1.58,
-      "days_held": 10
+      "current_price": 1443.5,
+      "current_value": 199085.72,
+      "unrealised_pnl": -914.28,
+      "unrealised_pnl_pct": -0.46,
+      "days_held": 15
     },
     "CUB": {
       "entry_date": "2026-07-06",
@@ -51,11 +51,11 @@
       "position_size": 200000.0,
       "atr_stop": 199.2,
       "target": 237.6,
-      "current_price": 224.63,
-      "current_value": 211915.1,
-      "unrealised_pnl": 11915.1,
-      "unrealised_pnl_pct": 5.96,
-      "days_held": 10
+      "current_price": 219.75,
+      "current_value": 207311.32,
+      "unrealised_pnl": 7311.32,
+      "unrealised_pnl_pct": 3.66,
+      "days_held": 15
     }
   }
 }
