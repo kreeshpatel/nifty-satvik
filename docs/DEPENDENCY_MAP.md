@@ -16,6 +16,7 @@ flowchart LR
     nq_data_macro["nq/data/macro"]
     nq_data_membership["nq/data/membership"]
     nq_data_ohlcv["nq/data/ohlcv"]
+    nq_data_options_oi["nq/data/options_oi"]
     nq_data_weekly["nq/data/weekly"]
     nq_engine["nq/engine"]
     nq_engine_exits["nq/engine/exits"]
@@ -49,6 +50,7 @@ flowchart LR
     nq_data_macro --> config
     nq_data_membership --> config
     nq_data_ohlcv --> config
+    nq_data_options_oi --> config
     nq_data_weekly --> config
     nq_engine --> nq_engine_exits
     nq_engine --> nq_engine_panel

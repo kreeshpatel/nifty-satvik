@@ -63,6 +63,11 @@ jobs:
         run: python scripts/run_bhanushali_cron.py --start "${{ github.event.inputs.inception || '2026-07-04' }}"
       - name: Refresh forward-review scorecard (Oct-1 promote/kill machinery, forward/prereg.md gates)
         run: python scripts/bhanushali_review_scorecard.py
+      - name: Log the swing x low-vol blend hybrid (observational WATCHED book, finding 0107)
+        # Runs AFTER the swing cron so it uses the freshly-downloaded OHLCV + the just-written swing NAV.
+        # Observational only — writes its own results/blend_hybrid_paper.json; never touches the certified
+        # paper book / wall. Empty until fresh post-inception bars exist in both sleeves (not an error).
+        run: python scripts/run_blend_paper.py --start "${{ github.event.inputs.inception || '2026-07-04' }}" || true
       - name: Commit weekly paper state
         run: |
           # Author with the owner's GitHub-matched email so Vercel (auto-deploys main) doesn't
@@ -72,7 +77,8 @@ jobs:
           git add results/signals_today_weekly.json results/signals_history_weekly.json \
                   results/signal_analytics_weekly.json results/paper_portfolio_weekly.json \
                   results/portfolio_history_weekly.csv results/weekly_review_scorecard.json \
-                  results/weekly_sma_panel.csv 2>/dev/null || true
+                  results/weekly_sma_panel.csv results/decision_memos_weekly.json \
+                  results/decision_memos_weekly.md results/blend_hybrid_paper.json 2>/dev/null || true
           if git commit -m "chore(weekly): Saturday weekly-swing paper state $(date -u +%F)"; then
             # --autostash: the OHLCV download leaves UNSTAGED cache changes that abort a plain
             # `git pull --rebase`, which silently swallowed the push as "nothing to push" and dropped

@@ -170,3 +170,34 @@ Consequences for this wall:
 - The forward log no longer carries a live 0094-exit shadow; the 0094 exit is the offline reference only. If a
   live 0094-exit shadow is later wanted for the wall, that is a recorded third book (a §2 swap).
 - **Reversal:** flip `P2_EXIT` OFF in the cron → both live books revert byte-identical to the frozen 0094 exit.
+
+---
+
+## Amendment 2026-07-26 — register the `blend-hybrid` WATCHED book (a §2 recorded third book)
+
+**What:** the swing-0094 × low-vol book at frozen-0081 ERC weights (quarterly inverse-vol). Registered as a
+**WATCHED / observational** book — it does **not** carry paper capital (A-only stays the capital vehicle), so
+the §2 two-**capital**-book cap is intact; this is a third *logged* book, recorded here per the "no third
+without a recorded swap" rule.
+
+**Why (finding 0107):** the 2026-07-26 sweep exhausted every entry/exit lever on the single swing sleeve
+(body-null; ext_cap 0104; hard_stop 0105; widen 0106 — all KILL). The per-year lens showed the residual
+weakness is regime (chop): swing fades in 2024 (+9.9%) / 2025 (−14.1%). The blend fixes it structurally —
+Sharpe **1.15/1.06 → 1.23** (beats both sleeves), MaxDD −42→**−33**, and **0 losing years** (2025 −14.1→+5.6),
+because low-vol earns +18-29% in the exact chop years the swing book bleeds (corr 0.54). This is the only
+lever that survived, and it can't be tinkered — it must be a *sleeve combination*, forward-certified.
+
+**Fixed spec (not retunable; ERC recipe frozen from 0081):**
+- Sleeves: swing-0094 (A-only book NAV) + a low-vol 63d-hold sleeve.
+- Weight: quarterly inverse-vol ERC (as-of prior day). Mean swing weight ≈ 0.37 in-sample. A fixed
+  higher-swing weight (more CAGR / more DD) is an OWNER dial — if chosen, fix it HERE before logging.
+- Certification: **forward-wall only.** In-sample is uncertifiable (low-vol = O-016; 0081 DSR 0.315). No
+  in-sample config swap; the live A-only book is unchanged.
+
+**Blocker (before it can log forward):** the daily wall computes no low-vol paper sleeve yet. The swing paper
+book runs (`run_bhanushali_cron.py`); a **low-vol paper sleeve cron** is the missing infra. Until then the
+blend is reproducible offline only (`scripts/run_blend_hybrid.py`, returns in
+`research/exports/blend_hybrid_returns.csv`).
+
+**Decision cadence:** resolved at the multi-sleeve fork of the quarterly review, on forward evidence — never
+in-sample. Thresholds tighten, never relax.

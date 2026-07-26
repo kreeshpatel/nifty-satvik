@@ -592,6 +592,18 @@ def main(argv=None) -> int:
     hist_df.to_csv(sd / "portfolio_history_weekly.csv", index=False)
     _write_sma_panel(P, a_set, generated_at, sd)
 
+    # DECISION MEMOS (operating layer, forward_plan Tier-3): one auditable setup/strength/risk/plan/status
+    # memo per signal with an APPROVED/WATCHLIST/REJECTED stamp, so the owner's manual call is logged against
+    # a fixed rubric (fights the measured execution-decay). Reporting only — does NOT touch the engine/book.
+    from gen_decision_memo import build_memo, render_md  # noqa: E402
+    _rg = envelope.get("regime")
+    _ctx = {"regime": _rg.get("status") if isinstance(_rg, dict) else _rg}
+    _memos = [build_memo(s, _ctx) for s in envelope["signals"] if isinstance(s, dict) and "entry" in s]
+    (sd / "decision_memos_weekly.json").write_text(json.dumps(_memos, indent=2, default=str), encoding="utf-8")
+    (sd / "decision_memos_weekly.md").write_text(
+        f"# Weekly Decision Memos — {generated_at} | regime {_ctx['regime']} | {len(_memos)} signals\n\n"
+        + "\n".join(render_md(m) for m in _memos), encoding="utf-8")
+
     print(f"weekly cron: inception {args.start} | as-of {generated_at} | "
           f"{sum(1 for s in envelope['signals'] if s.get('tier') == 'signal' and not s.get('bought_date')):>3} open | "
           f"tracked-held {len(out_all['open_positions']):>3} | completed {analytics['total_closed']:>3} | "
