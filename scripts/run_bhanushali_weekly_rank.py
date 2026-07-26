@@ -372,7 +372,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              trail_always: bool = False, trail_after: int = 2, cap_weeks: int = 0,
              lockin_mfe: float = 0.0, lockin_at: float = 1.0,
              chand_pct: float = 0.0, chand_after_r: float = 0.0,
-             soft_stop_pct: float = 0.0, stop_widen_pct: float = 0.0,
+             soft_stop_pct: float = 0.0, stop_widen_pct: float = 0.0, disaster_floor_pct: float = 0.0,
              lh_arm_r: float = 0.0, lh_n: int = 2, no_time_cap: bool = False,
              trendhold_pct: float = 0.0, blowoff_arm_r: float = 0.0, blowoff_third: float = 0.34,
              wk20_trail_pct: float | None = None,
@@ -511,6 +511,36 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     else:
                         _R = 0.5 * 2.0 + 0.5 * _rr if p["half_done"] else _rr
                     _rsn = "hardstop_gap" if _op < p["stop"] else "hardstop"
+                    T.append(dict(R=_R, reason=_rsn, held=p["weeks"], half=p["half_done"]))
+                    if "rec" in p:
+                        p["rec"].update(exit_date=d, exit_px=round(float(_hit), 2), reason=_rsn,
+                                        held_weeks=p["weeks"], R=round(float(_R), 3),
+                                        net_pnl=round(float(p["proceeds"] - p["cash_out"]), 2),
+                                        stt_paid=round(float(p["stt"]), 2))
+                        ledger.append(p["rec"])
+                    del op[t]; continue
+
+            # DISASTER-FLOOR STOP (pre-reg 0109, cohort forensic 2026-07-27): a standing intraday
+            # catastrophe order at entry-stop x (1 - disaster_floor_pct), FIXED at entry (a broker GTT).
+            # Unlike hard_stop (KILLED 0105: whipsaws the shallow intra-week piercings that recover — 14
+            # winners / 34.6R), the deep floor is pure-asymmetric in-sample: at 0.10 ZERO winners in 9y
+            # pierced it while 21 catastrophe losers (JSL-class grinds) did. Fill at the floor, or at the
+            # open on a gap-through. 0.0 (default) => byte-identical to the 0094 run of record.
+            if disaster_floor_pct and p["pending"] is None:
+                _fl = p.get("floor0", p["stop"] * (1.0 - disaster_floor_pct))
+                p["floor0"] = _fl
+                _op = s["o"][i]
+                _hit = _op if _op < _fl else (_fl if s["l"][i] <= _fl else None)
+                if _hit is not None:
+                    _xp = p["sh"] * _hit
+                    _got = _xp * (1 - _cost_leg(p["adv"], _xp, cost_off))
+                    cash += _got; p["proceeds"] += _got; p["stt"] += _xp * STT_PCT
+                    _rr = (_hit - p["en"]) / p["risk0"]
+                    if scaled_exit:
+                        _R = p["realized_r"] + p["frac_left"] * _rr
+                    else:
+                        _R = 0.5 * 2.0 + 0.5 * _rr if p["half_done"] else _rr
+                    _rsn = "disaster_gap" if _op < _fl else "disaster"
                     T.append(dict(R=_R, reason=_rsn, held=p["weeks"], half=p["half_done"]))
                     if "rec" in p:
                         p["rec"].update(exit_date=d, exit_px=round(float(_hit), 2), reason=_rsn,
