@@ -372,7 +372,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              trail_always: bool = False, trail_after: int = 2, cap_weeks: int = 0,
              lockin_mfe: float = 0.0, lockin_at: float = 1.0,
              chand_pct: float = 0.0, chand_after_r: float = 0.0,
-             soft_stop_pct: float = 0.0,
+             soft_stop_pct: float = 0.0, stop_widen_pct: float = 0.0,
              lh_arm_r: float = 0.0, lh_n: int = 2, no_time_cap: bool = False,
              trendhold_pct: float = 0.0, blowoff_arm_r: float = 0.0, blowoff_third: float = 0.34,
              wk20_trail_pct: float | None = None,
@@ -790,6 +790,11 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
             # so R is capped and 2R/3R become reachable. None => the candle low => byte-identical.
             if max_risk_pct is not None:
                 st = max(st, en * (1.0 - max_risk_pct))
+            # WIDEN the stop stop_widen_pct further below entry (pre-reg 0106 — KILLED, kept cfg-gated for
+            # reproducibility). More intra-week room (anti-whipsaw after 0105), but recedes the +2R target
+            # and shrinks size -> KILL (Sharpe 1.132->0.785). 0.0 (default) => byte-identical to 0094.
+            if stop_widen_pct:
+                st = en - (en - st) * (1.0 + stop_widen_pct)
             if en > st:
                 sh = sizing_eq * _risk / (en - st)
                 # OWNER 2026-07-16: hard cap on capital per name. Risk-sizing alone puts 2%/5% = 40% of the
