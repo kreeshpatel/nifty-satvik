@@ -57,6 +57,9 @@ results/*
 !results/weekly_monitor.json
 # Per-stock 44w-SMA audit panel (transparency snapshot; committed each weekly run).
 !results/weekly_sma_panel.csv
+!results/decision_memos_weekly.json
+!results/decision_memos_weekly.md
+!results/blend_hybrid_paper.json
 logs/
 dashboard/frontend/results/
 
