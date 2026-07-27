@@ -20,6 +20,16 @@ count. The dataset's evidential value deflates with reuse — this ledger is how
 **Running screen count: 8.** Multiplicity note: rows 1-6 spanned ~25 feature-target comparisons; any
 future "significant at 95%" single comparison should be read against that denominator.
 
+
+## STANDING LAW — the activation-bound gate (owner, 2026-07-27)
+
+NO usage trial may be pre-registered until a zero-trial CLAIRVOYANT ACTIVATION BOUND has been run:
+how often would the proposed rule actually fire on the train years, and what was perfect execution
+worth historically, vs the ±10R/yr path-noise floor (0109). Below the floor (or wrong-signed) →
+underpowered BY CONSTRUCTION, no trial, record the bound. Precedents: the rotation bound (0117,
+~11R/yr clairvoyant → closed) and the tiebreak bound (0118 addendum, −1.29R/yr → no trial).
+Population gradient ≠ decision-point value is an ENFORCED CHECK, not a remembered lesson.
+
 ## Sealed-set opens (2024H2+ validation slice — every open is priced like any other reuse)
 
 | # | date | opened by | purpose | outcome |
