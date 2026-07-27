@@ -15,5 +15,13 @@ count. The dataset's evidential value deflates with reuse — this ledger is how
 | 6 | 2026-07-27 | 0117 cohort 3 (rotation bound) | loser capital vs same-week queue | train (capped book) | bound ≈ 11R/yr with clairvoyance → closed |
 | 7 | 2026-07-27 | **0118 delivery-quality screen** (pre-registered; appended BEFORE the run) | dlv_med21 / dlv_trend / dlv_dwn21 (+z forms) → R, false_touch vs noise_stop, exit_too_early | train only; sealed untouched | **PASS: dlv_med21 cond dR +0.363 [+0.13,+0.58], 5/6 yrs, ADV-robust** (Q1 weak/odd-sign; Q2 null) |
 
-**Running screen count: 7.** Multiplicity note: rows 1-6 spanned ~25 feature-target comparisons; any
+| 8 | 2026-07-27 | **0119 tiebreak activation bound** (appended BEFORE the run) | mechanical swap simulation: dlv_med21 tiebreak at the last funded slot → realized R delta | train capped book vs substrate | **GATE FAIL: 15 swaps/5.5y, clairvoyant bound −1.29 R/yr (wrong-signed, ≪ ±10R floor) → no trial** |
+
+**Running screen count: 8.** Multiplicity note: rows 1-6 spanned ~25 feature-target comparisons; any
 future "significant at 95%" single comparison should be read against that denominator.
+
+## Sealed-set opens (2024H2+ validation slice — every open is priced like any other reuse)
+
+| # | date | opened by | purpose | outcome |
+|---|---|---|---|---|
+| S1 | 2026-07-27 | 0116 Stage B (frozen path_eff rule) | sealed validation of the frozen rule | sign flip → KILL |
