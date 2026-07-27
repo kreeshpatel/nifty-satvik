@@ -13,7 +13,7 @@ count. The dataset's evidential value deflates with reuse — this ledger is how
 | 4 | 2026-07-27 | 0117 cohort 2 (pyramid marks) | 5 day-10 features → exit_too_early / final R | train | unmarked; head-start confound exposed |
 | 5 | 2026-07-27 | 0117 cohort 2b (forward-leg check) | ret10 → SUBSEQUENT-leg R | train | IC −0.029, 6/6 yrs ~0 → domain closed |
 | 6 | 2026-07-27 | 0117 cohort 3 (rotation bound) | loser capital vs same-week queue | train (capped book) | bound ≈ 11R/yr with clairvoyance → closed |
-| 7 | 2026-07-27 | **0118 delivery-quality screen** (pre-registered; appended BEFORE the run) | dlv_med21 / dlv_trend / dlv_dwn21 (+z forms) → R, false_touch vs noise_stop, exit_too_early | train only; sealed untouched | *pending* |
+| 7 | 2026-07-27 | **0118 delivery-quality screen** (pre-registered; appended BEFORE the run) | dlv_med21 / dlv_trend / dlv_dwn21 (+z forms) → R, false_touch vs noise_stop, exit_too_early | train only; sealed untouched | **PASS: dlv_med21 cond dR +0.363 [+0.13,+0.58], 5/6 yrs, ADV-robust** (Q1 weak/odd-sign; Q2 null) |
 
 **Running screen count: 7.** Multiplicity note: rows 1-6 spanned ~25 feature-target comparisons; any
 future "significant at 95%" single comparison should be read against that denominator.

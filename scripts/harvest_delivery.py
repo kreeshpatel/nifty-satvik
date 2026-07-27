@@ -101,7 +101,10 @@ def main() -> int:
             txt = _fetch(sess, secondary); src_primary = False
         if txt is not None:
             use_sec = (d >= SEC_FROM) == src_primary
-            df = parse_sec(txt, d) if use_sec else parse_mto(txt, d)
+            try:
+                df = parse_sec(txt, d) if use_sec else parse_mto(txt, d)
+            except Exception:      # block pages / malformed responses -> a miss, never a crash
+                df = pd.DataFrame()
             if len(df):
                 parts.append(df); n_ok += 1
             else:
