@@ -11,6 +11,7 @@ flowchart LR
     config["config"]
     nq_data["nq/data"]
     nq_data_delivery["nq/data/delivery"]
+    nq_data_earnings["nq/data/earnings"]
     nq_data_eligibility["nq/data/eligibility"]
     nq_data_features["nq/data/features"]
     nq_data_fundamentals["nq/data/fundamentals"]
@@ -45,6 +46,7 @@ flowchart LR
     nq_data --> nq_data_membership
     nq_data --> nq_data_ohlcv
     nq_data_delivery --> config
+    nq_data_earnings --> config
     nq_data_eligibility --> config
     nq_data_features --> config
     nq_data_features --> nq_data_ohlcv

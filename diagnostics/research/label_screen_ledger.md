@@ -16,8 +16,9 @@ count. The dataset's evidential value deflates with reuse — this ledger is how
 | 7 | 2026-07-27 | **0118 delivery-quality screen** (pre-registered; appended BEFORE the run) | dlv_med21 / dlv_trend / dlv_dwn21 (+z forms) → R, false_touch vs noise_stop, exit_too_early | train only; sealed untouched | **PASS: dlv_med21 cond dR +0.363 [+0.13,+0.58], 5/6 yrs, ADV-robust** (Q1 weak/odd-sign; Q2 null) |
 
 | 8 | 2026-07-27 | **0119 tiebreak activation bound** (appended BEFORE the run) | mechanical swap simulation: dlv_med21 tiebreak at the last funded slot → realized R delta | train capped book vs substrate | **GATE FAIL: 15 swaps/5.5y, clairvoyant bound −1.29 R/yr (wrong-signed, ≪ ±10R floor) → no trial** |
+| 9 | 2026-07-27 | **0120 earnings-calendar screen** (pre-registered; appended BEFORE the run) | event exposure/proximity (two-layer PIT) → R, false_touch vs noise_stop, exit_too_early | train only; sealed untouched | *pending* |
 
-**Running screen count: 8.** Multiplicity note: rows 1-6 spanned ~25 feature-target comparisons; any
+**Running screen count: 9.** Multiplicity note: rows 1-6 spanned ~25 feature-target comparisons; any
 future "significant at 95%" single comparison should be read against that denominator.
 
 
