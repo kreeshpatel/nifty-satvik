@@ -98,6 +98,7 @@ def main() -> int:
     px = pd.DataFrame({k: g["Close"] for k, g in oh.items()})
     r21 = px.pct_change(W)
     rs_rank = r21.rank(axis=1, pct=True)
+    rs_rank.index = pd.to_datetime(rs_rank.index).astype("datetime64[ns]")  # asof needs matching resolution
     rows = []
     for i, row in t.iterrows():
         tkr = row[tk]
@@ -105,9 +106,10 @@ def main() -> int:
             continue
         g = oh[tkr]
         # signal-week Friday = last W-FRI strictly before the entry date
-        sig_fri = (row[en_d] - pd.Timedelta(days=row[en_d].weekday() + 3))  # prior week's Friday
+        sig_fri = pd.Timestamp((row[en_d] - pd.Timedelta(days=row[en_d].weekday() + 3))).as_unit("ns")
         f = pre_features(g, sig_fri)
-        f["rs21"] = float(rs_rank.asof(sig_fri).get(tkr, np.nan)) if sig_fri >= rs_rank.index[0] else np.nan
+        loc = rs_rank.index.searchsorted(sig_fri, side="right") - 1   # last row <= sig_fri
+        f["rs21"] = float(rs_rank.iloc[loc].get(tkr, np.nan)) if loc >= 0 else np.nan
         risk = float(row[en_p]) - float(row[stop]) if stop else np.nan
         lab = post_labels(g, row[en_d], row[ex_d], float(row[en_p]), risk, float(row[rr]),
                           str(row[rsn]) if rsn else "")

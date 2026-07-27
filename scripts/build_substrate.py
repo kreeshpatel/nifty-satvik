@@ -119,7 +119,11 @@ def build():
     wp["atr_pct"] = gv["tr_pct"].transform(lambda x: x.rolling(10).mean()) * 100
     wp["vol_ratio"] = gv["v"].transform(lambda x: x / x.rolling(10).mean().shift(1))
     wp["h52"] = gv["h"].transform(lambda x: x.rolling(52).max())
-    feat = wp[["ticker", "week_end", "atr_pct", "vol_ratio", "h52"]]
+    feat = wp[["ticker", "week_end", "atr_pct", "vol_ratio", "h52"]].copy()
+    # parquet roundtrip can carry week_end as M8[ms] while entry_date is M8[us]/[ns] — merge_asof
+    # requires identical datetime resolution; normalize both to ns (no value change).
+    feat["week_end"] = pd.to_datetime(feat["week_end"]).astype("datetime64[ns]")
+    df["entry_date"] = pd.to_datetime(df["entry_date"]).astype("datetime64[ns]")
     df = df.sort_values("entry_date").reset_index(drop=True)
     df = pd.merge_asof(df, feat.sort_values("week_end"), left_on="entry_date", right_on="week_end",
                        by="ticker", direction="backward", allow_exact_matches=False)

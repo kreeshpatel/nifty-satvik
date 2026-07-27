@@ -100,3 +100,21 @@ verdict weight.
 44-period line is always SMA. Diagnostic-first (uncapped before recap). Continuous-slice sub-period
 gates. Engine changes cfg-gated; depgraph regenerated; full suite green after any nq/** edit. Every
 number from a committed script.
+
+---
+
+## AMENDMENT 1 — rule freeze (2026-07-27, before unsealing; per the protocol above)
+
+**Stage-A outcome (train 2019-01..2024-06, n=2,648):** one feature clears the bar with a CI excluding
+zero — `path_eff`, conditional top-vs-bottom tercile spread **−0.23R [−0.43,−0.02]**, median −0.31R,
+sign 5/6 years. (vol_burst: spread +0.18 but CI straddles 0 and is adjacent to the closed O-021 volume
+ground → excluded per the one-feature preference.) Mechanism: high path-efficiency into the signal = the
+blow-off approach (the move already happened — the false-touch loser class); low efficiency =
+base-building before the move.
+
+**THE FROZEN RULE (no retuning):** SKIP any signal whose pre-entry `path_eff` exceeds the TRAIN-set
+66.7th percentile (a fixed constant computed once from the train slice; path_eff is a scale-free ratio
+in [0,1], materially less regime-drift-prone than the 0110 crs_dist levels — stated, not assumed; drift
+is failure-mode territory for Stage B/C). Keep everything else. One rule, one threshold, frozen here.
+
+**Sealed set opens next (once), for Stage B only.**
