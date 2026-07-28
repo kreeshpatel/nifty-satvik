@@ -1,0 +1,71 @@
+{
+  "_note": "R94 golden master (constitution M1). cell frozen_defaults may NEVER change; cell live_config changes only with a documented owner config change \u2014 regenerate via scripts/build_r94_golden_fixture.py in the SAME commit and state the diff.",
+  "fixture_csv_sha16": "c67ce7053280a814",
+  "frozen_defaults": {
+    "cagr": 0.998636,
+    "curve_hash": "fb57007e3c32c375",
+    "exit_reasons": {
+      "eos": 1,
+      "stop": 1,
+      "time": 31
+    },
+    "expR": 6.285571,
+    "final_equity": 47735214.49,
+    "ledger_hash": "f7d314cc7d8c4d28",
+    "max_dd": -0.02458,
+    "n_ledger": 33,
+    "sharpe": 7.787054,
+    "trades": 33,
+    "win_rate": 0.969697
+  },
+  "live_config": {
+    "analytics": {
+      "active": 4,
+      "avg_r": 7.45,
+      "avg_return_pct": 22.25,
+      "total_closed": 37,
+      "total_signals": 41,
+      "win_rate": 94.6
+    },
+    "b1_absent_bar_positions": {
+      "SUSPX": {
+        "entry": 781.8,
+        "entry_date": "2020-03-30",
+        "last_bar": "2020-09-30",
+        "last_close": 999.16,
+        "marked_at_entry_not_last_close": true,
+        "shares": 253.83108
+      }
+    },
+    "envelope_hash": "c1e97e341794b172",
+    "generated_at": "2021-12-31",
+    "hist_rows": 1458,
+    "n_grade_a_windows": 108,
+    "n_signals": 4,
+    "paper_cash": 5009057.35,
+    "paper_curve_hash": "aa5e8b04f1200ff7",
+    "paper_exit_reasons": {
+      "sma_break": 35,
+      "stop": 1
+    },
+    "paper_final_equity": 7494883.44,
+    "paper_ledger_hash": "a22b46ba6a3bb4bf",
+    "paper_n_ledger": 36,
+    "paper_open_positions": [
+      "ALPHA",
+      "DELTA",
+      "ECHOX",
+      "SUSPX"
+    ],
+    "portfolio_hash": "a04bbb256e384fcb",
+    "sig_hist_hash": "79c33b4cc637192e",
+    "uncapped_ledger_hash": "e744e93aaa3c9819",
+    "uncapped_n_ledger": 37,
+    "uncapped_open_positions": [
+      "ALPHA",
+      "DELTA",
+      "ECHOX",
+      "SUSPX"
+    ]
+  }
+}
