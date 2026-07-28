@@ -98,7 +98,10 @@ def test_live_cell_exercises_every_exit_branch(cells):
     exit-logic regression. Pin that the live cell really does traverse the stop and runner
     branches, and that a Grade-A card set is produced."""
     live = cells[1]
-    reasons = set(live["paper_exit_reasons"])
+    # Coverage is asserted on the UNCAPPED ledger: it funds every Grade-A signal, so its exit mix
+    # is the full lifecycle. The capped book's mix depends on who won the cash race, so a fixture
+    # edit that merely reorders funding must not read as a lost exit branch.
+    reasons = set(live["uncapped_exit_reasons"])
     assert {"stop", "sma_break"} <= reasons, f"golden lost exit coverage: {reasons}"
     assert live["paper_n_ledger"] > 20, "golden lost trade volume"
     assert live["n_signals"] > 0, "golden produces no cards — card path unpinned"
@@ -157,6 +160,38 @@ def test_b1_fix_diff_is_isolated_to_the_stale_position(cells):
             "stale exit must fill at the LAST TRADED close, not the entry mark")
         assert r["exit_px"] != r["entry"] or probe["last_close"] == probe["entry"]
         assert r["stale_absent_sessions"] == fixed["stale_absent_days"]
+
+
+def test_d5_card_parity_receipt(cells):
+    """Constitution D5: every FRESH buy card must price off the stop the RECORD will use.
+
+    The fixture carries a wide-candle name whose raw signal-week low sits further than the risk cap
+    below entry, so the discipline lift genuinely binds — the case where the old card and the book
+    disagreed. Asserting `stop_record == max(raw_low, entry x (1 - max_risk_pct))` per card pins the
+    parity relationship itself, not a snapshot."""
+    from run_bhanushali_cron import LIVE_DISCIPLINE, TARGET_R
+    cards = cells[2]["fresh_cards"]
+    assert cards, "fixture produces no fresh buy cards — the card path would be unpinned"
+    mrp = LIVE_DISCIPLINE["max_risk_pct"]
+    for c in cards:
+        expect_stop = max(c["stop_prefix_raw_low"], c["entry"] * (1.0 - mrp))
+        assert c["stop_record"] == pytest.approx(expect_stop, abs=0.01), (
+            f"{c['ticker']}: card stop {c['stop_record']} != the record's {expect_stop}")
+        assert c["target_record"] == pytest.approx(
+            c["entry"] + TARGET_R * (c["entry"] - c["stop_record"]), abs=0.01)
+        assert c["risk_pct_record"] <= mrp * 100 + 0.01, "card R exceeds the record's risk cap"
+        tr = {t[0]: t for t in c["tranche_levels"]}
+        assert tr["target"][1] == pytest.approx(c["target_record"], abs=0.01), (
+            "the +2R tranche on the card must equal the card's stated target")
+
+    binding = [c for c in cards if c["stop_delta"] > 0]
+    assert binding, ("no fixture card has a raw low outside the risk cap — the D5 fix would only "
+                     "be exercised in its no-op branch")
+    for c in binding:
+        assert c["target_delta"] < 0, (
+            "lifting the stop must PULL IN the +2R target; a positive delta means the arithmetic "
+            "is inverted")
+        assert c["risk_pct_prefix"] > c["risk_pct_record"]
 
 
 def test_b1_gate_off_is_inert(cells, expected):

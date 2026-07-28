@@ -164,6 +164,37 @@ def _exit_plan(entry, stop, sma44, exit_cfg=None):
     return {"entry_pattern": "44-week SMA pullback", "tranches": tranches}
 
 
+def _record_stop(entry: float, week_low: float) -> float:
+    """The stop the RECORD will actually use for a fill at ``entry`` — constitution D5 parity.
+
+    The engine does NOT stop at the raw signal-week low: `LIVE_DISCIPLINE['max_risk_pct']` lifts it
+    to ``max(week_low, entry x (1 - max_risk_pct))`` (run_bhanushali_weekly_rank.py, the sizing
+    block). The buy card used to print the RAW low, so the owner sized off a wider stop than the
+    book, rested a +2R limit at a different price, and ran a different R than the record booked.
+    Reading LIVE_DISCIPLINE here (rather than hard-coding 0.10) keeps the card on the same single
+    swap point as the engine, so a discipline change can never desynchronise them again."""
+    mrp = LIVE_DISCIPLINE.get("max_risk_pct")
+    st = float(week_low)
+    if mrp is not None:
+        st = max(st, float(entry) * (1.0 - float(mrp)))
+    return st
+
+
+def _ext_flags(entry: float, sma44: float) -> dict:
+    """Extension vs the signal-week 44w SMA + whether the RECORD would refuse this fill.
+
+    `LIVE_DISCIPLINE['ext_cap']` makes the engine SKIP a fill priced more than ext_cap above the
+    signal-week SMA. A card with no such flag can tell the owner to buy a name the book will never
+    record (constitution D5 / D4 compounding). Surfaced, never enforced on the card — the engine
+    remains the only place the rule is applied."""
+    cap = LIVE_DISCIPLINE.get("ext_cap")
+    if cap is None or sma44 != sma44 or sma44 <= 0:
+        return {}
+    return {"ext_pct_over_sma44": round((entry / sma44 - 1.0) * 100, 2),
+            "ext_cap_pct": round(float(cap) * 100, 2),
+            "record_would_skip_as_extended": bool(entry > sma44 * (1.0 + float(cap)))}
+
+
 def _sma44_now(P, t):
     """The most recent 44-week SMA for ticker t (the runner's exit reference)."""
     wa = P[t].get("wsma_at") or {}
@@ -240,12 +271,19 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
         lo, hi = ls["lo"], ls["hi"]
         cur = float(_last(P, t, "c"))
         entry = round(cur if lo < cur < hi else (lo + hi) / 2.0, 2)   # buy inside the band
-        stop = round(lo, 2)
+        # CONSTITUTION D5 — card/record parity. The stop is the one the RECORD will use (the
+        # discipline-lifted stop), not the raw signal-week low, so the card's R, its +2R target and
+        # every exit tranche are the same arithmetic the book will book. The raw low is still
+        # surfaced (stop_week_low) because it is the taught rule's reference.
+        sma_sig = _sma44_now(P, t)
+        stop = round(_record_stop(entry, lo), 2)
         if entry <= stop:
             continue
         signals.append({
             "ticker": t, "entry": entry, "stop": stop,
+            "stop_week_low": round(lo, 2),        # the taught rule's raw reference (informational)
             "target": round(entry + TARGET_R * (entry - stop), 2),
+            **_ext_flags(entry, sma_sig),
             "entry_low": round(lo, 2), "entry_high": round(hi, 2),
             "current_price": round(cur, 2), "close": round(cur, 2),
             "signal_date": str(fri.date()),                    # the just-closed setup week (stable)
@@ -261,7 +299,7 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
             "buy_window": "buy Mon–Fri this week, at the open inside the band [low, high] — fund strongest CRS rank first",
             # config-P surfacing: the entry pattern + the full 3-tranche exit plan with price levels.
             "pattern": "44-week SMA pullback",
-            "exit_plan": _exit_plan(entry, stop, _sma44_now(P, t)),
+            "exit_plan": _exit_plan(entry, stop, sma_sig),
         })
     # strongest-first on the page; top-5 flagged A so the grade filter surfaces the priority names
     signals.sort(key=lambda x: -x["crs_rank"])
