@@ -44,3 +44,29 @@ material is promising (275 activations, ~50/yr — 18x the tiebreak's; naive cei
 deferred entry recovered the full −0.38R gap, well above the ±10R floor) but the honest bound must
 mechanically simulate deferral (some setups lapse, some re-enter at worse prices) and THAT number
 decides whether a trial is ever pre-registered. Nothing proceeds without the owner's sign-off.
+
+---
+
+## ADDENDUM (2026-07-28) — 0121 deferral bound: the setup does not survive the event; no trial
+
+Owner-gated bound (`scripts/diag_deferral_bound_0121.py`; ledger row #10, running count 10; sealed
+opens 1; n_trials untouched at 138):
+
+- **94% lapse rate (259/275):** after a results event, the engine re-signals the name within 28cd in
+  only 16 cases over 5.5 years. The touch setup almost never survives the event — "deferral" is a
+  de-facto SKIP on this funnel, and the 0104/0108 territory it was designed to dodge claims it anyway.
+- **The activated cohort is worse-than-peers but POSITIVE-EV** (+0.51R mean despite the −0.38R gap vs
+  non-event peers) — so removing those trades costs: pure-skip bookend **−20.96 R/yr**. The 16 genuine
+  re-entries were excellent (orig −1.02R → deferred +1.80R, delta +2.82R each) but 3/year cannot carry
+  a rule. Clairvoyant ceiling +36.9 R/yr (avoid only the losers — requires foresight).
+- **THE PROPOSAL NETS −15.72 R/yr** (4/6 years negative-dominant). **GATE FAIL** — wrong-signed, and
+  the year pattern (2022 +38, 2023 −77) is regime-swung, not structure.
+- Cohort check: the avoided set is mildly false-touch-enriched (16% vs 12% base) — the Q1 sub-result's
+  direction confirmed, but the enrichment is far too weak to overcome the foregone positive EV.
+
+**Program consequence:** the earnings calendar is BANKED alongside delivery (both PIT-proven, both
+screen-level effects real, both decision-point-negative). S5 stands resolved-positive at the screen
+level with its usage priced OUT at the decision point — do not re-propose skip/deferral shapes without
+a mechanism that beats "worse-than-average is still positive-EV." The activation-bound law is now 3/3
+(0117 rotation, 0119 tiebreak, 0121 deferral): every external-data usage candidate has been killed for
+the cost of a measurement, with total trials spent on the entire external-data campaign = ZERO.
