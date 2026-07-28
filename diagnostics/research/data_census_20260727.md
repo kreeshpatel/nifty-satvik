@@ -125,3 +125,27 @@ deals. 4. Ratings actions. 5. SAST. 6. Pledge. 7. SHP. 8. Stock options.
 > **Trial accounting:** screen = 0 trials; only a Stage-C capped run (if ever reached) increments.
 
 **STOP.** Nothing beyond the availability probes has been fetched; n_trials = 138 untouched.
+
+---
+
+## Census-#3 root status (2026-07-28; owner-authorized acquisition, screen NOT authorized)
+
+**Acquisition BLOCKED this session, honestly reported:** the historical bulk/block-deals API returns
+503 to scripted access (probed with the same warmed-session pattern that succeeded for the earnings
+API — endpoint-specific bot-wall or transient), and no daily archive-file route exists (bulk_DDMMYYYY
+variants 404; only the rolling current-day `bulk.csv` is live, which carries no history). Harvester
+committed and correct (`scripts/harvest_bulkblock.py`, restartable, both endpoints) — it will work the
+moment the endpoint answers.
+
+**Viable paths, for the owner's later decision:** (a) retry the API off-hours / with longer backoff
+(the 503 may be schedule-dependent); (b) the BSE equivalent disclosures (different scrape, messier
+symbols); (c) forward-only accumulation of the rolling file (no backtest history — weakest).
+
+### Screen pre-reg SKETCH (0122 draft — NOT runnable until data + audit gate; sketch only, per the sign-off)
+> Features (pre-entry 21d, PIT = deal-date-evening availability): `bulk_net_buy21` (net bulk-deal buy
+> value / ADV), `deal_present21` (any deal), `block_present21`. Questions: does pre-entry deal
+> accumulation separate false_touch from noise_stop, or mark the R-gradient, beyond ext×CRS×ADV cells?
+> **Event-sparsity statement FIRST** (per the census: most windows contain zero deals — raw per-year
+> event counts reported before any contrast; if presence <5% of trades, the screen is underpowered by
+> construction and must say so). 0116 protocol verbatim; train-only; one run; ledger row appended
+> before. The activation-bound law binds any usage downstream.
