@@ -1,10 +1,26 @@
-"""Live / paper runner for the 0091 weekly-swing book (FORWARD-WATCH).
+"""Live / paper runner for the weekly-swing book (FORWARD-WATCH).
 
-Self-sufficient: refreshes the live OHLCV cache itself, then re-runs the tested 0091 engine
-(run_bhanushali_weekly_sma.prep_weekly_sma + run_bhanushali_weekly_full.backtest, finding 0034) from a
-fixed inception, and serializes the CURRENT state to the dashboard envelope (results/*_weekly.json/.csv).
-Live == backtest by construction: the same deterministic, PIT-clean engine that produced the +18.2% CAGR /
-+0.87 Sharpe backtest generates the live signals — no re-implementation.
+Self-sufficient: refreshes the live OHLCV cache itself, then re-runs the tested engine from a fixed
+inception, and serializes the CURRENT state to the dashboard envelope (results/*_weekly.json/.csv).
+Live == engine by construction: the same deterministic, PIT-clean code that produced the research
+run generates the live signals — no re-implementation.
+
+WHAT ACTUALLY RUNS (corrected 2026-07-29 — the docstring previously described the superseded 0091
+engine and a time cap that no longer exists; constitution bug B-2):
+  * signals + book : run_bhanushali_weekly_rank (R94) — prep_weekly_rank + backtest, i.e. the 0093
+                     + Nifty-50 signal set with CRS-ranked fills (finding 0038), NOT
+                     run_bhanushali_weekly_sma / weekly_full (finding 0034).
+  * overlays ON    : LIVE_DISCIPLINE (docs/decisions/0009) + LIVE_EXIT = config P
+                     (docs/decisions/0010) + LIVE_STALENESS (constitution B-1 fix).
+  * TIME CAP       : NONE. Config P's weekly branch decides stop / blow-off pattern / 44w-SMA
+                     runner break and returns before any cap check, so neither the 13-week cap nor
+                     the 52-week backstop that the P2 exit carried is reachable. A position runs
+                     until a tranche, the stop, the SMA break, or the B-1 staleness guard closes
+                     it. HOLD_DAYS_DISPLAY below is a CARD HINT ONLY and does not bound anything.
+                     Whether the book SHOULD run uncapped is an open owner decision recorded for
+                     the Oct-1 review (diagnostics/research/oct1_binder_decisions.md).
+  * headline numbers from the frozen research run do NOT describe this configuration — see
+    constitution divergence D3.
 
 CADENCE — a weekly-swing book only changes after Friday's weekly close, so this runs on its OWN schedule:
 **every Saturday 6 PM IST** (.github/workflows/cron-bhanushali-scanner.yml). Saturday's download picks up the
@@ -39,9 +55,10 @@ import run_bhanushali_weekly_crs as CRS  # noqa: E402  (Nifty-50 CSV path + inde
 import run_bhanushali_weekly_rank as R94  # noqa: E402  — LIVE strategy: 0093-N50 + ranked fill (finding 0038)
 
 INCEPTION_DEFAULT = "2026-07-04"
-TARGET_R = 2                     # 0091 books half at +2R -> the displayed target
-HOLD_DAYS_DISPLAY = 65          # soft "hold ~N days" card hint only. The P2 exit is TREND-FOLLOWING (no hard
-                                # cap; 52-week backstop) so actual holds vary widely — this is a nominal guide.
+TARGET_R = 2                     # config P books its first tranche at +2R -> the displayed target
+HOLD_DAYS_DISPLAY = 65          # CARD HINT ONLY — it bounds NOTHING. Under the live config-P exit there is
+                                # no time cap and no 52-week backstop (the P2 exit's backstop went away with
+                                # the P swap; constitution B-2/G6), so realised holds are unbounded above.
 # LIVE EXIT (2026-07-15 owner decision — Phase-2 exit; see docs/decisions ADR + config_CHANGELOG). Replaces the
 # 13-week time cap with a no-cap hold + a blow-off-bar exit @2.5R (+ a 20-week-close backstop). Owner-override of
 # the forward-wall route (ships a portfolio Sharpe/CAGR give for -8pp drawdown + fewer/higher-return trades). The
