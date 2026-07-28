@@ -1,0 +1,70 @@
+{
+  "generated": "2026-07-28 21:12:55.740909+00:00",
+  "feeds": {
+    "bulkblock": {
+      "exists": true,
+      "rows": 148,
+      "data_span": [
+        "2026-07-28",
+        "2026-07-28"
+      ],
+      "fetch_span": [
+        "2026-07-28 20:59:44",
+        "2026-07-28 21:01:15"
+      ],
+      "sessions_expected": 1,
+      "sessions_with_rows": 1,
+      "gap_days": [],
+      "note": "gap days on an EVENT feed can be legitimately empty sessions; a growing RUN of gaps is the failure signal"
+    },
+    "ratings": {
+      "exists": true,
+      "rows": 87,
+      "data_span": [
+        "2026-07-21",
+        "2026-07-25"
+      ],
+      "fetch_span": [
+        "2026-07-28 21:01:10",
+        "2026-07-28 21:01:15"
+      ],
+      "sessions_expected": 4,
+      "sessions_with_rows": 4,
+      "gap_days": [],
+      "note": "gap days on an EVENT feed can be legitimately empty sessions; a growing RUN of gaps is the failure signal",
+      "symbol_clean_ratio_by_fetch_day": {
+        "2026-07-28": 0.0
+      }
+    }
+  },
+  "checks": {
+    "health_file": {
+      "bulkblock": {
+        "last_data_date": "2026-07-28",
+        "last_fetch_ts": "2026-07-28 21:01:15",
+        "rows_added_last_run": 0,
+        "stale": false
+      },
+      "ratings": {
+        "last_fetch_ts": "2026-07-28 21:01:15",
+        "rows_added_last_run": 2,
+        "stale": false,
+        "last_data_date": "2026-07-25"
+      }
+    },
+    "idempotency_probe": {
+      "adds": {
+        "bulkblock": 0,
+        "ratings": 0
+      },
+      "tolerance": 5,
+      "pass": true
+    },
+    "wiring": {
+      "cron_step": true,
+      "cron_git_add": true,
+      "gitignore_whitelist": true
+    }
+  },
+  "verdict": "GREEN"
+}
