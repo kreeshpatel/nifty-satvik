@@ -14,10 +14,14 @@ harness:
       - cell "frozen_defaults": backtest() with every lever at its default — the frozen 0094
         research configuration. This cell may NEVER change; a diff here means the frozen engine
         drifted.
-      - cell "live_config": the exact calls scripts/run_bhanushali_cron.py makes (grade-A set,
-        LIVE_DISCIPLINE + LIVE_EXIT, capped paper book + uncapped ledger + dashboard envelope).
-        This cell changes ONLY with a documented owner config change — regenerate in the same
-        commit and state the diff (the constitution's fix-with-receipts rule).
+      - cell "live_config": the live grade-A / LIVE_DISCIPLINE / LIVE_EXIT configuration with the
+        B-1 staleness gate OFF. This is the PRE-FIX baseline of record, retained permanently so
+        the B-1 fix's diff stays visible and auditable.
+      - cell "live_config_b1_fixed": what scripts/run_bhanushali_cron.py ACTUALLY runs today —
+        the same configuration plus LIVE_STALENESS (capped paper book + uncapped ledger +
+        dashboard envelope). Its diff_vs_live_config block is the fix's receipt. This cell
+        changes ONLY with a documented owner config change — regenerate in the same commit and
+        state the diff (the constitution's fix-with-receipts rule).
 
 The fixture deliberately includes a SUSPENSION case (ticker SUSPX stops printing bars
 2021-06-30 while positions are typically still open) so the golden CAPTURES the B-1
@@ -203,7 +207,58 @@ def run_cells(ohlcv: dict, index: pd.Series):
         "portfolio_hash": _sha16(portfolio),
         "hist_rows": len(hist_df),
     }
-    return cell_a, cell_b
+
+    # ── cell C: the live configuration WITH the B-1 staleness gate ON ──
+    # Same call as cell B plus stale_absent_days = the momentum engine's STALE_ABSENT_DAYS. This
+    # cell exists so the B-1 fix's effect is a COMMITTED, inspectable diff rather than a claim:
+    # everything that is not the suspended holding must be identical to cell B.
+    from run_bhanushali_cron import LIVE_STALENESS
+    led_fix: list = []
+    out_fix = R94.backtest(P, None, ledger=led_fix, start=START_FIX, return_state=True,
+                           a_grade=a_set, **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS)
+    led_fix_all: list = []
+    out_fix_all = R94.backtest(P, None, ledger=led_fix_all, start=START_FIX, return_state=True,
+                               uncapped=True, a_grade=a_set, **LIVE_DISCIPLINE, **LIVE_EXIT,
+                               **LIVE_STALENESS)
+    env_fix, sig_hist_fix, analytics_fix, portfolio_fix, hist_df_fix = build_envelopes(
+        P, out_fix_all, led_fix_all, out_fix, generated_at, mem=None)
+    stale_rows = [r for r in led_fix if r.get("reason") == "stale"]
+    cell_c = {
+        "stale_absent_days": int(LIVE_STALENESS["stale_absent_days"]),
+        "uncapped_ledger_hash": _sha16(_ledger_key(led_fix_all)),
+        "uncapped_n_ledger": len(led_fix_all),
+        "uncapped_open_positions": sorted(out_fix_all["open_positions"]),
+        "envelope_hash": _sha16(env_fix),
+        "n_signals": len(env_fix["signals"]),
+        "sig_hist_hash": _sha16(sig_hist_fix),
+        "analytics": analytics_fix,
+        "portfolio_hash": _sha16(portfolio_fix),
+        "hist_rows": len(hist_df_fix),
+        "paper_ledger_hash": _sha16(_ledger_key(led_fix)),
+        "paper_n_ledger": len(led_fix),
+        "paper_final_equity": round(float(out_fix["equity"]), 2),
+        "paper_cash": round(float(out_fix["cash"]), 2),
+        "paper_open_positions": sorted(out_fix["open_positions"]),
+        "paper_curve_hash": _sha16(_curve_key(out_fix["curve"])),
+        "paper_exit_reasons": {k: int(v) for k, v in
+                               sorted(pd.Series([r.get("reason") for r in led_fix])
+                                      .value_counts().to_dict().items())} if led_fix else {},
+        "stale_exits": [{"tkr": r["tkr"], "entry_date": str(r["entry_date"])[:10],
+                         "exit_date": str(r["exit_date"])[:10], "entry": r["entry"],
+                         "exit_px": r["exit_px"], "R": r["R"],
+                         "stale_absent_sessions": r.get("stale_absent_sessions")}
+                        for r in stale_rows],
+        # the diff vs cell B, precomputed so the commit message and the test agree
+        "diff_vs_live_config": {
+            "closed_trades_delta": len(led_fix) - len(led_paper),
+            "final_equity_delta": round(float(out_fix["equity"]) - float(out_paper["equity"]), 2),
+            "positions_released": sorted(set(out_paper["open_positions"])
+                                         - set(out_fix["open_positions"])),
+            "positions_added": sorted(set(out_fix["open_positions"])
+                                      - set(out_paper["open_positions"])),
+        },
+    }
+    return cell_a, cell_b, cell_c
 
 
 def main() -> int:
@@ -222,15 +277,17 @@ def main() -> int:
     rows.append(d[["ticker", "date", "Open", "High", "Low", "Close", "Volume"]])
     pd.concat(rows, ignore_index=True).to_csv(OHLCV_CSV, index=False)
 
-    cell_a, cell_b = run_cells(ohlcv, index)
+    cell_a, cell_b, cell_c = run_cells(ohlcv, index)
     expected = {
         "_note": ("R94 golden master (constitution M1). cell frozen_defaults may NEVER change; "
                   "cell live_config changes only with a documented owner config change — "
                   "regenerate via scripts/build_r94_golden_fixture.py in the SAME commit and "
-                  "state the diff."),
+                  "state the diff. cell live_config_b1_fixed is the same live config with the "
+                  "B-1 staleness gate ON; its diff_vs_live_config block IS the fix's receipt."),
         "fixture_csv_sha16": hashlib.sha256(OHLCV_CSV.read_bytes()).hexdigest()[:16],
         "frozen_defaults": cell_a,
         "live_config": cell_b,
+        "live_config_b1_fixed": cell_c,
     }
     EXPECTED_JSON.write_text(json.dumps(expected, indent=2, sort_keys=True) + "\n",
                              encoding="utf-8")
@@ -239,7 +296,10 @@ def main() -> int:
     print(json.dumps({"frozen_defaults": {k: cell_a[k] for k in ('trades', 'sharpe', 'exit_reasons')},
                       "live_config": {k: cell_b[k] for k in ('paper_n_ledger', 'paper_exit_reasons',
                                                              'n_signals', 'paper_open_positions',
-                                                             'b1_absent_bar_positions')}}, indent=2))
+                                                             'b1_absent_bar_positions')},
+                      "live_config_b1_fixed": {k: cell_c[k] for k in
+                                               ('paper_n_ledger', 'paper_exit_reasons',
+                                                'stale_exits', 'diff_vs_live_config')}}, indent=2))
     return 0
 
 

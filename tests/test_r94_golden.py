@@ -48,7 +48,7 @@ def expected() -> dict:
 
 @pytest.fixture(scope="module")
 def cells():
-    """Run both golden cells once (the builder is the single source of the run logic)."""
+    """Run all golden cells once (the builder is the single source of the run logic)."""
     assert FIXTURE_CSV.exists(), f"golden fixture missing: {FIXTURE_CSV}"
     from build_r94_golden_fixture import run_cells, synth_universe
     ohlcv, index = synth_universe()
@@ -118,3 +118,51 @@ def test_b1_probe_pins_current_behaviour(cells, expected):
         assert rec["marked_at_entry_not_last_close"] is True
         assert rec["last_bar"] < expected["live_config"]["generated_at"], (
             f"{tkr} is not actually stale in the fixture")
+
+
+def test_b1_fixed_cell_byte_identical(cells, expected):
+    """The live config with the B-1 staleness gate ON — the fix's pinned output."""
+    got, exp = cells[2], expected["live_config_b1_fixed"]
+    for k in sorted(exp):
+        assert got[k] == exp[k], (
+            f"B-1-fixed cell drifted on '{k}': got {got[k]!r}, golden {exp[k]!r}")
+
+
+def test_b1_fix_parameter_mirrors_momentum_engine(cells):
+    """The staleness threshold is the momentum engine's constant, not a new invented parameter."""
+    from nq.engine.portfolio import STALE_ABSENT_DAYS
+    assert cells[2]["stale_absent_days"] == STALE_ABSENT_DAYS == 10
+
+
+def test_b1_fix_diff_is_isolated_to_the_stale_position(cells):
+    """The fix's blast radius: it may ONLY release the bar-less holding.
+
+    Nothing else may move — no other position opens or closes, and every stale exit must be a
+    name the fixture actually suspended, priced at its LAST TRADED close (never the entry mark)."""
+    base, fixed = cells[1], cells[2]
+    diff = fixed["diff_vs_live_config"]
+    stale_names = {r["tkr"] for r in fixed["stale_exits"]}
+    absent_names = set(base["b1_absent_bar_positions"])
+
+    assert stale_names == absent_names, (
+        f"stale exits {stale_names} != the fixture's absent-bar holdings {absent_names}")
+    assert diff["positions_added"] == [], "the fix opened a position — out of blast radius"
+    assert set(diff["positions_released"]) == absent_names
+    assert diff["closed_trades_delta"] == len(stale_names)
+    # every other closed trade is untouched: base ledger + the stale exits == fixed ledger
+    assert fixed["paper_n_ledger"] == base["paper_n_ledger"] + len(stale_names)
+    for r in fixed["stale_exits"]:
+        probe = base["b1_absent_bar_positions"][r["tkr"]]
+        assert r["exit_px"] == probe["last_close"], (
+            "stale exit must fill at the LAST TRADED close, not the entry mark")
+        assert r["exit_px"] != r["entry"] or probe["last_close"] == probe["entry"]
+        assert r["stale_absent_sessions"] == fixed["stale_absent_days"]
+
+
+def test_b1_gate_off_is_inert(cells, expected):
+    """Belt-and-braces: the gate defaults OFF, so the frozen research cell is untouched by the
+    fix's mere existence (this is what makes the 0094 run of record still reproducible)."""
+    assert cells[0]["ledger_hash"] == expected["frozen_defaults"]["ledger_hash"]
+    assert cells[1]["paper_ledger_hash"] == expected["live_config"]["paper_ledger_hash"]
+    assert cells[1]["paper_ledger_hash"] != cells[2]["paper_ledger_hash"], (
+        "gate ON and OFF produced the same ledger — the fixture no longer proves the fix runs")

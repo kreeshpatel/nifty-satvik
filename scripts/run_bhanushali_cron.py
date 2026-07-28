@@ -34,6 +34,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from config import RESULTS_DIR  # noqa: E402
 from nq.data.membership import load_membership  # noqa: E402
 from nq.data.ohlcv import OHLCV_CACHE, load_ohlcv_cache  # noqa: E402
+from nq.engine.portfolio import STALE_ABSENT_DAYS  # noqa: E402  — B-1 guard (shared with momentum)
 import run_bhanushali_weekly_crs as CRS  # noqa: E402  (Nifty-50 CSV path + index plumbing)
 import run_bhanushali_weekly_rank as R94  # noqa: E402  — LIVE strategy: 0093-N50 + ranked fill (finding 0038)
 
@@ -64,6 +65,16 @@ P2_EXIT = dict(no_time_cap=True, wk20_trail_pct=0.04, blowoff_arm_r=2.5)
 # Return-neutral, NOT certified: no DSR gate passes a +0.05 in-sample delta at cumulative trial 122.
 # backtest() DEFAULTS stay OFF so the frozen 0094 research run is byte-identical (1.132/255).
 LIVE_DISCIPLINE = dict(ext_cap=0.20, max_risk_pct=0.10, max_notional_pct=0.20)
+# LIVE STALENESS GUARD (constitution bug B-1, fixed 2026-07-29). Before this, a held name that
+# stopped printing bars (suspension / delisting-in-progress) was skipped by the exit loop FOREVER
+# and carried in NAV at its ENTRY price — an unmanageable position and a silently flattered NAV
+# that the Oct-1 scorecard's Sharpe/MaxDD gates read. The threshold is the momentum engine's
+# STALE_ABSENT_DAYS (10 sessions), not a new invented parameter, so the two books age an absent
+# holding identically. Impact on the live record at adoption: NONE — the pre-fix census
+# (diagnostics/research/b1_absent_bar_census.md) found zero absent-bar holdings ever, so this
+# lands with a provably zero diff on the book to date. backtest() DEFAULTS stay OFF so the frozen
+# 0094 research run is byte-identical (golden cell `frozen_defaults`).
+LIVE_STALENESS = dict(stale_absent_days=STALE_ABSENT_DAYS)
 # LIVE EXIT = config P (2026-07-16 owner decision — see docs/decisions/0010 + config_CHANGELOG +
 # research/substrate/FINDING_pattern_exit.md). A THREE-TRANCHE scaled exit that REPLACES the P2 trend exit:
 #   40% booked at +2R (resting limit, intraweek)
@@ -572,12 +583,12 @@ def main(argv=None) -> int:
     # ── ₹10L paper book — realistic capital sim (A-only), kept for the NAV/equity portfolio.
     led_paper: list = []
     out_paper = R94.backtest(P, mem, ledger=led_paper, start=args.start, return_state=True, a_grade=a_set,
-                             **LIVE_DISCIPLINE, **LIVE_EXIT)
+                             **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS)
     # ── UNCAPPED signal ledger — every A signal tracked (cash never runs out), so a name is followed
     #    week to week regardless of what ₹10L could afford. This drives the SIGNALS page.
     led_all: list = []
     out_all = R94.backtest(P, mem, ledger=led_all, start=args.start, return_state=True, uncapped=True,
-                           a_grade=a_set, **LIVE_DISCIPLINE, **LIVE_EXIT)
+                           a_grade=a_set, **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS)
     # data's last date = the "as of" the book is current to
     last = max((pd.Timestamp(s["dates"][-1]) for s in P.values()), default=pd.Timestamp(args.start))
     generated_at = str(last.date())
