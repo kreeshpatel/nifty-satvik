@@ -60,6 +60,9 @@ results/*
 !results/decision_memos_weekly.json
 !results/decision_memos_weekly.md
 !results/blend_hybrid_paper.json
+!results/bulkblock_forward.csv
+!results/ratings_forward.csv
+!results/forward_accum_health.json
 logs/
 dashboard/frontend/results/
 

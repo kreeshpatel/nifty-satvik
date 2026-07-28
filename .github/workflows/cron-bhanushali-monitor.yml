@@ -44,13 +44,16 @@ jobs:
           pip install -e ".[dev]"
       - name: Run weekly monitor
         run: python scripts/run_bhanushali_monitor.py
+      - name: Forward-only accumulators (bulk/block + ratings; owner-signed 2026-07-28)
+        # Pure data-collection sidecar - engine untouched, idempotent, staleness-alarmed.
+        run: python scripts/run_forward_accumulators.py || true
       - name: Commit monitor state
         run: |
           # Author with the owner's GitHub-matched email so Vercel (auto-deploys main) doesn't
           # BLOCK the commit as an unrecognized author.
           git config user.name "kreeshpatel"
           git config user.email "kreeshvasistha@gmail.com"
-          git add results/weekly_monitor.json 2>/dev/null || true
+          git add results/weekly_monitor.json results/bulkblock_forward.csv results/ratings_forward.csv results/forward_accum_health.json 2>/dev/null || true
           if git commit -m "chore(weekly-monitor): daily re-price $(date -u +%F)"; then
             # --autostash: the OHLCV download leaves unstaged cache changes that abort a plain rebase,
             # which silently swallowed the push and dropped every day's monitor output. Retry + exit RED
