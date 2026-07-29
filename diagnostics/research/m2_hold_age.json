@@ -1,0 +1,115 @@
+{
+  "universe": "pinned survivor-only (f8625a8f)",
+  "n_names": 684,
+  "note": "DESCRIPTIVE readout of realised holding periods \u2014 no parameter searched, no arm compared, no gate evaluated. Spends no trial and no screen.",
+  "live": {
+    "label": "LIVE config P (no time cap, Grade-A, discipline)",
+    "hold": {
+      "n": 141,
+      "median_weeks": 13.0,
+      "mean_weeks": 22.9,
+      "p75_weeks": 27.0,
+      "p90_weeks": 53.0,
+      "p99_weeks": 135.4,
+      "max_weeks": 201.0,
+      "median_days": 65.0,
+      "max_days": 1005.0,
+      "pct_over_13w": 48.9,
+      "pct_over_26w": 25.5,
+      "pct_over_52w": 10.6,
+      "n_over_52w": 15
+    },
+    "exit_reasons": {
+      "eos": 8,
+      "sma_break": 70,
+      "stop": 55,
+      "stop_part": 8
+    },
+    "by_bucket": {
+      "0-4w": {
+        "n": 34,
+        "mean_R": -1.546
+      },
+      "5-13w": {
+        "n": 38,
+        "mean_R": -0.537
+      },
+      "14-26w": {
+        "n": 33,
+        "mean_R": 0.697
+      },
+      "27-52w": {
+        "n": 21,
+        "mean_R": 2.378
+      },
+      "53-104w": {
+        "n": 11,
+        "mean_R": 6.042
+      },
+      ">104w": {
+        "n": 4,
+        "mean_R": 6.751
+      }
+    },
+    "longest_decile": {
+      "min_weeks": 53.0,
+      "n": 15,
+      "share_of_total_R_pct": 100.0
+    }
+  },
+  "frozen_reference": {
+    "label": "frozen 0094 defaults (13-week cap ON, all grades)",
+    "hold": {
+      "n": 240,
+      "median_weeks": 13.0,
+      "mean_weeks": 10.8,
+      "p75_weeks": 13.0,
+      "p90_weeks": 13.0,
+      "p99_weeks": 13.0,
+      "max_weeks": 14.0,
+      "median_days": 65.0,
+      "max_days": 70.0,
+      "pct_over_13w": 0.4,
+      "pct_over_26w": 0.0,
+      "pct_over_52w": 0.0,
+      "n_over_52w": 0
+    },
+    "exit_reasons": {
+      "eos": 6,
+      "stop": 65,
+      "time": 153,
+      "trail": 16
+    },
+    "by_bucket": {
+      "0-4w": {
+        "n": 30,
+        "mean_R": -1.196
+      },
+      "5-13w": {
+        "n": 209,
+        "mean_R": 0.564
+      },
+      "14-26w": {
+        "n": 1,
+        "mean_R": 1.791
+      },
+      "27-52w": {
+        "n": 0,
+        "mean_R": null
+      },
+      "53-104w": {
+        "n": 0,
+        "mean_R": null
+      },
+      ">104w": {
+        "n": 0,
+        "mean_R": null
+      }
+    },
+    "longest_decile": {
+      "min_weeks": 13.0,
+      "n": 159,
+      "share_of_total_R_pct": 162.8
+    }
+  }
+}

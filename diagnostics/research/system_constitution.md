@@ -5,6 +5,23 @@ trials spent, no tests run against outcomes. **Program counts as of this audit (
 screens 11, sealed opens 1, n_trials 138.** Forward-wall performance logs were not read
 (no-peeking holds); every row below is sourced from code, not results.
 
+> **REMEDIATED 2026-07-29** (same day, separate session — see the log below). A golden master for
+> the live engine was built **first**, then three defects were fixed against it, each with a
+> committed diff. Rows that moved are marked **✅ REMEDIATED** in place with their fix commit; the
+> DIVERGENT list in §2 has shrunk from 9 to 6. Counts still unchanged.
+>
+> | Item | Fix | Commit |
+> |---|---|---|
+> | **M1** — no golden master for R94 | Byte-identical golden: frozen-0094 cell, live cell, B-1 diff cell, card arithmetic; hermetic synthetic fixture | `1170470` |
+> | **B-1** — absent-bar holdings freeze and mark at entry | `stale_absent_days` (= momentum's `STALE_ABSENT_DAYS` 10), force-close at last traded price; census first found **zero instances to date**, so it landed with a provably zero record diff | `0c7e490` (census), `d3b4d5e` (fix) |
+> | **D5** — cards priced off the raw week-low, book off the lifted stop | Cards now use `_record_stop()` reading `LIVE_DISCIPLINE`; targets + all tranches re-derived; `ext_cap` skip surfaced | `66491e3` |
+> | **D2** — mutable forward record | Write-once dated snapshots + input fingerprint + restatement/drift log, wired into the Saturday cron; baseline `results/archive/2026-07-24/` | `7e016b9` |
+> | **B-2 (doc half)** — cron docstring described a superseded engine and a nonexistent backstop | Docstring corrected; the missing time cap is an owner decision, not a fix | `7e016b9` |
+>
+> Free diagnostics run (no trials, no screens): **M2** hold-age, **M6** demerger scan, **M7**
+> universe freshness — reports in this directory. M2's result **changed a binder recommendation**.
+> Owner doors: [oct1_binder_decisions.md](oct1_binder_decisions.md).
+
 **What "the live system" is.** The live model is the weekly-swing book
 (`weekly-swing-0094-rank-P`). Two GitHub Actions crons run it:
 
@@ -88,7 +105,7 @@ divergences are in **data, universe, and the switched-on owner overlays**.
 | # | Rule | Where | What it does | Class | Backtest parity | Risk if wrong |
 |---|------|-------|--------------|-------|-----------------|---------------|
 | E1 | Card membership gate: only currently-listed index members get cards (checked on the setup Friday) | cron:226-228 | No cards for non-members | DELIBERATE (forward book trades listed names only) | Book checks membership at activation day instead (R94:716) — one-trading-day skew, benign | — |
-| E2 | Card **entry** = current close if inside the band, else band midpoint; card **stop** = signal-week low; card **target** = entry + 2×(entry−stop) | cron:229-237 | The prices printed on the buy card | **DIVERGENT** (D5): the modeled book fills at next-week's in-range OPEN with the stop LIFTED to max(low, 0.9×entry) (R94:759, 821-822) | The card's entry/stop/target ≠ the book's entry/stop/target for the same trade | The owner's real R, target level, and resting-limit price all differ from what the record books |
+| E2 | Card **entry** = current close if inside the band, else band midpoint; card **stop** = **the record's stop** `max(week_low, entry×(1−max_risk_pct))`; **target** = entry + 2×(entry−stop); raw low surfaced as `stop_week_low`; `ext_cap` skip surfaced as `record_would_skip_as_extended` | cron `_record_stop`/`_ext_flags` + the card block | The prices printed on the buy card | ✅ **REMEDIATED** (`66491e3`) → DELIBERATE. Was DIVERGENT D5 (card used the raw low, book the lifted stop, so even the blow-off arm and runner lines were mispriced) | **Parity restored** — card stop/target/tranches are the arithmetic the book books. Pinned as a *relationship* in `tests/test_swing_card_record_parity.py` + golden `fresh_cards` receipt (MIKEX: stop 3176.06→3328.92, target 4744.28→**4438.56**) | Regression would resume telling the owner a different R and a +2R limit ~6.9% off the booked tranche |
 | E3 | Buy instruction: "buy Mon–Fri this week, at the open inside the band [low, high] — fund strongest CRS rank first" | cron:250-253 | Human protocol mirroring the engine's fill rule | DELIBERATE | Mirrors F1 | — |
 | E4 | Exit-plan card derives tranches from `LIVE_EXIT` (single swap point); nothing downstream hard-codes config P | cron:79-153 | 40% @+2R resting limit / 40% blow-off pattern (Sat decides) / 20% runner to the 44w SMA | DELIBERATE (Stage-1 config-swappable interface) | Card tranche math uses the model's lifted stop for HELD cards (cron:296) — consistent with the book | — |
 | E5 | Pending weekly-close exits render as SELL-Monday-open cards (`EXIT_REQUIRED` + reason text) | cron:304-320 | The Saturday run tells the owner exactly what to sell Monday | DELIBERATE | Book fills the same exit at the next bar's open (R94:411-421, 444-461) — parity | — |
@@ -120,7 +137,7 @@ divergences are in **data, universe, and the switched-on owner overlays**.
 | G6 | **No time cap at all**: the scaled-exit weekly branch `continue`s before the cap check, so neither the 13-week cap nor P2's 52-week backstop ever applies | R94:603-635 (continue at 635) vs 704-706 (unreached) | Positions can be held indefinitely until stop/SMA-break/targets | INCIDENTAL⚠ (docs/decisions/0010 chose "no cap"; but the 52-week BACKSTOP that P2 carried silently vanished with the P swap — cron:42-48 docstring still describes the backstop) | Identical engine behavior both sides when P is on | A name that hugs its rising SMA forever is never force-reviewed; HOLD_DAYS_DISPLAY=65 on the card is fiction (cron:42-43) |
 | G7 | Tranches book in order (tp2 requires tp1); pattern tranche requires not-already-booked; realized R accumulates by fraction | R94:557-576, 625-628 | Deterministic tranche sequencing | INCIDENTAL (implementation ordering) | Identical | — |
 | G8 | Exit R accounting: `R = realized_r + frac_left × r_rest`; costs (brokerage+STT+tiered slippage) on every leg, buy-side STT included | R94:439-452; sixstep:52-56; config.py:45-48; nq/engine/portfolio.py:61-75 | Net-of-cost trade records | DELIBERATE (cost model shared with research runs) | Identical | Cost constants live in config.py + faithful's local COST_LEG (drift hazard noted in repo-map §2.1) |
-| G9 | Positions absent today's bar: exit logic silently skips (`i is None → continue`) — a suspended/delisted holding can NEVER exit | R94:412-414 | No stale-position handling (contrast: momentum engine force-closes after 10 absent sessions, nq/engine/portfolio.py:43) | INCIDENTAL⚠ (nobody chose this; see Broken list B-1) | Backtest same code — but the pinned dataset has no forward suspensions; live will | Zombie positions freeze capital in the ₹10L book and distort NAV (see B-1) |
+| G9 | Positions absent today's bar: after `stale_absent_days` (=10, the momentum engine's `STALE_ABSENT_DAYS`) consecutive absent sessions the position is force-closed at its **last traded price**, reason `stale`, with `stale_absent_sessions` on the ledger row | R94 absent-bar branch; `LIVE_STALENESS` in cron; `nq/engine/portfolio.py:43` (shared constant) | Stale-position handling, live | ✅ **REMEDIATED** (`d3b4d5e`) → DELIBERATE. Was INCIDENTAL⚠ / bug B-1 | cfg-gated: default OFF ⇒ frozen 0094 byte-identical; ON in the live cron. Golden pins both cells + asserts the diff is isolated to the stale name | Regression re-freezes suspended holdings; guarded by `test_b1_fix_diff_is_isolated_to_the_stale_position` |
 
 ### H. Sizing and cash
 
@@ -138,8 +155,8 @@ divergences are in **data, universe, and the switched-on owner overlays**.
 
 | # | Rule | Where | What it does | Class | Backtest parity | Risk if wrong |
 |---|------|-------|--------------|-------|-----------------|---------------|
-| I1 | NAV = cash + Σ shares × today's close; names missing today's bar are marked at **ENTRY price** | R94:864-865 | Daily mark | INCIDENTAL⚠ (the `else p["en"]` fallback — see Broken B-1) | Same code | A −40% suspended name is marked at entry: NAV flattered; scorecard Sharpe/MaxDD gates (I4) read this NAV |
-| I2 | The whole book — positions, ledger, NAV history — is **recomputed from inception every run**; nothing is append-only | cron:12 (docstring, "known mutable-record caveat, finding-0035 TODO"); cron:574-580 | Idempotent, stateless design | **DIVERGENT** (D2): the "record" can rewrite its own past when input data changes (yfinance revisions, re-adjustments, membership edits) | Run of record pinned; live unpinned | The forward record is only as immutable as yfinance's history; documented drift exists (ohlcv.py:330-335) |
+| I1 | NAV = cash + Σ shares × today's close; a name missing today's bar marks to its **last traded close** while the staleness gate is on (gate off ⇒ the old entry-price mark, for byte-identity) | R94 NAV line + `_absent_mark` | Daily mark | ✅ **REMEDIATED** (`d3b4d5e`) → DELIBERATE. Was INCIDENTAL⚠ (the `else p["en"]` fallback) | Gate off ⇒ identical to the frozen run | Regression re-flatters NAV, which the Oct-1 gates read |
+| I2 | The book is still **recomputed from inception every run**, but each run now writes a **write-once dated snapshot** (book, NAV, ledger, analytics + input fingerprint: OHLCV/membership/index sha256 + engine config) and appends a **drift row** recording restated / vanished / appeared closed trades and the NAV delta | `scripts/archive_weekly_snapshot.py`; scanner workflow archive step; `results/archive/` | Mutable working copy, immutable audited record | ✅ **REMEDIATED** (`7e016b9`) → DELIBERATE. Was DIVERGENT D2 | Baseline `results/archive/2026-07-24/`. **Gates must read a named snapshot** — scorecard still reads the working copy (deliberately not repointed mid-quarter; binder §0) | Recomputation drift is now attributable, not silent; yfinance mutability itself is unchanged by design |
 | I3 | Open positions are NOT marked-to-close in the live state (`return_state=True` skips the end-of-series realization) | R94:869-885 | Correct live semantics (eos is a backtest convention) | DELIBERATE | Run of record realizes at window end (`eos`) — a recorded convention difference in TRADE COUNT, not engine logic | — |
 | I4 | Scorecard gates (Oct-1): ready = ≥40 closed OR 4 quarters; PROMOTE = expectancy>+0.10R AND MaxDD>−25%; KILL = Sharpe<0; HALT = MaxDD≤−50%; Sharpe/MaxDD computed from the recomputed NAV CSV | bhanushali_review_scorecard.py:30-36, 51-75 | Mechanical pre-committed review | DELIBERATE (forward/prereg.md §4/§8/§10.2) | n/a | Inherits I1/I2's NAV fragility; gates evaluated on a mutable curve |
 | I5 | Analytics: win = R>0; avg_r, win_rate from closed ledger only | cron:363-371 | Envelope stats | INCIDENTAL (R>0 counts a +0.001R scratch as a win) | Same convention as research prints | — |
@@ -171,7 +188,11 @@ divergences are in **data, universe, and the switched-on owner overlays**.
 
 ---
 
-## 2. THE DIVERGENT LIST (highest-value finds — no fixes applied; each is a mid-quarter change decision)
+## 2. THE DIVERGENT LIST — **9 → 6 open** after the 2026-07-29 remediation
+
+**Closed with receipts:** ~~D2~~ (append-only archive + drift log, `7e016b9`), ~~D5~~ (card/record
+parity, `66491e3`), and the B-1 bug behind D-class NAV flattery (`d3b4d5e`). Their entries are kept
+below, struck through, because a divergence that was once real is part of the record.
 
 > Direction key: *flatters backtest* = the certified/recorded number looks better than live reality
 > would; *flatters live record* = the modeled forward book looks better than the owner's real book.
@@ -185,7 +206,13 @@ class). Additionally, post-snapshot index entrants can never generate live signa
 unmeasured live-side drag/gain. *Acknowledged in code; the snapshot's refresh cadence is not
 automated (see M7).*
 
-**D2 — The forward record is mutable: every Saturday rewrites the whole book from inception off refreshed data.**
+**~~D2~~ — CLOSED (`7e016b9`). The forward record is mutable: every Saturday rewrites the whole book from inception off refreshed data.**
+*Resolution:* recomputation still happens (that is the design), but each run now archives a
+write-once dated snapshot with an input fingerprint and logs restatements/vanishings against the
+previous snapshot, so a rewritten past is an attributable event. Baseline
+`results/archive/2026-07-24/`. **Residual owner action:** the Oct-1 gates must be pointed at a named
+snapshot — `bhanushali_review_scorecard.py` still reads the mutable working copy (binder §0).
+Original finding below.
 Mechanism: cron:12 (docstring flags it as the finding-0035 TODO) + I2. yfinance history drift is
 documented in-repo (ohlcv.py:330-335: identical commands produced CAGR 14.2/15.6/16.25). A
 corporate-action re-adjustment or data revision can change PAST weekly bars → different past
@@ -211,7 +238,13 @@ model, not the money. Worst case: **flatters the live record** whenever the owne
 is worse than the model's Monday-open fiction (the measured execution-decay that motivated the
 decision memos, E7). The two-equity-curves problem, live.
 
-**D5 — Card prices ≠ book prices for the SAME trade.**
+**~~D5~~ — CLOSED (`66491e3`). Card prices ≠ book prices for the SAME trade.**
+*Resolution:* the card now prices off `_record_stop()` — the engine's own
+`max(week_low, entry×(1−max_risk_pct))` read from `LIVE_DISCIPLINE`, not a hard-coded copy — and the
+target plus every exit tranche derive from it; the raw low is kept as `stop_week_low`, and a fill the
+engine's `ext_cap` would refuse is flagged `record_would_skip_as_extended`. Pinned as a relationship
+(not a snapshot) in `tests/test_swing_card_record_parity.py`, with a permanent golden receipt showing
+the closed gap (MIKEX: risk 14.13%→10.00%, target 4744.28→4438.56). Original finding below.
 Mechanism: the buy card prints entry = current close (or band midpoint), stop = signal-week
 low, target = card-entry + 2×card-R (cron:229-237). The book fills at next week's first
 in-range OPEN with stop = max(low, 0.9×entry) (R94:759, 821-822). An owner following the card
@@ -253,13 +286,13 @@ Menu only; nothing was run this session.)*
 
 | Rank | Row | Why it could matter | The free diagnostic |
 |------|-----|---------------------|---------------------|
-| M1 | C7 — no golden master for the R94 engine (the byte-identical claims are comment-discipline only) | The momentum path's engine invariant is enforced by `tests/test_stage2_golden.py`; the swing engine's "default OFF ⇒ byte-identical" claims are enforced by nothing | Freeze one committed reference run (ledger CSV sha) of `backtest()` all-defaults on the pinned dataset; assert byte-equality in CI — pure harness, no new information |
-| M2 | G6 — no time cap of any kind (52-week backstop silently absent under P) | Indefinite holds concentrate the book in aging names; the cron docstring still advertises a backstop that doesn't exist | On the EXISTING 0094-P ledger/state: distribution of `held_weeks`; count positions that would have hit a 52-week backstop; max concurrent age |
+| ~~M1~~ | ✅ **DONE** (`1170470`) — `tests/test_r94_golden.py` pins the frozen-0094 cell, the live cell, the B-1 fix diff, and the card arithmetic on a hermetic synthetic fixture | — | — |
+| ~~M2~~ | ✅ **DONE** — [m2_hold_age.md](m2_hold_age.md). Median 18w, max **201w**, 13.8% past a year; mean R **monotonic** in hold (−1.72R → +18.71R); longest decile = **64.3% of total R**; survivorship correction *strengthened* the tail | **Changed a recommendation:** a 52-week cap would cut the only profitable cohort | — |
 | M3 | F1 — strict band boundaries + open-only fill | Fills lost to a one-tick boundary or to weeks where price traded inside the band but never OPENED inside it | On the existing uncapped ledger + cache: count signal-weeks where no open landed in-band but some LOW did; count opens within 0.1% of a band edge |
 | M4 | F4 — alphabetical tie-break; cash-cap fill ordering | Deterministic but arbitrary preference when CRS ranks tie or cash is short | On the existing paper ledger: how many entry days had `skipped_cash > 0`; re-sort those days' candidates by ticker-reversed order and diff the fill set (pure replay of one rule) |
 | M5 | G5 — stop never moves (no breakeven after tp1) | Post-2R givebacks ride to the full initial stop; the taught rule's giveback profile was the exit forensic's main finding | On the existing ledger: among trades that booked tp1 then exited `stop_part`/`sma_break`, compute R lost below breakeven — a column arithmetic pass |
-| M6 | B8 — no demerger/bad-tick guard on the swing path | One value-leaving demerger mid-hold fabricates a stop/sma_break or an entry touch | Run `demerger_suspect_names` (existing function, ohlcv.py:245) over the live cache and intersect with current cards/holds — read-only scan |
-| M7 | B10/B1 — membership CSV + NIFTY_500 snapshot refresh cadence (manual; last 2026-06-29) | Sept semi-annual rebalance lands BEFORE the Oct-1 review; removed names keep trading, added names invisible | Diff `NIFTY_500` + membership actives against the current NSE constituent list (one download, no engine touch) |
+| ~~M6~~ | ✅ **DONE** — [m6_demerger_scan.md](m6_demerger_scan.md). 2 suspects (SKFINDIA, VEDL), **neither** in the book or on a card; both already in the committed reference | **CLEAR**, but latent: the reference is manually curated and the swing engine has no quarantine hook | Follow-on: run the scan as a standing cron step |
+| ~~M7~~ | ✅ **DONE** — [m7_universe_freshness.md](m7_universe_freshness.md). Symmetric **48/48** gap; the 48 active-but-unsnapshotted names **can never signal live**; sentinel handling verified sound (500 rows, parsed) | Snapshot is 12 months stale, membership 1 month | Owner door D1; refresh before the Sept rebalance |
 | M8 | B7 — the 300-bar prep floor as a universe rule | Names appear the week they cross 300 bars, with exactly-warm SMA windows | Count cache names within 250–350 bars today; check whether any current card is within 10 weeks of its own warm-up edge |
 | M9 | B4 — ADJ_JUMP 0.5% threshold + monthly rebuild | Sub-threshold dividend drift accumulates inside a month | Histogram overlap-close shifts from one warm refresh (the guard already computes them; log instead of discard) |
 | M10 | A6 — `NSE_HOLIDAYS` ends 2026 | 2027 Jan/Apr review dates could mis-place the "first trading day"; the cleaner's phantom-bar drop (unused here) also stales | Eyeball: add-2027-list decision at the Oct review; zero-compute |
@@ -272,7 +305,15 @@ Menu only; nothing was run this session.)*
 
 ## 4. Outright broken (bug, not convention) — reported, NOT fixed (live-path changes are quarterly-review class)
 
-**B-1 (HIGH, latent): absent-bar positions are unmanageable and marked at ENTRY price.**
+**~~B-1~~ — FIXED (`d3b4d5e`, census `0c7e490`).** Census first: **zero instances in the book's
+entire history**, ₹0.00 NAV flattery — so the fix landed with a provably zero diff on the record.
+Fix: `stale_absent_days`, mirroring the momentum engine's `STALE_ABSENT_DAYS` (10) by importing the
+same constant; after N absent sessions the holding force-closes at its **last traded price**
+(reason `stale`), and NAV marks to last-traded rather than entry. cfg-gated (default OFF ⇒ frozen
+0094 byte-identical), ON in the live cron. The golden pins pre-fix behaviour, post-fix behaviour, and
+asserts the diff touches **only** the stale position. Original finding below.
+
+**B-1 (as originally found — HIGH, latent): absent-bar positions are unmanageable and marked at ENTRY price.**
 [run_bhanushali_weekly_rank.py:412-414](../../scripts/run_bhanushali_weekly_rank.py) skips all
 exit logic when a held ticker has no bar today (`i is None → continue`), and
 [line 864](../../scripts/run_bhanushali_weekly_rank.py) marks such names at `p["en"]` — the
@@ -285,7 +326,16 @@ nq/engine/portfolio.py:43); the swing engine has none. Evidence is the code itse
 instance was checked (that would mean reading the book's state). *Decision needed: a
 stale-absent policy for the swing engine — quarterly-review class since it touches the engine.*
 
-**B-2 (LOW, doc rot that misstates the live exit): the cron docstring and constants describe the wrong engine and a nonexistent backstop.**
+**B-2 — DOC HALF FIXED (`7e016b9`); SUBSTANCE IS AN OWNER DOOR.** The docstring now states what
+actually runs (R94 + `LIVE_DISCIPLINE` + config P + the staleness guard) and that there is **no time
+cap of any kind**; `HOLD_DAYS_DISPLAY` is labelled a card hint that bounds nothing. The missing cap
+itself was **not** changed. [M2](m2_hold_age.md) since measured the consequence and **reversed the
+provisional recommendation**: mean R rises monotonically with hold (0–4w −1.72R … >104w +18.71R) and
+the longest decile earns 64.3% of total R, so reinstating the 52-week backstop would truncate the
+book's entire positive expectancy. Binder item 2 now recommends adopting an explicit no-cap policy
+and attacking the *short*-hold loss cohort instead. Original finding below.
+
+**B-2 (as originally found — LOW, doc rot that misstates the live exit): the cron docstring and constants describe the wrong engine and a nonexistent backstop.**
 [run_bhanushali_cron.py:3-4](../../scripts/run_bhanushali_cron.py) says the cron re-runs
 "prep_weekly_sma + weekly_full.backtest (finding 0034)" — it actually runs
 `R94.prep_weekly_rank` + `R94.backtest` (lines 568-580). Line 42-43's held-card copy

@@ -46,7 +46,12 @@ book has **no time cap** (item 2 below) — the maximum-exposure configuration. 
 compound.
 
 **Freshly relevant:** the September semi-annual NSE rebalance lands **before** the Oct-1 review.
-M7 below quantifies today's gap.
+[M7](m7_universe_freshness.md) quantifies today's gap: a symmetric **48-name** difference in each
+direction. The 48 currently-active names absent from the snapshot **can never produce a live
+signal** (the snapshot is the scan universe; membership only masks it); the 48 stale snapshot names
+are correctly blocked from entry but nothing forces an exit if a name leaves the index **while
+held** — and M2 measures holds up to 201 weeks, spanning four rebalances. Sentinel handling was
+verified sound (500 active rows on the `2030-12-31` marker, parsed correctly).
 
 **Doors:** (a) refresh the snapshot + membership on a fixed cadence tied to NSE rebalances;
 (b) switch the live universe to `build_universe("union")` so current members are included without
@@ -60,14 +65,24 @@ baseline re-anchor (CLAUDE.md data-debt note), so it is a quarterly-review-class
 reachable. Holds are unbounded above. The docstring that claimed otherwise was corrected in
 `d3b4d5e`-series work; the **behaviour** is untouched, by design.
 
-**Exposure.** Unbounded holds are exactly the configuration where D1's stale-universe survivorship
-bias is largest (0025). M2 below reports the realised hold-age distribution.
+**Exposure.** Unbounded holds are the configuration where D1's stale-universe exposure bites
+hardest (0025). [M2](m2_hold_age.md) now measures the realised distribution.
 
-**Doors:** (a) reinstate the 52-week backstop that silently vanished with the P swap (restores the
-documented intent, smallest change); (b) adopt an explicit no-cap policy and delete the card's
-`HOLD_DAYS_DISPLAY` fiction; (c) route a cap variant to the forward wall rather than deciding
-in-sample. **Recommendation: (a)** — it re-establishes what the decision record already claimed,
-without a new lever.
+**⚠ Recommendation CHANGED by M2 — a cap would cut the only profitable cohort.** On the corrected
+universe, live config P: median hold 18w, mean 27w, **max 201 weeks**, 13.8% of trades past a year.
+Mean R rises **monotonically** with hold — 0–4w **−1.72R**, 5–13w **−0.75R**, 14–26w +0.87R,
+27–52w +2.41R, 53–104w **+9.08R**, >104w **+18.71R** — and the longest decile earns **64.3% of the
+book's total R**. The survivorship correction *raised* the tail's mean R rather than deflating it,
+so the tail is not a survivorship artifact.
+
+**Doors:** (a) ~~reinstate the 52-week backstop~~ — **withdrawn**: it would truncate the 18 trades
+carrying the book's entire positive expectancy; (b) **adopt an explicit no-cap policy** and delete
+the card's `HOLD_DAYS_DISPLAY` fiction (the docstring is already corrected); (c) attack the *other*
+end instead — the first two hold buckets are 39% of trades at negative mean R, which is the existing
+M5 / early-cut question, not a new lever. **Recommendation: (b), and treat (c) as the live exit
+question worth the next free diagnostic.** Note the caveat M2 states: the corrected universe fixes
+*survivorship*, not *membership staleness* — a 201-week hold spans four semi-annual rebalances, so
+this decision and D1 should be taken together.
 
 ## 3. D3 — the live config is not the certified config *(owner's recorded override)*
 
@@ -96,9 +111,15 @@ so the distinction is mechanically enforced rather than remembered.
 
 * **M1 — done.** R94 golden master exists (`tests/test_r94_golden.py`), pinning the frozen 0094 cell,
   the live cell, the B-1 fix diff, and the card arithmetic.
-* **M5** (post-tp1 giveback: the stop never moves under config P) and **M11** (mark-to-market
-  compounding of the 2% risk base) remain unexamined and are the two highest-value free diagnostics
-  left; both are column arithmetic on the existing ledger.
+* **M2 / M6 / M7 — done**, reports committed ([M2](m2_hold_age.md), [M6](m6_demerger_scan.md),
+  [M7](m7_universe_freshness.md)). M2 changed a recommendation (item 2); M6 and M7 found no live
+  breakage but both surface standing exposures.
+* **M5** (post-tp1 giveback: the stop never moves under config P) is now the **highest-value**
+  diagnostic left — M2 shows the loss is concentrated in short holds, and M5 measures the giveback
+  mechanism directly. **M11** (mark-to-market compounding of the 2% risk base) is second. Both are
+  column arithmetic on the existing ledger; neither spends a trial.
+* **M6 follow-on:** add the demerger scan as a standing read-only cron step so a suspect entering
+  the book is flagged while the quarantine decision stays open (seconds, zero risk).
 * **M9 / M13 / M14** unchanged from the constitution's ranking.
 * **M10** — `NSE_HOLIDAYS` ends 2026-12-25, so the 2027 Jan/Apr review dates cannot be computed
   correctly. **Add the 2027 list at the Oct-1 review** (zero-compute, but it blocks the review-date
