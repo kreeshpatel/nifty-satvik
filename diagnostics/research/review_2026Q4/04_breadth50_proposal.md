@@ -11,6 +11,12 @@
 — dry-run validated 2026-07-29 (50 names, both weight vectors sum to 1.000000, tilt bounds asserted,
 PIT joins lagged >= 0 with the 10d staleness cap, all event flags pre-announced).
 
+**PROVENANCE.** The dry run reads three mortal vendor artifacts, now pinned in
+[`dataset-pin-20260729`](https://github.com/kreeshpatel/nifty-satvik/releases/tag/dataset-pin-20260729):
+`options_oi_pit.parquet` (`d675a451…`), `_delivery_raw.parquet` (`7a20ec8f…`), `_earnings_raw.parquet`
+(`a2825cd7…`). Fetch commands and full hashes: [§1 provenance block](01_reanchor.md). Do not trust
+local `data/` — fetch and `sha256sum` first.
+
 **EVIDENCE (September fills):**
 - [ ] owner sign-off / decline at the Oct-1 amendment slot
 - [ ] if signed: logging wiring + inception date

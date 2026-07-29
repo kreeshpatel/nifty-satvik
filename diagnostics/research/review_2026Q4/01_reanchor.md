@@ -1,5 +1,54 @@
 # §1 Corrected-universe re-anchor
 
+## PROVENANCE — fetch pinned artifacts, do not trust local state (preserved 2026-07-29)
+
+September must run against **fetched, hash-verified** inputs. Local `data/` is not evidence: the
+vendors are live and restate, and nothing under `/data/*` is in git except the few files noted below.
+
+**Releases**
+- OHLCV pin of record — <https://github.com/kreeshpatel/nifty-satvik/releases/tag/dataset-pin-20260701>
+- September memo inputs — <https://github.com/kreeshpatel/nifty-satvik/releases/tag/dataset-pin-20260729>
+
+| artifact | sha256 | fetch |
+|---|---|---|
+| `data/ohlcv.pkl` | `f8625a8ff6abae06baf4d5c3c10eef2c9bbe98df785248a2b360d7d2a3c52142` | `gh release download dataset-pin-20260701 --pattern 'ohlcv.pkl' --dir data` |
+| `data/ohlcv_backfill.pkl` | `9ebbe448fa52314db998edab0afcc5dee4da807b298ac3f1fe71f4ab70d5d366` | `gh release download dataset-pin-20260729 --pattern 'ohlcv_backfill.pkl' --dir data` |
+| `data/fundamentals_pit_backfill_20260729.pkl` | `f67aeaa1d9c100afdf4f298cb301dd29c410a20fc91735f052b4b1b8a2dc2f0d` | `gh release download dataset-pin-20260729 --pattern 'fundamentals_pit_backfill_20260729.pkl' --dir data` |
+| `data/options_oi_pit.parquet` | `d675a4514bfb41518626827f4cedf32ac1b0c6f126756824b55f9a247aed485c` | `gh release download dataset-pin-20260729 --pattern 'options_oi_pit.parquet' --dir data` |
+| `data/_delivery_raw.parquet` | `7a20ec8f1d824e36682644169e3de956275894bf374fae0e8f5df1b87cf3b3d0` | `gh release download dataset-pin-20260729 --pattern '_delivery_raw.parquet' --dir data` |
+| `data/_earnings_raw.parquet` | `a2825cd73e85a6787bf2f5e5106a1580f9ca70339c660ebb37adb5ff1a0458ff` | `gh release download dataset-pin-20260729 --pattern '_earnings_raw.parquet' --dir data` |
+
+Verify any of them with `sha256sum <path>` before running.
+
+**Round-trip verified 2026-07-29.** The local backfill artifact was moved aside, the asset downloaded
+fresh from the release, hash-re-matched, and the anchor re-run against the fetched copy:
+
+```
+local artifact replaced by RELEASE-FETCHED copy:
+f67aeaa1d9c100afdf4f298cb301dd29c410a20fc91735f052b4b1b8a2dc2f0d
+fund store: base 654 | +alias-aware 669 | +backfill 724
+  corrected + alias + backfill: done (1337 trades)
+corrected + alias + backfill   0.737   17.11    -49.6            13.49
+POINT ESTIMATE  dSharpe +0.070 | dCAGR +1.64pp | dMaxDD -3.3pp
+```
+
+The pinned copy reproduces the point estimate exactly. September can therefore work from the release
+alone, with no dependence on this machine's `data/` directory.
+
+**Durable in git — cite the commit, no fetch needed** (pin: commit `f19a1e2`, branch
+`research/selection-funnel-and-noise-floor`): `data/delisted_alias_map.json` ·
+`data/fundamentals_pit_screener.pkl` (the 654-name base store) · `data/nifty500_membership.csv` ·
+`data/ohlcv_backfill_manifest.json` · `research/baseline_v1.json` · `forward/prereg.md` ·
+`forward/prereg_swing.md` · `diagnostics/research/{alias_census,swing_alias_census,lh_anchor_resolved,lh_solvency_bracket}.json`
+· `diagnostics/research/fundamentals_backfill_coverage_20260729.json` · the D2 append-only record
+under `results/archive/`.
+
+**Derived, deliberately unpinned** — byte-deterministic outputs of committed code over pinned inputs,
+so no vendor is involved in regenerating them: `data/weekly_panel.parquet` (from `ohlcv.pkl`) and
+`research/exports/ohlcv_corrected_long.{csv,parquet}` (from `ohlcv.pkl` + `ohlcv_backfill.pkl`).
+
+---
+
 **Pre-committed criterion (CLAUDE.md, the 0025 data-debt clause, verbatim):**
 > "Finding 0025 measured the bias: **it scales with holding period** (−0.04 Sharpe tight-stop vs −0.18
 > wide-stop swing configs) → the 63d-hold **baseline_v1 0.667 is exposed in the same direction; its
