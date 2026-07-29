@@ -83,7 +83,8 @@ def main() -> int:
         if "period_end" not in fr.columns:
             bad.append((t, "no period_end"))
             continue
-        lag = (pd.to_datetime(fr.index) - pd.to_datetime(fr["period_end"])).days
+        lag = (pd.to_datetime(pd.Series(fr.index.values))
+               - pd.to_datetime(fr["period_end"]).reset_index(drop=True)).dt.days
         if (lag < ANNUAL_REPORTING_LAG_DAYS).any():
             bad.append((t, f"available_date lag < {ANNUAL_REPORTING_LAG_DAYS}d"))
     print(f"\nPIT check: {len(got) - len(bad)}/{len(got)} frames satisfy "

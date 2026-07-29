@@ -1,9 +1,10 @@
 # Work order — fundamentals backfill for the recovered-delisted names (LH solvency gate)
 
-**Status: AWAITING OWNER SIGN-OFF.** Produced 2026-07-29 by the pre-committed decision rule in the
-solvency-bracket diagnostic (below). Nothing harvested yet. If signed, the harvest runs in August so
-the backfill feeds September's memo of record; if declined, September's memo carries the bracket as a
-stated methodological limitation instead.
+**Status: SIGNED OFF AND EXECUTED 2026-07-29.** Probe passed, harvest banked, bracket resolved to a
+point estimate. Outcome summary at the end of this file (§5); the binder's §1 stub carries the
+decision items. Two of this order's premises were corrected before execution — see §5.
+
+Original framing (retained for the record):
 
 Counts at production: screens 11 · sealed opens 1 · n_trials 138 (this diagnostic spent none).
 
@@ -43,7 +44,12 @@ precisely the assumption the highly-levered failures in the list would break. **
 inside the bracket, and the D/E data is exactly what decides where.** That is the whole case for the
 backfill: not that the number is wrong, but that we currently cannot tell.
 
-## 2. The defect found underneath the flag (report, not fixed — decision-shaped)
+## 2. ~~The defect found underneath the flag~~ — **WITHDRAWN 2026-07-29, see §5**
+
+> **This entire section is wrong and is retained only for the record.** The alias map holds 17
+> entries, not 2 (the count read the container object). The byte-identical pairs are those aliases
+> materialized deliberately. PIT membership windows are disjoint for 17/17, so no double-counting is
+> possible, and no re-cut was performed. Do not act on anything below this line.
 
 The corrected universe **double-counts 16 companies**. A duplicate screen (md5 of the rounded close
 series) finds 16 groups where a "recovered" ticker is the **old symbol of a company still listed
@@ -148,3 +154,58 @@ consistent effect (−36 → −42 on both windows).
 Separately: **corrected-universe swing = 1.132 Sharpe / 255 trades reproduces the live 0094 golden
 master exactly**, confirming the live swing book already runs on the corrected universe. Only the LH
 book is pinned to the survivor cache — which is why this conflation bites there and nowhere else.
+
+---
+
+## 5. EXECUTION OUTCOME (2026-07-29)
+
+### Two premises corrected before harvesting
+1. **The alias map was never incomplete.** It holds **17** entries, not 2 — the earlier count read
+   the container object (`_readme` + `aliases`). `scripts/diag_alias_census.py` confirms with a
+   constant-ratio scan: **17 pairs found, 17 already mapped, ZERO novel.**
+2. **There is no double-counting.** PIT membership windows are **disjoint for 17/17** pairs, so one
+   company can never occupy two of the fifteen slots. The byte-identical series are the mapped
+   aliases materialized on purpose. **No re-cut was performed** — the swing census shows a naive
+   re-cut would *cost* −0.158 Sharpe by deleting legitimate PIT history under the old name.
+
+Consequently the §2 "defect" in this order is **withdrawn**, and the +0.178 it attributed to
+contamination is re-explained: renamed-but-alive companies whose fundamentals sit under the successor
+symbol, reachable by an **alias-aware join** rather than a harvest. 13 of the 17 needed no vendor
+data at all.
+
+### Probe (stop-clause)
+First run reported 0/10 and a triggered stop-clause — that was a **probe bug** (it passed page HTML
+to a parser expecting parsed P&L/balance-sheet frames), not vendor absence. Corrected, the probe
+**PASSES**: failures 2/4 (JETAIRWAYS 11 periods, MANPASAND 2) vs others 4/6. Failure coverage is
+comparable to the rest, so the harvest is not survivor-skewed and the stop-clause does not bind.
+
+### Harvest (`scripts/harvest_fundamentals_backfill.py`, artifact `fundamentals_pit_backfill_20260729.pkl`)
+- targets 90 = 86 non-alias recovered + 4 alias successors (ALIVUS, SAMMAANCAP, LMW, PGHL)
+- **57/90 with usable rows · 52 with ≥1 D/E period · 621 periods recovered**
+- **PIT check 57/57** satisfy `available_date >= period_end + 90d` (the script REFUSES to write on
+  any violation)
+- **failure-class names: 9/14 with D/E (64%)** — the survivor-skew the stop-clause guards against did
+  not materialise
+- vendor has nothing for 32 (20 no page, 12 empty) — these **remain gate-excluded** and the memo must
+  say so: `8KMILES AKZOINDIA DHFL GEPIL GET&D GUJFLUORO HEXAWARE HSIL IBVENTURES INFIBEAM ITDCEM
+  JCHAC LTI LTIM MFL RNAVAL SEQUENT SWANENERGY TATASPONGE TIFIN` (no page) and `BHARATFIN DENABANK
+  GSKCONS HEMIPROP KIOCL LAKSHVILAS ORIENTBANK PGHL TATAMTRDVR TCNSBRANDS TMB VIJAYABANK` (empty)
+- pin untouched; artifact is dated and sits under the repo's `/data/*` ignore
+
+### The bracket, resolved (`--resolved`, report `lh_anchor_resolved.json`)
+| arm (real gate, no waiver) | Sharpe | CAGR % | MaxDD % |
+|---|---|---|---|
+| pinned (`baseline_v1`) | 0.667 | 15.47 | −46.3 |
+| corrected AS-IS | 0.667 | 15.47 | −46.3 |
+| corrected + alias-aware | 0.662 | 15.14 | −45.2 |
+| **corrected + alias + backfill** | **0.737** | **17.11** | **−49.6** |
+
+**Point estimate ΔSharpe +0.070 · ΔCAGR +1.64pp · ΔMaxDD −3.3pp.** Bounds +0.202/+0.024 retired.
+67 of 104 recovered names now carry D/E; **21 passed the gate, 46 were rejected on their real balance
+sheets** — the conflation is resolved in the direction it was supposed to be. The correction is
+**mixed-signed**: better Sharpe/CAGR, worse drawdown. Conditioned on 67/104 coverage.
+
+### Open owner doors (September)
+1. Re-anchor the pin to 0.737 / −49.6, or keep 0.667 / −46.3 with a stated caveat.
+2. Whether the alias-aware fundamentals join graduates from harness-side composition
+   (`run_corrected_anchor.resolved_store`) into `nq/**` — an engine change with its own golden gate.

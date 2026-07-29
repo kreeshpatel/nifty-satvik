@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import pickle
 import sys
 from pathlib import Path
 
@@ -60,7 +61,29 @@ def metrics(r: pd.Series) -> dict:
             "per_year_%": per_year}
 
 
-def lh_book(ohlcv, start, end, waive_de_for: set[str] | None = None
+def resolved_store(base: dict, backfill_path: Path | None, alias_aware: bool) -> dict:
+    """Compose the fundamentals store the gate will see. Pure data-side composition through the
+    existing ``fund_store`` parameter — NO nq/** change, engine untouched.
+
+    ``alias_aware``: an alias old-symbol with no fundamentals inherits its SUCCESSOR's frame. Same
+    company, same balance sheet; the OHLCV layer already resolves this pair via the alias map, the
+    fundamentals lookup simply never did. Never overwrites an existing frame.
+    """
+    store = dict(base)
+    if backfill_path and backfill_path.exists():
+        with open(backfill_path, "rb") as f:
+            store.update(pickle.load(f))
+    if alias_aware:
+        amap = json.load(open(ROOT / "data" / "delisted_alias_map.json"))["aliases"]
+        for old, spec in amap.items():
+            src = store.get(spec["to"])
+            if src is not None and len(src) and (store.get(old) is None or not len(store.get(old))):
+                store[old] = src
+    return store
+
+
+def lh_book(ohlcv, start, end, waive_de_for: set[str] | None = None,
+            fund_store: dict | None = None
             ) -> tuple[pd.Series, pd.DataFrame]:
     """LH base run -> (daily returns, trades). ``waive_de_for``: tickers that skip the solvency
     gate (recovered-names bracket arm) via a runtime wrap of the panel-module mask — restored in
@@ -73,7 +96,8 @@ def lh_book(ohlcv, start, end, waive_de_for: set[str] | None = None
         panel_mod.solvent_universe_mask = waived
     try:
         panel = compose_ranked_panel(compute_all_features(ohlcv), ohlcv,
-                                     fund_store=load_fund_store(), membership=load_membership())
+                                     fund_store=fund_store if fund_store is not None
+                                     else load_fund_store(), membership=load_membership())
     finally:
         panel_mod.solvent_universe_mask = orig
     panel["date"] = pd.to_datetime(panel["date"])
@@ -98,10 +122,13 @@ def bracket(start: str, end: str) -> int:
     recovered = set(corrected) - set(pinned)
     print(f"universes: pinned {len(pinned)} | corrected {len(corrected)} | recovered {len(recovered)}")
 
-    # Duplicate-entity screen: some "recovered" tickers are the OLD symbol of a company still
-    # listed under a NEW symbol already in the pinned universe (byte-identical close series, e.g.
-    # MERCK==PGHL, ZOMATO==ETERNAL). Waiving the gate for those double-counts one company across
-    # two tickers competing for the same top-15 slots — contamination, not survivorship recovery.
+    # Alias-old-symbol screen. NOTE (corrected 2026-07-29 by scripts/diag_alias_census.py): these
+    # byte-identical pairs are the 17 MAPPED aliases being materialized on purpose (old symbol ->
+    # successor's series), NOT unreconciled duplicates. PIT membership windows are disjoint for
+    # 17/17, so one company can never occupy two slots and arm (b) is NOT "contaminated" in the
+    # double-counting sense. Arm (c) is retained only as the narrower reading of the bound — the
+    # gap between (b) and (c) is renamed-but-alive companies whose fundamentals live under the
+    # successor symbol, which --resolved fixes properly via an alias-aware fundamentals join.
     fp: dict[str, list[str]] = {}
     for t, df in corrected.items():
         if df is None or len(df) == 0:
@@ -178,15 +205,83 @@ def bracket(start: str, end: str) -> int:
     return 0
 
 
+def resolved(start: str, end: str, stamp: str) -> int:
+    """Phase-4: the bracket resolved to a POINT ESTIMATE. The gate now judges the recovered names
+    on their real balance sheets instead of on absence — no waiver anywhere in this function."""
+    print(f"=== corrected anchor, fundamentals RESOLVED [window {start}..{end}] ===")
+    pinned = load_ohlcv_cache(OHLCV_CACHE)
+    corrected = corrected_universe()
+    base = load_fund_store()
+    bf = ROOT / "data" / f"fundamentals_pit_backfill_{stamp}.pkl"
+    s_alias = resolved_store(base, None, alias_aware=True)
+    s_full = resolved_store(base, bf, alias_aware=True)
+    print(f"fund store: base {len(base)} | +alias-aware {len(s_alias)} | +backfill {len(s_full)} "
+          f"(backfill artifact: {bf.name if bf.exists() else 'MISSING'})")
+
+    arms = {}
+    for name, oh, st in (("pinned (baseline_v1)", pinned, base),
+                         ("corrected AS-IS", corrected, base),
+                         ("corrected + alias-aware", corrected, s_alias),
+                         ("corrected + alias + backfill", corrected, s_full)):
+        r, tr = lh_book(oh, start, end, fund_store=st)
+        arms[name] = (metrics(r), tr)
+        print(f"  {name}: done ({len(tr)} trades)")
+
+    t = pd.DataFrame([{"arm": k, **m} for k, (m, _) in arms.items()])
+    print("\n=== RESOLVED ANCHOR TABLE (no waiver — real gate on real data) ===")
+    print(t.drop(columns=["per_year_%"]).to_string(index=False))
+    print("\nper-year:")
+    for k, (m, _) in arms.items():
+        print(f"  {k}: {m.get('per_year_%')}")
+
+    m0 = arms["corrected AS-IS"][0]
+    mf = arms["corrected + alias + backfill"][0]
+    print(f"\nPOINT ESTIMATE  dSharpe {mf['sharpe']-m0['sharpe']:+.3f} | "
+          f"dCAGR {mf['cagr_%']-m0['cagr_%']:+.2f}pp | dMaxDD {mf['maxdd_%']-m0['maxdd_%']:+.1f}pp"
+          "   (retired bounds: +0.202 naive / +0.024 dedup)")
+
+    # which recovered names now enter, and how the real gate judged them
+    recovered = set(corrected) - set(pinned)
+    tr_f = arms["corrected + alias + backfill"][1]
+    rec_tr = tr_f[tr_f["ticker"].isin(recovered)] if len(tr_f) else tr_f
+    print(f"\nrecovered names entering the book on REAL fundamentals: "
+          f"{len(rec_tr)} trades of {len(tr_f)}")
+    if len(rec_tr):
+        by = rec_tr.groupby("ticker").agg(n=("ticker", "size"), days=("days_held", "sum"),
+                                          pnl=("pnl", "sum")).sort_values("days", ascending=False)
+        print(by.head(25).to_string())
+    admitted = sorted(set(rec_tr["ticker"])) if len(rec_tr) else []
+    have_de = {t_ for t_ in recovered
+               if s_full.get(t_) is not None and len(s_full[t_])
+               and "debt_equity" in s_full[t_].columns and s_full[t_]["debt_equity"].notna().any()}
+    print(f"\nrecovered with D/E data after resolution: {len(have_de)} of {len(recovered)}")
+    print(f"  of those, PASSED the gate into the book at least once: {len(admitted)}")
+    print(f"  had data but the gate REJECTED them (levered/failed): "
+          f"{len(have_de) - len(set(admitted) & have_de)}")
+
+    rep = {"window": [start, end], "stamp": stamp,
+           "arms": {k: m for k, (m, _) in arms.items()},
+           "recovered_with_de": sorted(have_de), "recovered_admitted": admitted}
+    out = ROOT / "diagnostics" / "research" / "lh_anchor_resolved.json"
+    out.write_text(json.dumps(rep, indent=2, default=float), encoding="utf-8")
+    print(f"\nreport -> {out.relative_to(ROOT)}")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--smoke", action="store_true", help="truncated window: plumbing proof only")
+    ap.add_argument("--resolved", action="store_true",
+                    help="Phase-4: real gate on backfilled + alias-aware fundamentals")
+    ap.add_argument("--stamp", default="20260729", help="backfill artifact stamp")
     ap.add_argument("--bracket", action="store_true",
                     help="LH solvency-gate sensitivity bracket (full window, diagnostic)")
     a = ap.parse_args()
     start, end = ("2019-01-01", "2021-12-31") if a.smoke else ("2017-01-01", "2026-06-30")
     if a.bracket:
         return bracket(start, end)   # --bracket --smoke = cheap print-path exercise, not the answer
+    if a.resolved:
+        return resolved(start, end, a.stamp)
     tag = "SMOKE (truncated — NOT the record)" if a.smoke else "FULL (September's record)"
     print(f"=== corrected-universe anchor harness [{tag}] window {start}..{end} ===")
     mem = load_membership()
