@@ -1,0 +1,27 @@
+{
+  "record": {
+    "sharpe": 1.1319,
+    "trades": 255,
+    "cagr_pct": 24.694
+  },
+  "recut": {
+    "sharpe": 0.9735,
+    "trades": 254,
+    "cagr_pct": 20.762,
+    "names": 797
+  },
+  "concurrency": {
+    "pairs_both_traded": [
+      "ESSELPACK/EPL"
+    ],
+    "clashes": []
+  },
+  "trade_diff": {
+    "lost": 28,
+    "gained": 27,
+    "lost_alias_symbols": [
+      "ESSELPACK",
+      "LAXMIMACH"
+    ]
+  }
+}
