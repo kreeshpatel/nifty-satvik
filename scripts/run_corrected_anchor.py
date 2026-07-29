@@ -9,10 +9,19 @@ STCG 20.8%) — the September memo may refine via the full cost model.
 
     python scripts/run_corrected_anchor.py --smoke          # truncated window (plumbing proof)
     python scripts/run_corrected_anchor.py                  # full window (September's run of record)
+    python scripts/run_corrected_anchor.py --bracket        # LH solvency-gate sensitivity bracket:
+        # full-window LH base on pinned / corrected AS-IS (lower bound) / corrected with the D/E
+        # gate WAIVED for recovered-only names (upper bound — assumes every recovered name would
+        # have passed). The waiver is a runtime wrap of nq.engine.panel.solvent_universe_mask
+        # (orig_mask | ticker in recovered) applied ONLY inside this diagnostic — no nq/** change,
+        # engine untouched. All other filters (membership, ADV, signal) stay intact. Diagnostic for
+        # the review-binder §1 flag; NOT the memo of record.
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
+import json
 import sys
 from pathlib import Path
 
@@ -51,11 +60,25 @@ def metrics(r: pd.Series) -> dict:
             "per_year_%": per_year}
 
 
-def lh_book(ohlcv, start, end) -> pd.Series:
-    panel = compose_ranked_panel(compute_all_features(ohlcv), ohlcv,
-                                 fund_store=load_fund_store(), membership=load_membership())
+def lh_book(ohlcv, start, end, waive_de_for: set[str] | None = None
+            ) -> tuple[pd.Series, pd.DataFrame]:
+    """LH base run -> (daily returns, trades). ``waive_de_for``: tickers that skip the solvency
+    gate (recovered-names bracket arm) via a runtime wrap of the panel-module mask — restored in
+    a finally, so nothing leaks into any other run in the same process."""
+    import nq.engine.panel as panel_mod
+    orig = panel_mod.solvent_universe_mask
+    if waive_de_for:
+        def waived(df, **kw):
+            return orig(df, **kw) | df["ticker"].isin(waive_de_for)
+        panel_mod.solvent_universe_mask = waived
+    try:
+        panel = compose_ranked_panel(compute_all_features(ohlcv), ohlcv,
+                                     fund_store=load_fund_store(), membership=load_membership())
+    finally:
+        panel_mod.solvent_universe_mask = orig
     panel["date"] = pd.to_datetime(panel["date"])
-    return _daily_returns(run_backtest(panel, load_frozen_cfg(), start=start, end=end)["equity_curve"])
+    res = run_backtest(panel, load_frozen_cfg(), start=start, end=end)
+    return _daily_returns(res["equity_curve"]), pd.DataFrame(res["trades"])
 
 
 def swing_book(ohlcv, mem, start) -> tuple[pd.Series, pd.DataFrame]:
@@ -64,11 +87,106 @@ def swing_book(ohlcv, mem, start) -> tuple[pd.Series, pd.DataFrame]:
     return m["ret"].dropna(), pd.DataFrame(led)
 
 
+def bracket(start: str, end: str) -> int:
+    """The §1-flag diagnostic: bound the LH exposure hidden by the D/E data-vs-economics
+    conflation. Lower bound = corrected AS-IS (0 by construction if the identity holds);
+    upper bound = every recovered name passes the gate."""
+    print(f"=== LH solvency-gate sensitivity bracket [window {start}..{end}] ===")
+    mem = load_membership()
+    pinned = load_ohlcv_cache(OHLCV_CACHE)
+    corrected = corrected_universe()
+    recovered = set(corrected) - set(pinned)
+    print(f"universes: pinned {len(pinned)} | corrected {len(corrected)} | recovered {len(recovered)}")
+
+    # Duplicate-entity screen: some "recovered" tickers are the OLD symbol of a company still
+    # listed under a NEW symbol already in the pinned universe (byte-identical close series, e.g.
+    # MERCK==PGHL, ZOMATO==ETERNAL). Waiving the gate for those double-counts one company across
+    # two tickers competing for the same top-15 slots — contamination, not survivorship recovery.
+    fp: dict[str, list[str]] = {}
+    for t, df in corrected.items():
+        if df is None or len(df) == 0:
+            continue
+        h = hashlib.md5(pd.util.hash_pandas_object(df["Close"].round(4), index=True).values).hexdigest()
+        fp.setdefault(h, []).append(t)
+    dup_groups = {h: v for h, v in fp.items() if len(v) > 1}
+    dup_recovered = {t for v in dup_groups.values() for t in v if t in recovered}
+    genuine = recovered - dup_recovered
+    print(f"duplicate-entity groups: {len(dup_groups)} | recovered tickers that are duplicates of a "
+          f"still-listed name: {len(dup_recovered)} | genuinely-recovered: {len(genuine)}")
+
+    arms = {}
+    for name, oh, waive in (("pinned", pinned, None),
+                            ("corrected AS-IS (a)", corrected, None),
+                            ("corrected GATE-WAIVED (b)", corrected, recovered),
+                            ("GATE-WAIVED, dedup (c)", corrected, genuine)):
+        r, tr = lh_book(oh, start, end, waive_de_for=waive)
+        arms[name] = (metrics(r), tr)
+        print(f"  LH base / {name}: done ({len(tr)} trades)")
+
+    t = pd.DataFrame([{"arm": k, **m} for k, (m, _) in arms.items()])
+    print("\n=== LH BRACKET TABLE ===")
+    print(t.drop(columns=["per_year_%"]).to_string(index=False))
+    print("\nper-year:")
+    for k, (m, _) in arms.items():
+        print(f"  {k}: {m.get('per_year_%')}")
+    rep = {"window": [start, end], "n_recovered": len(recovered), "n_dup_recovered": len(dup_recovered),
+           "dup_groups": [v for v in dup_groups.values()],
+           "arms": {k: m for k, (m, _) in arms.items()}}
+
+    ma, mb = arms["corrected AS-IS (a)"][0], arms["corrected GATE-WAIVED (b)"][0]
+    mc = arms["GATE-WAIVED, dedup (c)"][0]
+    for lbl, m2 in (("(b) contaminated", mb), ("(c) dedup — the honest upper bound", mc)):
+        print("\n(a)->{} deltas:  dSharpe {:+.3f} | dCAGR {:+.2f}pp | dMaxDD {:+.1f}pp".format(
+            lbl, m2["sharpe"] - ma["sharpe"], m2["cagr_%"] - ma["cagr_%"],
+            m2["maxdd_%"] - ma["maxdd_%"]))
+    ident = arms["pinned"][0] == ma
+    print(f"pinned == corrected-AS-IS identity on this window: {ident}")
+
+    tr_b = arms["corrected GATE-WAIVED (b)"][1]
+    rec_tr = tr_b[tr_b["ticker"].isin(recovered)] if len(tr_b) else tr_b
+    if len(rec_tr):
+        d = rec_tr[rec_tr["ticker"].isin(dup_recovered)]
+        print(f"\nof (b)'s recovered-name trades: {len(d)} are duplicate-entity tickers "
+              f"({d['days_held'].sum()/5:.0f} name-weeks, pnl {d['pnl'].sum():,.0f}) — contamination")
+    print(f"\n=== RECOVERED NAMES IN THE TOP-15 BOOK UNDER (b) ===")
+    print(f"trades: {len(rec_tr)} of {len(tr_b)} total | "
+          f"name-weeks held (days/5): {rec_tr['days_held'].sum() / 5:.0f}" if len(rec_tr)
+          else "trades: 0 — no recovered name ever entered the book under the waiver")
+    if len(rec_tr):
+        by = rec_tr.groupby("ticker").agg(n=("ticker", "size"), days=("days_held", "sum"),
+                                          pnl=("pnl", "sum")).sort_values("days", ascending=False)
+        print(by.to_string())
+
+    # swing-side full-window consistency check (smoke showed 1.256->1.031; is the direction stable?)
+    print("\n=== SWING FULL-WINDOW CONSISTENCY (vs smoke) ===")
+    for uni, oh in (("pinned", pinned), ("corrected", corrected)):
+        r, led = swing_book(oh, mem, start)
+        r = r[r.index <= end]
+        led = led[pd.to_datetime(led["entry_date"]) <= end] if len(led) else led
+        m = metrics(r)
+        rep.setdefault("swing", {})[uni] = {**m, "n_trades": len(led)}
+        print(f"  swing base / {uni}: sharpe {m['sharpe']} cagr {m['cagr_%']} maxdd {m['maxdd_%']} "
+              f"({len(led)} trades)")
+
+    rep["recovered_in_book_b"] = {
+        "n_trades": int(len(rec_tr)), "n_trades_total": int(len(tr_b)),
+        "name_weeks": round(float(rec_tr["days_held"].sum()) / 5, 0) if len(rec_tr) else 0,
+        "by_name": (by.to_dict("index") if len(rec_tr) else {})}
+    out = ROOT / "diagnostics" / "research" / "lh_solvency_bracket.json"
+    out.write_text(json.dumps(rep, indent=2, default=float), encoding="utf-8")
+    print(f"\nreport -> {out.relative_to(ROOT)}")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--smoke", action="store_true", help="truncated window: plumbing proof only")
+    ap.add_argument("--bracket", action="store_true",
+                    help="LH solvency-gate sensitivity bracket (full window, diagnostic)")
     a = ap.parse_args()
     start, end = ("2019-01-01", "2021-12-31") if a.smoke else ("2017-01-01", "2026-06-30")
+    if a.bracket:
+        return bracket(start, end)   # --bracket --smoke = cheap print-path exercise, not the answer
     tag = "SMOKE (truncated — NOT the record)" if a.smoke else "FULL (September's record)"
     print(f"=== corrected-universe anchor harness [{tag}] window {start}..{end} ===")
     mem = load_membership()
@@ -78,10 +196,10 @@ def main() -> int:
           f"(+{len(set(corrected) - set(pinned))} recovered)")
 
     rows = []
-    for book, fn in (("LH base", lambda u: lh_book(u, start, end)),):
-        for uni, oh in (("pinned", pinned), ("corrected", corrected)):
-            rows.append({"book": book, "universe": uni, **metrics(fn(oh))})
-            print(f"  {book} / {uni}: done")
+    for uni, oh in (("pinned", pinned), ("corrected", corrected)):
+        r, _ = lh_book(oh, start, end)
+        rows.append({"book": "LH base", "universe": uni, **metrics(r)})
+        print(f"  LH base / {uni}: done")
     leds = {}
     for uni, oh in (("pinned", pinned), ("corrected", corrected)):
         r, led = swing_book(oh, mem, start)
