@@ -360,3 +360,139 @@ outage.
 *End of constitution. Nothing in this session was changed, tested, or tuned; screens/trials
 counters are untouched (screens 11, sealed opens 1, n_trials 138). This document is a standing
 Oct-1 binder input; every DIVERGENT item and the B-1 bug are owner decisions, not session fixes.*
+
+---
+
+# Appendix S — Scheduler-layer audit (2026-07-30)
+
+**Session class:** read-only scheduler audit + one mechanical plumbing fix. Zero screens, zero
+trials (counts 11 / 1 / 138 unchanged); forward-wall logs unread; no strategy-behaviour change.
+The constitution above audits what each job does *when triggered*; this appendix audits the
+*triggering* — is every job registered, does it fire on time, and does it fail loudly?
+
+All firing evidence is from GitHub Actions run history (`gh run list`) cross-checked against the
+dated cron commits on `origin/main` and the committed proof-artifacts — never from intention.
+
+## S.1 Inventory — every scheduled job
+
+| # | Job | Host | Trigger spec | Spec TZ → needed | Cadence | Proof artifact |
+|---|-----|------|-------------|------------------|---------|----------------|
+| J1 | **weekly scanner** (cards + record; runs `run_bhanushali_cron.py`, scorecard, D2 archive, blend) | GitHub Actions `cron-bhanushali-scanner.yml` | `30 12 * * 6` | UTC 12:30 Sat → 18:00 IST Sat ✅ | weekly (Sat, post-Friday-close) | `chore(weekly)` commit + `results/*_weekly.*` |
+| J2 | **daily monitor** (re-price frozen cards; runs `run_bhanushali_monitor.py`) | GitHub Actions `cron-bhanushali-monitor.yml` | `45 10 * * 1-5` | UTC 10:45 → 16:15 IST (post-15:30-close) ✅ | weekday | `chore(weekly-monitor)` commit + `results/weekly_monitor.json` |
+| J3 | **forward accumulators** (bulk/block + ratings; `run_forward_accumulators.py`) | piggybacks J2's workflow (step after the monitor) | inherits J2 | inherits J2 ✅ | weekday | `results/forward_accum_health.json` + `bulkblock_forward.csv` / `ratings_forward.csv` |
+| J4 | **review scorecard** (`bhanushali_review_scorecard.py`) | piggybacks J1's workflow | inherits J1 | inherits J1 ✅ | weekly | `results/weekly_review_scorecard.json` |
+| J5 | **D2 archive** (`archive_weekly_snapshot.py`) | piggybacks J1's workflow | inherits J1 | inherits J1 ✅ | weekly | `results/archive/<date>/` |
+| J6 | **blend-hybrid paper** (`run_blend_paper.py`, non-blocking) | piggybacks J1's workflow | inherits J1 | inherits J1 ✅ | `results/blend_hybrid_paper.json` |
+| J7 | **intraday shadow scan** (`run_intraday_scan.py`) | GitHub Actions `cron-intraday-scan.yml` | `0 9 * * 1-5` | UTC 09:00 → **14:30 IST, intent = pre-15:30-close** ⚠ | weekday | `results/intraday_scan/*` |
+| J8 | **Kite session refresh** (`refresh_kite_session.py`) | GitHub Actions `cron-kite-refresh.yml` | `45 0 * * 1-5` | UTC 00:45 → 06:15 IST (post-06:00 expiry) ✅ | weekday | Actions run only (no commit; `contents:read`) |
+| — | CI | GitHub Actions `ci.yml` | push / PR only | n/a | not scheduled | not a cron |
+| — | Fly.io backend | Fly.io `nifty-satvik-api` | always-on (`auto_stop_machines=off`, `min_machines_running=1`) | n/a | **no scheduler** — it *consumes* cron artifacts (reads `generated_at`, computes `cron_health`); the `while True` loops in `main.py` are the WebSocket push loop, not job scheduling | `/health` every 30s |
+| **J9** | **forward-wall log** (3-book hash-chain; `run_paper_cron.py` → `nq.paper.wall_cron.update_wall`, line 152) | **NONE** | **no trigger anywhere in the repo** | — | intended "daily" per CLAUDE.md | **never produced by CI** |
+| — | local OS scheduler | this laptop | checked: `Get-ScheduledTask` + crontab | n/a | **none** — no Task Scheduler entry or crontab references the project | — |
+
+**Timezone verdict:** every spec is written in UTC and every conversion to IST is *correct* for its
+stated intent (IST has no DST, so the offsets are stable). No wrong-TZ spec exists. The one intent
+mismatch (J7) is a *delay* problem, not a TZ problem — see S.3.
+
+## S.2 Firing history — fired / late / missed (evidence, not intention)
+
+Actual scheduled-run start times (UTC) vs spec. GitHub Actions scheduled runs are best-effort and
+queue under load; the measured lag is consistent.
+
+| Job | Spec | Last 8 scheduled firings (UTC) | Verdict |
+|-----|------|-------------------------------|---------|
+| J1 scanner | Sat 12:30 | 07-25 14:08, 07-18 13:56 (+ 2 manual 07-18) | **all fired, ~+1.5h late.** Only 2 scheduled runs — the workflow went live ~07-17, so 07-04/07-11 predate it (not misses). Consecutive Saturdays 07-18, 07-25 present. |
+| J2 monitor | weekday 10:45 | 07-20 12:54, 07-21 12:10, 07-22 12:14, 07-23 12:12, 07-24 12:05, 07-27 13:29, 07-28 12:24, 07-29 12:32 | **8/8 fired, ~+1.5–2.7h late.** No missed weekday. |
+| J3 accumulators | (rides J2) | health file `last_fetch 2026-07-28 21:01`; monitor commits 07-27/28/29 | **fired with J2.** Both feeds' own `stale:false` agrees with the independent commit reconstruction. |
+| J7 intraday | weekday 09:00 | 07-20 11:33, 07-21 10:54, 07-22 10:56, 07-23 10:56, 07-24 10:52, 07-27 12:08, 07-28 11:07, 07-29 11:12 | **8/8 fired, ~+2–3h late → all land 16:2X–17:3X IST, AFTER the 15:30 close.** Fires reliably; its pre-close *purpose* is defeated (S.3). |
+| J8 kite-refresh | weekday 00:45 | 07-20 04:26 … 07-29 03:55 (8/8) | **8/8 fired, ~+3–3.7h late — but every run is a clean no-op SKIP** (`go=false`, "secrets not set"), inert by design. |
+| J9 forward-wall | — | **zero runs, ever** | **NOT SCHEDULED.** |
+
+No job with a live schedule shows an unexplained gap. The only "missing" job is J9, which has no
+schedule to miss.
+
+## S.3 Host-reliability traps
+
+- **GitHub Actions best-effort timing (measured):** every scheduled job runs **~1.5–3.7h after**
+  its spec minute — a documented Actions behaviour, not a bug in our specs. Consequence by job:
+  J1/J2/J8 tolerate it (same-evening / post-expiry windows are hours wide). **J7 does not** — a
+  09:00-UTC spec meant to snapshot the *forming* trend at 14:30 IST fires at 16:2X–17:3X IST, after
+  the close, so it captures a settled bar, not a pre-close one. Since J7 is observational (no
+  strategy action) this is a defeated-purpose flag, not a live risk.
+- **60-day auto-disable:** GitHub disables scheduled workflows after 60 days of *repository*
+  inactivity. J2 (+J3) commit to `main` every weekday, so the repo is never inactive → **auto-disable
+  risk is currently nil.** The subtle coupling: the daily monitor's commits are the *keep-alive* for
+  ALL scheduled workflows. If the monitor stops during a quiet stretch (post-review, no manual
+  commits), the 60-day clock starts for every cron at once. Flagged for the Sep–Oct quiet window.
+- **Local-machine dependence:** none. No job runs on this laptop (S.1), so "laptop asleep at trigger
+  time" cannot silently miss anything today. (It *would* matter if J9 were ever scheduled as a local
+  crontab — it is not scheduled anywhere.)
+- **Fly.io stop/start:** the backend is pinned always-on (`auto_stop_machines=off`), and it schedules
+  nothing, so Fly's stop/start model affects no job.
+- **Overlap / double-run guards:** every workflow sets `concurrency.group` with
+  `cancel-in-progress:false`, so a slow run never overlaps its own next firing. Idempotency under a
+  re-run is by construction: J1/J4/J5/J6 recompute from inception (constitution I2/K3); J3 dedupes on
+  a content key (`run_forward_accumulators._append_dedup`); J5 snapshots are write-once
+  (`archive_weekly_snapshot`, tested). No missing guard found.
+
+## S.4 Failure visibility — the dead-man's-switch question
+
+*If a job silently stops, what tells me, and how fast?*
+
+| Job | Existing alarm | Delivery path | Reaches the owner? |
+|-----|---------------|---------------|--------------------|
+| J1 scanner | dashboard `cron_health` banner (`signals.py`) | dashboard | ⚠ **miscalibrated** — see below |
+| J2 monitor | — | — | ❌ nothing watches the monitor itself |
+| J3 accumulators | `forward_accum_health.json` `stale` flag + 5-session alarm | committed file | ❌ file nobody opens |
+| J5 D2 archive | `drift_log.jsonl` (drift only, not absence) | committed file | ❌ file nobody opens |
+| J9 wall | — | — | ❌ no producer, no alarm |
+
+Two findings:
+
+1. **The one human-facing alarm is miscalibrated for the weekly cadence.** `cron_health`
+   (`signals.py:359-407`) flags `FAILED_TODAY` at 26h and `STALE` at 48h — thresholds written for a
+   *daily* scanner. The live book is *weekly*: `signals_today_weekly.json.generated_at` holds the
+   Friday data date and the monitor never rewrites it, so by Tuesday every week the envelope is
+   >48h old and the banner reads **STALE on a perfectly healthy book**. An alarm that is red most of
+   the week trains the eye to ignore it, and it therefore cannot distinguish a genuinely-missed
+   Saturday scan from normal weekly staleness. The classic broken dead-man.
+2. **Every other freshness signal is a file nobody opens** — the accumulator `stale` flag and the D2
+   drift log are written and committed, never surfaced.
+
+**Fix applied (S.5):** the dead-man reconstruction now rides J2 — the one job proven to fire every
+weekday. **Flagged (S.6):** surfacing it on the dashboard + recalibrating `cron_health` for the
+weekly cadence (both touch the always-on backend serving path).
+
+## S.5 Fixes applied — with receipts
+
+**F-S1 — dead-man scheduler-health reconstruction on the daily heartbeat.**
+New pure module `scripts/scheduler_health.py`: for each scheduled job it reconstructs the last
+firing from that job's committed proof-artifact and flags any job overdue for its own cadence
+(cadence-aware coarse bounds that absorb weekends + the measured Actions delay).
+`run_bhanushali_monitor.py` now calls it (defensively wrapped — a probe fault can never break
+re-pricing) and folds a `scheduler_health` block into `results/weekly_monitor.json`, plus prints a
+one-line status to the Actions log. Because J2 fires every weekday, the reconstruction runs daily on
+a proven heartbeat with **no new service**; if the monitor itself dies, the block's `checked_utc`
+goes stale and a dead heartbeat is visible from one timestamp. The forward wall is reported as a
+static *unscheduled* gap **without reading its log** (no-peek preserved). Tested hermetically in
+`tests/test_scheduler_health.py` (fresh→OK, overdue→OVERDUE, missing→MISSING, wall→unscheduled,
+accumulator prefers `last_fetch_ts` over mtime, garbage never raises). Live offline run confirms the
+block writes and the status line prints.
+
+*Why this is the only mechanical fix:* every scheduled spec is already TZ-correct (S.1); the timing
+lateness is GitHub's best-effort behaviour, not fixable by editing a spec (an earlier spec minute
+does not reduce the queue delay); and the remaining gaps (J9 unscheduled, `cron_health`
+recalibration, dashboard surfacing) change *when the strategy acts* or the *always-on serving path*,
+so they are flagged, not fixed.
+
+## S.6 Flags — owner doors (not fixed)
+
+| ID | Finding | One-line disposition |
+|----|---------|---------------------|
+| **S-F1** | **J9 forward-wall log has no scheduled producer** — `run_paper_cron.py` (→ `wall_cron.update_wall`) is invoked by no workflow; CLAUDE.md calls it the "only certifier … logged daily." | Decide: is the momentum-sleeve wall intentionally dormant (sleeve suspended), or should it be scheduled? If active, it needs a workflow or a droplet crontab — today it runs **never**. |
+| **S-F2** | **`cron_health` banner miscalibrated for the weekly cadence** (26h/48h daily thresholds vs a weekly book whose `generated_at` is the Friday date) → reads STALE mid-week on a healthy book. | Recalibrate to the weekly cadence (healthy if the last Saturday scan is present; let J2's own freshness cover intra-week). Touches the always-on backend serving path → owner door, not a mid-quarter plumbing edit. |
+| **S-F3** | **`scheduler_health` block is produced but not surfaced** — the backend overlays `weekly_monitor.json` onto cards but does not yet read its new block. | One backend line to surface `overall`/attention on the dashboard; pairs with S-F2. |
+| **S-F4** | **J7 intraday scan fires post-close** (~+2h Actions delay defeats the 14:30-IST pre-close intent). | Observational only; if the pre-close snapshot ever matters, move J7 off Actions cron (droplet). No action while shadow-only. |
+| **S-F5** | **D2 archive (J5) is dormant until this branch merges** — the archive step is on `research/selection-funnel-and-noise-floor`, not on `main`; `origin/main`'s scanner has no archive step and `results/archive/` is absent on main. | Snapshots begin only at the next Saturday scan *after* merge. Until then the baseline `2026-07-24` is the only snapshot. |
+| **S-F6** | **J8 kite-refresh is a clean no-op skip** (secrets unset) and, once enabled, would fire ~3.5h after the 06:00-IST token expiry. | Inert today. If enabled, the ~3.5h Actions delay leaves the owner Kite session dark 06:00–~09:30 IST (overlapping the 09:15 open) — run it from the droplet if it matters. |
+| **S-F7** | **60-day auto-disable coupling** — the daily monitor's commits are the keep-alive for every scheduled workflow. | Nil risk while J2 commits daily; the S.5 dead-man now flags a stopped monitor. Revisit if a long no-commit window is planned. |

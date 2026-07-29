@@ -302,10 +302,26 @@ def main(argv=None) -> int:
     ohlcv = _refresh(tickers, not args.no_download)
     monitor = build_monitor(envelope, ohlcv)
 
+    # DEAD-MAN'S SWITCH (scheduler appendix): the daily monitor is the one job proven to fire every
+    # weekday, so it reconstructs every OTHER job's freshness from committed artifacts and folds a
+    # consolidated `scheduler_health` block into its output. Defensively wrapped — a health-probe
+    # fault must never break the core re-pricing. If the monitor itself dies, this block's
+    # checked_utc goes stale and the dead heartbeat is visible from one timestamp.
+    try:
+        from scheduler_health import scheduler_health
+        monitor["scheduler_health"] = scheduler_health(sd)
+    except Exception as exc:  # noqa: BLE001
+        monitor["scheduler_health"] = {"overall": "ERROR", "error": f"{type(exc).__name__}: {exc}"}
+
     (sd / "weekly_monitor.json").write_text(json.dumps(monitor, indent=2, default=str), encoding="utf-8")
     fired = ", ".join(f"{f['event']}:{f['ticker']}" for f in monitor["flags"]) or "none"
+    sh = monitor.get("scheduler_health", {})
+    overdue = [j["job"] for j in sh.get("jobs", []) if j.get("status") != "OK"]
     print(f"weekly monitor: as-of {monitor['as_of']} | {monitor['n_monitored']} cards re-priced | "
           f"{monitor['n_flags']} flags [{fired}] -> {sd / 'weekly_monitor.json'}")
+    print(f"scheduler health: {sh.get('overall', 'n/a')}"
+          + (f" | attention: {', '.join(overdue)}" if overdue else " | all jobs fresh")
+          + f" | unscheduled: {', '.join(u['job'] for u in sh.get('unscheduled', []))}")
     return 0
 
 

@@ -119,6 +119,31 @@ No action requested — this is your override and it stands. It is restated so t
 read 1.132/255 as this book's pedigree. The golden master now pins both configurations separately,
 so the distinction is mechanically enforced rather than remembered.
 
+## 3b. Scheduler layer — findings that touch Sep/Oct operations
+
+Full audit in the constitution's **Appendix S** (2026-07-30). Three items bear on the quiet
+post-review window and on the Oct-1 gate mechanics:
+
+* **The forward-wall log has no scheduled producer (S-F1).** `run_paper_cron.py` (→
+  `wall_cron.update_wall`) is invoked by no workflow, so the 3-book wall CLAUDE.md calls the "only
+  certifier … logged daily" runs **never** via CI. Decide before Oct-1 whether the momentum-sleeve
+  wall is intentionally dormant (sleeve suspended) or must be scheduled — if the Oct-1 review is
+  meant to read wall evidence, the producer has to exist first.
+* **D2 archive is dormant until this branch merges (S-F5).** The Saturday snapshot step is on the
+  research branch, not on `main`; `origin/main`'s scanner has no archive step and `results/archive/`
+  is absent there. The Oct-1 gates are supposed to read a *named snapshot* (binder §0), so **the
+  archive must be on `main` and firing well before Oct-1** — otherwise the only snapshot is the
+  manual baseline `2026-07-24`. Merge to activate.
+* **60-day auto-disable coupling (S-F7).** The daily monitor's commits keep every scheduled workflow
+  alive; a long no-commit stretch over Aug–Sep would start the 60-day auto-disable clock for all
+  crons at once. Risk is nil while the monitor commits daily, and the new dead-man (S.5) now flags a
+  stopped monitor — but do not deliberately pause the monitor over the quiet period.
+
+The one human-facing freshness alarm (`cron_health`) is miscalibrated for the weekly cadence and
+reads STALE mid-week on a healthy book (S-F2); recalibrating it and surfacing the new
+`scheduler_health` block (S-F3) are backend serving-path changes for the review, not mid-quarter
+plumbing edits.
+
 ## 4. Low-rank divergences — one line each
 
 | ID | What | Recommended disposition |
