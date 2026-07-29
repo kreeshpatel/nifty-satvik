@@ -141,6 +141,19 @@ def _sha16(obj) -> str:
     return hashlib.sha256(json.dumps(obj, sort_keys=True, default=str).encode()).hexdigest()[:16]
 
 
+def fixture_csv_sha16(path: Path | None = None) -> str:
+    """SHA-256 (16 hex) of the fixture CSV's NEWLINE-NORMALISED bytes.
+
+    Hashing raw bytes made the golden platform-dependent: with core.autocrlf=true the Windows
+    working tree holds CRLF while git stores — and Linux CI checks out — LF, so the same committed
+    file produced two different digests and CI went red while local was green. Normalising CRLF/CR
+    to LF before hashing makes the digest identical everywhere WITHOUT weakening the check: any real
+    content edit still changes it. (.gitattributes additionally marks the fixture `-text` so future
+    checkouts stop converting at all.)"""
+    raw = (path or OHLCV_CSV).read_bytes()
+    return hashlib.sha256(raw.replace(b"\r\n", b"\n").replace(b"\r", b"\n")).hexdigest()[:16]
+
+
 def _ledger_key(led: list[dict]) -> list:
     return [(r["tkr"], str(r["entry_date"])[:10], str(r.get("exit_date"))[:10],
              str(r.get("reason")), round(float(r.get("R", 0.0)), 3),
@@ -340,7 +353,7 @@ def main() -> int:
                   "regenerate via scripts/build_r94_golden_fixture.py in the SAME commit and "
                   "state the diff. cell live_config_b1_fixed is the same live config with the "
                   "B-1 staleness gate ON; its diff_vs_live_config block IS the fix's receipt."),
-        "fixture_csv_sha16": hashlib.sha256(OHLCV_CSV.read_bytes()).hexdigest()[:16],
+        "fixture_csv_sha16": fixture_csv_sha16(),
         "frozen_defaults": cell_a,
         "live_config": cell_b,
         "live_config_b1_fixed": cell_c,

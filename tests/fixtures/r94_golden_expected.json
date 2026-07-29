@@ -1,6 +1,6 @@
 {
   "_note": "R94 golden master (constitution M1). cell frozen_defaults may NEVER change; cell live_config changes only with a documented owner config change \u2014 regenerate via scripts/build_r94_golden_fixture.py in the SAME commit and state the diff. cell live_config_b1_fixed is the same live config with the B-1 staleness gate ON; its diff_vs_live_config block IS the fix's receipt.",
-  "fixture_csv_sha16": "8d667981b8078128",
+  "fixture_csv_sha16": "6d531e55bc59873c",
   "frozen_defaults": {
     "cagr": 1.313119,
     "curve_hash": "84cc3d09d2c040f0",

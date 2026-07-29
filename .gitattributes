@@ -1,0 +1,14 @@
+# Hash-pinned test fixtures must be byte-identical on EVERY platform.
+#
+# Why this file exists: tests/test_r94_golden.py pins the golden fixture by sha256 of its raw
+# bytes. With core.autocrlf=true (the default on the Windows dev machine) git stores LF in the
+# blob but checks out CRLF in the working tree, while Linux CI checks out LF — so the same
+# committed file hashed to two different digests and the golden went red on CI only. Marking the
+# fixture `-text` disables all end-of-line conversion, so the working tree bytes equal the blob
+# bytes everywhere.
+#
+# The test additionally hashes newline-NORMALISED content, so a stale clone that predates this
+# file still passes. Belt and braces: neither layer weakens the gate — a real content change
+# still changes the digest.
+tests/fixtures/r94_golden_ohlcv.csv -text
+tests/fixtures/r94_golden_expected.json -text

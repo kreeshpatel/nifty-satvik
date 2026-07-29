@@ -56,11 +56,33 @@ def cells():
 
 
 def test_fixture_csv_unchanged(expected):
-    """The input snapshot itself is hash-pinned — a fixture edit must be deliberate."""
-    got = hashlib.sha256(FIXTURE_CSV.read_bytes()).hexdigest()[:16]
+    """The input snapshot itself is hash-pinned — a fixture edit must be deliberate.
+
+    The digest is taken over NEWLINE-NORMALISED bytes. Hashing raw bytes made this check
+    platform-dependent: with core.autocrlf=true the Windows working tree holds CRLF while git
+    stores (and Linux CI checks out) LF, so the identical committed file hashed two ways and CI
+    went red while local was green. Normalising removes the platform artifact, not the check —
+    any real content edit still changes the digest."""
+    from build_r94_golden_fixture import fixture_csv_sha16
+    got = fixture_csv_sha16(FIXTURE_CSV)
     assert got == expected["fixture_csv_sha16"], (
         "golden fixture CSV changed; regenerate expectations deliberately "
         "(python scripts/build_r94_golden_fixture.py) and state the diff in the commit")
+
+
+def test_fixture_hash_is_line_ending_invariant(tmp_path):
+    """The regression guard for the CI-red cause: CRLF and LF renderings of the same content must
+    hash identically, while a genuine content change must not."""
+    from build_r94_golden_fixture import fixture_csv_sha16
+    body = b"ticker,date,Close\nAAA,2020-01-01,100.0\nAAA,2020-01-02,101.0\n"
+    lf, crlf = tmp_path / "lf.csv", tmp_path / "crlf.csv"
+    lf.write_bytes(body)
+    crlf.write_bytes(body.replace(b"\n", b"\r\n"))
+    assert fixture_csv_sha16(lf) == fixture_csv_sha16(crlf)
+
+    changed = tmp_path / "changed.csv"
+    changed.write_bytes(body.replace(b"101.0", b"101.5"))
+    assert fixture_csv_sha16(changed) != fixture_csv_sha16(lf), "the check must still catch edits"
 
 
 def test_synth_universe_is_deterministic():

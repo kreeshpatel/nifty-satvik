@@ -53,6 +53,13 @@ are correctly blocked from entry but nothing forces an exit if a name leaves the
 held** — and M2 measures holds up to 201 weeks, spanning four rebalances. Sentinel handling was
 verified sound (500 active rows on the `2030-12-31` marker, parsed correctly).
 
+**Cost of deferring to the review.** Holding the refresh until Oct-1 leaves **48 of 710** cached
+names (~6.8%) unable to produce a live signal for roughly **eight more weeks** — through the
+September rebalance, which will widen the gap further before it is closed. The cost is bounded (a
+missed-opportunity set, not a risk to open positions or to the record) and is **accepted pending the
+coupled re-anchor decision**, since refreshing the universe mid-quarter would change the live
+opportunity set without the re-anchor that should accompany it.
+
 **Doors:** (a) refresh the snapshot + membership on a fixed cadence tied to NSE rebalances;
 (b) switch the live universe to `build_universe("union")` so current members are included without
 touching the historical file; (c) leave as-is and accept a widening gap. Couples to the pending
@@ -77,12 +84,28 @@ so the tail is not a survivorship artifact.
 
 **Doors:** (a) ~~reinstate the 52-week backstop~~ — **withdrawn**: it would truncate the 18 trades
 carrying the book's entire positive expectancy; (b) **adopt an explicit no-cap policy** and delete
-the card's `HOLD_DAYS_DISPLAY` fiction (the docstring is already corrected); (c) attack the *other*
-end instead — the first two hold buckets are 39% of trades at negative mean R, which is the existing
-M5 / early-cut question, not a new lever. **Recommendation: (b), and treat (c) as the live exit
-question worth the next free diagnostic.** Note the caveat M2 states: the corrected universe fixes
-*survivorship*, not *membership staleness* — a 201-week hold spans four semi-annual rebalances, so
-this decision and D1 should be taken together.
+the card's `HOLD_DAYS_DISPLAY` fiction (the docstring is already corrected). **Recommendation: (b).**
+Note the caveat M2 states: the corrected universe fixes *survivorship*, not *membership staleness* —
+a 201-week hold spans four semi-annual rebalances, so this decision and D1 should be taken together.
+
+**The 0–4w negative cohort is NOT an open research target — it is a priced cost.** M2's short-hold
+buckets (0–4w −1.72R, 5–13w −0.75R) are the false-touch / noise-stop population, and that population
+has already been closed from every side:
+
+* **Pre-entry** — the selection funnel and its four walls found no pre-entry discriminator
+  (**0116**); the population is visible but not separable before the fact.
+* **At the stop** — **0117** established that distinguishing a noise stop from a real one is
+  **hindsight-only**: the information exists in the population but not at the decision moment.
+* **Exit geometry** — hard stops (**0105**), stop widening (**0106**), and the surrounding geometry
+  work (**0104**) each failed to convert the cohort; 0105 in particular whipsawed the shallow
+  intra-week piercings that recover.
+
+This is the standing law of the program: **population information is real; the decision margins
+cannot express it; and worse-than-average is still positive-EV.** The short-hold losses are what it
+costs to hold the tail that earns 64.3% of the book's R — the same trades, entered the same way, are
+the entry to both distributions. Re-opening this as a research target would relitigate 0104/0105/
+0106/0116/0117 without new data, a new feature, a new sub-period, or a new formulation. **The only
+certifier left is the forward wall.**
 
 ## 3. D3 — the live config is not the certified config *(owner's recorded override)*
 
