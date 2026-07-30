@@ -32,6 +32,7 @@ dashboard/backend/.env
 # kill state + cron health). cpcv_long.json stays ignored (it's a cloud artifact, not committed).
 results/*
 !results/README.md
+!results/FORWARD_ACCUMULATORS_README.md
 !results/signals_today.json
 !results/signals_history.json
 !results/signal_analytics.json
