@@ -1,6 +1,6 @@
 {
-  "generated_utc": "2026-07-30T11:37:44.228132+00:00",
-  "generated_ist": "2026-07-30 17:07",
+  "generated_utc": "2026-07-30T12:15:15.005177+00:00",
+  "generated_ist": "2026-07-30 17:45",
   "as_of": "2026-07-30",
   "model": "weekly-swing-0094-rank-P",
   "source": "signals_today_weekly.json",
@@ -930,7 +930,7 @@
     }
   ],
   "scheduler_health": {
-    "checked_utc": "2026-07-30T11:37:44.229778+00:00",
+    "checked_utc": "2026-07-30T12:15:15.006826+00:00",
     "overall": "MISSING",
     "jobs": [
       {
@@ -939,7 +939,7 @@
         "cadence": "weekly (Sat)",
         "proof": "signals_today_weekly.json",
         "last_fired_utc": "2026-07-24T00:00:00+00:00",
-        "age_days": 6.48,
+        "age_days": 6.51,
         "overdue_after_days": 9,
         "status": "OK"
       },
@@ -948,8 +948,8 @@
         "workflow": "cron-bhanushali-monitor",
         "cadence": "weekday",
         "proof": "forward_accum_health.json",
-        "last_fired_utc": "2026-07-28T21:01:15+00:00",
-        "age_days": 1.61,
+        "last_fired_utc": "2026-07-30T11:37:44+00:00",
+        "age_days": 0.03,
         "overdue_after_days": 5,
         "status": "OK"
       },
@@ -958,7 +958,7 @@
         "workflow": "cron-bhanushali-scanner",
         "cadence": "weekly (Sat)",
         "proof": "weekly_review_scorecard.json",
-        "last_fired_utc": "2026-07-30T11:37:08.295985+00:00",
+        "last_fired_utc": "2026-07-30T12:14:43.786299+00:00",
         "age_days": 0.0,
         "overdue_after_days": 9,
         "status": "OK"
@@ -968,7 +968,7 @@
         "workflow": "cron-bhanushali-scanner",
         "cadence": "weekly (Sat)",
         "proof": "archive",
-        "last_fired_utc": "2026-07-30T11:37:08.295985+00:00",
+        "last_fired_utc": "2026-07-30T12:14:43.786217+00:00",
         "age_days": 0.0,
         "overdue_after_days": 9,
         "status": "OK"
