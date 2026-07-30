@@ -96,13 +96,42 @@ def test_synth_universe_is_deterministic():
     pd.testing.assert_series_equal(a_idx, b_idx)
 
 
+def _drift_report(got: dict, exp: dict, label: str) -> str:
+    """Full mismatch report for a golden cell.
+
+    Why this exists (constitution S2-F5): this assertion used to fail on the FIRST differing key in
+    alphabetical order. When `curve_hash` drifted on CI in a run that never reproduced (40 clean CI
+    runs afterwards; the threading and hash-seed hypotheses both falsified), the failure told us
+    only that `curve_hash` differed — not whether `trades`, `sharpe` or `final_equity` also moved.
+    Those are different root causes: identical trades with a different curve hash means numeric
+    noise in the curve path, while differing trades means selection-level divergence.
+
+    A flake that cannot be reproduced can still be diagnosed if its ONE sighting is informative, so
+    every key is now reported together. This does not widen the comparison — every key is still
+    compared exactly and any single mismatch still fails.
+    """
+    diffs = [k for k in sorted(exp) if got.get(k) != exp[k]]
+    lines = [f"{label} drifted on {len(diffs)} key(s): {diffs}",
+             "The 0094 run of record is no longer reproducible — this is not a fixture refresh.",
+             "--- full cell comparison (got vs golden) ---"]
+    for k in sorted(exp):
+        mark = "DIFF" if k in diffs else "ok  "
+        lines.append(f"  [{mark}] {k}: got={got.get(k)!r} golden={exp[k]!r}")
+    lines.append("--- interpreting this (S2-F5) ---")
+    scalar_same = all(got.get(k) == exp[k] for k in ("trades", "n_ledger", "final_equity")
+                      if k in exp)
+    if scalar_same and diffs:
+        lines.append("  trades/n_ledger/final_equity MATCH -> divergence is in the curve/ledger "
+                     "hash path only, i.e. numeric or ordering noise, NOT trade selection.")
+    elif diffs:
+        lines.append("  trade-level values differ -> selection-level divergence, not numeric noise.")
+    return "\n".join(lines)
+
+
 def test_frozen_defaults_cell_byte_identical(cells, expected):
     """FROZEN 0094 configuration — may NEVER change. Any diff = the research engine drifted."""
     got, exp = cells[0], expected["frozen_defaults"]
-    for k in sorted(exp):
-        assert got[k] == exp[k], (
-            f"FROZEN R94 engine drifted on '{k}': got {got[k]!r}, golden {exp[k]!r}. "
-            "The 0094 run of record is no longer reproducible — this is not a fixture refresh.")
+    assert all(got.get(k) == exp[k] for k in exp), _drift_report(got, exp, "FROZEN R94 engine")
 
 
 def test_live_config_cell_byte_identical(cells, expected):

@@ -50,8 +50,46 @@ UNSCHEDULED = [
 ]
 
 
+DEFAULT_REPO = "kreeshpatel/nifty-satvik"
+
+
 def _iso(ts: float) -> str:
     return datetime.fromtimestamp(ts, tz=timezone.utc).isoformat()
+
+
+def _api_last_scheduled_success(workflow: str, *, token: str, repo: str,
+                                fetch=None) -> tuple[datetime | None, int | None]:
+    """Most recent SUCCESSFUL scheduled run of one workflow, from the Actions run log.
+
+    This is the primary source of firing truth (constitution flag S2-F3: firing evidence is the run
+    log, never a committed artifact alone). Returns (started_utc, run_id), or (None, None) when the
+    API is unreachable or the workflow has no successful scheduled run.
+
+    `fetch` is injectable for tests: a callable(url, headers) -> parsed JSON.
+    """
+    url = (f"https://api.github.com/repos/{repo}/actions/workflows/{workflow}.yml/runs"
+           "?event=schedule&status=success&per_page=1")
+    headers = {"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json",
+               "User-Agent": "nifty-satvik-scheduler-health"}
+    try:
+        if fetch is None:
+            import urllib.request
+
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req, timeout=20) as resp:  # noqa: S310 — fixed https host
+                payload = json.loads(resp.read().decode("utf-8"))
+        else:
+            payload = fetch(url, headers)
+        runs = payload.get("workflow_runs") or []
+        if not runs:
+            return None, None
+        run = runs[0]
+        stamp = run.get("run_started_at") or run.get("created_at")
+        if not stamp:
+            return None, run.get("id")
+        return datetime.fromisoformat(str(stamp).replace("Z", "+00:00")), run.get("id")
+    except Exception:  # noqa: BLE001 — a health probe must never raise into the monitor
+        return None, None
 
 
 def _last_fired(results_dir: Path, spec: dict) -> datetime | None:
@@ -100,22 +138,56 @@ def _last_fired(results_dir: Path, spec: dict) -> datetime | None:
     return None
 
 
-def scheduler_health(results_dir: Path, now_utc: datetime | None = None) -> dict:
-    """Reconstruct each scheduled job's last firing from its committed artifact and flag overdue
-    jobs. Pure except for reading artifact mtimes/fields under ``results_dir``."""
+def scheduler_health(results_dir: Path, now_utc: datetime | None = None, *,
+                     token: str | None = None, repo: str | None = None, fetch=None) -> dict:
+    """Reconstruct each scheduled job's last firing and flag jobs overdue for their own cadence.
+
+    Source of truth is the **Actions run log** (S2-F3: a committed artifact is not firing evidence,
+    because a human can produce the same artifact by hand). The artifact reconstruction is retained
+    as *corroboration* and as the fallback when no token is available (local runs, or a token
+    lacking `actions:read`).
+
+    This is what closes S2-F6: `intraday-scan` fires every weekday but commits nothing, so the
+    artifact-only reconstruction reported it MISSING and dragged `overall` red on a healthy system —
+    an alarm that is red in the normal case stops being read.
+    """
     now = now_utc or datetime.now(timezone.utc)
+    import os
+
+    token = token if token is not None else os.environ.get("GITHUB_TOKEN", "")
+    repo = repo or os.environ.get("GITHUB_REPOSITORY") or DEFAULT_REPO
+
     rows = []
     worst = "OK"
     for spec in JOBS:
-        last = _last_fired(Path(results_dir), spec)
+        art_last = _last_fired(Path(results_dir), spec)
+        run_last, run_id = (None, None)
+        if token:
+            run_last, run_id = _api_last_scheduled_success(spec["workflow"], token=token,
+                                                           repo=repo, fetch=fetch)
+
+        # run log wins; artifact is corroboration / fallback
+        last = run_last or art_last
+        source = "run-log" if run_last else ("artifact" if art_last else "none")
+
         if last is None:
             status, age_days = "MISSING", None
         else:
             age_days = round((now - last).total_seconds() / 86400.0, 2)
             status = "OVERDUE" if age_days > spec["overdue_days"] else "OK"
+
+        corroborated = None
+        if run_last and art_last:
+            # artifact should not be far NEWER than the last successful scheduled run; if it is,
+            # something wrote the artifact outside the cron (a hand run) — worth surfacing, not alarming.
+            corroborated = (art_last - run_last).total_seconds() <= 6 * 3600
+
         rows.append({
             "job": spec["job"], "workflow": spec["workflow"], "cadence": spec["cadence"],
-            "proof": spec["proof"], "last_fired_utc": last.isoformat() if last else None,
+            "proof": spec["proof"], "source": source, "run_id": run_id,
+            "last_fired_utc": last.isoformat() if last else None,
+            "artifact_last_utc": art_last.isoformat() if art_last else None,
+            "artifact_corroborates": corroborated,
             "age_days": age_days, "overdue_after_days": spec["overdue_days"], "status": status,
         })
         if status == "MISSING":
@@ -125,9 +197,11 @@ def scheduler_health(results_dir: Path, now_utc: datetime | None = None) -> dict
     return {
         "checked_utc": now.isoformat(),
         "overall": worst,
+        "source_of_truth": "actions-run-log" if token else "artifacts-only (no token)",
         "jobs": rows,
         "unscheduled": UNSCHEDULED,
-        "note": ("Dead-man reconstruction from committed artifacts, produced by the daily monitor "
-                 "(the proven weekday heartbeat). If THIS block's checked_utc is itself stale, the "
-                 "monitor has stopped and every downstream freshness claim is suspect."),
+        "note": ("Dead-man reconstruction produced by the daily monitor (the proven weekday "
+                 "heartbeat). Firing truth is the Actions run log; committed artifacts corroborate "
+                 "only. If THIS block's checked_utc is itself stale, the monitor has stopped and "
+                 "every downstream freshness claim is suspect."),
     }

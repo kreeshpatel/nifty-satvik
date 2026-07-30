@@ -21,6 +21,7 @@ concurrency:
 
 permissions:
   contents: write                # commits results/weekly_monitor.json
+  actions: read                  # scheduler_health reads the Actions run log (S2-F6)
 
 jobs:
   monitor:
@@ -44,6 +45,8 @@ jobs:
           pip install -e ".[dev]"
       - name: Run weekly monitor
         run: python scripts/run_bhanushali_monitor.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # scheduler_health: run-log truth (S2-F6)
       - name: Forward-only accumulators (bulk/block + ratings; owner-signed 2026-07-28)
         # Pure data-collection sidecar - engine untouched, idempotent, staleness-alarmed.
         run: python scripts/run_forward_accumulators.py || true
