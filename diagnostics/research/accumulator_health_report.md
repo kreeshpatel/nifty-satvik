@@ -1,6 +1,6 @@
-# Accumulator Health Report — 2026-07-29
+# Accumulator Health Report — 2026-07-30
 
-**VERDICT: GREEN**
+**VERDICT: ATTENTION**
 
 
 ## bulkblock
@@ -24,7 +24,8 @@
 - staleness flags: {'bulkblock': False, 'ratings': False}
 
 ## idempotency probe
-- re-fetch adds: {'bulkblock': 0, 'ratings': 0} (tolerance 5) -> PASS
+- probed on scratch copies; live files untouched: True
+- re-fetch adds: {'bulkblock': 137, 'ratings': 5} (tolerance 5) -> FAIL
 
 ## wiring
 - cron_step: OK

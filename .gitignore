@@ -180,3 +180,9 @@ research/losers_analysis/exit_packets/
 /research/substrate/pool_filter_sims.csv
 /research/substrate/crs_dissect_sims.csv
 /research/substrate/cold_start_sims.csv
+
+# Corrected-universe long dump — DERIVED, not mortal (scripts/export_ohlcv_corrected_long.py).
+# ~100 MB + ~48 MB, byte-deterministic from pinned ohlcv.pkl + ohlcv_backfill.pkl; verified
+# 2026-07-30 to match the builder exactly (4dp). Regenerate, don't commit.
+/research/exports/ohlcv_corrected_long.csv
+/research/exports/ohlcv_corrected_long.parquet

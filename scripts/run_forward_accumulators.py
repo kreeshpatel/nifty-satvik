@@ -39,7 +39,30 @@ _SYM_RE = re.compile(r"^[A-Z][A-Z0-9&\-]{0,14}$")
 _JUNK = {"NOTLISTED", "NOT", "NA", "NOTAPPLICABLE", "NIL", "NONE"}
 
 
+def _validate_fetch_ts(new: pd.DataFrame) -> None:
+    """Refuse to write a sentinel / unparseable timestamp into the append-only forward record.
+
+    Defense in depth (added 2026-07-30). The accumulator-health probe once passed the literal
+    string "PROBE" as `fetch_ts` and it landed in the live CSVs, overwriting real fetch times on
+    three rows (caught and restored in 3216ce7). The probe is now isolated to a scratch copy, but
+    the live record must be unwritable with junk regardless of caller — a provenance column whose
+    values do not parse as datetimes is not provenance.
+    """
+    if "fetch_ts" not in new.columns or new.empty:
+        return
+    vals = new["fetch_ts"].astype(str)
+    parsed = pd.to_datetime(vals, errors="coerce", format="mixed")
+    bad = sorted(set(vals[parsed.isna()]))
+    if bad:
+        raise ValueError(
+            f"refusing to append rows with non-datetime fetch_ts: {bad[:5]} — the forward "
+            f"accumulators are an append-only provenance record; use a real timestamp "
+            f"(pd.Timestamp.now('UTC')), and probe against a scratch copy, not the live path."
+        )
+
+
 def _append_dedup(out: Path, new: pd.DataFrame, keys: list[str]) -> int:
+    _validate_fetch_ts(new)
     if out.exists():
         old = pd.read_csv(out, dtype=str)
         both = pd.concat([old, new.astype(str)], ignore_index=True)
@@ -52,7 +75,7 @@ def _append_dedup(out: Path, new: pd.DataFrame, keys: list[str]) -> int:
     return max(added, 0) if before else 0
 
 
-def collect_bulkblock(sess: requests.Session, fetch_ts: str) -> tuple[int, str | None]:
+def collect_bulkblock(sess: requests.Session, fetch_ts: str, out: Path | None = None) -> tuple[int, str | None]:
     rows = []
     for typ, url in (("bulk", "https://archives.nseindia.com/content/equities/bulk.csv"),
                      ("block", "https://archives.nseindia.com/content/equities/block.csv")):
@@ -72,12 +95,12 @@ def collect_bulkblock(sess: requests.Session, fetch_ts: str) -> tuple[int, str |
     if not rows:
         return 0, None
     new = pd.DataFrame(rows).fillna("")
-    added = _append_dedup(BB_OUT, new, ["deal_type", "date", "symbol", "client", "side", "qty", "price"])
+    added = _append_dedup(out or BB_OUT, new, ["deal_type", "date", "symbol", "client", "side", "qty", "price"])
     last = pd.to_datetime(new["date"], format="%d-%b-%Y", errors="coerce").max()
     return added, (str(last.date()) if last == last else None)
 
 
-def collect_ratings(sess: requests.Session, fetch_ts: str) -> tuple[int, str | None]:
+def collect_ratings(sess: requests.Session, fetch_ts: str, out: Path | None = None) -> tuple[int, str | None]:
     sess.get("https://www.nseindia.com/companies-listing/corporate-filings-credit-rating",
              headers=HDR, timeout=25)
     time.sleep(1.0)
@@ -104,7 +127,7 @@ def collect_ratings(sess: requests.Session, fetch_ts: str) -> tuple[int, str | N
     if not rows:
         return 0, None
     new = pd.DataFrame(rows).fillna("")
-    added = _append_dedup(RT_OUT, new, ["company", "isin", "agency", "rating", "action", "date_cr", "broadcast"])
+    added = _append_dedup(out or RT_OUT, new, ["company", "isin", "agency", "rating", "action", "date_cr", "broadcast"])
     last = pd.to_datetime(new["broadcast"], format="%d-%b-%Y %H:%M:%S", errors="coerce").max()
     return added, (str(last.date()) if last == last else None)
 

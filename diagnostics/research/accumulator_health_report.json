@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-28 21:12:55.740909+00:00",
+  "generated": "2026-07-30 10:48:19.071512+00:00",
   "feeds": {
     "bulkblock": {
       "exists": true,
@@ -54,11 +54,16 @@
     },
     "idempotency_probe": {
       "adds": {
-        "bulkblock": 0,
-        "ratings": 0
+        "bulkblock": 137,
+        "ratings": 5
       },
       "tolerance": 5,
-      "pass": true
+      "live_untouched": true,
+      "probed_scratch_copies": {
+        "bulkblock": true,
+        "ratings": true
+      },
+      "pass": false
     },
     "wiring": {
       "cron_step": true,
@@ -66,5 +71,5 @@
       "gitignore_whitelist": true
     }
   },
-  "verdict": "GREEN"
+  "verdict": "ATTENTION"
 }

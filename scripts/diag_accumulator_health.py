@@ -91,16 +91,43 @@ def main() -> int:
     # idempotency probe: live re-run of the collectors must add <= tolerance keyed rows
     if not args.no_probe:
         try:
+            # The probe re-fetches and re-appends to measure idempotency. It MUST NOT touch the live
+            # append-only record: an earlier version called the collectors against the live paths with
+            # a literal "PROBE" timestamp and overwrote real fetch times on three rows (caught and
+            # restored in 3216ce7). Now: copy the live files to a scratch dir, probe the COPIES with a
+            # real timestamp, compare, discard. The live bytes are asserted unchanged afterwards.
+            import hashlib
+            import shutil
+            import tempfile
+
             import requests
-            from run_forward_accumulators import collect_bulkblock, collect_ratings, HDR  # noqa: E402
+            from run_forward_accumulators import BB_OUT, RT_OUT, collect_bulkblock, collect_ratings, HDR  # noqa: E402
+
+            def _sha(p):
+                return hashlib.sha256(p.read_bytes()).hexdigest() if p.exists() else None
+
+            live = {"bulkblock": BB_OUT, "ratings": RT_OUT}
+            before = {k: _sha(p) for k, p in live.items()}
             sess = requests.Session(); sess.get("https://www.nseindia.com/", headers=HDR, timeout=25)
+            probe_ts = pd.Timestamp.now("UTC").strftime("%Y-%m-%d %H:%M:%S")
             adds = {}
-            adds["bulkblock"], _ = collect_bulkblock(sess, "PROBE")
-            adds["ratings"], _ = collect_ratings(sess, "PROBE")
-            ok = all(a <= IDEMPOTENCY_TOLERANCE for a in adds.values())
+            with tempfile.TemporaryDirectory(prefix="accum_probe_") as td:
+                scratch = {k: Path(td) / p.name for k, p in live.items()}
+                for k, p in live.items():
+                    if p.exists():
+                        shutil.copy2(p, scratch[k])
+                adds["bulkblock"], _ = collect_bulkblock(sess, probe_ts, out=scratch["bulkblock"])
+                adds["ratings"], _ = collect_ratings(sess, probe_ts, out=scratch["ratings"])
+                scratch_grew = {k: (scratch[k].exists() and scratch[k].stat().st_size > 0) for k in scratch}
+            after = {k: _sha(p) for k, p in live.items()}
+            live_untouched = before == after
+            ok = all(a <= IDEMPOTENCY_TOLERANCE for a in adds.values()) and live_untouched
             rep["checks"]["idempotency_probe"] = {"adds": adds, "tolerance": IDEMPOTENCY_TOLERANCE,
-                                                  "pass": ok}
-            lines += ["## idempotency probe", f"- re-fetch adds: {adds} (tolerance {IDEMPOTENCY_TOLERANCE}) "
+                                                  "live_untouched": live_untouched,
+                                                  "probed_scratch_copies": scratch_grew, "pass": ok}
+            lines += ["## idempotency probe",
+                      f"- probed on scratch copies; live files untouched: {live_untouched}",
+                      f"- re-fetch adds: {adds} (tolerance {IDEMPOTENCY_TOLERANCE}) "
                       f"-> {'PASS' if ok else 'FAIL'}", ""]
         except Exception as e:
             rep["checks"]["idempotency_probe"] = {"error": type(e).__name__}
