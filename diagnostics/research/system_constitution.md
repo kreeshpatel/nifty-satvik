@@ -744,9 +744,55 @@ it is. **The comparison is not widened** — each key is still compared exactly 
 mismatch still fails. `PYTHONHASHSEED` is additionally pinned to `0` in `ci.yml`: seed order was
 exonerated as a *cause*, but leaving it unpinned makes any recurrence undiagnosable after the fact.
 
-### What remains open
+### ROOT CAUSE FOUND — the instrumentation paid off on its first run
 
-The mechanism is unidentified. Remaining candidates, none tested: a rare numeric difference in the
+The enriched report fired on the very next CI run (30578319525) and settled it in one observation:
+
+```
+[DIFF] curve_hash:   got='54deb7e30a293cb9' golden='84cc3d09d2c040f0'
+[ok  ] ledger_hash:  57a7b375f6029115   (IDENTICAL)
+[ok  ] trades: 47 · n_ledger: 47 · final_equity: 107926269.82 · sharpe · cagr · max_dd · win_rate
+```
+
+**Every value except the curve hash is identical, including the ledger hash.** The trades, their
+order in the ledger, and the final equity to the cent are the same. Note also that the wrong hash is
+*the same wrong value* as the original sighting — the failure is **bimodal, not random**, which rules
+out ordinary float jitter (that would produce many distinct hashes).
+
+The mechanism is the curve key's precision. `_curve_key` hashes
+`(str(date), round(float(v), 4))` per point, and this cell's equity is of order **1.08e8** — so
+4 *absolute* decimals demand roughly **13 significant digits** of reproducibility, close to float64's
+15-16. A few ULPs of accumulated difference in any intermediate equity value flips the fourth
+decimal and changes the hash. `final_equity` survives because it is recorded at 2dp, i.e. two orders
+of magnitude coarser.
+
+What varies those last bits is **summation/iteration order**: pinning `PYTHONHASHSEED=0` made the
+failure **deterministic**, which is how it was caught. Hash order changes set/dict iteration, hence
+the order positions are accumulated, hence the last bits of an intermediate equity value. Leg A had
+swept seeds 0-19 *in isolation* and leg B ran the suite with *random* seeds — the one combination
+never tested was **seed 0 in suite context**, which is exactly what fails.
+
+**The pin was reverted.** It converted a rare flake into a permanent red, which is worse than what
+it diagnosed; CI is back to the unpinned (occasionally flaky) state until the real fix lands.
+
+### The fix is an owner door
+
+Every durable fix changes the recorded hash, which this session was explicitly forbidden to touch:
+
+1. **Coarsen the curve key** to a precision proportional to magnitude (relative rounding, or 2dp to
+   match `final_equity`). Correct and minimal — but re-records `curve_hash`.
+2. **Make the accumulation order deterministic** at its source (replace the offending set/dict
+   iteration with a sorted traversal). Strictly better, since it fixes the engine rather than the
+   test — but it may itself change the recorded hash, and it touches engine code.
+3. Pin a known-green seed — **rejected**: it masks the defect and is fragile to any suite change.
+
+Recommended: (2) then (1), in a dedicated change that re-records the golden deliberately and states
+the diff — precisely what the fixture's own error message calls for. **S2-F5 stays OPEN**; it is now
+a one-line fix waiting on a decision rather than an unexplained ghost.
+
+### Superseded note
+
+The mechanism was unidentified when this section was first written. Remaining candidates, none tested: a rare numeric difference in the
 runner's libm/BLAS build; non-determinism in a pandas groupby/sort path that only manifests on
 particular data orderings; or a genuinely transient runner fault. **Next sighting is the trigger** —
 the enriched report should immediately classify it as curve-path vs selection-level, which halves

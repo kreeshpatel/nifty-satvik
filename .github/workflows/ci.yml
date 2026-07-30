@@ -24,10 +24,6 @@ jobs:
       OMP_NUM_THREADS: "1"
       OPENBLAS_NUM_THREADS: "1"
       MKL_NUM_THREADS: "1"
-      # S2-F5: pin the hash seed so a golden failure is reproducible from its run alone.
-      # (Sweeping seeds 0-19 exonerated hash order as the cause, but an unpinned seed makes
-      #  any recurrence undiagnosable after the fact.)
-      PYTHONHASHSEED: "0"
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
