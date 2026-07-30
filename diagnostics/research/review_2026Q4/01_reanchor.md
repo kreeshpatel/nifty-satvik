@@ -17,8 +17,18 @@ vendors are live and restate, and nothing under `/data/*` is in git except the f
 | `data/options_oi_pit.parquet` | `d675a4514bfb41518626827f4cedf32ac1b0c6f126756824b55f9a247aed485c` | `gh release download dataset-pin-20260729 --pattern 'options_oi_pit.parquet' --dir data` |
 | `data/_delivery_raw.parquet` | `7a20ec8f1d824e36682644169e3de956275894bf374fae0e8f5df1b87cf3b3d0` | `gh release download dataset-pin-20260729 --pattern '_delivery_raw.parquet' --dir data` |
 | `data/_earnings_raw.parquet` | `a2825cd73e85a6787bf2f5e5106a1580f9ca70339c660ebb37adb5ff1a0458ff` | `gh release download dataset-pin-20260729 --pattern '_earnings_raw.parquet' --dir data` |
+| `research/substrate/context_windows.parquet` | `7231ed78f734fb75c9ec599e14a5c17356c3a348b430c2451aad99311160253f` | in git (committed 2026-07-30) **and** `gh release download dataset-pin-20260729 --pattern 'context_windows.parquet'` |
 
 Verify any of them with `sha256sum <path>` before running.
+
+**Added 2026-07-30 — the verdict machine's core asset is now preserved twice.**
+`research/substrate/context_windows.parquet` (4,025 trades; the banked 0116/0117 per-trade label
+dataset: `false_touch` / `noise_stop` / `exit_too_early` / `opp_quality_R` plus `R`, `ext_vs_sma`,
+`rank_crs`) is the adjudicating instrument behind screens 0118, 0120, 0122 and 0123 — every one of
+those findings is unreproducible without it. It was previously **untracked**, i.e. it existed only on
+one machine. It is now committed to git *and* attached to the same dated release as the fundamentals
+backfill, so a fresh clone reproduces the screens and a lost working tree does not lose the verdict
+machine. Fetch-and-verify like any other pinned artifact.
 
 **Round-trip verified 2026-07-29.** The local backfill artifact was moved aside, the asset downloaded
 fresh from the release, hash-re-matched, and the anchor re-run against the fetched copy:
