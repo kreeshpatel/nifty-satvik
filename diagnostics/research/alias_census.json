@@ -1,0 +1,329 @@
+{
+  "universe": 814,
+  "alias_entries": 17,
+  "recovered": 104,
+  "detection": {
+    "constant_ratio_pairs": [
+      {
+        "a": "360ONE",
+        "b": "IIFLWAM",
+        "overlap_days": 1677,
+        "ratio": 1.0,
+        "max_dev": 0.0
+      },
+      {
+        "a": "ALIVUS",
+        "b": "GLS",
+        "overlap_days": 1209,
+        "ratio": 1.0,
+        "max_dev": 0.0
+      },
+      {
+        "a": "BAJAJCON",
+        "b": "BAJAJCORP",
+        "overlap_days": 2345,
+        "ratio": 1.0,
+        "max_dev": 0.0
+      },
+      {
+        "a": "CIEINDIA",
+        "b": "MAHINDCIE",
+        "overlap_days": 2344,
+        "ratio": 1.0,
+        "max_dev": 0.0
+      },
+      {
+        "a": "COHANCE",
+        "b": "SUVENPHAR",
+        "overlap_days": 1561,
+        "ratio": 1.0,
+        "max_dev": 0.0
+      },
+      {
+        "a": "EPL",
+        "b": "ESSELPACK",
+        "overlap_days": 2344,
+        "ratio": 1.0,
+        "max_dev": 0.0
+      },
+      {
+        "a": "ETERNAL",
+        "b": "ZOMATO",
+        "overlap_days": 1221,
+        "ratio": 1.0,
+        "max_dev": 0.0
+      },
+      {
+        "a": "IBULHSGFIN",
+        "b": "SAMMAANCAP",
+        "overlap_days": 2345,
+        "ratio": 1.0,
+        "max_dev": 0.0
+      },
+      {
+        "a": "INDUSTOWER",
+        "b": "INFRATEL",
+        "overlap_days": 2346,
+        "ratio": 1.0,
+        "max_dev": 0.0
+      },
+      {
+        "a": "LAXMIMACH",
+        "b": "LMW",
+        "overlap_days": 2590,
+        "ratio": 1.0,
+        "max_dev": 0.0
+      },
+      {
+        "a": "MERCK",
+        "b": "PGHL",
+        "overlap_days": 2343,
+        "ratio": 1.0,
+        "max_dev": 0.0
+      },
+      {
+        "a": "NAVA",
+        "b": "NBVENTURES",
+        "overlap_days": 2345,
+        "ratio": 1.0,
+        "max_dev": 0.0
+      },
+      {
+        "a": "ORIENTREF",
+        "b": "RHIM",
+        "overlap_days": 2344,
+        "ratio": 1.0,
+        "max_dev": 0.0
+      },
+      {
+        "a": "PCBL",
+        "b": "PHILIPCARB",
+        "overlap_days": 2346,
+        "ratio": 1.0,
+        "max_dev": 0.0
+      },
+      {
+        "a": "PVR",
+        "b": "PVRINOX",
+        "overlap_days": 2344,
+        "ratio": 1.0,
+        "max_dev": 0.0
+      },
+      {
+        "a": "STLTECH",
+        "b": "STRTECH",
+        "overlap_days": 2346,
+        "ratio": 1.0,
+        "max_dev": 0.0
+      },
+      {
+        "a": "TATAMOTORS",
+        "b": "TMPV",
+        "overlap_days": 2162,
+        "ratio": 1.0,
+        "max_dev": 0.0
+      }
+    ],
+    "novel": [],
+    "unconfirmed_aliases": []
+  },
+  "concurrency": {
+    "overlapping_pairs": []
+  },
+  "reachability": {
+    "alias_fixable_by_lookup": [
+      [
+        "PVR",
+        "PVRINOX",
+        0,
+        12
+      ],
+      [
+        "ZOMATO",
+        "ETERNAL",
+        0,
+        9
+      ],
+      [
+        "IIFLWAM",
+        "360ONE",
+        0,
+        9
+      ],
+      [
+        "PHILIPCARB",
+        "PCBL",
+        0,
+        12
+      ],
+      [
+        "NBVENTURES",
+        "NAVA",
+        0,
+        12
+      ],
+      [
+        "ESSELPACK",
+        "EPL",
+        0,
+        12
+      ],
+      [
+        "BAJAJCORP",
+        "BAJAJCON",
+        0,
+        12
+      ],
+      [
+        "MAHINDCIE",
+        "CIEINDIA",
+        0,
+        12
+      ],
+      [
+        "STRTECH",
+        "STLTECH",
+        0,
+        12
+      ],
+      [
+        "ORIENTREF",
+        "RHIM",
+        0,
+        8
+      ],
+      [
+        "SUVENPHAR",
+        "COHANCE",
+        0,
+        8
+      ],
+      [
+        "INFRATEL",
+        "INDUSTOWER",
+        0,
+        12
+      ],
+      [
+        "TATAMOTORS",
+        "TMPV",
+        0,
+        12
+      ]
+    ],
+    "alias_needs_harvest": [
+      [
+        "GLS",
+        "ALIVUS",
+        0,
+        0
+      ],
+      [
+        "IBULHSGFIN",
+        "SAMMAANCAP",
+        0,
+        0
+      ],
+      [
+        "LAXMIMACH",
+        "LMW",
+        0,
+        0
+      ],
+      [
+        "MERCK",
+        "PGHL",
+        0,
+        0
+      ]
+    ],
+    "non_alias_harvest_list": [
+      "8KMILES",
+      "AKZOINDIA",
+      "ALBK",
+      "ALLCARGO",
+      "ANDHRABANK",
+      "AVANTIFEED",
+      "BCG",
+      "BHARATFIN",
+      "BHARATRAS",
+      "CAPF",
+      "COFFEEDAY",
+      "CORPBANK",
+      "DCAL",
+      "DENABANK",
+      "DHANI",
+      "DHFL",
+      "EQUITAS",
+      "EROSMEDIA",
+      "EXCELCROP",
+      "FCONSUMER",
+      "FRETAIL",
+      "GARFIBRES",
+      "GAYAPROJ",
+      "GDL",
+      "GEPIL",
+      "GET&D",
+      "GREENPLY",
+      "GSKCONS",
+      "GUJFLUORO",
+      "GVKPIL",
+      "HCC",
+      "HCL-INSYS",
+      "HEMIPROP",
+      "HEXAWARE",
+      "HSIL",
+      "IBVENTURES",
+      "INFIBEAM",
+      "INOXLEISUR",
+      "ISEC",
+      "ITDCEM",
+      "JAMNAAUTO",
+      "JCHAC",
+      "JETAIRWAYS",
+      "JINDWORLD",
+      "JPASSOCIAT",
+      "JSLHISAR",
+      "KENNAMET",
+      "KIOCL",
+      "LAKSHVILAS",
+      "LMW",
+      "LTI",
+      "LTIM",
+      "MANPASAND",
+      "MAXINDIA",
+      "MFL",
+      "MINDTREE",
+      "NIITLTD",
+      "ORIENTBANK",
+      "PEL",
+      "QUESS",
+      "RCOM",
+      "RELCAPITAL",
+      "RNAVAL",
+      "RUPA",
+      "RUSTOMJEE",
+      "SEQUENT",
+      "SHANKARA",
+      "SOLARA",
+      "SPICEJET",
+      "SPTL",
+      "SREINFRA",
+      "STAR",
+      "SUVEN",
+      "SWANENERGY",
+      "SYNDIBANK",
+      "TATAMTRDVR",
+      "TATASPONGE",
+      "TATASTLBSL",
+      "TATASTLLP",
+      "TCNSBRANDS",
+      "THYROCARE",
+      "TIFIN",
+      "TMB",
+      "TV18BRDCST",
+      "UJJIVAN",
+      "VIJAYABANK"
+    ]
+  }
+}

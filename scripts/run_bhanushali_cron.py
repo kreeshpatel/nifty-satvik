@@ -1,10 +1,26 @@
-"""Live / paper runner for the 0091 weekly-swing book (FORWARD-WATCH).
+"""Live / paper runner for the weekly-swing book (FORWARD-WATCH).
 
-Self-sufficient: refreshes the live OHLCV cache itself, then re-runs the tested 0091 engine
-(run_bhanushali_weekly_sma.prep_weekly_sma + run_bhanushali_weekly_full.backtest, finding 0034) from a
-fixed inception, and serializes the CURRENT state to the dashboard envelope (results/*_weekly.json/.csv).
-Live == backtest by construction: the same deterministic, PIT-clean engine that produced the +18.2% CAGR /
-+0.87 Sharpe backtest generates the live signals — no re-implementation.
+Self-sufficient: refreshes the live OHLCV cache itself, then re-runs the tested engine from a fixed
+inception, and serializes the CURRENT state to the dashboard envelope (results/*_weekly.json/.csv).
+Live == engine by construction: the same deterministic, PIT-clean code that produced the research
+run generates the live signals — no re-implementation.
+
+WHAT ACTUALLY RUNS (corrected 2026-07-29 — the docstring previously described the superseded 0091
+engine and a time cap that no longer exists; constitution bug B-2):
+  * signals + book : run_bhanushali_weekly_rank (R94) — prep_weekly_rank + backtest, i.e. the 0093
+                     + Nifty-50 signal set with CRS-ranked fills (finding 0038), NOT
+                     run_bhanushali_weekly_sma / weekly_full (finding 0034).
+  * overlays ON    : LIVE_DISCIPLINE (docs/decisions/0009) + LIVE_EXIT = config P
+                     (docs/decisions/0010) + LIVE_STALENESS (constitution B-1 fix).
+  * TIME CAP       : NONE. Config P's weekly branch decides stop / blow-off pattern / 44w-SMA
+                     runner break and returns before any cap check, so neither the 13-week cap nor
+                     the 52-week backstop that the P2 exit carried is reachable. A position runs
+                     until a tranche, the stop, the SMA break, or the B-1 staleness guard closes
+                     it. HOLD_DAYS_DISPLAY below is a CARD HINT ONLY and does not bound anything.
+                     Whether the book SHOULD run uncapped is an open owner decision recorded for
+                     the Oct-1 review (diagnostics/research/oct1_binder_decisions.md).
+  * headline numbers from the frozen research run do NOT describe this configuration — see
+    constitution divergence D3.
 
 CADENCE — a weekly-swing book only changes after Friday's weekly close, so this runs on its OWN schedule:
 **every Saturday 6 PM IST** (.github/workflows/cron-bhanushali-scanner.yml). Saturday's download picks up the
@@ -34,13 +50,15 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from config import RESULTS_DIR  # noqa: E402
 from nq.data.membership import load_membership  # noqa: E402
 from nq.data.ohlcv import OHLCV_CACHE, load_ohlcv_cache  # noqa: E402
+from nq.engine.portfolio import STALE_ABSENT_DAYS  # noqa: E402  — B-1 guard (shared with momentum)
 import run_bhanushali_weekly_crs as CRS  # noqa: E402  (Nifty-50 CSV path + index plumbing)
 import run_bhanushali_weekly_rank as R94  # noqa: E402  — LIVE strategy: 0093-N50 + ranked fill (finding 0038)
 
 INCEPTION_DEFAULT = "2026-07-04"
-TARGET_R = 2                     # 0091 books half at +2R -> the displayed target
-HOLD_DAYS_DISPLAY = 65          # soft "hold ~N days" card hint only. The P2 exit is TREND-FOLLOWING (no hard
-                                # cap; 52-week backstop) so actual holds vary widely — this is a nominal guide.
+TARGET_R = 2                     # config P books its first tranche at +2R -> the displayed target
+HOLD_DAYS_DISPLAY = 65          # CARD HINT ONLY — it bounds NOTHING. Under the live config-P exit there is
+                                # no time cap and no 52-week backstop (the P2 exit's backstop went away with
+                                # the P swap; constitution B-2/G6), so realised holds are unbounded above.
 # LIVE EXIT (2026-07-15 owner decision — Phase-2 exit; see docs/decisions ADR + config_CHANGELOG). Replaces the
 # 13-week time cap with a no-cap hold + a blow-off-bar exit @2.5R (+ a 20-week-close backstop). Owner-override of
 # the forward-wall route (ships a portfolio Sharpe/CAGR give for -8pp drawdown + fewer/higher-return trades). The
@@ -64,6 +82,16 @@ P2_EXIT = dict(no_time_cap=True, wk20_trail_pct=0.04, blowoff_arm_r=2.5)
 # Return-neutral, NOT certified: no DSR gate passes a +0.05 in-sample delta at cumulative trial 122.
 # backtest() DEFAULTS stay OFF so the frozen 0094 research run is byte-identical (1.132/255).
 LIVE_DISCIPLINE = dict(ext_cap=0.20, max_risk_pct=0.10, max_notional_pct=0.20)
+# LIVE STALENESS GUARD (constitution bug B-1, fixed 2026-07-29). Before this, a held name that
+# stopped printing bars (suspension / delisting-in-progress) was skipped by the exit loop FOREVER
+# and carried in NAV at its ENTRY price — an unmanageable position and a silently flattered NAV
+# that the Oct-1 scorecard's Sharpe/MaxDD gates read. The threshold is the momentum engine's
+# STALE_ABSENT_DAYS (10 sessions), not a new invented parameter, so the two books age an absent
+# holding identically. Impact on the live record at adoption: NONE — the pre-fix census
+# (diagnostics/research/b1_absent_bar_census.md) found zero absent-bar holdings ever, so this
+# lands with a provably zero diff on the book to date. backtest() DEFAULTS stay OFF so the frozen
+# 0094 research run is byte-identical (golden cell `frozen_defaults`).
+LIVE_STALENESS = dict(stale_absent_days=STALE_ABSENT_DAYS)
 # LIVE EXIT = config P (2026-07-16 owner decision — see docs/decisions/0010 + config_CHANGELOG +
 # research/substrate/FINDING_pattern_exit.md). A THREE-TRANCHE scaled exit that REPLACES the P2 trend exit:
 #   40% booked at +2R (resting limit, intraweek)
@@ -153,6 +181,37 @@ def _exit_plan(entry, stop, sma44, exit_cfg=None):
     return {"entry_pattern": "44-week SMA pullback", "tranches": tranches}
 
 
+def _record_stop(entry: float, week_low: float) -> float:
+    """The stop the RECORD will actually use for a fill at ``entry`` — constitution D5 parity.
+
+    The engine does NOT stop at the raw signal-week low: `LIVE_DISCIPLINE['max_risk_pct']` lifts it
+    to ``max(week_low, entry x (1 - max_risk_pct))`` (run_bhanushali_weekly_rank.py, the sizing
+    block). The buy card used to print the RAW low, so the owner sized off a wider stop than the
+    book, rested a +2R limit at a different price, and ran a different R than the record booked.
+    Reading LIVE_DISCIPLINE here (rather than hard-coding 0.10) keeps the card on the same single
+    swap point as the engine, so a discipline change can never desynchronise them again."""
+    mrp = LIVE_DISCIPLINE.get("max_risk_pct")
+    st = float(week_low)
+    if mrp is not None:
+        st = max(st, float(entry) * (1.0 - float(mrp)))
+    return st
+
+
+def _ext_flags(entry: float, sma44: float) -> dict:
+    """Extension vs the signal-week 44w SMA + whether the RECORD would refuse this fill.
+
+    `LIVE_DISCIPLINE['ext_cap']` makes the engine SKIP a fill priced more than ext_cap above the
+    signal-week SMA. A card with no such flag can tell the owner to buy a name the book will never
+    record (constitution D5 / D4 compounding). Surfaced, never enforced on the card — the engine
+    remains the only place the rule is applied."""
+    cap = LIVE_DISCIPLINE.get("ext_cap")
+    if cap is None or sma44 != sma44 or sma44 <= 0:
+        return {}
+    return {"ext_pct_over_sma44": round((entry / sma44 - 1.0) * 100, 2),
+            "ext_cap_pct": round(float(cap) * 100, 2),
+            "record_would_skip_as_extended": bool(entry > sma44 * (1.0 + float(cap)))}
+
+
 def _sma44_now(P, t):
     """The most recent 44-week SMA for ticker t (the runner's exit reference)."""
     wa = P[t].get("wsma_at") or {}
@@ -229,12 +288,19 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
         lo, hi = ls["lo"], ls["hi"]
         cur = float(_last(P, t, "c"))
         entry = round(cur if lo < cur < hi else (lo + hi) / 2.0, 2)   # buy inside the band
-        stop = round(lo, 2)
+        # CONSTITUTION D5 — card/record parity. The stop is the one the RECORD will use (the
+        # discipline-lifted stop), not the raw signal-week low, so the card's R, its +2R target and
+        # every exit tranche are the same arithmetic the book will book. The raw low is still
+        # surfaced (stop_week_low) because it is the taught rule's reference.
+        sma_sig = _sma44_now(P, t)
+        stop = round(_record_stop(entry, lo), 2)
         if entry <= stop:
             continue
         signals.append({
             "ticker": t, "entry": entry, "stop": stop,
+            "stop_week_low": round(lo, 2),        # the taught rule's raw reference (informational)
             "target": round(entry + TARGET_R * (entry - stop), 2),
+            **_ext_flags(entry, sma_sig),
             "entry_low": round(lo, 2), "entry_high": round(hi, 2),
             "current_price": round(cur, 2), "close": round(cur, 2),
             "signal_date": str(fri.date()),                    # the just-closed setup week (stable)
@@ -250,7 +316,7 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
             "buy_window": "buy Mon–Fri this week, at the open inside the band [low, high] — fund strongest CRS rank first",
             # config-P surfacing: the entry pattern + the full 3-tranche exit plan with price levels.
             "pattern": "44-week SMA pullback",
-            "exit_plan": _exit_plan(entry, stop, _sma44_now(P, t)),
+            "exit_plan": _exit_plan(entry, stop, sma_sig),
         })
     # strongest-first on the page; top-5 flagged A so the grade filter surfaces the priority names
     signals.sort(key=lambda x: -x["crs_rank"])
@@ -572,12 +638,12 @@ def main(argv=None) -> int:
     # ── ₹10L paper book — realistic capital sim (A-only), kept for the NAV/equity portfolio.
     led_paper: list = []
     out_paper = R94.backtest(P, mem, ledger=led_paper, start=args.start, return_state=True, a_grade=a_set,
-                             **LIVE_DISCIPLINE, **LIVE_EXIT)
+                             **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS)
     # ── UNCAPPED signal ledger — every A signal tracked (cash never runs out), so a name is followed
     #    week to week regardless of what ₹10L could afford. This drives the SIGNALS page.
     led_all: list = []
     out_all = R94.backtest(P, mem, ledger=led_all, start=args.start, return_state=True, uncapped=True,
-                           a_grade=a_set, **LIVE_DISCIPLINE, **LIVE_EXIT)
+                           a_grade=a_set, **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS)
     # data's last date = the "as of" the book is current to
     last = max((pd.Timestamp(s["dates"][-1]) for s in P.values()), default=pd.Timestamp(args.start))
     generated_at = str(last.date())

@@ -1,0 +1,30 @@
+{
+  "ohlcv_sha256_prefix": "f8625a8ff6abae06",
+  "n_names_scanned": 710,
+  "detector": {
+    "lookback_bars": 263,
+    "drop_threshold": 0.5,
+    "source": "nq.data.ohlcv.demerger_suspect (existing momentum-path guard)"
+  },
+  "n_suspects": 2,
+  "suspects": [
+    "SKFINDIA",
+    "VEDL"
+  ],
+  "suspects_in_current_holdings": [],
+  "suspects_on_this_weeks_cards": [],
+  "suspects_in_index_snapshot": [
+    "SKFINDIA",
+    "VEDL"
+  ],
+  "known_demerger_reference_names": [
+    "ABFRL",
+    "RAYMOND",
+    "SKFINDIA",
+    "VEDL"
+  ],
+  "swing_path_applies_cleaner": false,
+  "swing_path_applies_quarantine": false,
+  "note": "Read-only. The swing engine has no cleaner and no quarantine hook; wiring either is an owner decision (constitution B-8). Nothing here was acted on.",
+  "verdict": "CLEAR \u2014 no suspect touches the live book or cards"
+}

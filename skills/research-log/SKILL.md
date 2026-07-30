@@ -26,6 +26,26 @@ finding file until the mechanism section is filled in.
 
 ---
 
+## Standing counts — state them in every readout (2026-07-30)
+
+**screens 12 · sealed opens 1 · n_trials 138.** Three separate ledgers; do not conflate them:
+
+| Ledger | What increments it | Where it lives |
+|---|---|---|
+| **`n_trials`** | A trial — one strategy config evaluated for a PROMOTE/KILL decision on the honest base. Increment **before** the run (the DSR deflates on the cumulative count). | `diagnostics/research/n_trials.json` |
+| **screens** | A kill-shot label screen (pass **or** fail). Costs a multiplicity row, **not** a trial. | row appended to `research/overlay_registry.md` |
+| **sealed opens** | Each time the sealed 2024H2+ set is read. Requires a frozen rule amended into the pre-reg **before** the open; once per study; stated forever after. | stated in the readout + finding |
+
+A screen that makes no trade decision does **not** touch `n_trials`. A measurement (pure
+observation, no decision) touches neither. See
+[`skills/verdict-machine`](../verdict-machine/SKILL.md) for which gate a given study is at, and
+[`skills/program-laws`](../program-laws/SKILL.md) for whether it should run at all.
+
+**Activation-bound law:** a finding that PASSES a screen does **not** authorize a usage design. The
+clairvoyant activation bound vs the ±10R/yr noise floor runs first, and it has killed 3/3 usage
+candidates (0119, 0121, and the 0117 rotation) at zero trial cost. A finding whose screen passed
+but whose bound failed is recorded as such — that is a complete, valuable record.
+
 ## Decision tree — where does this result go?
 
 ```

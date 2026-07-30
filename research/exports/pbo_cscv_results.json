@@ -1,0 +1,27 @@
+{
+  "n_configs": 17,
+  "n_months": 114,
+  "n_combos": 924,
+  "PBO": 0.462,
+  "mean_oos_rank_of_is_best": 8.68,
+  "mean_logit": 0.059,
+  "is_best_sharpe_mean": 1.239,
+  "oos_sharpe_of_is_best_mean": 0.843,
+  "oos_median_sharpe_mean": 0.835,
+  "is_best_frequency": {
+    "disaster15": 245,
+    "p2exit": 186,
+    "base": 170,
+    "extcap20": 81,
+    "extcap15": 71,
+    "disaster10": 67,
+    "disaster05": 30,
+    "notional20": 30,
+    "maxrisk10": 24,
+    "tp_on_high": 6,
+    "widen20": 5,
+    "earlycut": 3,
+    "voltarget": 3,
+    "hard_stop": 3
+  }
+}

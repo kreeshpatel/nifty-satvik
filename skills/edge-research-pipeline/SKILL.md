@@ -21,6 +21,27 @@ that artifact existing.
 
 ---
 
+> ## ⚠ THIS PIPELINE IS THE TRUNK, NOT THE ROOT (2026-07-30)
+>
+> Everything below describes how to run **a trial** — the only thing that spends `n_trials`
+> (currently **138**). A candidate does not get here by having a good hypothesis. It gets here by
+> surviving four cheaper gates first:
+>
+> 1. **[`skills/program-laws`](../program-laws/SKILL.md)** — the standing verdicts. Most ideas are
+>    already answered; the collision rule is **cite-and-narrow, not relitigate**.
+> 2. **[`skills/verdict-machine`](../verdict-machine/SKILL.md)** — registry confrontation →
+>    coverage/PIT audit → kill-shot screen (one **screen-ledger** row, currently **screens 12**;
+>    sealed opens **1**) → **activation bound**.
+> 3. **The activation-bound law is mandatory and is 3/3** (0117 rotation, 0119 tiebreak, 0121
+>    deferral): before any trial ask, compute the clairvoyant ceiling of the proposed rule and
+>    compare it to the **±10R/yr path-noise floor**. Below the floor or wrong-signed → **NO TRIAL**,
+>    record and stop. Six candidates have gone through this machine at a cost of *zero* trials.
+> 4. Only then does Stage 1 below begin.
+>
+> Note the baseline references in this file are the older `baseline_v0`/682-name era; the pinned
+> anchor of record is **`baseline_v1`** (see CLAUDE.md), and the swing programme's frozen cell is
+> the 0094 book. Use this file for the *procedure*, CLAUDE.md + `program-laws` for the *numbers*.
+
 ## §0 — Read these before starting
 
 1. **`skills/overlay-testing/SKILL.md`** — the end-to-end harness protocol for running

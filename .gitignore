@@ -60,6 +60,16 @@ results/*
 !results/decision_memos_weekly.json
 !results/decision_memos_weekly.md
 !results/blend_hybrid_paper.json
+!results/bulkblock_forward.csv
+!results/ratings_forward.csv
+!results/forward_accum_health.json
+# Append-only archive of the weekly-swing record (constitution D2). The book is recomputed from
+# inception every Saturday, so results/ is a MUTABLE working copy; these dated write-once snapshots
+# (+ the drift log) are the immutable artifact the Oct-1 gates read. They MUST be committable — the
+# cron `git add`s results/archive and without these whitelists the add silently no-ops (|| true),
+# exactly the failure that left weekly_monitor.json dead for weeks.
+!results/archive/
+!results/archive/**
 logs/
 dashboard/frontend/results/
 
@@ -170,3 +180,9 @@ research/losers_analysis/exit_packets/
 /research/substrate/pool_filter_sims.csv
 /research/substrate/crs_dissect_sims.csv
 /research/substrate/cold_start_sims.csv
+
+# Corrected-universe long dump — DERIVED, not mortal (scripts/export_ohlcv_corrected_long.py).
+# ~100 MB + ~48 MB, byte-deterministic from pinned ohlcv.pkl + ohlcv_backfill.pkl; verified
+# 2026-07-30 to match the builder exactly (4dp). Regenerate, don't commit.
+/research/exports/ohlcv_corrected_long.csv
+/research/exports/ohlcv_corrected_long.parquet

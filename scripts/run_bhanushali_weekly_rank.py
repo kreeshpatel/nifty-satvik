@@ -372,7 +372,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              trail_always: bool = False, trail_after: int = 2, cap_weeks: int = 0,
              lockin_mfe: float = 0.0, lockin_at: float = 1.0,
              chand_pct: float = 0.0, chand_after_r: float = 0.0,
-             soft_stop_pct: float = 0.0, stop_widen_pct: float = 0.0,
+             soft_stop_pct: float = 0.0, stop_widen_pct: float = 0.0, disaster_floor_pct: float = 0.0,
              lh_arm_r: float = 0.0, lh_n: int = 2, no_time_cap: bool = False,
              trendhold_pct: float = 0.0, blowoff_arm_r: float = 0.0, blowoff_third: float = 0.34,
              wk20_trail_pct: float | None = None,
@@ -383,7 +383,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              ext_floor: float | None = None, entry_mode: str = "in_range",
              stop_atr_mult: float | None = None, buystop_buffer: float = 0.0,
              scaled_exit: dict | None = None, hard_stop: bool = False,
-             max_risk_pct: float | None = None, max_notional_pct: float | None = None):
+             max_risk_pct: float | None = None, max_notional_pct: float | None = None,
+             stale_absent_days: int = 0):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
@@ -394,7 +395,14 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
     eq0: starting-capital override. None (default) => EQ0 (the ₹10L paper book). A very large eq0
     makes the book UNCAPPED — cash never runs out, so EVERY fillable signal enters and gets tracked
     (the signal ledger), not just the capital-constrained subset. Per-trade R / return_pct are
-    capital-independent, so an uncapped run is the correct per-signal lifecycle; its NAV is ignored."""
+    capital-independent, so an uncapped run is the correct per-signal lifecycle; its NAV is ignored.
+
+    stale_absent_days (constitution B-1): force-close a held name that has printed NO bar for this
+    many consecutive sessions, at its LAST TRADED price, reason "stale". Mirrors the momentum
+    engine's ``nq.engine.portfolio.STALE_ABSENT_DAYS`` (10) rather than inventing a new parameter.
+    When ON, an absent holding is also marked to its last traded close in the NAV sum instead of its
+    ENTRY price. 0 (default) => OFF => byte-identical to the 0094 run of record, which freezes such
+    a position forever and carries it at cost (the B-1 bug, captured in tests/test_r94_golden.py)."""
     vt_ann, vt_win, vt_floor = vol_target if vol_target else (0.0, 42, 1.0)
     _EQ0 = EQ0 if eq0 is None else float(eq0)
     dts = pd.DatetimeIndex(sorted(set().union(*[set(s["dates"]) for s in P.values()])))
@@ -404,6 +412,9 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
     op: dict[str, dict] = {}
     orders: dict[str, dict] = {}
     curve = []; T = []; skipped_cash = 0; activations = 0
+    # B-1 NAV-mark selector, bound once (gate OFF => the frozen entry-price mark, byte-identical).
+    _absent_mark = ((lambda p_: p_.get("last_mark", p_["en"])) if stale_absent_days
+                    else (lambda p_: p_["en"]))
     eq_hist: list[float] = []                       # book equity by day (for the vol-target scalar; prior-day only)
     for d in dts:
         dd = d.date()
@@ -411,8 +422,36 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
         for t in list(op):
             p = op[t]; i = didx[t].get(d)
             if i is None:
+                # CONSTITUTION B-1: a held name with no bar today used to be skipped unconditionally
+                # — exit logic never ran again (a suspended/delisting holding froze forever) and the
+                # NAV sum marked it at ENTRY price. stale_absent_days mirrors the momentum engine's
+                # STALE_ABSENT_DAYS: after N consecutive absent sessions, force-close at the LAST
+                # TRADED price with reason "stale". 0 => OFF => byte-identical (the frozen 0094 run).
+                if stale_absent_days:
+                    p["absent_run"] = p.get("absent_run", 0) + 1
+                    if p["absent_run"] >= stale_absent_days:
+                        px = float(p.get("last_mark", p["en"]))
+                        xp = p["sh"] * px
+                        got = xp * (1 - _cost_leg(p["adv"], xp, cost_off))
+                        cash += got; p["proceeds"] += got; p["stt"] += xp * STT_PCT
+                        r_rest = (px - p["en"]) / p["risk0"]
+                        if scaled_exit:
+                            R = p["realized_r"] + p["frac_left"] * r_rest
+                        else:
+                            R = 0.5 * 2.0 + 0.5 * r_rest if p["half_done"] else r_rest
+                        T.append(dict(R=R, reason="stale", held=p["weeks"], half=p["half_done"]))
+                        if "rec" in p:
+                            p["rec"].update(exit_date=d, exit_px=round(float(px), 2), reason="stale",
+                                            held_weeks=p["weeks"], R=round(float(R), 3),
+                                            net_pnl=round(float(p["proceeds"] - p["cash_out"]), 2),
+                                            stt_paid=round(float(p["stt"]), 2),
+                                            stale_absent_sessions=int(p["absent_run"]))
+                            ledger.append(p["rec"])
+                        del op[t]
                 continue
             s = P[t]
+            p["absent_run"] = 0
+            p["last_mark"] = float(s["c"][i])      # last TRADED close (the B-1 stale-exit price)
             if p["pending"] is not None:
                 act, rs = p["pending"]
                 px = s["o"][i]
@@ -511,6 +550,36 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     else:
                         _R = 0.5 * 2.0 + 0.5 * _rr if p["half_done"] else _rr
                     _rsn = "hardstop_gap" if _op < p["stop"] else "hardstop"
+                    T.append(dict(R=_R, reason=_rsn, held=p["weeks"], half=p["half_done"]))
+                    if "rec" in p:
+                        p["rec"].update(exit_date=d, exit_px=round(float(_hit), 2), reason=_rsn,
+                                        held_weeks=p["weeks"], R=round(float(_R), 3),
+                                        net_pnl=round(float(p["proceeds"] - p["cash_out"]), 2),
+                                        stt_paid=round(float(p["stt"]), 2))
+                        ledger.append(p["rec"])
+                    del op[t]; continue
+
+            # DISASTER-FLOOR STOP (pre-reg 0109, cohort forensic 2026-07-27): a standing intraday
+            # catastrophe order at entry-stop x (1 - disaster_floor_pct), FIXED at entry (a broker GTT).
+            # Unlike hard_stop (KILLED 0105: whipsaws the shallow intra-week piercings that recover — 14
+            # winners / 34.6R), the deep floor is pure-asymmetric in-sample: at 0.10 ZERO winners in 9y
+            # pierced it while 21 catastrophe losers (JSL-class grinds) did. Fill at the floor, or at the
+            # open on a gap-through. 0.0 (default) => byte-identical to the 0094 run of record.
+            if disaster_floor_pct and p["pending"] is None:
+                _fl = p.get("floor0", p["stop"] * (1.0 - disaster_floor_pct))
+                p["floor0"] = _fl
+                _op = s["o"][i]
+                _hit = _op if _op < _fl else (_fl if s["l"][i] <= _fl else None)
+                if _hit is not None:
+                    _xp = p["sh"] * _hit
+                    _got = _xp * (1 - _cost_leg(p["adv"], _xp, cost_off))
+                    cash += _got; p["proceeds"] += _got; p["stt"] += _xp * STT_PCT
+                    _rr = (_hit - p["en"]) / p["risk0"]
+                    if scaled_exit:
+                        _R = p["realized_r"] + p["frac_left"] * _rr
+                    else:
+                        _R = 0.5 * 2.0 + 0.5 * _rr if p["half_done"] else _rr
+                    _rsn = "disaster_gap" if _op < _fl else "disaster"
                     T.append(dict(R=_R, reason=_rsn, held=p["weeks"], half=p["half_done"]))
                     if "rec" in p:
                         p["rec"].update(exit_date=d, exit_px=round(float(_hit), 2), reason=_rsn,
@@ -810,7 +879,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                                  weeks=0, adv=s["adv20"][i], half_done=False, trail=st, pending=None,
                                  stt=sh * en * STT_PCT, cash_out=notion, proceeds=0.0,
                                  origin=int(o_.get("origin", 0)),   # CONTEXT-ROUTER: per-branch exit lookup
-                                 frac_left=1.0, realized_r=0.0, t1_done=False, t2_done=False)
+                                 frac_left=1.0, realized_r=0.0, t1_done=False, t2_done=False,
+                                 absent_run=0, last_mark=en)        # B-1 staleness bookkeeping
                     rp = sh * (en - st) / sizing_eq * 100      # risk as % of SIZING equity
                     # The notional cap legitimately UNDER-sizes (that is what a cap does), so the strict
                     # sizing invariant only applies when uncapped. Capped, risk may only be REDUCED —
@@ -831,7 +901,11 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
             i = didx[t].get(d)
             if i is not None and i == max(orders[t]["days"]):
                 del orders[t]
-        mtm = sum(p["sh"] * (P[t]["c"][didx[t][d]] if d in didx[t] else p["en"]) for t, p in op.items())
+        # NAV mark for a name with no bar today. B-1: the frozen behaviour marks it at ENTRY price
+        # (carrying a suspended holding at cost, flattering NAV); with the stale gate ON it marks to
+        # the LAST TRADED close. Gate OFF => `p["en"]` exactly => byte-identical.
+        mtm = sum(p["sh"] * (P[t]["c"][didx[t][d]] if d in didx[t] else _absent_mark(p))
+                  for t, p in op.items())
         eq = cash + mtm
         assert uncapped or cash >= -1e-6   # uncapped mode lets cash go negative (NAV is ignored there)
         curve.append((d, eq))
