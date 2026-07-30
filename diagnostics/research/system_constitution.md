@@ -611,3 +611,62 @@ job in one status block; surfacing that block somewhere the owner looks daily re
 | **S2-F1** | **J3 has never fired on schedule** — wiring is branch-only; its "8/8 fired" record in S.2 was inferred from locally-produced artifacts. 137 rows uncollected as of 2026-07-30. | Merging the branch to `main` activates it. Until then the forward accumulators collect **nothing** automatically. Owner door (merge). |
 | **S2-F2** | **The F-S1 dead-man's-switch is itself unmerged** — the fix recorded as "applied" in S.5 does not run. | Same merge. Until then no job has an automated absence alarm. |
 | **S2-F3** | **Audit-method correction** — a committed proof-artifact is not firing evidence when that artifact is hand-producible. Require default-branch run history plus a runner-authored commit. | Recorded here; applies to every future scheduler audit. |
+
+## S2.7 Post-merge status (2026-07-30, after `a2befea`)
+
+The branch merged via PR #53 (44 commits, no squash — the history is the research record). CI was
+green on the head commit `44dda60`. Registry verified on `main` immediately after the merge:
+
+| Component | Registered on `main` | Evidence |
+|---|---|---|
+| J3 forward accumulators | **YES** | `cron-bhanushali-monitor.yml:49` (`run: python scripts/run_forward_accumulators.py`) + the git-add at `:56` |
+| J5 D2 archive | **YES** | `cron-bhanushali-scanner.yml:74` (`run: python scripts/archive_weekly_snapshot.py`) |
+| F-S1 dead-man | **YES** | `scripts/scheduler_health.py` present; invoked from `run_bhanushali_monitor.py:311-312`, folding a `scheduler_health` block into `weekly_monitor.json` |
+
+**Catch-up (front door, `workflow_dispatch` run 30539245191, conclusion success).** One dispatch of
+the daily monitor so the collectors absorbed the dormant window through the normal append path with
+real timestamps. Bulk/block **149 → 286 rows (+137, all 29-JUL-2026)**; ratings **88 → 93 (+5)**.
+Outputs committed to `main` as `3c2aac5 chore(weekly-monitor): daily re-price 2026-07-30`.
+
+**Permanent gap: none** — coverage is continuous (bulk/block 28-JUL + 29-JUL; ratings 21-JUL →
+30-JUL). The dormancy was ~1 day, shorter than both sources' rolling windows. Recorded honestly in
+`results/FORWARD_ACCUMULATORS_README.md` **together with the near-miss**: bulk/block is a rolling
+current-file endpoint with no working historical API, so a longer dormancy would have been
+permanently unrecoverable. The accumulator's own reason for existing is the thing a silent outage
+destroys.
+
+**Commit identity note:** the cron commits as `kreeshpatel <kreeshvasistha@gmail.com>`, not a
+distinct bot identity. Harmless today, but it means a runner-authored commit is not distinguishable
+from an owner-authored one by author line alone — which weakens the S2-F3 rule (firing evidence =
+run log + runner-authored commit). Consider setting the workflow's git identity to a bot.
+**S2-F4**, below.
+
+## S2.8 Updated job × host × schedule × alarm-path
+
+| Job | Host | Schedule (UTC → IST) | Status after merge | Alarm path |
+|---|---|---|---|---|
+| J1 scanner | GH Actions (`main`) | `30 12 * * 6` → 18:00 Sat | live (~+1.5h) | dashboard `cron_health` (miscalibrated, S-F2) |
+| J2 monitor | GH Actions (`main`) | `45 10 * * 1-5` → 16:15 | live (~+1.5–2.7h) | dead-man block (now produced) |
+| **J3 accumulators** | GH Actions (`main`) | rides J2 | **ACTIVATED** — first dispatch 30539245191 ✅; first *scheduled* firing pending | `forward_accum_health.json` + dead-man |
+| J4 scorecard | GH Actions (`main`) | rides J1 | live | — |
+| **J5 D2 archive** | GH Actions (`main`) | rides J1 | **ACTIVATED** — first firing due Sat 2026-08-01 | drift log + dead-man |
+| J6 blend paper | GH Actions (`main`) | rides J1 | live | — |
+| J7 intraday | GH Actions (`main`) | `0 9 * * 1-5` → 14:30 | live, fires post-close (S-F4 orig.) | — |
+| J8 kite refresh | GH Actions (`main`) | `45 0 * * 1-5` → 06:15 | live, no-op skip | — |
+| **J9 forward-wall** | **nowhere** | — | **still unscheduled — OPEN OWNER QUESTION** | — |
+| **F-S1 dead-man** | GH Actions (`main`) | rides J2 | **ACTIVATED** | writes into `weekly_monitor.json`; surfacing = S-F3 |
+
+**J9 — deliberately not scheduled.** Whether the 3-book forward wall should log daily is a strategy
+decision, not a host decision: the momentum sleeve is suspended, and CLAUDE.md calls the wall "the
+only certifier." Carried as an **open owner question for the September wall audit**. Scheduling it
+without deciding what it certifies would manufacture a record nobody has agreed to read.
+
+## S2.9 Flags updated / added
+
+| ID | Status |
+|----|--------|
+| **S2-F1** (J3 never fired) | **RESOLVED** by the merge + catch-up. Awaiting its first *scheduled* firing for full confirmation per S2-F3. |
+| **S2-F2** (dead-man unmerged) | **RESOLVED** — registered and invoked; surfacing to a place the owner reads daily remains S-F3. |
+| **S2-F3** (audit-method) | Standing. Firing evidence = Actions run log, cross-checked against a runner-authored commit. |
+| **S2-F4** (new) | **Cron commits are authored as the owner, not a bot** — a runner-authored commit cannot be told from a hand-made one by author line. Weakens S2-F3's cross-check. One-line workflow fix; owner door because it changes the commit record's appearance. |
+| **S2-F5** (new) | **The R94 golden master is flaky on CI** — the same commit (`44dda60`), with identical dependency versions (numpy 2.5.1 / pandas 3.0.5 / scipy 1.18.0), failed once on `curve_hash` (`54deb7e3…` vs golden `84cc3d09…`) and passed on re-run; it does not reproduce locally across five hash seeds. A guardian of engine reproducibility that is intermittently red on healthy code decays into an ignored alarm — the same pathology as the miscalibrated `cron_health` banner (S-F2). Needs a root-cause pass (non-determinism in the fill/curve path, or a runner-level numeric difference), not a threshold change. |
