@@ -378,3 +378,166 @@ def _has_kite_session(user: User, db: Session) -> bool:
     import time as _time
     sess = db.query(KiteSession).filter(KiteSession.user_id == user.id).first()
     return sess is not None and _time.time() < sess.expires_at
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Paper (ref) — the bhanushali modelled paper book, for the Portfolio page.
+# ─────────────────────────────────────────────────────────────────────────────
+
+@router.get("/portfolio/paper-ref")
+def get_paper_reference_book(user: User = Depends(get_current_user)):
+    """The bhanushali weekly-swing PAPER book — modelled fills, not live holdings.
+
+    Reads the SAME canonical artifacts the record of record uses, through the same
+    GitHub-contents path every other cron-published reader uses (the deployed service has no
+    `results/` on disk). No parallel computation, so there is no drift surface:
+
+      results/paper_portfolio_weekly.json  — book + open positions (written by the weekly
+                                             scanner, re-priced by the daily monitor)
+      results/portfolio_history_weekly.csv — NAV series
+      results/weekly_monitor.json          — freshness stamp of the last re-price
+
+    NOT the momentum forward-wall books: those have never produced a log (their producer has
+    no scheduled trigger — an open owner question), so there is nothing to render and this
+    endpoint deliberately does not reference them.
+
+    NOT `results/paper_ledger_history.csv` either — that fed the old momentum paper broker,
+    whose producer was removed with the momentum book; the file is absent from the repo, so
+    anything reading it renders an empty series that merely *looks* live.
+
+    Admin-only, matching the existing paper/overview gate: the paper book is a single-owner
+    simulation artifact.
+
+    Response:
+      { available, as_of, summary{...}, positions[...], closed[...], nav[...], sources{...} }
+    """
+    empty = {
+        "available": False, "as_of": None,
+        "summary": {}, "positions": [], "closed": [], "nav": [],
+        "sources": {}, "note": "",
+    }
+    if not user.is_admin:
+        return empty
+
+    book = fetch_github_json("results/paper_portfolio_weekly.json")
+    if not isinstance(book, dict) or not book:
+        return {**empty, "note": "paper book artifact unavailable"}
+
+    # ── freshness: the monitor's re-price stamp is the honest "as of" ──────────
+    as_of = None
+    monitor = fetch_github_json("results/weekly_monitor.json")
+    if isinstance(monitor, dict):
+        as_of = monitor.get("generated_utc") or monitor.get("generated_ist")
+
+    def _f(v, default=0.0):
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return default
+
+    # ── open positions, with unrealised R derived from the book's own stop ─────
+    positions = []
+    raw_positions = book.get("positions")
+    if isinstance(raw_positions, dict):
+        for ticker, p in raw_positions.items():
+            if not isinstance(p, dict):
+                continue
+            entry = _f(p.get("entry_price"))
+            stop = _f(p.get("atr_stop"))
+            cur = _f(p.get("current_price"))
+            risk = entry - stop
+            positions.append({
+                "ticker": ticker,
+                "entry_date": p.get("entry_date"),
+                "entry_price": round(entry, 2),
+                "stop": round(stop, 2),
+                "target": round(_f(p.get("target")), 2),
+                "current_price": round(cur, 2),
+                "shares": round(_f(p.get("shares")), 2),
+                "position_size": round(_f(p.get("position_size")), 2),
+                "current_value": round(_f(p.get("current_value")), 2),
+                "unrealised_pnl": round(_f(p.get("unrealised_pnl")), 2),
+                "unrealised_pnl_pct": round(_f(p.get("unrealised_pnl_pct")), 2),
+                # R is capital-independent and is how the book is judged internally.
+                "unrealised_r": round((cur - entry) / risk, 2) if risk > 0 else None,
+                "days_held": int(_f(p.get("days_held"))),
+            })
+    positions.sort(key=lambda r: (r["entry_date"] or "", r["ticker"]))
+
+    # ── closed trades ─────────────────────────────────────────────────────────
+    # The book records `total_trades`; a closed-trade ledger is only present once exits
+    # occur. Report the count honestly and return [] rather than fabricating rows.
+    closed: list[dict] = []
+    raw_closed = book.get("closed_trades") or book.get("trades")
+    if isinstance(raw_closed, list):
+        for t in raw_closed:
+            if not isinstance(t, dict):
+                continue
+            e, x = _f(t.get("entry_price")), _f(t.get("exit_price"))
+            st = _f(t.get("atr_stop") or t.get("stop"))
+            risk = e - st
+            closed.append({
+                "ticker": t.get("ticker") or t.get("symbol"),
+                "entry_date": t.get("entry_date"), "exit_date": t.get("exit_date"),
+                "entry_price": round(e, 2), "exit_price": round(x, 2),
+                "exit_reason": t.get("exit_reason") or t.get("reason"),
+                "realised_pnl": round(_f(t.get("realised_pnl") or t.get("pnl")), 2),
+                "realised_r": (round(_f(t.get("R")), 2) if t.get("R") is not None
+                               else (round((x - e) / risk, 2) if risk > 0 else None)),
+            })
+        closed.sort(key=lambda r: (r["exit_date"] or ""), reverse=True)
+
+    # ── NAV series ────────────────────────────────────────────────────────────
+    nav = []
+    try:
+        df = fetch_github_csv("results/portfolio_history_weekly.csv")
+        if df is not None and not df.empty:
+            for _, row in df.iterrows():
+                v = _f(row.get("total_value"))
+                if not (v > 0):        # NaN-safe: `nan <= 0` is False
+                    continue
+                nav.append({"date": str(row.get("date", "")), "value": round(v, 2)})
+    except Exception as exc:
+        logger.warning("paper-ref nav read failed: %s", exc)
+
+    total_value = _f(book.get("total_value"))
+    peak = _f(book.get("peak_value"))
+    # Anchor since-inception to the book's cost basis, not nav[0] — the same F7 lesson the
+    # paper-history endpoint above records: nav[0] is merely the first surviving ledger row and
+    # drifts after any deploy/collection gap, producing two disagreeing "since inception" numbers.
+    try:
+        from config import INITIAL_CAPITAL
+        baseline = float(INITIAL_CAPITAL)
+    except Exception:
+        baseline = 1_000_000.0
+    summary = {
+        "total_value": round(total_value, 2),
+        "cash": round(_f(book.get("cash")), 2),
+        "peak_value": round(peak, 2),
+        "n_positions": int(_f(book.get("n_positions"))),
+        "total_trades": int(_f(book.get("total_trades"))),
+        "invested": round(total_value - _f(book.get("cash")), 2),
+        "unrealised_pnl": round(sum(p["unrealised_pnl"] for p in positions), 2),
+        "since_inception_pct": (round((total_value / baseline - 1) * 100, 2)
+                                if baseline > 0 else None),
+        "drawdown_from_peak_pct": (round((total_value / peak - 1) * 100, 2)
+                                   if peak > 0 else None),
+        "inception_date": nav[0]["date"] if nav else None,
+    }
+
+    return {
+        "available": True,
+        "as_of": as_of,
+        "summary": summary,
+        "positions": positions,
+        "closed": closed,
+        "nav": nav,
+        "sources": {
+            "book": "results/paper_portfolio_weekly.json",
+            "nav": "results/portfolio_history_weekly.csv",
+            "freshness": "results/weekly_monitor.json",
+        },
+        "note": ("Modelled fills on a paper reference book — not live holdings, not advice. "
+                 "Positions are re-priced by the daily monitor; the book is rebuilt by the "
+                 "weekly scanner."),
+    }

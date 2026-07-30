@@ -289,6 +289,12 @@ export const fetchNavHistory = (days = 365) =>
 export const fetchPaperHistory = (days = 365) =>
   authJson(`${API}/api/portfolio/paper-history?days=${days}`);
 
+// The "Paper (ref)" reference book — the bhanushali modelled record (book + open positions +
+// closed trades + NAV), read server-side from the canonical cron-published artifacts. Distinct
+// from fetchPaperHistory above, which points at the removed momentum paper broker's ledger.
+export const fetchPaperRef = () =>
+  authJson(`${API}/api/portfolio/paper-ref`);
+
 export const fetchSignals = (model = 'bhanushali') =>
   authJson(`${API}/api/signals?model=${model}`);
 

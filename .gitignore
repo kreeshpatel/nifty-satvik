@@ -187,3 +187,4 @@ research/losers_analysis/exit_packets/
 # 2026-07-30 to match the builder exactly (4dp). Regenerate, don't commit.
 /research/exports/ohlcv_corrected_long.csv
 /research/exports/ohlcv_corrected_long.parquet
+dashboard/backend/dev_verify.db
