@@ -1,0 +1,247 @@
+{
+  "_doc": "0124 Weinstein whole-system shadow backtest (MEASUREMENT; 0 trials, 0 screens).",
+  "prereg": "diagnostics/research/preregistry/0124-weinstein-stage-analysis.md",
+  "weekly_panel": {
+    "rows": 336382,
+    "tickers": 788,
+    "content_sha256": "2b5d6592966bf7ef2c1aea4fdf2a6ffe764bcd0f2a36159d439cc592857f1e12"
+  },
+  "signals_member_liquid": 211,
+  "trades_uncapped": 180,
+  "per_trade": {
+    "N": 180,
+    "win_pct": 39.4,
+    "meanR": 0.077,
+    "medR": -0.135,
+    "PF": 1.39,
+    "median_risk_pct": 24.92,
+    "stopout_pct": 98.9,
+    "median_held_weeks": 9
+  },
+  "per_trade_by_year": [
+    {
+      "year": 2017,
+      "N": 2,
+      "win_pct": 0.0,
+      "meanR": -0.208,
+      "medR": -0.208,
+      "PF": 0.0
+    },
+    {
+      "year": 2018,
+      "N": 9,
+      "win_pct": 22.2,
+      "meanR": -0.178,
+      "medR": -0.15,
+      "PF": 0.11
+    },
+    {
+      "year": 2019,
+      "N": 14,
+      "win_pct": 7.1,
+      "meanR": -0.217,
+      "medR": -0.233,
+      "PF": 0.11
+    },
+    {
+      "year": 2020,
+      "N": 13,
+      "win_pct": 15.4,
+      "meanR": -0.225,
+      "medR": -0.271,
+      "PF": 0.49
+    },
+    {
+      "year": 2021,
+      "N": 7,
+      "win_pct": 28.6,
+      "meanR": -0.134,
+      "medR": -0.121,
+      "PF": 0.3
+    },
+    {
+      "year": 2022,
+      "N": 16,
+      "win_pct": 37.5,
+      "meanR": 0.648,
+      "medR": -0.167,
+      "PF": 3.68
+    },
+    {
+      "year": 2023,
+      "N": 61,
+      "win_pct": 54.1,
+      "meanR": 0.253,
+      "medR": 0.073,
+      "PF": 3.03
+    },
+    {
+      "year": 2024,
+      "N": 29,
+      "win_pct": 48.3,
+      "meanR": -0.082,
+      "medR": -0.025,
+      "PF": 0.59
+    },
+    {
+      "year": 2025,
+      "N": 28,
+      "win_pct": 39.3,
+      "meanR": -0.018,
+      "medR": -0.149,
+      "PF": 0.9
+    },
+    {
+      "year": 2026,
+      "N": 1,
+      "win_pct": 0.0,
+      "meanR": -0.216,
+      "medR": -0.216,
+      "PF": 0.0
+    }
+  ],
+  "capped": {
+    "Sharpe": 0.259,
+    "CAGR_pct": 1.66,
+    "MaxDD_pct": -21.13,
+    "ann_vol_pct": 7.59,
+    "trades": 135,
+    "cash_skips": 45,
+    "Calmar": 0.08,
+    "boot_ci": [
+      -0.58,
+      1.027
+    ],
+    "slices": {
+      "2017-21": {
+        "Sharpe": -0.74,
+        "CAGR_pct": -3.73,
+        "MaxDD_pct": -21.01,
+        "ann_vol_pct": 5.04,
+        "n_days": 1237
+      },
+      "2022-26": {
+        "Sharpe": 0.861,
+        "CAGR_pct": 8.0,
+        "MaxDD_pct": -12.77,
+        "ann_vol_pct": 9.64,
+        "n_days": 1110
+      }
+    },
+    "yearly_pct": {
+      "2017": -0.03,
+      "2018": -3.96,
+      "2019": -5.72,
+      "2020": -11.0,
+      "2021": 2.69,
+      "2022": 3.01,
+      "2023": 37.49,
+      "2024": 0.43,
+      "2025": 0.81,
+      "2026": -1.49
+    }
+  },
+  "correlation_weekly": {
+    "weinstein": {
+      "weinstein": 1.0,
+      "swing": 0.381,
+      "lowvol": 0.344
+    },
+    "swing": {
+      "weinstein": 0.381,
+      "swing": 1.0,
+      "lowvol": 0.601
+    },
+    "lowvol": {
+      "weinstein": 0.344,
+      "swing": 0.601,
+      "lowvol": 1.0
+    }
+  },
+  "erc_blend": {
+    "swing_lowvol": {
+      "Sharpe": 1.182,
+      "MaxDD_pct": -29.66,
+      "worst_year_pct": 3.8,
+      "losing_years": 0
+    },
+    "plus_weinstein": {
+      "Sharpe": 1.005,
+      "MaxDD_pct": -20.96,
+      "worst_year_pct": -2.46,
+      "losing_years": 2
+    },
+    "weinstein_standalone_weekly": {
+      "Sharpe": 0.283,
+      "MaxDD_pct": -20.88,
+      "worst_year_pct": -11.1,
+      "losing_years": 4
+    }
+  },
+  "anatomy": [
+    {
+      "ext_band": "<10%",
+      "risk_tercile": "tight",
+      "N": 6,
+      "meanR": 0.021,
+      "win_pct": 66.667
+    },
+    {
+      "ext_band": "10-15%",
+      "risk_tercile": "tight",
+      "N": 35,
+      "meanR": 0.017,
+      "win_pct": 37.143
+    },
+    {
+      "ext_band": "10-15%",
+      "risk_tercile": "mid",
+      "N": 10,
+      "meanR": -0.29,
+      "win_pct": 20.0
+    },
+    {
+      "ext_band": "10-15%",
+      "risk_tercile": "wide",
+      "N": 1,
+      "meanR": -0.382,
+      "win_pct": 0.0
+    },
+    {
+      "ext_band": "15-20%",
+      "risk_tercile": "tight",
+      "N": 19,
+      "meanR": -0.055,
+      "win_pct": 42.105
+    },
+    {
+      "ext_band": "15-20%",
+      "risk_tercile": "mid",
+      "N": 33,
+      "meanR": -0.017,
+      "win_pct": 33.333
+    },
+    {
+      "ext_band": "15-20%",
+      "risk_tercile": "wide",
+      "N": 17,
+      "meanR": 0.31,
+      "win_pct": 41.176
+    },
+    {
+      "ext_band": ">20%",
+      "risk_tercile": "mid",
+      "N": 17,
+      "meanR": 0.058,
+      "win_pct": 35.294
+    },
+    {
+      "ext_band": ">20%",
+      "risk_tercile": "wide",
+      "N": 42,
+      "meanR": 0.278,
+      "win_pct": 47.619
+    }
+  ],
+  "top_decile_share_of_R": 2.641
+}

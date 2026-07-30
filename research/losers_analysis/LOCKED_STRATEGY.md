@@ -12,6 +12,9 @@ Weekly bars, decided on the completed weekly close, executed next-Monday first d
 3. **Quality green** — `close>open`, close in upper half of range.
 4. **RS** — `RS > SMA40(RS)`, `RS = close/Nifty50`; fills strongest-CRS-first under the cap.
 Stop = signal-week low.
+> **⚠ 2026-07-31:** the "+1.0R core" below is the ad-hoc E11 number. The committed census
+> ([`ext_band_census.md`](../../diagnostics/research/ext_band_census.md)) measures **+0.717R at N=418**;
+> the 5–10% band is **+0.094 (weak), not a −0.52R trap**. Direction holds, magnitude does not.
 > Phase-1 note: the deep-near-SMA touch (<5% ext, +1.0R core), the flat-base BOX breakout, and the pivot S/R
 > breakout are all **positive-expectancy entries** but are **Phase-3 SIZING levers** (overweight / sleeves),
 > NOT entry-filter changes — a hard <5% filter DEGRADES the capped book (CRS-rank already selects). So the
@@ -40,7 +43,9 @@ Per-year scorecard in `FORENSIC_FINDINGS.md`.
 ## PHASE 3 — SIZING & RISK (open; implemented on the live/paper book)
 The trade engine is fixed; Phase 3 tunes HOW MUCH capital each trade gets. Levers to work through:
 1. **Per-trade risk** (2% base) + a **max-stop / risk cap** (wide-stop blow-offs).
-2. **Conviction overweight** — size UP the deep-near-SMA (<5% ext) touches (the +1.0R core); size down extended.
+2. **Conviction overweight** — size UP the deep-near-SMA (<5% ext) touches (**+0.717R at N=418** per the
+   2026-07-31 census, not the ad-hoc +1.0R); size down extended. Note the 5–10% band is **weak (+0.094),
+   not negative** — sizing it down is dilution management, not trap avoidance.
 3. **Sleeve allocation** — separate capital buckets for touch / box-breakout / S/R so the additive setups
    diversify instead of starving the 15-slot cap (the recurring per-trade≠portfolio bottleneck).
 4. **Capacity for longer holds** — the no-cap exit holds ~2× longer (168 vs 255 trades); needs more concurrent

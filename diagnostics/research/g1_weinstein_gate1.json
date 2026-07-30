@@ -1,0 +1,224 @@
+{
+  "_doc": "G1 Weinstein Gate-1 census (MEASUREMENT; 0 trials, 0 screens). Entry-count census + ext-at-entry. No backtest, no capital, no config change.",
+  "frozen_params": {
+    "SMA_LEN": 30,
+    "BASE_LEN": 26,
+    "FLAT_TOL": 0.05,
+    "BASE_RANGE_MAX": 0.35,
+    "MA_TURN_LOOKBACK": 4,
+    "RS_SMA_LEN": 52,
+    "RS_RISE_LOOKBACK": 4,
+    "VOL_MULT": 2.0,
+    "VOL_LOOKBACK": 10,
+    "COOLDOWN": 26,
+    "ADV_MIN": 50000000.0,
+    "index": "nifty50",
+    "start": "2017-01-01"
+  },
+  "weekly_panel": {
+    "rows": 336382,
+    "tickers": 788,
+    "content_sha256": "2b5d6592966bf7ef2c1aea4fdf2a6ffe764bcd0f2a36159d439cc592857f1e12"
+  },
+  "signals_total": 294,
+  "signals_pit_member": 223,
+  "signals_member_and_liquid": 211,
+  "span_years": 9.37,
+  "signals_per_year_member_liquid": 22.5,
+  "per_year": [
+    {
+      "year": 2017,
+      "all_signals": 4,
+      "pit_member": 3,
+      "member_and_ADV5cr": 2,
+      "distinct_names": 2
+    },
+    {
+      "year": 2018,
+      "all_signals": 14,
+      "pit_member": 9,
+      "member_and_ADV5cr": 9,
+      "distinct_names": 9
+    },
+    {
+      "year": 2019,
+      "all_signals": 30,
+      "pit_member": 26,
+      "member_and_ADV5cr": 18,
+      "distinct_names": 18
+    },
+    {
+      "year": 2020,
+      "all_signals": 20,
+      "pit_member": 16,
+      "member_and_ADV5cr": 13,
+      "distinct_names": 13
+    },
+    {
+      "year": 2021,
+      "all_signals": 8,
+      "pit_member": 7,
+      "member_and_ADV5cr": 7,
+      "distinct_names": 7
+    },
+    {
+      "year": 2022,
+      "all_signals": 22,
+      "pit_member": 21,
+      "member_and_ADV5cr": 21,
+      "distinct_names": 21
+    },
+    {
+      "year": 2023,
+      "all_signals": 88,
+      "pit_member": 64,
+      "member_and_ADV5cr": 64,
+      "distinct_names": 64
+    },
+    {
+      "year": 2024,
+      "all_signals": 42,
+      "pit_member": 29,
+      "member_and_ADV5cr": 29,
+      "distinct_names": 29
+    },
+    {
+      "year": 2025,
+      "all_signals": 43,
+      "pit_member": 33,
+      "member_and_ADV5cr": 33,
+      "distinct_names": 33
+    },
+    {
+      "year": 2026,
+      "all_signals": 23,
+      "pit_member": 15,
+      "member_and_ADV5cr": 15,
+      "distinct_names": 15
+    },
+    {
+      "year": "TOTAL",
+      "all_signals": 294,
+      "pit_member": 223,
+      "member_and_ADV5cr": 211,
+      "distinct_names": 174
+    }
+  ],
+  "leg_attrition": [
+    {
+      "leg": "universe (weeks with a 30w SMA + a full base window)",
+      "name_weeks": 293042,
+      "pct_of_universe": 100.0,
+      "survival_vs_prev": "\u2014"
+    },
+    {
+      "leg": "+ stage-1 base: 30w SMA flat",
+      "name_weeks": 54752,
+      "pct_of_universe": 18.684,
+      "survival_vs_prev": 18.68
+    },
+    {
+      "leg": "+ stage-1 base: price range-bound",
+      "name_weeks": 20872,
+      "pct_of_universe": 7.1225,
+      "survival_vs_prev": 38.12
+    },
+    {
+      "leg": "+ close > base ceiling (the breakout)",
+      "name_weeks": 1084,
+      "pct_of_universe": 0.3699,
+      "survival_vs_prev": 5.19
+    },
+    {
+      "leg": "+ close > 30w SMA",
+      "name_weeks": 1084,
+      "pct_of_universe": 0.3699,
+      "survival_vs_prev": 100.0
+    },
+    {
+      "leg": "+ 30w SMA flattened / turning up",
+      "name_weeks": 950,
+      "pct_of_universe": 0.3242,
+      "survival_vs_prev": 87.64
+    },
+    {
+      "leg": "+ Mansfield RS >= 0",
+      "name_weeks": 821,
+      "pct_of_universe": 0.2802,
+      "survival_vs_prev": 86.42
+    },
+    {
+      "leg": "+ Mansfield RS rising (4wk)",
+      "name_weeks": 800,
+      "pct_of_universe": 0.273,
+      "survival_vs_prev": 97.44
+    },
+    {
+      "leg": "+ volume >= 2x 10wk avg",
+      "name_weeks": 325,
+      "pct_of_universe": 0.1109,
+      "survival_vs_prev": 40.62
+    },
+    {
+      "leg": "+ one-signal-per-base cooldown",
+      "name_weeks": 294,
+      "pct_of_universe": 0.1003,
+      "survival_vs_prev": 90.46
+    }
+  ],
+  "ext_at_entry": {
+    "median_ext_vs_44w": 17.54,
+    "mean_ext_vs_44w": 18.16,
+    "share_below_5pct": 0.0,
+    "median_ext_vs_30w": 16.85,
+    "median_stop_pct": 24.74,
+    "median_base_range_pct": 27.01
+  },
+  "ext_bands": [
+    {
+      "band": "<0 (below wk line)",
+      "N": 0,
+      "share_pct": 0.0
+    },
+    {
+      "band": "0-5%",
+      "N": 0,
+      "share_pct": 0.0
+    },
+    {
+      "band": "5-10%",
+      "N": 7,
+      "share_pct": 3.3
+    },
+    {
+      "band": "10-15%",
+      "N": 59,
+      "share_pct": 28.0
+    },
+    {
+      "band": "15-20%",
+      "N": 77,
+      "share_pct": 36.5
+    },
+    {
+      "band": "20-25%",
+      "N": 47,
+      "share_pct": 22.3
+    },
+    {
+      "band": ">25%",
+      "N": 21,
+      "share_pct": 10.0
+    }
+  ],
+  "median_ext_comparison_set": {
+    "touch44 (incumbent)": 8.72,
+    "trend_pullback": 22.1,
+    "cup_handle": 28.48,
+    "0084/0085 six-step": 29.53,
+    "double_bottom": 31.64,
+    "vcp (zoo)": 33.24,
+    "box": 33.78,
+    "sr_pivot": 37.87
+  }
+}

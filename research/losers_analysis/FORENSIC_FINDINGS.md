@@ -137,6 +137,14 @@ Owner directive 2026-07-15: refine the ENTRY first (base indicator = 44-SMA); de
 the SMA (near-SMA / percentile distance), goal = enter EARLY / lower-extension instead of chasing the blow-off.
 
 ### The per-trade truth — bucket the 255 base trades by entry extension vs signal-week SMA
+
+> **Population note (added 2026-07-31, not a correction):** this table is the **CAPPED 255-trade book**
+> — cells of n=3 and n=20. The 2026-07-31 census
+> ([`ext_band_census.md`](../../diagnostics/research/ext_band_census.md)) bands the **uncapped 1,720-trade**
+> touch substrate and reads differently (0–5% **+0.717** at N=418; 5–10% **+0.094** at N=615). Both can be
+> true — they are different populations — but the uncapped read is the larger sample and is the one to
+> quote for entry quality. The "5–10% wins 90%" cell here rests on **20 trades** and should not be
+> generalised.
 | entry ext vs SMA | n | mean R | win% | sumR |
 |---|--:|--:|--:|--:|
 | 0–5% | 3 | 0.85 | 67% | 2.5 |
@@ -383,6 +391,22 @@ per-trade expectancy; the ₹10L portfolio is not computed until sizing.
 
 ### E11 — THE HIGH-EXPECTANCY CORES (per-trade), and the DEEP NEAR-SMA TOUCH edge (the session headline)
 Per-trade expectancy by entry-extension-vs-SMA bucket (uncapped), per setup — locates each entry's edge:
+> **⚠ CORRECTED 2026-07-31 — the E11 magnitudes below are ad-hoc and overstated. Direction replicates;**
+> **numbers do not. Quote the census, not this section.** `scripts/diag_ext_band_census.py` →
+> [`diagnostics/research/ext_band_census.md`](../../diagnostics/research/ext_band_census.md) re-derived
+> the same bands from the committed substrate (`research/substrate/trades.parquet`, live P2 exit,
+> serialized):
+> - touch44 **ext<5%: N=418, meanR +0.717** — not +1.004 at N=648.
+> - **5–10% is the WEAKEST band but NOT a −0.52R trap: meanR +0.094, PF 1.10.** Dilution, not a loss
+>   engine. `research/substrate/POOL_vs_SELECTION.md` independently had this band at **+0.12 / +0.19**
+>   (train/holdout) — so the −0.521 was always the outlier, and two in-house studies now agree against it.
+> - **New, and the strongest cell in the substrate — never isolated here:** entries **below** the weekly
+>   line (ext<0) — N=39, meanR **+2.088**, medR +1.585, PF 3.98, win 61.5%. **N=39 is too thin to certify**;
+>   it is a lead, not a result.
+> - box / S-R peak at **>25%** ext, not 20–25% (box median ext 33.8%, sr 37.9%).
+>
+> The values below are retained as as-measured-then, exactly as `STAGE4_sleeves.md` retains its pre-fix table.
+
 - **TOUCH:** the edge is the DEEP near-SMA touch. ext<5%: N=648, meanR **+1.004**, PF 2.49 (~6× the full-rule
   +0.159). The 5–10% band is a TRAP: N=1092 (largest bucket), meanR **−0.521**, PF 0.65. 10–20% ~+0.32.
 - **BOX & S/R:** the edge is in the EXTENDED breakouts (they break out above a base ABOVE the SMA, so high ext

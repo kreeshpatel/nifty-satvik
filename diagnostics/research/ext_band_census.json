@@ -1,0 +1,909 @@
+{
+  "_doc": "Ext-band census (MEASUREMENT; 0 trials, 0 screens). Part A = ext-vs-weekly-44w-SMA at fill for the daily-anchored six-step ledgers. Part B = the same banding on the committed Stage-1 substrate, per setup.",
+  "weekly_panel": {
+    "rows": 336382,
+    "tickers": 788,
+    "content_sha256": "2b5d6592966bf7ef2c1aea4fdf2a6ffe764bcd0f2a36159d439cc592857f1e12",
+    "built_from": "corrected_universe()"
+  },
+  "band_edges_pct": [
+    null,
+    0.0,
+    5.0,
+    10.0,
+    15.0,
+    20.0,
+    25.0,
+    null
+  ],
+  "part_a_sixstep_ledgers": {
+    "0084 six-step (target-capped exits)": {
+      "ledger": "bhanushali_sixstep_0084_trades.csv",
+      "trades_in_ledger": 476,
+      "joined": 476,
+      "unmatched_no_weekly_sma": 0,
+      "ext_wk_pct_median": 29.53,
+      "ext_wk_pct_mean": 35.64,
+      "share_below_5pct": 1.3,
+      "bands": [
+        {
+          "band": "<0 (below wk line)",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "0-5%",
+          "share_pct": 1.3,
+          "N": 6,
+          "win_pct": 16.7,
+          "meanR": -0.336,
+          "medR": -1.0,
+          "PF": 0.55
+        },
+        {
+          "band": "5-10%",
+          "share_pct": 6.5,
+          "N": 31,
+          "win_pct": 45.2,
+          "meanR": 0.586,
+          "medR": -0.113,
+          "PF": 2.42
+        },
+        {
+          "band": "10-15%",
+          "share_pct": 11.3,
+          "N": 54,
+          "win_pct": 44.4,
+          "meanR": 0.135,
+          "medR": -0.34,
+          "PF": 1.34
+        },
+        {
+          "band": "15-20%",
+          "share_pct": 10.3,
+          "N": 49,
+          "win_pct": 34.7,
+          "meanR": -0.038,
+          "medR": -0.656,
+          "PF": 0.93
+        },
+        {
+          "band": "20-25%",
+          "share_pct": 9.0,
+          "N": 43,
+          "win_pct": 53.5,
+          "meanR": 0.524,
+          "medR": 0.164,
+          "PF": 2.53
+        },
+        {
+          "band": ">25%",
+          "share_pct": 61.6,
+          "N": 293,
+          "win_pct": 35.8,
+          "meanR": 0.149,
+          "medR": -0.433,
+          "PF": 1.3
+        },
+        {
+          "band": "ALL",
+          "share_pct": 100.0,
+          "N": 476,
+          "win_pct": 38.7,
+          "meanR": 0.185,
+          "medR": -0.405,
+          "PF": 1.39
+        }
+      ]
+    },
+    "0085 six-step (runner trail)": {
+      "ledger": "bhanushali_sixstep_runner_0085_trades.csv",
+      "trades_in_ledger": 432,
+      "joined": 432,
+      "unmatched_no_weekly_sma": 0,
+      "ext_wk_pct_median": 29.7,
+      "ext_wk_pct_mean": 35.37,
+      "share_below_5pct": 2.3,
+      "bands": [
+        {
+          "band": "<0 (below wk line)",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "0-5%",
+          "share_pct": 2.3,
+          "N": 10,
+          "win_pct": 50.0,
+          "meanR": 0.131,
+          "medR": -0.353,
+          "PF": 1.26
+        },
+        {
+          "band": "5-10%",
+          "share_pct": 5.1,
+          "N": 22,
+          "win_pct": 36.4,
+          "meanR": 0.06,
+          "medR": -0.257,
+          "PF": 1.13
+        },
+        {
+          "band": "10-15%",
+          "share_pct": 9.3,
+          "N": 40,
+          "win_pct": 52.5,
+          "meanR": 0.836,
+          "medR": 0.174,
+          "PF": 3.65
+        },
+        {
+          "band": "15-20%",
+          "share_pct": 13.9,
+          "N": 60,
+          "win_pct": 30.0,
+          "meanR": -0.093,
+          "medR": -0.853,
+          "PF": 0.84
+        },
+        {
+          "band": "20-25%",
+          "share_pct": 7.9,
+          "N": 34,
+          "win_pct": 47.1,
+          "meanR": 0.437,
+          "medR": -0.123,
+          "PF": 2.19
+        },
+        {
+          "band": ">25%",
+          "share_pct": 61.6,
+          "N": 266,
+          "win_pct": 38.7,
+          "meanR": 0.2,
+          "medR": -0.397,
+          "PF": 1.44
+        },
+        {
+          "band": "ALL",
+          "share_pct": 100.0,
+          "N": 432,
+          "win_pct": 39.6,
+          "meanR": 0.228,
+          "medR": -0.386,
+          "PF": 1.5
+        }
+      ]
+    }
+  },
+  "part_b_substrate_by_setup": {
+    "touch44": {
+      "N": 1720,
+      "ext_median": 8.72,
+      "share_below_5pct": 24.3,
+      "share_20_to_25": 2.2,
+      "bands": [
+        {
+          "band": "<0 (below wk line)",
+          "share_pct": 2.3,
+          "N": 39,
+          "win_pct": 61.5,
+          "meanR": 2.088,
+          "medR": 1.585,
+          "PF": 3.98
+        },
+        {
+          "band": "0-5%",
+          "share_pct": 22.0,
+          "N": 379,
+          "win_pct": 50.4,
+          "meanR": 0.576,
+          "medR": 0.029,
+          "PF": 1.79
+        },
+        {
+          "band": "5-10%",
+          "share_pct": 35.8,
+          "N": 615,
+          "win_pct": 39.7,
+          "meanR": 0.094,
+          "medR": -1.028,
+          "PF": 1.1
+        },
+        {
+          "band": "10-15%",
+          "share_pct": 26.6,
+          "N": 457,
+          "win_pct": 43.3,
+          "meanR": 0.325,
+          "medR": -0.973,
+          "PF": 1.44
+        },
+        {
+          "band": "15-20%",
+          "share_pct": 9.0,
+          "N": 155,
+          "win_pct": 43.2,
+          "meanR": 0.292,
+          "medR": -0.979,
+          "PF": 1.44
+        },
+        {
+          "band": "20-25%",
+          "share_pct": 2.2,
+          "N": 37,
+          "win_pct": 45.9,
+          "meanR": 0.415,
+          "medR": -0.368,
+          "PF": 1.71
+        },
+        {
+          "band": ">25%",
+          "share_pct": 2.2,
+          "N": 38,
+          "win_pct": 42.1,
+          "meanR": 0.093,
+          "medR": -0.986,
+          "PF": 1.15
+        },
+        {
+          "band": "ALL",
+          "share_pct": 100.0,
+          "N": 1720,
+          "win_pct": 44.0,
+          "meanR": 0.331,
+          "medR": -0.942,
+          "PF": 1.42
+        }
+      ]
+    },
+    "trend_pullback": {
+      "N": 1167,
+      "ext_median": 22.1,
+      "share_below_5pct": 0.0,
+      "share_20_to_25": 20.1,
+      "bands": [
+        {
+          "band": "<0 (below wk line)",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "0-5%",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "5-10%",
+          "share_pct": 0.8,
+          "N": 9,
+          "win_pct": 22.2,
+          "meanR": -4.514,
+          "medR": -1.395,
+          "PF": 0.13
+        },
+        {
+          "band": "10-15%",
+          "share_pct": 14.5,
+          "N": 169,
+          "win_pct": 44.4,
+          "meanR": 0.423,
+          "medR": -1.004,
+          "PF": 1.42
+        },
+        {
+          "band": "15-20%",
+          "share_pct": 25.4,
+          "N": 297,
+          "win_pct": 42.8,
+          "meanR": 0.154,
+          "medR": -1.0,
+          "PF": 1.16
+        },
+        {
+          "band": "20-25%",
+          "share_pct": 20.1,
+          "N": 235,
+          "win_pct": 45.5,
+          "meanR": 0.513,
+          "medR": -0.953,
+          "PF": 1.63
+        },
+        {
+          "band": ">25%",
+          "share_pct": 39.2,
+          "N": 457,
+          "win_pct": 46.6,
+          "meanR": 0.432,
+          "medR": -0.851,
+          "PF": 1.6
+        },
+        {
+          "band": "ALL",
+          "share_pct": 100.0,
+          "N": 1167,
+          "win_pct": 44.9,
+          "meanR": 0.338,
+          "medR": -0.938,
+          "PF": 1.38
+        }
+      ]
+    },
+    "box": {
+      "N": 543,
+      "ext_median": 33.78,
+      "share_below_5pct": 0.0,
+      "share_20_to_25": 15.7,
+      "bands": [
+        {
+          "band": "<0 (below wk line)",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "0-5%",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "5-10%",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "10-15%",
+          "share_pct": 3.5,
+          "N": 19,
+          "win_pct": 57.9,
+          "meanR": 0.756,
+          "medR": 1.679,
+          "PF": 2.55
+        },
+        {
+          "band": "15-20%",
+          "share_pct": 9.2,
+          "N": 50,
+          "win_pct": 44.0,
+          "meanR": 0.049,
+          "medR": -0.724,
+          "PF": 1.07
+        },
+        {
+          "band": "20-25%",
+          "share_pct": 15.7,
+          "N": 85,
+          "win_pct": 56.5,
+          "meanR": 0.647,
+          "medR": 0.87,
+          "PF": 2.38
+        },
+        {
+          "band": ">25%",
+          "share_pct": 71.6,
+          "N": 389,
+          "win_pct": 58.1,
+          "meanR": 0.679,
+          "medR": 0.568,
+          "PF": 2.64
+        },
+        {
+          "band": "ALL",
+          "share_pct": 100.0,
+          "N": 543,
+          "win_pct": 56.5,
+          "meanR": 0.619,
+          "medR": 0.504,
+          "PF": 2.37
+        }
+      ]
+    },
+    "double_bottom": {
+      "N": 502,
+      "ext_median": 31.64,
+      "share_below_5pct": 0.0,
+      "share_20_to_25": 13.1,
+      "bands": [
+        {
+          "band": "<0 (below wk line)",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "0-5%",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "5-10%",
+          "share_pct": 0.8,
+          "N": 4,
+          "win_pct": 50.0,
+          "meanR": 0.564,
+          "medR": 0.459,
+          "PF": 1.97
+        },
+        {
+          "band": "10-15%",
+          "share_pct": 4.0,
+          "N": 20,
+          "win_pct": 45.0,
+          "meanR": 0.238,
+          "medR": -0.276,
+          "PF": 1.44
+        },
+        {
+          "band": "15-20%",
+          "share_pct": 12.7,
+          "N": 64,
+          "win_pct": 59.4,
+          "meanR": 0.685,
+          "medR": 0.891,
+          "PF": 2.78
+        },
+        {
+          "band": "20-25%",
+          "share_pct": 13.1,
+          "N": 66,
+          "win_pct": 63.6,
+          "meanR": 0.675,
+          "medR": 0.96,
+          "PF": 2.83
+        },
+        {
+          "band": ">25%",
+          "share_pct": 69.3,
+          "N": 348,
+          "win_pct": 60.1,
+          "meanR": 0.588,
+          "medR": 0.441,
+          "PF": 2.82
+        },
+        {
+          "band": "ALL",
+          "share_pct": 100.0,
+          "N": 502,
+          "win_pct": 59.8,
+          "meanR": 0.598,
+          "medR": 0.493,
+          "PF": 2.72
+        }
+      ]
+    },
+    "cup_handle": {
+      "N": 195,
+      "ext_median": 28.48,
+      "share_below_5pct": 0.0,
+      "share_20_to_25": 16.4,
+      "bands": [
+        {
+          "band": "<0 (below wk line)",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "0-5%",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "5-10%",
+          "share_pct": 0.5,
+          "N": 1,
+          "win_pct": 0.0,
+          "meanR": -1.033,
+          "medR": -1.033,
+          "PF": 0.0
+        },
+        {
+          "band": "10-15%",
+          "share_pct": 9.7,
+          "N": 19,
+          "win_pct": 57.9,
+          "meanR": 0.932,
+          "medR": 1.769,
+          "PF": 2.51
+        },
+        {
+          "band": "15-20%",
+          "share_pct": 14.9,
+          "N": 29,
+          "win_pct": 37.9,
+          "meanR": -0.172,
+          "medR": -1.015,
+          "PF": 0.79
+        },
+        {
+          "band": "20-25%",
+          "share_pct": 16.4,
+          "N": 32,
+          "win_pct": 40.6,
+          "meanR": 0.507,
+          "medR": -0.416,
+          "PF": 1.84
+        },
+        {
+          "band": ">25%",
+          "share_pct": 58.5,
+          "N": 114,
+          "win_pct": 66.7,
+          "meanR": 0.946,
+          "medR": 1.139,
+          "PF": 3.95
+        },
+        {
+          "band": "ALL",
+          "share_pct": 100.0,
+          "N": 195,
+          "win_pct": 56.9,
+          "meanR": 0.696,
+          "medR": 0.691,
+          "PF": 2.47
+        }
+      ]
+    },
+    "ascending_base": {
+      "N": 106,
+      "ext_median": 64.9,
+      "share_below_5pct": 0.0,
+      "share_20_to_25": 1.9,
+      "bands": [
+        {
+          "band": "<0 (below wk line)",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "0-5%",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "5-10%",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "10-15%",
+          "share_pct": 0.9,
+          "N": 1,
+          "win_pct": 100.0,
+          "meanR": 2.754,
+          "medR": 2.754,
+          "PF": Infinity
+        },
+        {
+          "band": "15-20%",
+          "share_pct": 3.8,
+          "N": 4,
+          "win_pct": 0.0,
+          "meanR": -0.862,
+          "medR": -1.043,
+          "PF": 0.0
+        },
+        {
+          "band": "20-25%",
+          "share_pct": 1.9,
+          "N": 2,
+          "win_pct": 50.0,
+          "meanR": 0.595,
+          "medR": 0.595,
+          "PF": 2.09
+        },
+        {
+          "band": ">25%",
+          "share_pct": 93.4,
+          "N": 99,
+          "win_pct": 61.6,
+          "meanR": 0.666,
+          "medR": 0.966,
+          "PF": 2.51
+        },
+        {
+          "band": "ALL",
+          "share_pct": 100.0,
+          "N": 106,
+          "win_pct": 59.4,
+          "meanR": 0.626,
+          "medR": 0.894,
+          "PF": 2.38
+        }
+      ]
+    },
+    "sr_pivot": {
+      "N": 57,
+      "ext_median": 37.87,
+      "share_below_5pct": 0.0,
+      "share_20_to_25": 8.8,
+      "bands": [
+        {
+          "band": "<0 (below wk line)",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "0-5%",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "5-10%",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "10-15%",
+          "share_pct": 1.8,
+          "N": 1,
+          "win_pct": 0.0,
+          "meanR": -1.378,
+          "medR": -1.378,
+          "PF": 0.0
+        },
+        {
+          "band": "15-20%",
+          "share_pct": 5.3,
+          "N": 3,
+          "win_pct": 33.3,
+          "meanR": -0.83,
+          "medR": -1.231,
+          "PF": 0.13
+        },
+        {
+          "band": "20-25%",
+          "share_pct": 8.8,
+          "N": 5,
+          "win_pct": 20.0,
+          "meanR": -0.816,
+          "medR": -1.072,
+          "PF": 0.11
+        },
+        {
+          "band": ">25%",
+          "share_pct": 84.2,
+          "N": 48,
+          "win_pct": 56.2,
+          "meanR": 0.827,
+          "medR": 1.6,
+          "PF": 2.46
+        },
+        {
+          "band": "ALL",
+          "share_pct": 100.0,
+          "N": 57,
+          "win_pct": 50.9,
+          "meanR": 0.557,
+          "medR": 0.25,
+          "PF": 1.88
+        }
+      ]
+    },
+    "flag": {
+      "N": 16,
+      "ext_median": 61.93,
+      "share_below_5pct": 0.0,
+      "share_20_to_25": 0.0,
+      "bands": [
+        {
+          "band": "<0 (below wk line)",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "0-5%",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "5-10%",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "10-15%",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "15-20%",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "20-25%",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": ">25%",
+          "share_pct": 100.0,
+          "N": 16,
+          "win_pct": 62.5,
+          "meanR": 1.288,
+          "medR": 1.85,
+          "PF": 4.48
+        },
+        {
+          "band": "ALL",
+          "share_pct": 100.0,
+          "N": 16,
+          "win_pct": 62.5,
+          "meanR": 1.288,
+          "medR": 1.85,
+          "PF": 4.48
+        }
+      ]
+    },
+    "vcp": {
+      "N": 15,
+      "ext_median": 33.24,
+      "share_below_5pct": 0.0,
+      "share_20_to_25": 26.7,
+      "bands": [
+        {
+          "band": "<0 (below wk line)",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "0-5%",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "5-10%",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "10-15%",
+          "share_pct": 0.0,
+          "N": 0,
+          "win_pct": NaN,
+          "meanR": NaN,
+          "medR": NaN,
+          "PF": NaN
+        },
+        {
+          "band": "15-20%",
+          "share_pct": 6.7,
+          "N": 1,
+          "win_pct": 100.0,
+          "meanR": 0.662,
+          "medR": 0.662,
+          "PF": Infinity
+        },
+        {
+          "band": "20-25%",
+          "share_pct": 26.7,
+          "N": 4,
+          "win_pct": 25.0,
+          "meanR": 0.063,
+          "medR": -0.269,
+          "PF": 1.16
+        },
+        {
+          "band": ">25%",
+          "share_pct": 66.7,
+          "N": 10,
+          "win_pct": 80.0,
+          "meanR": 1.205,
+          "medR": 1.542,
+          "PF": 13.99
+        },
+        {
+          "band": "ALL",
+          "share_pct": 100.0,
+          "N": 15,
+          "win_pct": 66.7,
+          "meanR": 0.864,
+          "medR": 1.297,
+          "PF": 6.14
+        }
+      ]
+    }
+  }
+}
