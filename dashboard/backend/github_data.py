@@ -102,3 +102,28 @@ def fetch_github_csv(path: str):
         return pd.read_csv(io.StringIO(text))
     except Exception:
         return None
+
+
+def fetch_github_jsonl(path: str) -> list[dict] | None:
+    """Fetch a newline-delimited JSON file as a list of dicts.
+
+    Same ordering rules as fetch_github_json/csv (GitHub-first for results/), so the append-only
+    card archive is read through exactly the same path as every other cron-published artifact.
+    A malformed line is skipped rather than failing the whole read — a partial archive is more
+    useful than none, and the caller degrades to the current envelope anyway.
+    """
+    text = fetch_github_file(path)
+    if text is None:
+        return None
+    rows: list[dict] = []
+    for line in text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            obj = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(obj, dict):
+            rows.append(obj)
+    return rows
