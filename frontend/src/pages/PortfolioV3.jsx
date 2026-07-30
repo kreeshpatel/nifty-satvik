@@ -31,6 +31,7 @@ import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import { useTrades, flattenTrades } from '@/hooks/queries/useTrades';
 import { useSignals } from '@/hooks/queries/useSignals';
 import { DISCLAIMER } from '@/lib/signalCopy';
+import PaperRefRecord from '@/components/portfolio/PaperRefRecord';
 import '@/styles/portfolio-v3.css';
 
 // A self-reported ledger position (Stage 4) joined to an owner quote, mapped to the same shape the
@@ -1554,6 +1555,9 @@ export default function PortfolioV3() {
         <>
           {!isPaper && (reconQuery.data?.items?.length ?? 0) > 0 && (
             <section className="pv3-row"><ActionItemsStrip items={reconQuery.data.items} /></section>
+          )}
+          {isPaper && (
+            <section className="pv3-row"><PaperRefRecord /></section>
           )}
           <section className="pv3-row">
             <EquityHero

@@ -1079,3 +1079,46 @@
 .pv3-action-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 .pv3-action-sym { font-weight: 600; color: var(--text-1); font-variant-numeric: tabular-nums; }
 .pv3-action-msg { color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── Paper (ref) modelled record ──────────────────────────────────────────────
+   Layout only. Every colour, font, radius and border is an existing house token —
+   no new palette, no one-off styling. The tables reuse .pv3-th / .pv3-td exactly as
+   the holdings tables do; these rules only supply the grid tracks they sit in. */
+.pv3-stat-strip {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1px;
+  background: var(--edge-1);
+  border: 1px solid var(--edge-1);
+  border-radius: var(--r-card, 12px);
+  overflow: hidden;
+  margin-top: 12px;
+}
+.pv3-stat {
+  background: var(--surface-1);
+  padding: 12px 14px;
+  min-width: 0;
+}
+.pv3-paper-table {
+  display: grid;
+  grid-template-columns: minmax(120px, 1.6fr) repeat(6, minmax(0, 1fr));
+  align-items: center;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
+  border: 1px solid var(--edge-1);
+  border-radius: var(--r-card, 12px);
+  overflow: hidden;
+}
+.pv3-paper-table-closed {
+  grid-template-columns: minmax(120px, 1.6fr) repeat(4, minmax(0, 1fr));
+}
+.pv3-paper-scroll { max-height: 420px; overflow-y: auto; }
+.num-bull { color: var(--bull); }
+.num-bear { color: var(--bear); }
+
+/* Mobile: the wide grids would overflow, so let them scroll horizontally inside
+   their own container rather than pushing the page sideways. */
+@media (max-width: 720px) {
+  .pv3-stat-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .pv3-paper-scroll, .pv3-paper-table { overflow-x: auto; }
+  .pv3-paper-table, .pv3-paper-table-closed { min-width: 560px; }
+}
