@@ -670,3 +670,30 @@ without deciding what it certifies would manufacture a record nobody has agreed 
 | **S2-F3** (audit-method) | Standing. Firing evidence = Actions run log, cross-checked against a runner-authored commit. |
 | **S2-F4** (new) | **Cron commits are authored as the owner, not a bot** — a runner-authored commit cannot be told from a hand-made one by author line. Weakens S2-F3's cross-check. One-line workflow fix; owner door because it changes the commit record's appearance. |
 | **S2-F5** (new) | **The R94 golden master is flaky on CI** — the same commit (`44dda60`), with identical dependency versions (numpy 2.5.1 / pandas 3.0.5 / scipy 1.18.0), failed once on `curve_hash` (`54deb7e3…` vs golden `84cc3d09…`) and passed on re-run; it does not reproduce locally across five hash seeds. A guardian of engine reproducibility that is intermittently red on healthy code decays into an ignored alarm — the same pathology as the miscalibrated `cron_health` banner (S-F2). Needs a root-cause pass (non-determinism in the fill/curve path, or a runner-level numeric difference), not a threshold change. |
+
+## S2.10 First heartbeat after activation — and its first false alarm
+
+The dead-man produced its first output on the catch-up run and reports **`overall: MISSING`**:
+
+| job | dead-man status | truth |
+|---|---|---|
+| weekly-scanner | OK | fired 07-25 ✅ |
+| **forward-accumulators** | **OK** | activated, caught up ✅ |
+| review-scorecard | OK | ✅ |
+| d2-archive | OK | activated; first firing due Sat 2026-08-01 |
+| **intraday-scan** | **MISSING** | **fired 2026-07-30 10:56 UTC, success — 8/8 historically** |
+
+**S2-F6 (new) — the dead-man is blind to jobs that do not commit an artifact.** J7 is healthy and
+fired today, but `results/intraday_scan/` is never committed, so the reconstruction cannot see it
+and reports MISSING, which drags `overall` to MISSING on a healthy system. This is the same
+pathology as the miscalibrated `cron_health` banner (S-F2): an alarm that is red in the normal
+case teaches the reader to ignore it, and it will therefore fail to be believed on the day it is
+right.
+
+It is also, precisely, the flaw named in **S2-F3**: *firing evidence is the Actions run log, never a
+committed artifact alone.* The dead-man reconstructs from committed artifacts by design, so it
+inherits that weakness structurally. Two candidate fixes, neither applied here (both change what the
+heartbeat reports, which is an owner door): give the reconstruction an Actions-API source for jobs
+with no committed output, or declare J7 artifact-less and exclude it from `overall` with its status
+surfaced separately. Until then, read `overall: MISSING` as "check which job" rather than "a job
+failed".
