@@ -4,8 +4,19 @@ Companion to [system_constitution.md](system_constitution.md). Everything here i
 acted on**: each item is an owner decision, and every fix is a mid-quarter system change. Remediated
 constitution rows are cited with their fix commits in the constitution itself.
 
-Standing counts (unchanged by the audit and the remediation): **screens 11, sealed opens 1,
+Standing counts (unchanged by the audit and the remediation): **screens 12, sealed opens 1,
 n_trials 138.** No trials or screens were spent; no forward-wall log was read.
+(Screen count moved 11 → 12 on 2026-07-30 by finding 0123, which spent no trial.)
+
+**Research input (2026-07-30) —** the pre-entry wall now holds **five** independent ways including
+**perception**: [0123](../../research/findings/0123-vision-graded-chart-structure.md) graded 681
+blind, entry-truncated charts with an instrument validated first (test-retest κ 0.867; truncation-
+leakage clean) and found grades flat across false-touch / noise-stop / winner cohorts, null in **both**
+the detector-agreement and detector-disagreement cohorts — so "our formulas encoded the concepts
+wrong" is retired permanently. Its recorded re-open condition names **pre-extension funnels** — the
+Path-B swing sleeve and the breadth-50 book already on this review's agenda — as the only territory
+where chart structure remains untested (this funnel enters already-extended names: 72% graded
+"extended", 98% "wait").
 
 ---
 
