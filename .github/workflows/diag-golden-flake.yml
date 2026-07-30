@@ -1,0 +1,94 @@
+# TEMPORARY diagnostic (S2-F5, 2026-07-30) — DELETE once the root cause is recorded.
+#
+# The R94 golden master failed once on CI (curve_hash 54deb7e3 vs golden 84cc3d09) and passed on
+# re-run of the identical commit with identical dependency versions.
+#
+# The threading hypothesis is already falsified: ci.yml pins OMP/OPENBLAS/MKL_NUM_THREADS=1 and the
+# failing run carried those values, so parallel reduction order cannot be the cause. What is NOT
+# pinned is PYTHONHASHSEED, which Python randomises per process — so set/dict iteration order varies
+# run to run. If any part of the engine iterates a set in a way that reaches fill ordering, the
+# curve changes. Leg A sweeps that deterministically; Leg B measures the natural flake rate and
+# would also expose cross-test state pollution.
+name: diag-golden-flake
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: diag-golden-flake
+  cancel-in-progress: false
+
+jobs:
+  environment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q -e ".[dev]"
+      - name: Capture BLAS / core / version environment
+        run: |
+          python - <<'PY'
+          import os, numpy as np, pandas as pd
+          print("cores:", os.cpu_count())
+          print("numpy:", np.__version__, "pandas:", pd.__version__)
+          for v in ("OMP_NUM_THREADS","OPENBLAS_NUM_THREADS","MKL_NUM_THREADS","PYTHONHASHSEED"):
+              print(f"{v}={os.environ.get(v, '<unset>')}")
+          print("--- np.show_config ---")
+          try: np.show_config()
+          except Exception as e: print("show_config failed:", e)
+          PY
+
+  hashseed-sweep:
+    # Leg A: golden test in ISOLATION across 20 deterministic hash seeds, threads pinned as in ci.yml.
+    runs-on: ubuntu-latest
+    env:
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q -e ".[dev]"
+      - name: Golden test x20 hash seeds
+        run: |
+          fail=0
+          for seed in $(seq 0 19); do
+            if PYTHONHASHSEED=$seed python -m pytest tests/test_r94_golden.py -q >/tmp/o_$seed.txt 2>&1; then
+              echo "seed=$seed PASS"
+            else
+              fail=$((fail+1)); echo "seed=$seed FAIL"; grep -aE "curve_hash|AssertionError" /tmp/o_$seed.txt | head -3
+            fi
+          done
+          echo "LEG-A RESULT: $fail/20 failed"
+          exit 0
+
+  full-suite-repeat:
+    # Leg B: FULL suite x20 with the default (random) hash seed — natural flake rate + any
+    # cross-test state pollution that only manifests in suite context.
+    runs-on: ubuntu-latest
+    env:
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install -q -e ".[dev]"
+      - name: Full suite x20
+        run: |
+          fail=0
+          for i in $(seq 1 20); do
+            if python -m pytest tests/ -q -x -k "golden or r94" >/tmp/s_$i.txt 2>&1; then
+              echo "iter=$i PASS ($(python -c 'import os;print(os.environ.get("PYTHONHASHSEED","rand"))'))"
+            else
+              fail=$((fail+1)); echo "iter=$i FAIL"; grep -aE "curve_hash|AssertionError|FAILED" /tmp/s_$i.txt | head -3
+            fi
+          done
+          echo "LEG-B RESULT: $fail/20 failed"
+          exit 0
