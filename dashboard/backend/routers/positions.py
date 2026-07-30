@@ -33,7 +33,7 @@ from sqlalchemy.orm import Session
 from auth import get_current_user
 from config import get_sector
 from database import User, get_db
-from github_data import fetch_github_json, fetch_github_csv
+from github_data import fetch_github_json, fetch_github_csv, fetch_github_jsonl
 from services.nq_positions import (
     build_external_holdings,
     build_nq_positions,
@@ -43,6 +43,14 @@ from services.nq_positions import (
 logger = logging.getLogger("positions")
 
 router = APIRouter(tags=["positions"])
+
+
+def _num(v, default=0.0):
+    """Tolerant float coercion shared by the paper-ref builders."""
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return default
 
 
 # ── Legacy paper-portfolio endpoint (unchanged) ───────────────────────
@@ -525,6 +533,9 @@ def get_paper_reference_book(user: User = Depends(get_current_user)):
         "inception_date": nav[0]["date"] if nav else None,
     }
 
+    from datetime import date as _date
+    recommendations, retention = _paper_recommendations(book, _date.today().isoformat())
+
     return {
         "available": True,
         "as_of": as_of,
@@ -532,6 +543,8 @@ def get_paper_reference_book(user: User = Depends(get_current_user)):
         "positions": positions,
         "closed": closed,
         "nav": nav,
+        "recommendations": recommendations,
+        "retention": retention,
         "sources": {
             "book": "results/paper_portfolio_weekly.json",
             "nav": "results/portfolio_history_weekly.csv",
@@ -541,3 +554,107 @@ def get_paper_reference_book(user: User = Depends(get_current_user)):
                  "Positions are re-priced by the daily monitor; the book is rebuilt by the "
                  "weekly scanner."),
     }
+
+
+def _paper_recommendations(book: dict, today: str) -> tuple[list[dict], dict]:
+    """Every card the scanner issued, with its fate — derived from artifacts, never recomputed.
+
+    D5 parity: entry zone, stop and target are echoed EXACTLY as the card printed them
+    (`entry`, `entry_low`, `entry_high`, `stop`, `target` on the envelope). Nothing here
+    re-derives trading logic; status is read off the artifacts:
+
+      filled   — the name is a position in the capital-constrained paper book.
+      skipped  — the signal tracker recorded a modelled entry (`bought_date`) but the ₹10L book
+                 never held it. The tracker is the UNLIMITED-CAPITAL view; the book is the
+                 constrained one, so the difference is the capital constraint biting. Safe to
+                 assert only because the book has closed no trades (`total_trades == 0`): a name
+                 absent from an exit-free book was never funded, not funded-then-exited.
+      pending  — issued, unfilled, and the printed buy window has not closed yet.
+      lapsed   — issued, unfilled, window closed: the price never entered the printed band.
+      unknown  — the artifacts do not settle it (e.g. the book HAS closed trades, so absence can
+                 no longer be read as "never funded"). Reported as unknown rather than guessed.
+
+    Retention gap, stated honestly: `signals_today_weekly.json` is overwritten every Saturday and
+    `signals_history_weekly.json` retains only names the tracker marked bought — so a card from a
+    PRIOR week that lapsed unfilled leaves no artifact behind. `results/cards_archive.jsonl`
+    (append-only, written by the scanner) is what preserves them going forward; before its first
+    write only the current week is classifiable, and that is said in `retention`.
+    """
+    positions = book.get("positions") or {}
+    held = set(positions.keys())
+    exits_recorded = int(_num(book.get("total_trades")) or 0) > 0
+
+    cards: dict[tuple, dict] = {}
+
+    def _ingest(sig: dict, source: str) -> None:
+        if not isinstance(sig, dict):
+            return
+        ticker = sig.get("ticker")
+        sdate = str(sig.get("signal_date") or "")
+        if not ticker:
+            return
+        key = (ticker, sdate)
+        if key in cards and source != "archive":
+            return
+        until = sig.get("buy_window_until")
+        bought = sig.get("bought_date")
+
+        if ticker in held:
+            status, why = "filled", None
+        elif bought:
+            if exits_recorded:
+                status, why = "unknown", (
+                    "the tracker recorded a modelled entry but the book does not hold it; the book "
+                    "has closed trades, so absence no longer proves it was never funded")
+            else:
+                status, why = "skipped", "book at capital limit — the ₹10L book could not fund it"
+        elif until and str(until) >= today:
+            status, why = "pending", None
+        elif until:
+            status, why = "lapsed", "price never entered the printed buy band before the window closed"
+        else:
+            status, why = "unknown", "no buy window recorded on the card"
+
+        cards[key] = {
+            "ticker": ticker,
+            "week": sdate,
+            "signal_date": sdate,
+            # D5 parity — exactly as printed on the card.
+            "entry": round(_num(sig.get("entry")), 2) if sig.get("entry") is not None else None,
+            "entry_low": round(_num(sig.get("entry_low")), 2) if sig.get("entry_low") is not None else None,
+            "entry_high": round(_num(sig.get("entry_high")), 2) if sig.get("entry_high") is not None else None,
+            "stop": round(_num(sig.get("stop")), 2) if sig.get("stop") is not None else None,
+            "target": round(_num(sig.get("target")), 2) if sig.get("target") is not None else None,
+            "grade": sig.get("grade"),
+            "buy_window_until": until,
+            "buy_window": sig.get("buy_window"),
+            "status": status,
+            "status_reason": why,
+            # filled cards point at the position they became
+            "position_id": ticker if status == "filled" else None,
+            "entry_date": (positions.get(ticker) or {}).get("entry_date") if status == "filled" else bought,
+            "source": source,
+        }
+
+    archive = fetch_github_jsonl("results/cards_archive.jsonl")
+    for row in (archive or []):
+        _ingest(row, "archive")
+
+    envelope = fetch_github_json("results/signals_today_weekly.json") or {}
+    for sig in (envelope.get("signals") or []):
+        _ingest(sig, "envelope")
+
+    rows = sorted(cards.values(), key=lambda r: (r["week"], r["ticker"]), reverse=True)
+    weeks = sorted({r["week"] for r in rows if r["week"]}, reverse=True)
+    retention = {
+        "archive_present": bool(archive),
+        "weeks_retained": len(weeks),
+        "current_week": weeks[0] if weeks else None,
+        "note": ("Prior-week cards are preserved in results/cards_archive.jsonl (append-only, "
+                 "written by the Saturday scanner)." if archive else
+                 "No card archive yet — the weekly envelope is overwritten each Saturday and the "
+                 "history file keeps only names the tracker marked bought, so cards that lapsed "
+                 "unfilled in PRIOR weeks left no artifact and cannot be shown. Cards are "
+                 "preserved from the next scanner run onward."),
+    }
+    return rows, retention

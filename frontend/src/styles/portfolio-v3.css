@@ -1122,3 +1122,40 @@
   .pv3-paper-scroll, .pv3-paper-table { overflow-x: auto; }
   .pv3-paper-table, .pv3-paper-table-closed { min-width: 560px; }
 }
+
+/* Recommendations pipeline (Paper ref) — layout + status badges from house tokens only. */
+.pv3-rec-table { grid-template-columns: minmax(120px, 1.6fr) repeat(5, minmax(0, 1fr)); }
+.pv3-rec-why {
+  padding: 0 18px 12px;
+  font-size: 12px;
+  color: var(--text-4);
+  border-bottom: 1px solid var(--edge-1);
+}
+.pv3-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--edge-1);
+  color: var(--text-3);
+  background: var(--surface-1);
+}
+.pv3-badge-filled  { color: var(--bull); border-color: var(--bull); }
+.pv3-badge-pending { color: var(--text-2); }
+.pv3-badge-lapsed  { color: var(--text-4); }
+.pv3-badge-skipped { color: var(--bear); border-color: var(--bear); }
+.pv3-rec-toggle {
+  margin-top: 10px;
+  background: none;
+  border: 1px solid var(--edge-1);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: var(--text-3);
+  cursor: pointer;
+}
+@media (max-width: 720px) { .pv3-rec-table { min-width: 620px; } }

@@ -72,6 +72,9 @@ jobs:
         # trades, NAV delta). The Oct-1 gates read SNAPSHOTS, not the mutable curve.
         # Must run AFTER the scorecard so the snapshot captures it.
         run: python scripts/archive_weekly_snapshot.py
+
+      - name: Archive issued cards (append-only recommendation record)
+        run: python scripts/archive_weekly_cards.py || true
       - name: Log the swing x low-vol blend hybrid (observational WATCHED book, finding 0107)
         # Runs AFTER the swing cron so it uses the freshly-downloaded OHLCV + the just-written swing NAV.
         # Observational only — writes its own results/blend_hybrid_paper.json; never touches the certified
@@ -83,7 +86,7 @@ jobs:
           # BLOCK the commit as an unrecognized author.
           git config user.name "kreeshpatel"
           git config user.email "kreeshvasistha@gmail.com"
-          git add results/signals_today_weekly.json results/signals_history_weekly.json \
+          git add results/cards_archive.jsonl results/signals_today_weekly.json results/signals_history_weekly.json \
                   results/signal_analytics_weekly.json results/paper_portfolio_weekly.json \
                   results/portfolio_history_weekly.csv results/weekly_review_scorecard.json \
                   results/weekly_sma_panel.csv results/decision_memos_weekly.json \

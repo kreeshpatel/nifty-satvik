@@ -63,6 +63,97 @@ function NavSpark({ points }) {
   );
 }
 
+
+const STATUS_LABEL = {
+  filled: 'Filled', pending: 'Pending', lapsed: 'Lapsed', skipped: 'Skipped', unknown: 'Unknown',
+};
+
+/** Every card the scanner issued and what became of it — the discipline, not just the outcomes. */
+function Recommendations({ rows, retention, isLoading }) {
+  const [showPrior, setShowPrior] = React.useState(false);
+  const weeks = React.useMemo(
+    () => Array.from(new Set((rows || []).map((r) => r.week).filter(Boolean))).sort().reverse(),
+    [rows],
+  );
+  const current = weeks[0] || null;
+  const thisWeek = (rows || []).filter((r) => r.week === current);
+  const prior = (rows || []).filter((r) => r.week !== current);
+
+  const Row = ({ r }) => (
+    <React.Fragment>
+      <div className="pv3-td">
+        <div className="pv3-td-name-sym">{r.ticker}</div>
+        <div className="pv3-td-name-full tabular-nums">{r.week}{r.grade ? ` · ${r.grade}` : ''}</div>
+      </div>
+      <div className="pv3-td pv3-td-r tabular-nums">
+        {r.entry_low != null && r.entry_high != null ? `${fmtN(r.entry_low)}–${fmtN(r.entry_high)}` : fmtN(r.entry)}
+      </div>
+      <div className="pv3-td pv3-td-r tabular-nums" style={{ color: 'var(--bear)' }}>{fmtN(r.stop)}</div>
+      <div className="pv3-td pv3-td-r tabular-nums" style={{ color: 'var(--bull)' }}>{fmtN(r.target)}</div>
+      <div className="pv3-td pv3-td-r tabular-nums">{r.buy_window_until || '—'}</div>
+      <div className="pv3-td pv3-td-r">
+        <span className={`pv3-badge pv3-badge-${r.status}`}>{STATUS_LABEL[r.status] || r.status}</span>
+      </div>
+      {r.status_reason && (
+        <div className="pv3-rec-why" style={{ gridColumn: '1 / -1' }}>{r.status_reason}</div>
+      )}
+    </React.Fragment>
+  );
+
+  return (
+    <>
+      <div className="pv3-card-head" style={{ marginTop: 16 }}>
+        <div>
+          <div className="pv3-t-ui-headline">Recommendations</div>
+          <div className="pv3-t-ui-footnote">
+            Every card issued and its outcome · a card only becomes a position if price enters the printed band
+          </div>
+        </div>
+        <span className="pv3-t-ui-footnote tabular-nums">{(rows || []).length} cards</span>
+      </div>
+
+      <div className="pv3-paper-table pv3-rec-table" role="table" aria-label="Issued recommendations">
+        <div className="pv3-th">Symbol</div>
+        <div className="pv3-th pv3-th-r">Buy zone</div>
+        <div className="pv3-th pv3-th-r">Stop</div>
+        <div className="pv3-th pv3-th-r">Target</div>
+        <div className="pv3-th pv3-th-r">Window</div>
+        <div className="pv3-th pv3-th-r">Status</div>
+        {isLoading ? (
+          <div className="pv3-td" style={{ gridColumn: '1 / -1' }}>Loading…</div>
+        ) : thisWeek.length === 0 ? (
+          <div className="pv3-closed-empty" style={{ gridColumn: '1 / -1' }}>No cards issued this week.</div>
+        ) : thisWeek.map((r) => <Row key={`${r.ticker}-${r.week}`} r={r} />)}
+      </div>
+
+      {prior.length > 0 && (
+        <>
+          <button className="pv3-rec-toggle" onClick={() => setShowPrior((v) => !v)} aria-expanded={showPrior}>
+            {showPrior ? 'Hide' : 'Show'} prior weeks ({prior.length})
+          </button>
+          {showPrior && (
+            <div className="pv3-paper-scroll">
+              <div className="pv3-paper-table pv3-rec-table" role="table" aria-label="Prior week recommendations">
+                <div className="pv3-th">Symbol</div>
+                <div className="pv3-th pv3-th-r">Buy zone</div>
+                <div className="pv3-th pv3-th-r">Stop</div>
+                <div className="pv3-th pv3-th-r">Target</div>
+                <div className="pv3-th pv3-th-r">Window</div>
+                <div className="pv3-th pv3-th-r">Status</div>
+                {prior.map((r) => <Row key={`${r.ticker}-${r.week}`} r={r} />)}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {retention && retention.archive_present === false && (
+        <div className="pv3-t-ui-footnote" style={{ marginTop: 8 }}>{retention.note}</div>
+      )}
+    </>
+  );
+}
+
 export default function PaperRefRecord() {
   const { data, isLoading, isError } = usePaperRef();
 
@@ -143,6 +234,12 @@ export default function PaperRefRecord() {
         <div className="pv3-t-ui-micro">NAV{nav.length ? ` · ${nav.length} points since ${nav[0].date}` : ''}</div>
         <NavSpark points={nav} />
       </div>
+
+      <Recommendations
+        rows={data?.recommendations}
+        retention={data?.retention}
+        isLoading={isLoading}
+      />
 
       {/* Open positions */}
       <div className="pv3-card-head" style={{ marginTop: 16 }}>
