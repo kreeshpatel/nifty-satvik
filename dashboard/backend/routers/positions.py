@@ -556,6 +556,55 @@ def get_paper_reference_book(user: User = Depends(get_current_user)):
     }
 
 
+
+def _rr(target, price, stop):
+    """Reward:risk at a given price. None when the geometry is degenerate (price at/below stop)."""
+    t_, p_, s_ = _num(target), _num(price), _num(stop)
+    if not (t_ and p_ and s_) or p_ <= s_ or t_ <= p_:
+        return None
+    return round((t_ - p_) / (p_ - s_), 2)
+
+
+def _card_live_context(sig: dict) -> dict:
+    """Live decision-time context for an open card.
+
+    The card prints its zone, stop and target once, on Saturday. A buyer acting on Wednesday
+    faces different geometry: every rupee of price paid above the zone bottom buys the same
+    target with more risk, so R:R decays across the zone. The record's modelled fill takes the
+    next-week in-range OPEN, which is usually near the bottom of the band — a user buying at
+    zone-top gets materially worse geometry than the book records. Showing both numbers side by
+    side is what makes that gap visible; it is execution guidance, not a system rule.
+
+    `ext_at_zone_low` is reported because the deep-touch findings are per-trade real and are NOT
+    expressed in live sizing (LIVE_DISCIPLINE ships a blunt 20% blow-off cap only), so the band a
+    card sits in is information the owner currently has no other way to see.
+    """
+    price = _num(sig.get("current_price")) or _num(sig.get("close"))
+    lo, hi = _num(sig.get("entry_low")), _num(sig.get("entry_high"))
+    stop, target = _num(sig.get("stop")), _num(sig.get("target"))
+    out = {
+        "live_price": round(price, 2) if price else None,
+        "rr_at_zone_low": _rr(target, lo, stop),
+        "rr_at_price": _rr(target, price, stop),
+        "position_in_zone": None,
+        "late_in_zone": None,
+        "ext_at_zone_low_pct": None,
+        "ext_band": None,
+    }
+    if price and lo and hi and hi > lo:
+        out["position_in_zone"] = round(max(0.0, min(1.0, (price - lo) / (hi - lo))) * 100, 1)
+    if out["rr_at_price"] is not None:
+        out["late_in_zone"] = out["rr_at_price"] < 1.5
+    # Extension at the band bottom vs the signal-week 44w SMA. The card does not carry the SMA, so
+    # this is derived from the printed stop only when the engine set stop == zone_low (the touch
+    # geometry); otherwise it is left None rather than guessed.
+    sma = _num(sig.get("sma")) or _num(sig.get("signal_sma"))
+    if sma and lo:
+        ext = (lo / sma - 1) * 100
+        out["ext_at_zone_low_pct"] = round(ext, 2)
+        out["ext_band"] = "<5%" if ext < 5 else ("5-10%" if ext < 10 else ">10%")
+    return out
+
 def _paper_recommendations(book: dict, today: str) -> tuple[list[dict], dict]:
     """Every card the scanner issued, with its fate — derived from artifacts, never recomputed.
 
@@ -630,6 +679,10 @@ def _paper_recommendations(book: dict, today: str) -> tuple[list[dict], dict]:
             "buy_window": sig.get("buy_window"),
             "status": status,
             "status_reason": why,
+            # ── Decision-time context (ADDITIONAL to the printed card, never a reprint of it).
+            # D5 parity: entry/entry_low/entry_high/stop/target above are verbatim from the card;
+            # everything in this block is live and is labelled as such in the UI.
+            **_card_live_context(sig),
             # filled cards point at the position they became
             "position_id": ticker if status == "filled" else None,
             "entry_date": (positions.get(ticker) or {}).get("entry_date") if status == "filled" else bought,

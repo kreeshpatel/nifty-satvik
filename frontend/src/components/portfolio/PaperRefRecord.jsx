@@ -90,6 +90,20 @@ function Recommendations({ rows, retention, isLoading }) {
       </div>
       <div className="pv3-td pv3-td-r tabular-nums" style={{ color: 'var(--bear)' }}>{fmtN(r.stop)}</div>
       <div className="pv3-td pv3-td-r tabular-nums" style={{ color: 'var(--bull)' }}>{fmtN(r.target)}</div>
+      <div className="pv3-td pv3-td-r tabular-nums">
+        {r.rr_at_zone_low != null ? `${r.rr_at_zone_low.toFixed(2)}` : '—'}
+      </div>
+      <div className={`pv3-td pv3-td-r tabular-nums ${r.late_in_zone ? 'num-bear' : ''}`}>
+        {r.rr_at_price != null ? (
+          <>
+            {r.rr_at_price.toFixed(2)}
+            {r.late_in_zone && <span className="pv3-badge pv3-badge-skipped" style={{ marginLeft: 6 }}>Late</span>}
+          </>
+        ) : '—'}
+        {r.position_in_zone != null && (
+          <div className="pv3-td-name-full tabular-nums">{r.position_in_zone.toFixed(0)}% into zone</div>
+        )}
+      </div>
       <div className="pv3-td pv3-td-r tabular-nums">{r.buy_window_until || '—'}</div>
       <div className="pv3-td pv3-td-r">
         <span className={`pv3-badge pv3-badge-${r.status}`}>{STATUS_LABEL[r.status] || r.status}</span>
@@ -106,7 +120,7 @@ function Recommendations({ rows, retention, isLoading }) {
         <div>
           <div className="pv3-t-ui-headline">Recommendations</div>
           <div className="pv3-t-ui-footnote">
-            Every card issued and its outcome · a card only becomes a position if price enters the printed band
+            Every card issued and its outcome · printed zone/stop/target are verbatim; R:R now is live context, not a reprint
           </div>
         </div>
         <span className="pv3-t-ui-footnote tabular-nums">{(rows || []).length} cards</span>
@@ -117,6 +131,8 @@ function Recommendations({ rows, retention, isLoading }) {
         <div className="pv3-th pv3-th-r">Buy zone</div>
         <div className="pv3-th pv3-th-r">Stop</div>
         <div className="pv3-th pv3-th-r">Target</div>
+        <div className="pv3-th pv3-th-r">R:R zone-low</div>
+        <div className="pv3-th pv3-th-r">R:R now</div>
         <div className="pv3-th pv3-th-r">Window</div>
         <div className="pv3-th pv3-th-r">Status</div>
         {isLoading ? (
@@ -138,6 +154,8 @@ function Recommendations({ rows, retention, isLoading }) {
                 <div className="pv3-th pv3-th-r">Buy zone</div>
                 <div className="pv3-th pv3-th-r">Stop</div>
                 <div className="pv3-th pv3-th-r">Target</div>
+                <div className="pv3-th pv3-th-r">R:R zone-low</div>
+                <div className="pv3-th pv3-th-r">R:R now</div>
                 <div className="pv3-th pv3-th-r">Window</div>
                 <div className="pv3-th pv3-th-r">Status</div>
                 {prior.map((r) => <Row key={`${r.ticker}-${r.week}`} r={r} />)}

@@ -1124,7 +1124,7 @@
 }
 
 /* Recommendations pipeline (Paper ref) — layout + status badges from house tokens only. */
-.pv3-rec-table { grid-template-columns: minmax(120px, 1.6fr) repeat(5, minmax(0, 1fr)); }
+.pv3-rec-table { grid-template-columns: minmax(120px, 1.5fr) repeat(7, minmax(0, 1fr)); }
 .pv3-rec-why {
   padding: 0 18px 12px;
   font-size: 12px;
@@ -1158,4 +1158,4 @@
   color: var(--text-3);
   cursor: pointer;
 }
-@media (max-width: 720px) { .pv3-rec-table { min-width: 620px; } }
+@media (max-width: 720px) { .pv3-rec-table { min-width: 820px; } }
