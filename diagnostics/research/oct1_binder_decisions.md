@@ -18,6 +18,16 @@ Path-B swing sleeve and the breadth-50 book already on this review's agenda — 
 where chart structure remains untested (this funnel enters already-extended names: 72% graded
 "extended", 98% "wait").
 
+**Research input (2026-07-30) —** [`ml_readiness.md`](ml_readiness.md) writes the owner's
+"pursue ML, judge it forward" instruction into dated lanes and re-frames two decisions already on
+this agenda: the **breadth-50 amendment (§4)** is the only ML lane that can start in 2026 (EW-vs-SW
+weight learning, zero in-sample fitting, first read ~2027-04-01), and the **Path-B promote/kill** is
+the only door through which perception/chart-structure work can re-enter (per the 0123 re-open
+condition). It also states the unflattering arithmetic: an entry-quality learner trained on
+forward-wall data from the 15-slot book needs **7.5 / 11.2 / 18.6 years** for 200 / 300 / 500
+observations at ~27 closed trades/yr — so declining both is coherent, but it closes the ML direction
+for the foreseeable horizon.
+
 ---
 
 ## 0. Governance change already landed — gates must read SNAPSHOTS

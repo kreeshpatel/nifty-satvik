@@ -14,6 +14,32 @@ parameter change against the locked long-horizon baseline. Follow every step in 
 significance or sub-period tests has historically caused real regressions (see §11 rejections
 in `long_horizon/STRATEGY_FULL.md`).
 
+> ## ⚠ BEFORE THE HARNESS: three gates and three ledgers (2026-07-30)
+>
+> **Do not dispatch a harness run for an overlay that has not cleared the cheap gates.** A harness
+> run that informs a PROMOTE/KILL decision is a **trial** and permanently deflates the DSR bar for
+> every future test (`n_trials` currently **138**).
+>
+> 1. **[`skills/program-laws`](../program-laws/SKILL.md)** — is this already answered? Most overlay
+>    shapes are: entry gates/regime, the 63d technical zoo, absolute floors, trained selectors, path
+>    shape, perception, both stop directions, post-entry conditional management. Collision rule:
+>    **cite and narrow, never relitigate.**
+> 2. **[`skills/verdict-machine`](../verdict-machine/SKILL.md)** — the screen → bound sequence that
+>    precedes any trial. Screens are ledgered separately (**screens 12**); the sealed set is priced
+>    on every open (**sealed opens 1**).
+> 3. **The activation bound (mandatory, 3/3 kills).** Before proposing the overlay, compute its
+>    clairvoyant ceiling in R/yr and compare to the **±10R/yr path-noise floor** (0109/0117).
+>    Below the floor or wrong-signed → **NO TRIAL**. This gate killed the delivery tiebreak (0119,
+>    −1.29 R/yr) and the earnings deferral (0121, −15.72 R/yr) before either cost a trial.
+>
+> **Two promotion-bar amendments the programme has since paid for:**
+> - **Sub-period gates use a CONTINUOUS SLICE of one full run**, never a fresh-capital re-run from
+>   the sub-window start (that reseasons the boundary → phantom gate 0.762 vs the correct 0.570,
+>   and caused a false KILL). Use `nq.runner.research.evaluate_overlay`.
+> - **Robustness-for-return trades are not promotions.** Six instances (0093/0099/0107/0112/A-only/
+>   sleeves): every drawdown improvement on this book is paid for in CAGR. Log the profile for the
+>   owner review; do not promote it in-sample, and do not retune toward a pass.
+
 ---
 
 ## 0. Prerequisites — read these first

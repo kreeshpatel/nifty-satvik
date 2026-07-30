@@ -47,6 +47,14 @@ clears a Deflated-Sharpe gate, and each new in-sample trial deflates the bar fur
 trial #92 on the single momentum sleeve** without a genuinely new lever. The only remaining source of
 unbiased information is the forward wall (`forward/prereg.md`).
 
+**Two skills now carry this section's laws in enforceable form — load them before any research task.**
+[`skills/program-laws`](skills/program-laws/SKILL.md) = the standing verdicts with receipts (the five
+pre-entry walls incl. perception/0123, population-info-vs-margins, the closed axes) and the collision
+rule: **cite and narrow, never relitigate**. [`skills/verdict-machine`](skills/verdict-machine/SKILL.md)
+= the method that spends nothing: registry confrontation → coverage/PIT audit → kill-shot screen
+(ledgered) → **activation bound vs the ±10R/yr floor** → only then a trial. Standing counts:
+**screens 12 · sealed opens 1 · n_trials 138** — state them in every readout.
+
 **Registry-first — before proposing ANY overlay / signal / exit / sizing / universe idea:**
 1. Search `research/overlay_registry.md` (the O-###/S#/R# ledger), `research/findings/NNNN-*.md`, and
    `diagnostics/research/n_trials.json`. Most ideas are already tested. If the id or a near-identical

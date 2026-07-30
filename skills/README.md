@@ -13,6 +13,8 @@ Each skill is a `SKILL.md` with frontmatter (`name`, `description` with trigger 
 | Skill | Use when… | Borrowed from |
 |---|---|---|
 | [skills-first](skills-first/SKILL.md) | **at the START of every task** — check what skills/agents already exist before any command or plan (don't reinvent) | project (owner meta-rule) |
+| [program-laws](program-laws/SKILL.md) | **BEFORE proposing/evaluating ANY research idea** — the standing verdicts with receipts (five pre-entry walls incl. perception/0123; population-info vs decision margins; what's closed). Collision rule: **cite and narrow, never relitigate** | project (laws distilled 2026-07-30) |
+| [verdict-machine](verdict-machine/SKILL.md) | designing/adjudicating any study — the cheap-roots method: registry confrontation → coverage+PIT audit → kill-shot screen (ledgered) → **activation bound vs the ±10R/yr floor** → only then a trial | project (external-data campaign, 6 candidates / 0 trials) |
 | [karpathy-guidelines](karpathy-guidelines/SKILL.md) | writing / reviewing / refactoring **any** code — think-before-coding, simplicity-first, surgical changes, goal-driven execution | Andrej Karpathy (MIT, via multica-ai/andrej-karpathy-skills) |
 | [repo-map](repo-map/SKILL.md) | **before changing any value/formula/file** — find its single source, blast radius, and live-vs-backtest parity points | project (Phase-1 audit) |
 | [methodology-synthesis](methodology-synthesis/SKILL.md) | you need to know *which* borrowed method applies / what we adopted vs rejected | all 6 sources (master index) |
