@@ -61,7 +61,9 @@ signal list is the input. Concrete, buildable-on-current-primitives (from the be
   digest says "confirming: sell the runner Monday" and it executes unless cancelled); "idle is winning"
   between scans (suppress the buy surface so there's nothing to fiddle with).
 - **Flatten the familiarity/logo bias** (`TICKER_DOMAINS` gives blue-chips logos, mid-caps monograms) —
-  the edge is disproportionately in the boring deep-near-SMA-touch names, so the logo asymmetry is a silent
+  the edge skews toward the boring deep-near-SMA-touch names (**+0.717R at N=418** per the 2026-07-31
+  census `diagnostics/research/ext_band_census.md`; the earlier "+1.0R" figure was ad-hoc), so the logo
+  asymmetry is a silent
   thumb on the cherry-pick scale. Label the boring high-edge setup as the *prize*, not the leftover.
 
 The three most valuable book-specific behavioral traps to design against:

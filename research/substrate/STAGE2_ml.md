@@ -51,7 +51,11 @@ is per-agent harness overhead, not image tokens). Full taxonomy: `research/subst
   AUC 0.536, and this 300-chart blind vision grade-gap ≈ 0. The "survivor and stop-out look the same
   at entry" wall is real and robust.
 - Counterintuitive directional tag: winners skew *moderately extended* (+8.2), losers skew *at/near
-  the SMA* (−5.7) — echoes the 5-10% deep-near-SMA **trap band**, cuts against a naive near-SMA thesis.
+  the SMA* (−5.7) — cuts against a naive near-SMA thesis. *(Corrected 2026-07-31: the "5-10% **trap
+  band**" this originally invoked does not exist — the committed census
+  [`ext_band_census.md`](../../diagnostics/research/ext_band_census.md) measures 5-10% at **+0.094,
+  PF 1.10** — weakest band, not negative. The directional tag above stands on its own evidence; it no
+  longer borrows the trap framing.)*
 - Failure taxonomy (graded-C/D tail only): climax_reversal 38%, overhead_supply 28%, no_base_whipsaw
   25%, bought_extended 10% — ~90% screenable, **but only in the bad tail; the median loser = median winner.**
 
