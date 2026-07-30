@@ -1,0 +1,82 @@
+# TEMPORARY diagnostic (scheduler migration, 2026-07-30) — DELETE once the matrix is recorded.
+#
+# Question: are GitHub-hosted runner IPs walled by NSE for the endpoints the IP-SENSITIVE jobs use?
+# The scheduler audit assumed "no" from J3's apparent firing, but J3's wiring lives only on a
+# research branch and GitHub runs `schedule:` from the default branch only — so J3 has never fired
+# on schedule and that evidence was never real. This probe answers the question directly.
+#
+# Read-only: issues GETs and prints status codes. Writes nothing, commits nothing, no secrets.
+name: probe-nse-reachability
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: probe-nse-reachability
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - name: Probe NSE endpoints
+        run: |
+          python - <<'PY'
+          import requests, datetime as dt
+
+          HDR = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                               "(KHTML, like Gecko) Chrome/126 Safari/537.36",
+                 "Accept": "*/*", "Accept-Language": "en-US,en;q=0.9",
+                 "Referer": "https://www.nseindia.com/"}
+
+          d = dt.date.today() - dt.timedelta(days=3)
+          ENDPOINTS = [
+              ("root-session",   "https://www.nseindia.com/"),
+              ("bulk.csv",       "https://archives.nseindia.com/content/equities/bulk.csv"),
+              ("block.csv",      "https://archives.nseindia.com/content/equities/block.csv"),
+              ("nifty500-list",  "https://archives.nseindia.com/content/indices/ind_nifty500list.csv"),
+              ("ratings-api",    "https://www.nseindia.com/api/corporate-credit-rating?index=equities"
+                                 f"&from_date={(d - dt.timedelta(days=7)).strftime('%d-%m-%Y')}"
+                                 f"&to_date={d.strftime('%d-%m-%Y')}"),
+              ("boardmtg-api",   "https://www.nseindia.com/api/corporate-board-meetings?index=equities"
+                                 f"&from_date={(d - dt.timedelta(days=7)).strftime('%d-%m-%Y')}"
+                                 f"&to_date={d.strftime('%d-%m-%Y')}"),
+              ("sec_bhavdata",   "https://archives.nseindia.com/products/content/"
+                                 f"sec_bhavdata_full_{d.strftime('%d%m%Y')}.csv"),
+              ("MTO",            "https://archives.nseindia.com/archives/equities/mto/"
+                                 f"MTO_{d.strftime('%d%m%Y')}.DAT"),
+          ]
+
+          sess = requests.Session()
+          try:
+              boot = sess.get("https://www.nseindia.com/", headers=HDR, timeout=25)
+              print(f"session bootstrap -> {boot.status_code}, cookies={len(sess.cookies)}")
+          except Exception as e:
+              print(f"session bootstrap -> EXC {type(e).__name__}")
+
+          print(f"\n{'endpoint':16s} {'status':>7s} {'bytes':>9s}  verdict")
+          print("-" * 60)
+          rows = []
+          for name, url in ENDPOINTS:
+              try:
+                  r = sess.get(url, headers=HDR, timeout=40)
+                  n = len(r.content)
+                  ok = r.status_code == 200 and n > 64
+                  verdict = "ALLOWED" if ok else ("EMPTY" if r.status_code == 200 else "BLOCKED")
+                  print(f"{name:16s} {r.status_code:>7d} {n:>9d}  {verdict}")
+                  rows.append((name, r.status_code, n, verdict))
+              except Exception as e:
+                  print(f"{name:16s} {'EXC':>7s} {'-':>9s}  BLOCKED ({type(e).__name__})")
+                  rows.append((name, "EXC", 0, "BLOCKED"))
+
+          allowed = sum(1 for *_, v in rows if v == "ALLOWED")
+          print(f"\nSUMMARY: {allowed}/{len(rows)} endpoints ALLOWED from a GitHub-hosted runner")
+          PY
