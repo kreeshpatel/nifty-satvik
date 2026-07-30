@@ -496,3 +496,118 @@ so they are flagged, not fixed.
 | **S-F5** | **D2 archive (J5) is dormant until this branch merges** — the archive step is on `research/selection-funnel-and-noise-floor`, not on `main`; `origin/main`'s scanner has no archive step and `results/archive/` is absent on main. | Snapshots begin only at the next Saturday scan *after* merge. Until then the baseline `2026-07-24` is the only snapshot. |
 | **S-F6** | **J8 kite-refresh is a clean no-op skip** (secrets unset) and, once enabled, would fire ~3.5h after the 06:00-IST token expiry. | Inert today. If enabled, the ~3.5h Actions delay leaves the owner Kite session dark 06:00–~09:30 IST (overlapping the 09:15 open) — run it from the droplet if it matters. |
 | **S-F7** | **60-day auto-disable coupling** — the daily monitor's commits are the keep-alive for every scheduled workflow. | Nil risk while J2 commits daily; the S.5 dead-man now flags a stopped monitor. Revisit if a long no-commit window is planned. |
+
+---
+
+# Appendix S2 — Scheduler migration session (2026-07-30)
+
+**Session class:** scheduler classification + one read-only cloud probe. Zero screens, zero trials
+(counts **12 / 1 / 138** unchanged); no strategy-behaviour change; engine untouched. The probe
+workflow was added to `main`, run once, and removed (`9199fa5` → `ebaed9e`).
+
+## S2.1 The premise was already satisfied — and one audit row was wrong
+
+Appendix S established that **no job runs on this laptop** (`Get-ScheduledTask` + crontab both
+clean). "Make the daily jobs laptop-independent" was therefore already true, and **§5's Task
+Scheduler miss-proofing has no target** — there is no local job to miss-proof. What the migration
+framing did surface is a different and more serious failure mode.
+
+**GitHub Actions registers workflows — for `schedule:` and `workflow_dispatch` alike — only from the
+default branch.** This was confirmed the hard way: dispatching the probe from the research branch
+returned `HTTP 404: workflow not found on the default branch`. Consequently **any cron component
+that lives only on an unmerged branch never runs, no matter how correct its wiring looks.**
+
+Four components are in exactly that state:
+
+| Component | On `main`? | Real status |
+|---|---|---|
+| J3 forward accumulators (`run_forward_accumulators.py` + the monitor accumulator step) | **NO** | **never fired on schedule** |
+| J5 D2 archive (`archive_weekly_snapshot.py`) | **NO** | dormant (already flagged S-F5) |
+| F-S1 dead-man `scheduler_health.py` (the fix "applied" in S.5) | **NO** | **not running** |
+| J9 forward-wall (`run_paper_cron.py`) | yes | no trigger anywhere (S-F1) |
+
+**Correction to S.1/S.2 — the J3 row is wrong.** It records J3 as "fired with J2, 8/8", inferred
+from J2 firing plus the committed `forward_accum_health.json` and its `stale:false`. That inference
+was circular: both artifacts were produced by *local manual runs* on this branch, not by the cron.
+The tell is in the data — `last_fetch_ts 2026-07-28 21:01:15` is neither a cron time nor a UTC cron
+lag, and it is the exact timestamp of the local PROBE-contamination incident. A live re-fetch on
+2026-07-30 found **137 uncollected bulk/block rows**, i.e. the feed has been collecting nothing on
+schedule since inception. S-F5 applied the branch-vs-main reasoning to J5 but not to J3.
+
+*Lesson for the audit method:* "the proof artifact exists and is fresh" is not evidence a job fired
+**if that artifact can also be produced by hand**. Firing evidence must come from run history on the
+default branch, cross-checked against a commit authored by the runner.
+
+## S2.2 Job classification by real constraint
+
+| Bucket | Jobs | Data dependency | Write target | Verdict |
+|---|---|---|---|---|
+| **CLOUD-SAFE** | J1 scanner, J2 monitor, J4 scorecard, J5 archive, J6 blend | yfinance + git only | commits to `main` | already on GH Actions (J5 pending merge) |
+| **IP-SENSITIVE** | J3 accumulators (bulk/block + ratings); the delivery / MTO / bhavcopy harvesters | NSE endpoints | append-only accumulators | **cloud-safe after all — see the matrix below** |
+| **TOKEN-BOUND** | J8 Kite refresh | Kite OAuth | none (Actions run only) | cannot be unattended anywhere; documented, not migrated. Inert today (`go=false`, secrets unset) |
+| **UNSCHEDULED** | J9 forward-wall | — | hash-chained wall log | no trigger; owner door S-F1 |
+
+## S2.3 NSE reachability matrix — endpoint x host (run 30538093904, 2026-07-30)
+
+Read-only GETs from a GitHub-hosted `ubuntu-latest` runner:
+
+| Endpoint | Status | Bytes | Verdict |
+|---|---|---|---|
+| `www.nseindia.com/` (session bootstrap) | 403 | 368 | **BLOCKED** (bot-wall) |
+| `archives.../equities/bulk.csv` | 200 | 12,194 | ALLOWED |
+| `archives.../equities/block.csv` | 200 | 292 | ALLOWED |
+| `archives.../indices/ind_nifty500list.csv` | 200 | 32,766 | ALLOWED |
+| `www.../api/corporate-credit-rating` | 200 | 156,906 | ALLOWED |
+| `www.../api/corporate-board-meetings` | 200 | 558,922 | ALLOWED |
+| `archives.../sec_bhavdata_full_*.csv` | 200 | 372,734 | ALLOWED |
+| `archives.../mto/MTO_*.DAT` | 200 | 116,822 | ALLOWED |
+
+**7/8 ALLOWED. GitHub runner IPs are not walled for any data endpoint.** Only the homepage
+bot-wall 403s — and notably the `www.../api/*` endpoints returned full payloads *without* a cookie
+bootstrap, so that 403 does not block the collectors (their bootstrap call is best-effort and they
+proceed regardless).
+
+**Migration consequence:** the IP-SENSITIVE bucket needs **no Fly.io machine and no deploy key**.
+The Fly-maa fallback in the migration plan is **not required**; cost of the chosen path is **zero**.
+The remedy for J3 is therefore not a migration at all — it is **merging its existing wiring to
+`main`**.
+
+## S2.4 What this session did NOT do, and why
+
+- **Did not merge the research branch to `main`.** That is the single action that would activate J3,
+  J5 and the F-S1 dead-man, but it carries 42 commits including an entire research programme — a
+  governance-class decision, not scheduler plumbing. **Owner door.**
+- **Did not schedule J9.** Unchanged from S-F1: whether the momentum-sleeve wall should log daily is
+  a strategy decision (the sleeve is suspended), not a host decision.
+- **Did not deliver the migration plan's "one full day of post-migration evidence."** No migration
+  was performed, and a day of firing evidence cannot be produced inside a session — it requires a
+  day to elapse. The honest substitute is the reachability matrix above plus the S.2 run history.
+- **Did not touch job times.** Every spec is already TZ-correct (S.1); the ~1.5-3.7h lateness is
+  GitHub best-effort queueing and is not fixable by editing a spec.
+
+## S2.5 Job x host x schedule x alarm-path (current truth)
+
+| Job | Host | Schedule (UTC → IST) | Fires today? | Alarm path |
+|---|---|---|---|---|
+| J1 scanner | GH Actions (`main`) | `30 12 * * 6` → 18:00 Sat | yes (~+1.5h) | dashboard `cron_health` (miscalibrated, S-F2) |
+| J2 monitor | GH Actions (`main`) | `45 10 * * 1-5` → 16:15 | yes (~+1.5-2.7h) | none directly (S.4) |
+| J3 accumulators | **branch only** | would ride J2 | **NO** | `forward_accum_health.json` (file nobody opens) |
+| J4 scorecard | GH Actions (`main`) | rides J1 | yes | — |
+| J5 D2 archive | **branch only** | would ride J1 | **NO** | drift log (file nobody opens) |
+| J6 blend paper | GH Actions (`main`) | rides J1 | yes | — |
+| J7 intraday | GH Actions (`main`) | `0 9 * * 1-5` → 14:30 | yes, but post-close (S-F4) | — |
+| J8 kite refresh | GH Actions (`main`) | `45 0 * * 1-5` → 06:15 | yes, no-op skip | — |
+| J9 forward-wall | **nowhere** | — | **NO** | — |
+| F-S1 dead-man | **branch only** | would ride J2 | **NO** | would print + write into `weekly_monitor.json` |
+
+**Cross-host aggregation is not yet real**, and the reason is not host-splitting — it is that the
+aggregator itself is unmerged. Once `scheduler_health.py` is on `main` it rides J2 and covers every
+job in one status block; surfacing that block somewhere the owner looks daily remains S-F3.
+
+## S2.6 Flags added
+
+| ID | Finding | Disposition |
+|----|---------|-------------|
+| **S2-F1** | **J3 has never fired on schedule** — wiring is branch-only; its "8/8 fired" record in S.2 was inferred from locally-produced artifacts. 137 rows uncollected as of 2026-07-30. | Merging the branch to `main` activates it. Until then the forward accumulators collect **nothing** automatically. Owner door (merge). |
+| **S2-F2** | **The F-S1 dead-man's-switch is itself unmerged** — the fix recorded as "applied" in S.5 does not run. | Same merge. Until then no job has an automated absence alarm. |
+| **S2-F3** | **Audit-method correction** — a committed proof-artifact is not firing evidence when that artifact is hand-producible. Require default-branch run history plus a runner-authored commit. | Recorded here; applies to every future scheduler audit. |
