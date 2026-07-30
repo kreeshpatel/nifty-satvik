@@ -697,3 +697,120 @@ heartbeat reports, which is an owner door): give the reconstruction an Actions-A
 with no committed output, or declare J7 artifact-less and exclude it from `overall` with its status
 surfaced separately. Until then, read `overall: MISSING` as "check which job" rather than "a job
 failed".
+
+## S2.11 S2-F5 — the flaky golden: two hypotheses falsified, root cause NOT found
+
+**Status: OPEN, narrowed. Not closed, and deliberately not papered over.** Diagnostic run
+30577724843 (temporary workflow, since removed).
+
+### Hypothesis (a) — threading / parallel reduction order: FALSIFIED for free, before spending CI
+
+`ci.yml` already pins `OMP_NUM_THREADS`, `OPENBLAS_NUM_THREADS` and `MKL_NUM_THREADS` to `1`, and
+the failing run's own env dump carried those values. A flake that occurs **under** single-threaded
+BLAS cannot be caused by parallel reduction order. The planned unpinned-vs-pinned matrix was
+therefore not run: the experiment's answer was already in the failing run's log.
+
+*Consequence for the "byte-reproducible" claim:* it remains conditional on the stated environment
+(single-threaded BLAS, pinned in `ci.yml`), and the September memo runs must use the same pinning.
+That conditionality was already true; it is now written down.
+
+### Hypothesis (b) — hash-order / test-order pollution: FALSIFIED
+
+| Leg | Design | Result |
+|---|---|---|
+| A | golden test **isolated**, `PYTHONHASHSEED` swept **0-19**, threads pinned | **0/20 failed** |
+| B | golden in **suite context** x20, default (random) seed | **0/20 failed** |
+
+Environment captured: 4 cores, numpy 2.5.1, pandas 3.0.5 — identical to both the failing and the
+passing run of commit `44dda60`.
+
+**40 consecutive clean CI runs. The flake did not reproduce.** Its rate is therefore below
+1-in-40, and no fix can be validated against the "20/20 green" bar — the suite was already 40/40
+green *without any change*, so that criterion proves nothing here. Claiming S2-F5 closed on this
+evidence would be a false all-clear.
+
+### What was done instead: make the next sighting decisive
+
+A flake that cannot be reproduced can still be diagnosed **if its one occurrence is informative**.
+The original assertion failed on the **first differing key in alphabetical order**, so the single
+sighting told us only that `curve_hash` differed — not whether `trades`, `n_ledger`, `sharpe` or
+`final_equity` moved with it. Those separate two very different root causes:
+
+- trades/ledger identical, curve hash different → numeric or ordering noise in the curve path;
+- trade-level values different → selection-level divergence.
+
+The golden now reports **every** key together with a interpretation line naming which of those two
+it is. **The comparison is not widened** — each key is still compared exactly and any single
+mismatch still fails. `PYTHONHASHSEED` is additionally pinned to `0` in `ci.yml`: seed order was
+exonerated as a *cause*, but leaving it unpinned makes any recurrence undiagnosable after the fact.
+
+### What remains open
+
+The mechanism is unidentified. Remaining candidates, none tested: a rare numeric difference in the
+runner's libm/BLAS build; non-determinism in a pandas groupby/sort path that only manifests on
+particular data orderings; or a genuinely transient runner fault. **Next sighting is the trigger** —
+the enriched report should immediately classify it as curve-path vs selection-level, which halves
+the search space in one observation.
+
+## S2.12 S2-F6 — CLOSED: the heartbeat now reads the run log
+
+`scheduler_health` took its firing truth from committed artifacts, so `intraday-scan` — which fires
+every weekday and commits nothing — read MISSING and dragged `overall` red on a healthy system. That
+is the S-F2 pathology (an alarm red in the ordinary case stops being read) and it was also the exact
+weakness named in S2-F3 (firing evidence is the run log, never an artifact alone).
+
+**Fix (option a, as directed).** The reconstruction now queries the Actions run API for each job's
+most recent **successful scheduled run** (`event=schedule&status=success`), using `GITHUB_TOKEN`
+from within the monitor job (`permissions: actions: read` added). Committed artifacts are demoted to
+**corroboration**: each row carries `source` (`run-log` | `artifact` | `none`), the `run_id`, the
+artifact's own timestamp, and `artifact_corroborates` — false when the artifact is more than six
+hours newer than the last scheduled run, which is how a hand-made artifact now announces itself
+instead of impersonating a firing.
+
+Alarm semantics are unchanged: **MISSING = no successful scheduled run within the job's cadence
+window**; OVERDUE beyond it. Degradation is graceful — with no token (local runs) or on any API
+failure it falls back to artifacts and says so in `source_of_truth`, and the probe still never
+raises into the monitor.
+
+Pinned by `tests/test_scheduler_health_runlog.py` (12 tests, API injected — no network): an
+artifact-less job reads OK from the run log; an empty results directory with a healthy run log is
+OK overall; no successful scheduled run is MISSING; a stale run is OVERDUE; missing token and API
+exceptions both fall back; a hand-made artifact newer than the run is flagged, not alarmed.
+
+**Live verification remains outstanding** — the next real heartbeat (tomorrow's monitor) must report
+`overall: OK` with `intraday-scan` green and `source: run-log`. See S2.13.
+
+## S2.13 Activation verification (S2-F3 evidence standard: run log first, artifact corroborating)
+
+| Job | Evidence | Verdict |
+|---|---|---|
+| **J3 forward accumulators** | **schedule**-triggered run **30541739128**, 2026-07-30 12:14 UTC, success; `forward_accum_health.json.last_fetch_ts = 2026-07-30 12:15:15` matches it; committed as `6330c0a` | **VERIFIED LIVE** |
+| **J5 D2 archive** | first firing due **Sat 2026-08-01 ~12:30 UTC** (weekly scanner) | **PENDING** — unreachable this session |
+| **Dead-man (F-S1/S2-F6)** | rebuilt on run-log truth, 12 tests green | **PENDING live** — next monitor run |
+
+**J3 note, stated precisely:** the scheduled run added **0 rows** and that is the correct outcome,
+not a failure. The 11:36 catch-up had already absorbed 29-JUL, and NSE published nothing new in the
+38 minutes between them; the content-key dedup keeps first-seen timestamps, so an idempotent re-run
+appends nothing. Firing is evidenced by the run log and the health file's fetch timestamp, exactly
+as S2-F3 requires — **not** by row growth.
+
+### Hand-back checks (expected values)
+
+```bash
+# 1. J3 — a *schedule* (not workflow_dispatch) run, then the health stamp must match it
+gh run list --workflow=cron-bhanushali-monitor.yml --limit 3 --json event,createdAt,conclusion
+python -c "import json;print(json.load(open('results/forward_accum_health.json')))"
+#    expect: event=schedule, conclusion=success; last_fetch_ts within ~2 min of the run start
+
+# 2. J5 — after Sat 2026-08-01
+ls results/archive/            # expect a NEW <date>/ directory
+git log origin/main -1 --stat -- results/archive/   # in a scanner-authored commit
+
+# 3. Dead-man — after the next monitor run
+python -c "import json;h=json.load(open('results/weekly_monitor.json'))['scheduler_health'];\
+print(h['overall'], h['source_of_truth']);\
+[print(' ',j['job'],j['status'],j['source'],j['run_id']) for j in h['jobs']]"
+#    expect: overall=OK, source_of_truth=actions-run-log,
+#            intraday-scan OK / source=run-log / a real run_id  <- the S2-F6 fix
+#    a MISSING now means a genuinely absent scheduled run, not an absent artifact
+```
