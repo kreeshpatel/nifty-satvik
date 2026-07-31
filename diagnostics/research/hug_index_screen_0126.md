@@ -1,0 +1,292 @@
+# 0126 — line-hugger screen (LABEL SCREEN #13)
+
+**0 trials. Sealed set untouched. Judge log unread. No engine change.**
+**Standing counts: screens 13 · sealed opens 1 · n_trials 138.**
+
+Train rows used **1619** of 4025 (2365 not-train dropped before any statistic; 41 excluded on the 40/52-week coverage rule).
+`hug_index` quartiles [0.0385, 0.1346, 0.25]; median split at **0.1346**.
+
+## §4 confound checks (a confirmed confound is a KILL, not a discovery)
+
+| pair | corr |
+|---|---|
+| corr_hug_rank_crs | -0.181 |
+| corr_hug_atr_pct | -0.274 |
+| corr_hug_ext_vs_sma | -0.234 |
+| corr_hug_median_abs_ext | -0.63 |
+| corr_hug_touch_count | 0.762 |
+
+## Q1 — discrimination (chronic vs rare, conditional on ext × CRS cells)
+
+```
+{
+  "false_touch": {
+    "chronic_rate_pct": 14.1,
+    "rare_rate_pct": 14.5,
+    "delta_pp": -0.4,
+    "ci_pp": [
+      -3.8,
+      3.0
+    ],
+    "conditional": {
+      "n_hi": 754,
+      "n_lo": 865,
+      "cond_delta": -0.02,
+      "ci": [
+        -0.054,
+        0.014
+      ]
+    }
+  },
+  "noise_stop": {
+    "chronic_rate_pct": 14.7,
+    "rare_rate_pct": 16.8,
+    "delta_pp": -2.0,
+    "ci_pp": [
+      -5.5,
+      1.5
+    ],
+    "conditional": {
+      "n_hi": 754,
+      "n_lo": 865,
+      "cond_delta": -0.023,
+      "ci": [
+        -0.057,
+        0.012
+      ]
+    }
+  },
+  "R_conditional": {
+    "n_hi": 754,
+    "n_lo": 865,
+    "cond_delta": 0.022,
+    "ci": [
+      -0.192,
+      0.243
+    ]
+  },
+  "R_per_year": {
+    "by_year": {
+      "2019": -0.684,
+      "2020": 0.369,
+      "2021": -0.072,
+      "2022": 0.203
+    },
+    "n_years": 4,
+    "n_positive": 2,
+    "consistency": "2/4"
+  },
+  "R_marginal": {
+    "chronic": {
+      "N": 754,
+      "meanR": 0.437,
+      "medR": 0.325,
+      "win_pct": 52.3
+    },
+    "rare": {
+      "N": 865,
+      "meanR": 0.476,
+      "medR": 0.334,
+      "win_pct": 52.4
+    }
+  }
+}
+```
+
+## Q2 — the refinement question: the <5% band's core, split by hug
+
+```
+{
+  "band_total": {
+    "N": 122,
+    "meanR": 0.681,
+    "medR": 1.315,
+    "win_pct": 55.7
+  },
+  "band_hug_median": 0.1346,
+  "rare_touch": {
+    "N": 62,
+    "meanR": 0.418,
+    "medR": 1.263,
+    "win_pct": 58.1,
+    "ci": [
+      -0.237,
+      1.034
+    ]
+  },
+  "chronic_hugger": {
+    "N": 60,
+    "meanR": 0.954,
+    "medR": 1.419,
+    "win_pct": 53.3,
+    "ci": [
+      0.324,
+      1.646
+    ]
+  },
+  "delta_rare_minus_chronic": -0.536,
+  "delta_ci": [
+    -1.493,
+    0.334
+  ],
+  "conditional_within_band_cells": {
+    "n_hi": 60,
+    "n_lo": 62,
+    "cond_delta": 0.572,
+    "ci": [
+      -0.333,
+      1.454
+    ]
+  },
+  "per_year": {
+    "by_year": {
+      "2019": -1.407,
+      "2020": 0.719,
+      "2021": null,
+      "2022": 0.864
+    },
+    "n_years": 3,
+    "n_positive": 2,
+    "consistency": "2/3"
+  },
+  "by_crs_tercile": {
+    "loCRS": {
+      "rare": {
+        "N": 38,
+        "meanR": 0.382,
+        "medR": 1.321,
+        "win_pct": 57.9
+      },
+      "chronic": {
+        "N": 47,
+        "meanR": 0.668,
+        "medR": -0.942,
+        "win_pct": 44.7
+      }
+    },
+    "midCRS": {
+      "rare": {
+        "N": 15,
+        "meanR": -0.29,
+        "medR": -0.758,
+        "win_pct": 46.7
+      },
+      "chronic": {
+        "N": 7,
+        "meanR": 1.471,
+        "medR": 1.881,
+        "win_pct": 85.7
+      }
+    },
+    "hiCRS": {
+      "rare": {
+        "N": 9,
+        "meanR": 1.747,
+        "medR": 2.013,
+        "win_pct": 77.8
+      },
+      "chronic": {
+        "N": 6,
+        "meanR": 2.585,
+        "medR": 2.392,
+        "win_pct": 83.3
+      }
+    }
+  }
+}
+```
+
+## Q3 — cooldown: re-touch within 8 weeks of a stop-out vs cold touches
+
+```
+{
+  "cooldown_weeks": 8,
+  "hot_retouch": {
+    "N": 136,
+    "meanR": 0.446,
+    "medR": 1.239,
+    "win_pct": 54.4,
+    "ci": [
+      -0.38,
+      1.067
+    ]
+  },
+  "cold_touch": {
+    "N": 1483,
+    "meanR": 0.459,
+    "medR": 0.267,
+    "win_pct": 52.1,
+    "ci": [
+      0.359,
+      0.564
+    ]
+  },
+  "delta_hot_minus_cold": -0.013,
+  "delta_ci": [
+    -0.843,
+    0.617
+  ],
+  "conditional": {
+    "n_hi": 136,
+    "n_lo": 1483,
+    "cond_delta": 0.094,
+    "ci": [
+      -0.734,
+      0.713
+    ]
+  },
+  "per_year": {
+    "by_year": {
+      "2019": 1.002,
+      "2020": -2.854,
+      "2021": 0.8,
+      "2022": 0.24
+    },
+    "n_years": 4,
+    "n_positive": 3,
+    "consistency": "3/4"
+  },
+  "activation_share_pct": 8.4
+}
+```
+
+## ADV-tercile robustness (pre-registered leg)
+
+```
+{
+  "Q1": {
+    "lowADV": {
+      "n_hi": 273,
+      "n_lo": 267,
+      "cond_delta": 0.026,
+      "ci": [
+        -0.422,
+        0.525
+      ]
+    },
+    "midADV": {
+      "n_hi": 234,
+      "n_lo": 305,
+      "cond_delta": -0.052,
+      "ci": [
+        -0.362,
+        0.256
+      ]
+    },
+    "hiADV": {
+      "n_hi": 247,
+      "n_lo": 293,
+      "cond_delta": 0.023,
+      "ci": [
+        -0.294,
+        0.339
+      ]
+    }
+  },
+  "Q2": {
+    "note": "adv not joined on band subset"
+  }
+}
+```
+
+Reproduce: `python scripts/diag_hug_index_screen_0126.py`
