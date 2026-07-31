@@ -200,3 +200,10 @@ construction artifact whose direction was fixed before Phase 2 ran.
 end, biasing the estimate **upward**; the surprise proxy is announcement reaction, not analyst
 surprise; `ann_ts` is the intimation timestamp so the brief's per-event after-close rule was **not
 implementable**; and returns are market-adjusted, not beta-adjusted.
+
+### DECISION (owner, 2026-07-31)
+
+**Gate-1 close ACCEPTED. No leg-4 amendment. No Phase 2.** Closed on the differentiation failure
+rather than leg 4: the drift exists but is not a different return source, so the funnel fails 0115's
+differentiation limb before measurement. The calendar stays banked and the surprise-proxy machinery
+is a recorded asset. Counts unchanged: **screens 14 · sealed opens 1 · n_trials 138.**

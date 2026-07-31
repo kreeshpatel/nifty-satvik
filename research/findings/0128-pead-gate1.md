@@ -10,6 +10,29 @@
 - **Script:** `scripts/diag_pead_gate1_0128.py` → `diagnostics/research/pead_gate1_0128.{md,json}`.
 - Takes up the **OPEN** registry row **SL-002** ("NSE PEAD sleeve — not yet measured").
 
+## DECISION (owner, 2026-07-31): the Gate-1 close is ACCEPTED
+
+**No leg-4 amendment. No Phase 2. The PEAD funnel is closed.**
+
+The close is accepted **on the differentiation failure, not on leg 4.** The recorded reason:
+
+> The drift exists on our universe, but it is **not a different return source** —
+> momentum-concentrated (the low-momentum tercile straddles zero), the tradable-ADV slice is
+> insignificant, and it decays out-of-sample. **The PEAD funnel therefore fails 0115's
+> differentiation limb before measurement**, so Phase 2 would be spending a book backtest to price a
+> sleeve already known not to diversify.
+
+**Assets retained, explicitly:** the PIT earnings calendar stays banked (`data/_earnings_raw.parquet`
++ `nq/data/earnings.py`, truncation-tested), and the **surprise-proxy machinery is a recorded asset**
+— `scripts/diag_pead_gate1_0128.py` computes CAR(0,+1) deciles, market-adjusted drift from open(+2),
+and the momentum/ADV stratifications, reusable by any future event study without rebuilding them.
+
+**What is closed:** the PEAD *sleeve* proposal, and with it the last untested premium family. What is
+not closed: the calendar, the machinery, or a future study that brings an estimate-based surprise
+(see "Do NOT re-test unless").
+
+---
+
 ## Coverage — no famine (the Weinstein lesson does not bite here)
 
 58,871 NSE result events → 20,230 joinable to OHLCV → 14,672 PIT Nifty-500 members →
