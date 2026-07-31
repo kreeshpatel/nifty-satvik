@@ -1,0 +1,327 @@
+{
+  "_doc": "0128 PEAD Gate-1 (MEASUREMENT; 0 trials; no ledger row; sealed set not read).",
+  "prereg": "diagnostics/research/preregistry/0128-pead-gate1.md",
+  "coverage": {
+    "events_all_nse": 58871,
+    "joinable_to_ohlcv": 20230,
+    "and_pit_nifty500_member": 14672,
+    "usable_after_adv_and_history": 12186,
+    "dropped_insufficient_history": 738,
+    "per_year": {
+      "2019": 1083,
+      "2020": 1360,
+      "2021": 1738,
+      "2022": 1773,
+      "2023": 1810,
+      "2024": 1948,
+      "2025": 1985,
+      "2026": 489
+    },
+    "per_quarter_median": 449,
+    "topdecile_per_year": {
+      "2019": 110,
+      "2020": 138,
+      "2021": 175,
+      "2022": 178,
+      "2023": 183,
+      "2024": 195,
+      "2025": 200,
+      "2026": 49
+    }
+  },
+  "train_window": [
+    2019,
+    2022
+  ],
+  "n_train": 5954,
+  "n_out_of_window": 6232,
+  "decile_table_train": [
+    {
+      "decile": 1,
+      "N": 602,
+      "meanCAR01": -9.38,
+      "drift10": -1.878,
+      "drift21": -1.001,
+      "drift42": -0.781,
+      "drift63": -2.909
+    },
+    {
+      "decile": 2,
+      "N": 596,
+      "meanCAR01": -5.2,
+      "drift10": -0.589,
+      "drift21": -0.205,
+      "drift42": 1.024,
+      "drift63": -0.446
+    },
+    {
+      "decile": 3,
+      "N": 591,
+      "meanCAR01": -3.48,
+      "drift10": -0.908,
+      "drift21": -0.087,
+      "drift42": 0.894,
+      "drift63": 0.096
+    },
+    {
+      "decile": 4,
+      "N": 597,
+      "meanCAR01": -2.2,
+      "drift10": -0.336,
+      "drift21": 0.134,
+      "drift42": 0.268,
+      "drift63": 0.624
+    },
+    {
+      "decile": 5,
+      "N": 596,
+      "meanCAR01": -1.07,
+      "drift10": -0.508,
+      "drift21": 0.166,
+      "drift42": 0.95,
+      "drift63": 0.575
+    },
+    {
+      "decile": 6,
+      "N": 589,
+      "meanCAR01": -0.0,
+      "drift10": 0.501,
+      "drift21": 0.947,
+      "drift42": 1.596,
+      "drift63": 1.571
+    },
+    {
+      "decile": 7,
+      "N": 595,
+      "meanCAR01": 1.08,
+      "drift10": -0.248,
+      "drift21": 0.434,
+      "drift42": 0.653,
+      "drift63": 0.717
+    },
+    {
+      "decile": 8,
+      "N": 593,
+      "meanCAR01": 2.49,
+      "drift10": 0.245,
+      "drift21": 1.193,
+      "drift42": 2.293,
+      "drift63": 2.865
+    },
+    {
+      "decile": 9,
+      "N": 594,
+      "meanCAR01": 4.52,
+      "drift10": 0.127,
+      "drift21": 1.665,
+      "drift42": 2.094,
+      "drift63": 1.727
+    },
+    {
+      "decile": 10,
+      "N": 601,
+      "meanCAR01": 9.99,
+      "drift10": 0.903,
+      "drift21": 2.366,
+      "drift42": 3.545,
+      "drift63": 3.737
+    }
+  ],
+  "spreads_train": {
+    "10": {
+      "top_mean": 0.903,
+      "top_ci": [
+        0.158,
+        1.651
+      ],
+      "bottom_mean": -1.878,
+      "spread": 2.781,
+      "spread_ci": [
+        1.796,
+        3.791
+      ],
+      "n_top": 601,
+      "n_bot": 602
+    },
+    "21": {
+      "top_mean": 2.366,
+      "top_ci": [
+        1.265,
+        3.491
+      ],
+      "bottom_mean": -1.001,
+      "spread": 3.367,
+      "spread_ci": [
+        1.877,
+        4.883
+      ],
+      "n_top": 601,
+      "n_bot": 602
+    },
+    "42": {
+      "top_mean": 3.545,
+      "top_ci": [
+        2.09,
+        5.023
+      ],
+      "bottom_mean": -0.781,
+      "spread": 4.325,
+      "spread_ci": [
+        2.28,
+        6.337
+      ],
+      "n_top": 601,
+      "n_bot": 602
+    },
+    "63": {
+      "top_mean": 3.737,
+      "top_ci": [
+        1.934,
+        5.682
+      ],
+      "bottom_mean": -2.909,
+      "spread": 6.645,
+      "spread_ci": [
+        4.234,
+        9.173
+      ],
+      "n_top": 601,
+      "n_bot": 602
+    }
+  },
+  "best_horizon_train": 63,
+  "per_year_best_horizon": [
+    {
+      "year": 2019,
+      "in_train": true,
+      "n_top": 110,
+      "top_drift": 0.377,
+      "spread": 6.738
+    },
+    {
+      "year": 2020,
+      "in_train": true,
+      "n_top": 138,
+      "top_drift": 1.643,
+      "spread": 1.992
+    },
+    {
+      "year": 2021,
+      "in_train": true,
+      "n_top": 175,
+      "top_drift": 8.555,
+      "spread": 9.585
+    },
+    {
+      "year": 2022,
+      "in_train": true,
+      "n_top": 178,
+      "top_drift": 2.7,
+      "spread": 7.296
+    },
+    {
+      "year": 2023,
+      "in_train": false,
+      "n_top": 183,
+      "top_drift": 10.025,
+      "spread": 4.441
+    },
+    {
+      "year": 2024,
+      "in_train": false,
+      "n_top": 195,
+      "top_drift": 2.327,
+      "spread": 2.189
+    },
+    {
+      "year": 2025,
+      "in_train": false,
+      "n_top": 200,
+      "top_drift": -0.519,
+      "spread": 2.508
+    },
+    {
+      "year": 2026,
+      "in_train": false,
+      "n_top": 49,
+      "top_drift": 12.998,
+      "spread": 0.547
+    }
+  ],
+  "confounds": {
+    "momentum63": {
+      "momentum63_lo": {
+        "n_top": 185,
+        "spread": 3.166,
+        "ci": [
+          -1.035,
+          7.509
+        ]
+      },
+      "momentum63_mid": {
+        "n_top": 185,
+        "spread": 5.87,
+        "ci": [
+          2.262,
+          9.375
+        ]
+      },
+      "momentum63_hi": {
+        "n_top": 231,
+        "spread": 9.928,
+        "ci": [
+          5.403,
+          14.523
+        ]
+      }
+    },
+    "adv": {
+      "adv_lo": {
+        "n_top": 211,
+        "spread": 6.693,
+        "ci": [
+          2.216,
+          11.378
+        ]
+      },
+      "adv_mid": {
+        "n_top": 207,
+        "spread": 8.783,
+        "ci": [
+          4.789,
+          12.902
+        ]
+      },
+      "adv_hi": {
+        "n_top": 183,
+        "spread": 3.638,
+        "ci": [
+          -0.297,
+          7.605
+        ]
+      }
+    }
+  },
+  "out_of_window_2023_2026": {
+    "n_top": 627,
+    "top_drift": 4.5,
+    "spread": 2.822,
+    "spread_ci": [
+      0.74,
+      4.855
+    ],
+    "note": "descriptive only \u2014 NOT the Gate-1 decision basis (pre-reg \u00a71)"
+  },
+  "gate": {
+    "best_horizon": 63,
+    "1_existence_CI_excludes_zero": true,
+    "2_majority_train_year_sign": "4/4",
+    "2_pass": true,
+    "3_top_decile_net_pct": 3.477,
+    "3_pass": true,
+    "4_min_topdecile_per_yr": 49,
+    "4_pass": false,
+    "PASS": false
+  },
+  "VERDICT": "FAIL \u2014 door closes; SL-002 moves OPEN -> verdict"
+}
