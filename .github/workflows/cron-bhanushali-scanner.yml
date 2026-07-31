@@ -75,6 +75,22 @@ jobs:
 
       - name: Archive issued cards (append-only recommendation record)
         run: python scripts/archive_weekly_cards.py || true
+      - name: Informed-judge forward stream (pre-reg 0125 — observational, SEALED)
+        # One structured verdict per issued card, appended to the hash-chained results/judge_log.jsonl.
+        # FORWARD ONLY: no historical variant exists or may be added (the model's training data
+        # contains the outcomes and the design cannot be blinded — pre-reg 0125 §1).
+        # Logged, never acted on: nothing in the engine, the book, or the card reads a verdict.
+        # `|| true` is belt-and-braces — the script already exits 0 on a missing key, a missing SDK,
+        # model drift, or a per-card failure. The scanner must never fail because of the judge.
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "${ANTHROPIC_API_KEY}" ]; then
+            echo "::warning::ANTHROPIC_API_KEY secret not set on this runner — judge stream is NOT running."
+            echo "Add it in Settings > Secrets and variables > Actions to start the stream."
+          fi
+          pip install -e ".[judge]"
+          python scripts/run_judge_cron.py || true
       - name: Log the swing x low-vol blend hybrid (observational WATCHED book, finding 0107)
         # Runs AFTER the swing cron so it uses the freshly-downloaded OHLCV + the just-written swing NAV.
         # Observational only — writes its own results/blend_hybrid_paper.json; never touches the certified
@@ -86,7 +102,8 @@ jobs:
           # BLOCK the commit as an unrecognized author.
           git config user.name "kreeshpatel"
           git config user.email "kreeshvasistha@gmail.com"
-          git add results/cards_archive.jsonl results/signals_today_weekly.json results/signals_history_weekly.json \
+          git add results/judge_log.jsonl \
+                  results/cards_archive.jsonl results/signals_today_weekly.json results/signals_history_weekly.json \
                   results/signal_analytics_weekly.json results/paper_portfolio_weekly.json \
                   results/portfolio_history_weekly.csv results/weekly_review_scorecard.json \
                   results/weekly_sma_panel.csv results/decision_memos_weekly.json \

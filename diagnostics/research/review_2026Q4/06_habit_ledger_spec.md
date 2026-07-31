@@ -68,6 +68,31 @@ The union of what the programme proved worth recording. Every one of these has a
 | `known_event_within_14cd`, `dlv_med21_pct` | the two **banked** external assets (0118/0120). Screen-real, decision-margin-negative — worth *recording* forever, not worth *acting on* |
 | `cash_at_signal`, `slots_free`, `was_cash_skipped` | **0112/0119/0121's decisive mechanism.** Every "pool ≠ book" finding needed to know whether capital was free, and every one of them had to reconstruct it |
 
+### 1.2b The three decision streams (joined per trade)
+
+Every trade carries up to three independent opinions at its decision point. **The whole point is that
+they are independent** — a stream that saw another stream's answer is not a comparator.
+
+| stream | source | written when | fields on the trade row |
+|---|---|---|---|
+| **system** | the engine | card issued | the card itself (§1.2) — always present |
+| **owner-override** | the owner's action | fill / skip / manual deviation | `owner_action` (`took` · `skipped` · `deviated`), `owner_note`, `owner_decided_at` |
+| **judge** | [pre-reg 0125](../preregistry/0125-informed-judge-forward.md) | Saturday cron, after card generation | `judge_verdict` (`take`/`skip`/`wait`), `judge_conviction` (1–5), `judge_primary_reason`, `judge_risk_flag`, `judge_row_hash`, `judge_prompt_sha256`, `judge_model`, `judge_ok` |
+
+**Join key:** `(as_of, ticker)` — the judge log's idempotency key, which is also the card's identity.
+**Source of truth:** `results/judge_log.jsonl` (append-only, hash-chained, `nq/paper/judge_log.py`).
+The ledger **copies** the verdict and carries `judge_row_hash` so any row can be traced back to the
+chained original; the log is never rewritten by the ledger.
+
+**Sealing propagates.** Under the default sealed regime (0125 §5) the judge columns are populated but
+**not surfaced** — no dashboard, no card, no readout renders them before the first review read. Every
+row records `judge_visible` so the analysis can tell sealed-regime rows from open-regime ones; if the
+owner elects open-from-day-one, rows written thereafter are marked `judge_visible: true` and the
+owner-override stream **is no longer an independent comparator for them**.
+
+**A judge failure is a row, not an absence.** `judge_ok: false` with its error is recorded, so
+coverage is measurable and a silent gap can't be mistaken for "the judge had no opinion".
+
 ### 1.3 Management events (append-only child rows, `trade_id` foreign key)
 
 `event_seq · event_date · event_type · price · fraction · stop_before · stop_after · reason_code`

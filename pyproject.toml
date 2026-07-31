@@ -33,6 +33,12 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+# The informed-judge forward stream (pre-reg 0125). Kept OUT of the base deps so the engine env and
+# the golden-master suite gain no LLM dependency; only the Saturday scanner installs it.
+judge = [
+    "anthropic>=0.116",   # output_config / structured outputs / web_search_20260209
+    "matplotlib>=3.8",    # weekly chart rendered for the judge's vision input
+]
 dev = [
     "pytest>=8.0",
     # Available for isolating any native crash (`pytest --forked`); not on by
