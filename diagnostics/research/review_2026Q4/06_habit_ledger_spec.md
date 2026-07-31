@@ -67,6 +67,7 @@ The union of what the programme proved worth recording. Every one of these has a
 | `regime_tags` | index vs its own slow line, breadth, vol regime — recorded as **descriptive tags only**. O-001 is killed as a gate; storing the tag is not proposing the gate |
 | `known_event_within_14cd`, `dlv_med21_pct` | the two **banked** external assets (0118/0120). Screen-real, decision-margin-negative — worth *recording* forever, not worth *acting on* |
 | `cash_at_signal`, `slots_free`, `was_cash_skipped` | **0112/0119/0121's decisive mechanism.** Every "pool ≠ book" finding needed to know whether capital was free, and every one of them had to reconstruct it |
+| **`descent_duration`, `descent_depth`, `descent_velocity`** | the approach's kinematics — weeks from the trailing-13w peak to the signal week, the % decline to the signal close, and their ratio. **Banked because they were absent, not because they predict:** [0127](../../../research/findings/0127-hegclass-activation-bound.md) measured this cohort at 16.2% of touches with meanR +0.062 vs +0.494 and then failed **both** activation bounds (exclusion 1.92 R/yr; conditional management **0.0 R/yr, by identity**). Recording them costs nothing and stops the next kinematics question re-deriving them from raw bars the way 0127 had to. **This field trio is descriptive; no rule may read it without its own pre-registration.** |
 
 ### 1.3 Management events (append-only child rows, `trade_id` foreign key)
 
