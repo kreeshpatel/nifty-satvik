@@ -1,0 +1,15 @@
+{
+  "as_of": "2026-07-31",
+  "archived_utc": "2026-08-01T14:06:57.978298+00:00",
+  "files": [
+    "signals_today_weekly.json",
+    "signals_history_weekly.json",
+    "signal_analytics_weekly.json",
+    "paper_portfolio_weekly.json",
+    "portfolio_history_weekly.csv",
+    "weekly_review_scorecard.json"
+  ],
+  "is_rerun_of_existing_as_of": false,
+  "is_baseline": false,
+  "note": "Immutable snapshot of the weekly-swing forward record (constitution D2). The working copy in results/ is recomputed from inception every Saturday and is therefore mutable; THIS is the artifact the Oct-1 gates should read."
+}
