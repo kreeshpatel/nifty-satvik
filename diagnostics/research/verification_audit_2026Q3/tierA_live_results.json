@@ -1,0 +1,204 @@
+{
+  "_doc": "Verification audit 2026Q3 \u2014 Tier A live-money items, independent re-derivation.",
+  "class": "VERIFICATION \u2014 0 trials, 0 screens, no new hypotheses",
+  "counts": "screens 14 \u00b7 sealed opens 1 \u00b7 n_trials 138 (unchanged)",
+  "sealed_set": "NOT re-opened",
+  "judge_log": "not read",
+  "items": [
+    {
+      "item": "A7 NAV / ledger identity",
+      "cash": 87924.2,
+      "positions_market_value_derived": 925495.47,
+      "total_value_stated": 1013421.36,
+      "identity_delta_rs": -1.6925,
+      "n_positions": 5,
+      "n_positions_stated": 5,
+      "worst_position_value_delta_rs": 2.94,
+      "worst_position_pnl_delta_rs": 1.32,
+      "positions": [
+        {
+          "ticker": "DELHIVERY",
+          "shares": 391.43,
+          "current_price": 481.95,
+          "rounding_bound_rs": 2.415,
+          "within_rounding_bound": true,
+          "current_value_stated": 188648.6,
+          "current_value_derived": 188649.69,
+          "value_delta": -1.09,
+          "pnl_stated": -11351.4,
+          "pnl_derived": -11351.47,
+          "pnl_delta": 0.07,
+          "pnl_pct_delta": -0.0043
+        },
+        {
+          "ticker": "INDUSINDBK",
+          "shares": 206.61,
+          "current_price": 1011.45,
+          "rounding_bound_rs": 5.062,
+          "within_rounding_bound": true,
+          "current_value_stated": 208977.28,
+          "current_value_derived": 208975.68,
+          "value_delta": 1.6,
+          "pnl_stated": 8977.28,
+          "pnl_derived": 8977.2,
+          "pnl_delta": 0.08,
+          "pnl_pct_delta": 0.0014
+        },
+        {
+          "ticker": "NESTLEIND",
+          "shares": 137.92,
+          "current_price": 1509.6,
+          "rounding_bound_rs": 7.553,
+          "within_rounding_bound": true,
+          "current_value_stated": 208202.15,
+          "current_value_derived": 208204.03,
+          "value_delta": -1.88,
+          "pnl_stated": 8202.15,
+          "pnl_derived": 8202.1,
+          "pnl_delta": 0.05,
+          "pnl_pct_delta": -0.001
+        },
+        {
+          "ticker": "CUB",
+          "shares": 571.34,
+          "current_price": 206.5,
+          "rounding_bound_rs": 1.037,
+          "within_rounding_bound": true,
+          "current_value_stated": 117981.85,
+          "current_value_derived": 117981.71,
+          "value_delta": 0.14,
+          "pnl_stated": -2018.15,
+          "pnl_derived": -2016.83,
+          "pnl_delta": -1.32,
+          "pnl_pct_delta": 0.0007
+        },
+        {
+          "ticker": "HEG",
+          "shares": 305.93,
+          "current_price": 659.25,
+          "rounding_bound_rs": 3.301,
+          "within_rounding_bound": true,
+          "current_value_stated": 201687.29,
+          "current_value_derived": 201684.35,
+          "value_delta": 2.94,
+          "pnl_stated": 1912.09,
+          "pnl_derived": 1912.06,
+          "pnl_delta": 0.03,
+          "pnl_pct_delta": 0.0029
+        }
+      ],
+      "nav_rounding_bound_rs": 19.373,
+      "all_positions_within_rounding_bound": true,
+      "mechanism": "residuals are 2dp share-rounding in the stored artifact, not a ledger leak; the bound is DERIVED from the stored precision, not relaxed to fit",
+      "PASS": true
+    },
+    {
+      "item": "A6 D5 card arithmetic",
+      "as_of": "2026-07-31",
+      "n_fresh_cards_checked": 2,
+      "n_held_rows_out_of_scope": 15,
+      "sma_panel_joined": true,
+      "failures": [],
+      "cards": [
+        {
+          "ticker": "CHOLAFIN",
+          "risk_positive": true,
+          "stop_eq_band_low": true,
+          "entry_within_band": true,
+          "rr_derived": 2.0,
+          "stop_pct_derived": 8.31,
+          "target_pct_derived": 16.62,
+          "target_eq_entry_plus_2R": true,
+          "ext_stated": 12.03,
+          "ext_derived": 12.03,
+          "ext_delta": 0.0,
+          "skip_flag_stated": false,
+          "skip_flag_derived": false,
+          "skip_flag_match": true,
+          "tranche_pct_sum": 100.0,
+          "tranche_sum_is_100": true
+        },
+        {
+          "ticker": "GVT&D",
+          "risk_positive": true,
+          "stop_eq_band_low": true,
+          "entry_within_band": true,
+          "rr_derived": 2.0,
+          "stop_pct_derived": 8.35,
+          "target_pct_derived": 16.7,
+          "target_eq_entry_plus_2R": true,
+          "ext_stated": 14.98,
+          "ext_derived": 14.98,
+          "ext_delta": 0.0,
+          "skip_flag_stated": false,
+          "skip_flag_derived": false,
+          "skip_flag_match": true,
+          "tranche_pct_sum": 100.0,
+          "tranche_sum_is_100": true
+        }
+      ],
+      "PASS": true
+    },
+    {
+      "item": "A8 cost model vs NSE reality",
+      "sample_trade": {
+        "ticker": "GREENPLY",
+        "entry": 263.12
+      },
+      "leg_notional_rs": 100000.0,
+      "engine_model": {
+        "brokerage_pct_per_leg": 0.0003,
+        "stt_pct_per_leg": 0.001,
+        "round_trip_pct": 0.0026,
+        "round_trip_bps": 26.0,
+        "plus": "ADV-tiered slippage {'LARGE_CAP': 0.0005, 'MID_CAP': 0.0022, 'SMALL_CAP': 0.004} + sqrt impact"
+      },
+      "hand_computed_line_items_rs": {
+        "STT_both_legs": 200.0,
+        "brokerage_both_legs": 60.0,
+        "exchange_txn": 5.94,
+        "SEBI": 0.2,
+        "stamp_buy_only": 15.0,
+        "GST_on_charges": 11.91,
+        "DP_sell_flat": 15.34,
+        "TOTAL": 308.39
+      },
+      "hand_round_trip_pct": 0.003084,
+      "hand_round_trip_bps": 30.84,
+      "gap_bps_model_minus_hand": -4.84,
+      "note": "the engine ALSO charges tiered slippage on top, which the hand figure excludes; this compares statutory/brokerage line items only"
+    },
+    {
+      "item": "A5 band census (+0.717 / +0.094 / +2.088)",
+      "published": {
+        "deep_lt5_meanR": 0.717,
+        "deep_lt5_N": 418,
+        "band_5_10_meanR": 0.094,
+        "band_5_10_N": 615,
+        "sub_line_meanR": 2.088,
+        "sub_line_N": 39
+      },
+      "re_derived": {
+        "deep_lt5_meanR": 0.717,
+        "deep_lt5_N": 418,
+        "band_5_10_meanR": 0.094,
+        "band_5_10_N": 615,
+        "sub_line_meanR": 2.088,
+        "sub_line_N": 39
+      },
+      "deltas": {
+        "deep_lt5_meanR": 0.0,
+        "deep_lt5_N": 0,
+        "band_5_10_meanR": 0.0,
+        "band_5_10_N": 0,
+        "sub_line_meanR": 0.0,
+        "sub_line_N": 0
+      },
+      "band_0_5_only": {
+        "N": 379,
+        "meanR": 0.576
+      },
+      "PASS": true
+    }
+  ]
+}
