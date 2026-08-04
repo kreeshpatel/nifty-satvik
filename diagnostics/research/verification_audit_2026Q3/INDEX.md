@@ -186,15 +186,52 @@ so the Oct-1 binder cites a reproducible number.
 
 ---
 
+## Session 3 (2026-07-31) — 0115 remedy, disaster drill, A1/A2/A3, falsification register
+
+Evidence: `DISASTER_DRILL.md` · `research/exports/two_sleeve_blend.json` ·
+[`skills/program-laws/FALSIFIERS.md`](../../../skills/program-laws/FALSIFIERS.md)
+
+| item | status |
+|---|---|
+| **1. 0115 remedy** — producer committed, lookback recovered | **CLOSED — D1 remedied** |
+| **2. Clean-clone disaster drill** | **DONE — 4m37s; 4 gaps found** |
+| **A3 swing record 1.132 + goldens** | **PASS — exact in a clean clone** |
+| **A2 corrected-anchor table** | **PASS** (minor CAGR divergence recorded) |
+| **A1 baseline_v1 anchors** | **IRREPRODUCIBLE — no producer script** |
+| **4. Falsification register** | **DONE — 4 armed / 3 contingent / 1 to demote** |
+
+**0115 remedy.** The vol lookback was recovered as **126d** by asking which value reproduces the
+*published* triple, not which maximises anything. Reproducible figure **Sharpe 1.237 / MaxDD
+-33.04% / worst year +5.62%** vs published 1.22 / -33% / +5.6% — **DD and worst-year agree within
+rounding**; the residual **+0.017 Sharpe is unexplained and was not tuned away**. Producer:
+`scripts/build_two_sleeve_blend.py`. Anchor stability re-confirmed at the recovered lookback (Sharpe
+spread 0.023, zero losing years at every anchor). 0115 carries a dated addendum with the published
+triple preserved as as-measured-then; breadth-50 §4 carries the inherited-question note.
+
+**Disaster drill.** Full reconstruction from `git clone` + releases only, in **4 min 37 s**. The
+pinned `ohlcv.pkl` sha256 **`f8625a8f…` matches CLAUDE.md exactly**; goldens (22) and the full suite
+(218) pass identically to the working tree; A2 reproduces and with it A3's **Sharpe 1.132 / MaxDD
+-42.4% exactly**. Four gaps found — see `DISASTER_DRILL.md`: the documented `pip install` fails on
+Python 3.13, two artifacts exist in neither git nor either release, and **baseline_v1 has no producer
+script**.
+
+**Falsification register** (new, beside `program-laws`): **ARMED** — Laws IV, V, VI, VII.
+**CONTINGENT** — Laws I, II, III (judge API key unset; breadth-50 Oct-1 sign-off; habit ledger
+unbuilt). **Law VIII flagged for demotion to PROTOCOL** — procedural commitments are not empirical
+claims, so no market measurement can overturn them. **Finding: three of seven empirical laws,
+including the two most-cited, have no live falsifier today.**
+
+---
+
 ## Remaining scope
 
 ### Tier A — PENDING
 
 | item | note |
 |---|---|
-| **A1 baseline_v1 anchors** (0.667 / 15.46 / −46.26) | needs the long-horizon engine run on the pinned OHLCV |
+| ~~A1 baseline_v1 anchors~~ | **session 3 — IRREPRODUCIBLE, no producer script (D2)** |
 | **A2 corrected-anchor table** (0.737 + alias-aware + backfill arms) | `scripts/run_corrected_anchor.py` |
-| **A3 swing record 1.132 / 255 + golden** | `run_bhanushali_weekly_rank.py` + `test_r94_golden.py` / `test_stage2_golden.py` |
+| ~~A3 swing record + goldens~~ | **session 3 — PASS, exact in a clean clone** |
 | ~~A4 two-sleeve ERC blend~~ | **done session 2 — DISCREPANCY (irreproducible producer)** |
 
 ### Tier B — PENDING (standing-law receipts)
@@ -218,7 +255,10 @@ across scripts (same risk denominator, same fill convention); CI method appropri
 
 | # | item | published | re-derived | mechanism | moves a verdict? |
 |---|---|---|---|---|---|
-| **D1** | A4 two-sleeve ERC blend | Sharpe **1.22** / DD **−33%** | **1.248** / **−32.6%** | producer script **not in the repo**; rebalance vol-lookback **under-specified** in 0115 | **No** — the verdict ("the pair is the structure of record") is unchanged and marginally stronger. Reported, not corrected. |
+| **D2** | A1 baseline_v1 anchors | 0.667 / 15.46 / -46.26 | — | **no producer script exists**; only consumers of `baseline_v1.json` | **Unverifiable, not wrong.** Same class as D1. Remedy: commit the producer. |
+| **D3** | clean-clone install | `pip install -e .` documented | **fails** on Python 3.13.5 (`pyproject` pins `<3.13`) | code still runs via `sys.path.insert`; CI pins 3.12 so is unaffected | **Latent**, not active. |
+| **D4** | recovery artifacts | — | `trades.parquet`, `fundamentals_pit_depth.pkl` in neither git nor either release | rebuildable (former) / no named rebuilder (latter) | Recovery risk. |
+| ~~D1~~ **REMEDIED s3** | A4 two-sleeve ERC blend | Sharpe **1.22** / DD **−33%** | **1.248** / **−32.6%** | producer script **not in the repo**; rebalance vol-lookback **under-specified** in 0115 | **No** — the verdict ("the pair is the structure of record") is unchanged and marginally stronger. Reported, not corrected. |
 
 One **audit-script error** is also recorded (session 1, A6 scoping); it is not a repo discrepancy.
 
