@@ -49,20 +49,36 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # scheduler_health: run-log truth (S2-F6)
       - name: Forward-only accumulators (bulk/block + ratings; owner-signed 2026-07-28)
         # Pure data-collection sidecar - engine untouched, idempotent, staleness-alarmed.
-        run: python scripts/run_forward_accumulators.py || true
+        # Non-fatal by design (the monitor must publish even if the sidecar dies) but NOT silent:
+        # a failure is annotated here and the output contract goes red when
+        # results/forward_accum_health.json stops appearing in the daily commit.
+        run: python scripts/run_forward_accumulators.py
+          || echo "::warning::forward accumulators FAILED (exit $?) — health file will go stale; output contract will flag it"
       - name: Commit monitor state
         run: |
           # Author with the owner's GitHub-matched email so Vercel (auto-deploys main) doesn't
           # BLOCK the commit as an unrecognized author.
           git config user.name "kreeshpatel"
           git config user.email "kreeshvasistha@gmail.com"
-          git add results/weekly_monitor.json results/bulkblock_forward.csv results/ratings_forward.csv results/forward_accum_health.json 2>/dev/null || true
+          # ── GUARD POLICY (fail-loud hardening, 2026-08-05) ──────────────────────────────
+          # No `git add ... 2>/dev/null || true`. That construct hid FIVE separate instances of the
+          # same defect: `git add` on an ignored-and-untracked path exits 0 and stages nothing, so a
+          # green run could publish nothing at all. Required artifacts now go RED BY NAME; optional
+          # ones warn. Watchers: tests/test_workflow_output_paths.py (the path can be staged at all)
+          # and results/output_contracts.json (the commit actually contained it).
+          MISSING=0
+          need() { if [ -e "$1" ]; then git add "$1"; else echo "::error::contracted artifact MISSING: $1"; MISSING=1; fi; }
+          opt()  { if [ -e "$1" ]; then git add "$1"; else echo "::warning::optional artifact not produced: $1"; fi; }
+          git add results/weekly_monitor.json
+          need results/forward_accum_health.json
+          opt results/bulkblock_forward.csv
+          opt results/ratings_forward.csv
           if git commit -m "chore(weekly-monitor): daily re-price $(date -u +%F)"; then
             # --autostash: the OHLCV download leaves unstaged cache changes that abort a plain rebase,
             # which silently swallowed the push and dropped every day's monitor output. Retry + exit RED
             # on persistent failure so a drop is visible, not hidden.
             for i in 1 2 3; do
-              git pull --rebase --autostash origin main && git push origin main && { echo "pushed monitor state"; exit 0; }
+              git pull --rebase --autostash origin main && git push origin main && { echo "pushed monitor state"; exit $MISSING; }
               echo "push attempt $i failed; retrying in 5s..."; sleep 5
             done
             echo "::error::monitor state committed but could NOT be pushed after 3 tries"; exit 1

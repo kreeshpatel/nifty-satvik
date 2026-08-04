@@ -43,7 +43,11 @@ jobs:
         run: |
           git config user.name "kreeshpatel"
           git config user.email "kreeshvasistha@gmail.com"
-          git add results/intraday_scan/ 2>/dev/null || true
+          # Whitelisted in .gitignore 2026-08-05 (the FIFTH instance of the silent-add trap).
+          # Optional, not required: a scan that finds nothing legitimately writes nothing.
+          # Watcher: results/output_contracts.json (promote to must_update once one lands).
+          if [ -d results/intraday_scan ]; then git add results/intraday_scan/
+          else echo "::warning::no intraday scan artifacts produced this run"; fi
           if git commit -m "chore(intraday): 14:30 IST shadow scan $(date -u +%F)"; then
             # --autostash + retry + exit RED on failure (was the silent-drop pattern that swallowed
             # every shadow scan since inception, so the partial->close survival stats never accrued).
