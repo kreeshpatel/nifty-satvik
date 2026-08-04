@@ -47,7 +47,7 @@ standard rather than by whoever happened to run the script.
 
 | law | falsifier | status |
 |---|---|---|
-| I pre-entry wall | judge take-vs-skip spread at first unsealing | **ARMED as of 2026-08-05** (was CONTINGENT — the key was set but the log was being discarded; fixed D5) |
+| I pre-entry wall | judge take-vs-skip spread at first unsealing | **ARMED — clock from 2026-08-08** (was CONTINGENT: the key was set but the log was being discarded; fixed D5. The 17 recovered rows are a **late-called genesis cohort**, excluded from the primary test) |
 | II population vs margins | breadth-50 EW/SW forward spread | **CONTINGENT** — Oct-1 amendment |
 | III subtractive rules | habit-ledger owner-skip performance | **CONTINGENT** — ledger unbuilt |
 | IV deferral = deletion | forward re-signal rate vs the 94% lapse | **ARMED** |

@@ -184,6 +184,37 @@ streams would no longer be independent, and neither could be evaluated against t
 `effort="high"` as the determinism control, because `temperature` returns HTTP 400 on the pinned
 model (removed on the Opus 4.7+ family). 0123's precedent is the same. No outcome data existed.
 
+**2026-08-05 — chain inception, after the first persisted run. THE GENESIS COHORT IS LATE-CALLED.**
+
+The log now exists on `main`: 17 rows, `seq` 0-16, chain verified from GENESIS
+(`a9b3516f...`) to head (`429f1db3...`), all `ok=true`, cost $4.0507. Verified by **chain and
+count only** — no verdict was read, per §6 sealing.
+
+These 17 rows are **not** a clean cohort, and the distinction is registered here *before* any read:
+
+- The cards they judge are `as_of` **2026-07-31**.
+- The calls were actually made on **2026-08-04**, when the scanner was re-dispatched through the
+  front door after the `.gitignore` fix (the 2026-08-01 scheduled run judged the same cards and its
+  output was destroyed by the silent `git add`; those verdicts are gone and are **not** these rows).
+- That is **four days of news-context drift**. The judge's distinguishing input is live news and PIT
+  event status (§2). Four days of it is exactly the input the design intends to measure, granted
+  after the signal date. A card that gapped, reported, or was newsflowed between the 31st and the
+  4th was judged with information the clean protocol would not have given it.
+
+**Classification: LATE-CALLED. Rows `seq` 0-16 are EXCLUDED from the primary take-vs-skip analysis**
+(§4), and are **reportable separately** at unsealing as a labelled sub-cohort. They are not deleted,
+not re-judged, and not merged in later: re-judging them would require reading them, and reading them
+before the first review breaks §6.
+
+**The true clock starts Saturday 2026-08-08** — the first scheduled scanner run whose cards are
+judged on their own `as_of` date, through the persisted path, with no manual dispatch. The
+`≥2 quarters` and `≥100 resolved verdicts` thresholds of §7 count from **2026-08-08**, not from the
+genesis cohort. Thresholds may be tightened, never retroactively relaxed; this is a tightening.
+
+*Why this is written now rather than at the review:* the cohort's defect is a fact about the
+**calling clock**, visible without opening a single verdict. Deciding its treatment after seeing the
+data would be exactly the degree of freedom the pre-registration exists to remove.
+
 ## OUTCOME
 
 *(appended after the first review read — never above the immutable sections)*

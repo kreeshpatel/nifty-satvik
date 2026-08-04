@@ -31,7 +31,15 @@ before entry — to an instrument with different inputs.
 
 **Measurement:** pre-reg [0125](../../diagnostics/research/preregistry/0125-informed-judge-forward.md) §4.
 **Due:** first quarterly review after ≥2 quarters **and** ≥100 resolved verdicts.
-**Status: ARMED as of 2026-08-05** (amended by the 2026Q3 audit, session 5).
+**Status: ARMED — clock starts 2026-08-08.** (Armed 2026-08-05 by the 2026Q3 audit, session 5;
+inception dated 2026-08-08 by the 0125 amendment of the same day.)
+
+The first 17 persisted rows are the **genesis cohort** and do **not** start the clock. They judge
+cards `as_of` 2026-07-31 but were called on 2026-08-04 — four days of news-context drift on an
+instrument whose whole distinguishing input is news. They are classified **late-called**, excluded
+from the primary take-vs-skip test, and reported separately at unsealing. The first clean cohort is
+the scheduled run of **Saturday 2026-08-08**, and §7's two-quarter / 100-verdict thresholds count
+from there.
 
 *History, kept because it is the point:* when this register was written the status was CONTINGENT on
 the API key. The key had in fact been set on 2026-07-31, and the 2026-08-01 run **did** judge 17
@@ -147,7 +155,7 @@ error-correction of a protocol, not falsification of a hypothesis.)*
 
 | law | falsifier | status |
 |---|---|---|
-| I pre-entry wall | judge take-vs-skip spread | **ARMED 2026-08-05** (was contingent; see Law I) |
+| I pre-entry wall | judge take-vs-skip spread | **ARMED — clock from 2026-08-08** (genesis cohort late-called, excluded; see Law I) |
 | II population vs margins | breadth-50 EW/SW spread | **CONTINGENT** (Oct-1 sign-off) |
 | III subtractive rules | ledger owner-skip performance | **CONTINGENT** (ledger unbuilt) |
 | IV deferral = deletion | forward re-signal rate vs 94% lapse | **ARMED** |
