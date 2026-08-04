@@ -65,6 +65,10 @@ results/*
 !results/bulkblock_forward.csv
 !results/ratings_forward.csv
 !results/forward_accum_health.json
+# The informed-judge forward stream (pre-reg 0125). Untracked since the clean-inception
+# deletion, so without this whitelist the cron's `git add ... || true` silently drops every
+# week's verdicts — the 2026-08-01 cohort (17 verdicts) was lost exactly this way.
+!results/judge_log.jsonl
 # Append-only archive of the weekly-swing record (constitution D2). The book is recomputed from
 # inception every Saturday, so results/ is a MUTABLE working copy; these dated write-once snapshots
 # (+ the drift log) are the immutable artifact the Oct-1 gates read. They MUST be committable — the
