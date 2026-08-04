@@ -34,6 +34,15 @@ jobs:
       MKL_NUM_THREADS: "1"
     steps:
       - uses: actions/checkout@v5
+        with:
+          # fetch-depth: 0 — the output-contract checker searches commit HISTORY for each
+          # cron's last run. The default depth-1 clone gave it a one-commit repo, so every job
+          # read as "no cron commit ever found" and the checker's first CI run was RED against
+          # commits that plainly exist on main. Measured cost of full history: 10s, 503 commits,
+          # 18 MB — negligible beside this job's OHLCV download. A bounded --deepen was
+          # rejected: the answer would then depend on commit VOLUME, which is exactly the kind
+          # of silent, drifting dependency S2.14 exists to forbid.
+          fetch-depth: 0
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"

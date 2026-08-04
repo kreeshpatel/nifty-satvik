@@ -318,9 +318,11 @@ def main(argv=None) -> int:
     # because `git add` on an ignored path exits 0 and stages nothing. The commit diff is the receipt.
     # Breaches are annotated ::error so they are loud on the very next monitor run.
     try:
-        from output_contracts import annotations, check_output_contracts
+        from output_contracts import annotations, check_output_contracts, fold_into_health
         oc = check_output_contracts()
-        monitor["scheduler_health"]["output_contracts"] = oc
+        # The fold lets a contract breach move the TOP-LEVEL overall, not just a nested key: an
+        # alarm subsection nobody has to remember to read is half an alarm.
+        fold_into_health(monitor["scheduler_health"], oc)
         for line in annotations(oc):
             print(line)
     except Exception as exc:  # noqa: BLE001
