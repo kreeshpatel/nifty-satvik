@@ -1,6 +1,6 @@
 {
-  "generated_utc": "2026-08-04T22:40:45.961442+00:00",
-  "generated_ist": "2026-08-05 04:10",
+  "generated_utc": "2026-08-04T22:45:52.277884+00:00",
+  "generated_ist": "2026-08-05 04:15",
   "as_of": "2026-08-03",
   "model": "weekly-swing-0094-rank-P",
   "source": "signals_today_weekly.json",
@@ -264,7 +264,7 @@
       "kind": "hold",
       "current_price": 318.0,
       "frozen_price": 306.25,
-      "sma20": 312.83,
+      "sma20": 314.05,
       "as_of": "2026-08-03",
       "entry": 314.75,
       "stop": 297.5,
@@ -275,7 +275,7 @@
       "r_multiple": 0.19,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 300.32,
+      "implied_trail_sma20": 301.49,
       "tranches": [
         {
           "type": "target",
@@ -319,7 +319,7 @@
       "kind": "hold",
       "current_price": 298.05,
       "frozen_price": 291.9,
-      "sma20": 298.82,
+      "sma20": 298.32,
       "as_of": "2026-08-03",
       "entry": 310.0,
       "stop": 292.7,
@@ -330,7 +330,7 @@
       "r_multiple": -0.69,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 286.87,
+      "implied_trail_sma20": 286.39,
       "tranches": [
         {
           "type": "target",
@@ -484,7 +484,7 @@
       "kind": "hold",
       "current_price": 3900.0,
       "frozen_price": 3658.8,
-      "sma20": 3612.46,
+      "sma20": 3602.16,
       "as_of": "2026-08-03",
       "entry": 3633.15,
       "stop": 3420.19,
@@ -495,7 +495,7 @@
       "r_multiple": 1.25,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 3467.96,
+      "implied_trail_sma20": 3458.08,
       "tranches": [
         {
           "type": "target",
@@ -892,7 +892,7 @@
     }
   ],
   "scheduler_health": {
-    "checked_utc": "2026-08-04T22:40:45.963887+00:00",
+    "checked_utc": "2026-08-04T22:45:52.280166+00:00",
     "overall": "OK",
     "source_of_truth": "actions-run-log",
     "jobs": [
@@ -918,8 +918,8 @@
         "source": "run-log",
         "run_id": 30909246533,
         "last_fired_utc": "2026-08-04T12:28:26+00:00",
-        "artifact_last_utc": "2026-08-04T12:29:10+00:00",
-        "artifact_corroborates": true,
+        "artifact_last_utc": "2026-08-04T22:40:48+00:00",
+        "artifact_corroborates": false,
         "age_days": 0.43,
         "overdue_after_days": 5,
         "status": "OK"
@@ -932,7 +932,7 @@
         "source": "run-log",
         "run_id": 30703039244,
         "last_fired_utc": "2026-08-01T14:05:07+00:00",
-        "artifact_last_utc": "2026-08-04T22:40:11.872694+00:00",
+        "artifact_last_utc": "2026-08-04T22:45:21.446661+00:00",
         "artifact_corroborates": false,
         "age_days": 3.36,
         "overdue_after_days": 9,
@@ -946,7 +946,7 @@
         "source": "run-log",
         "run_id": 30703039244,
         "last_fired_utc": "2026-08-01T14:05:07+00:00",
-        "artifact_last_utc": "2026-08-04T22:40:11.872694+00:00",
+        "artifact_last_utc": "2026-08-04T22:45:21.445379+00:00",
         "artifact_corroborates": false,
         "age_days": 3.36,
         "overdue_after_days": 9,
@@ -974,6 +974,33 @@
         "note": "no GitHub Actions workflow invokes run_paper_cron.py; the 3-book wall log has no scheduled producer in the repo (momentum sleeve is suspended \u2014 owner door)."
       }
     ],
-    "note": "Dead-man reconstruction produced by the daily monitor (the proven weekday heartbeat). Firing truth is the Actions run log; committed artifacts corroborate only. If THIS block's checked_utc is itself stale, the monitor has stopped and every downstream freshness claim is suspect."
+    "note": "Dead-man reconstruction produced by the daily monitor (the proven weekday heartbeat). Firing truth is the Actions run log; committed artifacts corroborate only. If THIS block's checked_utc is itself stale, the monitor has stopped and every downstream freshness claim is suspect.",
+    "output_contracts": {
+      "overall": "RED",
+      "checked_at": "2026-08-04T22:45:53.834609+00:00",
+      "jobs": [
+        {
+          "job": "weekly-scanner",
+          "status": "NO_COMMIT",
+          "detail": "no commit matching 'chore(weekly): Saturday weekly-swing paper state' in history"
+        },
+        {
+          "job": "forward-accumulators",
+          "status": "NO_COMMIT",
+          "detail": "no commit matching 'chore(weekly-monitor): daily re-price' in history"
+        },
+        {
+          "job": "intraday-scan",
+          "status": "NO_COMMIT",
+          "detail": "no commit matching 'chore(intraday): 14:30 IST shadow scan' in history"
+        }
+      ],
+      "breaches": [
+        "weekly-scanner: no cron commit ever found",
+        "forward-accumulators: no cron commit ever found"
+      ],
+      "warnings": [],
+      "_standard": "the commit diff is the receipt \u2014 a green workflow that persisted nothing is red here"
+    }
   }
 }
