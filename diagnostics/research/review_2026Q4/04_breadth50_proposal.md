@@ -20,3 +20,19 @@ local `data/` — fetch and `sha256sum` first.
 **EVIDENCE (September fills):**
 - [ ] owner sign-off / decline at the Oct-1 amendment slot
 - [ ] if signed: logging wiring + inception date
+
+---
+
+## Audit note (2026-07-31, verification audit 2026Q3) — name your rebalance anchor and vol lookback
+
+Finding 0115's blend headline could not be mechanically replicated because the ERC **vol lookback was
+never stated**; the audit recovered it (126d) and committed
+`scripts/build_two_sleeve_blend.py` as the producer of record. The reproducible figure is
+**Sharpe 1.237 / MaxDD −33.04% / worst year +5.62%** (published 1.22 / −33% / +5.6% retained as
+as-measured-then).
+
+**This spec inherits the question.** Before the EW/SW pair is logged, §4 must state explicitly:
+(a) the **rebalance anchor** (which calendar boundary, and whether results are anchor-robust), and
+(b) any **estimation lookback** the weighting uses. The audit's anchor sweep found the two-sleeve
+blend stable across 0–6 week offsets (Sharpe spread 0.023) — breadth-50 should be able to say the
+same, or say why not.

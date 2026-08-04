@@ -30,3 +30,47 @@ Every in-house axis is measured to exhaustion: single-book levers (entry/exit/se
 learned selection (0111-0112), sleeve structure (0107 stands; third legs fail). Remaining information
 sources: the forward wall (certifier), the corrected-universe re-anchor (owner-gated), and owner capital
 decisions (barbell fraction, vehicle) — plus genuinely new external data if the program expands.
+
+---
+
+## ADDENDUM (2026-07-31, verification audit 2026Q3) — the blend is now reproducible
+
+**The headline above is preserved as as-measured-then. Nothing in it is edited.**
+
+The 2026Q3 verification audit found that **no committed script produced** the
+`1.22 / -33% / worst yr +5.6%` blend figures. The sleeve inputs
+(`research/exports/third_sleeve_returns.csv`) were committed and the sleeve construction is
+documented above, but the blend arithmetic on top of them was absent from the repo — so the number
+could not be mechanically replicated (a reproduce-before-trust gap, not a wrong number).
+
+**Remedy, committed:** `scripts/build_two_sleeve_blend.py` is now the **producer of record**, and it
+names the parameter this finding left unspecified. 0115 says only "quarterly inverse-vol ERC"; the
+vol **lookback** was never stated. The audit recovered it by asking which lookback reproduces the
+**published** triple — not which maximises anything:
+
+| vol lookback | Sharpe | MaxDD % | worst yr % |
+|---|---:|---:|---:|
+| 63d | 1.234 | −33.13 | +5.70 |
+| **126d (recovered — producer of record)** | **1.237** | **−33.04** | **+5.62** |
+| 252d | 1.248 | −32.57 | +5.19 |
+| 504d | 1.271 | −32.49 | +5.78 |
+| all-prior | 1.261 | −32.51 | +5.02 |
+
+**Reproducible figure: Sharpe 1.237 / MaxDD −33.04% / worst year +5.62% / zero losing years.**
+Against the published triple that is **ΔSharpe +0.017, ΔMaxDD −0.04pp, Δworst-year +0.02pp** —
+**MaxDD and worst-year agree within rounding**; the residual Sharpe gap is **unexplained and was not
+tuned away** (no parameter was chosen to close it; the likely cause is a small implementation detail
+of the original — minimum-observation rule, weight-normalisation timing, or ddof).
+
+**Anchor robustness (audit session 2, re-confirmed at the recovered 126d lookback):** shifting the
+quarterly rebalance anchor 0–6 weeks moves Sharpe only within **1.237–1.260** (spread 0.023) with
+**zero losing years at every anchor**. The blend result is a property of the sleeves, not of the
+calendar.
+
+**What this does and does not change.** The verdict is unchanged — *the swing × low-vol pair remains
+the structure of record*, and 1.237 supports it at least as strongly as 1.22. **Cite the
+reproducible figure (1.237 / −33.04%) in the Oct-1 binder**, with the published 1.22 retained here
+as the as-measured-then record.
+
+**Inherited question, flagged:** the breadth-50 spec (`review_2026Q4/04_breadth50_proposal.md` §4)
+must state its own rebalance anchor and vol lookback explicitly, so it does not repeat this gap.
