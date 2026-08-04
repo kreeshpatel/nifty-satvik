@@ -33,6 +33,11 @@ dashboard/backend/.env
 results/*
 !results/README.md
 !results/cards_archive.jsonl
+# The informed-judge forward log (pre-reg 0125). MUST be whitelisted: `results/*` above would
+# otherwise make the cron's `git add` a silent no-op, so each week's verdicts die with the
+# runner and the hash chain restarts from GENESIS every Saturday. Found by the 2026Q3 audit
+# after the 2026-08-01 run logged 17 verdicts (cost $4.00) that were never persisted.
+!results/judge_log.jsonl
 !results/FORWARD_ACCUMULATORS_README.md
 !results/signals_today.json
 !results/signals_history.json
