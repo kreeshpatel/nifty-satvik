@@ -1,0 +1,113 @@
+{
+  "_doc": "Two-sleeve ERC blend \u2014 PRODUCER OF RECORD (finding 0115; committed by the 2026Q3 audit).",
+  "rule": {
+    "sleeves": [
+      "swing",
+      "lowvol"
+    ],
+    "rebalance": "quarterly",
+    "weights": "inverse trailing realised vol",
+    "vol_lookback_days": 126,
+    "min_obs": 60,
+    "ddof": 0,
+    "annualization": "daily returns x sqrt(252)"
+  },
+  "reproducible": {
+    "sharpe": 1.237,
+    "cagr_pct": 18.43,
+    "maxdd_pct": -33.04,
+    "ann_vol_pct": 14.91,
+    "worst_year_pct": 5.62,
+    "losing_years": 0,
+    "yearly_pct": {
+      "2017": 10.99,
+      "2018": 8.16,
+      "2019": 5.74,
+      "2020": 24.72,
+      "2021": 22.05,
+      "2022": 8.7,
+      "2023": 42.37,
+      "2024": 21.25,
+      "2025": 5.62,
+      "2026": 15.24
+    },
+    "n_days": 2161,
+    "span_years": 8.78
+  },
+  "published_as_measured_then": {
+    "sharpe": 1.22,
+    "maxdd_pct": -33.0,
+    "worst_year_pct": 5.6,
+    "losing_years": 0
+  },
+  "delta_vs_published": {
+    "sharpe": 0.017,
+    "maxdd_pct": -0.04,
+    "worst_year_pct": 0.02
+  },
+  "note": "the residual Sharpe gap is UNEXPLAINED and was not tuned away; MaxDD and worst-year agree with the published figures within rounding",
+  "anchor_robustness": {
+    "sweep": [
+      {
+        "anchor_offset_weeks": 0,
+        "sharpe": 1.237,
+        "maxdd_pct": -33.04,
+        "worst_year_pct": 5.62,
+        "losing_years": 0
+      },
+      {
+        "anchor_offset_weeks": 1,
+        "sharpe": 1.244,
+        "maxdd_pct": -32.98,
+        "worst_year_pct": 5.14,
+        "losing_years": 0
+      },
+      {
+        "anchor_offset_weeks": 2,
+        "sharpe": 1.257,
+        "maxdd_pct": -32.89,
+        "worst_year_pct": 6.04,
+        "losing_years": 0
+      },
+      {
+        "anchor_offset_weeks": 3,
+        "sharpe": 1.26,
+        "maxdd_pct": -32.86,
+        "worst_year_pct": 6.18,
+        "losing_years": 0
+      },
+      {
+        "anchor_offset_weeks": 4,
+        "sharpe": 1.258,
+        "maxdd_pct": -32.67,
+        "worst_year_pct": 5.87,
+        "losing_years": 0
+      },
+      {
+        "anchor_offset_weeks": 5,
+        "sharpe": 1.25,
+        "maxdd_pct": -32.81,
+        "worst_year_pct": 5.55,
+        "losing_years": 0
+      },
+      {
+        "anchor_offset_weeks": 6,
+        "sharpe": 1.26,
+        "maxdd_pct": -32.74,
+        "worst_year_pct": 5.64,
+        "losing_years": 0
+      }
+    ],
+    "sharpe_range": [
+      1.237,
+      1.26
+    ],
+    "sharpe_spread": 0.023,
+    "maxdd_range": [
+      -33.04,
+      -32.67
+    ],
+    "maxdd_spread": 0.37,
+    "zero_losing_years_at_every_anchor": true
+  }
+}

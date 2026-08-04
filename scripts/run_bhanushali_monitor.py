@@ -313,6 +313,21 @@ def main(argv=None) -> int:
     except Exception as exc:  # noqa: BLE001
         monitor["scheduler_health"] = {"overall": "ERROR", "error": f"{type(exc).__name__}: {exc}"}
 
+    # OUTPUT CONTRACTS (2026-08-05). scheduler_health proves a job FIRED; this proves it PERSISTED.
+    # The gap between the two cost $4.00/week of judge verdicts while every heartbeat stayed green,
+    # because `git add` on an ignored path exits 0 and stages nothing. The commit diff is the receipt.
+    # Breaches are annotated ::error so they are loud on the very next monitor run.
+    try:
+        from output_contracts import annotations, check_output_contracts
+        oc = check_output_contracts()
+        monitor["scheduler_health"]["output_contracts"] = oc
+        for line in annotations(oc):
+            print(line)
+    except Exception as exc:  # noqa: BLE001
+        monitor["scheduler_health"]["output_contracts"] = {
+            "overall": "ERROR", "error": f"{type(exc).__name__}: {exc}"}
+        print(f"::error::output-contract checker failed: {type(exc).__name__}: {exc}")
+
     (sd / "weekly_monitor.json").write_text(json.dumps(monitor, indent=2, default=str), encoding="utf-8")
     fired = ", ".join(f"{f['event']}:{f['ticker']}" for f in monitor["flags"]) or "none"
     sh = monitor.get("scheduler_health", {})

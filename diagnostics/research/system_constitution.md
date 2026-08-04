@@ -860,3 +860,68 @@ print(h['overall'], h['source_of_truth']);\
 #            intraday-scan OK / source=run-log / a real run_id  <- the S2-F6 fix
 #    a MISSING now means a genuinely absent scheduled run, not an absent artifact
 ```
+
+---
+
+## S2.14 S2-F7 — the silent `git add`: five instances, and the guarantee that ends them
+
+**Date:** 2026-08-05. **Class:** fail-loud hardening. Counts frozen (screens 14 · sealed opens 1 ·
+n_trials 138); zero research.
+
+### The mechanism
+
+`git add` on a path that `.gitignore` ignores and nothing tracks **exits 0 and stages nothing**.
+There is no error to catch, no annotation, no red run. Wrapped in the house `|| true` idiom it is
+undetectable from the outside: the workflow succeeds, the heartbeat stays green, S2-F3's run-log
+evidence standard confirms the job *fired* — and nothing was published.
+
+S2-F6 closed the gap between "an artifact is missing" and "a run is missing". This closes the gap
+between **a run firing and a run producing**.
+
+### The five instances
+
+| # | artifact | discovered | cost |
+|---|---|---|---|
+| 1 | `results/weekly_monitor.json` | 2026-07-18 | dead for weeks; the dashboard's intra-week overlay never reached production |
+| 2 | `results/archive/` (D2 snapshots) | S2 build | the append-only record the Oct-1 gates read was not accruing |
+| 3 | judge cohort — `results/judge_log.jsonl` | 2026Q3 audit, session 5 | **17 verdicts, $4.0507, destroyed**; the hash chain restarted from GENESIS every Saturday |
+| 4 | PROBE | S2-F5 instrumentation | delayed the flaky-golden root cause |
+| 5 | **`results/intraday_scan/`** | **2026-08-05, by the new guard test on its first run** | **every shadow scan since inception silently discarded** |
+
+**Instance 5 — the binder line.** The 14:30 IST intraday shadow scan has been firing, scanning and
+committing nothing **from inception until 2026-08-05**. The push path had already been repaired
+(autostash + retry + exit RED), which is precisely why it looked healthy: the failure was upstream
+of the push, in an `add` that staged an empty set, so `git commit` reported "nothing to commit" and
+the workflow exited 0. **The past scans are unrecoverable** — the artifacts existed only in the
+runner's filesystem and died with it. There is no backfill: the scans are intraday snapshots of a
+live book and cannot be reconstructed after the fact. **Persistence begins 2026-08-05.** Any
+partial→close survival statistic must therefore be dated from that day, and the run of scans before
+it must be treated as **absent evidence, not negative evidence**.
+
+A sixth instance was caught during the fix itself: `results/output_contracts.json` — the manifest
+whose entire purpose is to make this failure visible — was about to be silently dropped by the same
+`results/*` rule.
+
+### The guarantee
+
+1. **`tests/test_workflow_output_paths.py`** — parses every path any workflow declares to `git add`
+   (all three declaration forms, matched anywhere on the line) and asserts each is tracked or not
+   ignored. A future session that ignores a results file **breaks CI the same day**. This test found
+   instances 5 and 6.
+2. **`results/output_contracts.json` + `scripts/output_contracts.py`** — each cron declares the
+   artifacts its scheduled run must commit; the checker finds the job's last cron commit and diffs
+   it against the declaration. **S2-F3's receipt standard applied to outputs, not just firings.**
+   Required artifact absent → red row in `scheduler_health` + `::error` on the next monitor run.
+   Conditional artifacts (the judge log needs an API key) warn instead.
+3. **No silent guard.** All nine `|| true` / `2>/dev/null` sites were classified
+   ([GUARD_AUDIT.md](verification_audit_2026Q3/GUARD_AUDIT.md)): three legitimate, six failure-hiding.
+   Non-fatal is still permitted where the primary artifact must publish regardless, but it is spelled
+   `|| echo "::warning::…"` and every surviving guard's comment **names the watcher** that covers its
+   failure mode. A test fails on any reintroduction.
+
+### The standing rule
+
+> **Every scheduled job has a declared output contract, an independent checker, and no silent guard.**
+
+A new cron is not finished when it runs. It is finished when its contract is declared, its paths are
+whitelisted, and the checker has seen one real commit satisfy it.

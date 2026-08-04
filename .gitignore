@@ -21,6 +21,12 @@ dashboard/backend/.env
 !data/macro_data.pkl
 !data/sector_intelligence.pkl
 !data/fundamentals_pit_screener.pkl
+# The Screener DEPTH store (annual P&L, 653 names) — closes audit gap G3/D4. Same class as
+# the screener pkl above: a CARRIED IRREPLACEABLE. Its producer exists
+# (scripts/scrape_screener.py --mode all) but re-running it scrapes Screener.in LIVE, so it
+# cannot reproduce the 2026-07-03 snapshot (restated figures; delisted names' pages vanish).
+# Committed rather than release-pinned so the clean-clone drill gets it for free.
+!data/fundamentals_pit_depth.pkl
 !data/nifty500_official_20250720.csv
 !data/nifty500_membership.csv
 !data/problem_sector_map.json
@@ -38,6 +44,18 @@ results/*
 # runner and the hash chain restarts from GENESIS every Saturday. Found by the 2026Q3 audit
 # after the 2026-08-01 run logged 17 verdicts (cost $4.00) that were never persisted.
 !results/judge_log.jsonl
+# The output-contract manifest (what each cron MUST persist). SIXTH instance of the trap,
+# caught while committing the fix for the fifth: the manifest that makes silent failure
+# visible was itself about to be silently dropped by `results/*`. Watcher:
+# tests/test_output_contracts.py fails on a fresh clone if this file is absent.
+!results/output_contracts.json
+# The intraday shadow-scan artifacts. FIFTH instance of the same trap, caught by
+# tests/test_workflow_output_paths.py on its first run (2026-08-05): the workflow declares
+# `git add results/intraday_scan/` but `results/*` above made it a silent no-op, so the
+# partial->close survival stats never accrued despite the push path having been fixed.
+# A directory needs BOTH the dir un-ignored and its contents un-ignored.
+!results/intraday_scan/
+!results/intraday_scan/**
 !results/FORWARD_ACCUMULATORS_README.md
 !results/signals_today.json
 !results/signals_history.json

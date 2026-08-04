@@ -74,7 +74,10 @@ jobs:
         run: python scripts/archive_weekly_snapshot.py
 
       - name: Archive issued cards (append-only recommendation record)
-        run: python scripts/archive_weekly_cards.py || true
+        # Non-fatal (the paper state must still publish) but annotated — the append-only card
+        # record is the D2 artifact; its absence from the commit is caught by the output contract.
+        run: python scripts/archive_weekly_cards.py
+          || echo "::warning::card archiver FAILED (exit $?) — results/cards_archive.jsonl not appended this week"
       - name: Informed-judge forward stream (pre-reg 0125 — observational, SEALED)
         # One structured verdict per issued card, appended to the hash-chained results/judge_log.jsonl.
         # FORWARD ONLY: no historical variant exists or may be added (the model's training data
@@ -90,25 +93,42 @@ jobs:
             echo "Add it in Settings > Secrets and variables > Actions to start the stream."
           fi
           pip install -e ".[judge]"
-          python scripts/run_judge_cron.py || true
+          # Belt-and-braces AFTER in-script handling (missing key / SDK / model drift / per-card
+          # failure all exit 0 inside the script). Watchers: the output contract's judge_log row
+          # and the hash-chain test. The scanner must never fail because of the judge.
+          python scripts/run_judge_cron.py
+            || echo "::warning::judge cron exited non-zero ($?) — no verdicts appended this week"
       - name: Log the swing x low-vol blend hybrid (observational WATCHED book, finding 0107)
         # Runs AFTER the swing cron so it uses the freshly-downloaded OHLCV + the just-written swing NAV.
         # Observational only — writes its own results/blend_hybrid_paper.json; never touches the certified
         # paper book / wall. Empty until fresh post-inception bars exist in both sleeves (not an error).
-        run: python scripts/run_blend_paper.py --start "${{ github.event.inputs.inception || '2026-07-04' }}" || true
+        run: python scripts/run_blend_paper.py --start "${{ github.event.inputs.inception || '2026-07-04' }}"
+          || echo "::warning::blend-hybrid paper log FAILED (exit $?) — observational book not updated"
       - name: Commit weekly paper state
         run: |
           # Author with the owner's GitHub-matched email so Vercel (auto-deploys main) doesn't
           # BLOCK the commit as an unrecognized author.
           git config user.name "kreeshpatel"
           git config user.email "kreeshvasistha@gmail.com"
-          git add results/judge_log.jsonl \
-                  results/cards_archive.jsonl results/signals_today_weekly.json results/signals_history_weekly.json \
-                  results/signal_analytics_weekly.json results/paper_portfolio_weekly.json \
-                  results/portfolio_history_weekly.csv results/weekly_review_scorecard.json \
-                  results/weekly_sma_panel.csv results/decision_memos_weekly.json \
-                  results/decision_memos_weekly.md results/blend_hybrid_paper.json \
-                  results/archive 2>/dev/null || true
+          # ── GUARD POLICY (fail-loud hardening, 2026-08-05) ──────────────────────────────
+          # No `git add ... 2>/dev/null || true`. That construct hid FIVE separate instances of the
+          # same defect: `git add` on an ignored-and-untracked path exits 0 and stages nothing, so a
+          # green run could publish nothing at all. Required artifacts now go RED BY NAME; optional
+          # ones warn. Watchers: tests/test_workflow_output_paths.py (the path can be staged at all)
+          # and results/output_contracts.json (the commit actually contained it).
+          MISSING=0
+          need() { if [ -e "$1" ]; then git add "$1"; else echo "::error::contracted artifact MISSING: $1"; MISSING=1; fi; }
+          opt()  { if [ -e "$1" ]; then git add "$1"; else echo "::warning::optional artifact not produced: $1"; fi; }
+          git add results/signals_today_weekly.json results/signals_history_weekly.json \
+                  results/paper_portfolio_weekly.json results/weekly_review_scorecard.json \
+                  results/weekly_sma_panel.csv results/archive
+          need results/portfolio_history_weekly.csv
+          opt results/judge_log.jsonl
+          opt results/cards_archive.jsonl
+          opt results/signal_analytics_weekly.json
+          opt results/decision_memos_weekly.json
+          opt results/decision_memos_weekly.md
+          opt results/blend_hybrid_paper.json
           if git commit -m "chore(weekly): Saturday weekly-swing paper state $(date -u +%F)"; then
             # --autostash: the OHLCV download leaves UNSTAGED cache changes that abort a plain
             # `git pull --rebase`, which silently swallowed the push as "nothing to push" and dropped
@@ -116,7 +136,7 @@ jobs:
             # published). Autostash + retry publishes it; a persistent failure now exits RED (visible)
             # instead of stranding stale picks on the dashboard.
             for i in 1 2 3; do
-              git pull --rebase --autostash origin main && git push origin main && { echo "pushed weekly state"; exit 0; }
+              git pull --rebase --autostash origin main && git push origin main && { echo "pushed weekly state"; exit $MISSING; }
               echo "push attempt $i failed; retrying in 5s..."; sleep 5
             done
             echo "::error::weekly paper state committed but could NOT be pushed after 3 tries — dashboard is stale"; exit 1

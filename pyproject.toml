@@ -7,7 +7,12 @@ name = "nifty-satvik"
 version = "0.1.0"
 description = "Long-horizon (3-month cross-sectional trend-momentum) signals for Nifty-500 — clean rebuild."
 readme = "README.md"
-requires-python = ">=3.12,<3.13"
+# Ceiling extended 3.13 -> 3.14 by the 2026Q3 audit (drill gap G1): a clean clone could not
+# `pip install -e .` on a current interpreter (3.13.5), which is the documented recovery step.
+# CI stays PINNED to 3.12 in .github/workflows (the golden masters are byte-compared, so the
+# interpreter that produces the record must not float). This ceiling governs humans and
+# recovery operators, not the run of record.
+requires-python = ">=3.12,<3.14"
 license = { text = "Proprietary" }
 authors = [{ name = "Kreesh Patel", email = "kreeshvasistha@gmail.com" }]
 
