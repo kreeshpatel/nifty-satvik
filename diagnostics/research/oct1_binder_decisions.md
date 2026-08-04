@@ -193,3 +193,18 @@ plumbing edits.
 * **M10** — `NSE_HOLIDAYS` ends 2026-12-25, so the 2027 Jan/Apr review dates cannot be computed
   correctly. **Add the 2027 list at the Oct-1 review** (zero-compute, but it blocks the review-date
   machinery next year).
+
+---
+
+## VRP / option-selling — REJECTED without a screen (memo line, 2026-07-31)
+
+Recorded so the idea does not recur as a fresh proposal. Short-volatility premium harvesting is **not
+pursued and gets no screen**, on **risk-shape grounds, not on expected return**: selling vol
+concentrates exactly the tail the equity book already carries — both are short the same crash. A
+sleeve whose worst quarter coincides with the base book's worst quarter fails 0115's diversification
+requirement **by construction**, before any Sharpe is computed. Consistent with 0100/0101/0102, which
+found every timed-protection construction negative-EV and concluded this book's drawdown needs a
+**sleeve-level** lever rather than an index-options one.
+
+**Re-proposing requires:** a defined-risk structure (spreads, not naked) **and** an explicit
+demonstration that its tail is not the book's tail. Absent both, this is a standing rejection.
