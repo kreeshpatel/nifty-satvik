@@ -86,6 +86,106 @@ is now a known number. **No change proposed** — recording the gap is the deliv
 
 ---
 
+## Session 2 (2026-07-31) — annualisation, alpha decomposition, anchor robustness
+
+Evidence: `session2_annualization_anchor.json` · `session2_alpha_decomposition.json`
+Scripts: `scripts/audit_annualization_anchor_2026Q3.py` · `scripts/audit_alpha_decomposition_2026Q3.py`
+
+| item | status |
+|---|---|
+| **1. Annualisation sweep** | **PASS — CONSISTENT** |
+| **2a. 0114 re-verification** | **PASS — claims stand, and are narrower than remembered** |
+| **2b. Alpha decomposition** (new Tier-A) | **DELIVERED** |
+| **3. Rebalance-anchor robustness** | **PASS — stable, not a knife-edge** |
+| **A4 two-sleeve ERC blend** | **DISCREPANCY — producer IRREPRODUCIBLE** ⛔ |
+
+### 1 — Annualisation sweep: CONSISTENT
+
+The constant alone proves nothing; the test is the constant applied to the right **frequency**. For
+each load-bearing book, all four candidate conventions were computed and compared to the published
+figure:
+
+| book | published | daily×√252 | weekly×√52 | daily×√52 (mixed) | weekly×√252 (mixed) | reproduced by |
+|---|---:|---:|---:|---:|---:|---|
+| swing sleeve | 1.15 | **1.153** | 1.139 | 0.524 | 2.531 | daily×√252 ✅ |
+| low-vol sleeve | 1.06 | **1.057** | 1.023 | 0.480 | 2.271 | daily×√252 ✅ |
+
+`third_sleeve_returns.csv` is confirmed **daily** (median day-gap 1.0). **No book reproduces under a
+mixed convention** — the mixed forms are off by 2.2×, far outside any rounding. `nq/validation/metrics.py`
+and `nq/engine/portfolio.py` both pin `TRADING_DAYS = 252` and are applied to daily series.
+**Site inventory:** ~50 `sqrt(252)` call sites across `scripts/diag_*`, all operating on daily engine
+curves; `diag_pbo_cscv.py:57` uses `sqrt(12)` on the **monthly** PBO matrix (correct for its input);
+`nq/data/options_oi.py:215` uses `sqrt(21)` for a 21-day realised-vol feature (not a book Sharpe).
+**No mixing found.**
+
+### 2a — 0114 re-verified: its claims stand, and are narrower than they are often quoted
+
+0114 compared the swing book's **monthly, after-tax NET** returns to **investable ETF NAVs** and
+reported after-tax CAGR margins (+3.5pp vs LowVol-30, +1.1pp vs AlphaLowVol-30, +4.3pp vs Nifty-50,
+all at a 10% execution haircut). It records the niftyindices TRI endpoint as **WAF-blocked on
+2026-07-27** and argues ETF NAVs are the more honest investable benchmark.
+
+**It never computed beta or alpha.** Anyone citing 0114 for "the book's alpha" is over-reading it.
+Item 2b is therefore **additive**, not a contradiction.
+
+### 2b — Alpha decomposition vs Nifty-500 **TRI** (new Tier-A item)
+
+Daily OLS `r_book = α + β·r_bench`, α annualised ×252, **risk-free = zero (stated, not hidden)**.
+
+| book | β | R² | **α / yr** | SE | t | 95% CI | book CAGR | bench CAGR | +α years |
+|---|---:|---:|---:|---:|---:|---|---:|---:|---:|
+| swing sleeve | 0.885 | 0.43 | **+13.92%** | 5.80 | 2.40 | [+2.6, +25.3] | 25.67% | 12.62% | 7/10 |
+| low-vol sleeve | 0.617 | 0.56 | **+6.13%** | 3.10 | 1.98 | [+0.1, +12.2] | 14.16% | 12.62% | 7/10 |
+| **swing+lowvol EW** | **0.751** | 0.61 | **+10.03%** | 3.41 | **2.94** | **[+3.3, +16.7]** | 20.31% | 12.62% | **9/10** |
+
+**The honest sentence:** *over 8.8 years, the two-sleeve structure earned **+10.0% ± 3.4 a year over
+the Nifty-500 total-return index** (95% CI +3.3 to +16.7) at **beta 0.75**, positive in **9 of 10
+calendar years**.*
+
+**Four things that shrink it, all stated:**
+1. **Zero risk-free overstates.** At an Indian RF of ~6.5%, α falls by `(1−β)·RF` ≈ **1.6pp → ~8.4%/yr**
+   for the pair (swing → ~13.2%, low-vol → ~3.6%). Sensitivity, not a restated headline.
+2. **These are sole-ranker sleeve panels, not the capped ₹10L book of record.** Strategy alpha, not
+   tradable-book alpha.
+3. **In-sample and pre-haircut** — before 0113's ~⅓ selection haircut and the 0025 survivorship debt
+   (known to inflate in this direction).
+4. The single largest α year is **2026, a stub half-year** whose annualised figure is unreliable.
+
+Applying (1)+(3) lands near 0114's after-tax ETF margins, so the two lenses are **consistent**.
+
+### 3 — Rebalance-anchor robustness: STABLE
+
+Quarterly ERC re-implemented from its stated rule and the anchor shifted 0–6 weeks:
+
+| offset | 0 | 1 | 2 | 3 | 4 | 5 | 6 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Sharpe | 1.248 | 1.254 | 1.261 | 1.261 | 1.263 | 1.258 | 1.266 |
+| MaxDD % | −32.57 | −32.53 | −32.47 | −32.46 | −32.40 | −32.45 | −32.40 |
+
+**Sharpe spread 0.018; DD spread 0.17pp; zero losing years at every anchor; worst year 4.9–5.4%.**
+**The 1.22/−33% is a property of the sleeves, not of the calendar.** → binder line.
+**Flagged to the breadth-50 §4 stub:** its spec inherits this question and should state its own
+rebalance anchor explicitly.
+
+### A4 — ⛔ DISCREPANCY: the blend's producer is IRREPRODUCIBLE
+
+**No committed script produces 0115's 1.22 / −33%.** A repo-wide search for `third_sleeve` in `*.py`
+returns **only this audit's own scripts** and `run_weinstein_0124.py`. The *input*
+(`third_sleeve_returns.csv`) is committed and 0115 documents how the sleeves were built; the **blend
+arithmetic on top of it is not in the repo**. Pass 1 (mechanical replication) cannot be performed.
+
+**Independent re-derivation lands at Sharpe 1.248 / DD −32.6 vs published 1.22 / −33%** — same
+direction, ~+0.03 Sharpe and ~0.4pp shallower DD. **Root cause of the divergence: the rebalance rule
+is under-specified in the finding** (0115 says "quarterly inverse-vol ERC" without naming the vol
+lookback; this audit used trailing 252d).
+
+**Does it move a standing verdict? No** — the verdict is "the swing × low-vol pair is the structure
+of record", and 1.248 supports it at least as strongly as 1.22. **Reported, not corrected**; the
+published number stands until the owner decides. **Recommended remedy: commit the producer script**
+so the Oct-1 binder cites a reproducible number.
+
+---
+
 ## Remaining scope
 
 ### Tier A — PENDING
@@ -95,7 +195,7 @@ is now a known number. **No change proposed** — recording the gap is the deliv
 | **A1 baseline_v1 anchors** (0.667 / 15.46 / −46.26) | needs the long-horizon engine run on the pinned OHLCV |
 | **A2 corrected-anchor table** (0.737 + alias-aware + backfill arms) | `scripts/run_corrected_anchor.py` |
 | **A3 swing record 1.132 / 255 + golden** | `run_bhanushali_weekly_rank.py` + `test_r94_golden.py` / `test_stage2_golden.py` |
-| **A4 two-sleeve ERC blend** (1.22 / −33%) | `research/exports/third_sleeve_returns.csv`; independent ERC re-derivation |
+| ~~A4 two-sleeve ERC blend~~ | **done session 2 — DISCREPANCY (irreproducible producer)** |
 
 ### Tier B — PENDING (standing-law receipts)
 
@@ -109,15 +209,18 @@ truncation probe) · 0124 Weinstein · 0125 power arithmetic · 0126 / 0127.
 
 ## Cross-cutting arithmetic checks — PENDING
 
-Sharpe annualisation consistency (√52 weekly vs √252 daily — **verify no book mixes them**);
+~~Sharpe annualisation consistency~~ — **done session 2, CONSISTENT, no mixing found**;
 CAGR↔Sharpe↔vol mutual consistency; per-year tables summing to totals; R-definition consistency
 across scripts (same risk denominator, same fill convention); CI method appropriateness
 (bootstrap iid vs overlapping windows — **flag, do not fix**).
 
 ## Discrepancy ledger
 
-**Empty so far** — and an empty ledger is itself a reportable result, not an absence of work.
-One **audit-script error** is recorded above (A6 scoping); it is not a repo discrepancy.
+| # | item | published | re-derived | mechanism | moves a verdict? |
+|---|---|---|---|---|---|
+| **D1** | A4 two-sleeve ERC blend | Sharpe **1.22** / DD **−33%** | **1.248** / **−32.6%** | producer script **not in the repo**; rebalance vol-lookback **under-specified** in 0115 | **No** — the verdict ("the pair is the structure of record") is unchanged and marginally stronger. Reported, not corrected. |
+
+One **audit-script error** is also recorded (session 1, A6 scoping); it is not a repo discrepancy.
 
 ## Guards in force
 

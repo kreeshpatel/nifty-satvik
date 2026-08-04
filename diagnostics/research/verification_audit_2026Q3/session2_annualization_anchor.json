@@ -1,0 +1,120 @@
+{
+  "_doc": "Verification audit 2026Q3 session 2 \u2014 items 1 (annualization) and 3 (anchor robustness).",
+  "class": "VERIFICATION \u2014 0 trials, 0 screens, no new hypotheses",
+  "counts": "screens 14 \u00b7 sealed opens 1 \u00b7 n_trials 138 (frozen)",
+  "item1_annualization": {
+    "series_frequency_median_day_gap": 1.0,
+    "series_is_daily": true,
+    "books": [
+      {
+        "book": "swing",
+        "published": 1.15,
+        "daily x sqrt252 (correct for daily)": 1.153,
+        "weekly x sqrt52 (correct for weekly)": 1.139,
+        "daily x sqrt52 (MIXED \u2014 wrong)": 0.524,
+        "weekly x sqrt252 (MIXED \u2014 wrong)": 2.506,
+        "reproduced_by": "daily x sqrt252 (correct for daily)",
+        "delta_to_published": 0.003,
+        "CONSISTENT": true
+      },
+      {
+        "book": "lowvol",
+        "published": 1.06,
+        "daily x sqrt252 (correct for daily)": 1.057,
+        "weekly x sqrt52 (correct for weekly)": 1.023,
+        "daily x sqrt52 (MIXED \u2014 wrong)": 0.48,
+        "weekly x sqrt252 (MIXED \u2014 wrong)": 2.251,
+        "reproduced_by": "daily x sqrt252 (correct for daily)",
+        "delta_to_published": -0.003,
+        "CONSISTENT": true
+      }
+    ],
+    "VERDICT": "CONSISTENT \u2014 every load-bearing sleeve Sharpe reproduces under daily-returns x sqrt(252); no book matches a mixed convention"
+  },
+  "item3_anchor_sweep": {
+    "published_blend": {
+      "sharpe": 1.22,
+      "maxdd_pct": -33.0,
+      "worst_year_pct": 5.6,
+      "losing_years": 0
+    },
+    "rule_reimplemented": "quarterly inverse-vol on trailing 252d realised vol",
+    "at_published_anchor": {
+      "anchor_offset_weeks": 0,
+      "sharpe": 1.248,
+      "cagr_pct": 18.6,
+      "maxdd_pct": -32.57,
+      "worst_year_pct": 5.19,
+      "losing_years": 0
+    },
+    "sweep": [
+      {
+        "anchor_offset_weeks": 0,
+        "sharpe": 1.248,
+        "cagr_pct": 18.6,
+        "maxdd_pct": -32.57,
+        "worst_year_pct": 5.19,
+        "losing_years": 0
+      },
+      {
+        "anchor_offset_weeks": 1,
+        "sharpe": 1.254,
+        "cagr_pct": 18.69,
+        "maxdd_pct": -32.53,
+        "worst_year_pct": 4.92,
+        "losing_years": 0
+      },
+      {
+        "anchor_offset_weeks": 2,
+        "sharpe": 1.261,
+        "cagr_pct": 18.81,
+        "maxdd_pct": -32.47,
+        "worst_year_pct": 5.33,
+        "losing_years": 0
+      },
+      {
+        "anchor_offset_weeks": 3,
+        "sharpe": 1.261,
+        "cagr_pct": 18.81,
+        "maxdd_pct": -32.46,
+        "worst_year_pct": 5.37,
+        "losing_years": 0
+      },
+      {
+        "anchor_offset_weeks": 4,
+        "sharpe": 1.263,
+        "cagr_pct": 18.84,
+        "maxdd_pct": -32.4,
+        "worst_year_pct": 5.4,
+        "losing_years": 0
+      },
+      {
+        "anchor_offset_weeks": 5,
+        "sharpe": 1.258,
+        "cagr_pct": 18.76,
+        "maxdd_pct": -32.45,
+        "worst_year_pct": 5.43,
+        "losing_years": 0
+      },
+      {
+        "anchor_offset_weeks": 6,
+        "sharpe": 1.266,
+        "cagr_pct": 18.91,
+        "maxdd_pct": -32.4,
+        "worst_year_pct": 5.32,
+        "losing_years": 0
+      }
+    ],
+    "sharpe_range": [
+      1.248,
+      1.266
+    ],
+    "sharpe_spread": 0.018,
+    "maxdd_range": [
+      -32.57,
+      -32.4
+    ],
+    "maxdd_spread": 0.17,
+    "zero_losing_years_at_every_anchor": true
+  }
+}
