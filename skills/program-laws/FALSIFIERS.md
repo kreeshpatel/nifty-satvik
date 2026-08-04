@@ -31,9 +31,13 @@ before entry — to an instrument with different inputs.
 
 **Measurement:** pre-reg [0125](../../diagnostics/research/preregistry/0125-informed-judge-forward.md) §4.
 **Due:** first quarterly review after ≥2 quarters **and** ≥100 resolved verdicts.
-**Status: CONTINGENT** — the judge is wired but **not running**: `ANTHROPIC_API_KEY` is not set as a
-repository secret, so the Saturday cron logs a warning and skips. **The clock has not started.**
-Until the secret is added, Law I has no live falsifier.
+**Status: ARMED as of 2026-08-05** (amended by the 2026Q3 audit, session 5).
+
+*History, kept because it is the point:* when this register was written the status was CONTINGENT on
+the API key. The key had in fact been set on 2026-07-31, and the 2026-08-01 run **did** judge 17
+cards — but `.gitignore`'s `results/*` whitelist omitted `judge_log.jsonl`, so the cron's `git add`
+was a silent no-op and every verdict was destroyed with the runner. **The falsifier looked armed and
+was not.** Fixed 2026-08-05 (PR #64); scanner re-dispatched through the front door.
 
 ---
 
@@ -143,7 +147,7 @@ error-correction of a protocol, not falsification of a hypothesis.)*
 
 | law | falsifier | status |
 |---|---|---|
-| I pre-entry wall | judge take-vs-skip spread | **CONTINGENT** (API key unset) |
+| I pre-entry wall | judge take-vs-skip spread | **ARMED 2026-08-05** (was contingent; see Law I) |
 | II population vs margins | breadth-50 EW/SW spread | **CONTINGENT** (Oct-1 sign-off) |
 | III subtractive rules | ledger owner-skip performance | **CONTINGENT** (ledger unbuilt) |
 | IV deferral = deletion | forward re-signal rate vs 94% lapse | **ARMED** |
@@ -152,12 +156,14 @@ error-correction of a protocol, not falsification of a hypothesis.)*
 | VII robustness costs return | A-only DD **and** Calmar forward | **ARMED** |
 | VIII method laws | — | ⚠ **demote to PROTOCOL** |
 
-**4 armed · 3 contingent · 1 to demote.**
+**5 armed · 2 contingent · 1 to demote** (amended 2026-08-05: Law I armed once the judge log actually persisted).
 
-**The finding this register produces:** three of the seven empirical laws — including the two most
-load-bearing, the pre-entry wall and population-vs-margins — **currently have no live falsifier**,
-because each depends on an owner decision not yet made (the API key, the Oct-1 breadth-50 amendment,
-the habit-ledger build). They are not unfalsifiable in principle; they are **unfalsified in practice
+**The finding this register produces (amended 2026-08-05):** **two** of the seven empirical laws —
+population-vs-margins and subtractive-rules — have no live falsifier, each pending an owner decision
+(the Oct-1 breadth-50 amendment, the habit-ledger build). Law I was in that set until the audit found
+its falsifier was being **silently deleted every Saturday** despite appearing configured — the
+sharpest illustration of why this register exists: *a scheduled falsifier is not an armed one until
+someone checks that its data survives.* They are not unfalsifiable in principle; they are **unfalsified in practice
 until those doors are opened**. That is a governance fact worth stating in the Oct-1 binder: the
 programme's most-cited laws are, today, resting on in-sample evidence with their forward tests
 unstarted.

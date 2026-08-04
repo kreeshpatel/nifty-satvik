@@ -223,6 +223,25 @@ including the two most-cited, have no live falsifier today.**
 
 ---
 
+## Session 5 (2026-08-05) — CLOSEOUT
+
+Evidence: `EXECUTIVE_SUMMARY.md` · `ANCHOR_MANIFEST.md` · `SESSION4_BLIND_REPLICATION.md`
+
+| item | status |
+|---|---|
+| **0. Judge stream** | **D5 FOUND AND FIXED** — key was set and the Aug-1 run judged 17 cards at $4.00, but `.gitignore` discarded every one; whitelisted (PR #64), scanner re-dispatched |
+| **1. G4 / anchor manifest** | **STANDARD WRITTEN** — `ANCHOR_MANIFEST.md`; `baseline_v1` producer designation **still open (D2)** |
+| **2. G1 python pin** | **FIXED** — `<3.13` → `<3.14`; CI stays pinned to 3.12 |
+| **2. G2 substrate rebuild** | **CLOSED — exercised end-to-end, 100 s**, reproduces all three band-census cells exactly |
+| **2. G3 fundamentals depth** | **OPEN** — no rebuilder, no release attachment |
+| **3. Blind-replication intake** | **FILED** as session 4 — intake only, not independently confirmed |
+| **4. Executive summary** | **DONE** |
+
+**Law I moved CONTINGENT → ARMED** as a direct result of item 0: its falsifier existed on paper and
+was being deleted weekly in practice.
+
+---
+
 ## Remaining scope
 
 ### Tier A — PENDING
