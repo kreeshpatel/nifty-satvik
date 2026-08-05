@@ -8,6 +8,13 @@ Standing counts (unchanged by the audit and the remediation): **screens 12, seal
 n_trials 138.** No trials or screens were spent; no forward-wall log was read.
 (Screen count moved 11 → 12 on 2026-07-30 by finding 0123, which spent no trial.)
 
+**Counts as of 2026-08-06: screens 15 · sealed opens 1 · n_trials 138.** The line above is the state
+at the audit and is left as written; screens moved 12 → 13 → 14 on 2026-07-31 (0126 line-hugger
+screen, 0127 HEG-class bound) and 14 → 15 on 2026-08-06 (0129 event-sizing bound). **`n_trials` has
+not moved since 2026-06-12** — no trial has been spent by any of this work, no sealed set was
+opened, and no forward-wall judge log was read. Authority for the count is
+[`label_screen_ledger.md`](label_screen_ledger.md).
+
 **Research input (2026-07-30) —** the pre-entry wall now holds **five** independent ways including
 **perception**: [0123](../../research/findings/0123-vision-graded-chart-structure.md) graded 681
 blind, entry-truncated charts with an instrument validated first (test-retest κ 0.867; truncation-
@@ -245,6 +252,102 @@ Quantified, it is large.
 - **R-denominated conventions inherit the heterogeneity**: the disaster class (`R ≤ −1.5`, 0109) is
   a −4.5% price move on a 3% stop and a −45% move on a 30% stop; and **the ±10R/yr noise floor
   itself is a blended unit**. Neither is wrong — both are load-bearing and should be read knowing it.
+
+---
+
+## 7. DECISION INPUT — any ext-band sizing expression must be judged in RUPEE-WEIGHTED terms
+
+**This is a standing rule for how a future proposal is evaluated, not a proposal.** It is recorded
+now so that the next ext-band idea is not scored on the wrong yardstick by default.
+
+0126 closed with the `<5%` extension band carried forward intact as *"one undifferentiated cohort
+for the unshipped sizing question."* §6 measures what that cohort's R actually is, and the answer
+changes how any such expression must be read.
+
+**The measurement.** Extension and stop width correlate at **r = +0.67** — mechanically, since the
+stop is the candle low, a name nearer its line has a narrower stop. So the `<5%` band **is** the
+narrow-stop band (median stop **5.97%** vs **9.90%**), and its R is computed on a systematically
+smaller denominator:
+
+| yardstick | ext < 5% | ext ≥ 5% | gap |
+|---|---|---|---|
+| **R as reported** (fixed-RISK sizing = the run of record) | +0.803 | +0.469 | **+0.334** |
+| at a **common denominator** (fixed-NOTIONAL sizing) | +0.549 | +0.825 | **−0.276 — reverses** |
+| **live rupee-weighted** (`min(risk, 20% notional)` = what actually trades) | +0.466 | +0.409 | **+0.057** |
+
+**Two distinct effects, and they must not be merged into one number.**
+1. **A denominator effect.** Under a fixed-*notional* yardstick the ordering **reverses** — high-ext
+   trades produce the larger price outcomes; low-ext trades produce the larger *ratios*. The
+   R-measured edge is a ratio effect, not a bigger-move effect.
+2. **A cap effect.** The live notional cap under-sizes narrow stops, so the live book puts **0.621×**
+   nominal capital behind the `<5%` cohort vs **0.788×** behind the rest — and the gap erodes from
+   **+0.334R to +0.057R, an ~83% erosion.**
+
+**The edge is real and it survives in live-rupee terms** (+0.466 vs +0.409 still favours `<5%`). What
+it does not survive is being *quoted in R* as though R were rupees. The one-line reading: **the
+research measures the edge at roughly six times the size the live book can actually collect.**
+
+**The rule this fixes for the review.** Any future proposal to size, tilt, or concentrate on the
+extension band — the unshipped 0126 sizing question included — is judged on the **live
+rupee-weighted** column, because that is the capital that moves. An ext-band proposal scored in R
+will look ~6× better than it can be. Corollary: **the largest available ext-band lever is not a new
+overlay at all — it is `max_notional_pct`**, which is already binding on this cohort today (see §8
+and the door in §6). That is a config decision, not a research question, and it costs no trial.
+
+**No rule is proposed here and none should be inferred.** The `<5%` band remains exactly what 0126
+left it: one undifferentiated cohort, unshipped.
+
+## 8. DECISION INPUT — the 0.829 research→live translation factor, and what the ±10R floor is made of
+
+**Two caveats on units. Neither moves any verdict on the record; both change how the next number
+should be read.**
+
+### 8.1 The translation factor
+
+Re-weighting the substrate by the rupees the live cap actually puts behind each R turns a **1907.3R**
+book into **1581.9R** — a **0.829** research→live translation factor. It is a **property of the trade
+mix, not a constant**: it is the average of a per-trade weight that runs from **1.000** (stops ≥10%,
+uncapped) down to **0.163** at p1, so a cohort of narrow-stop trades translates far worse than 0.829
+and a cohort of wide-stop trades not at all. **Do not apply 0.829 as a blanket multiplier** — it is
+the book-level average of a quantity that must be recomputed per cohort. §7 is the worked case: the
+`<5%` band's own factor is 0.621, not 0.829.
+
+### 8.2 The ±10R/yr floor is a blended unit
+
+The floor (0109 / 0117) is denominated in the same heterogeneous R as everything else, so "10 R/yr"
+is 10 units of a quantity whose rupee value varies ~6× across the book. This is a **statement about
+precision, not a reason to move the floor** — the floor was derived empirically from composition
+noise on this book, in these units, so it is internally consistent with every bound measured against
+it. It is recorded so the number is not later mistaken for a rupee quantity.
+
+**A trap to avoid, stated explicitly.** Deflating a *bound* by 0.829 while leaving the *floor* at 10
+is not a valid comparison — both are in the same R units, so a uniform rescaling cancels and the
+bound/floor ratio is unchanged. The heterogeneity only bites where the rescaling is **non-uniform**,
+i.e. where a proposal's activated cohort has a materially different stop-width mix from the book
+average. That is the only situation in which any of this can change a verdict.
+
+### 8.3 No prior bound verdict moves — and here is the actual reason
+
+The clean argument is not "every bound failed by ≥10×" — **that is not true of the record**: 0117's
+rotation bound was ≈**11 R/yr** (*above* the floor, closed as sitting at/under it) and 0127's
+exclusion bound was **1.92 R/yr** (5.2× short, not 10×). The correct argument is directional:
+
+- **The factor is < 1 everywhere**, so it can only ever **shrink** a bound. Every bound on the record
+  **failed**, and all but one failed for being **too small or wrong-signed** — shrinking a bound that
+  is already too small cannot rescue it. Direction of travel is safe for: 0119 (−1.29, wrong-signed),
+  0121 (−15.72, wrong-signed), 0127(a) (1.92), 0127(b) (0.0 by identity), 0129 (all arms, max +0.78
+  clairvoyant).
+- **The one leg whose magnitude cleared the floor was rejected on other grounds and still is.**
+  0127's clairvoyant refuse-only-losers leg was 26.22 R/yr (→ ≈21.7 live-weighted, still clearing);
+  it failed because its sign test is a **tautology** and it is **unreachable** (perfect loser
+  foresight is the five-wall pre-entry problem). Unit heterogeneity touches neither objection.
+- **0117 is the only bound close enough to the floor for units to matter** (≈11 vs 10). Its cohort is
+  the capped book's *losers*, and nothing in the audit suggests that cohort's stop-width mix departs
+  from the book average in the direction that would rescue it — and it was closed as a clairvoyant
+  ceiling on an unreachable rule regardless. **No re-adjudication is requested and none is implied.**
+
+**Net: no verdict on the record changes. The caveats apply prospectively**, to the next bound whose
+activated cohort is stop-width-atypical — which is exactly the case §7 governs.
 
 ---
 
