@@ -174,11 +174,18 @@ exchange. **18 found.**
 | `DEFECT_UNEXPLAINED_JUMP` | **9** |
 | `NO_EXCHANGE_DATA` | 2 |
 
-The seven genuine ones reproduce the exchange to four decimal places and include every name the
-blind session flagged: **VEDL −64.90% (exchange −64.90%), ABFRL −66.59% (−66.59%), RAYMOND −64.76%
-(−64.76%), SKFINDIA −54.75% (−54.75%), TMPV −40.15% (−40.15%, recovered via ISIN), ABREL −55.36%
-(−55.36%, via ISIN), YESBANK −56.11% (−56.11%)**. All are **genuine moves, correctly left alone**.
-None is a defect.
+**On the provenance of this list.** The blind session's own extreme-move list is *not in this
+repo* — `SESSION4_BLIND_REPLICATION.md` records findings F1–F4 only and states plainly that the raw
+report was never filed here. This audit therefore did not work from a checklist: it enumerated every
+single-session move beyond −40% / +60% in the pin independently and resolved all 18. The three names
+the owner quoted (ABFRL, RAYMOND, VEDL) are among them. That is a stronger position than checking
+someone else's list, but it means this audit cannot certify that its 18 *are* their eight, and it
+does not claim to.
+
+The seven genuine ones reproduce the exchange to four decimal places: **VEDL −64.90% (exchange
+−64.90%), ABFRL −66.59% (−66.59%), RAYMOND −64.76% (−64.76%), SKFINDIA −54.75% (−54.75%), TMPV
+−40.15% (−40.15%, recovered via ISIN), ABREL −55.36% (−55.36%, via ISIN), YESBANK −56.11%
+(−56.11%)**. All are **genuine moves, correctly left alone**. None is a defect.
 
 Of the nine defects, **four are INDIAMART** (2019-10-27 +104%, 2019-10-29 −51%, 2020-11-14 +99%,
 2020-11-17 −51%) — the Diwali Muhurat sessions, where the pin carries a doubled bar that reverts
