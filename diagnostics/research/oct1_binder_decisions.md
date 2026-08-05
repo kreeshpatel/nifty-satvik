@@ -196,6 +196,58 @@ plumbing edits.
 
 ---
 
+## 6. R IS NOT A COMPARABLE UNIT IN THE LIVE BOOK — a D3 sharpening *(new door, 2026-08-06)*
+
+Source: [`r_denominator_audit.md`](r_denominator_audit.md) — **verification class, free, no ledger
+row, no trial, no rule proposed** (`python scripts/diag_r_denominator_audit.py`). Counts unchanged at
+**15 / 1 / 138**. This does **not** claim a new divergence: constitution **H1/H3** already record the
+notional cap as *"Off in run of record"*, and **D3** already records that live ≠ certified. What is
+new is the **unit consequence**, and it is decision-relevant.
+
+**The finding.** Stop width on this book spans **p10 3.59% → p90 25.25% (7.0×)**, and **41.6% of
+trades carry a stop narrower than 1× weekly ATR**. That is fine in the run of record, which sizes
+`eq × 2% / (entry − stop)` — there **1R = 2% of equity for every trade and R is exactly comparable**.
+It is not fine live: `LIVE_DISCIPLINE`'s `max_notional_pct = 0.20` binds whenever the stop is
+narrower than **10%**, which is **53.4% of trades**. Under the live cap the rupees behind 1R fall to
+a median **0.918× nominal, p10 0.359×, p1 0.163×**. Re-weighting the same trades by what each R is
+actually worth live turns a **1907.3R** book into **1581.9R — a 0.829 translation ratio**.
+
+**Why it matters, and it is not academic.** Extension and stop width are coupled at **r = +0.67**
+(the stop is the candle low, so a name nearer its line has a narrower stop). So the cap binds
+hardest on precisely the cohort the research calls the core edge:
+
+| | ext < 5% (the `ext_band_census` +0.717R core) | ext ≥ 5% |
+|---|---|---|
+| median stop width | **5.97%** | 9.90% |
+| mean R **as reported** | **+0.803** | +0.469 |
+| mean R at a **common denominator** | +0.549 | **+0.825** ← ordering reverses |
+| **live rupee weight** | **0.621** | 0.788 |
+| **live rupee-weighted mean R** | **+0.466** | +0.409 |
+
+**The low-extension edge is real and it survives — but the live book collects only about a sixth of
+it.** The as-reported gap is **+0.334R**; live-weighted it is **+0.057R**, an ~83% erosion, entirely
+because the notional cap under-sizes narrow-stop trades. Three yardsticks exist and which is correct
+depends purely on sizing regime: fixed-risk (run of record) → R as reported is the rupee truth;
+fixed-notional → the common-denominator column is, and the ordering flips; **the live book is
+`min(...)` of the two and sits between them.**
+
+**The decision this forces.** Nothing here proposes a rule and this session proposes none. The door
+is: *does the live book's anti-concentration guardrail (`max_notional_pct` 0.20, adopted 2026-07-16
+against single-name concentration) knowingly cost most of the measured low-extension edge, and is
+that the trade you want?* Both readings are defensible — the cap is a real risk control and
+concentration is load-bearing (`FINDING_more_slots`) — but the cost was not previously quantified.
+Quantified, it is large.
+
+**Also flagged for the review, same cause, no action proposed:**
+- **A −1R is not a homogeneous event.** Of stop-outs on sub-ATR stops, **37.1%** closed back above
+  entry within 4 weeks, vs **10.6%** on ≥1×-ATR stops (**+26.5pp**; part definitional — a narrow stop
+  needs a smaller reversal to recover). Pooling both as "−1R" mixes two different events.
+- **R-denominated conventions inherit the heterogeneity**: the disaster class (`R ≤ −1.5`, 0109) is
+  a −4.5% price move on a 3% stop and a −45% move on a 30% stop; and **the ±10R/yr noise floor
+  itself is a blended unit**. Neither is wrong — both are load-bearing and should be read knowing it.
+
+---
+
 ## VRP / option-selling — REJECTED without a screen (memo line, 2026-07-31)
 
 Recorded so the idea does not recur as a fresh proposal. Short-volatility premium harvesting is **not

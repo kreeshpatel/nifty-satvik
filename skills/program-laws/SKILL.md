@@ -24,8 +24,11 @@ study to the part the law did not answer**. If you cannot name one of the four, 
 already answered — do not re-run the dead test. Re-running it with a bigger sample, a different
 model, or a different rubric is not new evidence; it is refused relitigation.
 
-Standing counts as of 2026-07-30: **screens 12 · sealed opens 1 · n_trials 138.**
-State them in every research readout.
+Standing counts as of 2026-08-06: **screens 15 · sealed opens 1 · n_trials 138.**
+State them in every research readout. (The authority is
+`diagnostics/research/label_screen_ledger.md` — if this line disagrees with the ledger, the ledger
+is right and this line is stale. Screens moved 12 → 13 → 14 on 2026-07-31 (0126 line-hugger, 0127
+HEG-class bound) and 14 → 15 on 2026-08-06 (0129 event-sizing bound); `n_trials` has not moved.)
 
 ---
 
@@ -84,6 +87,8 @@ The single most-repeated finding in the programme, hit from five different angle
 | **Screen ≠ slot** | 0118 → 0119: delivery's +0.363R population gradient becomes **−1.29 R/yr** at the funding margin. |
 | **Screen ≠ entry decision** | 0120 → 0121: a real −0.383R event cost becomes **−15.72 R/yr** as a deferral rule. |
 | **Perception ≠ outcome** | 0123: a κ=0.867-reliable structural grade separates nothing. |
+| **Cohort ≠ playbook** | 0127: a 0.43R-worse cohort's clairvoyant conditional-management gain is **0.0 R/yr in all 8 years** — the optimum does not move. |
+| **Population ≠ funding margin** | 0129: the −0.383R event gap replicates exactly on the population and is **wrong-signed (+0.076) on the capped book**, where the rule fires 2.2×/yr instead of 50×/yr. |
 
 **Law:** *A real effect measured on a population does not survive to this book's decision points.*
 The margins are narrow by construction (CRS-adjacent contenders), the book is cash-constrained, and

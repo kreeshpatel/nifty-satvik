@@ -268,6 +268,33 @@ def _compute_regime(P, mem, as_of):
     return {"status": status, "strength": int(strength), "vix": 0, "breadth": int(breadth)}
 
 
+def _event_calendar():
+    """The banked PIT results calendar, for the DISPLAY-ONLY event-proximity badge.
+
+    Never a selection or sizing input — usage of this signal as a rule is closed twice over
+    (0121 skip/deferral, 0129 sizing). A missing/unreadable feed degrades to no badge; it must
+    never take the Saturday publish down over an informational field.
+    """
+    try:
+        from nq.data.delivery import apply_alias_map
+        from nq.data.earnings import EARNINGS_RAW_PATH, build_event_table
+        if not EARNINGS_RAW_PATH.exists():
+            return None
+        return build_event_table(apply_alias_map(pd.read_parquet(EARNINGS_RAW_PATH)))
+    except Exception as e:                                          # noqa: BLE001 — display-only
+        print(f"[event-badge] calendar unavailable ({e}); cards render without the badge")
+        return None
+
+
+def _event_badge(ev_cal, ticker, signal_friday):
+    """Per-card badge lookup; any failure degrades to no badge (display-only field)."""
+    try:
+        from nq.data.earnings import card_event_badge
+        return card_event_badge(ev_cal, ticker, signal_friday)
+    except Exception:                                               # noqa: BLE001 — display-only
+        return None
+
+
 def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
     """Map the live state to the dashboard envelope.
 
@@ -277,6 +304,7 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
     minus any name already being followed as a HOLD/EXIT card.
     """
     from nq.data.membership import ticker_in_index_on
+    ev_cal = _event_calendar()
     signals = []
     for t, s in P.items():
         ls = s.get("last_signal")
@@ -318,6 +346,16 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
             "pattern": "44-week SMA pullback",
             "exit_plan": _exit_plan(entry, stop, sma_sig),
         })
+        # ADDITIVE ONLY — information at decision time; no rule change, no printed field touched
+        # (constitution D5 parity: entry/stop/target/bands/tranches are byte-identical). The key is
+        # OMITTED rather than set to None when nothing is announced, so a card with no event is
+        # byte-identical to before this feature existed — that is what keeps the R94 golden master
+        # (constitution M1) green without regenerating its fixture. The measured cost is real
+        # (finding 0120) but every USAGE of it is closed: 0121 killed skip/deferral, 0129 killed
+        # sizing — the engine acts on this nowhere.
+        badge = _event_badge(ev_cal, t, fri) if ev_cal is not None else None
+        if badge:
+            signals[-1]["event_proximity"] = badge
     # strongest-first on the page; top-5 flagged A so the grade filter surfaces the priority names
     signals.sort(key=lambda x: -x["crs_rank"])
     for j, sg in enumerate(signals):

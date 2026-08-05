@@ -245,6 +245,30 @@ def test_d5_card_parity_receipt(cells):
         assert c["risk_pct_prefix"] > c["risk_pct_record"]
 
 
+def test_event_badge_cannot_perturb_the_golden():
+    """The event-proximity badge (display-only, added 2026-08-06) reads the REAL PIT results
+    calendar from disk, so it is the one card field that is not hermetic by construction.
+
+    It stays inert here only because no synthetic fixture ticker is a real NSE symbol. That is an
+    accident waiting to break: rename a fixture ticker onto a real one and the envelope hash moves
+    for a reason nobody would look for. Pin it.
+    """
+    from build_r94_golden_fixture import synth_universe
+    try:
+        from nq.data.delivery import apply_alias_map
+        from nq.data.earnings import EARNINGS_RAW_PATH, build_event_table
+    except ImportError:                                     # layer absent -> badge can never fire
+        return
+    if not EARNINGS_RAW_PATH.exists():                      # no feed in CI -> badge degrades to off
+        return
+    ohlcv, _ = synth_universe()
+    calendar = set(build_event_table(apply_alias_map(pd.read_parquet(EARNINGS_RAW_PATH)))["symbol"])
+    collisions = sorted(set(ohlcv) & calendar)
+    assert not collisions, (
+        f"fixture ticker(s) {collisions} exist in the real results calendar, so the event badge "
+        "can fire inside the hermetic golden and move envelope_hash — rename the fixture ticker")
+
+
 def test_b1_gate_off_is_inert(cells, expected):
     """Belt-and-braces: the gate defaults OFF, so the frozen research cell is untouched by the
     fix's mere existence (this is what makes the 0094 run of record still reproducible)."""

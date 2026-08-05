@@ -206,6 +206,8 @@ export function SignalDetailDrawer({ signal, priceSeries, open, onOpenChange, on
     high_risk,
     // P9 news sentiment (stamped by cron via src/data/news_analyzer.py).
     p9_sentiment, p9_news_reason, p9_news_risk, p9_headlines_used,
+    // Event-proximity badge — PIT results calendar, DISPLAY ONLY (see the block below).
+    event_proximity,
   } = signal || {};
 
   // Anchor row segments — source of truth for all price/level copy in the drawer.
@@ -460,6 +462,70 @@ export function SignalDetailDrawer({ signal, priceSeries, open, onOpenChange, on
                     <span style={{ color: seg.color ?? 'var(--text-2)' }}>{seg.text}</span>
                   </React.Fragment>
                 ))}
+              </div>
+            )}
+
+            {/* EVENT-PROXIMITY BADGE — a results event was already ANNOUNCED (public at the signal
+                Friday) and lands inside this trade's 14-day entry window.
+
+                INFORMATION AT DECISION TIME, NOT A RULE. The engine does not act on this: the
+                measured cohort cost is real (finding 0120) but every usage of it was priced and
+                killed — deferral/skip by 0121, sizing by 0129. Nothing above this block changes
+                when the badge renders (constitution D5 parity: the anchor row's printed fields are
+                byte-identical with or without it). Absent/unknown → the block simply does not
+                render. */}
+            {event_proximity && (
+              <div
+                style={{
+                  fontSize: 12,
+                  lineHeight: 1.55,
+                  marginBottom: 16,
+                  padding: '10px 14px',
+                  background: 'var(--warn-soft)',
+                  border: '1px solid rgba(255,180,84,.3)',
+                  borderRadius: 'var(--r-chip)',
+                  color: 'var(--text-2)',
+                }}
+              >
+                <span style={{ color: 'var(--warn)', fontWeight: 700 }}>
+                  Results announced
+                </span>
+                <span style={{ color: 'var(--text-4)', margin: '0 7px' }}>·</span>
+                <span
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontVariantNumeric: 'tabular-nums lining-nums',
+                  }}
+                >
+                  {event_proximity.days_into_window}
+                </span>
+                {' '}
+                {event_proximity.days_into_window === 1 ? 'day' : 'days'} into the window
+                <span style={{ color: 'var(--text-4)', margin: '0 7px' }}>·</span>
+                measured cohort cost{' '}
+                <span
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontVariantNumeric: 'tabular-nums lining-nums',
+                  }}
+                >
+                  {event_proximity.cohort_cost_r > 0 ? '+' : '−'}
+                  {Math.abs(event_proximity.cohort_cost_r).toFixed(2)}R
+                </span>
+                <span style={{ color: 'var(--text-4)', margin: '0 7px' }}>·</span>
+                false-touch enrichment{' '}
+                <span
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontVariantNumeric: 'tabular-nums lining-nums',
+                  }}
+                >
+                  +{event_proximity.false_touch_enrichment_pp.toFixed(1)}pp
+                </span>
+                <div style={{ color: 'var(--text-3)', marginTop: 6, fontSize: 11.5 }}>
+                  Context only — the model does not change the trade for this. Results on{' '}
+                  {event_proximity.event_date} (announced {event_proximity.announced_on}).
+                </div>
               </div>
             )}
 
