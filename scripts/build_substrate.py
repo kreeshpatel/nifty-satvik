@@ -94,6 +94,11 @@ def build():
             entry=en, stop=st, exit_px=float(r["exit_px"]), reason=r["reason"],
             R=float(r["R"]), held_weeks=int(r["held_weeks"]), half_booked=r.get("half_date") is not None,
             rank_crs=float(r["rank"]),
+            # NOTE: `risk_pct` HERE is the STOP WIDTH as % of entry — NOT the % of equity risked.
+            # The engine ledgers use the same name for the other quantity
+            # (run_bhanushali_weekly_rank.py:884, run_bhanushali_practitioner.py:225 compute
+            # sh*(en-st)/equity). Values >20 are normal here and impossible there.
+            # See DEFINITIONS_REGISTER §3.
             risk_pct=round((en - st) / en * 100, 3) if en > 0 else np.nan,
             ext_vs_sma=round((en / sma_sig - 1) * 100, 3) if sma_sig == sma_sig and sma_sig > 0 else np.nan,
             mae_pct=round((lows.min() / en - 1) * 100, 2) if len(lows) else 0.0,

@@ -18,6 +18,8 @@ cited as evidence.**
 | # | date | noticed during | observation (unanalysed) |
 |---|---|---|---|
 | — | 2026-07-31 | Tier A session 1 | *(none — no entries this session)* |
+| 1 | 2026-08-06 | semantic audit (DEFINITIONS_REGISTER §9) | Published sleeve correlations (0.54 in 0081, 0.57 in 0083, 0.57–0.64 in 0115) are **daily** Pearson (`diag_sleeve_rigor.py:96`); none of those findings states the frequency. 0115's KILL rests on a "not orthogonal" reading of 0.57–0.64. **Whether that reading is frequency-robust is unmeasured.** Not analysed here: measuring it requires re-running series (out of the audit's scope) and re-adjudicating 0115 is forbidden. **Not evidence; not a proposal.** |
+| 2 | 2026-08-06 | semantic audit (DEFINITIONS_REGISTER §7) | The −50% mechanical halt is evaluated on a **daily** equity grid. Whether a live halt should read daily marks, intraday marks, or weekly closes was never specified — the daily choice appears to be incidental rather than decided. Observation only; the governance question is routed to binder §9.3, and no alternative was measured. |
 
 ---
 

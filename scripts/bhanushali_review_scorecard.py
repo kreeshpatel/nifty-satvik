@@ -60,8 +60,19 @@ def _forward_metrics() -> dict:
             if len(df) >= 2 and "total_value" in df:
                 r = df["total_value"].astype(float).pct_change().dropna()
                 if len(r) >= 2 and r.std():
+                    # sqrt(252) is CORRECT here: portfolio_history_weekly.csv is a DAILY series —
+                    # the `_weekly` suffix names the weekly-swing BOOK, not the sampling frequency
+                    # (verified: median row gap 1.0 day). Do NOT "fix" this to sqrt(52) to match the
+                    # filename; that would inflate the forward Sharpe by ~2.2x. Also note rf = 0
+                    # (no risk-free subtraction), which matters for the absolute KILL_SHARPE gate
+                    # below but cancels in any delta comparison. See DEFINITIONS_REGISTER §8.
                     sharpe = float(r.mean() / r.std() * (252 ** 0.5))
                 eq = df["total_value"].astype(float)
+                # MaxDD is GRID-DEPENDENT: a coarser grid cannot see the troughs between samples and
+                # can only UNDERSTATE the drawdown. This is the daily grid (the conservative choice)
+                # and the §4 mechanical -50% halt reads it, so the grid is load-bearing for a risk
+                # control. Finding 0114 publishes -33% for the same book family at MONTHLY
+                # granularity vs -42.4% daily — not a different book. DEFINITIONS_REGISTER §7.
                 maxdd = float((eq / eq.cummax() - 1).min())
         except Exception:
             pass

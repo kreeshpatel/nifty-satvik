@@ -18,7 +18,14 @@ def _returns(x: np.ndarray) -> np.ndarray:
 
 def sharpe(returns: np.ndarray, *, periods: int = TRADING_DAYS) -> float:
     """Annualized Sharpe: ``mean / std × √periods`` (population-free std, ddof=0 — matching the
-    engine). NaN when the series has no dispersion."""
+    engine). NaN when the series has no dispersion.
+
+    **Risk-free rate is ZERO** — this is a raw-return Sharpe, not an excess-return Sharpe. With an
+    Indian rf of ~6–7% that OVERSTATES risk-adjusted excess return in LEVEL terms. It cancels in any
+    ΔSharpe comparison (how this programme almost always uses it) but NOT in an absolute threshold;
+    the one absolute gate is ``KILL_SHARPE`` in ``scripts/bhanushali_review_scorecard.py``.
+    ``periods`` must match the series frequency (252 daily / 52 weekly / 12 monthly) — mixing them
+    is the single highest-consequence error here. See ``DEFINITIONS_REGISTER.md`` §8."""
     r = _returns(returns)
     sd = r.std()
     return float(r.mean() / sd * np.sqrt(periods)) if sd > 0 else float("nan")

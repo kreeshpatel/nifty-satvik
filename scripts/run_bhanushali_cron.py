@@ -77,8 +77,10 @@ P2_EXIT = dict(no_time_cap=True, wk20_trail_pct=0.04, blowoff_arm_r=2.5)
 #                        risk — NOT a performance lever: FINDING_more_slots showed concentration is
 #                        load-bearing (4-5 names 1.21 > 7 names 0.97 > 10 names 0.81 on the 22-26 slice).
 # Measured on the A-ONLY book that actually trades (parity-checked against the recorded 1.004/171):
-#   Sharpe 1.004->1.055, CAGR 20.9->20.2%, MaxDD -36.4->-31.2% (+5.2pp), median R 13.7->9.1%,
-#   mean hold 19.1->12.4wk, win 54->51%, 2022-26 slice 1.17->1.04 (the one negative).
+#   Sharpe 1.004->1.055, CAGR 20.9->20.2%, MaxDD -36.4->-31.2% (+5.2pp),
+#   median STOP WIDTH 13.7->9.1% of entry, mean hold 19.1->12.4wk, win 54->51%,
+#   2022-26 slice 1.17->1.04 (the one negative).
+#   ("median R" in older notes meant this stop width, NOT an R-multiple — DEFINITIONS_REGISTER §2.)
 # Return-neutral, NOT certified: no DSR gate passes a +0.05 in-sample delta at cumulative trial 122.
 # backtest() DEFAULTS stay OFF so the frozen 0094 research run is byte-identical (1.132/255).
 LIVE_DISCIPLINE = dict(ext_cap=0.20, max_risk_pct=0.10, max_notional_pct=0.20)
@@ -465,6 +467,9 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
             "exit_reason": str(r["reason"]),
         })
     sig_hist = hist_closed + hist_active
+    # CLOSED trades only — open positions are NOT counted here (DEFINITIONS_REGISTER §4, §5).
+    # `win_rate` and `avg_r` below therefore inherit a young-book bias: on a trend book losers stop
+    # out fast while winners stay open for months, so both read LOW until winners mature.
     n_closed = len(led)
     wins = int((led["R"] > 0).sum()) if n_closed else 0
     analytics = {
@@ -494,6 +499,11 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
     peak = float(curve.cummax().iloc[-1]) if len(curve) else nav
     portfolio = {"cash": round(float(out_paper["cash"]), 2), "peak_value": round(peak, 2),
                  "total_value": round(nav, 2), "n_positions": len(paper_positions),
+                 # `total_trades` counts CLOSED trades only (it is n_closed). With n_positions open
+                 # alongside it, positions-taken-since-inception = total_trades + n_positions.
+                 # The name is kept because it is a published field in results/output_contracts.json;
+                 # renaming it is a contract change, not a wording fix (DEFINITIONS_REGISTER §4).
+                 # The Oct-1 gate does NOT read this key — it reads analytics `total_closed`.
                  "total_trades": n_closed, "positions": paper_positions}
     hist_df = (curve.rename("total_value").rename_axis("date").reset_index()
                if len(curve) else pd.DataFrame({"date": [], "total_value": []}))

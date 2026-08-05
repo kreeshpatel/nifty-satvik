@@ -351,6 +351,78 @@ activated cohort is stop-width-atypical — which is exactly the case §7 govern
 
 ---
 
+## 9. DECISION INPUTS — where a metric's DEFINITION changes what a gate means *(new, 2026-08-06)*
+
+Source: [`DEFINITIONS_REGISTER.md`](DEFINITIONS_REGISTER.md) — **verification class, zero trials,
+zero screens, counts frozen at 15 · 1 · 138.** Nothing was re-run and **no verdict was
+re-adjudicated.** The register carries 18 rows; most are clean or were label problems fixed at
+source. **Four reach this door**, each stated with **both readings**, unweighed.
+
+**None of these is an error.** In every case the code does exactly what it says; the question is
+which reading the Oct-1 gate should be evaluated under.
+
+### 9.1 `KILL_SHARPE = 0.0` — kill below *cash*, or below the *risk-free rate*?
+
+Every Sharpe in this programme is a **raw-return** Sharpe: `mean/std × √252`, **no risk-free
+subtraction** (`nq/validation/metrics.py:19`). That cancels in ΔSharpe comparisons — which is how
+essentially every verdict on the record was decided — so **nothing on the record moves.** It does
+**not** cancel in the one *absolute* gate:
+
+| reading | what §10.2's kill leg means | threshold |
+|---|---|---|
+| **as coded (rf = 0)** | kill if the book underperforms **cash at 0%** | Sharpe < 0.00 |
+| **excess-return** | kill if the book underperforms the **risk-free rate** (~6–7%) | Sharpe ≈ < 0.25–0.30 |
+
+**The decision:** which one §10.2 intends. The as-coded reading is the more forgiving of the two.
+
+### 9.2 CAGR — two committed year-denominators
+
+The same curve (Sharpe 1.132 / MaxDD −42.4) is published as **24.7%** and **25.21%**, because
+`run_bhanushali_sixstep.py:220` divides by **calendar** years and `run_corrected_anchor.py:52` by
+**trading-bar** years. Neither is wrong; bar-years are the shorter denominator and print higher.
+
+**The decision:** nominate **one** convention as the publication standard for the review, so a
+number quoted in the binder is unambiguous. **The live exposure is cross-document comparison** —
+specifically any **book-vs-benchmark CAGR gap**, which is only valid if both sides use the same
+denominator. (Finding 0114 is *not* an instance: it compares monthly book returns to monthly ETF
+NAVs on one convention and says so.)
+
+### 9.3 MaxDD — the grid is load-bearing for a *risk control*
+
+The formula is uniform; the **grid** is not. The same book family is published at **−42.4% (daily)**
+and **−33% (monthly granularity, finding 0114, which labels it)**. A coarser grid can only
+**understate** a drawdown — it cannot see troughs between samples.
+
+The **§4 mechanical −50% halt** reads this quantity. It currently evaluates on a **daily** grid,
+which is the conservative and correct choice — but nothing in the pre-registration *states* that the
+grid is part of the rule.
+
+**The decision:** write the grid into the halt rule explicitly, so a future series change cannot
+silently loosen a live risk control. **Also note:** a Calmar quoted from a monthly DD and a bar-year
+CAGR is not comparable to one from a daily DD and calendar-year CAGR — it compounds 9.2 and 9.3.
+
+### 9.4 The promote gate currently rests on 4 closed trades
+
+`PROMOTE_EXPECTANCY_R = 0.10` and `win_rate` are computed over **closed trades only**
+(`run_bhanushali_cron.py:468-474`); open positions are excluded. On a trend book **losers stop out
+fast while winners stay open for months**, so both read **biased low by construction** in a young
+book and rise as winners mature.
+
+Current state: **4 closed, 5 open** (the `total_trades: 4` / `n_positions: 5` pair is consistent —
+9 positions taken since inception; the key is merely misnamed, and the gate reads the correctly
+named `total_closed`).
+
+| reading | what the gate measures today |
+|---|---|
+| **as coded (closed-only)** | expectancy over 4 observations |
+| **mark-to-market (incl. opens)** | unmeasured — computing it is out of this audit's scope |
+
+**The decision:** this is an argument for the **≥30 closed** precondition being load-bearing rather
+than advisory — i.e. do not read expectancy or win rate as informative before it is met. **No
+re-computation was attempted and none is proposed.**
+
+---
+
 ## VRP / option-selling — REJECTED without a screen (memo line, 2026-07-31)
 
 Recorded so the idea does not recur as a fresh proposal. Short-volatility premium harvesting is **not
