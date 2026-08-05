@@ -263,6 +263,14 @@ def check_output_contracts(now_utc: datetime | None = None,
 _SEVERITY = {"OK": 0, "WARN": 1, "INDETERMINATE": 2, "OVERDUE": 3, "CONTRACT_BREACH": 4,
              "MISSING": 4, "ERROR": 5}
 
+# The complete vocabulary `check_output_contracts()["overall"]` may emit, and the health state each
+# folds to. This is a CLOSED set by design: `fold_into_health` maps anything outside it to ERROR, so
+# a state added above without a row here would be silently reclassified rather than reported. Tests
+# assert against this constant rather than a hand-copied literal, which is how `INDETERMINATE`
+# (added 2026-08-05) came to fail a test that had pinned the older four-state set.
+_OVERALL_TO_HEALTH = {"RED": "CONTRACT_BREACH", "INDETERMINATE": "INDETERMINATE",
+                      "WARN": "WARN", "OK": "OK", "ERROR": "ERROR"}
+
 
 def fold_into_health(health: dict, contracts: dict) -> dict:
     """Attach the contract result to `scheduler_health` AND let it move the top-level `overall`.
@@ -274,8 +282,7 @@ def fold_into_health(health: dict, contracts: dict) -> dict:
     Mutates and returns `health`.
     """
     health["output_contracts"] = contracts
-    mapped = {"RED": "CONTRACT_BREACH", "INDETERMINATE": "INDETERMINATE",
-              "WARN": "WARN", "OK": "OK", "ERROR": "ERROR"}.get(contracts.get("overall"), "ERROR")
+    mapped = _OVERALL_TO_HEALTH.get(contracts.get("overall"), "ERROR")
     current = health.get("overall", "OK")
     if _SEVERITY.get(mapped, 5) > _SEVERITY.get(current, 0):
         health["overall"] = mapped

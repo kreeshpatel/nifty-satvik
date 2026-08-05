@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from output_contracts import (  # noqa: E402
-    _touched, annotations, check_output_contracts, load_contracts,
+    _OVERALL_TO_HEALTH, _SEVERITY, _touched, annotations, check_output_contracts, load_contracts,
 )
 
 
@@ -41,10 +41,27 @@ def test_touched_matches_files_and_directories():
 
 
 def test_checker_runs_and_is_json_serialisable():
+    """The verdict must be a state the fold RECOGNISES — asserted against the checker's own
+    vocabulary, not a literal set copied into the test.
+
+    This test previously pinned a hand-written ``{OK, WARN, RED, ERROR}``. When ``INDETERMINATE``
+    was added (2026-08-05) the test went red in CI and nowhere else, because ``actions/checkout``
+    defaults to fetch-depth 1: the CI clone is shallow, so the checker correctly reports that it
+    could not search the history. The state was right and the assertion was stale. Reading the
+    vocabulary from the source removes the class of failure rather than this one instance."""
     res = check_output_contracts()
-    assert res["overall"] in {"OK", "WARN", "RED", "ERROR"}
+    assert res["overall"] in _OVERALL_TO_HEALTH, (
+        f"checker emitted {res['overall']!r}, which fold_into_health() does not recognise and would "
+        "silently map to ERROR — add it to _OVERALL_TO_HEALTH with its intended severity")
     json.dumps(res)                                        # must survive the monitor's json.dumps
     assert isinstance(res["jobs"], list) and res["jobs"]
+
+
+def test_every_overall_state_has_a_severity_rank():
+    """Guard on the guard: a state that folds to a health label with no severity rank would be
+    treated as ERROR (rank 5) by the ladder — louder than intended, and for the wrong reason."""
+    for overall, health in _OVERALL_TO_HEALTH.items():
+        assert health in _SEVERITY, f"{overall!r} folds to {health!r}, which has no severity rank"
 
 
 def test_breaches_produce_error_annotations():

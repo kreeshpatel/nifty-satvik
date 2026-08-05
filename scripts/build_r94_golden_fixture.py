@@ -160,8 +160,38 @@ def _ledger_key(led: list[dict]) -> list:
              round(float(r["entry"]), 2), round(float(r.get("exit_px", 0.0)), 2)) for r in led]
 
 
+# Equity-curve values are quantised to SIGNIFICANT FIGURES, not decimal places (constitution S2-F5).
+#
+# The original key used `round(v, 4)` — an ABSOLUTE 1e-4 pin on a series that runs to ₹1.08e8, where
+# the float64 ULP is ~1.9e-9. That is a boundary spacing of ~5e4 ULP, and 111 of the frozen cell's
+# 1458 points sat within 1000 ULP of a rounding tie. Cross-platform summation-order differences
+# (BLAS kernel, import graph, libm) perturb an accumulated 1e8 total by far more than that, so a
+# single point crossing its tie changed the hash while every economically meaningful field stayed
+# byte-identical. That is exactly what happened on 2026-08-05: Linux CI produced 54deb7e30a293cb9
+# against the pinned 84cc3d09d2c040f0 with identical trades, ledger_hash, final_equity, sharpe,
+# cagr, max_dd and exit_reasons, and the same commit reproduced 84cc3d09d2c040f0 on Windows — as did
+# a558c73, the last commit CI passed. It is also the most likely identity of the earlier unreproduced
+# sighting the S2-F5 note records (40 clean runs afterwards; a coin flip, not a regime).
+#
+# 8 significant figures is ₹10 granularity at ₹1.08e8 (9e-8 relative) and ₹0.01 on the ₹10L paper
+# book. Measured margin: ZERO of the 1458 frozen-cell points sit within 4096 ULP of a quantisation
+# boundary (at the old 1e-4 pin, 111 sat within 1000). The check stays ~1000x tighter than the
+# smallest drift the engine can physically produce — one different trade, fill or exit day moves
+# equity by >=0.01%, i.e. >=₹10,000 — so this repins the check at the precision the computation
+# actually reproduces, and does not widen what it can detect.
+#
+# The DATES remain exact: they are strings, they are perfectly reproducible, and the list length
+# pins the point count, so any change to the shape of the path is still caught byte-for-byte.
+_CURVE_SIG_FIGS = 8
+
+
+def _curve_quantise(v: float) -> float:
+    """Quantise one equity value to `_CURVE_SIG_FIGS` significant figures (scale-relative)."""
+    return float(f"{float(v):.{_CURVE_SIG_FIGS}g}")
+
+
 def _curve_key(curve: pd.Series) -> list:
-    return [(str(d.date()), round(float(v), 4)) for d, v in curve.items()]
+    return [(str(d.date()), _curve_quantise(v)) for d, v in curve.items()]
 
 
 def _fresh_card_probe(envelope: dict) -> list[dict]:

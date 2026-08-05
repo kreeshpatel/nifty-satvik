@@ -3,7 +3,7 @@
   "fixture_csv_sha16": "6d531e55bc59873c",
   "frozen_defaults": {
     "cagr": 1.313119,
-    "curve_hash": "84cc3d09d2c040f0",
+    "curve_hash": "b519aa3d8a8934e6",
     "exit_reasons": {
       "eos": 1,
       "time": 46
@@ -42,7 +42,7 @@
     "n_grade_a_windows": 170,
     "n_signals": 7,
     "paper_cash": 9292609.46,
-    "paper_curve_hash": "ede4de022c44bcd4",
+    "paper_curve_hash": "2c0165aa4ffd9c00",
     "paper_exit_reasons": {
       "sma_break": 50
     },
@@ -186,7 +186,7 @@
     "hist_rows": 1458,
     "n_signals": 6,
     "paper_cash": 9669782.62,
-    "paper_curve_hash": "ad0ce7dbdccfa5a0",
+    "paper_curve_hash": "a16d79e3de9ef406",
     "paper_exit_reasons": {
       "sma_break": 50,
       "stale": 1

@@ -128,6 +128,49 @@ def _drift_report(got: dict, exp: dict, label: str) -> str:
     return "\n".join(lines)
 
 
+def test_curve_key_is_pinned_above_float_noise_and_below_real_drift(cells):
+    """Constitution S2-F5, resolved. The curve pin must survive float64 accumulation noise and
+    still catch any drift the engine can physically produce.
+
+    The original key rounded to an ABSOLUTE 1e-4 on a series running to ₹1.08e8, where one ULP is
+    ~1.9e-9 — a tie boundary only ~5e4 ULP away, with 111 of 1458 points inside 1000 ULP of one.
+    Cross-platform summation order moves an accumulated 1e8 by more than that, so the hash flipped
+    on Linux CI (54deb7e30a293cb9) while every economically meaningful field — trades, ledger_hash,
+    final_equity, sharpe, cagr, max_dd, exit_reasons — stayed byte-identical, and Windows reproduced
+    the pinned value at the same commit AND at a558c73, the last commit CI passed. The engine did
+    not drift; the check was pinned below the precision the computation reproduces.
+
+    Both directions are asserted, because a repin that only bought robustness would be a muzzle.
+    """
+    from build_r94_golden_fixture import _curve_key, synth_universe, START_FIX
+    import numpy as np
+    import run_bhanushali_weekly_rank as R94
+
+    ohlcv, index = synth_universe()
+    curve = R94.backtest(R94.prep_weekly_rank(ohlcv, index_provider=lambda _t: index), None,
+                         ledger=[], start=START_FIX)["curve"]
+    base = _curve_key(curve)
+
+    # (a) ROBUST: perturbing every point by 4096 ULP — far beyond any observed cross-platform
+    #     divergence, and ~4e-13 relative — must not move the key.
+    ulp = np.array([np.spacing(float(v)) for v in curve.values])
+    for sign in (+1, -1):
+        jittered = pd.Series(curve.values + sign * 4096 * ulp, index=curve.index)
+        assert _curve_key(jittered) == base, (
+            f"curve key moved under {sign:+d}4096 ULP of float noise — it is pinned below the "
+            "precision this computation reproduces, which is what made CI flake")
+
+    # (b) STILL A CHECK: a drift of 1e-6 relative (₹108 on ₹1.08e8) — three orders of magnitude
+    #     SMALLER than one different trade, fill or exit day — must still be caught.
+    drifted = pd.Series(curve.values * (1 + 1e-6), index=curve.index)
+    assert _curve_key(drifted) != base, "curve key no longer detects a 1e-6 relative drift"
+
+    # (c) The path's SHAPE stays pinned byte-for-byte: dates are exact strings, length is the list.
+    assert [d for d, _ in base] == [str(d.date()) for d in curve.index]
+    dropped = pd.Series(curve.values[:-1], index=curve.index[:-1])
+    assert _curve_key(dropped) != base, "curve key no longer detects a truncated path"
+
+
 def test_frozen_defaults_cell_byte_identical(cells, expected):
     """FROZEN 0094 configuration — may NEVER change. Any diff = the research engine drifted."""
     got, exp = cells[0], expected["frozen_defaults"]
