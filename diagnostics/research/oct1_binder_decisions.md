@@ -297,6 +297,62 @@ and the door in §6). That is a config decision, not a research question, and it
 **No rule is proposed here and none should be inferred.** The `<5%` band remains exactly what 0126
 left it: one undifferentiated cohort, unshipped.
 
+### 7.1 The cap curve — concentration vs collection *(added 2026-08-06)*
+
+Source: [`notional_cap_curve.md`](notional_cap_curve.md) —
+`python scripts/diag_notional_cap_curve.py`. **Verification class: population arithmetic on the
+existing substrate, no book re-run, counts frozen at 15 · 1 · 138. No arm is recommended.**
+
+**Limitation, first, because it binds: this cannot show which trades a different cap would fund.**
+Position size feeds the cash path and the cash path decides which later signals are affordable; that
+is inseparable from a book re-run. Every row holds the funded set fixed at the substrate's. The
+curve prices the cap's effect on **capital deployment across the trades we took**, never on **trade
+selection**. Second approximation: R is held at the uncapped book's realized R, and `max_risk_pct`
+is modelled on the sizing side only.
+
+**There is deliberately no Sharpe / MaxDD / worst-year column.** That half is trial-class (5 arms on
+the honest base) and was declined. Independently, **0113 measured what such a column would be
+worth: PBO 46.2%**, with the in-sample-best config on this exact cfg-lever family landing at the
+**OOS median** (1.239 → 0.843 vs 0.835). Within this family a per-cap return ranking carries ~zero
+OOS decision weight while permanently deflating every future DSR bar.
+
+| cap | risk-sizing under-sizes | **weight ext<5%** | weight ext≥5% | book weight | **realized-R recovery** | positions sized *by* the cap | max exposure |
+|---|---|---|---|---|---|---|---|
+| **0.15** | 100.0% of trades | **0.466** | 0.591 | 0.580 | **0.622** | 100.0% | 15% |
+| **0.20** *(live)* | 53.4% | **0.621** | 0.788 | 0.773 | **0.829** | 100.0% | 20% |
+| **0.25** | 43.3% | **0.713** | 0.851 | 0.838 | **0.884** | 43.3% | 25% |
+| **0.30** | 34.0% | **0.780** | 0.894 | 0.884 | **0.922** | 34.0% | 30% |
+| **unbounded** | 0.0% | **1.000** | 1.000 | 1.000 | **1.000** | 0.0% | **2299%** |
+
+*(`max exposure` is the cap itself by construction for any bounded cap ≤ 0.30 — the informative
+concentration column is the one beside it. The curve reproduces §7's 0.621 and §8's 0.829 at the
+live cap, which is the arithmetic self-check.)*
+
+**The structural finding, which was not previously stated anywhere.** The notional cap is **not a
+rare guardrail on this book — it is the position sizer.** With the live `max_risk_pct = 0.10` in
+force every stop is at most 10% wide, so risk-sizing always wants at least `2% / 10% = 20%` of
+equity per name. **Any cap at or below 0.20 therefore sets the size of 100% of positions, and the
+2%-risk rule never binds at all.** Two true statements are easy to conflate at the live setting: the
+cap sets **notional** for 100% of trades, while equity **risked** falls below the nominal 2% for the
+53.4% whose stop is narrower than 10%.
+
+**The tradeoff, stated without a recommendation.** Collection and concentration move together and
+there is no interior optimum in these columns by construction — the curve is monotone in both. So
+the Oct-1 call is a pure risk-preference placement:
+
+- **Loosening 0.20 → 0.30** raises the `<5%` cohort's capital from **0.621 → 0.780** of nominal and
+  the book's R-to-rupee recovery from **0.829 → 0.922**, and buys that by allowing a **30%**
+  single-name position instead of 20%.
+- **Tightening 0.20 → 0.15** cuts the `<5%` cohort to **0.466** and recovery to **0.622** — i.e. the
+  book would collect under two-thirds of its own realized R — for a 15% single-name ceiling.
+- **Unbounded is not a real option and is shown only to price the guardrail's purpose:** implied
+  single-name notional reaches **2299% of equity**, with 34% of trades implying >30% and 12.9%
+  implying >50%. Cash would bind first (constitution H5), but that is an accident of affordability,
+  not a risk control — which is exactly the runaway the 2026-07-16 decision was adopted against.
+
+**What is NOT established here:** whether any of these caps produces a better book. That question is
+the trial-class half, it is declined, and 0113 says the answer would not be readable anyway.
+
 ## 8. DECISION INPUT — the 0.829 research→live translation factor, and what the ±10R floor is made of
 
 **Two caveats on units. Neither moves any verdict on the record; both change how the next number
