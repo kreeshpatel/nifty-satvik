@@ -1,6 +1,7 @@
 # Pre-registration 0130 — the sizing-exclusion bound
 
-**Status: PRE-REGISTERED — AWAITING OWNER SIGN-OFF. NOTHING HAS BEEN COMPUTED.**
+**Status: CLOSED 2026-08-06 — executed as pre-registered. Outcome appended at the foot, below the immutable section.**
+Amendments A1–A3 below were written **before the run**, per the amendment-before-run rule.
 Written 2026-08-06. **Counts at writing: screens 15 · sealed opens 1 · n_trials 138** — all three
 unchanged by this document. No arm has been run; no data has been touched beyond the registry
 confrontation below.
@@ -8,6 +9,55 @@ confrontation below.
 **Classification ruling: MEASUREMENT class** (argued in §1). On execution this takes **one
 screen-ledger row** (screens 15 → 16) and **does not touch `n_trials`**. §1.4 states the single
 condition that would flip it to trial-class, as a binding constraint on the executing session.
+
+---
+
+## A. Amendments — written 2026-08-06, BEFORE any computation
+
+Recorded at owner sign-off. Under the amendment-before-run rule these are legitimate precisely
+because no outcome data exists yet; nothing below can bias toward a pass, and A1 in fact makes a
+"pass" less relevant rather than more.
+
+### A1 — REFRAME: the deliverable is a PRICE, not a verdict
+
+**The purpose of this study is to price the funding bias. It is not to pass a gate.**
+
+The gate restated in §4 is **±20% of equity per year** against a book that returns **24.69%/yr**.
+A floor that is four-fifths of the entire book is one almost nothing can clear, so **FAIL is the
+expected outcome by construction, and it was expected before the first line of code was written.**
+Reporting this as "bound #5 failed" would be technically true and substantively useless — it would
+describe the ruler, not the thing measured.
+
+**Therefore, mandatory framing for the finding:**
+
+- **The headline is the MAGNITUDE and its CONFIDENCE INTERVAL**, in % of equity per year, in the
+  form *"the funding bias costs / saves X% of equity per year, CI [a, b]"*. The sign is part of the
+  finding: this measures a **cost or a saving**, and which one it is, is the question.
+- **The gate verdict is secondary** and is reported as a single line beneath the magnitude, in the
+  form *"below / above the ±20%-of-equity escalation floor"* — with the word **escalation**, because
+  that is what the floor now decides: whether this becomes an owner item, not whether the effect is
+  real.
+- **The finding may not lead with, or headline, the word FAIL.**
+- If the magnitude is small, that is a **positive result about the engine** — it means the sizer is
+  trading risk-efficiency for throughput at close to a fair price — and it must be reported in those
+  words rather than as an absence of an effect.
+
+### A2 — the `FINDING_more_slots` narrowing stands exactly as written
+
+§2.1 is unchanged and binding, **including its pre-stated limit**: a CLEAR is **not** evidence for a
+sizer change until it is shown to hold at a seat count inside more_slots' non-diluting band. That
+sentence was written before the run and survives sign-off verbatim.
+
+### A3 — one line reserved for Part 3's binder routing, on completion
+
+When Part 3 runs, the binder gains one line and one only, stated as a **HYPOTHESIS**: the power
+arithmetic (map §2 — floor 1.204σ against a book at 1.617σ) implies the capped book cannot certify
+any improvement, so **a book with materially more trades per year has strictly more statistical
+power**. This supports why the **breadth-50** structure deserves **forward observation**. It is a
+statement about *measurability*, never about performance, and it may not be written as or alongside
+a performance claim.
+
+**Part 3 is not started in the executing session and is out of its scope.**
 
 ---
 
@@ -239,3 +289,35 @@ different `cap`, a bigger sample, or a different unit is refused relitigation.
 3. `n_trials` untouched at 138 unless §1.4's constraint is breached, in which case the run stops.
 
 **This session computed nothing. Counts are unchanged: screens 15 · sealed opens 1 · n_trials 138.**
+
+
+---
+
+# OUTCOME — appended 2026-08-06, below the immutable section above
+
+**Executed exactly as pre-registered.** `cap` stayed frozen at 0.20, no sweep, no second value; the
+gate restatement was used as derived; amendments A1–A3 were written before the run and none was
+altered after seeing a result.
+
+**The price (the deliverable, per A1):** the funding bias is a **SAVING of −10.83% of equity per
+year**, CI95 **[−26.33, +4.74]**, 7 of 10 years the same sign, P(it is a cost) = **0.083**.
+*Escalation line: below the ±20%/yr floor.*
+
+**The finding the study did not go looking for:** the two units **disagree in sign**. Arm B earns
+**+4.22 R/yr more** and **10.83pp of equity/yr less**. This is `DEFINITIONS_REGISTER` row 1 /
+binder §6/§8 demonstrated at book level for the first time.
+
+**Both legs agree:** the tail points the same way as the mean (Arm B 34 disaster-class trades vs 14;
+−97.1% vs −58.0% of equity).
+
+**Amendment A2 discharged:** Arm B's mean concurrency is 4.56 (max 5), inside `FINDING_more_slots`'
+non-diluting 4–5 band. The result is therefore not a rediscovery of dilution, and the narrowing
+claimed in §2.1 held.
+
+**Binding constraint §1.4 honoured:** no equity curve, no cash-path simulation and no portfolio
+Sharpe / CAGR / MaxDD was produced for any arm. `n_trials` stays **138**.
+
+**Door taken: FAIL (below floor) → record and close.** Per §5 the funding bias is documented as a
+priced structural property, and `SEL-1/2/3` in the Structural Defect Map move **OPEN → TRADEOFF**.
+
+Finding: [`research/findings/0130-sizing-exclusion-bound.md`](../../../research/findings/0130-sizing-exclusion-bound.md).

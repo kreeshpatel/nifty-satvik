@@ -1,8 +1,10 @@
 # Structural Defect Map — one register, six sources
 
-**Living document. Started 2026-08-06.** Class: **CONSOLIDATION.** Zero trials, zero screens, zero
-recomputation. **Counts frozen: screens 15 · sealed opens 1 · n_trials 138**
-(authority `label_screen_ledger.md`, 15 rows; `n_trials.json`, 138).
+**Living document. Started 2026-08-06.** Class: **CONSOLIDATION.** This document itself spends
+nothing — zero trials, zero screens, zero recomputation. **Standing counts: screens 16 · sealed
+opens 1 · n_trials 138** (authority `label_screen_ledger.md`; `n_trials.json`). Screens moved
+15 → 16 in the same session for **finding 0130**, which is a separate measurement with its own
+pre-registration and ledger row — not for this map.
 Fishing guard in force: anything noticed while consolidating goes to
 `verification_audit_2026Q3/PARKING_LOT.md` unanalysed.
 
@@ -91,7 +93,13 @@ Two further linkages, stated once:
 | | **TOTAL OPEN** | **40** |
 
 **41 as enumerated when this map was planned; 40 after S2-F5 closed on 2026-08-06** (`f9edf71`,
-PR #66 — the golden's curve key repinned to 8 significant figures).
+PR #66 — the golden's curve key repinned to 8 significant figures). **The DIVERGENT row count of 7 is
+no longer a discrepancy: the constitution's header was corrected 9 → 7 on 2026-08-06, so this total
+and its source now agree.**
+
+**Update 2026-08-06 — finding 0130.** SEL-1/2/3 move OPEN → TRADEOFF (the funding bias is now priced
+at −10.83% of equity/yr, a saving). They were never counted in the roll-up above, which counts only
+the six source registers' own open items, so **the total is unchanged at 40**.
 
 **Owner decisions vs work items.** The split matters because it is the difference between "October
 must choose" and "someone must do it".
@@ -118,7 +126,7 @@ meaningless.
 | # | defect | measured cost | class | source |
 |---|---|---|---|---|
 | **1** | **The capped book cannot certify an improvement** | the ±10R/yr floor = **1.20 annual σ**; an overlay must add **74.4%** of the book's entire annual return to clear it | INHERENT | §2 below |
-| **2** | **Funding bias — the funded set is not its own population** | 0 of 1,249 tightest-stop signals funded in 9.5y; **48×** by stop width, **111×** by ext band; funded ≠ population at p=1.1e-89 | **OPEN** | census §2 |
+| **2** | **Funding bias — the funded set is not its own population** | 0 of 1,249 tightest-stop signals funded in 9.5y; **48×**/**111×**; **priced 2026-08-06 as a SAVING of −10.83% of equity/yr** (finding 0130) | **TRADEOFF** | census §2; finding 0130 |
 | **3** | **D1 survivorship × no time cap** | −0.18 Sharpe class (0025, wide-stop configs — the largest-bias configuration, which is this one) | FIXABLE (backfill exists, unapplied to live) | constitution D1 |
 | **4** | **D3 live ≠ certified config** | config P **fails** the 2022-26 continuous slice at **0.91** vs the 1.29 bar, with **−39.5% DD** (`cron:44-77`) | TRADEOFF (owner override, recorded) | constitution D3 |
 | **5** | **D4 no fill feedback** | **UNMEASURED — see** a reconciliation of owner fills vs the modelled ledger; no instrument exists (ADR-0011 removed the broker link) | OPEN | constitution D4 |
@@ -172,9 +180,9 @@ Classes: **INHERENT** (property of strategy or market) · **TRADEOFF** (delibera
 
 | ID | defect | mechanism | measured cost | class | resolution path | source |
 |---|---|---|---|---|---|---|
-| SEL-1 | **The funded book is not a representative sample of its own signal population** | notional ∝ 1/stop-width; cash is the only capacity constraint (`R94:876`) | stop width 13.73% vs 6.79% (p=1.1e-89); ext 18.50% vs 9.10% (p=1.9e-84); CRS 0.140 vs 0.070; queue depth 16.1 vs 29.7 | **OPEN** | the sizing-exclusion bound (Part 2 of this plan) | census §2 |
-| SEL-2 | **Zero of the 1,249 tightest-stop signals were ever funded** | their median notional is **₹704,900** against a ₹1,000,000 book — one position consumes 70% of capital | that quintile's population expectancy is **+0.972R** vs +0.224R for the widest; **75.7%** of funded trades come from the widest quintile | **OPEN** | same bound | census §2 |
-| SEL-3 | **Funding probability varies 48× by stop width and 111× by extension band** | same mechanism; ext and stop width correlate **+0.577** | 0.32% → 15.45% (stop width); 0.36% → 40.08% (ext band) | **OPEN** | same bound | census §2 |
+| SEL-1 | **The funded book is not a representative sample of its own signal population** | notional ∝ 1/stop-width; cash is the only capacity constraint (`R94:876`) | stop width 13.73% vs 6.79% (p=1.1e-89); ext 18.50% vs 9.10% (p=1.9e-84); **priced 2026-08-06: the bias is a SAVING of −10.83% of equity/yr, CI [−26.33, +4.74]** | **TRADEOFF** (priced) | closed — finding 0130 | census §2; finding 0130 |
+| SEL-2 | **Zero of the 1,249 tightest-stop signals were ever funded** | their median notional is **₹704,900** against a ₹1,000,000 book — one position consumes 70% of capital | +0.972R vs +0.224R **in R**; letting them in earns **10.83% of equity/yr LESS** (0130) — they are best in R because R over-weights tight stops | **TRADEOFF** (priced) | closed — finding 0130 | census §2; finding 0130 |
+| SEL-3 | **Funding probability varies 48× by stop width and 111× by extension band** | same mechanism; ext and stop width correlate **+0.577** | 0.32% → 15.45% (stop width); 0.36% → 40.08% (ext band); the selection it produces is **net favourable** (0130) | **TRADEOFF** | closed — finding 0130 | census §2; finding 0130 |
 | SEL-4 | **Scale does not fix it** | risk-parity notional is a fixed *fraction* of equity, so more capital scales both sides | n/a — structural | **INHERENT** | only a different sizer changes it (governance class) | this map §A |
 | SEL-5 | **Throughput is set by capital, not by signal supply** | cash gate | population 6,245 → funded **255** (**4.08%**); **19,504** cash rejections; signal counts swing 280→984/yr while funded stays 15–36 | **INHERENT** | — | census §1 |
 | SEL-6 | **Live under-collects what the research measures** | the 20% notional cap binds on 53.4% of live trades, under-sizing exactly the narrow-stop cohort the research calls the core | `<5%` band live weight **0.621**; realised-R recovery **0.829** (1907.3R → 1581.9R) | **TRADEOFF** (priced guardrail) | binder §7/§8 | binder §7, §8 |
@@ -339,7 +347,9 @@ new sub-period, new formulation} you bring, or the ledger has already answered.*
 Per the fishing guard and the audit's standing rule, these are reported with both readings and left
 for the owner. **No register was edited to make them agree.**
 
-1. **The constitution's DIVERGENT header says "9 → 6 open"; the section lists seven open rows**
+1. ~~**The constitution's DIVERGENT header says "9 → 6 open"; the section lists seven open rows**~~ **— RESOLVED 2026-08-06 by the owner: the header was the error and is corrected to "9 → 7 open"; no row's status changed. Original text retained below.**
+
+   **The constitution's DIVERGENT header said "9 → 6 open"; the section lists seven open rows**
    (D1, D3, D4, D6, D7, D8, D9 — D2 and D5 are struck through). 9 − 2 = 7. Either one row is
    considered closed without being struck (D9 is described as "trivial"), or the header is a
    miscount. **Reading A:** 6 open, D9 informally closed. **Reading B:** 7 open, header stale. This

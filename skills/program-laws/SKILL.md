@@ -24,11 +24,12 @@ study to the part the law did not answer**. If you cannot name one of the four, 
 already answered — do not re-run the dead test. Re-running it with a bigger sample, a different
 model, or a different rubric is not new evidence; it is refused relitigation.
 
-Standing counts as of 2026-08-06: **screens 15 · sealed opens 1 · n_trials 138.**
+Standing counts as of 2026-08-06: **screens 16 · sealed opens 1 · n_trials 138.**
 State them in every research readout. (The authority is
 `diagnostics/research/label_screen_ledger.md` — if this line disagrees with the ledger, the ledger
 is right and this line is stale. Screens moved 12 → 13 → 14 on 2026-07-31 (0126 line-hugger, 0127
-HEG-class bound) and 14 → 15 on 2026-08-06 (0129 event-sizing bound); `n_trials` has not moved.)
+HEG-class bound), 14 → 15 on 2026-08-06 (0129 event-sizing bound) and 15 → 16 on 2026-08-06
+(0130 sizing-exclusion bound); `n_trials` has not moved.)
 
 ---
 

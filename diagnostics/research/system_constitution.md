@@ -188,7 +188,9 @@ divergences are in **data, universe, and the switched-on owner overlays**.
 
 ---
 
-## 2. THE DIVERGENT LIST — **9 → 6 open** after the 2026-07-29 remediation
+## 2. THE DIVERGENT LIST — **9 → 7 open** after the 2026-07-29 remediation
+
+*(Header corrected 2026-08-06: this read "9 → 6 open" while the section lists seven open rows — D1, D3, D4, D6, D7, D8, D9, with D2 and D5 struck through. 9 − 2 = 7. The count was the error, not the list; no row's status changed. Flagged by [`STRUCTURAL_DEFECT_MAP.md`](STRUCTURAL_DEFECT_MAP.md) §B, whose total now agrees with this source.)*
 
 **Closed with receipts:** ~~D2~~ (append-only archive + drift log, `7e016b9`), ~~D5~~ (card/record
 parity, `66491e3`), and the B-1 bug behind D-class NAV flattery (`d3b4d5e`). Their entries are kept
