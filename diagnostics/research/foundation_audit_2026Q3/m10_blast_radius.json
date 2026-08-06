@@ -1,0 +1,57 @@
+{
+ "generated": "2026-08-06",
+ "item": "M10",
+ "class": "measurement / verification",
+ "control": "same process, same data, calendar swapped in nq.data.ohlcv + nq.data.features",
+ "window": "2017-01-01..2026-06-30",
+ "universe": "pinned (data/ohlcv.pkl, f8625a8f)",
+ "old_calendar": {
+  "sharpe": 0.667,
+  "cagr_pct": 15.47,
+  "maxdd_pct": -46.3,
+  "n_trades": 1279,
+  "per_year_pct": {
+   "2017": 0.0,
+   "2018": -4.7,
+   "2019": -2.0,
+   "2020": 28.6,
+   "2021": 65.2,
+   "2022": -3.5,
+   "2023": 72.2,
+   "2024": 3.5,
+   "2025": 1.6,
+   "2026": -1.0
+  }
+ },
+ "corrected_calendar": {
+  "sharpe": 0.647,
+  "cagr_pct": 14.88,
+  "maxdd_pct": -46.3,
+  "n_trades": 1280,
+  "per_year_pct": {
+   "2017": 0.0,
+   "2018": -4.7,
+   "2019": -2.0,
+   "2020": 28.6,
+   "2021": 65.2,
+   "2022": -3.5,
+   "2023": 72.2,
+   "2024": 3.5,
+   "2025": 1.6,
+   "2026": -5.1
+  }
+ },
+ "delta": {
+  "sharpe": -0.02,
+  "cagr_pp": -0.59,
+  "maxdd_pp": 0.0,
+  "n_trades": 1
+ },
+ "first_divergent_session": "2026-02-18",
+ "divergent_sessions": 84,
+ "common_sessions": 2162,
+ "unaffected_by_construction": {
+  "swing book": "corrected_universe() never calls the cleaner; the 1.132/255 determinism guard reproduces byte-identically",
+  "stage2 golden master": "runs 2017-01-01..2019-12-31, entirely below NSE_HOLIDAYS_COVERED_FROM (2025-01-01)"
+ }
+}
