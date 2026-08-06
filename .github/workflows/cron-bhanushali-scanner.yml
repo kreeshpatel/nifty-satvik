@@ -104,13 +104,6 @@ jobs:
         # paper book / wall. Empty until fresh post-inception bars exist in both sleeves (not an error).
         run: python scripts/run_blend_paper.py --start "${{ github.event.inputs.inception || '2026-07-04' }}"
           || echo "::warning::blend-hybrid paper log FAILED (exit $?) — observational book not updated"
-      - name: Log the zoo shadow book (observational WATCHED pool, pre-reg 0131)
-        # Runs AFTER the swing cron, beside the blend-hybrid logger. OBSERVATIONAL ONLY — writes its
-        # own results/zoo_shadow_book.json; never touches the certified paper book, the cards, the
-        # wall, or any config the traded book reads. Traded by nobody. A failure here must never fail
-        # the scanner, so it warns rather than exits.
-        run: python scripts/run_zoo_shadow_book.py
-          || echo "::warning::zoo shadow book FAILED (exit $?) — observational book not updated"
       - name: Commit weekly paper state
         run: |
           # Author with the owner's GitHub-matched email so Vercel (auto-deploys main) doesn't
@@ -136,6 +129,9 @@ jobs:
           opt results/decision_memos_weekly.json
           opt results/decision_memos_weekly.md
           opt results/blend_hybrid_paper.json
+          # zoo shadow book STOOD DOWN 2026-08-06 (finding 0131, falsifier fired) — no
+          # longer produced weekly. The opt() stays so a deliberate manual re-run of
+          # scripts/run_zoo_shadow_book.py is still committable; opt() never fails.
           opt results/zoo_shadow_book.json
           if git commit -m "chore(weekly): Saturday weekly-swing paper state $(date -u +%F)"; then
             # --autostash: the OHLCV download leaves UNSTAGED cache changes that abort a plain

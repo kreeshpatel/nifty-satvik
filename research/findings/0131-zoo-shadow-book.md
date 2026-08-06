@@ -1,137 +1,138 @@
-# Finding 0131 — the zoo shadow book: elected, built, and falsified by its own first observation
+# Finding 0131 — the zoo's population edge is real, and structurally unbankable in a cash-constrained book
 
 **Date:** 2026-08-06 · **Class: MEASUREMENT / evidence-generation.** Not a trial.
-**Counts frozen: screens 16 · sealed opens 1 · n_trials 138 — this spends none of them.**
-Pre-registration: [`0131-zoo-shadow-book.md`](../../diagnostics/research/preregistry/0131-zoo-shadow-book.md) ·
-producer: [`scripts/run_zoo_shadow_book.py`](../../scripts/run_zoo_shadow_book.py) ·
-artifact: `results/zoo_shadow_book.json`.
+**Counts frozen: screens 16 · sealed opens 1 · n_trials 138.**
+Pre-registration [`0131`](../../diagnostics/research/preregistry/0131-zoo-shadow-book.md) — **CLOSED,
+falsifier fired.** Producer [`scripts/run_zoo_shadow_book.py`](../../scripts/run_zoo_shadow_book.py) ·
+artifact `results/zoo_shadow_book.json` · mechanism evidence
+`diagnostics/research/foundation_audit_2026Q3/zoo_mechanism.json`.
+
+**Status: STOOD DOWN 2026-08-06 by owner decision.** Unwired from the Saturday cron; the script, its
+artifact and its guard tests are retained so the result stays reproducible on demand.
 
 ---
 
-## What was elected, and on what evidence
+## THE ANSWER — complete, not inconclusive
 
-**Elected:** `cup_handle` + `box` + `double_bottom`, added to `touch44` as one combined candidate
-pool, run as a **watched shadow book — observational, traded by nobody.**
+> **The zoo's population advantage is real. It is also structurally unbankable in a cash-constrained
+> book.** Both halves are measured, and the second half has a named arithmetic cause rather than a
+> description. **Both escape routes from that cause were already closed before this study ran.**
 
-The evidence was two-sided and both sides were about *power*, not about performance:
-
-1. **Population level** ([`ZOO_TWO_LENS.md`](../../diagnostics/research/ZOO_TWO_LENS.md)): all three
-   beat `touch44` with CIs excluding zero **in both units** — cup ΔR +0.365 / Δequity +0.758pp, box
-   +0.287 / +0.574, dbl +0.266 / +0.509. `ascending_base` was *not* elected: N=106, both CIs straddle.
-2. **The standalone rejection was never tested.** STAGE4's most-cited line — touch 1.29 vs cup 1.02 /
-   box 1.00 / dbl 0.94 — carries **no CI, no bootstrap, no walk-forward**. Its only two intervals are
-   for config D vs A. Applying the measured ±0.302 band, gaps of 0.27 / 0.29 / 0.35 are **inside it**
-   — and the band is *conservatively* transferred, because these are sub-slice, smaller-N comparisons
-   whose true band is wider. The families were **not proven worse**; they were never resolved.
+This is a terminal result, not a failure to resolve. What follows is why.
 
 ---
 
-## The pre-committed hypothesis, and its immediate falsification
+## 1. The advantage is real
 
-> **H (pre-registered):** the combined funnel improves the **pool**, not the **throughput** — capital
-> binds, not signal supply.
->
-> **Falsifier (pre-registered):** trade count rising **>25%** over the live book while per-trade
-> quality does not rise.
+At population level, with CIs excluding zero **in both units**
+([`ZOO_TWO_LENS.md`](../../diagnostics/research/ZOO_TWO_LENS.md)):
 
-**Both legs fired on the first observation.**
+| setup | N | ΔR vs touch44 | Δ% of equity |
+|---|---:|---:|---:|
+| cup_handle | 195 | **+0.365** | **+0.758pp** |
+| box | 543 | **+0.287** | **+0.574pp** |
+| double_bottom | 502 | **+0.266** | **+0.509pp** |
 
-| | live book | shadow book | |
+And the rejection that had stood against them was never resolved: STAGE4's standalone line
+(touch 1.29 vs cup 1.02 / box 1.00 / dbl 0.94) **carried no CI at all**, and its gaps of
+0.27 / 0.29 / 0.35 sit inside the measured ±0.302 band — conservatively, since it is a sub-slice on
+smaller books ([`POWER_READJUDICATION.md`](../../diagnostics/research/POWER_READJUDICATION.md)).
+
+## 2. It is unbankable — and here is the arithmetic
+
+The shadow book put the elected pool through the **same CRS priority and the same frozen ladder**,
+changing only the candidate pool. Both pre-committed falsifier legs fired at the first observation:
+
+| | live | shadow | |
 |---|---:|---:|---|
 | closed trades | 255 | **491** | **+92.6%** vs a 25% threshold |
-| mean R per trade | +0.4812 | +0.2054 | **−0.276**, CI [−0.486, −0.067] |
-| **mean % of equity per trade** *(arbiter)* | **+2.7818** | **+0.8412** | **−1.941pp, CI [−3.598, −0.264]** |
-| win rate | 59.2% | 54.6% | −4.6pp |
+| **% of equity per trade** *(arbiter)* | +2.782 | +0.841 | **−1.941pp, CI [−3.598, −0.264]** |
+| mean R per trade | +0.481 | +0.205 | −0.276, CI [−0.486, −0.067] |
+| touch44 fills | 255 | **29** | displaced, not supplemented |
+| shared fills | — | **19** of 255/491 | the two books are nearly disjoint |
 
-**The arbiter's CI excludes zero.** H is falsified on its own pre-committed terms, in its own
-pre-committed unit, before any forward data exists.
+### The mechanism, link by link, each one measured
 
-### The mechanism — and it is the wall again, seen from a new angle
+**stop width → notional → seat count → dilution**
 
-The two books are **almost disjoint**: 19 shared fills against 236 live-only and 472 shadow-only.
-And inside the shadow book, `touch44` fills collapse from **255 to 29**.
+| link | measurement |
+|---|---|
+| **1. The zoo's stops are far wider** | median stop width: touch44 **7.00%** · cup **17.29%** · box **19.33%** · double_bottom **24.87%** — 2.5× to 3.6× wider |
+| **2. So its positions are far cheaper** | under `shares = equity × 2% ÷ stop`, median position: touch44 **28.58%** of equity · cup **11.56%** · box **10.35%** · dbl **8.04%** — roughly **3× cheaper** |
+| **3. So the same cash buys many more seats** | mean concurrent positions **5.64 → 12.15** (max 10 → 20); median position size **15.21% → 7.03%** of equity |
+| **4. And seat count is a measured dilution axis** | `FINDING_more_slots` (**trial-priced**, `n_trials` 120→122): 4–5 seats **1.21** → 7 seats **0.97** → 10 seats **0.81**, against a random null of **0.74**. **The shadow book runs at 12.15 mean seats — past the worst point that study measured.** |
 
-| shadow book, by detector | n | mean R | mean % equity |
-|---|---:|---:|---:|
-| touch44 | 29 | +0.8146 | +1.5774 |
-| box | 164 | +0.1699 | +0.8912 |
-| double_bottom | 241 | +0.1537 | +0.7745 |
-| cup_handle | 57 | +0.2157 | +0.6046 |
+This is the first time the population-vs-portfolio gap has an **arithmetic** cause on this book
+rather than a description. It is not that the zoo signals are secretly bad; it is that *wide stops
+are cheap*, cheapness buys seats, and seats are already known to dilute.
 
-Widening the pool did not add trades *alongside* touch44 — it **displaced** it. Three detectors
-firing into the same five-ish seats consume the cash that funded the touch book, and the touch trades
-that survive are a small residue. This is the per-trade-≠-portfolio wall for the **seventh** time on
-this exact question (0112 fill priority, ROUTER per-branch exits, STAGE4 sleeves, E1/E2/E3 entry
-levers, `FINDING_more_slots` dilution), and it is also `more_slots` again: nearly doubling throughput
-walks the book down the CRS queue.
+### One correction to the chain as originally framed
 
-**Population truth and portfolio truth are both correct and they do not transfer.** Per signal, the
-three elected setups genuinely are better than touch44. Pooled into one capped book, they make it
-worse. Nothing in this finding contradicts `ZOO_TWO_LENS.md`; it is the cap acting on it.
+The mechanism was put to this session as ending in *"walks the CRS queue down."* **The data do not
+support that phrasing and it is not used.** The shadow book's funded fills have a *higher* mean
+`crs_dist` (+0.4216) than the live book's (+0.1403). The reason is that `crs_dist` is **not
+comparable across detectors** — breakout setups sit further above their own RS line by construction:
 
----
+| setup | median `crs_dist` |
+|---|---:|
+| touch44 | +0.046 |
+| cup_handle | +0.183 |
+| box | +0.202 |
+| double_bottom | +0.206 |
 
-## What cannot be certified in-sample, and why
+So a cross-setup CRS comparison measures the detector, not queue depth. The fourth link is **seat
+count → dilution**, and it rests on a trial-priced dose-response rather than on a CRS statistic —
+which makes it stronger evidence, not weaker.
 
-The ΔSharpe is **−0.2845 — inside the ±0.302 resolution band, and therefore NOT a verdict.**
-Pre-registration §4 forbids reading it as one and this finding does not. It is quoted here only with
-its band attached.
+## 3. Both escape routes were already closed — this is what makes it final
 
-That constraint is not a formality. The measured band is ±0.302 ΔSharpe against a book whose entire
-annual return is 1.617σ, so **the capped book cannot certify any improvement or any degradation of
-this size** — which is exactly why the standalone rejection this election was founded on is itself
-NOT PROVEN. The same instrument limit that made the zoo's rejection unsafe makes its acceptance
-unsafe.
+A structural cause is only terminal if the ways around it are shut. Both are, and both were shut
+*before* this study ran:
 
-**What IS resolved, and does not depend on the underpowered metric:**
-- the **trade count** (255 → 491) is an exact count, not an estimate;
-- the **per-trade quality delta** has a CI excluding zero in the arbiter unit on 491 vs 255 trades;
-- the **displacement** (touch44 255 → 29, 19 shared fills) is structural, not statistical.
+| escape route | why it would work | why it is closed |
+|---|---|---|
+| **Leave the freed cash idle** — take the zoo trades but don't let cheapness inflate seats | caps seat count at the live book's ~5–6 | **0104 / 0108**: subtractive rules and idle capital are negative on this book. Law III's bookend — the removed trade's slot is not free, and the same-week queue alternative is net negative (0117). |
+| **Size by notional instead of risk** — decouple position size from stop width so seats stay fixed | removes link 2 entirely | **0130**: equal-notional sizing on this book is **−10.83% of equity per year**, CI [−26.33, +4.74], 7 of 10 years the same sign. Measured *before* this study, for a different question. |
 
-**What remains unresolved:** whether the combined pool would be better under a *different* book
-shape — one that does not force three detectors through five seats. Equal-weight in a wider book is
-the named candidate elsewhere (breadth-50) and this finding says nothing about it.
+**With link 2 unavoidable and link 3's consequence already priced, there is no construction inside a
+₹10L cash-constrained book that banks the population edge.** That is a complete answer.
 
----
+## 4. What is NOT closed
 
-## What was built
-
-Cold and cfg-gated, beside the existing observational loggers:
-
-- `scripts/run_zoo_shadow_book.py` → `results/zoo_shadow_book.json`, whitelisted, wired into the
-  Saturday cron as an **optional** artifact that warns and never fails the scanner.
-- Nothing in the live book, the cards, the wall or the traded config is touched. The golden master is
-  byte-identical and the determinism guard still reproduces **1.1319 / 255** — asserted inside the
-  shadow book's own live arm, which *is* the record.
-- `tests/test_zoo_shadow_book.py` (6 tests) pins that it cannot influence the traded book: exactly
-  one write, to its own file; no attribute assignment into a shared module; the elected pool frozen
-  at cup+box+dbl; **no kwarg anywhere that alters the exit ladder, fill priority or sizing**; not
-  imported by any traded path; and the record reproduced before *and* after the wider pool is built.
-
-*Recorded: the first version of those tests scanned raw source text and failed on the module's own
-documentation — which names the artifacts it must not touch precisely in order to say it does not
-touch them. They now scan the AST. A guard that fires on its own prose is the false-positive class
-this programme has twice paid to learn about.*
+**A different book *shape*.** Everything above is about forcing more detectors through the same
+five-ish seats under one cash pool. It says nothing about a book that is *designed* for many
+equal-weighted names — breadth-50 is the named candidate elsewhere, and this finding neither
+supports nor damages it. The distinction is exact: this closes *widening the pool inside the
+concentrated book*, not *a different book*.
 
 ---
 
-## The Oct-1 ask
+## What could and could not be certified
 
-**Formalise as a wall book, or stand it down.** The pre-registration set 2026-10-01 as a status check
-and 2027-04-01 as the first substantive read. That schedule is now overtaken by the falsification:
+The ΔSharpe is **−0.2845 — inside the ±0.302 resolution band, and NOT a verdict.** Pre-registration
+§4 forbids reading it as one, and this finding does not.
 
-- **Stand it down** — the pre-committed falsifier fired on both legs at the first observation, in the
-  arbiter unit, with a CI excluding zero. Continuing to log a book whose stated hypothesis is already
-  refuted spends cron time for evidence about a question that has been answered.
-- **Keep it running** — the falsification is *in-sample*, and in-sample is exactly what this
-  programme holds cannot certify. Forward selection-divergence data is unbiased and costs one cron
-  step; the displacement mechanism is worth watching live at least once.
+That constraint cuts both ways and is the reason this study was worth running: the same instrument
+limit that made the zoo's *rejection* unsafe would have made its *acceptance* unsafe. **What settled
+it was not the Sharpe — it was three quantities that do not depend on the underpowered metric:**
 
-**No recommendation is made.** Both readings are stated; the decision is the owner's.
+1. the **trade count** (255 → 491) — an exact count, not an estimate;
+2. the **per-trade quality delta** — a CI excluding zero in the arbiter unit on 491 vs 255 trades;
+3. the **displacement** (touch44 255 → 29; 19 shared fills) — structural, not statistical.
+
+## Root-cause readout
+
+Wide stops make the zoo's positions cheap. Cheap positions multiply seats. Seats dilute, on a
+dose-response this programme has already paid a trial to measure. The population edge is real and
+every route from it to the book runs through a step that is already closed.
+
+## Next setup
+
+None. The territory is closed, and closed *with* its mechanism.
 
 ## Do not re-test unless
 
-This finding creates no re-open condition. The elected setups remain **not proven worse standalone**
-(a labelling correction, not a revival) and **measured as diluting when pooled into the capped book**
-(this finding). A different *book shape* — not a different pool inside the same five seats — is the
-only construction this result does not speak to.
+A **different book shape** — not a different pool inside the same seats — with its own sizing
+construction and its own seat count, judged on forward evidence. Re-running a wider pool through the
+concentrated book with a different detector set, a different threshold, or a bigger sample is refused
+relitigation: the mechanism is arithmetic and does not depend on which detectors are chosen.

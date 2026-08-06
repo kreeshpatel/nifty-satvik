@@ -102,14 +102,31 @@ def test_it_is_not_wired_into_any_traded_path():
         assert "run_zoo_shadow_book" not in txt, f"{path} references the shadow book"
 
 
-def test_the_workflow_runs_it_beside_the_other_observational_logger_and_cannot_fail_the_scanner():
+def test_it_is_STOOD_DOWN_and_no_longer_runs_on_the_cron():
+    """Stood down 2026-08-06 (finding 0131): the pre-committed falsifier fired on both legs, so the
+    weekly step was removed. The script, its artifact and these guards stay so the result is
+    reproducible on demand — a stand-down is not a deletion.
+
+    This test replaces the earlier one that asserted the step WAS wired. Flipping it is the point:
+    if someone re-adds the step without re-opening the pre-registration, this fails."""
     wf = (ROOT / ".github" / "workflows" / "cron-bhanushali-scanner.yml").read_text(encoding="utf-8")
-    assert "run_zoo_shadow_book.py" in wf, "shadow book not wired into the Saturday cron"
-    step = wf[wf.index("run_zoo_shadow_book.py"):]
-    assert "::warning::" in step[:400], (
-        "the shadow book must warn, never fail the scanner — an observational stream may not take "
-        "the traded book down with it")
-    assert "opt results/zoo_shadow_book.json" in wf, "artifact must be staged as OPTIONAL, not need()"
+    assert "run: python scripts/run_zoo_shadow_book.py" not in wf, (
+        "the zoo shadow book was STOOD DOWN — re-wiring it into the Saturday cron requires "
+        "re-opening pre-reg 0131, which was closed on a fired falsifier")
+    # the artifact stays committable so a deliberate manual re-run can be recorded
+    assert "opt results/zoo_shadow_book.json" in wf, (
+        "the opt() stage line must remain so a manual re-run is committable; opt() never fails")
+
+
+def test_the_producer_and_its_artifact_survive_the_stand_down():
+    """A stood-down stream must stay reproducible, or the finding it produced becomes unauditable."""
+    assert (ROOT / "scripts" / "run_zoo_shadow_book.py").exists()
+    assert (ROOT / "results" / "zoo_shadow_book.json").exists(), (
+        "the artifact behind finding 0131 must remain committed")
+    import json
+    j = json.loads((ROOT / "results" / "zoo_shadow_book.json").read_text(encoding="utf-8"))
+    assert j["throughput"]["throughput_falsifier_tripped"] is True, (
+        "the committed artifact must still carry the fired falsifier that closed 0131")
 
 
 @pytest.mark.skipif(not (ROOT / "data" / "ohlcv.pkl").exists(),

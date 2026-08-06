@@ -79,7 +79,9 @@ wall, and either narrow to a different question or take the one re-open conditio
 
 ## II. Population information is real; this book's decision margins cannot express it
 
-The single most-repeated finding in the programme, hit from five different angles:
+The single most-repeated finding in the programme, hit from **8 different angles** — and the last of them is the first to carry an **arithmetic mechanism** rather than a description.
+
+*(Count corrected 2026-08-06: this line read "five" against seven receipt rows — it had gone stale as rows were appended. It is now 8, matching the table below.)*
 
 | Angle | Receipt |
 |---|---|
@@ -90,10 +92,39 @@ The single most-repeated finding in the programme, hit from five different angle
 | **Perception ≠ outcome** | 0123: a κ=0.867-reliable structural grade separates nothing. |
 | **Cohort ≠ playbook** | 0127: a 0.43R-worse cohort's clairvoyant conditional-management gain is **0.0 R/yr in all 8 years** — the optimum does not move. |
 | **Population ≠ funding margin** | 0129: the −0.383R event gap replicates exactly on the population and is **wrong-signed (+0.076) on the capped book**, where the rule fires 2.2×/yr instead of 50×/yr. |
+| **Pool ≠ book — WITH THE MECHANISM** | **0131**: cup/box/dbl beat touch44 on the population with CIs excluding zero in **both** units, and pooled into the capped book they cost **−1.941pp of equity per trade** (CI [−3.598, −0.264]) while trade count runs 255→491. |
 
 **Law:** *A real effect measured on a population does not survive to this book's decision points.*
 The margins are narrow by construction (CRS-adjacent contenders), the book is cash-constrained, and
 composition noise is ±10R/yr.
+
+### The mechanism, named at last (0131, 2026-08-06)
+
+For six sightings this law was a **description** — population effects vanish at the margin, cause
+unstated. 0131 supplies an arithmetic cause for the pool-into-book case, and every link is measured:
+
+> **stop width → notional → seat count → dilution**
+
+| link | measurement |
+|---|---|
+| the candidate cohort has **wider stops** | median stop width: touch44 **7.00%** vs cup **17.29%**, box **19.33%**, double_bottom **24.87%** |
+| so under `shares = equity × 2% ÷ stop` its positions are **cheaper** | median position: touch44 **28.58%** of equity vs **8–12%** for the three |
+| so the same cash buys **more seats** | mean concurrent positions **5.64 → 12.15** (max 10 → 20) |
+| and seat count is an already-measured **dilution** axis | `FINDING_more_slots` (**trial-priced**): 4–5 seats **1.21** → 7 **0.97** → 10 **0.81**, random null **0.74**. 12.15 seats is past its worst measured point. |
+
+**Why this makes the case terminal rather than open:** both ways around link 2 were already closed.
+Leaving the freed cash idle is Law III's bookend (0104/0108, and 0117's negative queue alternative);
+sizing by notional instead of risk is **0130, at −10.83% of equity per year**.
+
+**Not part of the mechanism, and recorded because it was the natural guess:** the funded cohort does
+*not* show a walked-down CRS queue — `crs_dist` **rises** (+0.140 → +0.422), because `crs_dist` is
+not comparable across detectors (breakouts sit further above their own RS line: touch44 median
++0.046 vs box +0.202). The dilution axis is **seats**, not queue depth.
+
+**On collision with this mechanism specifically:** a proposal that widens the candidate pool inside
+the concentrated book is answered by arithmetic, not by re-measurement — it does not depend on which
+detectors are chosen. A different **book shape**, with its own sizing and its own seat count, is a
+different question and is not closed by this.
 
 **On collision:** any proposal of the form "X predicts Y, therefore rank/filter/size by X" must run
 the **activation bound** (see [`skills/verdict-machine`](../verdict-machine/SKILL.md) Gate 3) before

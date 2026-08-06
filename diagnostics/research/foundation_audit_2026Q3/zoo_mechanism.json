@@ -1,0 +1,50 @@
+{
+  "link1_2_stop_and_notional": [
+    {
+      "setup": "touch44",
+      "N": 1720,
+      "median_stop_width_pct": 7.0,
+      "median_notional_pct_of_equity": 28.58
+    },
+    {
+      "setup": "cup_handle",
+      "N": 195,
+      "median_stop_width_pct": 17.29,
+      "median_notional_pct_of_equity": 11.56
+    },
+    {
+      "setup": "box",
+      "N": 543,
+      "median_stop_width_pct": 19.33,
+      "median_notional_pct_of_equity": 10.35
+    },
+    {
+      "setup": "double_bottom",
+      "N": 502,
+      "median_stop_width_pct": 24.87,
+      "median_notional_pct_of_equity": 8.04
+    }
+  ],
+  "link3_seats": {
+    "live": {
+      "mean_concurrent": 5.64,
+      "max_concurrent": 10
+    },
+    "shadow": {
+      "mean_concurrent": 12.15,
+      "max_concurrent": 20
+    }
+  },
+  "link4_crs": {
+    "live": {
+      "mean_rank": 0.1403,
+      "median_rank": 0.121,
+      "p10_rank": 0.0362
+    },
+    "shadow": {
+      "mean_rank": 0.4216,
+      "median_rank": 0.4086,
+      "p10_rank": 0.2027
+    }
+  }
+}

@@ -152,6 +152,29 @@ that is the per-trade-vs-portfolio wall, and it is separately measured.
 > **The guard at the top of this document applies here without exception: this is a relabel. It
 > revives nothing and authorises no re-test.**
 
+### RESOLUTION — 2026-08-06, the same day: the missing evidence was then supplied
+
+**The relabel stands, and it is no longer where the story ends.** `cup_handle`, `box` and
+`double_bottom` were **not proven worse** by STAGE4 — that verdict had no interval. They have since
+been **proven worse *in the capped book* by a powered instrument in the arbiter unit**:
+
+| | STAGE4's standalone line | finding 0131 |
+|---|---|---|
+| instrument | 4 portfolio Sharpes on a sub-slice | per-trade quality, **491 vs 255 trades** |
+| interval | **none** | **CI [−3.598, −0.264] % of equity, excludes zero** |
+| supporting facts | — | trade count 255→491 (exact); touch44 fills 255→29 (structural) |
+| mechanism | none stated | stop width → notional → seats → dilution, each link measured |
+
+**The distinction that matters, and it is the point of this whole document:** the audit did not
+merely relabel a verdict it disliked. It **identified that the verdict was missing its evidence, and
+then supplied it.** The conclusion the corpus reached — do not put the zoo in the book — survives.
+What changes is that it is now *supported*, by an instrument with the power to support it, with a
+named arithmetic cause and with both escape routes shown closed.
+
+The reclassification of the **other** rows in this document (STAGE4 configs B/C/D, `ext_cap 22%`,
+`first_touch`, `drop_rs`, `base_min`) is untouched by this: they remain NOT PROVEN, and no evidence
+has been supplied for them either way.
+
 ## Cross-references
 
 `research/substrate/STAGE4_sleeves.md` (the CI) · `research/substrate/ROUTER_RESULT.md` ·

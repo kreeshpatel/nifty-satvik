@@ -360,6 +360,11 @@ new sub-period, new formulation} you bring, or the ledger has already answered.*
 - **Post-entry conditional management** — 0117 (day-10 IC −0.029; the +0.356 is a mechanical head
   start).
 - **The technical/indicator zoo at 63d** — O-015/0079. IC ≠ portfolio Sharpe.
+- **Widening the candidate pool inside the concentrated book** — 0131. The setup zoo's population
+  advantage is real (CIs exclude zero in both units) and **structurally unbankable**: wide stops →
+  cheap positions → 5.64→12.15 seats → dilution, with both escapes pre-closed (idle cash 0104/0108;
+  equal-notional 0130 at −10.83%/yr). Closed *with* its mechanism. A different **book shape** is not
+  closed by this.
 - **Event deferral** — 0121, 94% lapse rate, −15.72 R/yr.
 - **Third sleeves** — STAGE4; 0115; 0124 killed a genuinely orthogonal one (ρ 0.34–0.38) with no edge.
 - **`max_positions`** — knife-edge overfit, 0.24-Sharpe swings per one-position change.
