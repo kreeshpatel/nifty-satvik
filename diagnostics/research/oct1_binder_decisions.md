@@ -491,3 +491,67 @@ found every timed-protection construction negative-EV and concluded this book's 
 
 **Re-proposing requires:** a defined-risk structure (spreads, not naked) **and** an explicit
 demonstration that its tail is not the book's tail. Absent both, this is a standing rejection.
+
+---
+
+## Demerger adjustment convention — either is defensible, both is not (2026-08-06)
+
+**Source:** `diagnostics/research/foundation_audit_2026Q3/FOUNDATION_AUDIT.md` layer 2.
+**Verification class; counts unchanged (15 / 1 / 138). Nothing measured here is a proposal.**
+
+### The finding
+
+Of the 37 demergers in the pinned universe 2019-01-01 → 2026-07-01, the vendor **back-adjusted 22**
+and **left 15 as cliffs**. Both are legitimate conventions:
+
+- **Back-adjust** (total-return): the spun-off shares were value the holder received, so the
+  history is rebased to keep the series continuous. RELIANCE ×1.083 (Jio Financial), SIEMENS ×1.704,
+  EDELWEISS ×1.850, NMDC ×1.301, ITC ×1.039, and 17 others.
+- **Leave the cliff** (listed-entity): the listed company genuinely shrank, and smoothing invents
+  trend it never had. VEDL −64.9%, ABFRL −66.6%, RAYMOND −64.8%, SKFINDIA −54.8%, and 11 others.
+
+**This repo has already chosen — in writing.** `data/corporate_actions_demergers.csv` states the
+listed-entity convention and gives the reason: back-adjusting a demerger *"FABRICATES a soaring
+trend slope (e.g. VEDL: raw sma200_slope_63 2.16 → 24.94)"*. That file names **4** of the 37 events.
+
+The problem is not which convention is right. It is that **the data applies both**, so any statistic
+pooling across the two groups is comparing series built on different definitions of price.
+
+**The single clearest demonstration: `AARTIIND` appears in BOTH groups.** It has two demergers in the
+window; one is back-adjusted and one is left as a cliff. One name, one series, two conventions.
+
+### The cross-group statistics this currently contaminates — named
+
+Convention-mixed names are **243 of 4,321 substrate trades (5.6%), carrying 7.5% of total R**. Their
+distribution is not uniform across the cells that carry published claims:
+
+| Published cell | As published | Convention-mixed trades inside it | Their mean R |
+|---|---|---|---|
+| **`<5%` extension deep core** | **+0.717 R, N=418** | **30 (7.2%)** | **+1.292** |
+| **sub-line `<0%`** | **+2.088 R, N=39** | **4 (10.3%)** | **+3.012** |
+| whole substrate | +1,907.32 R, N=4,321 | 243 (5.6%) | — |
+
+In both cells the mixed names sit **well above the cell mean** — +1.292 against +0.717, and +3.012
+against +2.088 — so they are over-represented in exactly the cells the research calls the core edge.
+This is a statement about *composition*, not a claim that the cells are wrong: no re-computation was
+attempted, and none is proposed.
+
+Also pooled without distinction: back-adjusted names average **+0.667 R** across 132 trades against
+cliff names' **+0.749 R** across 89. Every aggregate that sums or ranks across both — the band
+census, CRS cross-sectional ranking, the 44-week SMA and slope features on those names, per-origin
+expectancy, and the alpha decomposition's sleeve panels — treats those two populations as one.
+
+### What reaches the door
+
+1. **Nominate one convention** for the data layer, and state it. Either is defensible on its own
+   terms; the committed reference already asserts the listed-entity one, so the cheapest coherent
+   answer is to make that real rather than to switch.
+2. **The committed reference covers 4 of 37 events.** Whichever convention is chosen, the reference
+   must enumerate the events it governs, or the choice is unenforceable.
+3. **This pairs with the two other data-layer questions** now open: the vintage-seam repair
+   (`LIVE_REPAIR_DECISION.md`) and the 0025 survivorship re-anchor. All three change historical bars
+   and therefore share one re-anchor; deciding them separately would mean re-anchoring the pin more
+   than once.
+
+**Neither reading is weighed here, and no verdict on the record moves.** The 22/15 split is reported
+so October decides a convention, not so a number changes today.

@@ -419,3 +419,101 @@ jumps in the untrusted head.
 - `diagnostics/research/m6_demerger_scan.md` — the ≥50% detector this audit shows is size-bounded
 - `diagnostics/research/DEFINITIONS_REGISTER.md` — §4 closed-vs-open trade counts
 - `diagnostics/research/verification_audit_2026Q3/INDEX.md` — the parent audit and its guards
+
+---
+
+# Addendum — 2026-08-06, same day: the cause is upstream, and the guard found two more
+
+Added when the monotonicity guard (item 1 below) was built and run. The findings above stand as
+measured; three statements in them are **corrected or refined**, and the corrections matter more
+than the original wording did. Nothing in the layer verdicts changes.
+
+## C-1 · The seams are the VENDOR's, not this repo's assembly — this is the important correction
+
+The body above inferred a "vintage seam" from *how the cache was assembled*: a trailing block
+carrying an adjustment the earlier block does not. The shape of that description is right and the
+attribution was wrong.
+
+**A fresh, single-call download from the vendor reproduces all 13 seams exactly** — same sessions,
+same factors, including the two INDIAMART Muhurat bars. The pin is byte-faithful to what the vendor
+serves (pin/fresh ratio constant to 4dp for every seam name). So:
+
+- This repo did not create them, and no change to how the cache is stitched removes them.
+- **Rebuilding the cache does not heal them.** The live cron's monthly clean rebuild — whose stated
+  purpose is exactly to put the whole cache "on one adjustment basis" — provides **no protection
+  against this class**, because a clean rebuild faithfully reproduces the vendor's discontinuity.
+- Every downstream consumer of the vendor inherits it, which is why the guard is worth more than a
+  one-off repair.
+
+The mechanism is now named per event rather than guessed. The vendor applies a corporate action's
+adjustment only from **1 January of the ex-date's year** onward, leaving earlier history unadjusted:
+
+| Name | Corporate action | Ex-date | Adjustment applied from | Fabricated step |
+|---|---|---|---|---|
+| TRENT | Bonus 1:2 (factor 1.50) | 2026-06-04 | 2026-01-01 | −33.05% |
+| CONCOR | Bonus 1:4 (factor 1.25) | 2025-07-04 | 2025-01-01 | −20.88% |
+| CGCL | split+bonus (factor 4) | 2024-03-05 | 2024-01-01 | −74.83% |
+| GPIL | factor 5 | 2024 | 2024-01-01 | −79.50% |
+| MOTILALOFS | factor 4 | 2024 | 2024-01-01 | −74.61% |
+
+This is why layer 2 pass A resolved these same events `CORRECTLY_ADJUSTED`: the step **at the
+ex-date is right**. The defect is a second, spurious step at the year boundary. Both are true at
+once, and only the complement pass could see the second one.
+
+It affects a **minority** of events — 5 of the 188 splits/bonuses in the census leave a year-boundary
+seam — so this is a pattern, not a universal vendor rule, and no model of vendor behaviour should be
+built on it. That is precisely the argument for a guard rather than a correction formula.
+
+## C-2 · "Zero above raw" holds at the resolution it was measured, and one exception exists at higher resolution
+
+The body's strongest claim — the pinned close is above the exchange's raw close on **zero** of
+17,801 name-days — is correct **on the 30-date quarterly grid**. The guard's reference is denser
+(519 dates, 51,053 name-days, adding both sides of every year boundary and every corporate-action
+session). On that grid there are **2 name-days above raw**: one in the pre-2019 warm-up head
+(J&KBANK, adj 1.95), and **one inside the trusted period — HBLENGINE 2024-12-23, adj 1.0297**.
+
+Two in 51,053 (0.004%) does not overturn the CLEAN verdict for layer 1, and the exception is the
+same HBLENGINE anomaly named below rather than a separate defect. The claim is restated at its
+true resolution because the original was quoted as an absolute.
+
+## C-3 · Two seams the audit's quarterly grid could not see
+
+The denser probe grid found two monotonicity violations the 30-date sample missed. Neither is
+explained by any corporate action in the NSE record, and neither has been localised to its exact
+session:
+
+| Name | Window | Step | Cache vs exchange on the session | Status |
+|---|---|---:|---|---|
+| **HBLENGINE** | 2024-12-23 → 2024-12-24 | ×1.0336 | cache **−0.65%**, exchange **+2.68%** | **OPEN — inside the trusted period** |
+| TRENT | 2019-03-06 → 2019-03-18 | ×1.0214 | cache +10.56%, exchange +12.93% | OPEN |
+
+HBLENGINE is the consequential one: it sits inside the period the programme trades, and the nearest
+corporate actions (dividends of Re 0.50 and Re 1) are two orders of magnitude too small to explain
+a 3.36% step. Both are carried in the guard's register marked `OPEN-undiagnosed` so they are not
+mistaken for settled, and both reproduce in a fresh vendor pull.
+
+This is the audit's own limit #1 closing on itself: the body stated that intra-quarter seams away
+from a year boundary were sampled rather than enumerated. Denser probing found two immediately.
+
+## C-4 · The live-exposure sentence was right, for the wrong reason
+
+The body said TRENT's gate is wrong live "and the pin is also the live cache". That reasoning was
+wrong: `data/ohlcv.pkl` is gitignored and is **two different artifacts** — the pinned release on a
+research machine, and a monthly-rebuilt actions-cache instance on the cron runner.
+
+The conclusion survives C-1 intact, and is now confirmed directly rather than inferred. The live
+weekly panel of 2026-07-31 prints TRENT `sma44 = 3248.73`, `close_above_sma = False`. A fresh
+single-vintage pull reproduces `sma44 = 3248.88` — a 0.005% match — and the seam-corrected series
+gives `sma44 = 2809.84`, `close/sma = 1.0698`, **`close_above_sma = True`**.
+
+**Scope, stated precisely:** only TRENT has a seam inside the current 44-week window. CONCOR's
+(2025-01-01), HBLENGINE's (2024-12-24), UPL's and the 2024 seams have all aged out; MAHLIFE is not
+in the live 500-name universe. **TRENT is the only live-affected name today, and it stays affected
+until roughly 2026-11-06.** None of the five open positions (DELHIVERY, INDUSINDBK, NESTLEIND, CUB,
+HEG) is a seam name, so no held position's entry, stop or NAV is touched by any of this.
+
+## C-5 · The guard
+
+`nq/data/adjustment_guard.py` now asserts the invariant on the refresh path, with a 13-entry
+register carrying provenance. See `LIVE_REPAIR_DECISION.md` for the repair question, which remains
+the owner's.

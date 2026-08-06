@@ -31,6 +31,10 @@ dashboard/backend/.env
 !data/nifty500_membership.csv
 !data/problem_sector_map.json
 !data/corporate_actions_demergers.csv
+# Raw exchange closes on the guard's probe grid. Small, exchange-sourced, and committed on
+# purpose: nq.data.adjustment_guard must be able to run without the network, or it gets skipped
+# on the day the network is flaky. Producer: scripts/build_raw_close_reference.py
+!data/raw_close_reference.parquet
 !data/nse_circulars/
 !data/nse_circulars/*
 !data/README.md

@@ -568,6 +568,23 @@ def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
         save_ohlcv_cache(ohlcv, OHLCV_CACHE)
     except Exception as exc:  # noqa: BLE001 — a download hiccup must not lose the existing cache/book
         print(f"download failed ({type(exc).__name__}: {exc}); using cached bars", flush=True)
+
+    # ADJUSTMENT-MONOTONICITY GUARD (2026Q3 foundation audit). `_detect_readjusted` above is a
+    # 0.5% threshold on ONE overlapping session ~25 days back; it cannot see a discontinuity deeper
+    # in the history than the top-up window, and the audit showed such discontinuities are served by
+    # the VENDOR — a fresh single-call download reproduces them, so neither the top-up guard nor the
+    # monthly clean rebuild heals them.
+    #
+    # This runs OUTSIDE the try above on purpose. Inside it, the except would catch the raise and
+    # print "download failed ... using cached bars", converting a poisoned cache into a reassuring
+    # log line — the precise failure mode the output-contract work was about.
+    from nq.data.adjustment_guard import assert_no_new_seams
+    rep = assert_no_new_seams(ohlcv)
+    print(f"adjustment guard: {rep.overall} | symbols {rep.symbols_checked} | "
+          f"known seams {len(rep.seams)} | indeterminate {len(rep.indeterminate)}", flush=True)
+    for s in rep.seams:
+        print(f"  seam {s['symbol']} {s['window_start']}..{s['window_end']} "
+              f"x{s['step_factor']:.4f} ({s.get('provenance', '?')})", flush=True)
     return ohlcv
 
 
