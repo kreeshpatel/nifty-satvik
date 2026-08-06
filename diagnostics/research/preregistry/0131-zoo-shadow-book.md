@@ -144,3 +144,13 @@ retained so the result stays reproducible. The guard test that asserted the cron
 suite.
 
 Finding: [`research/findings/0131-zoo-shadow-book.md`](../../../research/findings/0131-zoo-shadow-book.md).
+
+
+### H-bis addendum — 2026-08-06, record completion only
+
+The logger originally emitted Sharpe alone. The risk axis was added and the artifact re-emitted;
+**the falsifier fields are byte-unchanged**, so this completes the record rather than re-running the
+study. Result: **no drawdown gain** — MaxDD −42.374% → −42.928% (0.553pp deeper, inside the ±9.05pp
+band), Calmar 0.5828 → 0.4387, worst year −13.803% → −18.867%, losing years **1 → 4**. Both axes move
+the same way, so there is no Law VII trade-off to price and nothing routes to the owner. The
+stand-down is unaffected.

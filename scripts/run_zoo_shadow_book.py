@@ -124,6 +124,31 @@ def _per_trade_block(L: pd.DataFrame, P) -> dict:
     return out
 
 
+
+def _risk_block(m) -> dict:
+    """MaxDD / CAGR / Calmar / worst calendar year from an arm's own equity curve.
+
+    Added 2026-08-06 (H-bis). The first version of this logger recorded Sharpe and nothing else,
+    which left the drawdown axis unreported — on precisely the family
+    `research/losers_analysis/LOCKED_STRATEGY.md:64,73` preserves as a **drawdown-only option**
+    (box/S-R sleeve: -32.5 vs -34.8 DD at a Sharpe cost, kept as a live/forward-wall DD option).
+    Reporting only the axis that fell was an incomplete record.
+    """
+    e = m["curve"]
+    yr = e.groupby(e.index.year).agg(["first", "last"])
+    per_year = {str(y): round(float(r["last"] / r["first"] - 1.0) * 100, 3)
+                for y, r in yr.iterrows()}
+    worst = min(per_year.items(), key=lambda kv: kv[1]) if per_year else (None, None)
+    dd = float(m["dd"])
+    cagr = float(m["cagr"])
+    return {"max_dd_pct": round(100.0 * dd, 3),
+            "cagr_pct": round(100.0 * cagr, 3),
+            "calmar": round(cagr / abs(dd), 4) if dd else None,
+            "worst_year": worst[0], "worst_year_pct": worst[1],
+            "n_losing_years": int(sum(1 for v in per_year.values() if v < 0)),
+            "per_year_pct": per_year}
+
+
 def _quality_delta(L_zoo: pd.DataFrame, L_live: pd.DataFrame) -> dict:
     """The ARBITER: per-trade % of equity, shadow minus live, with a bootstrap CI. R beside it."""
     if not len(L_zoo) or not len(L_live):
@@ -204,14 +229,29 @@ def build(start: str = "2017-01-01") -> dict:
                               "shadow": _per_trade_block(L_zoo, P_zoo),
                               "delta_shadow_minus_live": _quality_delta(L_zoo, L_live)},
         "capped_metrics_UNDERPOWERED": {
-            "_warning": "REPORTED FOR COMPLETENESS ONLY. The resolution band is +-0.302 dSharpe; "
-                        "any difference below that is unresolvable and must not be read as a "
-                        "result. Pre-reg 0131 §4 forbids treating this as a verdict.",
+            "_warning": "REPORTED FOR COMPLETENESS ONLY. Resolution bands, both measured from "
+                        "STAGE4's published paired block-bootstrap: +-0.302 dSharpe and +-0.0905 "
+                        "dMaxDD. A difference inside its band is unresolvable and must not be read "
+                        "as a result. Pre-reg 0131 §4 forbids treating any of this as a verdict.",
             "resolution_band_dsharpe": 0.302,
+            "resolution_band_dmaxdd": 0.0905,
             "live_sharpe": round(float(m_live["sharpe"]), 4),
             "shadow_sharpe": round(float(m_zoo["sharpe"]), 4),
             "dsharpe": round(float(m_zoo["sharpe"] - m_live["sharpe"]), 4),
             "inside_resolution_band": bool(abs(m_zoo["sharpe"] - m_live["sharpe"]) < 0.302),
+            "risk_axis": {
+                "_why": "H-bis, 2026-08-06: the first version of this logger reported Sharpe only. "
+                        "LOCKED_STRATEGY.md:64,73 preserves the box/S-R sleeve as a DRAWDOWN-ONLY "
+                        "option (-32.5 vs -34.8 at a Sharpe cost), so reporting only the axis that "
+                        "fell left the record incomplete. Completing it — no proposal.",
+                "live": _risk_block(m_live),
+                "shadow": _risk_block(m_zoo),
+                "d_max_dd_pp": round(100.0 * (float(m_zoo["dd"]) - float(m_live["dd"])), 3),
+                "d_calmar": round(float(m_zoo["cagr"]) / abs(float(m_zoo["dd"]))
+                                  - float(m_live["cagr"]) / abs(float(m_live["dd"])), 4),
+                "dd_gain_inside_resolution_band": bool(
+                    abs(float(m_zoo["dd"]) - float(m_live["dd"])) < 0.0905),
+            },
         },
         "next_substantive_read": "2027-04-01 (>=2 quarters AND >=30 shadow-funded closed trades); "
                                  "2026-10-01 is a status check only",

@@ -127,6 +127,14 @@ def test_the_producer_and_its_artifact_survive_the_stand_down():
     j = json.loads((ROOT / "results" / "zoo_shadow_book.json").read_text(encoding="utf-8"))
     assert j["throughput"]["throughput_falsifier_tripped"] is True, (
         "the committed artifact must still carry the fired falsifier that closed 0131")
+    # H-bis: the risk axis must not be dropped again. The first version of the logger recorded
+    # Sharpe alone, which left the drawdown axis unreported on the very family
+    # LOCKED_STRATEGY.md:64/:73 preserves as a drawdown-only option.
+    risk = j["capped_metrics_UNDERPOWERED"]["risk_axis"]
+    for arm in ("live", "shadow"):
+        for k in ("max_dd_pct", "cagr_pct", "calmar", "worst_year_pct", "n_losing_years"):
+            assert k in risk[arm], f"risk axis lost `{k}` for the {arm} arm"
+    assert "d_max_dd_pp" in risk and "d_calmar" in risk
 
 
 @pytest.mark.skipif(not (ROOT / "data" / "ohlcv.pkl").exists(),

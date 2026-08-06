@@ -1,7 +1,7 @@
 {
   "_what": "OBSERVATIONAL SHADOW BOOK \u2014 pre-reg 0131. Traded by nobody. Decides nothing.",
   "_binding": "pre-reg 0131 \u00a74: this is NEVER a Sharpe race. A dSharpe on this pair may only be quoted with the +-0.302 resolution band attached, never as a verdict. The reads are per-trade quality in % of equity (arbiter) and forward divergence.",
-  "generated_at": "2026-08-06T10:02:26+00:00",
+  "generated_at": "2026-08-06T10:43:44+00:00",
   "start": "2017-01-01",
   "pool": {
     "live": [
@@ -99,12 +99,59 @@
     }
   },
   "capped_metrics_UNDERPOWERED": {
-    "_warning": "REPORTED FOR COMPLETENESS ONLY. The resolution band is +-0.302 dSharpe; any difference below that is unresolvable and must not be read as a result. Pre-reg 0131 \u00a74 forbids treating this as a verdict.",
+    "_warning": "REPORTED FOR COMPLETENESS ONLY. Resolution bands, both measured from STAGE4's published paired block-bootstrap: +-0.302 dSharpe and +-0.0905 dMaxDD. A difference inside its band is unresolvable and must not be read as a result. Pre-reg 0131 \u00a74 forbids treating any of this as a verdict.",
     "resolution_band_dsharpe": 0.302,
+    "resolution_band_dmaxdd": 0.0905,
     "live_sharpe": 1.1319,
     "shadow_sharpe": 0.8474,
     "dsharpe": -0.2845,
-    "inside_resolution_band": true
+    "inside_resolution_band": true,
+    "risk_axis": {
+      "_why": "H-bis, 2026-08-06: the first version of this logger reported Sharpe only. LOCKED_STRATEGY.md:64,73 preserves the box/S-R sleeve as a DRAWDOWN-ONLY option (-32.5 vs -34.8 at a Sharpe cost), so reporting only the axis that fell left the record incomplete. Completing it \u2014 no proposal.",
+      "live": {
+        "max_dd_pct": -42.374,
+        "cagr_pct": 24.694,
+        "calmar": 0.5828,
+        "worst_year": "2025",
+        "worst_year_pct": -13.803,
+        "n_losing_years": 1,
+        "per_year_pct": {
+          "2017": 31.755,
+          "2018": 11.053,
+          "2019": 30.246,
+          "2020": 11.547,
+          "2021": 33.266,
+          "2022": 33.361,
+          "2023": 66.037,
+          "2024": 9.859,
+          "2025": -13.803,
+          "2026": 30.986
+        }
+      },
+      "shadow": {
+        "max_dd_pct": -42.928,
+        "cagr_pct": 18.834,
+        "calmar": 0.4387,
+        "worst_year": "2018",
+        "worst_year_pct": -18.867,
+        "n_losing_years": 4,
+        "per_year_pct": {
+          "2017": 60.237,
+          "2018": -18.867,
+          "2019": 6.656,
+          "2020": 22.505,
+          "2021": 66.33,
+          "2022": -2.537,
+          "2023": 67.932,
+          "2024": 27.688,
+          "2025": -15.162,
+          "2026": -3.725
+        }
+      },
+      "d_max_dd_pp": -0.553,
+      "d_calmar": -0.144,
+      "dd_gain_inside_resolution_band": true
+    }
   },
   "next_substantive_read": "2027-04-01 (>=2 quarters AND >=30 shadow-funded closed trades); 2026-10-01 is a status check only"
 }

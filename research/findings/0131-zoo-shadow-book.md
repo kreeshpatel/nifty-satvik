@@ -120,6 +120,55 @@ it was not the Sharpe — it was three quantities that do not depend on the unde
 2. the **per-trade quality delta** — a CI excluding zero in the arbiter unit on 491 vs 255 trades;
 3. the **displacement** (touch44 255 → 29; 19 shared fills) — structural, not statistical.
 
+---
+
+## H-bis — the drawdown axis, completed 2026-08-06
+
+**Why this was asked, and why it was a real gap.** The first version of this study reported **Sharpe
+and nothing else**. `research/losers_analysis/LOCKED_STRATEGY.md:64` records the box/S-R sleeve as a
+**drawdown-only option** — *"dilutes Sharpe (0.855 vs 1.034 touch-only); only helps DRAWDOWN
+(−32.5 vs −34.8, stable)"* — and `:73` preserves it as *"a live/forward-wall DRAWDOWN option (−2pp DD
+at a Sharpe cost)"*. Reporting only the axis that fell, on precisely the family the record keeps for
+the axis that did not, left the record incomplete. **Completing it; the stand-down is unaffected and
+the falsifier was not re-run** (its fields are byte-unchanged: 255→491, +92.55%, arbiter −1.9406
+[−3.5975, −0.2644]).
+
+| | live book | shadow book | Δ |
+|---|---:|---:|---:|
+| **MaxDD** | **−42.374%** | **−42.928%** | **−0.553pp (deeper)** |
+| CAGR | 24.694% | 18.834% | −5.86pp |
+| **Calmar** | **0.5828** | **0.4387** | **−0.1440** |
+| worst calendar year | 2025, −13.803% | 2018, **−18.867%** | −5.06pp |
+| **losing years** | **1** | **4** | **+3** |
+
+**There is no drawdown gain. Every risk measure moves the wrong way.**
+
+- ΔMaxDD of −0.553pp sits inside the measured ±9.05pp band (STAGE4's published ΔMaxDD CI
+  [−0.049, +0.132] around +0.088), so on MaxDD *alone* the two books are **not resolvably
+  different** — but the direction is worse, not better.
+- **Losing years 1 → 4 is an exact count, not an estimate**, and the worst year deepens by 5.06pp.
+  Those do not depend on the underpowered metric.
+
+### Why the preserved sleeve option does not appear here — and this is the point
+
+`LOCKED_STRATEGY.md:64` is explicit about its construction: *"Box/S/R sleeve **(with capital)**"* —
+a **sleeve with its own budget**, allocated capital of its own. The 0131 shadow book is the opposite
+construction: a **shared pool** competing for one cash book's seats. The −2pp DD benefit is a
+property of **sleeve allocation**, not of the box/S-R family, and it does not transfer to a shared
+pool. That is the same distinction §4 of this finding already draws — *a different book shape is not
+closed by this* — arriving from the risk side.
+
+### Nothing routes to the owner
+
+**This is not a Law VII risk-preference dial.** Law VII is *robustness is bought with return* —
+a candidate that improves drawdown at a cost in CAGR, which is owner preference territory rather than
+a promotion. **Here robustness was not bought at all: both axes moved the same way.** There is no
+trade-off to price and therefore no dial to offer. A candidate that is worse on return *and* worse on
+risk needs no risk-preference decision.
+
+The DD option `LOCKED_STRATEGY.md:73` preserves for the **sleeve** construction is untouched by this
+and remains exactly where it was.
+
 ## Root-cause readout
 
 Wide stops make the zoo's positions cheap. Cheap positions multiply seats. Seats dilute, on a
