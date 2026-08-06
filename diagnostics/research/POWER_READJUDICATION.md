@@ -1,0 +1,101 @@
+# Power re-adjudication — "not proven better" is not "proven worse"
+
+**Date:** 2026-08-06 · **Class: VERIFICATION.** Zero trials, zero screens.
+**Counts frozen: screens 16 · sealed opens 1 · n_trials 138.**
+
+> **GUARD, stated first and binding: this is a LABELLING correction. It revives nothing. No row
+> below is authorised for re-testing, and reclassification is not a re-open condition. Every
+> collision rule in [`program-laws`](../../skills/program-laws/SKILL.md) still applies unchanged.**
+
+---
+
+## The conflation this corrects
+
+The record writes one word — KILLED, REJECT — for two different findings:
+
+| claim | what it means | what it licenses |
+|---|---|---|
+| **NOT PROVEN BETTER** | the book could not resolve a difference; adoption correctly declined | declining adoption. Nothing else. |
+| **PROVEN WORSE** | the candidate was measured as inferior | declining adoption **and** treating the territory as closed on evidence |
+
+The programme has been correct to decline adoption in every case. It has **not** been correct to
+record all of them as evidence that the candidate is inferior, because on a book with this book's
+power most of them could not have been resolved either way.
+
+**The measured resolution band.** Only one verdict on this book ever published a confidence
+interval: STAGE4's paired block-bootstrap gave **ΔSharpe +0.148, 95% CI [−0.131, +0.473]** — a
+half-width of **±0.302 Sharpe**. That is the only *measured* statement of what this book can resolve,
+and it agrees with the independent power arithmetic (`STRUCTURAL_DEFECT_MAP.md` §2: the ±10R/yr
+floor is 1.204 annual σ against a book at 1.617σ). **Any |ΔSharpe| below ≈0.30 was never resolvable
+on the capped book.**
+
+---
+
+## The re-adjudication
+
+Base of record: Sharpe **1.132**. Δ is against that base unless noted.
+
+| verdict | published Δ | CI | inside ±0.302? | **reclassified** |
+|---|---:|---|---|---|
+| **STAGE4 config D** (sleeves ×3) | **+0.148** | **[−0.131, +0.473]** | yes, and CI straddles zero | **NOT PROVEN BETTER** — and note the point estimate is *positive* |
+| STAGE4 config C (sleeves ×6) | −0.05 | none published | yes | **NOT PROVEN** (either direction) |
+| STAGE4 config B (all-setups shared) | +0.19 Sharpe / −0.22 on the 22-26 slice | none published | yes | **NOT PROVEN** — and the two slices disagree in sign |
+| `ext_cap 22%` (E2) | −0.149 | none published | yes | **NOT PROVEN WORSE** — already recorded as "defensive", DD −42.4 → −32.4 |
+| `drop_rs` | −0.037 | none published | yes | **NOT PROVEN** — already recorded "~NEUTRAL" |
+| `first_touch` | −0.269 | none published | yes | **NOT PROVEN WORSE** |
+| `base_min` (pre-touch base) | −0.317 | none published | marginal (just outside) | **BORDERLINE** — DD also worse (−53.5%), which is a second axis |
+| `ext_cap 12%` | −0.603 | none published | no | PROVEN WORSE stands *(no CI published)* |
+| near-SMA LIMIT, strict (E1) | −0.787 | none published | no | PROVEN WORSE stands *(no CI published)* |
+| **near_sma fill-priority (E3/E11)** | −0.802 | none published | no | PROVEN WORSE stands *(no CI published)* |
+| **ROUTER** (per-branch exits) | −0.58 on the 2022-26 slice (0.71 vs 1.29) | none published | no | PROVEN WORSE stands *(no CI; a sub-slice, so its own band is wider than ±0.302)* |
+
+**Four rows reclassified to NOT PROVEN; two more (`drop_rs`, `base_min`) were already hedged or are
+borderline. Four rows keep PROVEN WORSE**, and even those carry a caveat: **none of them published a
+CI**, so "proven worse" rests on a point estimate exceeding the only measured resolution band this
+book has, not on its own interval.
+
+### The worked example, spelled out
+
+STAGE4 config D is recorded in `STAGE4_sleeves.md` as **"Ship NOTHING"** and *"FAIL (not
+significant)"*. Both are correct. What the record does **not** say, and what matters:
+
+- the point estimate was **+0.148 Sharpe — in the candidate's favour**;
+- the CI ran **[−0.131, +0.473]**, so the data are consistent with anything from a small loss to a
+  large gain;
+- the DD point estimate improved (−42 → −34) and its CI **[−0.049, +0.132]** also straddles zero.
+
+The honest sentence is *"config D was not proven better on a book that could not have proven it."*
+The sentence the record currently supports on a fast read is *"config D is worse."* Those are
+different claims and only the first is evidenced.
+
+### What did NOT change
+
+The **activation bounds** (0117, 0119, 0121, 0127, 0129) are untouched by this. They are not
+capped-book ΔSharpe comparisons — they are clairvoyant ceilings, and a ceiling below the floor is a
+valid negative result regardless of power: it says *even with perfect foresight there is not enough
+there to measure*. Likewise 0130's −10.83%/yr has its own CI and its own unit; it is not in this
+table.
+
+The **five pre-entry walls** are untouched: they are population-level nulls with their own CIs, not
+capped-book comparisons.
+
+---
+
+## Consequence — and the boundary of it
+
+1. Rows reclassified NOT PROVEN are **not** re-open conditions and **not** candidates. Reclassifying
+   a label does not create evidence.
+2. Any future re-test of one of them still needs the collision rule — name which of {new data, new
+   feature source, new sub-period, new formulation} it brings — **and** must be run somewhere with
+   the power to resolve it, which the capped book does not have. That means the population or
+   forward.
+3. **The class of conclusion this affects is broad.** Where a programme declines many candidates on
+   an instrument that cannot resolve them, the resulting picture — "everything fails" — is partly a
+   statement about the instrument. That is the honest reading of the 4-for-4 bound record and of the
+   entry-lever table together.
+
+## Cross-references
+
+`research/substrate/STAGE4_sleeves.md` (the CI) · `research/substrate/ROUTER_RESULT.md` ·
+`research/losers_analysis/{SYSTEM,FORENSIC_FINDINGS}.md` (the E levers) ·
+`STRUCTURAL_DEFECT_MAP.md` §2 (the power arithmetic) · `UNIT_RESOLUTION.md`

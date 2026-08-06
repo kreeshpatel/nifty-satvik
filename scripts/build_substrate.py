@@ -94,6 +94,15 @@ def build():
             entry=en, stop=st, exit_px=float(r["exit_px"]), reason=r["reason"],
             R=float(r["R"]), held_weeks=int(r["held_weeks"]), half_booked=r.get("half_date") is not None,
             rank_crs=float(r["rank"]),
+            # MONEY COLUMNS — carried so the substrate can be read in equity terms, not only in R.
+            # The ledger already computes all three; dropping them made every %-of-position figure
+            # unreconstructable from this file. `half_px` is the load-bearing one: for a trade that
+            # booked the +2R half the position was sold in TWO legs, so without it the share count
+            # inverted from `stt_paid` (0.1% per leg) is wrong and every % of position is wrong with
+            # it — 34.3% of the population. See scripts/diag_unit_resolution.py.
+            net_pnl=float(r["net_pnl"]) if r.get("net_pnl") is not None else np.nan,
+            stt_paid=float(r["stt_paid"]) if r.get("stt_paid") is not None else np.nan,
+            half_px=float(r["half_px"]) if r.get("half_px") is not None else np.nan,
             # NOTE: `risk_pct` HERE is the STOP WIDTH as % of entry — NOT the % of equity risked.
             # The engine ledgers use the same name for the other quantity
             # (run_bhanushali_weekly_rank.py:884, run_bhanushali_practitioner.py:225 compute

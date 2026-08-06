@@ -283,9 +283,49 @@ smaller denominator:
    nominal capital behind the `<5%` cohort vs **0.788×** behind the rest — and the gap erodes from
    **+0.334R to +0.057R, an ~83% erosion.**
 
-**The edge is real and it survives in live-rupee terms** (+0.466 vs +0.409 still favours `<5%`). What
-it does not survive is being *quoted in R* as though R were rupees. The one-line reading: **the
-research measures the edge at roughly six times the size the live book can actually collect.**
+**The edge is real and it survives in live-rupee terms** (+0.466 vs +0.409 still favours `<5%`).
+
+### 7.0 SCOPE AMENDMENT — 2026-08-06, after the unit resolution and finding 0130
+
+**The ~83% erosion is a property of the LIVE NOTIONAL CAP. It is not evidence that the R-measured
+edge was a denominator artifact, and this section must not be read that way.**
+
+This paragraph originally continued *"what it does not survive is being quoted in R as though R were
+rupees"*, and effect (1) above calls the R-measured edge *"a ratio effect, not a bigger-move
+effect"*. Both are true **of the capped live book** and both are wrong if carried to the record.
+[`UNIT_RESOLUTION.md`](../UNIT_RESOLUTION.md) settles it arithmetically:
+
+- Under risk-parity, `shares = sizing_eq × risk ÷ (entry − stop)`, so **gross equity return =
+  R × risk_fraction, exactly**. Measured: correlation **0.9999999970** on the 4,104 population
+  trades that never book the +2R half, max difference 0.056pp.
+  **In the uncapped record, R IS rupees** — at 2% of equity per R. Quoting the edge in R is correct
+  there, not a category error.
+- Across all 6,245 signals, **R and % of equity correlate 0.994 and rank every extension band
+  identically (Spearman +1.000)**. It is **% of position** that is the outlier (0.184 against R),
+  and the band it promotes is `>20` — the widest-stop, largest-position cohort. The
+  fixed-notional column above is that lens.
+- **The fixed-notional world is now measured, and it is worse.** Finding
+  [0130](../../research/findings/0130-sizing-exclusion-bound.md) priced equal-notional sizing on
+  this book at **−10.83% of equity per year**, CI [−26.33, +4.74], 7 of 10 years the same sign. So
+  the ordering reversal in row 2 of the table is not a truer view of the edge; it is the view from a
+  sizer that earns materially less.
+
+**Therefore, scoped precisely:**
+
+| claim | scope |
+|---|---|
+| `<5%` gap is +0.334R | **the record** (uncapped risk-parity) — and here R = money, so this is a rupee statement |
+| the gap erodes to +0.057R, ~83% | **the live capped book only** — caused by `max_notional_pct=0.20` binding on 53.4% of trades |
+| a fixed-notional yardstick reverses the ordering | a **counterfactual sizer**, measured by 0130 as −10.83% of equity/yr |
+
+The one-line reading, corrected: **the live cap collects about a sixth of the ext-band gap the
+record earns — a cap effect, not a measurement error.** The research is not overstating the edge; the
+cap is under-collecting it, which is a priced guardrail decision (§7.1) rather than a defect in the
+measurement.
+
+*One further correction from the same work, recorded because it runs the other way:* the engine
+credits the booked +2R half at a **notional 2.0R** while it actually fills at a mean **3.04R**, so
+published R **understates** realised money on the 34.3% of trades that book the half.
 
 **The rule this fixes for the review.** Any future proposal to size, tilt, or concentrate on the
 extension band — the unshipped 0126 sizing question included — is judged on the **live

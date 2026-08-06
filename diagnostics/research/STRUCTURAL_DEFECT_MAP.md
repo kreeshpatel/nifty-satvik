@@ -125,7 +125,7 @@ meaningless.
 
 | # | defect | measured cost | class | source |
 |---|---|---|---|---|
-| **1** | **The capped book cannot certify an improvement** | the ±10R/yr floor = **1.20 annual σ**; an overlay must add **74.4%** of the book's entire annual return to clear it | INHERENT | §2 below |
+| **1** | **The capped book cannot certify an improvement** | the ±10R/yr floor = **1.20 annual σ**; an overlay must add **74.4%** of the book's entire annual return to clear it. **Measured resolution band: ±0.302 ΔSharpe** (STAGE4's published CI) — verdicts inside it are reclassified NOT PROVEN, see `POWER_READJUDICATION.md` | INHERENT | §2 below |
 | **2** | **Funding bias — the funded set is not its own population** | 0 of 1,249 tightest-stop signals funded in 9.5y; **48×**/**111×**; **priced 2026-08-06 as a SAVING of −10.83% of equity/yr** (finding 0130) | **TRADEOFF** | census §2; finding 0130 |
 | **3** | **D1 survivorship × no time cap** | −0.18 Sharpe class (0025, wide-stop configs — the largest-bias configuration, which is this one) | FIXABLE (backfill exists, unapplied to live) | constitution D1 |
 | **4** | **D3 live ≠ certified config** | config P **fails** the 2022-26 continuous slice at **0.91** vs the 1.29 bar, with **−39.5% DD** (`cron:44-77`) | TRADEOFF (owner override, recorded) | constitution D3 |
@@ -261,7 +261,7 @@ are in-repo; the third is owner-held and is listed in §7 as a provenance gap ra
 | ID | defect | measured cost | class | source |
 |---|---|---|---|---|
 | MSR-1 | **8 open definitions doors** — R, win rate, CAGR, MaxDD, Sharpe, the ±10R floor, `expectancy_R`, Calmar | each changes what a gate means; none changes a past verdict (all decided on deltas, where the convention cancels) | **OPEN** ×8 | `DEFINITIONS_REGISTER.md` rows 1, 5, 6, 7, 8, 11, 15, 18 |
-| MSR-2 | **R is heterogeneous** — stop width spans **7×** | the same rupee move prints a different R; funded vs unfunded differ by +6.94pp in stop width, so their R gap and their % gap measure different things | **OPEN** (binder §6–8) | binder §6/§7/§8 |
+| MSR-2 | **R is heterogeneous** — stop width spans **7×** | **PARTLY SETTLED 2026-08-06** (`UNIT_RESOLUTION.md`): under risk-parity, gross equity return = R × 2% **exactly** (corr 0.9999999970 on the 4,104 trades that never book the half), so **in the uncapped record R IS money** and R vs equity% correlate 0.994. The heterogeneity bites only where the notional cap binds — live, 53.4% of trades | **TRADEOFF** (scoped to the live cap) | binder §6/§7.0/§8; `UNIT_RESOLUTION.md` |
 | MSR-3 | **The ±10R/yr floor is a blended unit** | derived empirically in R on a book whose R denominators vary 7× | **OPEN** | definitions row 11 |
 | MSR-4 | **Demerger convention applied both ways** | 22 back-adjusted / 15 cliffs; **AARTIIND is in both**; 243/4,321 substrate trades (5.6%), 7.5% of sum R; 30 of the 418 `<5%` core-cell trades at +1.292R → excluding them moves the cell +0.717 → **+0.672** (**6.2%**) | **OPEN** (binder §10) | binder §10 |
 | MSR-5 | **CAGR has two committed denominators** | 24.7% vs 25.21% on the same curve (calendar years vs bar-years) | **OPEN** | definitions row 6 |
@@ -326,6 +326,31 @@ Kept short and citing [`skills/program-laws`](../../skills/program-laws/SKILL.md
 stays a defect register rather than an invitation to relitigate. **None of these is an open item.
 Re-proposing any of them requires the collision rule — name which of {new data, new feature source,
 new sub-period, new formulation} you bring, or the ledger has already answered.**
+
+> **LABELLING CORRECTION — 2026-08-06, [`POWER_READJUDICATION.md`](POWER_READJUDICATION.md).**
+> Some rows below were decided on a capped-book ΔSharpe the book could not resolve. The only
+> measured resolution band on this book is STAGE4's published CI half-width, **±0.302 Sharpe**
+> (ΔSharpe +0.148, 95% CI **[−0.131, +0.473]**), which agrees with §2's power arithmetic. Verdicts
+> inside that band are reclassified **NOT PROVEN** — *adoption correctly declined, inferiority not
+> demonstrated*:
+>
+> | row | published Δ | reclassified |
+> |---|---:|---|
+> | STAGE4 config D (sleeves ×3) | **+0.148**, CI [−0.131, +0.473] | **NOT PROVEN BETTER** (point estimate favours it) |
+> | STAGE4 config C / config B | −0.05 / +0.19 (slices disagree) | **NOT PROVEN** |
+> | `ext_cap 22%` | −0.149 | **NOT PROVEN WORSE** |
+> | `first_touch` | −0.269 | **NOT PROVEN WORSE** |
+> | `drop_rs` | −0.037 | **NOT PROVEN** (already hedged "~NEUTRAL") |
+> | `base_min` | −0.317 | **BORDERLINE** (DD also worse, a second axis) |
+>
+> **Unchanged — PROVEN WORSE stands:** `ext_cap 12%` (−0.603), near-SMA LIMIT (−0.787),
+> `fill_order="near_sma"` (−0.802), ROUTER (−0.58 on the 2022-26 slice). Each still lacks its own
+> published CI, so each rests on a point estimate exceeding the band rather than on an interval.
+>
+> **This revives nothing.** Reclassification is not a re-open condition and creates no candidate;
+> the collision rule applies to every row exactly as before. Also unchanged: the five pre-entry
+> walls and the five activation bounds, which are population nulls and clairvoyant ceilings, not
+> capped-book comparisons.
 
 - **The five pre-entry walls** — bar-level ML, loser forensics, path shape, formula chart structure,
   perception (0123, κ=0.867 validated, flat).
