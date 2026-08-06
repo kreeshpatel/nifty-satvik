@@ -81,6 +81,9 @@ results/*
 !results/paper_state.json
 # Kill-criteria + paper-equity runtime state must persist across cron runs (Stage E/F).
 !results/kill_state.json
+# Zoo shadow book — OBSERVATIONAL ONLY (pre-reg 0131), traded by nobody. Same class as
+# blend_hybrid_paper.json. Producer: scripts/run_zoo_shadow_book.py
+!results/zoo_shadow_book.json
 !results/kill_log.jsonl
 # Weekly-swing forward-review scorecard (Oct-1 promote/kill machinery) — cron-refreshed, dashboard-read.
 !results/weekly_review_scorecard.json

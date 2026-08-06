@@ -23,7 +23,7 @@ is a case where the honest number and the natural reading diverge. **Verdict** i
 
 | # | metric | convention in one line | verdict |
 |---|---|---|---|
-| 1 | **R** (R-multiple) | price outcome ÷ that trade's own stop width | **DOOR** (open, binder §6–8) |
+| 1 | **R** (R-multiple) | price outcome ÷ that trade's own stop width | **DOOR** (open, binder §6–8) + **standing caveat §1a**: understates money on the 34.3% of trades booking the half (2.0R credited vs 3.04R actual) |
 | 2 | **"R" the symbol** | means three different things in committed text | **PRESENTATION** |
 | 3 | **`risk_pct`** | means two different things in committed code | **PRESENTATION** |
 | 4 | **trade count** | `total_trades` = **closed only**; open positions excluded | **PRESENTATION** |
@@ -56,6 +56,34 @@ is a case where the honest number and the natural reading diverge. **Verdict** i
 - **Violated in published use?** No use *violates* its definition — but several quote R across books
   with different sizing regimes without saying which. Fully worked in finding 0129 and binder §6–8.
 - **Status:** door already open (binder §6, §7, §8). **Not re-opened here.**
+
+### 1a. STANDING CAVEAT — R understates realised money on trades that book the half *(added 2026-08-06)*
+
+**Measured, not inferred** ([`UNIT_RESOLUTION.md`](../UNIT_RESOLUTION.md);
+`scripts/diag_unit_resolution.py`):
+
+- The engine credits the booked +2R half at a **notional 2.0R**, not at the price it filled
+  (`run_bhanushali_weekly_rank.py:487-490`). The half triggers on a weekly **close** at or above the
+  target and fills at the **next session's open**, so in a trending week it fills well beyond it.
+- Across the 6,245-signal population the booked half actually achieved a **mean 3.0407 R**
+  (median 2.5577) against the 2.0 credited — an understatement of **≈0.52 R per half-booked trade**.
+- **34.3% of the population books the half** (40.4% of the substrate).
+
+**Consequences, both directions:**
+
+1. **Published R is CONSERVATIVE, not inflated.** On a third of trades the book earned more money
+   than its R says. This is the opposite of the direction the R-denominator worry assumed.
+2. **R comparisons between arms with different half-booking rates are BIASED.** The bias scales with
+   the difference in half-book rate, and it is invisible in R itself. Where two arms differ on that
+   rate — different exits, different setups, different funnels — **% of equity is the arbiter and R
+   is reported beside it, never instead of it.**
+
+The identity that makes % of equity safe here: under risk-parity, gross equity return = R × 2%
+**exactly** (corr 0.9999999970 on the 4,104 trades that never book the half), so the two units agree
+except through cost drag and precisely this half-credit.
+
+**In force for:** finding 0130's arms, pre-reg 0131's shadow book (which names % of equity as its
+arbiter for this reason), `ZOO_TWO_LENS.md`, and any future two-arm comparison.
 
 ## 2. The symbol "R" — three meanings — **PRESENTATION (fixed)**
 

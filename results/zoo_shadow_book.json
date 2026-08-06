@@ -1,0 +1,110 @@
+{
+  "_what": "OBSERVATIONAL SHADOW BOOK \u2014 pre-reg 0131. Traded by nobody. Decides nothing.",
+  "_binding": "pre-reg 0131 \u00a74: this is NEVER a Sharpe race. A dSharpe on this pair may only be quoted with the +-0.302 resolution band attached, never as a verdict. The reads are per-trade quality in % of equity (arbiter) and forward divergence.",
+  "generated_at": "2026-08-06T10:02:26+00:00",
+  "start": "2017-01-01",
+  "pool": {
+    "live": [
+      "touch44"
+    ],
+    "shadow": [
+      "touch44",
+      "box",
+      "cup_handle",
+      "double_bottom"
+    ]
+  },
+  "held_identical": [
+    "CRS fill priority",
+    "frozen exit ladder (13-week cap)",
+    "risk 2%",
+    "cash-only capacity",
+    "Rs10L capital"
+  ],
+  "throughput": {
+    "live_closed_trades": 255,
+    "shadow_closed_trades": 491,
+    "delta_pct": 92.55,
+    "falsifier_threshold_pct": 25.0,
+    "_H": "the pool improves, not the throughput \u2014 capital binds, not supply",
+    "throughput_falsifier_tripped": true
+  },
+  "selection_divergence": {
+    "shadow_only_fills": 472,
+    "live_only_fills": 236,
+    "shared_fills": 19,
+    "_note": "a shadow-only fill is a week where the wider pool won a seat the live pool could not contest; this is the observable forward event"
+  },
+  "per_trade_quality": {
+    "live": {
+      "n": 255,
+      "mean_R": 0.4812,
+      "mean_equity_pct": 2.7818,
+      "win_rate": 0.5922,
+      "by_setup": {
+        "touch44": {
+          "n": 255,
+          "mean_R": 0.4812,
+          "mean_equity_pct": 2.7818,
+          "win_rate": 0.5922
+        }
+      }
+    },
+    "shadow": {
+      "n": 491,
+      "mean_R": 0.2054,
+      "mean_equity_pct": 0.8412,
+      "win_rate": 0.5458,
+      "by_setup": {
+        "box": {
+          "n": 164,
+          "mean_R": 0.1699,
+          "mean_equity_pct": 0.8912,
+          "win_rate": 0.5488
+        },
+        "cup_handle": {
+          "n": 57,
+          "mean_R": 0.2157,
+          "mean_equity_pct": 0.6046,
+          "win_rate": 0.5614
+        },
+        "double_bottom": {
+          "n": 241,
+          "mean_R": 0.1537,
+          "mean_equity_pct": 0.7745,
+          "win_rate": 0.5145
+        },
+        "touch44": {
+          "n": 29,
+          "mean_R": 0.8146,
+          "mean_equity_pct": 1.5774,
+          "win_rate": 0.7586
+        }
+      }
+    },
+    "delta_shadow_minus_live": {
+      "_arbiter": "% of equity per trade (UNIT_RESOLUTION.md); R reported beside it",
+      "d_equity_pct_per_trade": -1.9406,
+      "equity_ci95": [
+        -3.5975,
+        -0.2644
+      ],
+      "equity_ci_excludes_zero": true,
+      "d_R_per_trade": -0.2759,
+      "R_ci95": [
+        -0.486,
+        -0.0668
+      ],
+      "R_ci_excludes_zero": true
+    }
+  },
+  "capped_metrics_UNDERPOWERED": {
+    "_warning": "REPORTED FOR COMPLETENESS ONLY. The resolution band is +-0.302 dSharpe; any difference below that is unresolvable and must not be read as a result. Pre-reg 0131 \u00a74 forbids treating this as a verdict.",
+    "resolution_band_dsharpe": 0.302,
+    "live_sharpe": 1.1319,
+    "shadow_sharpe": 0.8474,
+    "dsharpe": -0.2845,
+    "inside_resolution_band": true
+  },
+  "next_substantive_read": "2027-04-01 (>=2 quarters AND >=30 shadow-funded closed trades); 2026-10-01 is a status check only"
+}

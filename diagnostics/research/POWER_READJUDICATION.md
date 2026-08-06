@@ -94,6 +94,64 @@ capped-book comparisons.
    statement about the instrument. That is the honest reading of the 4-for-4 bound record and of the
    entry-lever table together.
 
+---
+
+## Addendum 2026-08-06 — the STANDALONE family line was never tested at all
+
+**Question put to this session:** was STAGE4's per-family standalone line — *touch 1.29 · cup 1.02 ·
+box 1.00 · double_bottom 0.94* on the 2022-26 slice — put through the same resolution test as
+configs B/C/D?
+
+**Answer: no.** `STAGE4_sleeves.md` contains exactly two confidence intervals, both from
+`diag_sleeve_rigor.py`, and both are **config D vs config A** (ΔSharpe +0.148 [−0.131, +0.473];
+ΔMaxDD +0.088 [−0.049, +0.132]). **The standalone family line carries no interval, no bootstrap and
+no walk-forward.** It is a bare point-estimate table — and it is the line the corpus cites most often
+as the reason the zoo is closed.
+
+### Applying the band
+
+| comparison | gap vs touch 1.29 | vs ±0.302 | reclassified |
+|---|---:|---|---|
+| cup_handle 1.02 | **0.27** | inside | **NOT PROVEN WORSE** |
+| box 1.00 | **0.29** | inside | **NOT PROVEN WORSE** |
+| double_bottom 0.94 | **0.35** | 16% beyond | **BORDERLINE → NOT PROVEN** once the two corrections below are applied |
+| ascending_base 0.64 | 0.65 | outside | worse stands |
+| trend_pullback −0.06 | 1.35 | far outside | worse stands |
+
+### Two corrections that both widen the band, and therefore both favour "not proven"
+
+1. **These are sub-slice comparisons.** ±0.302 was measured on the **full period**; the standalone
+   line is the **2022-26 slice**, roughly half the span and so roughly half the trades. A CI scales
+   about as 1/√n, so the honest band for these gaps is **wider than ±0.302 — plausibly ±0.4 or
+   more.** Every one of the three gaps sits inside that.
+2. **These books are smaller.** ±0.302 came from config D (484 trades) against A (168). Each
+   standalone family runs one funnel on its own ₹10L — config C's six sleeves total 975 trades, so
+   roughly 160 per family. **Fewer trades per arm than the comparison the band was measured on**,
+   which widens it again.
+
+Transferring the full-period, larger-N band to a sub-slice, smaller-N comparison is therefore
+**conservative**: the real uncertainty is larger, and the "not proven" reading is stronger than the
+arithmetic above already makes it.
+
+### What this changes, and what it does not
+
+**Changes:** the sentence *"no family beats touch standalone"* is not supported for cup, box or
+double_bottom. The supported sentence is *"no family was shown to beat touch standalone, on a slice
+that could not have shown it."*
+
+**Does not change:** `ascending_base` and `trend_pullback` remain worse on gaps far outside any
+plausible band — consistent with `ZOO_TWO_LENS.md`, where `ascending_base` is *underpowered at
+population level* but standalone-worse by 0.65 at portfolio level, and `trend_pullback` is null in
+both.
+
+**And it does not change the portfolio verdicts.** Config B/C/D and ROUTER tested whether these
+families help *inside a shared, capped book*, and those remain as re-adjudicated above. A family
+being not-proven-worse **standalone** says nothing about whether adding it to a shared cap helps —
+that is the per-trade-vs-portfolio wall, and it is separately measured.
+
+> **The guard at the top of this document applies here without exception: this is a relabel. It
+> revives nothing and authorises no re-test.**
+
 ## Cross-references
 
 `research/substrate/STAGE4_sleeves.md` (the CI) · `research/substrate/ROUTER_RESULT.md` ·
