@@ -353,6 +353,33 @@ the Oct-1 call is a pure risk-preference placement:
 **What is NOT established here:** whether any of these caps produces a better book. That question is
 the trial-class half, it is declined, and 0113 says the answer would not be readable anyway.
 
+
+### Composition caveat on the `<5%` core cell — added 2026-08-06 (foundation audit)
+
+The `<5%` extension cell is the core edge this whole section prices. A second, independent thing is
+true about its composition, and it is recorded here so October reads both together rather than the
+headline alone.
+
+The pinned data applies **two different demerger conventions** — 22 events back-adjusted, 15 left as
+cliffs (binder §10). Names touched by that split are not spread evenly across the extension bands:
+
+| | N | mean R |
+|---|---:|---:|
+| `<5%` cell as published | 418 | **+0.717** |
+| — of which convention-mixed names | **30** | **+1.292** |
+| — cell excluding them | 388 | **+0.672** |
+
+Excluding them moves the cell by **−0.045 R, about 6% of the core edge**.
+
+**This is a composition note, not a recomputation.** No cell is restated, no verdict moves, and
+nothing here proposes excluding anything — the 30 trades are real trades and there is no basis for
+dropping them. What it establishes is that ~6% of the cell's headline sits on names whose price
+history is built on a convention the repo has not yet chosen, which is why §10's convention decision
+is a **prerequisite** for reading this cell to three decimals rather than a separate topic.
+
+Note the direction: the mixed names are *better* than the cell, so the ambiguity currently flatters
+it. That is the conservative direction for a sizing decision and the awkward one for a headline.
+
 ## 8. DECISION INPUT — the 0.829 research→live translation factor, and what the ±10R floor is made of
 
 **Two caveats on units. Neither moves any verdict on the record; both change how the next number
@@ -494,7 +521,7 @@ demonstration that its tail is not the book's tail. Absent both, this is a stand
 
 ---
 
-## Demerger adjustment convention — either is defensible, both is not (2026-08-06)
+## 10. Demerger adjustment convention — either is defensible, both is not (2026-08-06)
 
 **Source:** `diagnostics/research/foundation_audit_2026Q3/FOUNDATION_AUDIT.md` layer 2.
 **Verification class; counts unchanged (15 / 1 / 138). Nothing measured here is a proposal.**
@@ -552,6 +579,32 @@ expectancy, and the alpha decomposition's sleeve panels — treats those two pop
    (`LIVE_REPAIR_DECISION.md`) and the 0025 survivorship re-anchor. All three change historical bars
    and therefore share one re-anchor; deciding them separately would mean re-anchoring the pin more
    than once.
+
+
+### Prerequisite STARTED 2026-08-06 — the register is now complete
+
+The decision was blocked on being unenforceable: the committed reference named **4 of 37** events,
+so whichever convention October nominates could not have been applied. That is now fixed, as **data
+collection only — zero trials, and NO convention applied**.
+
+`data/corporate_actions_demerger_register.csv` enumerates all **37 events across 35 names**, each
+carrying the exchange's ex-date and ISIN, the **measured** vendor treatment (`BACK_ADJUSTED` 22 /
+`LEFT_AS_CLIFF` 15, measured against NSE bhavcopy rather than assumed), the implied factor, and each
+name's weight in the record (substrate trades and sumR).
+
+Two things about it are deliberate:
+
+- **It is a NEW file, and the prescriptive one is untouched.** `nq.data.ohlcv` reads
+  `data/corporate_actions_demergers.csv` to decide how to clean a series; adding 37 rows there would
+  have *applied the listed-entity convention to all of them* — this decision, taken by a data edit.
+  The register is descriptive and nothing reads it to change behaviour.
+- **The `convention` column reads `UNDECIDED` on every row**, and a test asserts it. Populating it
+  is the decision. A second test pins the prescriptive file at 4 rows, so growing it without an ADR
+  fails the suite.
+
+Producer `scripts/build_demerger_register.py`; tests `tests/test_demerger_register.py`.
+
+**The decision arrives at October enforceable, and still undecided.**
 
 **Neither reading is weighed here, and no verdict on the record moves.** The 22/15 split is reported
 so October decides a convention, not so a number changes today.

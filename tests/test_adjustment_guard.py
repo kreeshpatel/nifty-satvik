@@ -15,6 +15,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT / "scripts"))
 
 from nq.data.adjustment_guard import (  # noqa: E402
     KNOWN_SEAMS, assert_no_new_seams, check_adjustment_monotonicity, implied_adjustment,
@@ -148,3 +149,91 @@ def test_live_reference_covers_the_pinned_universe_if_present():
     assert ref["symbol"].nunique() > 500
     assert ref["date"].nunique() > 100
     assert (ref["close"].astype(float) > 0).all()
+
+
+# ── the ADR-0013 escalation trigger ───────────────────────────────────────────────────────────────
+#
+# Decision (b) accepted running on ONE known-wrong input until 2026-10-01, on a stated scope: a
+# suppressed candidate, no open position. These pin the condition under which that scope stops
+# holding, because a pre-commitment nobody evaluates is not a pre-commitment.
+
+from nq.data.adjustment_guard import (  # noqa: E402
+    LIVE_WINDOW_WEEKS, assert_no_live_escalation, live_exposure,
+)
+
+_ACCEPTED = {("TRENT", "2026-01-01"): {"factor": 1.5, "cause": "bonus 1:2",
+                                       "provenance": "F-1",
+                                       "owner_status": "ACCEPTED_UNTIL_2026-10-01 (ADR-0013)"}}
+
+
+def _cache(*syms, end="2026-06-29"):
+    idx = pd.date_range(end=pd.Timestamp(end), periods=600, freq="D")
+    return {s: pd.DataFrame({"Close": range(len(idx))}, index=idx) for s in syms}
+
+
+def test_the_accepted_seam_alone_does_not_escalate():
+    """The status quo the owner signed off: TRENT in-window, accepted, nothing held."""
+    ex = live_exposure(_cache("TRENT"), [], as_of="2026-06-29", known=_ACCEPTED)
+    assert [s["symbol"] for s in ex["in_window"]] == ["TRENT"]
+    assert ex["accepted_live"] and not ex["escalate"]
+
+
+def test_an_additional_live_affecting_seam_escalates():
+    """The first half of the trigger: another seam inside the 44-week window, unaccepted."""
+    known = dict(_ACCEPTED)
+    known[("NEWCO", "2026-03-01")] = {"factor": 2.0, "cause": "bonus 1:1", "provenance": "test"}
+    with pytest.raises(ValueError) as e:
+        assert_no_live_escalation(_cache("TRENT", "NEWCO"), [], as_of="2026-06-29", known=known)
+    assert "NEWCO" in str(e.value) and "ADR-0013" in str(e.value)
+
+
+def test_a_seam_on_an_open_position_escalates_even_when_accepted():
+    """The second half: the acceptance was granted for a SUPPRESSED CANDIDATE. A held name is a
+    different question and must not inherit that acceptance."""
+    with pytest.raises(ValueError) as e:
+        assert_no_live_escalation(_cache("TRENT"), ["TRENT"], as_of="2026-06-29", known=_ACCEPTED)
+    assert "OPEN POSITION" in str(e.value)
+
+
+def test_a_seam_outside_the_44_week_window_does_not_escalate():
+    """CONCOR/HBLENGINE/UPL have aged out — that is why the live scope is one name, not seven."""
+    known = {("OLDCO", "2024-01-01"): {"factor": 4.0, "cause": "split", "provenance": "test"}}
+    ex = live_exposure(_cache("OLDCO"), [], as_of="2026-06-29", known=known)
+    assert ex["in_window"] == [] and not ex["escalate"]
+
+
+def test_a_seam_on_a_name_absent_from_the_cache_cannot_bite():
+    """MAHLIFE is not in the live 500-name universe; a seam there cannot move a live gate."""
+    known = {("MAHLIFE", "2026-05-14"): {"factor": 1.09, "cause": "rights", "provenance": "test"}}
+    ex = live_exposure(_cache("TRENT"), [], as_of="2026-06-29", known=known)
+    assert not ex["escalate"] and ex["in_window"] == []
+
+
+def test_the_acceptance_expires_on_its_own_date():
+    """The acceptance must not outlive the review. After 2026-10-01 the same seam escalates with no
+    edit to the register — nobody has to remember."""
+    before = live_exposure(_cache("TRENT"), [], as_of="2026-09-30", known=_ACCEPTED)
+    after = live_exposure(_cache("TRENT"), [], as_of="2026-10-02", known=_ACCEPTED)
+    assert not before["escalate"], "accepted before the review date"
+    assert after["escalate"], "the acceptance must expire on 2026-10-01, not silently persist"
+
+
+def test_an_unparseable_owner_status_is_not_an_acceptance():
+    """Fail closed: a malformed status must escalate rather than silently grant immunity."""
+    known = {("TRENT", "2026-01-01"): {"factor": 1.5, "cause": "x", "provenance": "t",
+                                       "owner_status": "ACCEPTED_UNTIL_whenever"}}
+    assert live_exposure(_cache("TRENT"), [], as_of="2026-06-29", known=known)["escalate"]
+
+
+def test_the_live_window_matches_the_engine_sma():
+    """If these ever diverge the trigger stops meaning 'moves a live gate'."""
+    import run_bhanushali_weekly_rank as R94  # noqa: F401  (import guard only)
+    assert LIVE_WINDOW_WEEKS == 44
+
+
+def test_the_shipped_register_has_exactly_one_accepted_seam():
+    """ADR-0013 accepted TRENT and nothing else. A second acceptance appearing without an ADR is
+    the drift this test exists to catch."""
+    accepted = {k: v for k, v in KNOWN_SEAMS.items() if v.get("owner_status", "").startswith(
+        "ACCEPTED_UNTIL_")}
+    assert list(accepted) == [("TRENT", "2026-01-01")], accepted

@@ -84,8 +84,13 @@ KNOWN_SEAMS: dict[tuple[str, str], dict] = {
                                "found": "2026-08-06", "provenance": "foundation-audit-F-1"},
     ("MAHLIFE", "2025-05-14"): {"factor": 1.0884, "cause": "rights 3:8 ex 2025-05-23",
                                 "found": "2026-08-06", "provenance": "foundation-audit-F-1"},
+    # OWNER DECISION 2026-08-06 (ADR-0013): live repair DEFERRED to the 2026-10-01 review. This is
+    # the ONE seam knowingly accepted as live-affecting until then. Its acceptance is what makes the
+    # escalation trigger below meaningful — "any ADDITIONAL live-affecting seam" is defined against
+    # exactly this entry, and the acceptance expires on the review date rather than silently.
     ("TRENT", "2026-01-01"): {"factor": 1.50, "cause": "bonus 1:2 ex 2026-06-04",
-                              "found": "2026-08-06", "provenance": "foundation-audit-F-1"},
+                              "found": "2026-08-06", "provenance": "foundation-audit-F-1",
+                              "owner_status": "ACCEPTED_UNTIL_2026-10-01 (ADR-0013)"},
 
     # Pre-declared bad bars: the Diwali Muhurat sessions where the cache carries a doubled bar that
     # reverts two days later. `drop_erratum` is gated OFF by default, so they are in the record.
@@ -248,3 +253,118 @@ def assert_no_new_seams(ohlcv: dict, ref: pd.DataFrame | None = None, *,
             "with scripts/audit_foundation_seam_2026Q3.py, then either repair the series or add the "
             "seam to nq.data.adjustment_guard.KNOWN_SEAMS with its cause. Do NOT widen STEP_TOL.")
     return rep
+
+
+# ─────────────────────────────────────────────────────────────────────────────────────────────────
+# ESCALATION TRIGGER — pre-committed by the owner on 2026-08-06 alongside decision (b) (ADR-0013).
+#
+# Decision (b) accepts ONE known-wrong input until the 2026-10-01 review: TRENT's 2026-01-01 seam,
+# which suppresses a candidate and touches no open position. The acceptance was granted on that
+# scope. The trigger below is the condition under which the scope no longer holds, written as code
+# rather than as an intention, because a trigger nobody evaluates is not a trigger:
+#
+#   * any ADDITIONAL live-affecting seam — one whose session falls inside the engine's trailing
+#     44-week window, so it moves a live gate — that the owner has not accepted; or
+#   * any seam on a name the book actually HOLDS, accepted or not, because a wrong input behind an
+#     open position is a different question from a suppressed candidate.
+#
+# Either returns to the owner's door immediately. Everything else waits for 2026-10-01.
+# ─────────────────────────────────────────────────────────────────────────────────────────────────
+
+LIVE_WINDOW_WEEKS = 44        # the swing engine's SMA window: a seam inside it moves a live gate
+ACCEPTED_PREFIX = "ACCEPTED_UNTIL_"
+
+
+def _accepted(entry: dict, as_of: pd.Timestamp) -> bool:
+    """An acceptance is dated and EXPIRES. Past its date it is no longer an acceptance, so the seam
+    escalates on its own rather than needing anyone to remember the review happened."""
+    status = str(entry.get("owner_status", ""))
+    if not status.startswith(ACCEPTED_PREFIX):
+        return False
+    try:
+        until = pd.Timestamp(status[len(ACCEPTED_PREFIX):].split()[0])
+    except Exception:                                   # unparseable date -> not an acceptance
+        return False
+    return as_of <= until
+
+
+def live_exposure(ohlcv: dict, positions=(), *, as_of=None, known: dict | None = None) -> dict:
+    """Which registered seams are LIVE-affecting right now, and which of those must escalate.
+
+    `positions` is any iterable of held tickers (the paper book's `positions` keys).
+    `as_of` defaults to the latest bar in the cache.
+    """
+    known = KNOWN_SEAMS if known is None else known
+    if as_of is None:
+        ends = [pd.DatetimeIndex(df.index).max() for df in ohlcv.values()
+                if df is not None and len(df)]
+        as_of = max(ends) if ends else pd.Timestamp.today().normalize()
+    as_of = pd.Timestamp(as_of)
+    cutoff = as_of - pd.Timedelta(weeks=LIVE_WINDOW_WEEKS)
+    held = {str(p).upper() for p in positions}
+
+    in_window, on_position, escalations, accepted = [], [], [], []
+    for (sym, date), entry in sorted(known.items()):
+        if sym not in ohlcv:                            # not in the live universe -> cannot bite
+            continue
+        d = pd.Timestamp(date)
+        rec = {"symbol": sym, "seam_session": date, "step_factor": entry.get("factor"),
+               "cause": entry.get("cause"), "provenance": entry.get("provenance"),
+               "in_44w_window": bool(cutoff <= d <= as_of), "held": sym in held,
+               "owner_status": entry.get("owner_status", "")}
+        rec["accepted"] = _accepted(entry, as_of)
+        if rec["in_44w_window"]:
+            in_window.append(rec)
+        if rec["held"]:
+            on_position.append(rec)
+        # A held name escalates even when accepted: the acceptance was granted for a SUPPRESSED
+        # CANDIDATE, and an open position is not that.
+        if (rec["in_44w_window"] and not rec["accepted"]) or rec["held"]:
+            escalations.append(rec)
+        elif rec["in_44w_window"] and rec["accepted"]:
+            accepted.append(rec)
+
+    return {"as_of": str(as_of.date()), "window_start": str(cutoff.date()),
+            "in_window": in_window, "on_open_position": on_position,
+            "accepted_live": accepted, "escalations": escalations,
+            "escalate": bool(escalations)}
+
+
+def assert_no_live_escalation(ohlcv: dict, positions=(), *, as_of=None,
+                              known: dict | None = None) -> dict:
+    """Raise when the pre-committed escalation condition fires.
+
+    Raising halts the weekly scan, and that is the intended consequence rather than a side effect.
+    Decision (b) accepted running on a known-wrong input for ONE name that the book cannot buy; the
+    trigger fires precisely when that premise stops holding, and the pre-commitment says it returns
+    to the owner before the book acts again — not after.
+    """
+    ex = live_exposure(ohlcv, positions, as_of=as_of, known=known)
+    if ex["escalate"]:
+        lines = []
+        for s in ex["escalations"]:
+            why = "OPEN POSITION" if s["held"] else "inside the 44-week window, not accepted"
+            lines.append(f"  {s['symbol']} seam {s['seam_session']} x{s['step_factor']} — {why}"
+                         f" ({s['cause']})")
+        raise ValueError(
+            "ESCALATION TRIGGER FIRED (ADR-0013, pre-committed 2026-08-06).\n"
+            "Decision (b) deferred the live seam repair to 2026-10-01 on the scope that exactly one\n"
+            "name was affected, it was a suppressed candidate, and no open position was involved.\n"
+            "That scope no longer holds:\n" + "\n".join(lines) +
+            f"\n\nas_of {ex['as_of']}, window from {ex['window_start']}.\n"
+            "This returns to the owner immediately. Do NOT widen the window, edit the register's\n"
+            "owner_status, or bypass this to get the scan green.")
+    return ex
+
+
+def load_book_positions(path: Path | None = None) -> list[str]:
+    """Held tickers from the paper book, for the escalation check. Missing file -> no positions,
+    which is reported by the caller rather than treated as 'nothing held'."""
+    import json
+    p = path or (DATA_DIR.parent / "results" / "paper_portfolio_weekly.json")
+    if not p.exists():
+        return []
+    try:
+        return list(json.loads(p.read_text(encoding="utf-8")).get("positions", {}))
+    except Exception:
+        return []

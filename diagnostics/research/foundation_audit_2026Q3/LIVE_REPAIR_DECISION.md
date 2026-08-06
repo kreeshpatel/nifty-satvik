@@ -155,3 +155,45 @@ cannot see.
 - `forward/prereg.md` §9 (between-review discipline), §10 (amendment protocol)
 - `scripts/archive_weekly_snapshot.py` — the D2 drift log that would capture the delta
 - `research/findings/0025-*` — the survivorship re-anchor this pairs with
+
+---
+
+# DECISION — 2026-08-06: option (b). Recorded, not recommended.
+
+**The owner chose (b): no live repair before the 2026-10-01 review.** Formal record:
+[`docs/decisions/0013-defer-live-seam-repair.md`](../../../docs/decisions/0013-defer-live-seam-repair.md).
+Config-event entry: `research/config_CHANGELOG.md`, 2026-08-06.
+
+The reasoning as given:
+
+1. **Scope is one suppressed candidate** — TRENT alone sits inside the 44-week window.
+2. **No open position is affected** — the five held names contain no seam symbol, so nothing the
+   book owns is mispriced.
+3. **It self-resolves on 2026-11-06**, about five weeks after the review; acting now buys roughly
+   one month of corrected signal on one name.
+4. **The fix is a vendor override, not a restoration.** The discontinuity is upstream, so a repair
+   is our arithmetic layered permanently on the vendor's — and it would cover only the part of the
+   class with known factors, leaving the two `OPEN-undiagnosed` seams uncovered.
+5. **`forward/prereg.md` §9 protects three newly-started forward streams.** The first quarter is
+   when a "just this once" exception is most corrosive, and the cost of declining is now measured.
+
+Note that (a) was **feasible** — the pin never had to move. It was declined on governance grounds,
+not blocked on technical ones. That distinction is the point of having asked the crux question first.
+
+## The pre-committed escalation trigger
+
+The acceptance is scoped, dated and machine-evaluated — not a note anyone has to remember.
+`nq.data.adjustment_guard.assert_no_live_escalation` runs on **every** cron refresh and **raises**,
+halting the weekly scan, when either condition fires:
+
+- **any ADDITIONAL live-affecting seam** — inside the 44-week window and not owner-accepted; or
+- **any seam on a name the book HOLDS**, accepted or not, because the acceptance was granted for a
+  *suppressed candidate* and an open position is a different question.
+
+Halting is the intended consequence: the pre-commitment is that this returns to the owner **before
+the book acts again**. The TRENT acceptance carries
+`owner_status = "ACCEPTED_UNTIL_2026-10-01 (ADR-0013)"` and **expires by date** — on 2026-10-02 the
+same seam escalates with no edit to any file. A malformed status fails closed.
+
+Current state, evaluated on the pinned cache: 1 seam in-window (TRENT), owner-accepted; 0 on open
+positions; **escalate = False**.

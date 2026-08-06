@@ -90,3 +90,32 @@ Format: date — model — what changed — why — evidence — reversal.
   `research/losers_analysis/FORENSIC_FINDINGS.md`; spec `research/losers_analysis/LOCKED_STRATEGY.md`.
 - **Reversal:** set `P2_EXIT` OFF in `scripts/run_bhanushali_cron.py` (or remove `**P2_EXIT` from the two
   `backtest` calls) → live reverts byte-identical to the frozen 0094.
+
+---
+
+## 2026-08-06 — NO CHANGE: live seam repair deferred to 2026-10-01 (ADR-0013)
+
+- **Change:** **none.** Recorded here because a deliberate decision not to change a live input is a
+  config event: from today the live book knowingly runs on an input the repo has proven wrong, and a
+  reader six weeks from now must be able to find out why without reconstructing it.
+- **What was declined:** repairing the vendor-served adjustment seams in the live OHLCV cache. The
+  2026Q3 foundation audit localised 13 monotonicity violations; one (TRENT, seam 2026-01-01,
+  factor 1.50) is inside the engine's 44-week window and suppresses TRENT from the live candidate
+  pool — `close_above_sma` reads `False` as served against `True` corrected.
+- **Why declined:** scope is one suppressed candidate and no open position; it self-resolves around
+  2026-11-06; the fix is a permanent vendor override rather than a restoration, since the
+  discontinuity is upstream and a fresh download reproduces it; and `forward/prereg.md` §9 forbids
+  mid-quarter changes, protecting three newly-started forward streams. Full reasoning in
+  `docs/decisions/0013-defer-live-seam-repair.md`.
+- **Feasibility, for the record:** the repair *was* feasible without re-anchoring the pin — the
+  record and live paths are separate functions on separate artifacts. It was declined on governance
+  grounds, not blocked on technical ones.
+- **Evidence:** `diagnostics/research/foundation_audit_2026Q3/` — `FOUNDATION_AUDIT.md` (+ its
+  2026-08-06 addendum), `LIVE_REPAIR_DECISION.md`, `adjustment_guard_pin.json`.
+- **Guard shipped alongside:** `nq/data/adjustment_guard.py` asserts adjustment monotonicity on
+  every refresh — warns on the 13 registered seams, raises on any new one, and raises on the
+  pre-committed ADR-0013 escalation (an additional live-affecting seam, or any seam on a held name).
+  The TRENT acceptance is dated and expires on 2026-10-01 without an edit.
+- **Reversal:** to repair before the review, an ADR superseding 0013 is required. Editing
+  `owner_status`, widening `LIVE_WINDOW_WEEKS`, or bypassing the guard would be the decision
+  reversed without a record — explicitly out of bounds.

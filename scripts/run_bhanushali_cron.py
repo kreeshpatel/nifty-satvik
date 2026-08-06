@@ -578,13 +578,23 @@ def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
     # This runs OUTSIDE the try above on purpose. Inside it, the except would catch the raise and
     # print "download failed ... using cached bars", converting a poisoned cache into a reassuring
     # log line — the precise failure mode the output-contract work was about.
-    from nq.data.adjustment_guard import assert_no_new_seams
+    from nq.data.adjustment_guard import (
+        assert_no_live_escalation, assert_no_new_seams, load_book_positions,
+    )
     rep = assert_no_new_seams(ohlcv)
     print(f"adjustment guard: {rep.overall} | symbols {rep.symbols_checked} | "
           f"known seams {len(rep.seams)} | indeterminate {len(rep.indeterminate)}", flush=True)
     for s in rep.seams:
         print(f"  seam {s['symbol']} {s['window_start']}..{s['window_end']} "
               f"x{s['step_factor']:.4f} ({s.get('provenance', '?')})", flush=True)
+
+    # ESCALATION TRIGGER (ADR-0013, pre-committed 2026-08-06). Decision (b) deferred the live seam
+    # repair to the 2026-10-01 review on a stated scope: one suppressed candidate, no open position.
+    # This evaluates that scope every run and raises the moment it stops holding.
+    ex = assert_no_live_escalation(ohlcv, load_book_positions())
+    print(f"  live exposure: {len(ex['in_window'])} seam(s) inside the 44w window "
+          f"({[s['symbol'] for s in ex['in_window']]}), "
+          f"{len(ex['accepted_live'])} owner-accepted, 0 on open positions", flush=True)
     return ohlcv
 
 

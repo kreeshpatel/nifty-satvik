@@ -1,0 +1,53 @@
+# NiftyQuant — COMPLETE demerger register, 2019-01-01..2026-07-01.
+#
+# DESCRIPTIVE, NOT PRESCRIPTIVE. Nothing reads this file to decide how to clean a series.
+# The prescriptive file is data/corporate_actions_demergers.csv (4 rows, read by
+# nq.data.ohlcv) and it is deliberately UNCHANGED.
+#
+# `vendor_treatment` is MEASURED against NSE bhavcopy, not assumed: BACK_ADJUSTED means the
+# vendor rebased the pre-ex history (total-return convention); LEFT_AS_CLIFF means it left
+# the discontinuity (listed-entity convention, which is the one this repo's committed
+# reference asserts). The pin currently applies BOTH — see binder section 10.
+#
+# `convention` is UNDECIDED on every row and must stay that way until the 2026-10-01 review
+# nominates one. Populating it is the decision, not a data-entry step.
+#
+# Producer: scripts/build_demerger_register.py
+ticker,ex_date,subject,isin,vendor_treatment,implied_factor,series_return_at_ex,in_pinned_universe,substrate_trades,substrate_sumR,convention,source
+BSOFT,2019-01-24,Composite Scheme Of Arrangement,INE836A01035,BACK_ADJUSTED,1.608669,-0.042521,True,6,8.755,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+IIFL,2019-05-30,Scheme Of Arrangement,INE530B01024,BACK_ADJUSTED,1.801664,-0.138982,True,8,1.381,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+AARTIIND,2019-07-03,Scheme Of Demerger,INE769A01020,BACK_ADJUSTED,1.028831,0.001672,True,12,11.045,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+TATACOMM,2019-09-17,Demerger,INE151A01013,BACK_ADJUSTED,1.610566,0.05,True,7,1.381,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+ABREL,2019-10-11,Demerger,INE055A01016,LEFT_AS_CLIFF,1.0,-0.553559,True,6,1.773,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+THOMASCOOK,2019-12-05,Demerger,INE332A01027,BACK_ADJUSTED,2.753986,0.224096,True,1,-1.953,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+ABB,2019-12-20,Demerger,INE117A01022,BACK_ADJUSTED,1.101493,-0.058209,True,14,9.901,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+TATACHEM,2020-03-04,Demerger,INE092A01019,BACK_ADJUSTED,2.268103,-0.013957,True,6,3.942,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+BORORENEW,2020-03-06,Demerger,INE666D01022,BACK_ADJUSTED,3.974737,0.049474,True,5,3.084,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+PRIVISCL,2020-08-21,Demerger,INE959A01019,BACK_ADJUSTED,1.299431,0.05,True,3,-0.391,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+ANANTRAJ,2020-10-06,Demerger,INE242C01024,BACK_ADJUSTED,2.377049,0.334426,True,1,-1.096,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+JUBLPHARMA,2021-02-04,Demerger,INE700A01033,BACK_ADJUSTED,1.332554,0.172936,True,5,4.025,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+GMRAIRPORT,2022-01-11,Demerger,INE776C01039,BACK_ADJUSTED,1.109966,0.027492,True,10,15.871,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+MOTHERSON,2022-01-14,Demerger,INE775A01035,BACK_ADJUSTED,1.62671,0.285503,True,6,7.744,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+BEML,2022-09-08,Demerger,INE258A01016,BACK_ADJUSTED,1.187377,-0.007458,True,8,10.363,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+AARTIIND,2022-10-19,Demerger,INE769A01020,LEFT_AS_CLIFF,1.0,-0.082629,True,12,11.045,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+NMDC,2022-10-27,Demerger,INE584A01023,BACK_ADJUSTED,1.300995,0.037811,True,11,2.652,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+SCI,2023-03-31,Demerger,INE109A01011,LEFT_AS_CLIFF,1.0,-0.224202,True,8,4.976,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+GHCL,2023-04-06,Demerger,INE539A01019,LEFT_AS_CLIFF,1.0,-0.04878,True,3,-1.066,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+EDELWEISS,2023-06-02,Demerger,INE532F01047,BACK_ADJUSTED,1.850077,0.022411,True,6,2.746,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+VAKRANGEE,2023-06-15,Demerger,INE051B01021,BACK_ADJUSTED,1.0732,-0.017749,True,1,-1.009,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+RELIANCE,2023-07-20,Demerger,INE002A01018,BACK_ADJUSTED,1.083424,-0.001211,True,12,0.954,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+SAREGAMA,2023-07-27,Demerger,INE979A01017,BACK_ADJUSTED,1.028798,-0.0019,True,6,-2.317,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+BAJAJELEC,2023-09-14,Demerger,INE193E01025,BACK_ADJUSTED,1.0627,-0.010571,True,4,0.569,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+SANOFI,2024-06-13,Demerger,INE058A01010,LEFT_AS_CLIFF,1.0,-0.353393,True,10,8.385,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+RAYMOND,2024-07-11,Demerger,INE301A01014,LEFT_AS_CLIFF,1.0,-0.365895,True,8,5.75,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+ITC,2025-01-06,Demerger,INE154A01025,BACK_ADJUSTED,1.038513,-0.045478,True,6,-0.511,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+SIEMENS,2025-04-07,Demerger,INE003A01024,BACK_ADJUSTED,1.703579,-0.027783,True,11,6.145,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+STLTECH,2025-04-24,Demerger,INE089C01029,LEFT_AS_CLIFF,1.0,-0.252041,True,1,-1.008,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+RAYMOND,2025-05-14,Demerger,INE301A01014,LEFT_AS_CLIFF,1.0,-0.647638,True,8,5.75,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+ABFRL,2025-05-22,Demerger,INE647O01011,LEFT_AS_CLIFF,1.0,-0.665923,True,9,5.96,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+DBREALTY,2025-07-18,Demerger,INE879I01012,LEFT_AS_CLIFF,1.0,-0.152166,True,0,0.0,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+TVSMOTOR,2025-08-25,Scheme Of Arrangement - Bonus Ncrps 4:1,INE494B01015,LEFT_AS_CLIFF,1.0,-0.003005,True,13,3.973,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+TMPV,2025-10-14,Demerger,INE155A01022,LEFT_AS_CLIFF,1.0,-0.401513,True,0,0.0,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+SKFINDIA,2025-10-15,Demerger,INE640A01023,LEFT_AS_CLIFF,1.0,-0.54754,True,10,10.132,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+HINDUNILVR,2025-12-05,Demerger,INE030A01027,LEFT_AS_CLIFF,1.0,-0.050199,True,10,4.012,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+VEDL,2026-04-30,Demerger,INE205A01025,LEFT_AS_CLIFF,1.0,-0.648979,True,16,14.756,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
