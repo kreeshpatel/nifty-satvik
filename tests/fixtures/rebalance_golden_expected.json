@@ -1,0 +1,39 @@
+{
+  "book": {
+    "buffer_mult": 1.5,
+    "cadence": "M",
+    "max_position_pct": 15.0,
+    "top_n": 10
+  },
+  "cells": {
+    "frozen_0001_engine": {
+      "avg_hold_days": 90.8,
+      "avg_positions_held": 7.51,
+      "cagr_pct": -9.12,
+      "calmar": -0.25,
+      "curve_hash": "58947207c8c62f69",
+      "exit_reasons": {
+        "rebalance_exit": 37,
+        "rebalance_trim": 578
+      },
+      "final_equity": 751240.17,
+      "ledger_hash": "1d17e51125e7caf0",
+      "max_drawdown_pct": -36.99,
+      "n_sessions": 737,
+      "n_trades": 615,
+      "profit_factor": 0.32,
+      "sharpe": -0.499,
+      "sortino": -0.617,
+      "turnover_per_year": 205.5,
+      "win_rate_pct": 48.78,
+      "years": 2.99
+    }
+  },
+  "fixture_csv_sha16": "c7b724c4e8603290",
+  "initial_capital": 1000000.0,
+  "n_names": 25,
+  "window": [
+    "2017-01-01",
+    "2019-12-31"
+  ]
+}
