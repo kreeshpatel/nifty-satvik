@@ -173,42 +173,94 @@ def _fold_pass(index: pd.Index, a: np.ndarray, b: np.ndarray, since_year: int) -
     return (wins / total if total else float("nan")), total
 
 
-def _after_tax_cagr(bt: dict[str, Any], initial_capital: float, stcg: float = 0.20) -> float | None:
-    """Approximate after-tax CAGR (%): per-calendar-year STCG (20%) on each year's NET realized
-    gain (losses offset within the year). Approximate (calendar ≠ Apr-Mar FY; no path compounding
-    of the tax drag) — a reported figure so the post-tax axis is never silently skipped."""
-    trades = bt.get("trades", [])
-    ec = bt.get("equity_curve", [])
+def after_tax_curve(bt: dict[str, Any], stcg: float = 0.20) -> list[dict[str, Any]] | None:
+    """The equity curve with STCG **paid out of the book each year**, so the tax stops compounding.
+
+    This is what "STCG applied inside the compounding" actually requires, and it is strictly worse
+    than netting the whole tax bill off the final value: money paid to the exchequer in 2018 is not
+    available to earn returns from 2019 onward. The earlier ``_after_tax_cagr`` did the latter and
+    said so in its own docstring ("no path compounding of the tax drag"), which put it in conflict
+    with pre-registration 0001 §5.4.
+
+    Method. For each calendar year, net realised PnL (losses offsetting within the year) gives that
+    year's tax bill. Expressing it as a FRACTION of the untaxed equity at that year end makes it
+    scale-invariant, so the after-tax path is the untaxed path multiplied by the running product of
+    ``(1 - fraction)``. That is exact for a book which stays proportionally invested — which this
+    one does, since every weight is a fraction of equity.
+    """
+    ec, trades = bt.get("equity_curve", []), bt.get("trades", [])
     if not ec:
         return None
     by_yr: dict[int, float] = {}
     for t in trades:
-        by_yr[int(str(t["exit_date"])[:4])] = by_yr.get(int(str(t["exit_date"])[:4]), 0.0) + float(t["pnl"])
-    tax = sum(stcg * max(0.0, g) for g in by_yr.values())
-    final = initial_capital + sum(float(t["pnl"]) for t in trades) - tax
+        y = int(str(t["exit_date"])[:4])
+        by_yr[y] = by_yr.get(y, 0.0) + float(t["pnl"])
+
+    # untaxed equity on the last session of each calendar year
+    year_end: dict[int, float] = {}
+    for e in ec:
+        year_end[int(str(e["date"])[:4])] = float(e["equity"])
+
+    drag = 1.0
+    out, last_year = [], None
+    for e in ec:
+        y = int(str(e["date"])[:4])
+        if last_year is not None and y != last_year:
+            base = year_end.get(last_year, 0.0)
+            tax = stcg * max(0.0, by_yr.get(last_year, 0.0))
+            if base > 0:
+                drag *= max(0.0, 1.0 - tax / base)
+        last_year = y
+        out.append({**e, "equity": round(float(e["equity"]) * drag, 2)})
+    return out
+
+
+def _after_tax_cagr(bt: dict[str, Any], initial_capital: float, stcg: float = 0.20) -> float | None:
+    """After-tax CAGR (%), with the tax drag compounded — see :func:`after_tax_curve`.
+
+    Annualised as ``sessions / TRADING_DAYS``, matching :func:`nq.engine.portfolio.compute_metrics`.
+    This function previously used calendar days / 365.25, so gross and after-tax CAGR were computed
+    on **different denominators** and their difference was not a clean tax cost: on 0001 the two
+    conventions differ by 0.43pp, which is comparable to the effects being measured.
+
+    Note the shared convention is itself questionable — the panel averages 247.6 sessions per
+    calendar year, not 252, so both figures overstate the true annual rate. That is a programme-wide
+    issue affecting every pinned result, deliberately NOT fixed here; matching the existing
+    convention keeps this pair comparable rather than quietly re-anchoring the baseline.
+
+    Calendar year is also an approximation of the Apr-Mar fiscal year, and business-income treatment
+    is not modelled. Both stay recorded as coverage gaps.
+    """
+    curve = after_tax_curve(bt, stcg=stcg)
+    if not curve:
+        return None
+    final = float(curve[-1]["equity"])
     if final <= 0:
         return None
-    yrs = (pd.to_datetime(ec[-1]["date"]) - pd.to_datetime(ec[0]["date"])).days / 365.25
+    yrs = len(curve) / TRADING_DAYS
     return round(((final / initial_capital) ** (1.0 / yrs) - 1.0) * 100.0, 3) if yrs > 0 else None
 
 
-def evaluate_overlay(
-    panel: pd.DataFrame, base_cfg: Mapping[str, Any], candidate_cfg: Mapping[str, Any], *,
-    start: str | None = None, end: str | None = None, initial_capital: float = 1_000_000.0,
+def adjudicate(
+    base_bt: Mapping[str, Any], cand_bt: Mapping[str, Any], *,
+    end: str | None = None, initial_capital: float = 1_000_000.0,
     n_trials: int | None = None, block_size: int = DEFAULT_BLOCK, n_samples: int = 5000,
     seed: int | None = 12345, noise_floor: float = NOISE_FLOOR,
     sub_start: str = "2022-01-01", fold_since_year: int = 2019,
     calmar_min: float = 0.05, turnover_max_increase: float = 0.30, n_eff_min: int = 20,
 ) -> dict[str, Any]:
-    """BASE vs CANDIDATE through the **mechanized promotion bar**: the paired block bootstrap
-    (ΔSharpe CI + DSR) PLUS the gates that used to be applied by hand — ΔCalmar, 2022-26 sub-period
-    ΔCAGR, ≥2019 walk-forward fold-pass, turnover-Δ, and effective-sample size. ``gate_pass`` is the
-    AND of all auto-computable gates and is **fail-closed** (an uncomputable gate cannot PROMOTE).
-    PROMOTE-CANDIDATE iff every gate passes; a positive ΔSharpe with CI-low ≤ 0 is UNDERPOWERED;
-    else KILL. (Mechanism-explainable-in-one-sentence stays a human gate; after-tax CAGR is reported.)
+    """The mechanized promotion bar, applied to two ALREADY-RUN backtests. **Engine-agnostic.**
+
+    This is the adjudication half of :func:`evaluate_overlay`, split out so that any simulator
+    returning the ``{equity_curve, trades, metrics}`` contract can be held to the same bar — not
+    only ``nq.engine.portfolio.simulate``. :func:`nq.engine.signal_book.simulate_signal_book` is
+    the first other caller: event-driven books cannot be expressed as a cfg delta on the ranked
+    momentum rule, so before this split they had no route to the gate at all and were adjudicated
+    by hand-rolled statistics in throwaway scripts.
+
+    Nothing here reads a panel, a cfg, or a strategy — only the two result dicts. ``evaluate_overlay``
+    is now a thin wrapper that runs the two arms and calls this, so its behaviour is unchanged.
     """
-    base_bt = run_backtest(panel, base_cfg, start=start, end=end, initial_capital=initial_capital)
-    cand_bt = run_backtest(panel, candidate_cfg, start=start, end=end, initial_capital=initial_capital)
     base_r = _daily_returns(base_bt["equity_curve"])
     cand_r = _daily_returns(cand_bt["equity_curve"])
     common = base_r.index.intersection(cand_r.index)
@@ -257,3 +309,29 @@ def evaluate_overlay(
         "after_tax_cagr_cand": _after_tax_cagr(cand_bt, initial_capital),
         "gates": gates, "gate_pass": gate_pass, "verdict": verdict,
     }
+
+
+def evaluate_overlay(
+    panel: pd.DataFrame, base_cfg: Mapping[str, Any], candidate_cfg: Mapping[str, Any], *,
+    start: str | None = None, end: str | None = None, initial_capital: float = 1_000_000.0,
+    n_trials: int | None = None, block_size: int = DEFAULT_BLOCK, n_samples: int = 5000,
+    seed: int | None = 12345, noise_floor: float = NOISE_FLOOR,
+    sub_start: str = "2022-01-01", fold_since_year: int = 2019,
+    calmar_min: float = 0.05, turnover_max_increase: float = 0.30, n_eff_min: int = 20,
+) -> dict[str, Any]:
+    """BASE vs CANDIDATE through the **mechanized promotion bar**: the paired block bootstrap
+    (ΔSharpe CI + DSR) PLUS the gates that used to be applied by hand — ΔCalmar, 2022-26 sub-period
+    ΔCAGR, ≥2019 walk-forward fold-pass, turnover-Δ, and effective-sample size. ``gate_pass`` is the
+    AND of all auto-computable gates and is **fail-closed** (an uncomputable gate cannot PROMOTE).
+    PROMOTE-CANDIDATE iff every gate passes; a positive ΔSharpe with CI-low ≤ 0 is UNDERPOWERED;
+    else KILL. (Mechanism-explainable-in-one-sentence stays a human gate; after-tax CAGR is reported.)
+
+    Runs both arms through ``simulate`` and hands them to :func:`adjudicate`, which owns the bar.
+    """
+    base_bt = run_backtest(panel, base_cfg, start=start, end=end, initial_capital=initial_capital)
+    cand_bt = run_backtest(panel, candidate_cfg, start=start, end=end, initial_capital=initial_capital)
+    return adjudicate(
+        base_bt, cand_bt, end=end, initial_capital=initial_capital, n_trials=n_trials,
+        block_size=block_size, n_samples=n_samples, seed=seed, noise_floor=noise_floor,
+        sub_start=sub_start, fold_since_year=fold_since_year, calmar_min=calmar_min,
+        turnover_max_increase=turnover_max_increase, n_eff_min=n_eff_min)
