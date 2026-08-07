@@ -15,8 +15,8 @@ Load `backtest-rigor` and `plausibility-check`. Then work through the number its
    reproduction command is not a number yet. `research/baseline_v1.json` shows what a complete
    provenance block looks like.
 2. **Plausibility band.** Compare against the anchors before anything else. A drawdown far shallower
-   than the anchor band, or a CAGR far above it, is a defect signal — that is how the −19.6% max
-   drawdown bug was caught.
+   than the −46.26% anchor, or a Sharpe near 1.0 on the long-horizon book, is a defect signal rather
+   than a discovery — that is the shape a vintage-favourable or gross-vs-net error takes here.
 3. **Sub-period gates.** These must be a **continuous slice of one full run**, never a fresh-capital
    re-run from the sub-window start. Fresh capital resets the equity peak and reseasons the
    boundary; it produced a phantom base of 0.762 Sharpe / −40% DD against a correct slice of 0.570 /

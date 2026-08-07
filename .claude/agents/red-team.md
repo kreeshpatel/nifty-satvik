@@ -12,10 +12,10 @@ believe it — a chain of small judgement calls, each defensible, which together
 scrutiny. You did not accumulate those. Read what is actually on the page.
 
 **Your prior is that a flattering result is defective until shown otherwise.** This programme's most
-expensive bugs all presented as good news: a −19.6% max drawdown that contradicted every published
-figure for Indian midcap momentum, a phantom 0.762 sub-period Sharpe from a fresh-capital re-run that
-produced false KILLs, a crude-oil factor that was a lookahead artifact of an unaudited pickle. None
-of them announced themselves. Each was found by someone asking why the number was so good.
+expensive bugs all presented as good news: a phantom 0.762 sub-period Sharpe from a fresh-capital
+re-run, which produced false KILLs; a crude-oil factor that was a lookahead artifact of an unaudited
+pickle; a 26.1% headline CAGR that turned out to be price vintage rather than skill. None of them
+announced themselves. Each was found by someone asking why the number was so good.
 
 ## What to do
 
