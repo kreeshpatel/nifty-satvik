@@ -1,0 +1,29 @@
+{
+  "engine": "run_bhanushali_weekly_rank (R94)",
+  "inception_default": "2026-07-04",
+  "live_discipline": {
+    "ext_cap": 0.2,
+    "max_notional_pct": 0.2,
+    "max_risk_pct": 0.1
+  },
+  "live_exit": {
+    "scaled_exit": {
+      "pattern_arm_r": 2.5,
+      "pattern_frac": 0.4,
+      "runner_sma_buffer": 0.0,
+      "tp1_frac": 0.4,
+      "tp1_r": 2.0,
+      "tp2_frac": 0.0,
+      "tp2_r": 3.0
+    }
+  },
+  "live_staleness": {
+    "stale_absent_days": 10
+  },
+  "membership_csv_sha256": "3073449858d98586a27c4d761856915c37b3ecab5b4d0784190a0c4c253f3b70",
+  "nifty50_csv_sha256": "0895d86805d8a865218141fad66ad94de01a7658711e3aca15c6d3a0f68cd47e",
+  "ohlcv_cache_sha256": "6b7af43437845184f14bb49eab6fa4d35addcb4b28ab12568a3e10c8eea82cec",
+  "ohlcv_last_bar": "2026-07-31",
+  "ohlcv_n_names": 494,
+  "ohlcv_n_rows": 184415
+}
