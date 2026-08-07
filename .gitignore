@@ -64,6 +64,19 @@ results/*
 # A directory needs BOTH the dir un-ignored and its contents un-ignored.
 !results/intraday_scan/
 !results/intraday_scan/**
+# The 3-book FORWARD WALL log and its veto-book state. SEVENTH instance of the same trap, caught
+# by tests/test_workflow_output_paths.py the moment the wall got its first scheduled producer
+# (S-F1, 2026-08-06): forward/prereg.md calls this log "the only certifier", and `results/*` above
+# would have made the daily `git add` a silent no-op — the certifier's record discarded with every
+# runner, and the hash chain restarting from GENESIS each day. The veto book's state directory is
+# whitelisted too, because without it the shadow book re-steps from scratch every run.
+!results/forward_wall.csv
+!results/forward_wall_start.json
+!results/wall_veto
+!results/wall_veto/
+!results/wall_veto/**
+# Cron health, read by the monitor. Whitelisted for the same reason.
+!results/scheduler_health.json
 !results/FORWARD_ACCUMULATORS_README.md
 !results/signals_today.json
 !results/signals_history.json
@@ -119,6 +132,13 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+# EIGHTH instance of the whitelist trap (see results/ above), caught 2026-08-07 while committing the
+# scripts/ -> pipelines/ reorg. The `build/` rule above targets the Python packaging artifact, but it
+# is unanchored, so it also swallows `pipelines/build/` — the harvest/build one-off layer. The 19
+# files already there survived only because `git mv` keeps a tracked file tracked; every NEW file
+# added to that directory would have been silently dropped, including its `__init__.py`.
+!pipelines/build/
+!pipelines/build/**
 # Models — models/long_horizon/config.json is the tracked source of truth (not ignored).
 # Regenerable candidate/baseline model binaries (Stage C+) are not committed (see below).
 
