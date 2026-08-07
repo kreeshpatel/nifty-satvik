@@ -57,6 +57,14 @@ incremented → *then* the run. Thresholds are fixed in the pre-reg and are not 
 **UNDERPOWERED and KILL are first-class outcomes; never retune toward a pass.** `/pre-register` and
 `/verdict` carry the procedure.
 
+**No path is killed without a run (owner amendment, 2026-08-08).** A negative verdict — KILL, or a
+bound treated as one — may only come from a pre-registered run under the *current* harness. A prior
+verdict is evidence about the regime that produced it, quoted as `KILL (epoch, book) — not re-tested
+under the current harness`, and it sets priority, never closure. The apparatus has moved underneath
+the ledger (continuous-slice fix, calendar annualisation, the v0→v1 re-anchor, the macro PIT gate,
+the survivorship backfill), and only 7 of 108 closed verdicts were measured on the live book. Full
+reasoning and its limits: the amendment at the top of [`skills/program-laws`](skills/program-laws/SKILL.md).
+
 **Standing counts: screens 19 · sealed opens 1 · n_trials 2** — state them in every research
 readout, and read them from `diagnostics/research/n_trials.json` and
 `diagnostics/research/label_screen_ledger.md`, never from memory or from this line.

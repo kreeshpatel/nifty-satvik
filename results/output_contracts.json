@@ -17,9 +17,10 @@
    ],
    "must_update_if_produced": [
     "results/judge_log.jsonl",
-    "results/cards_archive.jsonl"
+    "results/cards_archive.jsonl",
+    "results/base_swing_forward.json"
    ],
-   "note": "judge_log is conditional: it only grows when the judge step logs rows (needs ANTHROPIC_API_KEY). Listed separately so a missing key reads as a WARN, not a contract breach."
+   "note": "judge_log is conditional: it only grows when the judge step logs rows (needs ANTHROPIC_API_KEY). Listed separately so a missing key reads as a WARN, not a contract breach. base_swing_forward.json is the forward/prereg_swing.md §4 comparator arm (all grades, WATCHED, never surfaced — it holds Grade-B names). Added 2026-08-08 and listed conditionally until the first successful persist, per the same rule as intraday-scan below; promote it to must_update once one run has written it, because from then on a week missing is a week of the §4 comparison permanently lost (§3 forbids backfilling reconstructed history)."
   },
   {
    "job": "forward-accumulators",
@@ -51,16 +52,15 @@
    "workflow": "cron-forward-wall",
    "commit_prefix": "chore(wall): forward-wall daily log",
    "cadence_days": 5,
-   "must_update": [
+   "must_update": [],
+   "must_update_if_produced": [
     "results/forward_wall_start.json",
     "results/forward_wall.csv",
-    "results/paper_portfolio.json"
-   ],
-   "must_update_if_produced": [
+    "results/paper_portfolio.json",
     "results/signals_today.json",
     "results/scheduler_health.json"
    ],
-   "note": "S-F1, closed 2026-08-06: forward/prereg.md calls the 3-book wall 'the only certifier' and specifies a DAILY log, and until this workflow existed it had no scheduled producer at all. forward_wall_start.json is the wall's registered start — written once by the first run and never rewritten — so it is contracted alongside the log itself: without it a cold start would backfill recomputed history into the wall as forward evidence. The commit subject carries the Actions run id, which is the S2-F3 firing-evidence cross-check that S2-F4 (owner-authored cron commits) otherwise weakens."
+   "note": "S-F1, closed 2026-08-06: forward/prereg.md calls the 3-book wall 'the only certifier' and specifies a DAILY log, and until this workflow existed it had no scheduled producer at all. forward_wall_start.json is the wall's registered start — written once by the first run and never rewritten — so it is contracted alongside the log itself: without it a cold start would backfill recomputed history into the wall as forward evidence. The commit subject carries the Actions run id, which is the S2-F3 firing-evidence cross-check that S2-F4 (owner-authored cron commits) otherwise weakens. || DOWNGRADED TO CONDITIONAL 2026-08-08, with a date to restore it. nq/paper/wall_cron._assert_veto_arm_live now refuses to append any row whose session post-dates the veto arm's factor coverage — data/ff_india_factors.parquet ends 2026-06-29, before the wall's own 2026-07-02 start floor, and no cron rebuilds it. Before that guard the arm was silently inert and the wall would have written base==veto agreement it never measured into a hash-chained log. So the wall correctly produces nothing, and a hard contract would read that correctness as a daily breach. The veto arm's fate is a §7 demotion decision and §8 confines it to a quarterly review: 2026-10-01. RESTORE these three to must_update at that review, whichever way it goes — retire the arm and the wall logs two books, or extend the factors and it logs three."
   }
  ]
 }

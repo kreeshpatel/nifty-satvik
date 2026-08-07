@@ -46,7 +46,10 @@ Then the verdict, which the table determines:
   happens there, not here.
 - **UNDERPOWERED** — the effect is inside the resolution band (n_eff ≈ 37 windows ⇒ dSharpe
   half-width ~0.59). Record the bound. Adopt nothing. This is a real, reportable result.
-- **KILL** — any bar failed. Registry row, root cause, move on.
+- **KILL** — any bar failed **in this run**. Registry row, root cause, move on. Since the 2026-08-08
+  owner amendment a KILL may only be issued here, off a pre-registered run under the current
+  harness — never from a citation, a screen, or an activation bound. Record it as
+  `KILL (epoch, book)` so the next regime change can read what it was measured under.
 
 **Do not retune.** Not one parameter, not "just to see". A retuned pass is not a pass, and the
 retune is not recoverable once it has happened.

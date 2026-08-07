@@ -54,16 +54,20 @@ Coverage audits, PIT audits, distribution reads, correlation between two existin
 Any overlay, signal, feature, exit, sizing rule, universe change, or sleeve.
 
 - Run `verdict-machine` **in order**: registry confrontation → coverage and PIT audit → kill-shot
-  screen (ledgered) → activation bound against the ±10R/yr floor → *only then* a trial. Most
-  candidates die before the trial, which is the point — a citation is cheaper than a run.
+  screen (ledgered) → activation bound against the ±10R/yr floor → then a trial. Since the
+  **2026-08-08 owner amendment**, none of those gates may close a path: they produce *bounds*, which
+  rank what to test first. Only a pre-registered run under the current harness can issue a negative
+  verdict.
 - If it survives: `/pre-register` **before** running. Increment `n_trials` **before** the run.
   Thresholds are fixed in the pre-registration and are not revisited afterwards.
 - Then `/verdict`, a `research/findings/NNNN-*.md`, and an `overlay_registry.md` row.
 - **UNDERPOWERED and KILL are first-class outcomes.** Never retune toward a pass.
 - Agents worth spending: `overfit-skeptic` before promoting, `red-team` on the finished result.
-- Remember what is closed: the in-sample momentum programme, the cross-asset/macro branch, the
-  technical-indicator zoo at 63 days, and the Bhanushali external-strategy arc. `program-laws` holds
-  the receipts.
+- Prior verdicts are **evidence about the regime that produced them**, not closures: the in-sample
+  momentum programme, the cross-asset/macro branch, the technical-indicator zoo at 63 days, the
+  Bhanushali external-strategy arc. Quote each as `KILL (epoch, book) — not re-tested under the
+  current harness`, use it to set priority, and never to end a path. `program-laws` holds the
+  receipts and the amendment.
 
 ### ENGINE — code that can change a number
 Anything under `nq/**`, `config.py`, or a script that produces a result of record.

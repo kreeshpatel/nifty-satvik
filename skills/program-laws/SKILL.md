@@ -24,13 +24,45 @@ study to the part the law did not answer**. If you cannot name one of the four, 
 already answered — do not re-run the dead test. Re-running it with a bigger sample, a different
 model, or a different rubric is not new evidence; it is refused relitigation.
 
+> ### AMENDMENT — 2026-08-08, owner decision: a citation can defer a path, never kill one
+>
+> **No path may be given a negative verdict without a run under the current harness.** Not KILL, not
+> a screen-derived bound, not "refused relitigation". The collision rule above still governs *how* a
+> study is scoped — cite the law, name what you bring, narrow to the unanswered part — but it no
+> longer terminates anything on its own.
+>
+> **Why the owner ruled this way, and why the receipts support it.** The apparatus that produced most
+> of the verdicts below is not the apparatus in the repo today. Between them sit the continuous-slice
+> fix (a phantom 2022-26 base of 0.762 / −40% against the correct 0.570 / −46.3%, which produced
+> false KILLs and wrongly downgraded 0071), the calendar-annualisation fix (commit `2e8a901` — every
+> pinned CAGR was ~0.44pp high), the baseline_v0 → baseline_v1 re-anchor, the macro PIT truncation
+> gate that split a real USD effect from a crude lookahead artifact, and the survivorship backfill
+> whose bias *scales with holding period*. Independently, only 7 of 108 closed verdicts were measured
+> on the book that is actually trading. A verdict is evidence about the regime that produced it, and
+> most of these regimes are gone.
+>
+> **What this changes in practice.** A prior KILL is read as `KILL (epoch E, book B) — not re-tested
+> under the current harness`. That status may be quoted, prioritised against, and used to argue a
+> path is low-value. It may **not** be used to close one. Closing requires a pre-registered run whose
+> outcome table was fixed in advance.
+>
+> **What it does not change.** The ordering still binds absolutely — pre-reg committed, counter
+> incremented, then the run, thresholds never revisited. `n_trials` is still incremented for every
+> re-test, and the re-tests run on the same 2017–2026 daily windows as the originals, so they raise
+> the substantive multiplicity exactly as `n_trials.json` warns. Expect UNDERPOWERED to be the modal
+> outcome: at n_eff ≈ 37 independent 63-day windows the dSharpe half-width is ~0.59, and no run
+> resolves an effect below that. **UNDERPOWERED is the honest answer, not a failed one, and it is
+> still not a KILL.** Report the deflated and the raw statistic side by side, and let the forward
+> wall certify.
+
 Standing counts as of 2026-08-07: **screens 19 · sealed opens 1 · n_trials 2.**
 State them in every research readout. (The authority is
 `diagnostics/research/label_screen_ledger.md` — if this line disagrees with the ledger, the ledger
 is right and this line is stale. Screens moved 12 → 13 → 14 on 2026-07-31 (0126 line-hugger, 0127
 HEG-class bound), 14 → 15 on 2026-08-06 (0129 event-sizing bound), 15 → 16 on 2026-08-06
 (0130 sizing-exclusion bound), 16 → 17 on 2026-08-06 (0132 daily Supertrend system) and
-17 → 18 on 2026-08-06 (0133 finfluencer swing survey); `n_trials` has not moved.)
+17 → 18 on 2026-08-06 (0133 finfluencer swing survey) and 18 → 19 on 2026-08-06 (0134 PIT
+market-state fronts); `n_trials` has not moved.)
 
 ---
 

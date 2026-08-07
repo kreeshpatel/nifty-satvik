@@ -130,8 +130,13 @@ the standing instrument: `false_touch`, `noise_stop`, `exit_too_early`, `opp_qua
 
 - Every screen — pass **or** fail — increments the running screen count and appends a row to
   `research/overlay_registry.md`. Current standing: **screens 19**.
-- A screen does **not** touch `n_trials` (currently **138**) because it makes no PROMOTE/KILL
+- A screen does **not** touch `n_trials` — read the count from
+  `diagnostics/research/n_trials.json`, which is the authority — because it makes no PROMOTE/KILL
   decision on the honest base. State both counts in every readout.
+  *(This line read "currently 138" until 2026-08-08. The counter had been reset to 0 by owner
+  decision on 2026-08-07 and stood at 2; the stale literal survived because it was punctuated in a
+  way `tests/test_standing_counts.py` did not match. The fix is to state no literal here at all —
+  a number that cannot drift is better than one a test happens to catch.)*
 - **Sealed opens are priced like any reuse.** Current standing: **sealed opens 1**. Opening the
   sealed set is a governance-class event: it requires a frozen rule *amended into the pre-reg
   before* the open, it may happen once per study, and the count is stated in the readout forever
@@ -141,8 +146,15 @@ the standing instrument: `false_touch`, `noise_stop`, `exit_too_early`, `opp_qua
 
 ## GATE 3 — The activation bound (free; mandatory before any trial ask)
 
-**This gate is 3/3 — it has killed every usage candidate that reached it, at zero trial cost**
-(0117 rotation, 0119 tiebreak, 0121 deferral). Run it before proposing a trial, always.
+> **AMENDED 2026-08-08 (owner decision).** This gate no longer kills anything. It measures a
+> ceiling, and a ceiling below the ±10R/yr floor is a *bound*, not a verdict — it says the path is
+> low-value, which is a reason to rank it last, not a reason to close it. **Only a pre-registered
+> run under the current harness may issue a negative verdict.** See the amendment at the top of
+> `program-laws`. Record what the bound says, then decide priority; do not record a KILL.
+
+**This gate is 3/3 as a bound — it has capped every usage candidate that reached it, at zero trial
+cost** (0117 rotation, 0119 tiebreak, 0121 deferral). Run it before proposing a trial, always: a
+measured ceiling is how you choose what to test first now that nothing can be closed for free.
 
 The question it asks: *even with perfect hindsight, how much could this rule have earned?*
 

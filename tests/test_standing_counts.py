@@ -40,10 +40,33 @@ RECITERS = [
     ROOT / "skills" / "edge-research-pipeline" / "SKILL.md",
     ROOT / "skills" / "overlay-testing" / "SKILL.md",
     ROOT / "skills" / "verdict-machine" / "SKILL.md",
+    # The screen ledger is the AUTHORITY for screens and sealed opens, but it also *recited*
+    # n_trials, and on 2026-08-08 that recitation still read 138 against a counter at 2. An
+    # authority file is the last place a stale number should be able to hide.
+    LEDGER,
 ]
 
 _SCREENS = re.compile(r"screens\s+\*{0,2}(\d+)\*{0,2}", re.I)
 _TRIALS = re.compile(r"n_trials\s+\*{0,2}(\d+)\*{0,2}", re.I)
+
+# The punctuation-tolerant scanner. `_TRIALS` above requires whitespace directly after the word, so
+# it silently missed "`n_trials` (currently **138**)" in skills/verdict-machine — a count that had
+# been stale since the 2026-08-07 reset, sitting in a file sessions are told to read before every
+# study. A test that catches one phrasing of a recited number and not another is worse than no test,
+# because the passing suite is read as proof the numbers are clean.
+_TRIALS_LOOSE = re.compile(r"n_trials[`\s]*(?:\(\s*currently[\s*]*)?\*{0,2}(\d{1,4})\b", re.I)
+
+# The assertion scanner. Two further stale 138s survived even `_TRIALS_LOOSE` — "`n_trials` stays
+# **138**" in the screen ledger and "`n_trials` currently **138**" in skills/overlay-testing — each
+# defeated by a different bit of punctuation. Rather than widen the pattern until it matches
+# anything (which starts flagging "a result that would be PROMOTE at n_trials=20", a hypothetical in
+# backtest-rigor, and the "§11" in "DSR/n_trials integration"), key on the words that make a number
+# a CLAIM ABOUT THE PRESENT rather than an illustration.
+_TRIALS_ASSERTED = re.compile(
+    r"n_trials`?[^\n]{0,15}?\b(?:currently|stays|remains|is now|now stands at)\b"
+    r"[^0-9\n]{0,12}\*{0,2}(\d{1,4})\b",
+    re.I,
+)
 
 
 def authoritative_screens() -> int:
@@ -139,3 +162,52 @@ def test_claude_md_actually_carries_the_counts():
     text = (ROOT / "CLAUDE.md").read_text(encoding="utf-8")
     assert _SCREENS.search(text), "CLAUDE.md no longer states a screen count"
     assert _TRIALS.search(text), "CLAUDE.md no longer states n_trials"
+
+
+@pytest.mark.parametrize("path", RECITERS, ids=lambda p: p.name if p.name != "SKILL.md" else p.parent.name)
+def test_no_stale_trial_count_survives_punctuation(path: Path):
+    """The same assertion as above, but tolerant of how the number is dressed."""
+    if not path.exists():
+        pytest.skip(f"{path} absent")
+    want = authoritative_trials()
+    for got in {int(m) for m in _TRIALS_LOOSE.findall(path.read_text(encoding="utf-8"))}:
+        assert got == want, (
+            f"{path.relative_to(ROOT)} states an n_trials of {got}; "
+            f"{N_TRIALS.relative_to(ROOT)} says {want}. Prefer stating no literal at all and "
+            f"pointing at the authority — a number that cannot drift beats one a test happens "
+            f"to catch.")
+
+
+@pytest.mark.parametrize("path", RECITERS, ids=lambda p: p.name if p.name != "SKILL.md" else p.parent.name)
+def test_no_asserted_trial_count_is_stale(path: Path):
+    """Catch a count dressed as a claim: 'n_trials currently 138', 'n_trials stays 138'."""
+    if not path.exists():
+        pytest.skip(f"{path} absent")
+    want = authoritative_trials()
+    for got in {int(m) for m in _TRIALS_ASSERTED.findall(path.read_text(encoding="utf-8"))}:
+        assert got == want, (
+            f"{path.relative_to(ROOT)} asserts n_trials is {got}; the counter says {want}. "
+            f"Prefer pointing at diagnostics/research/n_trials.json over restating the number.")
+
+
+def test_the_assertion_scanner_catches_what_slipped_past_the_others():
+    """Guard the guard. These are the two literals that survived every earlier pattern, verbatim as
+    they appeared on 2026-08-08. If a future simplification of the regex stops matching them, the
+    class of bug they represent is unguarded again."""
+    escaped_past_earlier_patterns = [
+        "`n_trials` stays **138** — both are measurement class.",
+        "> every future test (`n_trials` currently **138**).",
+    ]
+    for text in escaped_past_earlier_patterns:
+        assert _TRIALS_ASSERTED.findall(text) == ["138"], f"scanner missed: {text!r}"
+        assert not _TRIALS.findall(text), "the strict pattern was supposed to miss this"
+
+
+def test_the_assertion_scanner_ignores_hypotheticals():
+    """It must NOT fire on illustrations, or it will be silenced within a week."""
+    for text in [
+        "A result that would be PROMOTE at n_trials=20 may only reach SHADOW at n_trials=50.",
+        "corporate-action handling, golden master gate, DSR/n_trials integration, and the §11 harness",
+        "read it from `diagnostics/research/n_trials.json` (2026-08-07)",
+    ]:
+        assert not _TRIALS_ASSERTED.findall(text), f"false positive on: {text!r}"

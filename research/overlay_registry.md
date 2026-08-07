@@ -44,7 +44,21 @@ The governing discipline:
    - **SHADOW** — 4–5 of the bar hold (log the signal, touch no trade).
    - **REJECT** — otherwise.
    - **OPEN** — proposed/sequenced but not yet measured through the harness (no verdict).
-4. **The baseline everything is measured against** is the FROZEN-cfg arm (corrected-682 universe, 397 solvent names):
+4. **The baseline everything is measured against** — ⚠ **CORRECTED 2026-08-08. The anchor of record
+   is `baseline_v1`: gross 15.46% CAGR / 0.667 Sharpe / −46.26% maxDD**
+   (`research/baseline_v1.json`, ADR-0006, pinned 2026-07-01, dataset pin `dataset-pin-20260701`).
+   `tests/test_registry_anchor.py` holds this line to that file.
+
+   The `baseline_v0` text below stood unchanged for five weeks after ADR-0006 superseded it, in the
+   file CLAUDE.md's registry-first rule sends every session to *first*. It is left in place rather
+   than deleted because rows below were genuinely measured against it — **a verdict decided before
+   2026-07-01 was benched against a base 10.65pp higher in CAGR and 0.35 higher in Sharpe than the
+   current anchor, which biased those comparisons against the candidate.** Read it as history, and
+   note that the gap was later shown to be OHLCV price vintage rather than engine (`baseline_v1.json`
+   `delta_vs_v0`), so v0 was never a better book — only a luckier data snapshot.
+
+   *Superseded text, retained for the rows that cite it —* the FROZEN-cfg arm (corrected-682
+   universe, 397 solvent names):
    **Gross: 26.1% CAGR / 1.02 Sharpe / −41.9% maxDD** (research/baseline_v0.json, 2026-06-27)
    **After-tax (STCG 20%): 23.1% CAGR / 0.83 Sharpe** — the honest, reproducible anchor.
    *(Previously reported as 30.26% / 1.15 — that was optimistic-exit measurement, superseded by baseline_v0. The ~4pp CAGR gap reflects exit-parity unification: backtest now fills targets conservatively, matching live. Walk-forward "≥2019 ~32% / 1.31" was also optimistic-exit, now pending Stage-B re-confirmation.)*
@@ -164,7 +178,9 @@ Every future overlay gets a row in this table **after the Phase 4 harness measur
 - **Phase 6 sizing / exit / risk layers** — any new sizing scheme, exit modification, or risk
   layer beyond the frozen `cfg` gets an `O-###` row with its measured ΔCAGR / ΔSharpe /
   ΔCalmar / ΔMaxDD (post-tax, post-cost), sub-period split, walk-forward fold-pass, and
-  bootstrap CI, judged against the **baseline_v0 (26.1% gross / 23.1% after-tax CAGR; 1.02 / 0.83 Sharpe)** via the promotion bar.
+  bootstrap CI, judged against the anchor of record via the promotion bar — since 2026-07-01 that is
+  **`baseline_v1` (15.46% gross CAGR / 0.667 Sharpe / −46.26% maxDD)**, not the baseline_v0
+  (26.1% / 1.02) this line named until 2026-08-08. See the correction at §4.
 - **Sell-replace candidates S1–S7 / R1–R4** — flip from OPEN to a verdict row once tested.
   Per the skill's testing protocol, **combination tests are mandatory**: if two rules
   PROMOTE individually, test them together (one often cannibalises the other) and log that
