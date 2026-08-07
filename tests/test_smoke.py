@@ -36,8 +36,18 @@ def test_baseline_v0_anchor_carried() -> None:
 
 
 def test_n_trials_carried() -> None:
+    """The DSR denominator must exist, be an int, and never go negative.
+
+    The floor was ">= 79" until 2026-08-07, when the owner reset the counter 138 -> 0 (see the
+    ``_reset`` block in n_trials.json). A hard floor is the wrong guard after a deliberate reset —
+    it would fail the suite for a governance decision. What still matters is that the file is
+    present and machine-readable, because `nq.validation.dsr.cumulative_n_trials` reads it on every
+    DSR that informs a promote/kill decision, and a missing or malformed file must fail loudly
+    rather than silently default to a flattering denominator.
+    """
     nt = json.loads((ROOT / "diagnostics/research/n_trials.json").read_text(encoding="utf-8"))
-    assert nt["cumulative_n_trials"] >= 79, "DSR denominator is the governance count (>= the carried 79; grows per trial)"
+    assert isinstance(nt["cumulative_n_trials"], int)
+    assert nt["cumulative_n_trials"] >= 0, "the DSR denominator can never be negative"
 
 
 def test_golden_fixture_carried() -> None:

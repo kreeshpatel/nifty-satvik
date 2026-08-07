@@ -24,12 +24,13 @@ study to the part the law did not answer**. If you cannot name one of the four, 
 already answered — do not re-run the dead test. Re-running it with a bigger sample, a different
 model, or a different rubric is not new evidence; it is refused relitigation.
 
-Standing counts as of 2026-08-06: **screens 16 · sealed opens 1 · n_trials 138.**
+Standing counts as of 2026-08-06: **screens 18 · sealed opens 1 · n_trials 138.**
 State them in every research readout. (The authority is
 `diagnostics/research/label_screen_ledger.md` — if this line disagrees with the ledger, the ledger
 is right and this line is stale. Screens moved 12 → 13 → 14 on 2026-07-31 (0126 line-hugger, 0127
-HEG-class bound), 14 → 15 on 2026-08-06 (0129 event-sizing bound) and 15 → 16 on 2026-08-06
-(0130 sizing-exclusion bound); `n_trials` has not moved.)
+HEG-class bound), 14 → 15 on 2026-08-06 (0129 event-sizing bound), 15 → 16 on 2026-08-06
+(0130 sizing-exclusion bound), 16 → 17 on 2026-08-06 (0132 daily Supertrend system) and
+17 → 18 on 2026-08-06 (0133 finfluencer swing survey); `n_trials` has not moved.)
 
 ---
 
@@ -79,9 +80,9 @@ wall, and either narrow to a different question or take the one re-open conditio
 
 ## II. Population information is real; this book's decision margins cannot express it
 
-The single most-repeated finding in the programme, hit from **8 different angles** — and the last of them is the first to carry an **arithmetic mechanism** rather than a description.
+The single most-repeated finding in the programme, hit from **9 different angles** — the 8th is the first to carry an **arithmetic mechanism** rather than a description, and the 9th is the first where the ranker that was supposed to rescue the population is **wrong-signed** rather than merely absent.
 
-*(Count corrected 2026-08-06: this line read "five" against seven receipt rows — it had gone stale as rows were appended. It is now 8, matching the table below.)*
+*(Count corrected 2026-08-06: this line read "five" against seven receipt rows — it had gone stale as rows were appended. It is now 9, matching the table below.)*
 
 | Angle | Receipt |
 |---|---|
@@ -93,6 +94,7 @@ The single most-repeated finding in the programme, hit from **8 different angles
 | **Cohort ≠ playbook** | 0127: a 0.43R-worse cohort's clairvoyant conditional-management gain is **0.0 R/yr in all 8 years** — the optimum does not move. |
 | **Population ≠ funding margin** | 0129: the −0.383R event gap replicates exactly on the population and is **wrong-signed (+0.076) on the capped book**, where the rule fires 2.2×/yr instead of 50×/yr. |
 | **Pool ≠ book — WITH THE MECHANISM** | **0131**: cup/box/dbl beat touch44 on the population with CIs excluding zero in **both** units, and pooled into the capped book they cost **−1.941pp of equity per trade** (CI [−3.598, −0.264]) while trade count runs 255→491. |
+| **Ranker ≠ rescue — WRONG-SIGNED** | **0132**: on a new daily funnel with 39,102 signals chasing ~10 seats, the proposed RS fill ranker has **rank-IC −0.0227**; Q5-strong is the *worst* quintile (−0.009) and the top 5% worse still (−0.017). The capped book would underperform the null population it draws from. |
 
 **Law:** *A real effect measured on a population does not survive to this book's decision points.*
 The margins are narrow by construction (CRS-adjacent contenders), the book is cash-constrained, and
@@ -216,6 +218,8 @@ for the review; never promote them in-sample, never relitigate them toward a pas
 | **Matched controls, never one-sided lists** | Extension IS the engine (69% of book R; ext ≈ candle size r=+0.48). A loser-only list re-discovers ext every time. Condition on ext × CRS cells; sample matched within them. |
 | **Reproduce-before-trust** | Every decision-informing number comes from a committed script, never a chat transcript. Artifacts (raw responses, rendered inputs, intermediate datasets) are committed. |
 | **Validate the instrument before believing it** | If the measuring device is itself a model/grader/annotator: test-retest reliability and a leakage probe come first, and gate the study (0123: κ 0.867 + clean truncation probe, *then* the screen). An unvalidated null is unreadable. |
+| **Specification uncertainty is a multiplicity axis** | 0133: an external rule stated ambiguously across sources ("cross above a pivot") admitted **four faithful readings**; holdout came out **+12.80 / −13.34 / −8.42 (the *sourced* one) / −8.65**, family mean −4.40%, and the readings disagreed in **sign** window by window. Testing ONE reading is a hidden multiple comparison. **The unit of evidence is the FAMILY of reasonable readings, not the reading you implemented.** A result that survives only one reading is a specification lottery ticket. Corollary (0132): research the published spec BEFORE testing — RS55-vs-RS14 and RSI-50-vs-60 were each worth more than any parameter in the study. |
+| **Price the null in the same window** | 0133: a random-entry control returned **+9.12% CAGR / Sharpe 0.558** on 2019-23 and **−11.07%** on 2024-26. Three of nine surveyed strategies never beat it in-sample, and holdout results are only readable as a spread over it. Any strategy survey without a matched random control cannot distinguish skill from the window. |
 | **Leaks inflate** | A result WORSE than base is not a leak. A too-good result is guilty until cleared (`skills/leakage-audit`). |
 | **Trust 63d/≥2019 only** | Old v1 7–14d kills do not transfer to the long-horizon horizon. |
 | **The 44-week line is a SMA, never an EMA** | Owner-mandated; live R94 conformant. |
@@ -230,6 +234,10 @@ Do not re-propose as-is. Each has a finding; each requires the collision rule to
 - **Entry gates / regime**: O-001, 0056, 0086, 0090, 0103 (switch not learnable OOS; static blend dominates), cash-gate 0112.
 - **The technical/indicator zoo at 63d**: O-015/0079 — RSI/MACD/Stoch/Williams/CCI/Bollinger/MFI/OBV have IC≈0; 52-week-high/SMA-dist/ROC have IC and lose as rankers.
 - **Reversal / RSI-oversold**: triple-killed (0020/0022/0024).
+- **Daily Supertrend(10,3) + RS + RSI>60 system**: 0132 — entry flat at the cross (21d −0.00 ± 0.11),
+  exit is an RSI rule in disguise (`RSI<60` on 99.9% of exit-days) that truncates at 8d against a
+  10.6% stop, net meanR +0.006 ± 0.013, 3/8 years. Four explicit re-open conditions in §8 of the
+  finding; re-tuning the 2-of-3 thresholds against that census is refused relitigation.
 - **Selection axis**: 0110 (absolute floors), 0111/0112 (trained selector), 0116 (path shape), 0123 (perception).
 - **Exit geometry**: 0105 / 0106 / 0109 — both stop directions and the zero-whipsaw floor.
 - **Post-entry conditional**: 0117.

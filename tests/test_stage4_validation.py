@@ -63,7 +63,11 @@ def test_contiguous_blocks():
 # ── DSR ─────────────────────────────────────────────────────────────────────────────
 
 def test_dsr_reads_carried_n_trials():
-    assert cumulative_n_trials() >= 79          # the governance denominator (>= carried 79; grows per trial)
+    # The governance denominator, read from the committed file (reset 138 -> 0 on 2026-08-07 by
+    # owner decision). The guard is that the loader works and returns a non-negative int — not a
+    # hard floor, which would turn a governance decision into a suite failure.
+    assert isinstance(cumulative_n_trials(), int)
+    assert cumulative_n_trials() >= 0
 
 
 def test_dsr_monotonic_in_trials_and_bounds():
