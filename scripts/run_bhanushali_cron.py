@@ -641,6 +641,44 @@ def _refresh_nifty50(do_download: bool) -> None:
         print(f"nifty-50 refresh failed ({type(exc).__name__}: {exc}); using committed CSV", flush=True)
 
 
+def _base_swing_record(out: dict, ledger: list, inception: str, generated_at: str) -> dict:
+    """The forward record of the base-swing WATCHED arm — `prereg_swing.md §4`'s comparator.
+
+    §4 decides on forward **MaxDD** and **Calmar**, both read off the NAV curve, so the curve is
+    written out in full rather than only its summary: at the review the two books must be compared
+    over a *common* window, and only the curve supports that. Closed-trade count is carried because
+    §4's floor is >=20 per book.
+
+    Not surfaced anywhere. This book contains Grade-B names, which the owner rule forbids showing.
+    """
+    curve = out["curve"]
+    dd, cagr = float(out["dd"]), float(out["cagr"])
+    return {
+        "book": "base-swing",
+        "rule": "all grades, fund strongest-first, ₹10L cash gate (forward/prereg_swing.md §2)",
+        "status": "WATCHED — logged, never traded, never surfaced (contains Grade-B names)",
+        "authority": "forward/prereg_swing.md §4 (A-only vs base-swing, decided 2027-07-01)",
+        "inception": inception,
+        "as_of": generated_at,
+        "n_closed": int(out["trades"]),
+        "sharpe": None if pd.isna(out["sharpe"]) else round(float(out["sharpe"]), 4),
+        "cagr_pct": round(cagr * 100.0, 3),
+        "maxdd_pct": round(dd * 100.0, 3),
+        "calmar": round(cagr / abs(dd), 4) if dd else None,
+        "win_rate_pct": None if pd.isna(out["wr"]) else round(float(out["wr"]) * 100.0, 2),
+        "expectancy_R_gross": None if pd.isna(out["expR"]) else round(float(out["expR"]), 4),
+        "exit_reasons": out["reasons"],
+        "nav": [{"date": str(d)[:10], "equity": round(float(v), 2)} for d, v in curve.items()],
+        "_units": ("cagr/maxdd/calmar/sharpe are NET of costs, off the NAV curve. expectancy_R is "
+                   "GROSS — R is computed on raw prices (run_bhanushali_weekly_rank), so it is NOT "
+                   "comparable to the net NAV metrics. §4 decides on MaxDD and Calmar only."),
+        "_why": ("§2 registered this arm as reconstructable from the uncapped signal ledger, but "
+                 "that ledger is filtered to Grade A, so the arm never accrued. Logging started "
+                 "2026-08-08; anything before that date is absent by design — §3 forbids "
+                 "backfilling reconstructed history into the forward record."),
+    }
+
+
 def _write_sma_panel(P: dict, a_set, generated_at: str, sd: Path) -> None:
     """Per-stock 44-week-SMA AUDIT PANEL for the latest completed week (transparency, not an input).
 
@@ -719,6 +757,22 @@ def main(argv=None) -> int:
     led_all: list = []
     out_all = R94.backtest(P, mem, ledger=led_all, start=args.start, return_state=True, uncapped=True,
                            a_grade=a_set, **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS)
+    # ── base-swing WATCHED arm (forward/prereg_swing.md §2) — ALL grades (no a_grade filter), same
+    #    ₹10L cash gate and the same LIVE_* discipline as the traded book. Logged, NEVER traded and
+    #    NEVER surfaced: the owner rule above forbids showing Grade B, so this result is deliberately
+    #    not passed to build_envelopes, the cards, the signals page or the memos.
+    #
+    #    Why it exists. §2 registers base-swing as "reconstructable from the uncapped signal ledger
+    #    (every signal, all grades)" — but BOTH books above are filtered by `a_grade=a_set`, so no
+    #    all-grade record was ever written and the arm has never accrued. §4 decides A-only vs
+    #    base-swing at the 2027-07-01 review and needs >=20 forward closed trades PER BOOK; its
+    #    insufficient-evidence clause defaults to base-swing. With no comparator accruing, that
+    #    default fires mechanically at every review and retires the live product without evidence.
+    #    This cannot be repaired later: §3 forbids reconstructed history entering the forward record,
+    #    so every week unlogged is a week of the comparison permanently lost.
+    led_base: list = []
+    out_base = R94.backtest(P, mem, ledger=led_base, start=args.start, return_state=True,
+                            **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS)
     # data's last date = the "as of" the book is current to
     last = max((pd.Timestamp(s["dates"][-1]) for s in P.values()), default=pd.Timestamp(args.start))
     generated_at = str(last.date())
@@ -731,6 +785,9 @@ def main(argv=None) -> int:
     (sd / "signal_analytics_weekly.json").write_text(json.dumps(analytics, indent=2, default=str), encoding="utf-8")
     (sd / "paper_portfolio_weekly.json").write_text(json.dumps(portfolio, indent=2, default=str), encoding="utf-8")
     hist_df.to_csv(sd / "portfolio_history_weekly.csv", index=False)
+    (sd / "base_swing_forward.json").write_text(
+        json.dumps(_base_swing_record(out_base, led_base, args.start, generated_at),
+                   indent=2, default=str), encoding="utf-8")
     _write_sma_panel(P, a_set, generated_at, sd)
 
     # DECISION MEMOS (operating layer, forward_plan Tier-3): one auditable setup/strength/risk/plan/status
