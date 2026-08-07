@@ -25,7 +25,7 @@ in `long_horizon/STRATEGY_FULL.md`).
 >    shape, perception, both stop directions, post-entry conditional management. Collision rule:
 >    **cite and narrow, never relitigate.**
 > 2. **[`skills/verdict-machine`](../verdict-machine/SKILL.md)** — the screen → bound sequence that
->    precedes any trial. Screens are ledgered separately (**screens 12**); the sealed set is priced
+>    precedes any trial. Screens are ledgered separately (**screens 19**); the sealed set is priced
 >    on every open (**sealed opens 1**).
 > 3. **The activation bound (mandatory, 3/3 kills).** Before proposing the overlay, compute its
 >    clairvoyant ceiling in R/yr and compare to the **±10R/yr path-noise floor** (0109/0117).

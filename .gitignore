@@ -146,6 +146,15 @@ build/
 .claude/*
 # track project skeptic subagent definitions (Stage-4); rest of .claude stays ignored
 !.claude/agents/
+# The two governance skills CLAUDE.md calls "the laws in enforceable form" existed ONLY under
+# skills/, so the .claude/ skill loader could not see them — the two most binding skills in the
+# repo were the two it could not load. They are mirrored here and tracked, deliberately narrowly:
+# the rest of .claude/skills/ is third-party content vendored via skills-lock.json and stays
+# ignored. tests/test_standing_counts.py asserts the mirrors stay byte-identical to skills/.
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/program-laws/
+!.claude/skills/verdict-machine/
 .agents/
 claude-cookbooks/
 skills-lock.json

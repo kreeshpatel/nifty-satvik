@@ -340,6 +340,36 @@ def simulate(
             "metrics": compute_metrics(equity_curve, trades, initial_capital)}
 
 
+def elapsed_years(equity_curve: list[dict[str, Any]], n_sessions: int) -> float:
+    """Calendar years spanned by the curve — the denominator for any *annual* rate.
+
+    CORRECTNESS NOTE (fixed 2026-08-07). This was ``n_sessions / TRADING_DAYS``, i.e. it declared a
+    "year" to be exactly 252 sessions. The panels here supply about **247.5 sessions per calendar
+    year**, so 2,348 sessions were counted as 9.32 years where **9.49** had actually elapsed. A
+    shorter denominator inflates a compound rate: on pre-registration 0001 the reported CAGR was
+    22.17% against a true annual 21.73%, an overstatement of **0.44pp** that applied to every CAGR,
+    Calmar and turnover figure the programme had ever published.
+
+    A *compound annual* growth rate has to be annualised by calendar time; 252 is a convention for
+    counting sessions, not a definition of a year. Sharpe's ``sqrt(TRADING_DAYS)`` is deliberately
+    NOT changed — scaling a per-period Sharpe by the square root of periods-per-year is the standard
+    convention, and it is a separate question from how long the sample lasted.
+
+    Falls back to the session count when the curve has no usable dates or spans under a day, which
+    keeps degenerate and synthetic fixtures behaving as before rather than dividing by zero.
+    """
+    if len(equity_curve) >= 2:
+        try:
+            first = pd.Timestamp(equity_curve[0].get("date"))
+            last = pd.Timestamp(equity_curve[-1].get("date"))
+            days = (last - first).days
+            if days > 0:
+                return days / 365.25
+        except (TypeError, ValueError):
+            pass
+    return n_sessions / TRADING_DAYS
+
+
 def compute_metrics(
     equity_curve: list[dict[str, Any]], trades: list[dict[str, Any]], initial_capital: float,
 ) -> dict[str, Any]:
@@ -350,7 +380,7 @@ def compute_metrics(
     n = len(eq)
     rets = np.diff(eq) / eq[:-1] if n > 1 else np.array([0.0])
     rets = rets[np.isfinite(rets)]
-    years = n / TRADING_DAYS
+    years = elapsed_years(equity_curve, n)
     cagr = (eq[-1] / eq[0]) ** (1.0 / years) - 1.0 if years > 0 and eq[0] > 0 else float("nan")
     sharpe = (rets.mean() / rets.std() * np.sqrt(TRADING_DAYS)) if rets.std() > 0 else float("nan")
     downside = rets[rets < 0]

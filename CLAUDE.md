@@ -53,7 +53,14 @@ pre-entry walls incl. perception/0123, population-info-vs-margins, the closed ax
 rule: **cite and narrow, never relitigate**. [`skills/verdict-machine`](skills/verdict-machine/SKILL.md)
 = the method that spends nothing: registry confrontation → coverage/PIT audit → kill-shot screen
 (ledgered) → **activation bound vs the ±10R/yr floor** → only then a trial. Standing counts:
-**screens 12 · sealed opens 1 · n_trials 138** — state them in every readout.
+**screens 19 · sealed opens 1 · n_trials 2** — state them in every readout.
+*(Corrected 2026-08-07 — both counts had gone stale: the trial counter was reset by owner decision
+and has since been incremented twice, and seven further screens were ledgered. Because this is the
+line sessions are told to recite verbatim, a stale value here does not sit quietly in a document —
+it is copied into the output of every session that obeys the instruction.
+`tests/test_standing_counts.py` now asserts these numbers against their ledgers, so they cannot
+drift again. Authorities: `diagnostics/research/n_trials.json` and
+`diagnostics/research/label_screen_ledger.md` — if this line disagrees with them, they are right.)*
 
 **Registry-first — before proposing ANY overlay / signal / exit / sizing / universe idea:**
 1. Search `research/overlay_registry.md` (the O-###/S#/R# ledger), `research/findings/NNNN-*.md`, and

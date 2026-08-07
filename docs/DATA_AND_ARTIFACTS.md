@@ -44,7 +44,7 @@ be byte-reproduced — its vintage is gone; the faithful pipeline on current dat
 | `data/ohlcv.pkl`, `data/features.pkl`, `data/_screener_cache/`, `data/*.log` | regenerable caches / scrape scratch (64 MB OHLCV — too big for git) | ❌ gitignored | runs |
 | `results/` | run outputs: signals_today.json, cpcv_long.json (artifact), portfolio_history.csv, paper_*, kill_*, cron_health.json | live-cron files whitelisted; **0 tracked today** | runs / cron |
 | `research/` | empirical anchors: `baseline_v0.json`, `baseline_v1.json`, `overlay_registry.md`, `findings/` | ✅ | us, per result |
-| `diagnostics/research/` | governance: `n_trials.json` (=79), `HOLDOUT.md`, `preregistry/` | ✅ | us, per experiment |
+| `diagnostics/research/` | governance: `n_trials.json` (=2), `HOLDOUT.md`, `preregistry/` | ✅ | us, per experiment |
 | `docs/` | plans + decisions (ROADMAP, STAGE_A_PLAN, this file, protocols) | ✅ | us |
 | `tests/` (+ `fixtures/`) | tests + the golden fixture `lh_golden_panel.csv` | ✅ | us |
 | `skills/` | the binding methodology | ✅ | carried |

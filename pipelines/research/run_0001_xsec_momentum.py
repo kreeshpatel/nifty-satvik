@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 from nq.data.membership import load_membership  # noqa: E402
+from nq.engine.portfolio import elapsed_years  # noqa: E402
 from nq.engine.rebalance_book import RebalanceConfig, rebalance_dates, simulate_rebalance_book  # noqa: E402
 from nq.runner.research import adjudicate  # noqa: E402
 from nq.signals import SKIP_DAYS, YEAR_DAYS, nse_momentum_score, vol_adjusted_return  # noqa: E402
@@ -80,7 +81,12 @@ def passive_equal_weight(p: pd.DataFrame) -> dict:
     r = e.pivot_table(index="date", columns="ticker", values="close").sort_index().pct_change()
     daily = r.mean(axis=1).fillna(0.0)
     eq = (1 + daily).cumprod()
-    yrs = len(eq) / 252.0
+    # Calendar time, the SAME denominator the engine uses (nq.engine.portfolio.elapsed_years).
+    # This computed `len(eq) / 252.0` independently of the engine, so when the engine moved to
+    # calendar annualisation on 2026-08-07 the benchmark silently did not — leaving the pre-reg's
+    # "must clear equal-weight passive ownership" gate comparing two different conventions, with the
+    # benchmark flattered by ~0.4pp relative to the candidate.
+    yrs = elapsed_years([{"date": str(d)[:10], "equity": float(v)} for d, v in eq.items()], len(eq))
     return {"cagr_pct": round((eq.iloc[-1] ** (1 / yrs) - 1) * 100, 3),
             "sharpe": round(daily.mean() / daily.std() * np.sqrt(252), 3),
             "max_drawdown_pct": round((eq / eq.cummax() - 1).min() * 100, 2),

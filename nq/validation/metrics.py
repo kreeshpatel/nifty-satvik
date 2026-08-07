@@ -48,7 +48,23 @@ def max_drawdown(equity: np.ndarray) -> float:
 
 
 def cagr(equity: np.ndarray, *, periods: int = TRADING_DAYS) -> float:
-    """Compound annual growth rate of an equity curve."""
+    """Compound annual growth rate of an equity curve, on **trading-bar years** (``n / periods``).
+
+    DIVERGENCE, recorded deliberately (2026-08-07, ADR-0014). ``nq.engine.portfolio.compute_metrics``
+    now annualises by **calendar time** via ``elapsed_years``, because the panels supply ~247.5
+    sessions per calendar year rather than 252 and the shorter denominator inflated every published
+    CAGR by ~0.44pp. This function was NOT changed to match, for two reasons:
+
+    1. It is the site ``DEFINITIONS_REGISTER.md`` §6 names as canonical for the bar-year convention,
+       and §6 is an open DOOR whose resolution is routed to the owner's review binder. Silently
+       flipping a convention that a governance register catalogues would defeat the register.
+    2. Nothing published reads it. Every external caller of this module imports ``sharpe`` or
+       ``sortino``; ``cagr`` is reached only by :func:`calmar`, :func:`summary` and their own tests.
+
+    So the divergence is dormant rather than harmless. **Do not use this for a headline CAGR** — call
+    ``compute_metrics``, or pass an explicit calendar-derived ``periods``. If §6 is ever closed in
+    favour of calendar years, this is the second site to change.
+    """
     eq = np.asarray(equity, dtype=float)
     n = eq.size
     years = n / periods

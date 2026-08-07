@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import pytest
 
+from nq.engine.portfolio import elapsed_years
 from nq.runner.research import _after_tax_cagr, after_tax_curve
-from nq.validation.metrics import TRADING_DAYS
 
 CAP = 1_000_000.0
 
@@ -68,16 +68,21 @@ def test_the_drag_compounds_and_this_is_the_whole_point():
 
 
 def test_cagr_uses_the_compounded_curve_and_the_engine_year_convention():
-    """Two things at once. The CAGR must come off the TAXED curve, and it must annualise the same
-    way ``compute_metrics`` does — ``sessions / 252`` — or the gross and after-tax figures sit on
-    different denominators and their difference is not a tax cost. On 0001 the two conventions
-    differ by 0.43pp, which is the size of the effects being measured.
+    """Two things at once. The CAGR must come off the TAXED curve, and it must share a denominator
+    with the engine's gross CAGR — otherwise their difference is not a tax cost.
+
+    That denominator is now calendar time (`elapsed_years`), not sessions/252. The two conventions
+    differ by 0.43pp on 0001, the same order as the effects being measured, so this asserts the
+    shared function rather than a hardcoded rule — a future change to one cannot silently desync it
+    from the other.
     """
     rows = [("2018-01-01", CAP), ("2018-12-31", 2_000_000.0), ("2019-12-31", 4_000_000.0)]
     bt = _bt(rows, [_trade("2018-06-01", 1_000_000.0)])
     # after-tax final = 4,000,000 x (1 - 200,000/2,000,000) = 3,600,000
-    expected = ((3_600_000.0 / CAP) ** (1 / (len(rows) / TRADING_DAYS)) - 1) * 100
-    assert _after_tax_cagr(bt, CAP) == pytest.approx(expected, rel=1e-6)
+    yrs = elapsed_years(bt["equity_curve"], len(rows))
+    assert yrs == pytest.approx(729 / 365.25, rel=1e-9), "not annualising by calendar span"
+    expected = ((3_600_000.0 / CAP) ** (1 / yrs) - 1) * 100
+    assert _after_tax_cagr(bt, CAP) == round(expected, 3)      # the function's stated precision
 
 
 def test_a_zero_rate_leaves_the_curve_alone():

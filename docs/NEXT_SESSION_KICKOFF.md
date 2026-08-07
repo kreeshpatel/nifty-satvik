@@ -76,13 +76,13 @@ Long-horizon (3-month) cross-sectional trend-momentum on Nifty-500:
   clean, decoupled, no v1 — and the cloud research workflow (`cpcv-research.yml`, port
   from the old repo). **Canonical numbers come ONLY from the cloud** (the local OHLCV
   cache is a degenerate ~20-survivor subset → ~15% CAGR → inadmissible). **Gate:**
-  re-derives a known §11 KILL as killed; DSR reads the carried `n_trials.json` (=79).
+  re-derives a known §11 KILL as killed; DSR reads the carried `n_trials.json` (=2).
 - **Stage 5 — Tests + CI green.** Port/rewrite the LH tests; CI green on the real runner.
 
 ## 5 — The 6 irreplaceables (ALREADY carried — NEVER regenerate naively)
 Data corrections (PIT membership / demerger catalog / Screener PIT D/E — `data/`),
 empirical history (`research/baseline_v0.json`, `research/overlay_registry.md`,
-`diagnostics/research/n_trials.json`=79, the preregistry), the golden fixture, frozen
+`diagnostics/research/n_trials.json`=2, the preregistry), the golden fixture, frozen
 `config.json`, `skills/`, the STRATEGY/program docs. Re-deriving the data naively
 re-introduces survivorship-inflation (CAGR +8–18pp) and the demerger-as-split bug that
 fabricates a top-15 BUY on a price series that never existed.

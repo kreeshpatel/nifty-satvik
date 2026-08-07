@@ -19,19 +19,43 @@ import pandas as pd
 import pytest
 
 from config import load_frozen_cfg
-from nq.engine.portfolio import base_risk_qty, simulate
+from nq.engine.portfolio import base_risk_qty, elapsed_years, simulate
 
 ROOT = Path(__file__).resolve().parent.parent
 FIXTURE = ROOT / "tests" / "fixtures" / "lh_golden_panel.csv"
 START, END = "2017-01-01", "2019-12-31"
 
+# RE-ANCHORED 2026-08-07 — MEASUREMENT class, annualisation only.
+#
+# `compute_metrics` computed `years = sessions / 252`, declaring a year to be exactly 252 sessions.
+# This panel supplies ~247.5 sessions per calendar year, so its 1,093-day span was counted as 2.92
+# years where 2.99 elapsed — and a shorter denominator inflates every annual rate. `elapsed_years`
+# now measures calendar time.
+#
+# The change is provably behavioural-free, which is what makes it MEASUREMENT rather than ENGINE:
+#
+#   GOLDEN_LEDGER_HASH        dbc94a1856681195   UNCHANGED  (no trade moved)
+#   n_trades, exit_reasons                       UNCHANGED
+#   final_equity, total_return_pct               UNCHANGED
+#   sharpe, sortino, max_drawdown_pct            UNCHANGED
+#   win_rate, profit_factor, avg_*               UNCHANGED
+#
+# Exactly the four figures derived from `years` moved, all downward:
+#
+#   cagr_pct            18.47 -> 18.02
+#   calmar               1.41 -> 1.38
+#   turnover_per_year    47.9 -> 46.8
+#   years                2.92 -> 2.99
+#
+# Sharpe's sqrt(252) is deliberately untouched — scaling a per-period Sharpe by the square root of
+# periods-per-year is the standard convention and a separate question from sample length.
 GOLDEN_METRICS = {
-    "final_equity": 1641679.2, "total_return_pct": 64.17, "cagr_pct": 18.47,
-    "sharpe": 1.464, "sortino": 2.297, "max_drawdown_pct": -13.06, "calmar": 1.41,
-    "turnover_per_year": 47.9, "n_trades": 140, "n_reallocated_exits": 0,
+    "final_equity": 1641679.2, "total_return_pct": 64.17, "cagr_pct": 18.02,
+    "sharpe": 1.464, "sortino": 2.297, "max_drawdown_pct": -13.06, "calmar": 1.38,
+    "turnover_per_year": 46.8, "n_trades": 140, "n_reallocated_exits": 0,
     "win_rate_pct": 65.71, "profit_factor": 1.92, "avg_return_per_trade_pct": 2.981,
     "avg_hold_days": 32.4, "avg_positions_held": 6.46,
-    "exit_reasons": {"stop": 28, "trailing": 87, "target": 10, "time": 15}, "years": 2.92,
+    "exit_reasons": {"stop": 28, "trailing": 87, "target": 10, "time": 15}, "years": 2.99,
 }
 GOLDEN_LEDGER_HASH = "dbc94a1856681195"
 GOLDEN_N_TRADES = 140
@@ -64,6 +88,28 @@ def test_golden_trade_ledger_hash(golden_run):
     trades = golden_run["trades"]
     assert len(trades) == GOLDEN_N_TRADES, f"n_trades {len(trades)} != golden {GOLDEN_N_TRADES}"
     assert _ledger_hash(trades) == GOLDEN_LEDGER_HASH, "trade ledger drifted vs golden"
+
+
+def test_annualisation_uses_calendar_time_not_a_252_session_year():
+    """The 2026-08-07 re-anchor, pinned as a property rather than as a number.
+
+    `years` must track the calendar span of the curve. Asserting it directly means a future revert to
+    `sessions / 252` fails here with a clear cause, instead of surfacing as four mysteriously drifted
+    metrics in the golden above.
+    """
+    curve = [{"date": "2017-01-02", "equity": 100.0, "n_positions": 0},
+             {"date": "2019-12-31", "equity": 100.0, "n_positions": 0}]
+    assert elapsed_years(curve, len(curve)) == pytest.approx(1093 / 365.25, rel=1e-9)
+    # 252 sessions is NOT one year on this data — that is the whole point
+    assert elapsed_years(curve, 252) != pytest.approx(1.0, rel=1e-3)
+
+
+def test_annualisation_falls_back_when_dates_are_unusable():
+    """Degenerate curves must not divide by zero or explode; synthetic fixtures rely on this."""
+    assert elapsed_years([], 0) == 0.0
+    assert elapsed_years([{"equity": 1.0}, {"equity": 2.0}], 504) == pytest.approx(2.0)
+    same_day = [{"date": "2020-01-01", "equity": 1.0}, {"date": "2020-01-01", "equity": 2.0}]
+    assert elapsed_years(same_day, 252) == pytest.approx(1.0)
 
 
 def test_base_risk_qty_parity():

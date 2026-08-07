@@ -68,7 +68,7 @@ These are **not** rebuildable from a spec; copy them byte-for-byte. Source → d
 | # | What | Path(s) | Why it can't be regenerated |
 |---|---|---|---|
 | 1 | **Data corrections** | `data/nifty500_membership*.csv`, `data/corporate_actions_demergers.csv`, `data/fundamentals_pit_screener.pkl`, `data/nse_circulars/`, `data/nifty500_official_20250720.csv`, `data/macro_data.pkl`, `data/sector_intelligence.pkl`, `data/problem_sector_map.json` | PIT membership (survivorship fix), demerger catalog, deep Screener D/E scrape — empirical artifacts, re-deriving them re-introduces CAGR-inflating bugs |
-| 2 | **Empirical history** | `research/baseline_v0.json`, `research/overlay_registry.md`, `research/findings/`, `diagnostics/research/n_trials.json` (=79), `diagnostics/research/HOLDOUT.md`, `diagnostics/research/preregistry/`, `long_horizon/research/preregistry/`, `long_horizon/research/findings/` | KILL log + DSR denominator + the anchor; losing them re-runs dead experiments + breaks significance math |
+| 2 | **Empirical history** | `research/baseline_v0.json`, `research/overlay_registry.md`, `research/findings/`, `diagnostics/research/n_trials.json` (=2), `diagnostics/research/HOLDOUT.md`, `diagnostics/research/preregistry/`, `long_horizon/research/preregistry/`, `long_horizon/research/findings/` | KILL log + DSR denominator + the anchor; losing them re-runs dead experiments + breaks significance math |
 | 3 | **Golden fixture** | `tests/fixtures/lh_golden_panel.csv` (+ the committed golden expected output if present) | the equivalence proof for the rebuilt engine |
 | 4 | **Frozen config** | `models/long_horizon/config.json` | the live source of truth |
 | 5 | **Skills (methodology)** | `skills/` (all 23 docs incl `_ingested/`) | the operating discipline |
@@ -125,7 +125,7 @@ non-negotiable live≡backtest parity).
 
 - **Anchor = baseline_v0** (§1). Never 30.26 / 34.67.
 - **Pre-register every trial** (`diagnostics/research/preregistry/`) + bump
-  `n_trials.json` (=79) **before** running. Canonical numbers only from the cloud
+  `n_trials.json` (=2) **before** running. Canonical numbers only from the cloud
   CPCV run (local cache = degenerate survivor subset, inadmissible).
 - **Promotion bar:** post-tax post-cost ΔSharpe ≥ +0.10, ΔCalmar ≥ +0.05, 2022-26
   ΔCAGR > 0, ≥2019 fold-pass ≥ 60%, block-bootstrap CI-low(ΔSharpe) > 0 (block=63),

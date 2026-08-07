@@ -1,20 +1,23 @@
 # Result 0001 — Cross-sectional momentum, Indian midcaps
 
 **Date:** 2026-08-07 · **Pre-registration:** `prereg.md` (written before the run)
-**Trial:** `n_trials` 1 · **Verdict:** all 7 primary gates PASS → **WATCHED, not capital**
+**Trial:** `n_trials` 2 · **Verdict:** all 7 primary gates PASS → **WATCHED, not capital**
 
 ---
 
 ## 1. Outcome
 
+*(All figures annualised by calendar time — see ADR-0014. The CAGR, Calmar and turnover columns are
+~0.4pp / 0.02 / 5pp lower than the first publication of this result; nothing behavioural changed.)*
+
 | | CAGR | Sharpe | MaxDD | Calmar | trades | turnover |
 |---|---|---|---|---|---|---|
-| **CANDIDATE** | **22.17%** | **1.130** | −37.17% | 0.60 | 2,951 | 317 |
-| random control | 6.24% | 0.416 | −57.75% | 0.11 | 4,153 | 446 |
-| **passive equal-weight** | 13.48% | 0.737 | −52.51% | — | — | — |
+| **CANDIDATE** | **21.73%** | **1.130** | −37.17% | 0.58 | 2,951 | 311 |
+| random control | 6.12% | 0.416 | −57.75% | 0.11 | 4,153 | 438 |
+| **passive equal-weight** | 13.20% | 0.737 | −52.51% | — | — | — |
 
 ΔSharpe **+0.714**, CI **[0.435, 1.027]** — excludes zero and clears the 0.30 noise floor.
-`n_eff` 37 · DSR 0.999 · every primary gate passes.
+`n_eff` 37 · DSR 0.991 · every primary gate passes.
 
 **Per-regime** (continuous slices of the one curve, never re-run):
 
@@ -25,7 +28,7 @@
 | 2022 drawdown | **+3.90%** | −9.67% |
 | 2024-26 correction | **+15.23%** | +10.03% |
 
-Cost sensitivity: unchanged at the 1.5× proxy (22.17% → 22.17%).
+Cost sensitivity: unchanged at the 1.5× proxy (21.73% → 21.73%).
 
 **This is the first configuration in the programme to beat passive ownership on return, Sharpe and
 drawdown simultaneously.**
@@ -39,7 +42,7 @@ rather than harmless.
 
 | | run 1 | run 2 | run 3 | run 4 (this) |
 |---|---|---|---|---|
-| CAGR | 18.08% | 24.26% | 22.11% | 22.17% |
+| CAGR | 18.08% | 24.26% | 22.11% | 21.73% |
 | Sharpe | **1.565** | 1.239 | 1.128 | **1.130** |
 | MaxDD | **−19.56%** | −34.76% | −37.11% | **−37.17%** |
 | PBO | 0.774 | 0.274 | 0.488 | 0.452 |
@@ -81,10 +84,10 @@ family may carry edge, but the choice of top-30 / buffer-1.5 within the neighbou
 supported.* **No cell from the sweep is adopted, and the baseline's specific parameters should be
 treated as arbitrary within their neighbourhood.**
 
-**DSR 0.998 is close to uninformative at `n_trials = 1`.** DSR deflates by the expected maximum
+**DSR 0.991 is close to uninformative at `n_trials = 2`.** DSR deflates by the expected maximum
 Sharpe across trials; at one trial there is essentially no deflation and it collapses to "is this
-Sharpe above zero given the sample". The counter reads 1 because it was reset from 138 earlier the
-same day at the owner's instruction. That gate should be re-read once the counter reflects genuine
+Sharpe above zero given the sample". The counter reads 2 because it was reset earlier the same day
+at the owner's instruction, then incremented for this trial and for ENG-01. That gate should be re-read once the counter reflects genuine
 accumulated testing.
 
 **The planning drawdown is −59.3%, not −37.2%.** (Superseded reading — see §3c. The original text
@@ -93,7 +96,7 @@ produces a usable number, which is worse than the observed path.)
 
 **CAGR sits above the literature's honest band.** The compendium puts durable Indian midcap momentum
 at ~14-18%, and "low-20s only for the best regime-managed, vol-targeted, quality-filtered
-combinations". This book has **none** of those overlays and returned 22.17%. The most likely
+combinations". This book has **none** of those overlays and returned 21.73%. The most likely
 reconciliation is the **window**: 2017-2026 excludes 2008, which is where the published −70%
 drawdowns and the CAGR drag come from. That is a real limitation of our sample, not evidence of
 superiority — the strategy has never met a 2008.
@@ -132,13 +135,13 @@ cannot have been reading information unavailable at execution.
 
 | | CAGR | Sharpe |
 |---|---|---|
-| candidate | 22.17% | 1.130 |
+| candidate | 21.73% | 1.130 |
 | **ranks permuted within each date** | **4.89%** | **0.349** |
-| random control | 6.24% | 0.416 |
+| random control | 6.12% | 0.416 |
 
 Shuffling the ranking across names within each date — identical cross-sectional distribution,
 identical universe, identical equal weighting, buffer and cadence, **only the ordering destroyed** —
-collapses the book to the random control. The 22.17% is therefore attributable to the *ranking*,
+collapses the book to the random control. The 21.73% is therefore attributable to the *ranking*,
 not to portfolio construction. Had the permuted book kept outperforming, the return would have been
 coming from equal weighting or the rebalance mechanics and the signal would have been incidental.
 
@@ -155,7 +158,7 @@ Execution leakage does not appear in any aggregate statistic, so this is checked
 
 **What the battery does NOT clear.** It addresses leakage and construction artifacts. It says
 nothing about overfitting-through-the-researcher, the coin-flip PBO, the uninformative DSR at
-`n_trials = 1`, or the window limitation in §3. Those remain open.
+`n_trials = 2`, or the window limitation in §3. Those remain open.
 
 ## 3c. The drawdown distribution, rebuilt
 
@@ -257,32 +260,47 @@ tax stops compounding, and scales the actual equity curve rather than reconstruc
 
 | | |
 |---|---|
-| gross CAGR | 22.17% |
-| after-tax, as previously reported | 18.31% |
-| **after-tax, compounded (as specified)** | **18.52%** |
+| gross CAGR | 21.73% |
+| after-tax, as previously reported | 17.96% |
+| **after-tax, compounded (as specified)** | **18.16%** |
 | total STCG over the window | ₹1,053,712 |
 
 The tax model previously had exactly one test — that the field exists. It now has eight, including
 the one that matters: two books with identical gains but different *timing* of realisation must not
 produce the same after-tax result. The old model could not tell them apart.
 
-**Separately: every CAGR in the programme is annualised by a convention that overstates it.**
-`compute_metrics` computes `years = sessions / 252`. This panel supplies **247.5 sessions per
-calendar year**, so 2,348 sessions is counted as 9.32 years where **9.49** actually elapsed — and a
-shorter denominator inflates the rate.
+**Separately: every CAGR in the programme was annualised by a convention that overstated it — now
+fixed (ADR-0014).** `compute_metrics` computed `years = sessions / 252`. This panel supplies
+**247.5 sessions per calendar year**, so 2,348 sessions were counted as 9.32 years where **9.49**
+elapsed, and a shorter denominator inflates the rate.
 
 | | |
 |---|---|
-| gross CAGR at the 252-session convention | **22.17%** ← the reported figure |
-| gross CAGR by calendar time | **21.73%** |
+| gross CAGR at the 252-session convention | 22.17% ← as first published |
+| **gross CAGR by calendar time** | **21.73%** ← the figure in §1 |
 | overstatement | **0.44pp** |
 
-A *compound annual* growth rate should annualise by calendar time. This is **reported, not fixed**:
-it applies to `baseline_v1` and every other pinned result, so correcting it re-anchors the pin and
-is an owner decision, not a unit-test change. It was also making gross and after-tax figures
-non-comparable — those used calendar days while gross used sessions/252, a 0.43pp mismatch on the
-same order as the effects being measured. The after-tax function now matches the engine convention
-so the pair is at least internally consistent; both remain overstated by the same 0.44pp.
+Owner-approved and applied. The headline in §1 is the corrected number; the run-history table in §2
+keeps its original figures because those rows record what was measured at the time.
+
+**Two things worth carrying from the fix.** First, it was provably free of behavioural effect: the
+Stage-2 golden master's trade-ledger hash is byte-identical and not one trade moved — only the four
+figures derived from `years`. That is what separates a MEASUREMENT change from an ENGINE one, and
+it was checked rather than assumed.
+
+Second, the fix exposed a live instance of a hazard this repo had already written down.
+`DEFINITIONS_REGISTER` §6 warns that a book-vs-benchmark CAGR gap is only valid if both sides share
+a denominator — and `passive_equal_weight` in this very pipeline computed `len(eq)/252.0`
+independently of the engine. When the engine moved, the benchmark silently did not, which would
+have left the pre-registration's *"must clear equal-weight passive ownership"* gate comparing two
+conventions with the benchmark flattered by ~0.4pp. Caught and fixed in the same change; passive is
+13.20%, not 13.48%.
+
+**`baseline_v1` is NOT re-anchored** and is knowingly ~0.4pp high. Its designated producer no longer
+reproduces its pinned Sharpe (0.667 pinned vs 0.647 today) — a discrepancy that **predates this
+change and cannot be caused by it**, since that harness computes its own metrics and never calls
+`compute_metrics`. Overwriting a governance anchor from a harness that does not reproduce it would
+fold an unexplained defect into a clean one. It needs its own investigation (ADR-0014).
 
 ## 4. Coverage gaps, carried from the pre-registration
 

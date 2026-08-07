@@ -137,13 +137,36 @@ arbiter for this reason), `ZOO_TWO_LENS.md`, and any future two-arm comparison.
   (unmeasured here). With 4 closed and 5 open, the printed rate rests on 4 observations.
 - **Routed to the binder.** No re-computation attempted (out of scope).
 
-## 6. CAGR — two committed year-denominators — **DOOR**
+## 6. CAGR — two committed year-denominators — **DOOR (narrowed 2026-08-07, ADR-0014)**
 
 | site | `yrs` | same book publishes |
 |---|---|---|
 | `scripts/run_bhanushali_sixstep.py:220` (`_row`, the swing print) | `(last − first).days / 365.25` — **calendar years** | **24.7%** |
 | `scripts/run_corrected_anchor.py:52` | `len(r) / 252` — **trading-bar years** | **25.21%** |
-| `nq/validation/metrics.py:43` (canonical) | `n / 252` — **trading-bar years** | — |
+| `nq/validation/metrics.py` (`cagr`) | `n / 252` — **trading-bar years** | — |
+| **`nq/engine/portfolio.py` (`elapsed_years` → `compute_metrics`)** | **`(last − first).days / 365.25` — calendar years** | **changed 2026-08-07** |
+
+**What changed.** The engine's `compute_metrics` moved to calendar years. The measurement is
+settled *for the engine*: the panels supply **247.5 sessions per calendar year**, so a 252-session
+"year" counted 9.32 years where 9.49 elapsed and inflated every engine CAGR by **0.44pp**. A
+compound *annual* rate is a rate per year; 252 counts sessions, not years. Owner-approved,
+ADR-0014, all pins re-anchored, and the Stage-2 golden ledger hash is byte-identical (no trade
+moved), which is what makes it a MEASUREMENT change rather than an ENGINE one.
+
+**What did NOT change, and why the door stays open.** `nq/validation/metrics.cagr` and
+`run_corrected_anchor.metrics` still use bar-years. Neither was flipped to match, because this
+register catalogues them and their resolution is routed to the binder — a convention a governance
+register names should not be changed underneath it. The divergence is currently **dormant**: no
+published number reads `nq/validation/metrics.cagr` (every external caller of that module imports
+`sharpe`/`sortino`; `cagr` is reached only by `calmar`, `summary` and their own tests).
+
+**The cross-document comparison risk is unchanged and now has a live instance.** Found while
+re-anchoring: `pipelines/research/run_0001_xsec_momentum.py::passive_equal_weight` computed
+`len(eq)/252.0` independently of the engine, so when the engine moved the benchmark did not — which
+would have left pre-registration 0001's "must clear equal-weight passive ownership" gate comparing
+a calendar-year candidate against a bar-year benchmark, flattering the benchmark by ~0.4pp. Fixed in
+the same change. **This is exactly the book-vs-benchmark exposure §6 already warned about**, and it
+is the reason any duplicate of this arithmetic should call `elapsed_years` rather than reimplement it.
 
 - Both are applied to the **same book** (Sharpe 1.132, MaxDD −42.4 in
   `lh_solvency_bracket.json` and in the registry), which is why one book carries two CAGRs.

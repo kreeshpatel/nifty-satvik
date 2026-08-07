@@ -29,7 +29,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from nq.engine.portfolio import simulate
+from nq.engine.portfolio import elapsed_years, simulate
 from nq.validation.bootstrap import DEFAULT_BLOCK, block_bootstrap_metric, bootstrap_delta
 from nq.validation.dsr import (cumulative_n_trials, deflated_sharpe_ratio,
                                min_track_record_length, probabilistic_sharpe_ratio)
@@ -218,17 +218,12 @@ def after_tax_curve(bt: dict[str, Any], stcg: float = 0.20) -> list[dict[str, An
 def _after_tax_cagr(bt: dict[str, Any], initial_capital: float, stcg: float = 0.20) -> float | None:
     """After-tax CAGR (%), with the tax drag compounded — see :func:`after_tax_curve`.
 
-    Annualised as ``sessions / TRADING_DAYS``, matching :func:`nq.engine.portfolio.compute_metrics`.
-    This function previously used calendar days / 365.25, so gross and after-tax CAGR were computed
-    on **different denominators** and their difference was not a clean tax cost: on 0001 the two
-    conventions differ by 0.43pp, which is comparable to the effects being measured.
+    Annualised through :func:`nq.engine.portfolio.elapsed_years`, the same calendar-time denominator
+    the engine's gross CAGR uses. Both figures must share one denominator or their difference is not
+    a tax cost: this function once divided by calendar days while gross CAGR divided by sessions/252,
+    a 0.43pp mismatch on the same order as the effects being measured.
 
-    Note the shared convention is itself questionable — the panel averages 247.6 sessions per
-    calendar year, not 252, so both figures overstate the true annual rate. That is a programme-wide
-    issue affecting every pinned result, deliberately NOT fixed here; matching the existing
-    convention keeps this pair comparable rather than quietly re-anchoring the baseline.
-
-    Calendar year is also an approximation of the Apr-Mar fiscal year, and business-income treatment
+    Calendar year is still an approximation of the Apr-Mar fiscal year, and business-income treatment
     is not modelled. Both stay recorded as coverage gaps.
     """
     curve = after_tax_curve(bt, stcg=stcg)
@@ -237,7 +232,7 @@ def _after_tax_cagr(bt: dict[str, Any], initial_capital: float, stcg: float = 0.
     final = float(curve[-1]["equity"])
     if final <= 0:
         return None
-    yrs = len(curve) / TRADING_DAYS
+    yrs = elapsed_years(curve, len(curve))
     return round(((final / initial_capital) ** (1.0 / yrs) - 1.0) * 100.0, 3) if yrs > 0 else None
 
 

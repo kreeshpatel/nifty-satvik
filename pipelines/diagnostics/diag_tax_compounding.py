@@ -23,6 +23,7 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "pipelines" / "research"))
 from nq.data.membership import load_membership  # noqa: E402
+from nq.engine.portfolio import elapsed_years  # noqa: E402
 from nq.runner.research import after_tax_curve  # noqa: E402
 from nq.universe import build_universe  # noqa: E402
 from nq.validation.metrics import TRADING_DAYS  # noqa: E402
@@ -56,14 +57,16 @@ def main() -> int:
     comp_final = float(after_tax_curve(bt, stcg=STCG)[-1]["equity"])
 
     sess_yrs = len(ec) / TRADING_DAYS
+    cal_yrs = elapsed_years(ec, len(ec))
 
-    def cagr(x: float, y: float = sess_yrs) -> float:
+    def cagr(x: float, y: float = cal_yrs) -> float:
         return ((x / CAP) ** (1.0 / y) - 1.0) * 100.0
 
     print(f"  window {ec[0]['date']} -> {ec[-1]['date']}")
-    print(f"  {len(ec):,} sessions = {sess_yrs:.3f} 'years' at the 252 convention, "
-          f"but {yrs:.3f} calendar years")
-    print(f"  -> the panel runs {len(ec) / yrs:.1f} sessions per calendar year, not 252\n")
+    print(f"  {len(ec):,} sessions over {cal_yrs:.3f} calendar years "
+          f"= {len(ec) / cal_yrs:.1f} sessions/year, not 252")
+    print(f"  annualising by sessions/252 would have called this {sess_yrs:.3f} years "
+          f"(superseded — ADR-0014)\n")
     print(f"  gross                  CAGR {cagr(gross_final):>6.2f}%   final Rs {gross_final:>14,.0f}")
     print(f"  after-tax, lump sum    CAGR {cagr(lump_final):>6.2f}%   final Rs {lump_final:>14,.0f}"
           f"   <- what was reported")
@@ -83,14 +86,14 @@ def main() -> int:
     print("  errors pointing opposite ways — no compounding (optimistic) and final value taken as")
     print("  'capital + realised' rather than actual equity (pessimistic).")
 
-    print("\n=== SEPARATE ISSUE: the annualisation convention (programme-wide) ===")
-    print(f"  gross CAGR @252-session 'year' {cagr(gross_final):>6.2f}%   <- every pinned result")
-    print(f"  gross CAGR @calendar year      {cagr(gross_final, yrs):>6.2f}%")
-    print(f"  overstatement                  {cagr(gross_final) - cagr(gross_final, yrs):>6.2f}pp")
-    print("  A 'compound ANNUAL growth rate' should annualise by calendar time. Dividing sessions")
-    print("  by 252 when the data supplies ~247.6 per year counts 9.32 years where 9.49 elapsed,")
-    print("  and a shorter denominator inflates the rate. This affects baseline_v1 and every other")
-    print("  pinned CAGR, so it is REPORTED, not silently fixed — changing it re-anchors the pin.")
+    print("\n=== THE ANNUALISATION CONVENTION (fixed — ADR-0014) ===")
+    print(f"  gross CAGR @calendar year      {cagr(gross_final):>6.2f}%   <- current, correct")
+    print(f"  gross CAGR @252-session 'year' {cagr(gross_final, sess_yrs):>6.2f}%   <- superseded")
+    print(f"  the old convention overstated  {cagr(gross_final, sess_yrs) - cagr(gross_final):>6.2f}pp")
+    print("  A 'compound ANNUAL growth rate' annualises by calendar time. Dividing sessions by 252")
+    print("  when the data supplies ~247.5 per year counted 9.32 years where 9.49 elapsed, and a")
+    print("  shorter denominator inflates the rate. Every pinned CAGR in the programme has been")
+    print("  re-anchored accordingly; historical findings keep their original figures on record.")
     return 0
 
 

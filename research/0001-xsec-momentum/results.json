@@ -2,12 +2,12 @@
   "candidate": {
     "final_equity": 6458910.75,
     "total_return_pct": 545.89,
-    "cagr_pct": 22.17,
+    "cagr_pct": 21.73,
     "sharpe": 1.13,
     "sortino": 1.249,
     "max_drawdown_pct": -37.17,
-    "calmar": 0.6,
-    "turnover_per_year": 316.7,
+    "calmar": 0.58,
+    "turnover_per_year": 311.1,
     "n_trades": 2951,
     "n_reallocated_exits": 0,
     "win_rate_pct": 73.09,
@@ -20,17 +20,17 @@
       "rebalance_exit": 905,
       "stale": 1
     },
-    "years": 9.32
+    "years": 9.49
   },
   "control": {
     "final_equity": 1757477.7,
     "total_return_pct": 75.75,
-    "cagr_pct": 6.24,
+    "cagr_pct": 6.12,
     "sharpe": 0.416,
     "sortino": 0.474,
     "max_drawdown_pct": -57.75,
     "calmar": 0.11,
-    "turnover_per_year": 445.7,
+    "turnover_per_year": 437.8,
     "n_trades": 4153,
     "n_reallocated_exits": 0,
     "win_rate_pct": 61.57,
@@ -43,10 +43,10 @@
       "rebalance_exit": 2354,
       "stale": 2
     },
-    "years": 9.32
+    "years": 9.49
   },
   "passive": {
-    "cagr_pct": 13.482,
+    "cagr_pct": 13.195,
     "sharpe": 0.737,
     "max_drawdown_pct": -52.51,
     "note": "equal-weight, daily rebalance -> carries a rebalancing premium"
@@ -54,7 +54,7 @@
   "verdict": {
     "n_obs": 2347,
     "n_eff_windows": 37,
-    "n_trials": 1,
+    "n_trials": 2,
     "base_sharpe": 0.416,
     "candidate_sharpe": 1.13,
     "dSharpe": 0.714,
@@ -62,14 +62,14 @@
       0.435,
       1.027
     ],
-    "dsr_candidate": 0.9985093518948157,
-    "dCalmar": 0.49,
+    "dsr_candidate": 0.9909285078969635,
+    "dCalmar": 0.47,
     "subperiod_2022_dCAGR": 8.555,
     "fold_pass_frac": 0.875,
     "n_folds": 8,
     "turnover_delta": -0.2894,
-    "after_tax_cagr_base": 4.472,
-    "after_tax_cagr_cand": 17.957,
+    "after_tax_cagr_base": 4.04,
+    "after_tax_cagr_cand": 18.163,
     "gates": {
       "dSharpe_meaningful": true,
       "dCalmar_ge_0.05": true,
