@@ -1,0 +1,109 @@
+{
+  "candidate": {
+    "final_equity": 4537417.59,
+    "total_return_pct": 353.74,
+    "cagr_pct": 17.62,
+    "sharpe": 0.955,
+    "sortino": 1.207,
+    "max_drawdown_pct": -24.37,
+    "calmar": 0.72,
+    "turnover_per_year": 30.2,
+    "n_trades": 281,
+    "n_reallocated_exits": 0,
+    "win_rate_pct": 48.4,
+    "profit_factor": 1.63,
+    "avg_return_per_trade_pct": 7.15,
+    "avg_hold_days": 78.3,
+    "avg_positions_held": 9.52,
+    "exit_reasons": {
+      "target": 121,
+      "stop": 138,
+      "time": 19,
+      "stale": 3
+    },
+    "years": 9.32
+  },
+  "null": {
+    "final_equity": 3466617.37,
+    "total_return_pct": 246.66,
+    "cagr_pct": 14.27,
+    "sharpe": 0.851,
+    "sortino": 1.045,
+    "max_drawdown_pct": -45.51,
+    "calmar": 0.31,
+    "turnover_per_year": 33.3,
+    "n_trades": 310,
+    "n_reallocated_exits": 0,
+    "win_rate_pct": 47.42,
+    "profit_factor": 1.62,
+    "avg_return_per_trade_pct": 5.498,
+    "avg_hold_days": 71.2,
+    "avg_positions_held": 9.71,
+    "exit_reasons": {
+      "stop": 158,
+      "target": 137,
+      "time": 13,
+      "stale": 2
+    },
+    "years": 9.32
+  },
+  "passive": {
+    "cagr_pct": 17.971,
+    "sharpe": 1.009,
+    "max_drawdown_pct": -53.13,
+    "years": 9.32,
+    "note": "EW daily rebalance carries a rebalancing premium"
+  },
+  "verdict": {
+    "n_obs": 2347,
+    "n_eff_windows": 37,
+    "n_trials": 138,
+    "base_sharpe": 0.851,
+    "candidate_sharpe": 0.955,
+    "dSharpe": 0.104,
+    "dSharpe_ci": [
+      -0.515,
+      0.658
+    ],
+    "dsr_candidate": 0.4150632619704948,
+    "dCalmar": 0.41,
+    "subperiod_2022_dCAGR": 5.965,
+    "fold_pass_frac": 0.625,
+    "n_folds": 8,
+    "turnover_delta": -0.0931,
+    "after_tax_cagr_base": 11.488,
+    "after_tax_cagr_cand": 14.661,
+    "gates": {
+      "dSharpe_meaningful": false,
+      "dCalmar_ge_0.05": true,
+      "subperiod_2022_positive": true,
+      "fold_pass_ge_60pct": true,
+      "turnover_le_30pct": true,
+      "dsr_gt_0.95": false,
+      "n_eff_ge_20": true
+    },
+    "gate_pass": false,
+    "verdict": "UNDERPOWERED"
+  },
+  "concentration": {
+    "top5_share_pct": 24.4,
+    "top10_share_pct": 44.9,
+    "top25_share_pct": 97.6,
+    "top3_names_share_pct": 17.9,
+    "n_trades": 281
+  },
+  "integrity": {
+    "overall": "WARN",
+    "n_events": 24,
+    "by_kind": {
+      "demerger": 4,
+      "bad_tick": 0,
+      "split_suspect": 20
+    },
+    "trades_spanning_suspects": 0,
+    "pnl_in_spanning_trades": 0,
+    "r_in_spanning_trades": 0,
+    "thin_periods": {},
+    "coverage_caveat": "The prescriptive demerger reference covers 4 tickers; a genuine demerger absent from it is reported as split_suspect. Classification is INDETERMINATE for such names, not clean \u2014 verify against the exchange record before treating a suspect as a data bug."
+  }
+}
