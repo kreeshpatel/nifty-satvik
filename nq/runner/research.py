@@ -32,7 +32,8 @@ import pandas as pd
 from nq.engine.portfolio import elapsed_years, simulate
 from nq.validation.bootstrap import DEFAULT_BLOCK, block_bootstrap_metric, bootstrap_delta
 from nq.validation.dsr import (cumulative_n_trials, deflated_sharpe_ratio,
-                               min_track_record_length, probabilistic_sharpe_ratio)
+                               lifetime_n_trials, min_track_record_length,
+                               probabilistic_sharpe_ratio)
 from nq.validation.metrics import TRADING_DAYS, sharpe
 
 NOISE_FLOOR = 0.3   # minimum meaningful ΔSharpe point estimate (program standard)
@@ -268,6 +269,16 @@ def adjudicate(
     delta = bootstrap_delta(a, b, sharpe, block_size=block_size, n_samples=n_samples, seed=seed)
     cand_ci = block_bootstrap_metric(a, sharpe, block_size=block_size, n_samples=n_samples, seed=seed)
     dsr = _dsr_from_bootstrap(a, nt, (cand_ci.lower, cand_ci.upper))
+    # DSR at the LIFETIME count as well — reported always, gating never.
+    #
+    # The gate deflates at the post-reset family count, honouring the owner's 2026-08-07 reset. But
+    # the DSR exists to deflate by the search that actually occurred, and the 138 pre-reset trials
+    # were run on this same 2017-2026 history: they raised the bar whether or not a counter records
+    # them. Reporting both makes the gap explicit in every readout instead of leaving each one to
+    # re-argue whether the reset made the gate cosmetic.
+    nt_life = lifetime_n_trials() if n_trials is None else n_trials
+    dsr_life = (dsr if nt_life == nt
+                else _dsr_from_bootstrap(a, nt_life, (cand_ci.lower, cand_ci.upper)))
     bm, cm = base_bt["metrics"], cand_bt["metrics"]
 
     # ── the mechanized gates (each fail-closed: None/NaN => False) ──────────────
@@ -297,6 +308,7 @@ def adjudicate(
         "base_sharpe": round(float(sharpe(b)), 3), "candidate_sharpe": round(float(sharpe(a)), 3),
         "dSharpe": round(delta.point, 3), "dSharpe_ci": [round(delta.lower, 3), round(delta.upper, 3)],
         "dsr_candidate": dsr,
+        "n_trials_lifetime": nt_life, "dsr_candidate_lifetime": dsr_life,
         "dCalmar": round(float(d_calmar), 4) if np.isfinite(d_calmar) else None,
         "subperiod_2022_dCAGR": d_sub, "fold_pass_frac": round(fold_frac, 3) if n_folds else None,
         "n_folds": n_folds, "turnover_delta": d_turn,

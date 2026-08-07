@@ -32,6 +32,9 @@ N_TRIALS = ROOT / "diagnostics" / "research" / "n_trials.json"
 # simply contributes nothing rather than failing, so this cannot block an unrelated edit.
 RECITERS = [
     ROOT / "CLAUDE.md",
+    # The research board that CLAUDE.md carried until 2026-08-07, archived verbatim. An archive
+    # still gets read, and a stale count in one is quoted exactly as confidently as a live one.
+    ROOT / "docs" / "PROGRAM_STATE.md",
     ROOT / "skills" / "program-laws" / "SKILL.md",
     ROOT / "skills" / "research-log" / "SKILL.md",
     ROOT / "skills" / "edge-research-pipeline" / "SKILL.md",
@@ -93,7 +96,21 @@ def test_recited_trial_count_matches_the_counter(path: Path):
 # two skills absent from `.claude/skills/` — so the loader could not see the most binding rules in
 # the repo. They are now mirrored there. A mirror that silently diverges is worse than no mirror,
 # because whichever copy the reader happens to open is then a coin flip.
-MIRRORED_SKILLS = ["program-laws", "verdict-machine"]
+#
+# The router, the plausibility gate, and the four ritual commands joined them on 2026-08-07: a
+# procedure a session is told to run is only a control if the loader can find it, and the ritual
+# skills are the ones that carry the orderings (pre-reg before the run, counter before the run,
+# thresholds before the numbers) that cannot be recovered once broken.
+MIRRORED_SKILLS = [
+    "program-laws",
+    "verdict-machine",
+    "session-router",
+    "plausibility-check",
+    "pre-register",
+    "verdict",
+    "seal",
+    "re-anchor",
+]
 
 
 @pytest.mark.parametrize("name", MIRRORED_SKILLS)

@@ -31,12 +31,39 @@ N_TRIALS_PATH = BASE_DIR / "diagnostics" / "research" / "n_trials.json"
 
 
 def cumulative_n_trials(path: Path | None = None) -> int:
-    """The carried family-wise trial count (``cumulative_n_trials`` in n_trials.json; grows per
-    trial). Every DSR that informs a promotion/kill decision MUST deflate at this count, not a
-    per-run guess."""
+    """The carried POST-RESET family-wise trial count (``cumulative_n_trials`` in n_trials.json).
+
+    Every DSR that informs a promotion/kill decision MUST deflate at a carried count, never a
+    per-run guess. But see :func:`lifetime_n_trials` — on 2026-08-07 this counter was reset 138 → 0
+    by owner decision, and a DSR deflated at the post-reset count is measuring a search that is
+    smaller than the one which actually happened. Report both.
+    """
     p = path or N_TRIALS_PATH
     data = json.loads(p.read_text(encoding="utf-8"))
     return int(data["cumulative_n_trials"])
+
+
+def lifetime_n_trials(path: Path | None = None) -> int:
+    """Every trial ever run on this data, INCLUDING those before the 2026-08-07 counter reset.
+
+    This is the statistically defensible denominator, and the reason is the whole point of the DSR:
+    it deflates by the expected maximum Sharpe across the search that was actually performed. The
+    138 trials happened. They were run on the same 2017-2026 daily Indian equity history that every
+    number since is measured on, so they raised the bar whether or not a JSON field records them.
+    Resetting the counter lowered a gate; it added no information and un-ran no trial.
+
+    The reset was a deliberate owner decision with a stated rationale — the carried 138 had made the
+    bar effectively unpassable — and it is honoured: :func:`cumulative_n_trials` still returns the
+    post-reset family count, which is the right denominator for "how much has THIS family of work
+    searched". Reporting both ends the ambiguity instead of re-arguing it every readout.
+
+    Falls back to the post-reset count when no reset is recorded (a fresh programme, where the two
+    are the same number by construction).
+    """
+    p = path or N_TRIALS_PATH
+    data = json.loads(p.read_text(encoding="utf-8"))
+    prior = int(data.get("_reset", {}).get("prior_cumulative", 0))
+    return prior + int(data["cumulative_n_trials"])
 
 
 def probabilistic_sharpe_ratio(

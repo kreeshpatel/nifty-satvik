@@ -157,8 +157,12 @@ def main() -> int:
     v = adjudicate(ctrl, cand, end=END, initial_capital=1_000_000.0)
     for k, g in v["gates"].items():
         print(f"  {'PASS' if g else 'FAIL':<5} {k}")
-    print(f"\n  dSharpe {v['dSharpe']:+.3f} CI {v['dSharpe_ci']} · DSR {v['dsr_candidate']} "
-          f"· n_eff {v['n_eff_windows']} · n_trials {v['n_trials']}")
+    print(f"\n  dSharpe {v['dSharpe']:+.3f} CI {v['dSharpe_ci']} · n_eff {v['n_eff_windows']}")
+    print(f"  DSR {v['dsr_candidate']:.4f} @ n_trials {v['n_trials']} (post-reset — the GATE)")
+    print(f"  DSR {v['dsr_candidate_lifetime']:.4f} @ n_trials {v['n_trials_lifetime']} "
+          f"(lifetime — every trial ever run on this history)")
+    print("  The lifetime figure is the statistically defensible one: the DSR exists to deflate by")
+    print("  the search that actually happened, and the pre-reset trials were run on this same data.")
     print(f"  VERDICT: {v['verdict']}")
 
     print("\n=== COST SENSITIVITY (deployable only if it survives 1.5x) ===")

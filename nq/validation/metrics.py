@@ -47,8 +47,8 @@ def max_drawdown(equity: np.ndarray) -> float:
     return float((eq / np.maximum.accumulate(eq) - 1.0).min())
 
 
-def cagr(equity: np.ndarray, *, periods: int = TRADING_DAYS) -> float:
-    """Compound annual growth rate of an equity curve, on **trading-bar years** (``n / periods``).
+def cagr(equity: np.ndarray, *, periods: int = TRADING_DAYS, years: float | None = None) -> float:
+    """Compound annual growth rate of an equity curve. **``years`` is required** — see below.
 
     DIVERGENCE, recorded deliberately (2026-08-07, ADR-0014). ``nq.engine.portfolio.compute_metrics``
     now annualises by **calendar time** via ``elapsed_years``, because the panels supply ~247.5
@@ -61,21 +61,37 @@ def cagr(equity: np.ndarray, *, periods: int = TRADING_DAYS) -> float:
     2. Nothing published reads it. Every external caller of this module imports ``sharpe`` or
        ``sortino``; ``cagr`` is reached only by :func:`calmar`, :func:`summary` and their own tests.
 
-    So the divergence is dormant rather than harmless. **Do not use this for a headline CAGR** — call
-    ``compute_metrics``, or pass an explicit calendar-derived ``periods``. If §6 is ever closed in
-    favour of calendar years, this is the second site to change.
+    ``years`` IS REQUIRED, and that is the point. This function cannot annualise by calendar time
+    even if it wanted to — it receives a bare array with no dates — so the convention is necessarily
+    the caller's decision. Leaving it as a silent default is the one option ruled out: a future
+    session reaching for the module named *canonical* would get bar-years without being told, which
+    is exactly how the same book came to carry two published CAGRs (§6). Passing ``years`` makes the
+    choice deliberate; omitting it raises with the two readings named.
+
+    For a headline CAGR call :func:`nq.engine.portfolio.compute_metrics`, which has the dates and
+    uses calendar time.
     """
     eq = np.asarray(equity, dtype=float)
-    n = eq.size
-    years = n / periods
-    if years <= 0 or eq[0] <= 0:
+    if years is None:
+        raise ValueError(
+            "nq.validation.metrics.cagr requires an explicit `years`: this function has no dates, "
+            "so it cannot choose a year-denominator for you. Bar-years -> years=len(equity)/252 "
+            "(the DEFINITIONS_REGISTER §6 convention for this module); calendar years -> "
+            "years=(last-first).days/365.25 (ADR-0014, what the engine uses). They differ by ~0.44pp "
+            "on this programme's panels. For a headline number call "
+            "nq.engine.portfolio.compute_metrics instead.")
+    if years <= 0 or eq.size == 0 or eq[0] <= 0:
         return float("nan")
     return float((eq[-1] / eq[0]) ** (1.0 / years) - 1.0)
 
 
 def calmar(equity: np.ndarray, *, periods: int = TRADING_DAYS) -> float:
-    """CAGR / |max drawdown| — return per unit of worst-case pain."""
-    c = cagr(equity, periods=periods)
+    """CAGR / |max drawdown| — return per unit of worst-case pain, on **bar-years**.
+
+    States the convention explicitly rather than inheriting a default, per §6/ADR-0014. Like
+    :func:`cagr` it has no dates available, so bar-years is the only denominator it can compute.
+    """
+    c = cagr(equity, periods=periods, years=np.asarray(equity).size / periods)
     dd = max_drawdown(equity)
     return float(c / abs(dd)) if dd != 0 and np.isfinite(c) and np.isfinite(dd) else float("nan")
 
@@ -87,12 +103,17 @@ def equity_from_returns(returns: np.ndarray, *, initial: float = 1.0) -> np.ndar
 
 
 def summary(returns: np.ndarray, *, periods: int = TRADING_DAYS) -> dict[str, float]:
-    """Headline metrics for a daily-return series (Sharpe, Sortino, CAGR, maxDD, Calmar)."""
+    """Headline metrics for a daily-return series (Sharpe, Sortino, CAGR, maxDD, Calmar).
+
+    Its ``cagr`` is on **bar-years**, stated explicitly (§6/ADR-0014). A return series carries no
+    dates, so calendar annualisation is not available here; do not quote this ``cagr`` against an
+    engine CAGR without converting.
+    """
     eq = equity_from_returns(returns)
     return {
         "sharpe": sharpe(returns, periods=periods),
         "sortino": sortino(returns, periods=periods),
-        "cagr": cagr(eq, periods=periods),
+        "cagr": cagr(eq, periods=periods, years=eq.size / periods),
         "max_drawdown": max_drawdown(eq),
         "calmar": calmar(eq, periods=periods),
     }

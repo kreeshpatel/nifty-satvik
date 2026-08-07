@@ -296,11 +296,19 @@ have left the pre-registration's *"must clear equal-weight passive ownership"* g
 conventions with the benchmark flattered by ~0.4pp. Caught and fixed in the same change; passive is
 13.20%, not 13.48%.
 
-**`baseline_v1` is NOT re-anchored** and is knowingly ~0.4pp high. Its designated producer no longer
-reproduces its pinned Sharpe (0.667 pinned vs 0.647 today) — a discrepancy that **predates this
-change and cannot be caused by it**, since that harness computes its own metrics and never calls
-`compute_metrics`. Overwriting a governance anchor from a harness that does not reproduce it would
-fold an unexplained defect into a clean one. It needs its own investigation (ADR-0014).
+**`baseline_v1` is NOT re-anchored, and that is a governed decision rather than an open defect.**
+Its producer prints 0.647 against the pinned 0.667 — but the pin file itself records why, under
+`producer.calendar_correction_2026_08_06`, status *"RECORDED, NOT APPLIED"*. The cause is commit
+`78f6f26` (M10), which corrected the NSE holiday calendar: three 2026 dates were listed as holidays
+that the exchange's own bhavcopy shows as trading days, so the cleaner had been deleting 2,130 real
+sessions. M10 measured the move with a control (Sharpe −0.020, CAGR −0.59pp) and deferred the
+re-anchor to the 2026-10-01 review as a record-accuracy matter, the move being far inside the
+±0.302 resolution band. Archaeology confirms it: the producer at `3ae38db` reproduces 0.667/15.47
+exactly, and at `78f6f26` onward gives 0.647/14.88.
+
+ADR-0014 is irrelevant to that figure either way — the anchor harness carries a private `metrics()`
+and never calls `compute_metrics`. So `baseline_v1` is stale by design, on the old calendar *and*
+the old annualisation, and both corrections land together in October.
 
 ## 4. Coverage gaps, carried from the pre-registration
 

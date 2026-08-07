@@ -93,7 +93,55 @@ gap between this programme's headline numbers and the literature band they alway
 calendar span — so a future revert fails with a clear cause instead of surfacing as four
 mysteriously drifted metrics.
 
-## `baseline_v1` could not be re-anchored, and the reason is a separate defect
+## `baseline_v1` was not re-anchored — and the reason is already governed, not a defect
+
+> **CORRECTION, 2026-08-07 (same day).** The section below was written after reading only the first
+> 700 characters of the pin's `producer` block, and it is **wrong in its central claim**. It calls
+> the 0.667/0.647 gap unexplained, offers two speculative causes, and asks for an investigation.
+> There is nothing to investigate: the gap is documented at the pin site itself, with a measured
+> control, and deferring it was a deliberate governance decision.
+>
+> `research/baseline_v1.json` carries `producer.calendar_correction_2026_08_06`, status **"RECORDED,
+> NOT APPLIED — the values above are preserved as-measured-then."** The cause is commit `78f6f26`,
+> *fix(M10): the holiday calendar was wrong in 15 weekdays*, which corrected `config.NSE_HOLIDAYS`
+> against NSE's own holiday master. Three 2026 dates had been listed as holidays that NSE and the
+> exchange's own bhavcopy both show as trading days, so the OHLCV cleaner had been deleting 2,130
+> genuine sessions.
+>
+> M10 measured the blast radius with a proper control — `diag_m10_calendar_blast_radius.py` runs the
+> LH arm twice in one process with only the calendar swapped — and recorded it:
+>
+> | | old calendar | corrected | delta |
+> |---|---|---|---|
+> | Sharpe | 0.667 | 0.647 | −0.020 |
+> | CAGR | 15.47% | 14.88% | −0.59pp |
+> | MaxDD | −46.3% | −46.3% | 0.00 |
+> | n_trades | 1,279 | 1,280 | +1 |
+>
+> and stated its reasoning for not re-anchoring: *"At −0.020 Sharpe the move is far inside the
+> ±0.302 resolution band, so it reverses no verdict anywhere; it is a record-accuracy matter, not a
+> re-adjudication."* It is the second reason a re-run is pending, alongside the survivorship
+> backfill, and both route to the same 2026-10-01 door.
+>
+> **Independent archaeology reproduced this exactly.** Running the producer at `3ae38db` (the commit
+> before M10) yields **0.667 / 15.47 / −46.3** — the pinned values; at `78f6f26` and at HEAD it
+> yields 0.647 / 14.88. So the provenance is real, the producer does reproduce the pin under the
+> calendar it was measured on, and today's ADR-0014 change is irrelevant to it (that harness carries
+> a private `metrics()` and never calls `compute_metrics`).
+>
+> **The pin is stale by deliberate deferral, not broken.** It should NOT be quarantined and should
+> NOT be re-anchored ahead of the October review.
+>
+> **What the episode does justify** is a durable rule, adopted here: *a pin entry must name the
+> producer script, the commit SHA, the environment, and the data hash that regenerate it.*
+> `baseline_v1` names the producer and the data hash but not the commit SHA or the environment —
+> which is precisely why a code change could move its value without the entry itself showing which
+> code produced it. Under that rule the staleness would have been visible from the pin alone,
+> instead of requiring a bisect to establish.
+
+*(Superseded text follows, preserved rather than deleted so the error is visible.)*
+
+## ~~`baseline_v1` could not be re-anchored, and the reason is a separate defect~~
 
 The intent was to regenerate `research/baseline_v1.json` from its designated producer,
 `scripts/run_corrected_anchor.py`, rather than adjust it arithmetically. Running it full-window

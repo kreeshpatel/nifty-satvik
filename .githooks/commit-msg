@@ -1,0 +1,5 @@
+#!/bin/sh
+# The live book may be changed, but never silently. See scripts/guard_production_commit.py:
+# a commit touching the production weekly-swing paths must declare `prod-fix:` or `prod-override:`.
+python scripts/guard_production_commit.py "$1" || exit 1
+exit 0

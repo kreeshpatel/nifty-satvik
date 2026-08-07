@@ -155,6 +155,18 @@ build/
 .claude/skills/*
 !.claude/skills/program-laws/
 !.claude/skills/verdict-machine/
+# The router, the plausibility gate, and the four ritual commands (/pre-register, /verdict, /seal,
+# /re-anchor) are project governance for the same reason the two above are: they are the procedures
+# a session must be able to load without being told they exist.
+!.claude/skills/session-router/
+!.claude/skills/plausibility-check/
+!.claude/skills/pre-register/
+!.claude/skills/verdict/
+!.claude/skills/seal/
+!.claude/skills/re-anchor/
+# Project hooks: the SessionStart brief and the protected-path guard. settings.local.json is
+# personal and stays ignored.
+!.claude/settings.json
 .agents/
 claude-cookbooks/
 skills-lock.json
