@@ -1,0 +1,112 @@
+name: cron-forward-wall
+
+# S-F1 — the forward-wall log's scheduled producer.
+#
+# `forward/prereg.md` calls the 3-book wall "the only certifier" and specifies it is logged DAILY.
+# Until this workflow existed, `scripts/run_paper_cron.py` -> `nq.paper.wall_cron.update_wall` was
+# invoked by nothing at all: the wall had a builder, a hash chain, a test suite and a pre-registration,
+# and it ran never. `results/forward_wall.csv` did not exist.
+#
+# THE FIRST-RUN HAZARD, and why the anchor file exists.
+# The paper book steps forward from its own inception, so on a cold start its equity curve already
+# holds every session since then. Appending those would put months of RECOMPUTED history into the log
+# as `ok` rows — each one passing the hash chain (dates strictly increase) and each one a false claim
+# about when it was known. The cron therefore writes `results/forward_wall_start.json` on its first run and
+# logs nothing before that date. The anchor is committed so it can be audited against this workflow's
+# own Actions run log, which is the S2-F3 cross-check.
+#
+# Paper only. Never touches the live swing book, the live config, or any kill/wall threshold.
+on:
+  workflow_dispatch:
+    inputs:
+      inception:
+        description: "momentum paper-book inception YYYY-MM-DD (NOT the wall start — see wall_start.json)"
+        default: "2026-06-30"
+  schedule:
+    # 13:00 UTC Mon-Fri = 18:30 IST, after the 15:30 IST NSE close and after the vendor has settled.
+    # Weekdays only: NSE holidays produce no new session, so the job simply appends nothing — and
+    # `config.assert_calendar_covers` makes it go RED rather than guess once the calendar runs out.
+    - cron: "0 13 * * 1-5"
+
+concurrency:
+  group: cron-forward-wall
+  cancel-in-progress: false
+
+permissions:
+  contents: write               # commits the wall log + paper state back to the repo
+
+jobs:
+  wall:
+    name: forward-wall daily log (Python 3.12, Ubuntu)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      # Same cache discipline as the swing scanner: a cheap per-ticker top-up within the month, with
+      # the key rolling monthly so the first run each month rebuilds on one adjustment basis.
+      - name: OHLCV cache key
+        id: ohlcvkey
+        run: |
+          echo "month=$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
+          echo "stamp=$(date -u +%Y-%m-%dT%H%M%S)" >> "$GITHUB_OUTPUT"
+      - name: Restore/save OHLCV cache
+        uses: actions/cache@v4
+        with:
+          path: data/ohlcv.pkl
+          key: ohlcv-live-${{ steps.ohlcvkey.outputs.month }}-${{ steps.ohlcvkey.outputs.stamp }}
+          restore-keys: |
+            ohlcv-live-${{ steps.ohlcvkey.outputs.month }}-
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Run the momentum paper cron (steps the base book, then appends the 3-book wall row)
+        run: python scripts/run_paper_cron.py --start "${{ github.event.inputs.inception || '2026-06-30' }}"
+      - name: Scheduler health (records that this job now HAS a producer)
+        run: python scripts/scheduler_health.py || echo "::warning::scheduler_health exited non-zero"
+      - name: Commit the wall log + paper state
+        run: |
+          # Author with the owner's GitHub-matched email so Vercel (auto-deploys main) does not BLOCK
+          # the commit as an unrecognized author. NOTE: this is flag S2-F4 — a runner-authored commit
+          # cannot be told from a hand-made one by author line, which weakens S2-F3's cross-check.
+          # Left as-is deliberately -- changing it alters the commit record's appearance, so it is an
+          # owner door, not a session one. The commit MESSAGE below carries the Actions run id, which
+          # restores the cross-check without touching how the author line looks.
+          git config user.name "kreeshpatel"
+          git config user.email "kreeshvasistha@gmail.com"
+          # No `git add ... || true`. That construct hid five separate instances of the same defect:
+          # `git add` on an ignored-and-untracked path exits 0 and stages nothing, so a green run can
+          # publish nothing at all. Contracted artifacts go RED BY NAME.
+          MISSING=0
+          need() { if [ -e "$1" ]; then git add "$1"; else echo "::error::contracted artifact MISSING: $1"; MISSING=1; fi; }
+          opt()  { if [ -e "$1" ]; then git add "$1"; else echo "::warning::optional artifact not produced: $1"; fi; }
+          need results/forward_wall_start.json
+          need results/forward_wall.csv
+          # contracted, not optional: scheduler_health stats this file's mtime as the wall
+          # job's liveness proof (it must never open the wall log itself).
+          need results/paper_portfolio.json
+          opt results/signals_today.json
+          opt results/wall_veto/
+          opt results/scheduler_health.json
+          if [ "$MISSING" = "1" ]; then
+            echo "::error::the wall produced no log — refusing to publish a green run with nothing in it"
+            exit 1
+          fi
+          # The run id in the message is the S2-F3 firing evidence: it ties this commit to a specific
+          # Actions run, which a hand-made commit cannot fabricate.
+          if git commit -m "chore(wall): forward-wall daily log $(date -u +%F) [run ${{ github.run_id }}]"; then
+            # --autostash: the OHLCV download leaves UNSTAGED cache changes that abort a plain
+            # `git pull --rebase`, which silently swallows the push as "nothing to push".
+            git pull --rebase --autostash && git push
+          else
+            echo "no new wall row today (holiday, or already logged) — nothing to commit"
+          fi

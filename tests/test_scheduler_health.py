@@ -2,7 +2,7 @@
 
 Pins the behaviour the audit relies on: a job whose artifact is fresh reads OK, a job whose
 artifact is overdue for its cadence reads OVERDUE, a missing artifact reads MISSING, the
-forward-wall is always reported as an unscheduled standing gap, and a probe fault never raises.
+forward-wall is scheduled but its LOG is never opened, and a probe fault never raises.
 """
 from __future__ import annotations
 
@@ -32,6 +32,8 @@ def _write(sd: Path):
     (arch / "snapshot_meta.json").write_text("{}", encoding="utf-8")
     (sd / "intraday_scan").mkdir(exist_ok=True)
     (sd / "intraday_scan" / "scan.json").write_text("{}", encoding="utf-8")
+    # the forward-wall job's liveness proof: the paper book state, stat-only. NOT the wall log.
+    (sd / "paper_portfolio.json").write_text("{}", encoding="utf-8")
 
 
 def test_fresh_artifacts_read_ok(tmp_path):
@@ -70,13 +72,21 @@ def test_missing_artifact_reads_missing(tmp_path):
     assert h["overall"] == "MISSING"
 
 
-def test_forward_wall_is_always_reported_unscheduled(tmp_path):
+def test_forward_wall_is_scheduled_and_its_log_is_never_opened(tmp_path):
+    """S-F1 closed 2026-08-06 — the wall now has a producer, so it moved from `unscheduled` into
+    `jobs`. The no-peek rule survives the move: the probe stats the paper state file, and must never
+    read `forward_wall.csv`. `forward/prereg.md` — between quarterly reviews, log and leave it alone.
+    """
     _write(tmp_path)
+    (tmp_path / "forward_wall.csv").write_text(
+        "date,base_ret\n2026-08-06,0.01\n", encoding="utf-8")
     h = scheduler_health(tmp_path, now_utc=NOW)
-    jobs = {u["job"] for u in h["unscheduled"]}
-    assert "forward-wall-log" in jobs
-    # the wall artifact is NEVER opened by the probe — it appears only in the static unscheduled list
-    assert all(j["job"] != "forward-wall-log" for j in h["jobs"])
+    by = {j["job"]: j for j in h["jobs"]}
+    assert "forward-wall-log" in by, "the wall must now be a scheduled job, not a standing gap"
+    assert not any(u["job"] == "forward-wall-log" for u in h["unscheduled"])
+    assert "forward_wall" not in json.dumps(by["forward-wall-log"]), (
+        "the health probe must not name or read the wall log — it stats the paper state file")
+    assert by["forward-wall-log"]["status"] == "OK"
 
 
 def test_accumulator_uses_fetch_ts_not_mtime(tmp_path):

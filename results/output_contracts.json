@@ -1,50 +1,66 @@
 {
-  "_doc": "OUTPUT CONTRACTS — what each scheduled job MUST persist. Committed manifest; the dead-man checks the commit DIFF against it, so a job that ran-but-persisted-nothing goes red instead of green. Created 2026-08-05 by the fail-loud hardening session after the judge-log instance (a run that succeeded, cost $4.00, and committed nothing).",
-  "_standard": "S2-F3's receipt standard applied to OUTPUTS, not just firings: the proof that a job worked is the commit diff it produced, not that the workflow exited 0.",
-  "_enforcement": "scripts/output_contracts.py -> check_output_contracts(); surfaced in results/weekly_monitor.json under scheduler_health.output_contracts and annotated ::error on the next monitor run.",
-  "contracts": [
-    {
-      "job": "weekly-scanner",
-      "workflow": "cron-bhanushali-scanner",
-      "commit_prefix": "chore(weekly): Saturday weekly-swing paper state",
-      "cadence_days": 9,
-      "must_update": [
-        "results/signals_today_weekly.json",
-        "results/signals_history_weekly.json",
-        "results/paper_portfolio_weekly.json",
-        "results/weekly_review_scorecard.json",
-        "results/weekly_sma_panel.csv"
-      ],
-      "must_update_if_produced": [
-        "results/judge_log.jsonl",
-        "results/cards_archive.jsonl"
-      ],
-      "note": "judge_log is conditional: it only grows when the judge step logs rows (needs ANTHROPIC_API_KEY). Listed separately so a missing key reads as a WARN, not a contract breach."
-    },
-    {
-      "job": "forward-accumulators",
-      "workflow": "cron-bhanushali-monitor",
-      "commit_prefix": "chore(weekly-monitor): daily re-price",
-      "cadence_days": 5,
-      "must_update": [
-        "results/weekly_monitor.json",
-        "results/forward_accum_health.json"
-      ],
-      "must_update_if_produced": [
-        "results/bulkblock_forward.csv",
-        "results/ratings_forward.csv"
-      ]
-    },
-    {
-      "job": "intraday-scan",
-      "workflow": "cron-intraday-scan",
-      "commit_prefix": "chore(intraday): 14:30 IST shadow scan",
-      "cadence_days": 5,
-      "must_update": [],
-      "must_update_if_produced": [
-        "results/intraday_scan"
-      ],
-      "note": "must_update is EMPTY and must stay empty until the first successful persist. The whitelist that made `git add results/intraday_scan/` a silent no-op was only fixed 2026-08-05 (the fifth instance of the trap), so no historical commit can satisfy a hard contract. Promote to must_update once a scan has demonstrably landed."
-    }
-  ]
+ "_doc": "OUTPUT CONTRACTS — what each scheduled job MUST persist. Committed manifest; the dead-man checks the commit DIFF against it, so a job that ran-but-persisted-nothing goes red instead of green. Created 2026-08-05 by the fail-loud hardening session after the judge-log instance (a run that succeeded, cost $4.00, and committed nothing).",
+ "_standard": "S2-F3's receipt standard applied to OUTPUTS, not just firings: the proof that a job worked is the commit diff it produced, not that the workflow exited 0.",
+ "_enforcement": "scripts/output_contracts.py -> check_output_contracts(); surfaced in results/weekly_monitor.json under scheduler_health.output_contracts and annotated ::error on the next monitor run.",
+ "contracts": [
+  {
+   "job": "weekly-scanner",
+   "workflow": "cron-bhanushali-scanner",
+   "commit_prefix": "chore(weekly): Saturday weekly-swing paper state",
+   "cadence_days": 9,
+   "must_update": [
+    "results/signals_today_weekly.json",
+    "results/signals_history_weekly.json",
+    "results/paper_portfolio_weekly.json",
+    "results/weekly_review_scorecard.json",
+    "results/weekly_sma_panel.csv"
+   ],
+   "must_update_if_produced": [
+    "results/judge_log.jsonl",
+    "results/cards_archive.jsonl"
+   ],
+   "note": "judge_log is conditional: it only grows when the judge step logs rows (needs ANTHROPIC_API_KEY). Listed separately so a missing key reads as a WARN, not a contract breach."
+  },
+  {
+   "job": "forward-accumulators",
+   "workflow": "cron-bhanushali-monitor",
+   "commit_prefix": "chore(weekly-monitor): daily re-price",
+   "cadence_days": 5,
+   "must_update": [
+    "results/weekly_monitor.json",
+    "results/forward_accum_health.json"
+   ],
+   "must_update_if_produced": [
+    "results/bulkblock_forward.csv",
+    "results/ratings_forward.csv"
+   ]
+  },
+  {
+   "job": "intraday-scan",
+   "workflow": "cron-intraday-scan",
+   "commit_prefix": "chore(intraday): 14:30 IST shadow scan",
+   "cadence_days": 5,
+   "must_update": [],
+   "must_update_if_produced": [
+    "results/intraday_scan"
+   ],
+   "note": "must_update is EMPTY and must stay empty until the first successful persist. The whitelist that made `git add results/intraday_scan/` a silent no-op was only fixed 2026-08-05 (the fifth instance of the trap), so no historical commit can satisfy a hard contract. Promote to must_update once a scan has demonstrably landed."
+  },
+  {
+   "job": "forward-wall-log",
+   "workflow": "cron-forward-wall",
+   "commit_prefix": "chore(wall): forward-wall daily log",
+   "cadence_days": 5,
+   "must_update": [
+    "results/forward_wall_start.json",
+    "results/forward_wall.csv",
+    "results/paper_portfolio.json"
+   ],
+   "must_update_if_produced": [
+    "results/signals_today.json",
+    "results/scheduler_health.json"
+   ],
+   "note": "S-F1, closed 2026-08-06: forward/prereg.md calls the 3-book wall 'the only certifier' and specifies a DAILY log, and until this workflow existed it had no scheduled producer at all. forward_wall_start.json is the wall's registered start — written once by the first run and never rewritten — so it is contracted alongside the log itself: without it a cold start would backfill recomputed history into the wall as forward evidence. The commit subject carries the Actions run id, which is the S2-F3 firing-evidence cross-check that S2-F4 (owner-authored cron commits) otherwise weakens."
+  }
+ ]
 }

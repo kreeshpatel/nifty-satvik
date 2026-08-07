@@ -36,6 +36,47 @@ def _live_vol_target() -> dict | None:
         return None
 
 
+# ── forward-wall registered start (S-F1) ─────────────────────────────────────
+# The wall may not begin before its own pre-registration existed. `forward/prereg.md` was registered
+# 2026-07-02; any anchor earlier than that is a bug, not a start date.
+WALL_PREREG_DATE = "2026-07-02"
+
+
+def _wall_start(state_dir: str | Path, last_session: str) -> str:
+    """The wall's REGISTERED START — read from `<state_dir>/forward_wall_start.json`, written once.
+
+    The paper book steps from its own inception, so a cold start already holds months of sessions in
+    its equity curve. Logging those would enter recomputed history into the wall as `ok` rows that
+    pass the hash chain (dates strictly increase) and misstate when they were known. So the wall
+    starts on the day it first actually runs: the anchor is written once, committed, and read back
+    by every later run.
+
+    **The path is STATE-DIR-RELATIVE on purpose.** An earlier version anchored it to the repo root,
+    and the test suite promptly wrote one: `tests/test_stagee_paper_cron.py` runs the cron against a
+    2016 fixture, so the repo acquired an anchor of `2016-12-30`. Committed, that would have left the
+    bound silently inert — every real session is after 2016, so nothing would ever have been skipped
+    and the first live run would have backfilled the whole wall anyway. A guard that a test can write
+    is not a guard, hence both the relocation and the sanity floor below.
+    """
+    f = Path(state_dir) / "forward_wall_start.json"
+    if f.exists():
+        return str(json.loads(f.read_text(encoding="utf-8"))["wall_start"])[:10]
+    if last_session < WALL_PREREG_DATE:
+        raise ValueError(
+            f"refusing to anchor the forward wall at {last_session}, which predates its own "
+            f"pre-registration ({WALL_PREREG_DATE}). This is a fixture or a stale cache, not a "
+            f"start date — see forward/prereg.md §3.")
+    f.parent.mkdir(parents=True, exist_ok=True)
+    f.write_text(json.dumps({
+        "wall_start": last_session,
+        "registered": "written by the first run of scripts/run_paper_cron.py that reached the wall",
+        "why": "forward/prereg.md §3 — no session before this date may enter the wall as an `ok` "
+               "row; the paper book's pre-existing curve is recomputed history, not forward "
+               "evidence. Append-only: never edit this file.",
+    }, indent=1) + "\n", encoding="utf-8")
+    return last_session
+
+
 # ── signal memory ────────────────────────────────────────────────────────────
 # pending is re-selected at every session close, so stamping `end` on every run
 # made a continuing signal look brand-new each day: its issue date walked forward,
@@ -149,8 +190,12 @@ def main(argv: list[str] | None = None) -> int:
     # row for the newly-stepped sessions. Isolated + non-fatal so a wall error never breaks the paper job.
     try:
         from nq.paper.wall_cron import update_wall
-        wrote = update_wall(book, panel, cfg, state_dir=args.state_dir, vol_target=_live_vol_target())
-        print(f"forward-wall: appended {wrote} row(s) -> {args.state_dir}/forward_wall.csv", flush=True)
+        ws = (_wall_start(args.state_dir, str(book.equity_curve[-1]["date"])[:10])
+              if book.equity_curve else None)
+        wrote = update_wall(book, panel, cfg, state_dir=args.state_dir,
+                            vol_target=_live_vol_target(), wall_start=ws)
+        print(f"forward-wall: start {ws} | appended {wrote} row(s) "
+              f"-> {args.state_dir}/forward_wall.csv", flush=True)
     except Exception as exc:  # noqa: BLE001 -- the wall must never break the paper cron
         print(f"forward-wall: SKIPPED ({type(exc).__name__}: {exc})", flush=True)
 

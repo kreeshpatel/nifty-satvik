@@ -69,8 +69,22 @@ def _step_veto_book(panel: pd.DataFrame, cfg: Mapping[str, Any], factors_path: P
 def update_wall(base_book: PaperBook, panel: pd.DataFrame, cfg: Mapping[str, Any], *,
                 state_dir: str | Path = RESULTS_DIR, vol_target: Mapping[str, Any] | None = None,
                 factors_path: str | Path = DATA_DIR / "ff_india_factors.parquet",
-                holidays: Iterable[Any] | None = None) -> int:
-    """Append 3-book wall rows for every base session not yet logged. Returns the number appended."""
+                holidays: Iterable[Any] | None = None, wall_start: str | None = None) -> int:
+    """Append 3-book wall rows for every base session not yet logged. Returns the number appended.
+
+    ``wall_start`` (ISO date) is the wall's REGISTERED START — no session before it is ever written.
+    It exists because of a hazard that is invisible until the first scheduled run:
+
+    The paper book steps forward from its own inception, so on a cold start ``base_book.equity_curve``
+    already contains every session since then. Without this bound the wall's first firing would append
+    one ``ok`` row per past session — a whole stretch of *recomputed* history entering the log as
+    forward evidence. Every row would pass the chain (dates strictly increase) and every row would be
+    a lie about when it was known. `forward/prereg.md` §3's "never reconstructed" rule is about
+    exactly this, and the chain cannot enforce it on its own.
+
+    Default ``None`` preserves the previous behaviour, so existing callers and tests are unaffected;
+    the scheduled cron is required to pass one (asserted in `tests/test_wall_schedule.py`).
+    """
     if not base_book.equity_curve:
         return 0
     panel = panel.copy()
@@ -89,6 +103,8 @@ def update_wall(base_book: PaperBook, panel: pd.DataFrame, cfg: Mapping[str, Any
 
     n = 0
     for d in sorted(base_daily):
+        if wall_start is not None and d < str(wall_start)[:10]:
+            continue                                   # before the registered start: never forward evidence
         if last_wall is not None and d <= last_wall:
             continue
         if d not in veto_daily:                       # alignment guard (should not happen)

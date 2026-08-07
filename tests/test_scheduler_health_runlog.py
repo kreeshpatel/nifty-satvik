@@ -122,7 +122,10 @@ def test_artifact_far_newer_than_run_is_flagged_not_alarmed(tmp_path):
 def test_every_job_is_reported(tmp_path):
     out = scheduler_health(tmp_path, now_utc=NOW, token="t", repo="o/r", fetch=_fetch_all_fresh)
     assert {j["job"] for j in out["jobs"]} == {s["job"] for s in JOBS}
-    assert out["unscheduled"], "the unscheduled forward-wall gap must still be reported"
+    # S-F1 closed 2026-08-06: the forward wall gained a producer, so `unscheduled` is now empty.
+    # The slot stays in the module as the place a FUTURE unscheduled producer must be declared —
+    # what this asserts is that the list exists and no known job has silently fallen into it.
+    assert out["unscheduled"] == [], f"an unscheduled producer has appeared: {out['unscheduled']}"
 
 
 @pytest.mark.parametrize("bad", [None, {}, {"workflow_runs": None}])
