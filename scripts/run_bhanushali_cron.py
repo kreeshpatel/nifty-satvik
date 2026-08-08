@@ -77,8 +77,10 @@ P2_EXIT = dict(no_time_cap=True, wk20_trail_pct=0.04, blowoff_arm_r=2.5)
 #                        risk — NOT a performance lever: FINDING_more_slots showed concentration is
 #                        load-bearing (4-5 names 1.21 > 7 names 0.97 > 10 names 0.81 on the 22-26 slice).
 # Measured on the A-ONLY book that actually trades (parity-checked against the recorded 1.004/171):
-#   Sharpe 1.004->1.055, CAGR 20.9->20.2%, MaxDD -36.4->-31.2% (+5.2pp), median R 13.7->9.1%,
-#   mean hold 19.1->12.4wk, win 54->51%, 2022-26 slice 1.17->1.04 (the one negative).
+#   Sharpe 1.004->1.055, CAGR 20.9->20.2%, MaxDD -36.4->-31.2% (+5.2pp),
+#   median STOP WIDTH 13.7->9.1% of entry, mean hold 19.1->12.4wk, win 54->51%,
+#   2022-26 slice 1.17->1.04 (the one negative).
+#   ("median R" in older notes meant this stop width, NOT an R-multiple — DEFINITIONS_REGISTER §2.)
 # Return-neutral, NOT certified: no DSR gate passes a +0.05 in-sample delta at cumulative trial 122.
 # backtest() DEFAULTS stay OFF so the frozen 0094 research run is byte-identical (1.132/255).
 LIVE_DISCIPLINE = dict(ext_cap=0.20, max_risk_pct=0.10, max_notional_pct=0.20)
@@ -268,6 +270,33 @@ def _compute_regime(P, mem, as_of):
     return {"status": status, "strength": int(strength), "vix": 0, "breadth": int(breadth)}
 
 
+def _event_calendar():
+    """The banked PIT results calendar, for the DISPLAY-ONLY event-proximity badge.
+
+    Never a selection or sizing input — usage of this signal as a rule is closed twice over
+    (0121 skip/deferral, 0129 sizing). A missing/unreadable feed degrades to no badge; it must
+    never take the Saturday publish down over an informational field.
+    """
+    try:
+        from nq.data.delivery import apply_alias_map
+        from nq.data.earnings import EARNINGS_RAW_PATH, build_event_table
+        if not EARNINGS_RAW_PATH.exists():
+            return None
+        return build_event_table(apply_alias_map(pd.read_parquet(EARNINGS_RAW_PATH)))
+    except Exception as e:                                          # noqa: BLE001 — display-only
+        print(f"[event-badge] calendar unavailable ({e}); cards render without the badge")
+        return None
+
+
+def _event_badge(ev_cal, ticker, signal_friday):
+    """Per-card badge lookup; any failure degrades to no badge (display-only field)."""
+    try:
+        from nq.data.earnings import card_event_badge
+        return card_event_badge(ev_cal, ticker, signal_friday)
+    except Exception:                                               # noqa: BLE001 — display-only
+        return None
+
+
 def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
     """Map the live state to the dashboard envelope.
 
@@ -277,6 +306,7 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
     minus any name already being followed as a HOLD/EXIT card.
     """
     from nq.data.membership import ticker_in_index_on
+    ev_cal = _event_calendar()
     signals = []
     for t, s in P.items():
         ls = s.get("last_signal")
@@ -318,6 +348,16 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
             "pattern": "44-week SMA pullback",
             "exit_plan": _exit_plan(entry, stop, sma_sig),
         })
+        # ADDITIVE ONLY — information at decision time; no rule change, no printed field touched
+        # (constitution D5 parity: entry/stop/target/bands/tranches are byte-identical). The key is
+        # OMITTED rather than set to None when nothing is announced, so a card with no event is
+        # byte-identical to before this feature existed — that is what keeps the R94 golden master
+        # (constitution M1) green without regenerating its fixture. The measured cost is real
+        # (finding 0120) but every USAGE of it is closed: 0121 killed skip/deferral, 0129 killed
+        # sizing — the engine acts on this nowhere.
+        badge = _event_badge(ev_cal, t, fri) if ev_cal is not None else None
+        if badge:
+            signals[-1]["event_proximity"] = badge
     # strongest-first on the page; top-5 flagged A so the grade filter surfaces the priority names
     signals.sort(key=lambda x: -x["crs_rank"])
     for j, sg in enumerate(signals):
@@ -427,6 +467,9 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
             "exit_reason": str(r["reason"]),
         })
     sig_hist = hist_closed + hist_active
+    # CLOSED trades only — open positions are NOT counted here (DEFINITIONS_REGISTER §4, §5).
+    # `win_rate` and `avg_r` below therefore inherit a young-book bias: on a trend book losers stop
+    # out fast while winners stay open for months, so both read LOW until winners mature.
     n_closed = len(led)
     wins = int((led["R"] > 0).sum()) if n_closed else 0
     analytics = {
@@ -456,6 +499,11 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
     peak = float(curve.cummax().iloc[-1]) if len(curve) else nav
     portfolio = {"cash": round(float(out_paper["cash"]), 2), "peak_value": round(peak, 2),
                  "total_value": round(nav, 2), "n_positions": len(paper_positions),
+                 # `total_trades` counts CLOSED trades only (it is n_closed). With n_positions open
+                 # alongside it, positions-taken-since-inception = total_trades + n_positions.
+                 # The name is kept because it is a published field in results/output_contracts.json;
+                 # renaming it is a contract change, not a wording fix (DEFINITIONS_REGISTER §4).
+                 # The Oct-1 gate does NOT read this key — it reads analytics `total_closed`.
                  "total_trades": n_closed, "positions": paper_positions}
     hist_df = (curve.rename("total_value").rename_axis("date").reset_index()
                if len(curve) else pd.DataFrame({"date": [], "total_value": []}))
@@ -520,6 +568,33 @@ def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
         save_ohlcv_cache(ohlcv, OHLCV_CACHE)
     except Exception as exc:  # noqa: BLE001 — a download hiccup must not lose the existing cache/book
         print(f"download failed ({type(exc).__name__}: {exc}); using cached bars", flush=True)
+
+    # ADJUSTMENT-MONOTONICITY GUARD (2026Q3 foundation audit). `_detect_readjusted` above is a
+    # 0.5% threshold on ONE overlapping session ~25 days back; it cannot see a discontinuity deeper
+    # in the history than the top-up window, and the audit showed such discontinuities are served by
+    # the VENDOR — a fresh single-call download reproduces them, so neither the top-up guard nor the
+    # monthly clean rebuild heals them.
+    #
+    # This runs OUTSIDE the try above on purpose. Inside it, the except would catch the raise and
+    # print "download failed ... using cached bars", converting a poisoned cache into a reassuring
+    # log line — the precise failure mode the output-contract work was about.
+    from nq.data.adjustment_guard import (
+        assert_no_live_escalation, assert_no_new_seams, load_book_positions,
+    )
+    rep = assert_no_new_seams(ohlcv)
+    print(f"adjustment guard: {rep.overall} | symbols {rep.symbols_checked} | "
+          f"known seams {len(rep.seams)} | indeterminate {len(rep.indeterminate)}", flush=True)
+    for s in rep.seams:
+        print(f"  seam {s['symbol']} {s['window_start']}..{s['window_end']} "
+              f"x{s['step_factor']:.4f} ({s.get('provenance', '?')})", flush=True)
+
+    # ESCALATION TRIGGER (ADR-0013, pre-committed 2026-08-06). Decision (b) deferred the live seam
+    # repair to the 2026-10-01 review on a stated scope: one suppressed candidate, no open position.
+    # This evaluates that scope every run and raises the moment it stops holding.
+    ex = assert_no_live_escalation(ohlcv, load_book_positions())
+    print(f"  live exposure: {len(ex['in_window'])} seam(s) inside the 44w window "
+          f"({[s['symbol'] for s in ex['in_window']]}), "
+          f"{len(ex['accepted_live'])} owner-accepted, 0 on open positions", flush=True)
     return ohlcv
 
 
@@ -564,6 +639,44 @@ def _refresh_nifty50(do_download: bool) -> None:
         print(f"nifty-50 refreshed -> {merged['date'].max().date()} ({len(merged)} rows)", flush=True)
     except Exception as exc:  # noqa: BLE001
         print(f"nifty-50 refresh failed ({type(exc).__name__}: {exc}); using committed CSV", flush=True)
+
+
+def _base_swing_record(out: dict, ledger: list, inception: str, generated_at: str) -> dict:
+    """The forward record of the base-swing WATCHED arm — `prereg_swing.md §4`'s comparator.
+
+    §4 decides on forward **MaxDD** and **Calmar**, both read off the NAV curve, so the curve is
+    written out in full rather than only its summary: at the review the two books must be compared
+    over a *common* window, and only the curve supports that. Closed-trade count is carried because
+    §4's floor is >=20 per book.
+
+    Not surfaced anywhere. This book contains Grade-B names, which the owner rule forbids showing.
+    """
+    curve = out["curve"]
+    dd, cagr = float(out["dd"]), float(out["cagr"])
+    return {
+        "book": "base-swing",
+        "rule": "all grades, fund strongest-first, ₹10L cash gate (forward/prereg_swing.md §2)",
+        "status": "WATCHED — logged, never traded, never surfaced (contains Grade-B names)",
+        "authority": "forward/prereg_swing.md §4 (A-only vs base-swing, decided 2027-07-01)",
+        "inception": inception,
+        "as_of": generated_at,
+        "n_closed": int(out["trades"]),
+        "sharpe": None if pd.isna(out["sharpe"]) else round(float(out["sharpe"]), 4),
+        "cagr_pct": round(cagr * 100.0, 3),
+        "maxdd_pct": round(dd * 100.0, 3),
+        "calmar": round(cagr / abs(dd), 4) if dd else None,
+        "win_rate_pct": None if pd.isna(out["wr"]) else round(float(out["wr"]) * 100.0, 2),
+        "expectancy_R_gross": None if pd.isna(out["expR"]) else round(float(out["expR"]), 4),
+        "exit_reasons": out["reasons"],
+        "nav": [{"date": str(d)[:10], "equity": round(float(v), 2)} for d, v in curve.items()],
+        "_units": ("cagr/maxdd/calmar/sharpe are NET of costs, off the NAV curve. expectancy_R is "
+                   "GROSS — R is computed on raw prices (run_bhanushali_weekly_rank), so it is NOT "
+                   "comparable to the net NAV metrics. §4 decides on MaxDD and Calmar only."),
+        "_why": ("§2 registered this arm as reconstructable from the uncapped signal ledger, but "
+                 "that ledger is filtered to Grade A, so the arm never accrued. Logging started "
+                 "2026-08-08; anything before that date is absent by design — §3 forbids "
+                 "backfilling reconstructed history into the forward record."),
+    }
 
 
 def _write_sma_panel(P: dict, a_set, generated_at: str, sd: Path) -> None:
@@ -644,6 +757,22 @@ def main(argv=None) -> int:
     led_all: list = []
     out_all = R94.backtest(P, mem, ledger=led_all, start=args.start, return_state=True, uncapped=True,
                            a_grade=a_set, **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS)
+    # ── base-swing WATCHED arm (forward/prereg_swing.md §2) — ALL grades (no a_grade filter), same
+    #    ₹10L cash gate and the same LIVE_* discipline as the traded book. Logged, NEVER traded and
+    #    NEVER surfaced: the owner rule above forbids showing Grade B, so this result is deliberately
+    #    not passed to build_envelopes, the cards, the signals page or the memos.
+    #
+    #    Why it exists. §2 registers base-swing as "reconstructable from the uncapped signal ledger
+    #    (every signal, all grades)" — but BOTH books above are filtered by `a_grade=a_set`, so no
+    #    all-grade record was ever written and the arm has never accrued. §4 decides A-only vs
+    #    base-swing at the 2027-07-01 review and needs >=20 forward closed trades PER BOOK; its
+    #    insufficient-evidence clause defaults to base-swing. With no comparator accruing, that
+    #    default fires mechanically at every review and retires the live product without evidence.
+    #    This cannot be repaired later: §3 forbids reconstructed history entering the forward record,
+    #    so every week unlogged is a week of the comparison permanently lost.
+    led_base: list = []
+    out_base = R94.backtest(P, mem, ledger=led_base, start=args.start, return_state=True,
+                            **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS)
     # data's last date = the "as of" the book is current to
     last = max((pd.Timestamp(s["dates"][-1]) for s in P.values()), default=pd.Timestamp(args.start))
     generated_at = str(last.date())
@@ -656,6 +785,9 @@ def main(argv=None) -> int:
     (sd / "signal_analytics_weekly.json").write_text(json.dumps(analytics, indent=2, default=str), encoding="utf-8")
     (sd / "paper_portfolio_weekly.json").write_text(json.dumps(portfolio, indent=2, default=str), encoding="utf-8")
     hist_df.to_csv(sd / "portfolio_history_weekly.csv", index=False)
+    (sd / "base_swing_forward.json").write_text(
+        json.dumps(_base_swing_record(out_base, led_base, args.start, generated_at),
+                   indent=2, default=str), encoding="utf-8")
     _write_sma_panel(P, a_set, generated_at, sd)
 
     # DECISION MEMOS (operating layer, forward_plan Tier-3): one auditable setup/strength/risk/plan/status

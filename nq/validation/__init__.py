@@ -11,7 +11,8 @@ from .cpcv import (
     n_backtest_paths,
     n_splits,
 )
-from .dsr import cumulative_n_trials, deflated_sharpe_ratio, expected_max_sharpe
+from .dsr import (cumulative_n_trials, deflated_sharpe_ratio, expected_max_sharpe,
+                  lifetime_n_trials)
 from .metrics import cagr, calmar, max_drawdown, sharpe, sortino, summary
 
 __all__ = [
@@ -19,5 +20,6 @@ __all__ = [
     "contiguous_blocks", "CPCVSplit",
     "block_bootstrap_metric", "bootstrap_delta", "BootstrapResult",
     "deflated_sharpe_ratio", "expected_max_sharpe", "cumulative_n_trials",
+    "lifetime_n_trials",
     "sharpe", "sortino", "cagr", "calmar", "max_drawdown", "summary",
 ]

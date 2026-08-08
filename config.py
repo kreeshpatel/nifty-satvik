@@ -161,18 +161,72 @@ NIFTY_500 = [
     'ZFCVINDIA', 'ZYDUSLIFE',
 ]
 
-# ── NSE holiday calendar (ISO dates) — phantom-bar drop in the OHLCV cleaner ──
+# ── NSE holiday calendar (ISO dates) ──────────────────────────────────────────────────
+#
+# SOURCED, not estimated. Regenerate with ``python scripts/build_nse_holidays.py --emit``,
+# which fetches NSE's own ``holiday-master?type=trading`` CM segment and diffs it against
+# what is committed here. Reviewed by a human before pasting: this is a data input.
+#
+# The 2026 block was corrected on 2026-08-06 (M10). The previous hand-maintained block had
+# 10 holidays missing and 8 dates NSE does not list — 15 of them on weekdays. Four were
+# spot-checked against actual exchange bhavcopy and NSE was right every time. The three
+# spurious weekdays that fall inside the pinned dataset (2026-02-17 / 03-20 / 03-30) each
+# carried 710 real, positive-volume bars that the cleaner was deleting as "phantom".
+#
+# Two uses, and they are not equally exposed:
+#   1. the phantom-bar drop in ``nq.data.ohlcv.clean_ohlcv_for_features`` (historical), and
+#   2. trading-day arithmetic for the review cadence and the forward wall (forward-looking).
+# Use 2 is the one that can silently answer a question it does not know — hence the bounds
+# and :func:`assert_calendar_covers` below.
 NSE_HOLIDAYS = {
     '2025-02-26', '2025-03-14', '2025-03-31', '2025-04-10',
     '2025-04-14', '2025-04-18', '2025-05-01', '2025-06-07',
     '2025-08-15', '2025-08-16', '2025-08-27', '2025-10-02',
     '2025-10-21', '2025-10-22', '2025-11-05', '2025-11-26',
-    '2025-12-25', '2026-01-26', '2026-02-17', '2026-03-03',
-    '2026-03-20', '2026-03-30', '2026-04-03', '2026-04-14',
-    '2026-05-01', '2026-05-28', '2026-06-26', '2026-08-15',
-    '2026-08-17', '2026-09-04', '2026-10-02', '2026-10-12',
-    '2026-10-26', '2026-11-16', '2026-12-25',
+    '2025-12-25', '2026-01-15', '2026-01-26', '2026-02-15',
+    '2026-03-03', '2026-03-21', '2026-03-26', '2026-03-31',
+    '2026-04-03', '2026-04-14', '2026-05-01', '2026-05-28',
+    '2026-06-26', '2026-08-15', '2026-09-14', '2026-10-02',
+    '2026-10-20', '2026-11-08', '2026-11-10', '2026-11-24',
+    '2026-12-25',
 }
+
+# The window over which ``NSE_HOLIDAYS`` is AUTHORITATIVE — i.e. where "not in the set" is a
+# sourced answer rather than an absence of data. Outside it the set is silent, not correct.
+#
+# Below FROM: no holidays are carried at all for 2017-2024. The phantom-bar drop is therefore
+# a no-op over the whole historical backtest window, and vendor placeholders there are caught
+# by the cleaner's zero-volume filter instead — which is what actually happened on 2026-01-15
+# (614 placeholder bars, all zero-volume-flat, dropped by that filter and not by this set).
+# This is a stated limitation, deliberately NOT enforced: raising on historical dates would
+# break every backtest to fix nothing the zero-volume filter does not already cover.
+#
+# Above THROUGH: ENFORCED. NSE publishes one year at a time (2027 was still unpublished as of
+# 2026-08-06), so forward trading-day arithmetic past this bound is a guess. Callers that
+# schedule real events must go through :func:`assert_calendar_covers`.
+NSE_HOLIDAYS_COVERED_FROM = '2025-01-01'
+NSE_HOLIDAYS_COVERED_THROUGH = '2026-12-31'
+
+
+class CalendarCoverageError(RuntimeError):
+    """Raised when the holiday calendar is asked about a date it does not cover."""
+
+
+def assert_calendar_covers(d, *, what: str = "this date") -> None:
+    """Raise :class:`CalendarCoverageError` if ``d`` falls past ``NSE_HOLIDAYS_COVERED_THROUGH``.
+
+    ``d`` may be a ``date``, ``datetime`` or ISO string. Use this in any code path that turns
+    the calendar into a real-world commitment — a governance review date, a forward-wall gap
+    marker — so an unpublished year fails loudly instead of returning a confident wrong answer.
+    Only the upper bound is enforced; see the note above for why the lower bound is not.
+    """
+    iso = d if isinstance(d, str) else d.strftime("%Y-%m-%d")
+    if iso[:10] > NSE_HOLIDAYS_COVERED_THROUGH:
+        raise CalendarCoverageError(
+            f"NSE_HOLIDAYS covers through {NSE_HOLIDAYS_COVERED_THROUGH}; {what} needs {iso[:10]}. "
+            f"NSE publishes one year at a time — re-run `python scripts/build_nse_holidays.py "
+            f"--emit` once the next year is published (historically in December) and update "
+            f"config.py. Refusing to guess.")
 
 # ── Sector map (ticker -> sector label) ──
 SECTOR_MAP = {

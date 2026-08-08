@@ -1,0 +1,525 @@
+{
+  "_doc": "0129 event-proximity SIZING activation bound (ledger #15; 0 trials; sealed slice not read; judge log not read).",
+  "prereg": "diagnostics/research/preregistry/0129-eventsize-activation-bound.md",
+  "frozen": {
+    "event_window_cd": 14,
+    "size_grid": [
+      0.5,
+      0.75
+    ],
+    "train": [
+      "2019-01-01",
+      "2024-06-30"
+    ],
+    "floor_R_per_yr": 10.0,
+    "imported_from": "0120 Q2 / 0121 \u2014 event definition and N re-tuned NOWHERE"
+  },
+  "standing_counts": {
+    "screens": 15,
+    "sealed_opens": 1,
+    "n_trials": 138
+  },
+  "PRIMARY_capped": {
+    "population": "capped train book (0094), 2019-01..2024-06",
+    "n_trades": 156,
+    "span_years": 5.5,
+    "book_total_R": 95.11,
+    "book_R_per_yr": 17.29,
+    "activation": {
+      "n": 12,
+      "share_pct": 7.7,
+      "per_yr": 2.2,
+      "by_year": {
+        "2019": 3,
+        "2020": 1,
+        "2021": 2,
+        "2022": 5,
+        "2024": 1
+      }
+    },
+    "cohort_meanR": 0.679,
+    "peer_meanR": 0.604,
+    "measured_gap_R": 0.076,
+    "cohort_total_R": 8.15,
+    "cohort_is_positive_EV": true,
+    "bounds": {
+      "f=0.50": {
+        "a_cash": {
+          "total_R": -4.08,
+          "R_per_yr": -0.74,
+          "per_year": {
+            "by_year": {
+              "2019": -0.25,
+              "2020": -1.73,
+              "2021": -0.47,
+              "2022": -2.08,
+              "2024": 0.45
+            },
+            "n_years": 5,
+            "n_positive": 1,
+            "n_negative": 4,
+            "majority_sign": "-",
+            "majority_share": "4/5"
+          }
+        },
+        "b_redeploy_realistic": {
+          "replacement_R_assumed": 0.604,
+          "total_R": -0.45,
+          "R_per_yr": -0.08,
+          "per_year": {
+            "by_year": {
+              "2019": 0.66,
+              "2020": -1.43,
+              "2021": 0.14,
+              "2022": -0.57,
+              "2024": 0.75
+            },
+            "n_years": 5,
+            "n_positive": 3,
+            "n_negative": 2,
+            "majority_sign": "+",
+            "majority_share": "3/5"
+          }
+        },
+        "b_redeploy_clairvoyant": {
+          "queue_coverage": "11/12",
+          "mean_best_alternative_R": 1.503,
+          "total_R": 4.32,
+          "R_per_yr": 0.78,
+          "per_year": {
+            "by_year": {
+              "2019": -1.07,
+              "2020": -2.31,
+              "2021": 2.13,
+              "2022": 2.36,
+              "2024": 3.2
+            },
+            "n_years": 5,
+            "n_positive": 3,
+            "n_negative": 2,
+            "majority_sign": "+",
+            "majority_share": "3/5"
+          }
+        }
+      },
+      "f=0.75": {
+        "a_cash": {
+          "total_R": -2.04,
+          "R_per_yr": -0.37,
+          "per_year": {
+            "by_year": {
+              "2019": -0.12,
+              "2020": -0.86,
+              "2021": -0.23,
+              "2022": -1.04,
+              "2024": 0.22
+            },
+            "n_years": 5,
+            "n_positive": 1,
+            "n_negative": 4,
+            "majority_sign": "-",
+            "majority_share": "4/5"
+          }
+        },
+        "b_redeploy_realistic": {
+          "replacement_R_assumed": 0.604,
+          "total_R": -0.23,
+          "R_per_yr": -0.04,
+          "per_year": {
+            "by_year": {
+              "2019": 0.33,
+              "2020": -0.71,
+              "2021": 0.07,
+              "2022": -0.29,
+              "2024": 0.37
+            },
+            "n_years": 5,
+            "n_positive": 3,
+            "n_negative": 2,
+            "majority_sign": "+",
+            "majority_share": "3/5"
+          }
+        },
+        "b_redeploy_clairvoyant": {
+          "queue_coverage": "11/12",
+          "mean_best_alternative_R": 1.503,
+          "total_R": 2.16,
+          "R_per_yr": 0.39,
+          "per_year": {
+            "by_year": {
+              "2019": -0.53,
+              "2020": -1.15,
+              "2021": 1.06,
+              "2022": 1.18,
+              "2024": 1.6
+            },
+            "n_years": 5,
+            "n_positive": 3,
+            "n_negative": 2,
+            "majority_sign": "+",
+            "majority_share": "3/5"
+          }
+        }
+      }
+    },
+    "tail": {
+      "disaster_threshold_R": -1.5,
+      "activated": {
+        "n": 12,
+        "n_disaster": 0,
+        "share_pct": 0.0,
+        "disaster_total_R": 0.0,
+        "worst_R": -0.89
+      },
+      "non_activated": {
+        "n": 144,
+        "n_disaster": 8,
+        "share_pct": 5.6,
+        "disaster_total_R": -18.41
+      },
+      "enrichment_pp": -5.6,
+      "relief_by_f": {
+        "f=0.50": {
+          "tail_R_recovered_per_yr": -0.0,
+          "note": "book-R the disaster class stops costing; the trades still occur and still lose, at reduced size \u2014 the R LABEL of each trade is unchanged"
+        },
+        "f=0.75": {
+          "tail_R_recovered_per_yr": -0.0,
+          "note": "book-R the disaster class stops costing; the trades still occur and still lose, at reduced size \u2014 the R LABEL of each trade is unchanged"
+        }
+      }
+    },
+    "gate": {
+      "f=0.50 :: b_redeploy_realistic": {
+        "value_R_per_yr": -0.08,
+        "clears_floor": false,
+        "majority_year_positive": true,
+        "PASS": false
+      },
+      "f=0.50 :: b_redeploy_clairvoyant": {
+        "value_R_per_yr": 0.78,
+        "clears_floor": false,
+        "majority_year_positive": true,
+        "PASS": false
+      },
+      "f=0.50 :: a_cash": {
+        "value_R_per_yr": -0.74,
+        "clears_floor": false,
+        "majority_year_positive": false,
+        "PASS": false,
+        "note": "arm (a) cannot pass alone (pre-reg \u00a75): no redeployment, no route to a positive net"
+      },
+      "f=0.75 :: b_redeploy_realistic": {
+        "value_R_per_yr": -0.04,
+        "clears_floor": false,
+        "majority_year_positive": true,
+        "PASS": false
+      },
+      "f=0.75 :: b_redeploy_clairvoyant": {
+        "value_R_per_yr": 0.39,
+        "clears_floor": false,
+        "majority_year_positive": true,
+        "PASS": false
+      },
+      "f=0.75 :: a_cash": {
+        "value_R_per_yr": -0.37,
+        "clears_floor": false,
+        "majority_year_positive": false,
+        "PASS": false,
+        "note": "arm (a) cannot pass alone (pre-reg \u00a75): no redeployment, no route to a positive net"
+      }
+    }
+  },
+  "CROSSCHECK_uncapped": {
+    "population": "uncapped 0116/0117 substrate (0121's population)",
+    "n_trades": 2648,
+    "span_years": 5.5,
+    "book_total_R": 2018.08,
+    "book_R_per_yr": 366.92,
+    "activation": {
+      "n": 275,
+      "share_pct": 10.4,
+      "per_yr": 50.0,
+      "by_year": {
+        "2019": 27,
+        "2020": 38,
+        "2021": 66,
+        "2022": 45,
+        "2023": 61,
+        "2024": 38
+      }
+    },
+    "cohort_meanR": 0.419,
+    "peer_meanR": 0.802,
+    "measured_gap_R": -0.383,
+    "cohort_total_R": 115.28,
+    "cohort_is_positive_EV": true,
+    "bounds": {
+      "f=0.50": {
+        "a_cash": {
+          "total_R": -57.64,
+          "R_per_yr": -10.48,
+          "per_year": {
+            "by_year": {
+              "2019": 2.31,
+              "2020": -9.17,
+              "2021": -9.86,
+              "2022": 18.12,
+              "2023": -43.97,
+              "2024": -15.07
+            },
+            "n_years": 6,
+            "n_positive": 2,
+            "n_negative": 4,
+            "majority_sign": "-",
+            "majority_share": "4/6"
+          }
+        },
+        "b_redeploy_realistic": {
+          "replacement_R_assumed": 0.802,
+          "total_R": 52.62,
+          "R_per_yr": 9.57,
+          "per_year": {
+            "by_year": {
+              "2019": 13.14,
+              "2020": 6.06,
+              "2021": 16.6,
+              "2022": 36.16,
+              "2023": -19.51,
+              "2024": 0.17
+            },
+            "n_years": 6,
+            "n_positive": 5,
+            "n_negative": 1,
+            "majority_sign": "+",
+            "majority_share": "5/6"
+          }
+        }
+      },
+      "f=0.75": {
+        "a_cash": {
+          "total_R": -28.82,
+          "R_per_yr": -5.24,
+          "per_year": {
+            "by_year": {
+              "2019": 1.16,
+              "2020": -4.59,
+              "2021": -4.93,
+              "2022": 9.06,
+              "2023": -21.99,
+              "2024": -7.53
+            },
+            "n_years": 6,
+            "n_positive": 2,
+            "n_negative": 4,
+            "majority_sign": "-",
+            "majority_share": "4/6"
+          }
+        },
+        "b_redeploy_realistic": {
+          "replacement_R_assumed": 0.802,
+          "total_R": 26.31,
+          "R_per_yr": 4.78,
+          "per_year": {
+            "by_year": {
+              "2019": 6.57,
+              "2020": 3.03,
+              "2021": 8.3,
+              "2022": 18.08,
+              "2023": -9.76,
+              "2024": 0.08
+            },
+            "n_years": 6,
+            "n_positive": 5,
+            "n_negative": 1,
+            "majority_sign": "+",
+            "majority_share": "5/6"
+          }
+        }
+      }
+    },
+    "tail": {
+      "disaster_threshold_R": -1.5,
+      "activated": {
+        "n": 275,
+        "n_disaster": 34,
+        "share_pct": 12.4,
+        "disaster_total_R": -98.77,
+        "worst_R": -17.325
+      },
+      "non_activated": {
+        "n": 2373,
+        "n_disaster": 238,
+        "share_pct": 10.0,
+        "disaster_total_R": -554.89
+      },
+      "enrichment_pp": 2.4,
+      "relief_by_f": {
+        "f=0.50": {
+          "tail_R_recovered_per_yr": 8.98,
+          "note": "book-R the disaster class stops costing; the trades still occur and still lose, at reduced size \u2014 the R LABEL of each trade is unchanged"
+        },
+        "f=0.75": {
+          "tail_R_recovered_per_yr": 4.49,
+          "note": "book-R the disaster class stops costing; the trades still occur and still lose, at reduced size \u2014 the R LABEL of each trade is unchanged"
+        }
+      }
+    },
+    "gate": {
+      "f=0.50 :: b_redeploy_realistic": {
+        "value_R_per_yr": 9.57,
+        "clears_floor": false,
+        "majority_year_positive": true,
+        "PASS": false
+      },
+      "f=0.50 :: a_cash": {
+        "value_R_per_yr": -10.48,
+        "clears_floor": false,
+        "majority_year_positive": false,
+        "PASS": false,
+        "note": "arm (a) cannot pass alone (pre-reg \u00a75): no redeployment, no route to a positive net"
+      },
+      "f=0.75 :: b_redeploy_realistic": {
+        "value_R_per_yr": 4.78,
+        "clears_floor": false,
+        "majority_year_positive": true,
+        "PASS": false
+      },
+      "f=0.75 :: a_cash": {
+        "value_R_per_yr": -5.24,
+        "clears_floor": false,
+        "majority_year_positive": false,
+        "PASS": false,
+        "note": "arm (a) cannot pass alone (pre-reg \u00a75): no redeployment, no route to a positive net"
+      }
+    },
+    "comparison_0121": {
+      "pure_skip_R_per_yr": -20.96,
+      "deferral_net_R_per_yr": -15.72,
+      "clairvoyant_ceiling_R_per_yr": 36.9,
+      "note": "0121's numbers on this identical population \u2014 sizing is priced against them here"
+    }
+  },
+  "mechanism_note_event_position": {
+    "capped": {
+      "n_linked_to_calendar": 150,
+      "linkage_pct": 96.2,
+      "forward_14cd_pct": 8.0,
+      "trailing_14cd_pct": 26.7,
+      "note": "descriptive only \u2014 no outcome contrast is computed on the trailing leg"
+    },
+    "uncapped": {
+      "n_linked_to_calendar": 2625,
+      "linkage_pct": 99.1,
+      "forward_14cd_pct": 10.5,
+      "trailing_14cd_pct": 16.2,
+      "note": "descriptive only \u2014 no outcome contrast is computed on the trailing leg"
+    }
+  },
+  "worked_example": {
+    "status": "ILLUSTRATION ONLY \u2014 a live example for the finding's prose, NOT evidence; reported whatever it shows",
+    "rows": [
+      {
+        "ticker": "CANFINHOME",
+        "source": "capped 0094",
+        "entry_date": "2020-01-27",
+        "R": -2.037,
+        "activated": false,
+        "event_date": null,
+        "announced_on": null,
+        "days_entry_to_event": null
+      },
+      {
+        "ticker": "CANFINHOME",
+        "source": "uncapped substrate",
+        "entry_date": "2022-04-04",
+        "R": -1.602,
+        "activated": false,
+        "event_date": null,
+        "announced_on": null,
+        "days_entry_to_event": null
+      },
+      {
+        "ticker": "LINDEINDIA",
+        "source": "capped 0094",
+        "entry_date": "2024-03-18",
+        "R": 2.632,
+        "activated": false,
+        "event_date": null,
+        "announced_on": null,
+        "days_entry_to_event": null
+      },
+      {
+        "ticker": "LINDEINDIA",
+        "source": "uncapped substrate",
+        "entry_date": "2019-03-11",
+        "R": -1.022,
+        "activated": false,
+        "event_date": null,
+        "announced_on": null,
+        "days_entry_to_event": null
+      },
+      {
+        "ticker": "LINDEINDIA",
+        "source": "uncapped substrate",
+        "entry_date": "2019-05-20",
+        "R": -1.368,
+        "activated": false,
+        "event_date": null,
+        "announced_on": null,
+        "days_entry_to_event": null
+      },
+      {
+        "ticker": "LINDEINDIA",
+        "source": "uncapped substrate",
+        "entry_date": "2020-08-10",
+        "R": 3.118,
+        "activated": false,
+        "event_date": null,
+        "announced_on": null,
+        "days_entry_to_event": null
+      },
+      {
+        "ticker": "LINDEINDIA",
+        "source": "uncapped substrate",
+        "entry_date": "2024-01-23",
+        "R": 3.412,
+        "activated": false,
+        "event_date": null,
+        "announced_on": null,
+        "days_entry_to_event": null
+      },
+      {
+        "ticker": "NATCOPHARM",
+        "source": "uncapped substrate",
+        "entry_date": "2020-04-13",
+        "R": 2.467,
+        "activated": false,
+        "event_date": null,
+        "announced_on": null,
+        "days_entry_to_event": null
+      },
+      {
+        "ticker": "GLENMARK",
+        "source": "capped 0094",
+        "entry_date": "2024-02-19",
+        "R": 1.663,
+        "activated": false,
+        "event_date": null,
+        "announced_on": null,
+        "days_entry_to_event": null
+      },
+      {
+        "ticker": "GLENMARK",
+        "source": "uncapped substrate",
+        "entry_date": "2019-02-04",
+        "R": -1.248,
+        "activated": false,
+        "event_date": null,
+        "announced_on": null,
+        "days_entry_to_event": null
+      }
+    ]
+  },
+  "VERDICT": "FAIL \u2014 no trial; record, bank, close"
+}

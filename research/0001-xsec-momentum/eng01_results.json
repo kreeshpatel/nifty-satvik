@@ -1,0 +1,76 @@
+{
+  "band": 0.2,
+  "base": {
+    "metrics": {
+      "final_equity": 6458910.75,
+      "total_return_pct": 545.89,
+      "cagr_pct": 22.17,
+      "sharpe": 1.13,
+      "sortino": 1.249,
+      "max_drawdown_pct": -37.17,
+      "calmar": 0.6,
+      "turnover_per_year": 316.7,
+      "n_trades": 2951,
+      "n_reallocated_exits": 0,
+      "win_rate_pct": 73.09,
+      "profit_factor": 2.0,
+      "avg_return_per_trade_pct": 18.64,
+      "avg_hold_days": 72.5,
+      "avg_positions_held": 31.25,
+      "exit_reasons": {
+        "rebalance_trim": 2045,
+        "rebalance_exit": 905,
+        "stale": 1
+      },
+      "years": 9.32
+    },
+    "mix": {
+      "rebalance_trim": 2045,
+      "rebalance_exit": 905,
+      "stale": 1
+    },
+    "after_tax_cagr": 17.957
+  },
+  "banded": {
+    "metrics": {
+      "final_equity": 6296014.17,
+      "total_return_pct": 529.6,
+      "cagr_pct": 21.83,
+      "sharpe": 1.126,
+      "sortino": 1.243,
+      "max_drawdown_pct": -36.58,
+      "calmar": 0.6,
+      "turnover_per_year": 151.4,
+      "n_trades": 1411,
+      "n_reallocated_exits": 0,
+      "win_rate_pct": 65.56,
+      "profit_factor": 2.01,
+      "avg_return_per_trade_pct": 20.837,
+      "avg_hold_days": 77.2,
+      "avg_positions_held": 31.25,
+      "exit_reasons": {
+        "rebalance_trim": 504,
+        "rebalance_exit": 906,
+        "stale": 1
+      },
+      "years": 9.32
+    },
+    "mix": {
+      "rebalance_trim": 504,
+      "rebalance_exit": 906,
+      "stale": 1
+    },
+    "after_tax_cagr": 17.524
+  },
+  "delta_cagr_pp": -0.3400000000000034,
+  "delta_after_tax_pp": -0.43299999999999983,
+  "trim_drop": 0.7535452322738386,
+  "expectation_checks": {
+    "trim count falls >=50%": true,
+    "turnover falls": true,
+    "CAGR +0.3 to +0.7pp": false,
+    "Sharpe ~flat (+-0.05)": true,
+    "MaxDD ~unchanged (+-3pp)": true
+  },
+  "planning_dd_p99": -0.5933959021551117
+}

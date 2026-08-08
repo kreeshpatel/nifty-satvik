@@ -39,14 +39,22 @@ JOBS = [
      "proof": "archive", "kind": "archive_dir", "overdue_days": 9},
     {"job": "intraday-scan", "workflow": "cron-intraday-scan", "cadence": "weekday",
      "proof": "intraday_scan", "kind": "dir", "overdue_days": 5},
+    # S-F1 closed 2026-08-06: the 3-book forward wall finally has a scheduled producer.
+    # THE PROOF IS DELIBERATELY NOT THE WALL LOG. `forward/prereg.md` says decisions happen only at
+    # quarterly reviews — between them, log and leave it alone — so the health probe must never open
+    # `forward_wall.csv`. It stats the paper book's state file instead, which the same job rewrites
+    # every run: `kind: "mtime"` never reads a byte of content, so liveness is observed without
+    # anyone learning how the wall is doing.
+    {"job": "forward-wall-log", "workflow": "cron-forward-wall", "cadence": "weekday",
+     "proof": "paper_portfolio.json", "kind": "mtime", "overdue_days": 5},
 ]
 
 # Jobs that SHOULD have a producer but have no scheduled trigger in the repo. Reported as a
 # standing gap without reading the artifact (the forward-wall log is not read, per the no-peek rule).
-UNSCHEDULED = [
-    {"job": "forward-wall-log", "producer": "scripts/run_paper_cron.py -> nq.paper.wall_cron.update_wall",
-     "note": "no GitHub Actions workflow invokes run_paper_cron.py; the 3-book wall log has no "
-             "scheduled producer in the repo (momentum sleeve is suspended — owner door)."},
+UNSCHEDULED: list[dict] = [
+    # Empty since 2026-08-06 (S-F1 closed — `.github/workflows/cron-forward-wall.yml`). Kept as a
+    # standing slot: the check that matters is not "is this list short" but "does every producer in
+    # the repo appear in JOBS above", and a future unscheduled producer belongs here, not nowhere.
 ]
 
 

@@ -12,7 +12,9 @@ Each skill is a `SKILL.md` with frontmatter (`name`, `description` with trigger 
 
 | Skill | Use when… | Borrowed from |
 |---|---|---|
+| [session-router](session-router/SKILL.md) | **at the START of every task** — classify it MEASUREMENT / RESEARCH / ENGINE / REFACTOR / PRODUCT and get the gate that class must clear. Most expensive mistakes here are category errors, decided silently in the first thirty seconds | project (2026-08-07) |
 | [skills-first](skills-first/SKILL.md) | **at the START of every task** — check what skills/agents already exist before any command or plan (don't reinvent) | project (owner meta-rule) |
+| [plausibility-check](plausibility-check/SKILL.md) | **before reporting or believing ANY number** — put it beside its reproducible anchor. A result that beats its anchor is a defect signal until explained. Also the guard against quoting a published band from memory | project (2026-08-07) |
 | [program-laws](program-laws/SKILL.md) | **BEFORE proposing/evaluating ANY research idea** — the standing verdicts with receipts (five pre-entry walls incl. perception/0123; population-info vs decision margins; what's closed). Collision rule: **cite and narrow, never relitigate** | project (laws distilled 2026-07-30) |
 | [verdict-machine](verdict-machine/SKILL.md) | designing/adjudicating any study — the cheap-roots method: registry confrontation → coverage+PIT audit → kill-shot screen (ledgered) → **activation bound vs the ±10R/yr floor** → only then a trial | project (external-data campaign, 6 candidates / 0 trials) |
 | [karpathy-guidelines](karpathy-guidelines/SKILL.md) | writing / reviewing / refactoring **any** code — think-before-coding, simplicity-first, surgical changes, goal-driven execution | Andrej Karpathy (MIT, via multica-ai/andrej-karpathy-skills) |
@@ -30,6 +32,31 @@ Each skill is a `SKILL.md` with frontmatter (`name`, `description` with trigger 
 | [kite-execution](kite-execution/SKILL.md) | Kite (Zerodha) auth, fills, session expiry, order edge cases | project (audit-grounded) |
 | [portfolio-simulation](portfolio-simulation/SKILL.md) | paper gate, fill realism, kill-switch triggers, live-vs-backtest divergences — before any real rupee | project (Stage E→F) |
 | [research-log](research-log/SKILL.md) | recording a finding — where it goes (registry / changelog / ADR / findings) | project |
+
+## Ritual commands (`/name` — you invoke these, Claude does not)
+
+These carry orderings that cannot be recovered once broken, which is why they are procedures rather
+than advice. Each is `disable-model-invocation: true`: the timing is yours to choose.
+
+| Command | Use when | The ordering it protects |
+|---|---|---|
+| [`/pre-register`](pre-register/SKILL.md) | a candidate has survived `verdict-machine` and earns a trial | pre-reg committed → counter incremented → **then** the run. Thresholds fixed while you still don't know |
+| [`/verdict`](verdict/SKILL.md) | a run has finished | the pre-reg is read and diffed against what actually ran, **before** the numbers are scored |
+| [`/seal`](seal/SKILL.md) | a study has reported, or blind evidence is being stood up | the record is frozen before anyone has a motive to adjust it |
+| [`/re-anchor`](re-anchor/SKILL.md) | the pinned baseline must move | hash verified, old anchor re-run first, every citation migrated — governance class, owner decision |
+
+## Adversarial subagents (`.claude/agents/`)
+
+Fresh context is the whole value: these read a result without the session's accumulated reasons to
+believe it. Spend them freely — they are far cheaper than a wrong number that survives to a decision.
+
+| Agent | Spend it on |
+|---|---|
+| `red-team` | any finished result, **especially a flattering one**. Leads with the most likely way it is wrong |
+| `flaw-hunter` | any data or feature path — lookahead, PIT violations, survivorship, train/serve skew |
+| `backtest-validator` | any harness number, against `backtest-rigor` and the plausibility anchors |
+| `overfit-skeptic` | before promoting anything — DSR at the honest count, plateau-vs-peak, resolvability |
+| `blind-replica` | a second implementation from the spec alone, for differencing. It must not read the first |
 
 ## Source digests (reference only — `_ingested/`)
 

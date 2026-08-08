@@ -1,127 +1,142 @@
 {
-  "label": "baseline_v1 \u2014 clean rebuild, corrected universe, current yfinance vintage",
-  "as_of": "2026-07-01",
-  "status": "fresh pinned anchor (per docs/STAGE_A_PLAN.md decision D-A1); NOT live-validated",
-  "gross": {
-    "cagr_pct": 15.46,
-    "sharpe": 0.667,
-    "max_drawdown_pct": -46.26,
-    "calmar": 0.33,
-    "n_trades": 1279,
-    "win_rate_pct": 60.36
-  },
-  "robustness": {
-    "block_bootstrap_sharpe_ci_95": [
-      -0.022,
-      1.428
-    ],
-    "block_size": 63,
-    "n_eff_windows": 34,
-    "psr_gt_0": 0.9737,
-    "min_trl_years_95": 6.2,
-    "dsr": 0.287,
-    "n_trials": 82,
-    "certification_note": "PSR(>0)=97.4% -> the 0.667 Sharpe IS statistically real (consistent with the bootstrap CI lower ~0); MinTRL(95%)=6.2y < our ~9.5y -> certifiable. DSR=0.287 @ 82 trials: a 0.667 Sharpe is real but not a multiple-testing STANDOUT (DSR is the overlay-promotion stat; PSR is the base-certification stat). All on the autocorrelation-robust NON-OVERLAPPING 63-day-window basis (P1 rigor fix; corrects the earlier optimistic daily-n DSR 0.246/79)."
-  },
-  "universe": {
-    "mode": "corrected",
-    "n_requested": 716,
-    "n_with_data": 710,
-    "distinct_names_traded": 225,
-    "window": [
-      "2017-01-01",
-      "2026-06-30"
-    ]
-  },
-  "anchor_baseline_v0": {
-    "cagr_pct": 26.1088,
-    "sharpe": 1.0155,
-    "n_trades": 1445,
-    "win_rate_pct": 59.72
-  },
-  "delta_vs_v0": {
-    "cagr_pp": -10.65,
-    "explanation": "DATA VINTAGE, not engine. Selection (225 vs 223 distinct names), win-rate (60.4 vs 59.7), n_trades (1279 vs 1445), and the byte-identical engine (golden master) ALL match baseline_v0. With selection + WR + engine equal, the only remaining variable is the per-trade return MAGNITUDE = OHLCV price-vintage differences (current yfinance != baseline_v0's vintage, whose cache is gone). The rebuild is faithful; 26.1% was a vintage-favorable in-sample headline."
-  },
-  "provenance": {
-    "run": "github-actions cpcv-research run 28467819423",
-    "command": "scripts/run_cpcv.py --mode corrected --start 2017-01-01",
-    "engine_equivalence": "tests/test_stage2_golden.py (byte-for-byte vs lh_golden_panel.csv)",
-    "fundamentals": "augmented store 654 names (185 delisted D/E scraped from Screener 2026-07-01)",
-    "frozen_cfg": "models/long_horizon/config.json"
-  },
-  "pin": {
-    "status": "PINNED (2026-07-01) \u2014 the canonical OHLCV snapshot is a release asset; baseline_v1 is byte-reproducible. The fresh mint reproduced these exact metrics (no drift this run).",
-    "ohlcv_sha256": "f8625a8ff6abae06baf4d5c3c10eef2c9bbe98df785248a2b360d7d2a3c52142",
-    "release_tag": "dataset-pin-20260701",
-    "asset": "ohlcv.pkl (64,297,056 bytes)",
-    "minted_by": "github-actions cpcv-research run 28471557396 (mode=corrected, fresh yfinance)",
-    "reproduce": "scripts/run_cpcv.py --mode corrected --start 2017-01-01 --pinned-release dataset-pin-20260701",
-    "rationale": "The OHLCV snapshot is 64 MB (> git limit) so it lives as a GitHub release asset, identified by the sha256 of its exact pickle bytes. A pinned run loads that fixed blob instead of yfinance, making baseline_v1 byte-reproducible. Unpinned, the number drifts ~1-2pp run-to-run (yfinance revisions: 14.2/15.6/16.25 observed)."
-  },
-  "caveats": [
-    "IN-SAMPLE + dev-contaminated (diagnostics/research/HOLDOUT.md) \u2014 the trustworthy number is the forward wall (post-2026-05-30), not this. Trust >=2019 folds most (pre-2018 membership survivor-biased).",
-    "~28/213 recoverable-delisted names still lack D/E; ~114 hard-bankruptcy delistings unrecoverable from yfinance (residual survivorship).",
-    "ex-financials: the solvency screen drops banks/NBFCs until the W-04 capital-adequacy proxy is adopted.",
-    "after-tax (STCG 20%) ~12.76% CAGR (approx: per-calendar-year net-gain STCG via the mechanized evaluate_overlay; ~2.7pp drag vs 15.46% gross). Micro-costs (~3.5 bps) still excluded -> the true after-tax-after-cost number is slightly lower; a cloud run with both is the lock-gate cost/tax item.",
-    "residual: n_trades 1279 vs v0 1445 (~11%) \u2014 likely fewer eligible bars on current yfinance; a deeper full-universe pipeline-vs-source dig could confirm."
+ "label": "baseline_v1 — clean rebuild, corrected universe, current yfinance vintage",
+ "as_of": "2026-07-01",
+ "status": "fresh pinned anchor (per docs/STAGE_A_PLAN.md decision D-A1); NOT live-validated",
+ "gross": {
+  "cagr_pct": 15.46,
+  "sharpe": 0.667,
+  "max_drawdown_pct": -46.26,
+  "calmar": 0.33,
+  "n_trades": 1279,
+  "win_rate_pct": 60.36
+ },
+ "robustness": {
+  "block_bootstrap_sharpe_ci_95": [
+   -0.022,
+   1.428
   ],
-  "producer": {
-    "script": "scripts/run_corrected_anchor.py",
-    "arm": "LH base / pinned",
-    "invocation": "python scripts/run_corrected_anchor.py",
-    "designated": "2026-08-05 by the 2026Q3 verification audit (closes discrepancy D2 / drill gap G4)",
-    "reproduced": [
-      "2026-07 bracket session (in-repo)",
-      "2026-07-31 clean-clone disaster drill, item A2 (fresh directory)",
-      "2026-08-05 audit closeout (in-repo)"
-    ],
-    "reproduced_values": {
-      "sharpe": 0.667,
-      "cagr_pct": 15.47,
-      "max_drawdown_pct": -46.3
-    },
-    "note": "the producer prints CAGR 15.47 / MaxDD -46.3 against the recorded 15.46 / -46.26; the difference is DISPLAY ROUNDING in the anchor table, not a value change. The recorded figures are preserved as-measured-then and were NOT overwritten.",
-    "blind_session_scripts": "optional corroboration only \u2014 the designation does not wait on them"
+  "block_size": 63,
+  "n_eff_windows": 34,
+  "psr_gt_0": 0.9737,
+  "min_trl_years_95": 6.2,
+  "dsr": 0.287,
+  "n_trials": 82,
+  "certification_note": "PSR(>0)=97.4% -> the 0.667 Sharpe IS statistically real (consistent with the bootstrap CI lower ~0); MinTRL(95%)=6.2y < our ~9.5y -> certifiable. DSR=0.287 @ 82 trials: a 0.667 Sharpe is real but not a multiple-testing STANDOUT (DSR is the overlay-promotion stat; PSR is the base-certification stat). All on the autocorrelation-robust NON-OVERLAPPING 63-day-window basis (P1 rigor fix; corrects the earlier optimistic daily-n DSR 0.246/79)."
+ },
+ "universe": {
+  "mode": "corrected",
+  "n_requested": 716,
+  "n_with_data": 710,
+  "distinct_names_traded": 225,
+  "window": [
+   "2017-01-01",
+   "2026-06-30"
+  ]
+ },
+ "anchor_baseline_v0": {
+  "cagr_pct": 26.1088,
+  "sharpe": 1.0155,
+  "n_trades": 1445,
+  "win_rate_pct": 59.72
+ },
+ "delta_vs_v0": {
+  "cagr_pp": -10.65,
+  "explanation": "DATA VINTAGE, not engine. Selection (225 vs 223 distinct names), win-rate (60.4 vs 59.7), n_trades (1279 vs 1445), and the byte-identical engine (golden master) ALL match baseline_v0. With selection + WR + engine equal, the only remaining variable is the per-trade return MAGNITUDE = OHLCV price-vintage differences (current yfinance != baseline_v0's vintage, whose cache is gone). The rebuild is faithful; 26.1% was a vintage-favorable in-sample headline."
+ },
+ "provenance": {
+  "run": "github-actions cpcv-research run 28467819423",
+  "command": "scripts/run_cpcv.py --mode corrected --start 2017-01-01",
+  "engine_equivalence": "tests/test_stage2_golden.py (byte-for-byte vs lh_golden_panel.csv)",
+  "fundamentals": "augmented store 654 names (185 delisted D/E scraped from Screener 2026-07-01)",
+  "frozen_cfg": "models/long_horizon/config.json"
+ },
+ "pin": {
+  "status": "PINNED (2026-07-01) — the canonical OHLCV snapshot is a release asset; baseline_v1 is byte-reproducible. The fresh mint reproduced these exact metrics (no drift this run).",
+  "ohlcv_sha256": "f8625a8ff6abae06baf4d5c3c10eef2c9bbe98df785248a2b360d7d2a3c52142",
+  "release_tag": "dataset-pin-20260701",
+  "asset": "ohlcv.pkl (64,297,056 bytes)",
+  "minted_by": "github-actions cpcv-research run 28471557396 (mode=corrected, fresh yfinance)",
+  "reproduce": "scripts/run_cpcv.py --mode corrected --start 2017-01-01 --pinned-release dataset-pin-20260701",
+  "rationale": "The OHLCV snapshot is 64 MB (> git limit) so it lives as a GitHub release asset, identified by the sha256 of its exact pickle bytes. A pinned run loads that fixed blob instead of yfinance, making baseline_v1 byte-reproducible. Unpinned, the number drifts ~1-2pp run-to-run (yfinance revisions: 14.2/15.6/16.25 observed)."
+ },
+ "caveats": [
+  "IN-SAMPLE + dev-contaminated (diagnostics/research/HOLDOUT.md) — the trustworthy number is the forward wall (post-2026-05-30), not this. Trust >=2019 folds most (pre-2018 membership survivor-biased).",
+  "~28/213 recoverable-delisted names still lack D/E; ~114 hard-bankruptcy delistings unrecoverable from yfinance (residual survivorship).",
+  "ex-financials: the solvency screen drops banks/NBFCs until the W-04 capital-adequacy proxy is adopted.",
+  "after-tax (STCG 20%) ~12.76% CAGR (approx: per-calendar-year net-gain STCG via the mechanized evaluate_overlay; ~2.7pp drag vs 15.46% gross). Micro-costs (~3.5 bps) still excluded -> the true after-tax-after-cost number is slightly lower; a cloud run with both is the lock-gate cost/tax item.",
+  "residual: n_trades 1279 vs v0 1445 (~11%) — likely fewer eligible bars on current yfinance; a deeper full-universe pipeline-vs-source dig could confirm."
+ ],
+ "producer": {
+  "script": "scripts/run_corrected_anchor.py",
+  "arm": "LH base / pinned",
+  "invocation": "python scripts/run_corrected_anchor.py",
+  "designated": "2026-08-05 by the 2026Q3 verification audit (closes discrepancy D2 / drill gap G4)",
+  "reproduced": [
+   "2026-07 bracket session (in-repo)",
+   "2026-07-31 clean-clone disaster drill, item A2 (fresh directory)",
+   "2026-08-05 audit closeout (in-repo)"
+  ],
+  "reproduced_values": {
+   "sharpe": 0.667,
+   "cagr_pct": 15.47,
+   "max_drawdown_pct": -46.3
   },
-  "anchor_manifest": {
-    "standard": "diagnostics/research/verification_audit_2026Q3/ANCHOR_MANIFEST.md",
-    "costs": {
-      "brokerage_pct_per_leg": 0.0003,
-      "stt_pct_per_leg": 0.001,
-      "slippage_by_tier": {
-        "LARGE_CAP": 0.0005,
-        "MID_CAP": 0.0022,
-        "SMALL_CAP": 0.004
-      },
-      "impact_eta": 1.0,
-      "adv_large_cap_rs": 500000000.0,
-      "adv_mid_cap_rs": 50000000.0,
-      "max_adv_participation": 0.05,
-      "NOT_modelled": "exchange txn, SEBI, stamp, GST, DP \u2014 ~4.8 bps round-trip, measured by audit session 1 item A8. These are OUT of this anchor."
-    },
-    "fill_convention": "next-session open after the signal; ADV-tiered slippage + sqrt impact per leg",
-    "sizing_convention": "flat risk sizing on the frozen cfg (models/long_horizon/config.json via config.load_frozen_cfg); NOT conviction-tilted (0073/C3 KILL)",
-    "universe_filter_inputs": {
-      "ohlcv": {
-        "file": "data/ohlcv.pkl",
-        "release": "dataset-pin-20260701",
-        "sha256": "f8625a8ff6abae06baf4d5c3c10eef2c9bbe98df785248a2b360d7d2a3c52142",
-        "documented_prefix": "f8625a8f"
-      },
-      "membership": "data/nifty500_membership.csv (committed)",
-      "solvency_value_quality": {
-        "file": "data/fundamentals_pit_screener.pkl",
-        "release": "dataset-pin-20260701",
-        "status": "release-pinned"
-      }
-    },
-    "true_period": {
-      "data_start": "2017-01-02",
-      "first_tradeable_date": "2018-01-19",
-      "span_years": 8.43,
-      "warning": "any label reading '2017-2026' is MIS-STATED: the engine needs a 44-week SMA warm-up, so 2017 is not tradeable."
-    },
-    "precision": "Sharpe to 3dp and CAGR/DD to 2dp EXCEED what risk-based sizing supports (blind-replication F3). Quote Sharpe 2dp, CAGR/DD 1dp; stored values retained at full precision as the as-measured-then record."
+  "note": "the producer prints CAGR 15.47 / MaxDD -46.3 against the recorded 15.46 / -46.26; the difference is DISPLAY ROUNDING in the anchor table, not a value change. The recorded figures are preserved as-measured-then and were NOT overwritten.",
+  "blind_session_scripts": "optional corroboration only — the designation does not wait on them",
+  "calendar_correction_2026_08_06": {
+   "status": "RECORDED, NOT APPLIED — the values above are preserved as-measured-then.",
+   "what_changed": "config.NSE_HOLIDAYS' 2026 block was corrected against NSE's own holiday master (M10). It had listed 2026-02-17 / 03-20 / 03-30 as holidays; NSE and the exchange's own bhavcopy both say they were trading days, and each carries 710 real positive-volume bars in the pin that the cleaner was deleting.",
+   "effect_on_this_anchor": {
+    "sharpe": "0.667 -> 0.647 (-0.020)",
+    "cagr_pct": "15.47 -> 14.88 (-0.59pp)",
+    "maxdd_pct": "-46.3 -> -46.3 (unchanged)",
+    "n_trades": "1279 -> 1280",
+    "first_divergent_session": "2026-02-18; 84 of 2162 sessions differ, all in 2026 H1"
+   },
+   "measured_by": "scripts/diag_m10_calendar_blast_radius.py — both arms in one process, calendar swapped and nothing else. The control arm reproduces 0.667 / 15.47 / -46.3 exactly, which is what makes the delta attributable.",
+   "artifact": "diagnostics/research/foundation_audit_2026Q3/m10_blast_radius.json",
+   "consequence": "scripts/run_corrected_anchor.py now prints 0.647 / 14.88 on the pinned LH arm. The recorded 0.667 remains reproducible ONLY under the pre-correction calendar. This does NOT re-anchor the pin: re-anchoring is an owner/governance decision and this is now the SECOND reason the re-run is pending, alongside the survivor-bias backfill (finding 0025). Both route to the same 2026-10-01 door.",
+   "magnitude_note": "-0.020 Sharpe is far inside the programme's +-0.302 resolution band, so this reverses no verdict anywhere. It is a record-accuracy matter, not a re-adjudication."
   }
+ },
+ "anchor_manifest": {
+  "standard": "diagnostics/research/verification_audit_2026Q3/ANCHOR_MANIFEST.md",
+  "costs": {
+   "brokerage_pct_per_leg": 0.0003,
+   "stt_pct_per_leg": 0.001,
+   "slippage_by_tier": {
+    "LARGE_CAP": 0.0005,
+    "MID_CAP": 0.0022,
+    "SMALL_CAP": 0.004
+   },
+   "impact_eta": 1.0,
+   "adv_large_cap_rs": 500000000.0,
+   "adv_mid_cap_rs": 50000000.0,
+   "max_adv_participation": 0.05,
+   "NOT_modelled": "exchange txn, SEBI, stamp, GST, DP — ~4.8 bps round-trip, measured by audit session 1 item A8. These are OUT of this anchor."
+  },
+  "fill_convention": "next-session open after the signal; ADV-tiered slippage + sqrt impact per leg",
+  "sizing_convention": "flat risk sizing on the frozen cfg (models/long_horizon/config.json via config.load_frozen_cfg); NOT conviction-tilted (0073/C3 KILL)",
+  "universe_filter_inputs": {
+   "ohlcv": {
+    "file": "data/ohlcv.pkl",
+    "release": "dataset-pin-20260701",
+    "sha256": "f8625a8ff6abae06baf4d5c3c10eef2c9bbe98df785248a2b360d7d2a3c52142",
+    "documented_prefix": "f8625a8f"
+   },
+   "membership": "data/nifty500_membership.csv (committed)",
+   "solvency_value_quality": {
+    "file": "data/fundamentals_pit_screener.pkl",
+    "release": "dataset-pin-20260701",
+    "status": "release-pinned"
+   }
+  },
+  "true_period": {
+   "data_start": "2017-01-02",
+   "first_tradeable_date": "2018-01-19",
+   "span_years": 8.43,
+   "warning": "any label reading '2017-2026' is MIS-STATED: the engine needs a 44-week SMA warm-up, so 2017 is not tradeable."
+  },
+  "precision": "Sharpe to 3dp and CAGR/DD to 2dp EXCEED what risk-based sizing supports (blind-replication F3). Quote Sharpe 2dp, CAGR/DD 1dp; stored values retained at full precision as the as-measured-then record."
+ }
 }

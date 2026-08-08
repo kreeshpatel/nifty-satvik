@@ -1,0 +1,120 @@
+{
+  "_class": "VERIFICATION \u2014 unit resolution. Zero trials; counts unchanged 16 / 1 / 138.",
+  "identity": {
+    "statement": "under risk-parity sizing, gross equity return = R x risk_fraction EXACTLY",
+    "derivation": "shares = sizing_eq*risk/(entry-stop)  =>  shares*(exit-entry) = sizing_eq*risk*R",
+    "engine_assert": "R94:884, 889 pin risk at 2.00% +- 0.02% of sizing equity on every fill",
+    "by_cohort": {
+      "no_half_booked": {
+        "n": 4104,
+        "corr_gross_equity_pct_vs_R_x_2pct": 0.999999997,
+        "max_abs_diff_pp": 0.0556472,
+        "mean_abs_diff_pp": 0.0006999,
+        "corr_net_equity_pct_vs_R_x_2pct": 0.999713414
+      },
+      "half_booked": {
+        "n": 2141,
+        "corr_gross_equity_pct_vs_R_x_2pct": 0.9979716236,
+        "max_abs_diff_pp": 99.02482051,
+        "mean_abs_diff_pp": 1.07806018,
+        "corr_net_equity_pct_vs_R_x_2pct": 0.9981278294
+      },
+      "all": {
+        "n": 6245,
+        "corr_gross_equity_pct_vs_R_x_2pct": 0.9980078381,
+        "max_abs_diff_pp": 99.02482051,
+        "mean_abs_diff_pp": 0.37005592,
+        "corr_net_equity_pct_vs_R_x_2pct": 0.9943795216
+      }
+    }
+  },
+  "half_credit_conservatism": {
+    "n_half_booked": 2141,
+    "share_of_population_pct": 34.28,
+    "credited_R_for_the_half": 2.0,
+    "actual_half_R_mean": 3.0407,
+    "actual_half_R_median": 2.5577,
+    "understatement_R_per_half_booked_trade": 0.5203,
+    "_reading": "published R UNDERSTATES realised money on the 34% of trades that book the half; the engine is conservative on winners, not flattering"
+  },
+  "cross_check_vs_0130": {
+    "funded_sum_R": 127.46,
+    "funded_R_per_year": 13.436,
+    "implied_gross_equity_pct_per_year": 26.872,
+    "measured_net_equity_pct_per_year_0130": 26.546,
+    "difference_is_cost_drag_pp": 0.326
+  },
+  "three_lenses": {
+    "table": [
+      {
+        "ext_band": "<0",
+        "N": 93,
+        "mean_R": 2.9772,
+        "mean_net_pct_of_POSITION": 5.0977,
+        "mean_net_pct_of_EQUITY": 7.0813,
+        "median_stop_width_pct": 4.57,
+        "rank_mean_R": 1,
+        "rank_mean_net_pct_of_POSITION": 1,
+        "rank_mean_net_pct_of_EQUITY": 1
+      },
+      {
+        "ext_band": "0-5",
+        "N": 1104,
+        "mean_R": 0.755,
+        "mean_net_pct_of_POSITION": 2.6953,
+        "mean_net_pct_of_EQUITY": 1.6783,
+        "median_stop_width_pct": 4.97,
+        "rank_mean_R": 2,
+        "rank_mean_net_pct_of_POSITION": 3,
+        "rank_mean_net_pct_of_EQUITY": 2
+      },
+      {
+        "ext_band": "5-10",
+        "N": 2498,
+        "mean_R": 0.2557,
+        "mean_net_pct_of_POSITION": 1.0343,
+        "mean_net_pct_of_EQUITY": 0.4423,
+        "median_stop_width_pct": 4.81,
+        "rank_mean_R": 5,
+        "rank_mean_net_pct_of_POSITION": 5,
+        "rank_mean_net_pct_of_EQUITY": 5
+      },
+      {
+        "ext_band": "10-20",
+        "N": 2308,
+        "mean_R": 0.3084,
+        "mean_net_pct_of_POSITION": 2.4959,
+        "mean_net_pct_of_EQUITY": 0.6515,
+        "median_stop_width_pct": 7.76,
+        "rank_mean_R": 3,
+        "rank_mean_net_pct_of_POSITION": 4,
+        "rank_mean_net_pct_of_EQUITY": 3
+      },
+      {
+        "ext_band": ">20",
+        "N": 242,
+        "mean_R": 0.288,
+        "mean_net_pct_of_POSITION": 4.893,
+        "mean_net_pct_of_EQUITY": 0.5853,
+        "median_stop_width_pct": 16.35,
+        "rank_mean_R": 4,
+        "rank_mean_net_pct_of_POSITION": 2,
+        "rank_mean_net_pct_of_EQUITY": 4
+      }
+    ],
+    "band_rank_spearman": {
+      "R_vs_equity_pct": 1.0,
+      "R_vs_position_pct": 0.7,
+      "equity_pct_vs_position_pct": 0.7
+    },
+    "trade_level_pearson_vs_R": {
+      "equity_pct": 0.9944,
+      "position_pct": 0.1837
+    }
+  },
+  "conclusion": {
+    "record_uncapped": "R IS the money unit. 1R = 2% of equity, exactly.",
+    "live_capped": "% of POSITION is the money unit only under equal-notional sizing; the two diverge ONLY where the notional cap binds \u2014 live, on 53.4% of trades",
+    "proof_that_equal_notional_is_worse": "finding 0130: -10.83% of equity/yr, CI [-26.33, +4.74], 7/10 years same sign"
+  }
+}

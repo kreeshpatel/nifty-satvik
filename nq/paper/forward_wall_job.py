@@ -31,7 +31,7 @@ from typing import Any
 
 import pandas as pd
 
-from config import NSE_HOLIDAYS
+from config import NSE_HOLIDAYS, assert_calendar_covers
 from nq.paper.forward_wall import DEFAULT_LOG, append_row, gap_row, read_verified
 
 DRIFT_WINDOW = 63          # trailing-63d base return governs the drift exposure (prereg §1)
@@ -82,6 +82,13 @@ def record_trading_day(
     `base` / `veto` are ``{ret, equity, npos}`` computed by the caller from a SINGLE day's panel."""
     hol = _norm_holidays(holidays)
     date = str(date)[:10]
+    # HARD guard, not a warning. Below this line the calendar decides which dates become gap
+    # rows in an append-only, hash-chained log — a wrong "is this a trading day?" answer writes
+    # a marker that cannot be retracted without breaking the chain. Past the published calendar
+    # the answer is a weekends-only guess, so refuse to log at all. Callers passing their own
+    # `holidays` are exempt: they have supplied the coverage themselves.
+    if holidays is None:
+        assert_calendar_covers(date, what="a forward-wall log date")
     rows = read_verified(path)                                   # verifies the whole chain first
     if rows:
         for gd in _missing_trading_days(rows[-1]["date"], date, hol):

@@ -195,6 +195,10 @@ class PaperBook:
             }
         portfolio = {"cash": round(self.cash, 2), "peak_value": round(self.peak, 2),
                      "total_value": round(nav, 2), "n_positions": len(self.positions),
+                     # CLOSED trades only — `self.trades` is appended solely on close (see the exit
+                     # paths above). Open positions live in `positions`; lifetime positions taken =
+                     # total_trades + n_positions. Name kept for output-contract stability
+                     # (DEFINITIONS_REGISTER §4).
                      "total_trades": len(self.trades), "positions": positions}
         trades = [{**t, "net_pct": t.get("return_pct"), "net_pnl": t.get("pnl"),
                    "hold_days": t.get("days_held")} for t in self.trades]

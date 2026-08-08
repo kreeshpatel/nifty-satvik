@@ -18,14 +18,15 @@ in `long_horizon/STRATEGY_FULL.md`).
 >
 > **Do not dispatch a harness run for an overlay that has not cleared the cheap gates.** A harness
 > run that informs a PROMOTE/KILL decision is a **trial** and permanently deflates the DSR bar for
-> every future test (`n_trials` currently **138**).
+> every future test (read the running count from `diagnostics/research/n_trials.json` — never
+> from a document, this line included).
 >
 > 1. **[`skills/program-laws`](../program-laws/SKILL.md)** — is this already answered? Most overlay
 >    shapes are: entry gates/regime, the 63d technical zoo, absolute floors, trained selectors, path
 >    shape, perception, both stop directions, post-entry conditional management. Collision rule:
 >    **cite and narrow, never relitigate.**
 > 2. **[`skills/verdict-machine`](../verdict-machine/SKILL.md)** — the screen → bound sequence that
->    precedes any trial. Screens are ledgered separately (**screens 12**); the sealed set is priced
+>    precedes any trial. Screens are ledgered separately (**screens 19**); the sealed set is priced
 >    on every open (**sealed opens 1**).
 > 3. **The activation bound (mandatory, 3/3 kills).** Before proposing the overlay, compute its
 >    clairvoyant ceiling in R/yr and compare to the **±10R/yr path-noise floor** (0109/0117).

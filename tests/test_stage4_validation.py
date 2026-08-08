@@ -7,6 +7,7 @@ trial count. The §11-KILL re-derivation gate (harness rejects a known-dead over
 cloud with the canonical dataset."""
 from __future__ import annotations
 
+import json
 import math
 
 import numpy as np
@@ -25,7 +26,7 @@ from nq.validation import (
     n_backtest_paths,
     n_splits,
 )
-from nq.validation.metrics import cagr, calmar, max_drawdown, sharpe
+from nq.validation.metrics import cagr, calmar, max_drawdown, sharpe, summary
 
 
 # ── CPCV ────────────────────────────────────────────────────────────────────────────
@@ -63,7 +64,11 @@ def test_contiguous_blocks():
 # ── DSR ─────────────────────────────────────────────────────────────────────────────
 
 def test_dsr_reads_carried_n_trials():
-    assert cumulative_n_trials() >= 79          # the governance denominator (>= carried 79; grows per trial)
+    # The governance denominator, read from the committed file (reset 138 -> 0 on 2026-08-07 by
+    # owner decision). The guard is that the loader works and returns a non-negative int — not a
+    # hard floor, which would turn a governance decision into a suite failure.
+    assert isinstance(cumulative_n_trials(), int)
+    assert cumulative_n_trials() >= 0
 
 
 def test_dsr_monotonic_in_trials_and_bounds():
@@ -119,12 +124,66 @@ def test_bootstrap_delta_detects_a_real_edge():
 # ── Metrics ───────────────────────────────────────────────────────────────────────────
 
 def test_metrics_known_values():
-    # 504 equity points = 2 years (years = n/252); doubling -> CAGR = sqrt(2) - 1
+    # 504 equity points at 252 bar-years = 2 years; doubling -> CAGR = sqrt(2) - 1
     eq = np.geomspace(1.0, 2.0, 504)
-    assert cagr(eq) == pytest.approx(math.sqrt(2.0) - 1.0, rel=1e-9)
+    assert cagr(eq, years=504 / 252) == pytest.approx(math.sqrt(2.0) - 1.0, rel=1e-9)
     assert max_drawdown(eq) == pytest.approx(0.0, abs=1e-12)      # monotone -> no drawdown
     assert math.isnan(sharpe(np.zeros(20)))                      # zero dispersion -> NaN Sharpe
     assert sharpe(np.full(252, 0.001) + np.geomspace(1e-4, 2e-4, 252)) > 0   # real drift -> finite +ve
     # a curve with a dip has negative drawdown and finite calmar
     eq2 = np.array([100.0, 110, 99, 120, 130])
     assert max_drawdown(eq2) < 0 and np.isfinite(calmar(eq2))
+
+
+def test_cagr_refuses_to_pick_a_year_denominator_silently():
+    """§6 / ADR-0014. The engine annualises by calendar time; this module cannot — it receives a bare
+    array with no dates. Rather than default to bar-years in silence, it raises and names both
+    readings, so a session reaching for the module labelled *canonical* is told which convention it
+    is about to get. Silent divergence between two live CAGR definitions is the failure mode that
+    let one book publish two different CAGRs.
+    """
+    eq = np.geomspace(1.0, 2.0, 504)
+    with pytest.raises(ValueError, match="requires an explicit `years`"):
+        cagr(eq)
+    # both conventions remain reachable, and they genuinely differ
+    bar = cagr(eq, years=504 / 252)
+    cal = cagr(eq, years=730 / 365.25)
+    assert bar != cal
+
+
+def test_calmar_and_summary_still_state_their_convention():
+    """The paired positive: making `years` required must not break the dormant internal callers."""
+    eq = np.array([100.0, 110, 99, 120, 130])
+    assert np.isfinite(calmar(eq))
+    s = summary(_ar1(504, seed=7, mu=0.0008))   # real two-sided series, so Sortino has a downside
+    assert all(np.isfinite(s[k]) for k in ("cagr", "sharpe", "sortino", "calmar"))
+
+
+def test_lifetime_trials_carries_the_pre_reset_count(tmp_path):
+    """The counter was reset 138 -> 0 by owner decision. That lowered a gate; it un-ran no trial.
+
+    `cumulative_n_trials` stays the post-reset family count (the owner's decision is honoured and it
+    is the right denominator for "how much has THIS family searched"). `lifetime_n_trials` adds back
+    the pre-reset trials, because they were run on the same history and the DSR's entire purpose is
+    to deflate by the search that actually occurred. Both are reported; only the first gates.
+    """
+    from nq.validation import cumulative_n_trials, lifetime_n_trials
+
+    f = tmp_path / "n.json"
+    f.write_text(json.dumps({"cumulative_n_trials": 2,
+                             "_reset": {"prior_cumulative": 138}}), encoding="utf-8")
+    assert cumulative_n_trials(f) == 2
+    assert lifetime_n_trials(f) == 140
+
+    # a programme with no reset: the two coincide by construction, no special-casing needed
+    g = tmp_path / "g.json"
+    g.write_text(json.dumps({"cumulative_n_trials": 7}), encoding="utf-8")
+    assert cumulative_n_trials(g) == lifetime_n_trials(g) == 7
+
+
+def test_deflation_is_strictly_harsher_at_the_lifetime_count():
+    """The reason reporting both matters: the two denominators give materially different answers,
+    and quoting only the smaller one is the cosmetic gate the readouts kept flagging."""
+    args = dict(n_observations=37, skewness=-0.3, kurtosis=5.0, sharpe_variance=0.04)
+    assert deflated_sharpe_ratio(0.35, n_trials=140, **args) < \
+           deflated_sharpe_ratio(0.35, n_trials=2, **args)

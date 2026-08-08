@@ -29,6 +29,53 @@ from nq.research.residual import residual_ranks
 VETO_Q = 0.10   # veto-0.1: drop the bottom-decile residual-momentum names
 
 
+class VetoArmUnavailable(RuntimeError):
+    """The veto-0.1 arm cannot be computed for the sessions about to be logged."""
+
+
+def _assert_veto_arm_live(dates: list[str], covered_through: str) -> None:
+    """HARD guard, not a warning — the same reasoning as ``assert_calendar_covers`` one layer down.
+
+    `residual_ranks` inner-joins each name's returns to the factor panel, so past the factors' last
+    date there is no row, `resid_rank` is NaN, and the veto condition `resid_rank < VETO_Q` is False
+    for every name on every session. The veto book then steps the *unmodified* panel and comes out
+    **byte-identical to base** — silently, with no error and no empty column to notice.
+
+    That failure is uniquely corrosive here. `forward/prereg.md` registers the wall as a THREE-book
+    comparison, and the rows are hash-chained specifically so a later reader can trust that what was
+    logged is what was known. An inert arm writes a perfect agreement between base and veto into a
+    tamper-evident log — evidence that two independent books concurred, when only one book ran. It
+    cannot be retracted afterwards without breaking the chain.
+
+    So refuse to log at all, exactly as the calendar guard does. A wall that stops is a wall you
+    fix; a wall that agrees with itself is a wall you believe.
+
+    The check is deliberately a coverage-END comparison, and only that. `resid_rank` is *also*
+    legitimately absent during warm-up — the regression needs `REG_WIN` 252 bars of joined history
+    before the first monthly score exists — and a warm-up gap resolves itself as history accrues.
+    Refusing there would block every honest cold start. The two cases share an observable (no rank)
+    and differ in where the gap sits: warm-up is at the head and self-heals; stale factors are at
+    the tail and never do. Only the tail is refused.
+
+    What this consciously does NOT catch: an arm inert for a subtler reason inside the covered
+    range — an all-NaN factor column, a dtype mismatch that makes the join miss. Those would pass
+    this guard. The paired positive in `tests/test_wall_veto_arm_liveness.py` asserts the veto book
+    actually diverges from base on a live fixture, which is where that class would surface.
+    """
+    stale = [d for d in dates if d[:10] > covered_through]
+    if not stale:
+        return
+    raise VetoArmUnavailable(
+        f"the veto-0.1 arm has no residual ranks for {len(stale)} of {len(dates)} session(s) about "
+        f"to be logged ({stale[0]} … {stale[-1]}), so on those days it is byte-identical to base "
+        f"and cannot be logged as an independent observation. Factor panel covers through "
+        f"{covered_through}; past that date the inner join in "
+        f"nq.research.residual.residual_ranks drops every row. "
+        f"Fix: extend data/ff_india_factors.parquet past the sessions being logged, or amend "
+        f"forward/prereg.md to retire the veto arm. Refusing to write agreement we did not measure."
+    )
+
+
 def _daily_from_curve(curve: list[dict[str, Any]], initial: float) -> dict[str, dict[str, Any]]:
     """{date_iso -> {ret, equity, npos}} from a PaperBook equity_curve; ret vs the prior NAV
     (first session vs initial capital)."""
@@ -43,16 +90,26 @@ def _daily_from_curve(curve: list[dict[str, Any]], initial: float) -> dict[str, 
 
 
 def _step_veto_book(panel: pd.DataFrame, cfg: Mapping[str, Any], factors_path: Path,
-                    vol_target: Mapping[str, Any] | None, state_dir: Path, since: str, upto: str) -> PaperBook:
+                    vol_target: Mapping[str, Any] | None, state_dir: Path, since: str,
+                    upto: str) -> tuple[PaperBook, str]:
     """Load/step the veto-0.1 book on the residual-vetoed panel over [since, upto] — the SAME window the
-    base book stepped (residual_ranks still sees the full panel history for its 252d regression)."""
+    base book stepped (residual_ranks still sees the full panel history for its 252d regression).
+
+    Returns the book and the factor panel's last date, so `update_wall` can refuse to log sessions
+    the arm could not have acted on (see :func:`_assert_veto_arm_live`)."""
     factors = pd.read_parquet(factors_path).set_index("date").sort_index()
     rr = residual_ranks(panel[["date", "ticker", "close"]], factors)   # full history for the regression
     vp = panel.merge(rr, on=["date", "ticker"], how="left").copy()
-    vp.loc[vp["resid_rank"].notna() & (vp["resid_rank"] < VETO_Q), "trend_rank"] = np.nan
+    vetoed = vp["resid_rank"].notna() & (vp["resid_rank"] < VETO_Q)
+    vp["_vetoed"] = vetoed
+    vp.loc[vetoed, "trend_rank"] = np.nan
     vp["date"] = pd.to_datetime(vp["date"])
     vp = vp[(vp["date"] >= pd.to_datetime(since)) & (vp["date"] <= pd.to_datetime(upto))]
     vp = vp.dropna(subset=["open", "high", "low", "close"])
+    # The last session the arm could possibly have acted on. `update_wall` asserts the dates it is
+    # about to append against this, so the check lands on rows entering the log, not on history.
+    covered_through = str(factors.index.max())[:10] if len(factors.index) else ""
+    vp = vp.drop(columns=["_vetoed"])
 
     vb = PaperBook(cfg, vol_target=vol_target)
     vdir = state_dir / "wall_veto"
@@ -63,14 +120,28 @@ def _step_veto_book(panel: pd.DataFrame, cfg: Mapping[str, Any], factors_path: P
             continue
         vb.step(d, g.set_index("ticker"))
     vb.save(vdir)
-    return vb
+    return vb, covered_through
 
 
 def update_wall(base_book: PaperBook, panel: pd.DataFrame, cfg: Mapping[str, Any], *,
                 state_dir: str | Path = RESULTS_DIR, vol_target: Mapping[str, Any] | None = None,
                 factors_path: str | Path = DATA_DIR / "ff_india_factors.parquet",
-                holidays: Iterable[Any] | None = None) -> int:
-    """Append 3-book wall rows for every base session not yet logged. Returns the number appended."""
+                holidays: Iterable[Any] | None = None, wall_start: str | None = None) -> int:
+    """Append 3-book wall rows for every base session not yet logged. Returns the number appended.
+
+    ``wall_start`` (ISO date) is the wall's REGISTERED START — no session before it is ever written.
+    It exists because of a hazard that is invisible until the first scheduled run:
+
+    The paper book steps forward from its own inception, so on a cold start ``base_book.equity_curve``
+    already contains every session since then. Without this bound the wall's first firing would append
+    one ``ok`` row per past session — a whole stretch of *recomputed* history entering the log as
+    forward evidence. Every row would pass the chain (dates strictly increase) and every row would be
+    a lie about when it was known. `forward/prereg.md` §3's "never reconstructed" rule is about
+    exactly this, and the chain cannot enforce it on its own.
+
+    Default ``None`` preserves the previous behaviour, so existing callers and tests are unaffected;
+    the scheduled cron is required to pass one (asserted in `tests/test_wall_schedule.py`).
+    """
     if not base_book.equity_curve:
         return 0
     panel = panel.copy()
@@ -78,7 +149,8 @@ def update_wall(base_book: PaperBook, panel: pd.DataFrame, cfg: Mapping[str, Any
     state_dir = Path(state_dir)
     first_base = base_book.equity_curve[0]["date"]
     last_base = base_book.equity_curve[-1]["date"]
-    vb = _step_veto_book(panel, cfg, Path(factors_path), vol_target, state_dir, first_base, last_base)
+    vb, veto_covered_through = _step_veto_book(
+        panel, cfg, Path(factors_path), vol_target, state_dir, first_base, last_base)
 
     base_daily = _daily_from_curve(base_book.equity_curve, base_book.initial_capital)
     veto_daily = _daily_from_curve(vb.equity_curve, vb.initial_capital)
@@ -87,13 +159,20 @@ def update_wall(base_book: PaperBook, panel: pd.DataFrame, cfg: Mapping[str, Any
     existing = _load(wall_path)
     last_wall = existing[-1]["date"] if existing else None
 
-    n = 0
+    todo: list[str] = []
     for d in sorted(base_daily):
+        if wall_start is not None and d < str(wall_start)[:10]:
+            continue                                   # before the registered start: never forward evidence
         if last_wall is not None and d <= last_wall:
             continue
         if d not in veto_daily:                       # alignment guard (should not happen)
             continue
+        todo.append(d)
+    # Assert BEFORE the first append, never inside the loop: a mid-loop raise leaves a partially
+    # written wall, and an append-only hash chain has no way to take a row back.
+    _assert_veto_arm_live(todo, veto_covered_through)
+
+    for d in todo:
         record_trading_day(d, base_daily[d], veto_daily[d], path=wall_path,
                            initial_capital=base_book.initial_capital, holidays=holidays)
-        n += 1
-    return n
+    return len(todo)

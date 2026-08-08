@@ -8,6 +8,13 @@ Standing counts (unchanged by the audit and the remediation): **screens 12, seal
 n_trials 138.** No trials or screens were spent; no forward-wall log was read.
 (Screen count moved 11 → 12 on 2026-07-30 by finding 0123, which spent no trial.)
 
+**Counts as of 2026-08-06: screens 15 · sealed opens 1 · n_trials 138.** The line above is the state
+at the audit and is left as written; screens moved 12 → 13 → 14 on 2026-07-31 (0126 line-hugger
+screen, 0127 HEG-class bound) and 14 → 15 on 2026-08-06 (0129 event-sizing bound). **`n_trials` has
+not moved since 2026-06-12** — no trial has been spent by any of this work, no sealed set was
+opened, and no forward-wall judge log was read. Authority for the count is
+[`label_screen_ledger.md`](label_screen_ledger.md).
+
 **Research input (2026-07-30) —** the pre-entry wall now holds **five** independent ways including
 **perception**: [0123](../../research/findings/0123-vision-graded-chart-structure.md) graded 681
 blind, entry-truncated charts with an instrument validated first (test-retest κ 0.867; truncation-
@@ -196,6 +203,349 @@ plumbing edits.
 
 ---
 
+## 6. R IS NOT A COMPARABLE UNIT IN THE LIVE BOOK — a D3 sharpening *(new door, 2026-08-06)*
+
+Source: [`r_denominator_audit.md`](r_denominator_audit.md) — **verification class, free, no ledger
+row, no trial, no rule proposed** (`python scripts/diag_r_denominator_audit.py`). Counts unchanged at
+**15 / 1 / 138**. This does **not** claim a new divergence: constitution **H1/H3** already record the
+notional cap as *"Off in run of record"*, and **D3** already records that live ≠ certified. What is
+new is the **unit consequence**, and it is decision-relevant.
+
+**The finding.** Stop width on this book spans **p10 3.59% → p90 25.25% (7.0×)**, and **41.6% of
+trades carry a stop narrower than 1× weekly ATR**. That is fine in the run of record, which sizes
+`eq × 2% / (entry − stop)` — there **1R = 2% of equity for every trade and R is exactly comparable**.
+It is not fine live: `LIVE_DISCIPLINE`'s `max_notional_pct = 0.20` binds whenever the stop is
+narrower than **10%**, which is **53.4% of trades**. Under the live cap the rupees behind 1R fall to
+a median **0.918× nominal, p10 0.359×, p1 0.163×**. Re-weighting the same trades by what each R is
+actually worth live turns a **1907.3R** book into **1581.9R — a 0.829 translation ratio**.
+
+**Why it matters, and it is not academic.** Extension and stop width are coupled at **r = +0.67**
+(the stop is the candle low, so a name nearer its line has a narrower stop). So the cap binds
+hardest on precisely the cohort the research calls the core edge:
+
+| | ext < 5% (the `ext_band_census` +0.717R core) | ext ≥ 5% |
+|---|---|---|
+| median stop width | **5.97%** | 9.90% |
+| mean R **as reported** | **+0.803** | +0.469 |
+| mean R at a **common denominator** | +0.549 | **+0.825** ← ordering reverses |
+| **live rupee weight** | **0.621** | 0.788 |
+| **live rupee-weighted mean R** | **+0.466** | +0.409 |
+
+**The low-extension edge is real and it survives — but the live book collects only about a sixth of
+it.** The as-reported gap is **+0.334R**; live-weighted it is **+0.057R**, an ~83% erosion, entirely
+because the notional cap under-sizes narrow-stop trades. Three yardsticks exist and which is correct
+depends purely on sizing regime: fixed-risk (run of record) → R as reported is the rupee truth;
+fixed-notional → the common-denominator column is, and the ordering flips; **the live book is
+`min(...)` of the two and sits between them.**
+
+**The decision this forces.** Nothing here proposes a rule and this session proposes none. The door
+is: *does the live book's anti-concentration guardrail (`max_notional_pct` 0.20, adopted 2026-07-16
+against single-name concentration) knowingly cost most of the measured low-extension edge, and is
+that the trade you want?* Both readings are defensible — the cap is a real risk control and
+concentration is load-bearing (`FINDING_more_slots`) — but the cost was not previously quantified.
+Quantified, it is large.
+
+**Also flagged for the review, same cause, no action proposed:**
+- **A −1R is not a homogeneous event.** Of stop-outs on sub-ATR stops, **37.1%** closed back above
+  entry within 4 weeks, vs **10.6%** on ≥1×-ATR stops (**+26.5pp**; part definitional — a narrow stop
+  needs a smaller reversal to recover). Pooling both as "−1R" mixes two different events.
+- **R-denominated conventions inherit the heterogeneity**: the disaster class (`R ≤ −1.5`, 0109) is
+  a −4.5% price move on a 3% stop and a −45% move on a 30% stop; and **the ±10R/yr noise floor
+  itself is a blended unit**. Neither is wrong — both are load-bearing and should be read knowing it.
+
+---
+
+## 7. DECISION INPUT — any ext-band sizing expression must be judged in RUPEE-WEIGHTED terms
+
+**This is a standing rule for how a future proposal is evaluated, not a proposal.** It is recorded
+now so that the next ext-band idea is not scored on the wrong yardstick by default.
+
+0126 closed with the `<5%` extension band carried forward intact as *"one undifferentiated cohort
+for the unshipped sizing question."* §6 measures what that cohort's R actually is, and the answer
+changes how any such expression must be read.
+
+**The measurement.** Extension and stop width correlate at **r = +0.67** — mechanically, since the
+stop is the candle low, a name nearer its line has a narrower stop. So the `<5%` band **is** the
+narrow-stop band (median stop **5.97%** vs **9.90%**), and its R is computed on a systematically
+smaller denominator:
+
+| yardstick | ext < 5% | ext ≥ 5% | gap |
+|---|---|---|---|
+| **R as reported** (fixed-RISK sizing = the run of record) | +0.803 | +0.469 | **+0.334** |
+| at a **common denominator** (fixed-NOTIONAL sizing) | +0.549 | +0.825 | **−0.276 — reverses** |
+| **live rupee-weighted** (`min(risk, 20% notional)` = what actually trades) | +0.466 | +0.409 | **+0.057** |
+
+**Two distinct effects, and they must not be merged into one number.**
+1. **A denominator effect.** Under a fixed-*notional* yardstick the ordering **reverses** — high-ext
+   trades produce the larger price outcomes; low-ext trades produce the larger *ratios*. The
+   R-measured edge is a ratio effect, not a bigger-move effect.
+2. **A cap effect.** The live notional cap under-sizes narrow stops, so the live book puts **0.621×**
+   nominal capital behind the `<5%` cohort vs **0.788×** behind the rest — and the gap erodes from
+   **+0.334R to +0.057R, an ~83% erosion.**
+
+**The edge is real and it survives in live-rupee terms** (+0.466 vs +0.409 still favours `<5%`).
+
+### 7.0 SCOPE AMENDMENT — 2026-08-06, after the unit resolution and finding 0130
+
+**The ~83% erosion is a property of the LIVE NOTIONAL CAP. It is not evidence that the R-measured
+edge was a denominator artifact, and this section must not be read that way.**
+
+This paragraph originally continued *"what it does not survive is being quoted in R as though R were
+rupees"*, and effect (1) above calls the R-measured edge *"a ratio effect, not a bigger-move
+effect"*. Both are true **of the capped live book** and both are wrong if carried to the record.
+[`UNIT_RESOLUTION.md`](../UNIT_RESOLUTION.md) settles it arithmetically:
+
+- Under risk-parity, `shares = sizing_eq × risk ÷ (entry − stop)`, so **gross equity return =
+  R × risk_fraction, exactly**. Measured: correlation **0.9999999970** on the 4,104 population
+  trades that never book the +2R half, max difference 0.056pp.
+  **In the uncapped record, R IS rupees** — at 2% of equity per R. Quoting the edge in R is correct
+  there, not a category error.
+- Across all 6,245 signals, **R and % of equity correlate 0.994 and rank every extension band
+  identically (Spearman +1.000)**. It is **% of position** that is the outlier (0.184 against R),
+  and the band it promotes is `>20` — the widest-stop, largest-position cohort. The
+  fixed-notional column above is that lens.
+- **The fixed-notional world is now measured, and it is worse.** Finding
+  [0130](../../research/findings/0130-sizing-exclusion-bound.md) priced equal-notional sizing on
+  this book at **−10.83% of equity per year**, CI [−26.33, +4.74], 7 of 10 years the same sign. So
+  the ordering reversal in row 2 of the table is not a truer view of the edge; it is the view from a
+  sizer that earns materially less.
+
+**Therefore, scoped precisely:**
+
+| claim | scope |
+|---|---|
+| `<5%` gap is +0.334R | **the record** (uncapped risk-parity) — and here R = money, so this is a rupee statement |
+| the gap erodes to +0.057R, ~83% | **the live capped book only** — caused by `max_notional_pct=0.20` binding on 53.4% of trades |
+| a fixed-notional yardstick reverses the ordering | a **counterfactual sizer**, measured by 0130 as −10.83% of equity/yr |
+
+The one-line reading, corrected: **the live cap collects about a sixth of the ext-band gap the
+record earns — a cap effect, not a measurement error.** The research is not overstating the edge; the
+cap is under-collecting it, which is a priced guardrail decision (§7.1) rather than a defect in the
+measurement.
+
+*One further correction from the same work, recorded because it runs the other way:* the engine
+credits the booked +2R half at a **notional 2.0R** while it actually fills at a mean **3.04R**, so
+published R **understates** realised money on the 34.3% of trades that book the half.
+
+**The rule this fixes for the review.** Any future proposal to size, tilt, or concentrate on the
+extension band — the unshipped 0126 sizing question included — is judged on the **live
+rupee-weighted** column, because that is the capital that moves. An ext-band proposal scored in R
+will look ~6× better than it can be. Corollary: **the largest available ext-band lever is not a new
+overlay at all — it is `max_notional_pct`**, which is already binding on this cohort today (see §8
+and the door in §6). That is a config decision, not a research question, and it costs no trial.
+
+**No rule is proposed here and none should be inferred.** The `<5%` band remains exactly what 0126
+left it: one undifferentiated cohort, unshipped.
+
+### 7.1 The cap curve — concentration vs collection *(added 2026-08-06)*
+
+Source: [`notional_cap_curve.md`](notional_cap_curve.md) —
+`python scripts/diag_notional_cap_curve.py`. **Verification class: population arithmetic on the
+existing substrate, no book re-run, counts frozen at 15 · 1 · 138. No arm is recommended.**
+
+**Limitation, first, because it binds: this cannot show which trades a different cap would fund.**
+Position size feeds the cash path and the cash path decides which later signals are affordable; that
+is inseparable from a book re-run. Every row holds the funded set fixed at the substrate's. The
+curve prices the cap's effect on **capital deployment across the trades we took**, never on **trade
+selection**. Second approximation: R is held at the uncapped book's realized R, and `max_risk_pct`
+is modelled on the sizing side only.
+
+**There is deliberately no Sharpe / MaxDD / worst-year column.** That half is trial-class (5 arms on
+the honest base) and was declined. Independently, **0113 measured what such a column would be
+worth: PBO 46.2%**, with the in-sample-best config on this exact cfg-lever family landing at the
+**OOS median** (1.239 → 0.843 vs 0.835). Within this family a per-cap return ranking carries ~zero
+OOS decision weight while permanently deflating every future DSR bar.
+
+| cap | risk-sizing under-sizes | **weight ext<5%** | weight ext≥5% | book weight | **realized-R recovery** | positions sized *by* the cap | max exposure |
+|---|---|---|---|---|---|---|---|
+| **0.15** | 100.0% of trades | **0.466** | 0.591 | 0.580 | **0.622** | 100.0% | 15% |
+| **0.20** *(live)* | 53.4% | **0.621** | 0.788 | 0.773 | **0.829** | 100.0% | 20% |
+| **0.25** | 43.3% | **0.713** | 0.851 | 0.838 | **0.884** | 43.3% | 25% |
+| **0.30** | 34.0% | **0.780** | 0.894 | 0.884 | **0.922** | 34.0% | 30% |
+| **unbounded** | 0.0% | **1.000** | 1.000 | 1.000 | **1.000** | 0.0% | **2299%** |
+
+*(`max exposure` is the cap itself by construction for any bounded cap ≤ 0.30 — the informative
+concentration column is the one beside it. The curve reproduces §7's 0.621 and §8's 0.829 at the
+live cap, which is the arithmetic self-check.)*
+
+**The structural finding, which was not previously stated anywhere.** The notional cap is **not a
+rare guardrail on this book — it is the position sizer.** With the live `max_risk_pct = 0.10` in
+force every stop is at most 10% wide, so risk-sizing always wants at least `2% / 10% = 20%` of
+equity per name. **Any cap at or below 0.20 therefore sets the size of 100% of positions, and the
+2%-risk rule never binds at all.** Two true statements are easy to conflate at the live setting: the
+cap sets **notional** for 100% of trades, while equity **risked** falls below the nominal 2% for the
+53.4% whose stop is narrower than 10%.
+
+**The tradeoff, stated without a recommendation.** Collection and concentration move together and
+there is no interior optimum in these columns by construction — the curve is monotone in both. So
+the Oct-1 call is a pure risk-preference placement:
+
+- **Loosening 0.20 → 0.30** raises the `<5%` cohort's capital from **0.621 → 0.780** of nominal and
+  the book's R-to-rupee recovery from **0.829 → 0.922**, and buys that by allowing a **30%**
+  single-name position instead of 20%.
+- **Tightening 0.20 → 0.15** cuts the `<5%` cohort to **0.466** and recovery to **0.622** — i.e. the
+  book would collect under two-thirds of its own realized R — for a 15% single-name ceiling.
+- **Unbounded is not a real option and is shown only to price the guardrail's purpose:** implied
+  single-name notional reaches **2299% of equity**, with 34% of trades implying >30% and 12.9%
+  implying >50%. Cash would bind first (constitution H5), but that is an accident of affordability,
+  not a risk control — which is exactly the runaway the 2026-07-16 decision was adopted against.
+
+**What is NOT established here:** whether any of these caps produces a better book. That question is
+the trial-class half, it is declined, and 0113 says the answer would not be readable anyway.
+
+
+### Composition caveat on the `<5%` core cell — added 2026-08-06 (foundation audit)
+
+The `<5%` extension cell is the core edge this whole section prices. A second, independent thing is
+true about its composition, and it is recorded here so October reads both together rather than the
+headline alone.
+
+The pinned data applies **two different demerger conventions** — 22 events back-adjusted, 15 left as
+cliffs (binder §10). Names touched by that split are not spread evenly across the extension bands:
+
+| | N | mean R |
+|---|---:|---:|
+| `<5%` cell as published | 418 | **+0.717** |
+| — of which convention-mixed names | **30** | **+1.292** |
+| — cell excluding them | 388 | **+0.672** |
+
+Excluding them moves the cell by **−0.045 R, about 6% of the core edge**.
+
+**This is a composition note, not a recomputation.** No cell is restated, no verdict moves, and
+nothing here proposes excluding anything — the 30 trades are real trades and there is no basis for
+dropping them. What it establishes is that ~6% of the cell's headline sits on names whose price
+history is built on a convention the repo has not yet chosen, which is why §10's convention decision
+is a **prerequisite** for reading this cell to three decimals rather than a separate topic.
+
+Note the direction: the mixed names are *better* than the cell, so the ambiguity currently flatters
+it. That is the conservative direction for a sizing decision and the awkward one for a headline.
+
+## 8. DECISION INPUT — the 0.829 research→live translation factor, and what the ±10R floor is made of
+
+**Two caveats on units. Neither moves any verdict on the record; both change how the next number
+should be read.**
+
+### 8.1 The translation factor
+
+Re-weighting the substrate by the rupees the live cap actually puts behind each R turns a **1907.3R**
+book into **1581.9R** — a **0.829** research→live translation factor. It is a **property of the trade
+mix, not a constant**: it is the average of a per-trade weight that runs from **1.000** (stops ≥10%,
+uncapped) down to **0.163** at p1, so a cohort of narrow-stop trades translates far worse than 0.829
+and a cohort of wide-stop trades not at all. **Do not apply 0.829 as a blanket multiplier** — it is
+the book-level average of a quantity that must be recomputed per cohort. §7 is the worked case: the
+`<5%` band's own factor is 0.621, not 0.829.
+
+### 8.2 The ±10R/yr floor is a blended unit
+
+The floor (0109 / 0117) is denominated in the same heterogeneous R as everything else, so "10 R/yr"
+is 10 units of a quantity whose rupee value varies ~6× across the book. This is a **statement about
+precision, not a reason to move the floor** — the floor was derived empirically from composition
+noise on this book, in these units, so it is internally consistent with every bound measured against
+it. It is recorded so the number is not later mistaken for a rupee quantity.
+
+**A trap to avoid, stated explicitly.** Deflating a *bound* by 0.829 while leaving the *floor* at 10
+is not a valid comparison — both are in the same R units, so a uniform rescaling cancels and the
+bound/floor ratio is unchanged. The heterogeneity only bites where the rescaling is **non-uniform**,
+i.e. where a proposal's activated cohort has a materially different stop-width mix from the book
+average. That is the only situation in which any of this can change a verdict.
+
+### 8.3 No prior bound verdict moves — and here is the actual reason
+
+The clean argument is not "every bound failed by ≥10×" — **that is not true of the record**: 0117's
+rotation bound was ≈**11 R/yr** (*above* the floor, closed as sitting at/under it) and 0127's
+exclusion bound was **1.92 R/yr** (5.2× short, not 10×). The correct argument is directional:
+
+- **The factor is < 1 everywhere**, so it can only ever **shrink** a bound. Every bound on the record
+  **failed**, and all but one failed for being **too small or wrong-signed** — shrinking a bound that
+  is already too small cannot rescue it. Direction of travel is safe for: 0119 (−1.29, wrong-signed),
+  0121 (−15.72, wrong-signed), 0127(a) (1.92), 0127(b) (0.0 by identity), 0129 (all arms, max +0.78
+  clairvoyant).
+- **The one leg whose magnitude cleared the floor was rejected on other grounds and still is.**
+  0127's clairvoyant refuse-only-losers leg was 26.22 R/yr (→ ≈21.7 live-weighted, still clearing);
+  it failed because its sign test is a **tautology** and it is **unreachable** (perfect loser
+  foresight is the five-wall pre-entry problem). Unit heterogeneity touches neither objection.
+- **0117 is the only bound close enough to the floor for units to matter** (≈11 vs 10). Its cohort is
+  the capped book's *losers*, and nothing in the audit suggests that cohort's stop-width mix departs
+  from the book average in the direction that would rescue it — and it was closed as a clairvoyant
+  ceiling on an unreachable rule regardless. **No re-adjudication is requested and none is implied.**
+
+**Net: no verdict on the record changes. The caveats apply prospectively**, to the next bound whose
+activated cohort is stop-width-atypical — which is exactly the case §7 governs.
+
+---
+
+## 9. DECISION INPUTS — where a metric's DEFINITION changes what a gate means *(new, 2026-08-06)*
+
+Source: [`DEFINITIONS_REGISTER.md`](DEFINITIONS_REGISTER.md) — **verification class, zero trials,
+zero screens, counts frozen at 15 · 1 · 138.** Nothing was re-run and **no verdict was
+re-adjudicated.** The register carries 18 rows; most are clean or were label problems fixed at
+source. **Four reach this door**, each stated with **both readings**, unweighed.
+
+**None of these is an error.** In every case the code does exactly what it says; the question is
+which reading the Oct-1 gate should be evaluated under.
+
+### 9.1 `KILL_SHARPE = 0.0` — kill below *cash*, or below the *risk-free rate*?
+
+Every Sharpe in this programme is a **raw-return** Sharpe: `mean/std × √252`, **no risk-free
+subtraction** (`nq/validation/metrics.py:19`). That cancels in ΔSharpe comparisons — which is how
+essentially every verdict on the record was decided — so **nothing on the record moves.** It does
+**not** cancel in the one *absolute* gate:
+
+| reading | what §10.2's kill leg means | threshold |
+|---|---|---|
+| **as coded (rf = 0)** | kill if the book underperforms **cash at 0%** | Sharpe < 0.00 |
+| **excess-return** | kill if the book underperforms the **risk-free rate** (~6–7%) | Sharpe ≈ < 0.25–0.30 |
+
+**The decision:** which one §10.2 intends. The as-coded reading is the more forgiving of the two.
+
+### 9.2 CAGR — two committed year-denominators
+
+The same curve (Sharpe 1.132 / MaxDD −42.4) is published as **24.7%** and **25.21%**, because
+`run_bhanushali_sixstep.py:220` divides by **calendar** years and `run_corrected_anchor.py:52` by
+**trading-bar** years. Neither is wrong; bar-years are the shorter denominator and print higher.
+
+**The decision:** nominate **one** convention as the publication standard for the review, so a
+number quoted in the binder is unambiguous. **The live exposure is cross-document comparison** —
+specifically any **book-vs-benchmark CAGR gap**, which is only valid if both sides use the same
+denominator. (Finding 0114 is *not* an instance: it compares monthly book returns to monthly ETF
+NAVs on one convention and says so.)
+
+### 9.3 MaxDD — the grid is load-bearing for a *risk control*
+
+The formula is uniform; the **grid** is not. The same book family is published at **−42.4% (daily)**
+and **−33% (monthly granularity, finding 0114, which labels it)**. A coarser grid can only
+**understate** a drawdown — it cannot see troughs between samples.
+
+The **§4 mechanical −50% halt** reads this quantity. It currently evaluates on a **daily** grid,
+which is the conservative and correct choice — but nothing in the pre-registration *states* that the
+grid is part of the rule.
+
+**The decision:** write the grid into the halt rule explicitly, so a future series change cannot
+silently loosen a live risk control. **Also note:** a Calmar quoted from a monthly DD and a bar-year
+CAGR is not comparable to one from a daily DD and calendar-year CAGR — it compounds 9.2 and 9.3.
+
+### 9.4 The promote gate currently rests on 4 closed trades
+
+`PROMOTE_EXPECTANCY_R = 0.10` and `win_rate` are computed over **closed trades only**
+(`run_bhanushali_cron.py:468-474`); open positions are excluded. On a trend book **losers stop out
+fast while winners stay open for months**, so both read **biased low by construction** in a young
+book and rise as winners mature.
+
+Current state: **4 closed, 5 open** (the `total_trades: 4` / `n_positions: 5` pair is consistent —
+9 positions taken since inception; the key is merely misnamed, and the gate reads the correctly
+named `total_closed`).
+
+| reading | what the gate measures today |
+|---|---|
+| **as coded (closed-only)** | expectancy over 4 observations |
+| **mark-to-market (incl. opens)** | unmeasured — computing it is out of this audit's scope |
+
+**The decision:** this is an argument for the **≥30 closed** precondition being load-bearing rather
+than advisory — i.e. do not read expectancy or win rate as informative before it is met. **No
+re-computation was attempted and none is proposed.**
+
+---
+
 ## VRP / option-selling — REJECTED without a screen (memo line, 2026-07-31)
 
 Recorded so the idea does not recur as a fresh proposal. Short-volatility premium harvesting is **not
@@ -208,3 +558,93 @@ found every timed-protection construction negative-EV and concluded this book's 
 
 **Re-proposing requires:** a defined-risk structure (spreads, not naked) **and** an explicit
 demonstration that its tail is not the book's tail. Absent both, this is a standing rejection.
+
+---
+
+## 10. Demerger adjustment convention — either is defensible, both is not (2026-08-06)
+
+**Source:** `diagnostics/research/foundation_audit_2026Q3/FOUNDATION_AUDIT.md` layer 2.
+**Verification class; counts unchanged (15 / 1 / 138). Nothing measured here is a proposal.**
+
+### The finding
+
+Of the 37 demergers in the pinned universe 2019-01-01 → 2026-07-01, the vendor **back-adjusted 22**
+and **left 15 as cliffs**. Both are legitimate conventions:
+
+- **Back-adjust** (total-return): the spun-off shares were value the holder received, so the
+  history is rebased to keep the series continuous. RELIANCE ×1.083 (Jio Financial), SIEMENS ×1.704,
+  EDELWEISS ×1.850, NMDC ×1.301, ITC ×1.039, and 17 others.
+- **Leave the cliff** (listed-entity): the listed company genuinely shrank, and smoothing invents
+  trend it never had. VEDL −64.9%, ABFRL −66.6%, RAYMOND −64.8%, SKFINDIA −54.8%, and 11 others.
+
+**This repo has already chosen — in writing.** `data/corporate_actions_demergers.csv` states the
+listed-entity convention and gives the reason: back-adjusting a demerger *"FABRICATES a soaring
+trend slope (e.g. VEDL: raw sma200_slope_63 2.16 → 24.94)"*. That file names **4** of the 37 events.
+
+The problem is not which convention is right. It is that **the data applies both**, so any statistic
+pooling across the two groups is comparing series built on different definitions of price.
+
+**The single clearest demonstration: `AARTIIND` appears in BOTH groups.** It has two demergers in the
+window; one is back-adjusted and one is left as a cliff. One name, one series, two conventions.
+
+### The cross-group statistics this currently contaminates — named
+
+Convention-mixed names are **243 of 4,321 substrate trades (5.6%), carrying 7.5% of total R**. Their
+distribution is not uniform across the cells that carry published claims:
+
+| Published cell | As published | Convention-mixed trades inside it | Their mean R |
+|---|---|---|---|
+| **`<5%` extension deep core** | **+0.717 R, N=418** | **30 (7.2%)** | **+1.292** |
+| **sub-line `<0%`** | **+2.088 R, N=39** | **4 (10.3%)** | **+3.012** |
+| whole substrate | +1,907.32 R, N=4,321 | 243 (5.6%) | — |
+
+In both cells the mixed names sit **well above the cell mean** — +1.292 against +0.717, and +3.012
+against +2.088 — so they are over-represented in exactly the cells the research calls the core edge.
+This is a statement about *composition*, not a claim that the cells are wrong: no re-computation was
+attempted, and none is proposed.
+
+Also pooled without distinction: back-adjusted names average **+0.667 R** across 132 trades against
+cliff names' **+0.749 R** across 89. Every aggregate that sums or ranks across both — the band
+census, CRS cross-sectional ranking, the 44-week SMA and slope features on those names, per-origin
+expectancy, and the alpha decomposition's sleeve panels — treats those two populations as one.
+
+### What reaches the door
+
+1. **Nominate one convention** for the data layer, and state it. Either is defensible on its own
+   terms; the committed reference already asserts the listed-entity one, so the cheapest coherent
+   answer is to make that real rather than to switch.
+2. **The committed reference covers 4 of 37 events.** Whichever convention is chosen, the reference
+   must enumerate the events it governs, or the choice is unenforceable.
+3. **This pairs with the two other data-layer questions** now open: the vintage-seam repair
+   (`LIVE_REPAIR_DECISION.md`) and the 0025 survivorship re-anchor. All three change historical bars
+   and therefore share one re-anchor; deciding them separately would mean re-anchoring the pin more
+   than once.
+
+
+### Prerequisite STARTED 2026-08-06 — the register is now complete
+
+The decision was blocked on being unenforceable: the committed reference named **4 of 37** events,
+so whichever convention October nominates could not have been applied. That is now fixed, as **data
+collection only — zero trials, and NO convention applied**.
+
+`data/corporate_actions_demerger_register.csv` enumerates all **37 events across 35 names**, each
+carrying the exchange's ex-date and ISIN, the **measured** vendor treatment (`BACK_ADJUSTED` 22 /
+`LEFT_AS_CLIFF` 15, measured against NSE bhavcopy rather than assumed), the implied factor, and each
+name's weight in the record (substrate trades and sumR).
+
+Two things about it are deliberate:
+
+- **It is a NEW file, and the prescriptive one is untouched.** `nq.data.ohlcv` reads
+  `data/corporate_actions_demergers.csv` to decide how to clean a series; adding 37 rows there would
+  have *applied the listed-entity convention to all of them* — this decision, taken by a data edit.
+  The register is descriptive and nothing reads it to change behaviour.
+- **The `convention` column reads `UNDECIDED` on every row**, and a test asserts it. Populating it
+  is the decision. A second test pins the prescriptive file at 4 rows, so growing it without an ADR
+  fails the suite.
+
+Producer `scripts/build_demerger_register.py`; tests `tests/test_demerger_register.py`.
+
+**The decision arrives at October enforceable, and still undecided.**
+
+**Neither reading is weighed here, and no verdict on the record moves.** The 22/15 split is reported
+so October decides a convention, not so a number changes today.

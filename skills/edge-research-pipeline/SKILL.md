@@ -30,7 +30,7 @@ that artifact existing.
 > 1. **[`skills/program-laws`](../program-laws/SKILL.md)** — the standing verdicts. Most ideas are
 >    already answered; the collision rule is **cite-and-narrow, not relitigate**.
 > 2. **[`skills/verdict-machine`](../verdict-machine/SKILL.md)** — registry confrontation →
->    coverage/PIT audit → kill-shot screen (one **screen-ledger** row, currently **screens 12**;
+>    coverage/PIT audit → kill-shot screen (one **screen-ledger** row, currently **screens 19**;
 >    sealed opens **1**) → **activation bound**.
 > 3. **The activation-bound law is mandatory and is 3/3** (0117 rotation, 0119 tiebreak, 0121
 >    deferral): before any trial ask, compute the clairvoyant ceiling of the proposed rule and

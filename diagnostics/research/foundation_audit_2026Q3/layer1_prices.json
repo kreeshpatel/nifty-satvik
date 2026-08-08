@@ -1,0 +1,267 @@
+{
+  "_class": "VERIFICATION \u2014 layer 1 price truth vs NSE bhavcopy",
+  "sample": {
+    "dates": 30,
+    "date_min": "2019-02-15",
+    "date_max": "2026-05-15",
+    "symbols_in_pin": 710,
+    "symbols_compared": 710,
+    "name_days_compared": 17801,
+    "name_days_symbol_absent_from_pickle_on_that_date": 0
+  },
+  "overall": {
+    "name_days": 17801,
+    "symbols": 710,
+    "exact_ohlc": 3643,
+    "exact_pct": 20.4651,
+    "ratio_median": 0.9815618,
+    "ratio_p01": 0.09666,
+    "ratio_p99": 1.0,
+    "ratio_above_1_plus_1bp": 0,
+    "ratio_below_1_minus_1bp": 14155,
+    "vol_exact": 14689,
+    "vol_within_0p1pct": 14988
+  },
+  "by_stratum": {
+    "book": {
+      "name_days": 136,
+      "symbols": 5,
+      "exact_ohlc": 22,
+      "exact_pct": 16.1765,
+      "ratio_median": 0.73620902,
+      "ratio_p01": 0.046028,
+      "ratio_p99": 1.0,
+      "ratio_above_1_plus_1bp": 0,
+      "ratio_below_1_minus_1bp": 114,
+      "vol_exact": 55,
+      "vol_within_0p1pct": 57
+    },
+    "rest": {
+      "name_days": 15863,
+      "symbols": 642,
+      "exact_ohlc": 3453,
+      "exact_pct": 21.7676,
+      "ratio_median": 0.98316308,
+      "ratio_p01": 0.097791,
+      "ratio_p99": 1.0,
+      "ratio_above_1_plus_1bp": 0,
+      "ratio_below_1_minus_1bp": 12407,
+      "vol_exact": 13358,
+      "vol_within_0p1pct": 13626
+    },
+    "top_decile": {
+      "name_days": 1802,
+      "symbols": 63,
+      "exact_ohlc": 168,
+      "exact_pct": 9.323,
+      "ratio_median": 0.96222921,
+      "ratio_p01": 0.089187,
+      "ratio_p99": 1.0,
+      "ratio_above_1_plus_1bp": 0,
+      "ratio_below_1_minus_1bp": 1634,
+      "vol_exact": 1276,
+      "vol_within_0p1pct": 1305
+    }
+  },
+  "by_year": {
+    "2019": {
+      "name_days": 1992,
+      "symbols": 508,
+      "exact_ohlc": 144,
+      "exact_pct": 7.2289,
+      "ratio_median": 0.9242406,
+      "ratio_p01": 0.076611,
+      "ratio_p99": 1.0,
+      "ratio_above_1_plus_1bp": 0,
+      "ratio_below_1_minus_1bp": 1848,
+      "vol_exact": 1413,
+      "vol_within_0p1pct": 1413
+    },
+    "2020": {
+      "name_days": 2076,
+      "symbols": 529,
+      "exact_ohlc": 198,
+      "exact_pct": 9.5376,
+      "ratio_median": 0.94298117,
+      "ratio_p01": 0.086567,
+      "ratio_p99": 1.0,
+      "ratio_above_1_plus_1bp": 0,
+      "ratio_below_1_minus_1bp": 1878,
+      "vol_exact": 1228,
+      "vol_within_0p1pct": 1516
+    },
+    "2021": {
+      "name_days": 2205,
+      "symbols": 565,
+      "exact_ohlc": 219,
+      "exact_pct": 9.932,
+      "ratio_median": 0.95676683,
+      "ratio_p01": 0.08759,
+      "ratio_p99": 1.0,
+      "ratio_above_1_plus_1bp": 0,
+      "ratio_below_1_minus_1bp": 1986,
+      "vol_exact": 1717,
+      "vol_within_0p1pct": 1717
+    },
+    "2022": {
+      "name_days": 2356,
+      "symbols": 598,
+      "exact_ohlc": 282,
+      "exact_pct": 11.9694,
+      "ratio_median": 0.97005006,
+      "ratio_p01": 0.093494,
+      "ratio_p99": 1.0,
+      "ratio_above_1_plus_1bp": 0,
+      "ratio_below_1_minus_1bp": 2074,
+      "vol_exact": 1927,
+      "vol_within_0p1pct": 1927
+    },
+    "2023": {
+      "name_days": 2455,
+      "symbols": 628,
+      "exact_ohlc": 325,
+      "exact_pct": 13.2383,
+      "ratio_median": 0.98075328,
+      "ratio_p01": 0.099038,
+      "ratio_p99": 1.0,
+      "ratio_above_1_plus_1bp": 0,
+      "ratio_below_1_minus_1bp": 2130,
+      "vol_exact": 2104,
+      "vol_within_0p1pct": 2104
+    },
+    "2024": {
+      "name_days": 2579,
+      "symbols": 661,
+      "exact_ohlc": 399,
+      "exact_pct": 15.4711,
+      "ratio_median": 0.98951162,
+      "ratio_p01": 0.166251,
+      "ratio_p99": 1.0,
+      "ratio_above_1_plus_1bp": 0,
+      "ratio_below_1_minus_1bp": 2180,
+      "vol_exact": 2310,
+      "vol_within_0p1pct": 2315
+    },
+    "2025": {
+      "name_days": 2731,
+      "symbols": 700,
+      "exact_ohlc": 964,
+      "exact_pct": 35.2984,
+      "ratio_median": 0.99673768,
+      "ratio_p01": 0.199289,
+      "ratio_p99": 1.0,
+      "ratio_above_1_plus_1bp": 0,
+      "ratio_below_1_minus_1bp": 1765,
+      "vol_exact": 2600,
+      "vol_within_0p1pct": 2606
+    },
+    "2026": {
+      "name_days": 1407,
+      "symbols": 705,
+      "exact_ohlc": 1112,
+      "exact_pct": 79.0334,
+      "ratio_median": 0.99999999,
+      "ratio_p01": 0.75,
+      "ratio_p99": 1.0,
+      "ratio_above_1_plus_1bp": 0,
+      "ratio_below_1_minus_1bp": 294,
+      "vol_exact": 1390,
+      "vol_within_0p1pct": 1390
+    }
+  },
+  "per_symbol_reconciliation": {
+    "reconciled": 703,
+    "not_reconciled": 7,
+    "not_reconciled_names": [
+      {
+        "symbol": "CGCL",
+        "stratum": "rest",
+        "n": 30,
+        "exact_pct": 10.0,
+        "ratio_first": 0.942924,
+        "ratio_last": 1.0,
+        "edge_exact": true,
+        "n_ratio_above_raw": 0,
+        "n_ratio_falls_forward": 1,
+        "reconciled": false
+      },
+      {
+        "symbol": "CONCOR",
+        "stratum": "rest",
+        "n": 30,
+        "exact_pct": 6.67,
+        "ratio_first": 0.91185,
+        "ratio_last": 1.0,
+        "edge_exact": true,
+        "n_ratio_above_raw": 0,
+        "n_ratio_falls_forward": 1,
+        "reconciled": false
+      },
+      {
+        "symbol": "GPIL",
+        "stratum": "rest",
+        "n": 30,
+        "exact_pct": 13.33,
+        "ratio_first": 0.244446,
+        "ratio_last": 1.0,
+        "edge_exact": true,
+        "n_ratio_above_raw": 0,
+        "n_ratio_falls_forward": 1,
+        "reconciled": false
+      },
+      {
+        "symbol": "MAHLIFE",
+        "stratum": "rest",
+        "n": 30,
+        "exact_pct": 13.33,
+        "ratio_first": 0.322351,
+        "ratio_last": 1.0,
+        "edge_exact": true,
+        "n_ratio_above_raw": 0,
+        "n_ratio_falls_forward": 1,
+        "reconciled": false
+      },
+      {
+        "symbol": "MOTILALOFS",
+        "stratum": "rest",
+        "n": 30,
+        "exact_pct": 6.67,
+        "ratio_first": 0.963776,
+        "ratio_last": 1.0,
+        "edge_exact": true,
+        "n_ratio_above_raw": 0,
+        "n_ratio_falls_forward": 1,
+        "reconciled": false
+      },
+      {
+        "symbol": "TRENT",
+        "stratum": "top_decile",
+        "n": 30,
+        "exact_pct": 0.0,
+        "ratio_first": 0.991955,
+        "ratio_last": 0.665683,
+        "edge_exact": false,
+        "n_ratio_above_raw": 0,
+        "n_ratio_falls_forward": 1,
+        "reconciled": false
+      },
+      {
+        "symbol": "UPL",
+        "stratum": "rest",
+        "n": 30,
+        "exact_pct": 13.33,
+        "ratio_first": 0.621323,
+        "ratio_last": 1.0,
+        "edge_exact": true,
+        "n_ratio_above_raw": 0,
+        "n_ratio_falls_forward": 1,
+        "reconciled": false
+      }
+    ]
+  },
+  "adjusted_vs_raw_split": {
+    "_note": "how much of the pinned universe is vendor-ADJUSTED at all, measured on the oldest sampled date each symbol appears on",
+    "symbols_raw_at_first_sample": 99,
+    "symbols_adjusted_at_first_sample": 611
+  }
+}

@@ -15,6 +15,8 @@ flowchart LR
     nq_data_eligibility["nq/data/eligibility"]
     nq_data_features["nq/data/features"]
     nq_data_fundamentals["nq/data/fundamentals"]
+    nq_data_indicators["nq/data/indicators"]
+    nq_data_integrity["nq/data/integrity"]
     nq_data_macro["nq/data/macro"]
     nq_data_membership["nq/data/membership"]
     nq_data_ohlcv["nq/data/ohlcv"]
@@ -24,10 +26,13 @@ flowchart LR
     nq_engine_exits["nq/engine/exits"]
     nq_engine_panel["nq/engine/panel"]
     nq_engine_portfolio["nq/engine/portfolio"]
+    nq_engine_rebalance_book["nq/engine/rebalance_book"]
+    nq_engine_signal_book["nq/engine/signal_book"]
     nq_paper_book["nq/paper/book"]
     nq_paper_forward_wall["nq/paper/forward_wall"]
     nq_paper_forward_wall_job["nq/paper/forward_wall_job"]
     nq_paper_judge_log["nq/paper/judge_log"]
+    nq_paper_model_wall["nq/paper/model_wall"]
     nq_paper_wall_cron["nq/paper/wall_cron"]
     nq_research_conviction["nq/research/conviction"]
     nq_research_residual["nq/research/residual"]
@@ -52,6 +57,8 @@ flowchart LR
     nq_data_features --> config
     nq_data_features --> nq_data_ohlcv
     nq_data_fundamentals --> config
+    nq_data_indicators --> nq_data_features
+    nq_data_integrity --> nq_data_ohlcv
     nq_data_macro --> config
     nq_data_membership --> config
     nq_data_ohlcv --> config
@@ -68,12 +75,16 @@ flowchart LR
     nq_engine_panel --> nq_data_ohlcv
     nq_engine_portfolio --> config
     nq_engine_portfolio --> nq_engine_exits
+    nq_engine_rebalance_book --> nq_engine_portfolio
+    nq_engine_signal_book --> nq_engine_portfolio
     nq_paper_book --> nq_engine_exits
     nq_paper_book --> nq_engine_portfolio
     nq_paper_forward_wall --> config
     nq_paper_forward_wall_job --> config
     nq_paper_forward_wall_job --> nq_paper_forward_wall
     nq_paper_judge_log --> config
+    nq_paper_model_wall --> config
+    nq_paper_model_wall --> nq_paper_forward_wall
     nq_paper_wall_cron --> config
     nq_paper_wall_cron --> nq_paper_book
     nq_paper_wall_cron --> nq_paper_forward_wall

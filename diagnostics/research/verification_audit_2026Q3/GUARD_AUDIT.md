@@ -55,3 +55,64 @@ Two lessons were paid for during the rewrite itself and are pinned as tests:
 ## Deliverable
 
 > Every scheduled job now has a declared output contract, an independent checker, and no silent guard.
+
+---
+
+## Addendum, same day — the checker's own first run failed the audit's own rule
+
+The contract checker's first CI run went **RED with "no cron commit ever found" for all three jobs**,
+against commits that plainly exist on `main`.
+
+**Root cause, verified by reproduction rather than inspection.** `actions/checkout` defaults to
+`fetch-depth: 1`. The monitor job therefore handed the checker a one-commit clone and the checker
+searched it, found nothing, and convicted. A local `git clone --depth 1` of this repo reproduced the
+failure exactly, including the wording.
+
+That is **absent evidence reported as negative evidence** — the rule this session had just finished
+writing into S2.14 about the intraday scans, broken inside the alarm built to enforce it. The fix is
+three layers, because a one-layer fix would have left the same trap for the next checkout that is
+shallow for some other reason:
+
+1. **`fetch-depth: 0`** on the monitor's checkout. Measured cost of full history: **10 s, 503
+   commits, 18 MB** — negligible beside that job's OHLCV download. A bounded `--deepen` was
+   considered and **rejected**: the answer would then silently depend on commit *volume*, which is
+   the drifting dependency S2.14 exists to forbid.
+2. **The checker distinguishes "cannot determine" from "no commit."** `NO_COMMIT` now means the
+   history was searched and the job's commits are not in it. **`INDETERMINATE`** means the history
+   could not be searched — a shallow clone, or (per job) a history shorter than the cadence window
+   the absence claim would have to cover. `INDETERMINATE` is not a breach and does not go red; it
+   annotates a warning naming the fix.
+3. **A regression test clones a fixture repo at `--depth 1`** and asserts `INDETERMINATE`, no
+   breaches. Three companion tests pin the opposite direction so the fix cannot be a muzzle: full
+   history resolves the job, a never-persisted artifact still breaches, and a `fetch-depth: 0` pin
+   on the monitor workflow.
+
+### A second defect, found because the first was fixed
+
+With real history restored, the checker immediately called a **CONTRACT_BREACH** on the weekly
+scanner. It was wrong, and the reason matters more than the fix.
+
+The 2026-08-04 dispatch re-ran the same as-of-2026-07-31 book. It produced **byte-identical** weekly
+files, so git correctly recorded no diff for them; only the new archive snapshot and the judge log
+changed. The original predicate — *did the path appear in the last cron commit's diff* — reads that
+healthy run as a failure. **A cron whose output is unchanged is working.**
+
+The predicate is now: a required path breaches if it is **absent from the tree** at the job's last
+cron commit (never persisted at all — the silent-`git add` signature), or if **no commit of that job
+has written it inside the staleness bound** (default 4× cadence; it has stopped updating entirely).
+Unchanged-this-week is explicitly not a breach.
+
+**A false positive in an alarm is as damaging as a missed defect** — it is how alarms stop being
+read. Wiring a checker that cries wolf into the top-level `overall` would have been worse than not
+wiring it at all.
+
+### The wiring, now that it is trustworthy
+
+`fold_into_health()` attaches the contract result to `scheduler_health` **and lets it move the
+top-level `overall`**: RED becomes `CONTRACT_BREACH`, which ranks with `MISSING`, because a job that
+fired and published nothing is exactly as uninformative as one that never fired. `INDETERMINATE`
+ranks above `OK` — a deaf alarm is not a healthy one. The fold never downgrades a worse state.
+
+Before this, a breach sat in a nested key while `overall` still read `OK`. **An alarm subsection
+nobody has to remember to read is half an alarm** — the same defect the contracts exist to catch,
+one level up.

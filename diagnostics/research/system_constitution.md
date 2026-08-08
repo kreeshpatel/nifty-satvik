@@ -143,13 +143,13 @@ divergences are in **data, universe, and the switched-on owner overlays**.
 
 | # | Rule | Where | What it does | Class | Backtest parity | Risk if wrong |
 |---|------|-------|--------------|-------|-----------------|---------------|
-| H1 | Risk sizing: shares = sizing_equity × 2% / (entry − stop) | R94:799, 829; sixstep:46 (`RISK=0.02`) | Fixed-fractional risk | DELIBERATE (frozen 0084 line) | Identical | — |
-| H2 | Stop lift: stop = max(signal-week low, entry × 0.90) — caps R at 10% | cron:55-57 (`max_risk_pct=0.10`); R94:821-822 | Owner override that DEVIATES from the taught candle-low rule (explicitly acknowledged in code) | DELIBERATE (docs/decisions/0009; return-neutral, uncertified — recorded) | **Off** in run of record (D3) | — |
-| H3 | Notional cap: no name exceeds 20% of sizing equity | cron:58-60; R94:834-835 | Anti-concentration guardrail (concentration is load-bearing — FINDING_more_slots cited in code) | DELIBERATE (0009) | Off in run of record | — |
-| H4 | Sizing equity = current mark-to-market equity (paper book) or fixed ₹10L (uncapped ledger), × vol-target scalar (OFF live) | R94:776-785; faithful:27 (`EQ0=1_000_000`) | Compounding risk base | CONVENTION (mark-to-market compounding never examined vs fixed-base for this book) | Identical | — |
-| H5 | Cash is the ONLY capacity constraint: no max-positions cap live (`max_positions=0`), buy skipped if notional+costs > cash (`skipped_cash`) | R94:804-805 (inert), 836-837, 858 | Frozen 0084 philosophy ("cash-limited only") | DELIBERATE (0084 pre-reg) | Identical | — |
-| H6 | **Fractional shares**: share count is a float; no integer rounding, no lot handling, no minimum order | R94:829 (`sh = …` never floored) | Modeled sizing precision | **DIVERGENT** (D7) vs the owner's integer-share reality (contrast: momentum path's `base_risk_qty` floors) | Backtest identical (shared fiction) | Small-price × small-book distortion; at ₹10L/2% risk the error is bounded but nonzero per trade |
-| H7 | Sizing invariants enforced by `assert` — a violation CRASHES the whole cron run | R94:848-851, 866 | Fail-loud on sizing bugs | INCIDENTAL (assert-as-guard in a production path) | Same asserts in research runs | One pathological candidate (en≈st float dust) aborts Saturday's entire publish, leaving stale cards (see K4) |
+| H1 | Risk sizing: shares = sizing_equity × 2% / (entry − stop) | R94:868; `_risk` at R94:838; sixstep:46 (`RISK=0.02`) | Fixed-fractional risk | DELIBERATE (frozen 0084 line) | Identical | — |
+| H2 | Stop lift: stop = max(signal-week low, entry × 0.90) — caps R at 10% | cron:86 (`max_risk_pct=0.10` inside `LIVE_DISCIPLINE`); R94:861 | Owner override that DEVIATES from the taught candle-low rule (explicitly acknowledged in code) | DELIBERATE (docs/decisions/0009; return-neutral, uncertified — recorded) | **Off** in run of record (D3) | — |
+| H3 | Notional cap: no name exceeds 20% of sizing equity | cron:86; R94:873-874 | Anti-concentration guardrail (concentration is load-bearing — FINDING_more_slots cited in code) | DELIBERATE (0009) | Off in run of record | — |
+| H4 | Sizing equity = current mark-to-market equity (paper book) or fixed ₹10L (uncapped ledger), × vol-target scalar (OFF live) | R94:824 (`sizing_eq`), 407 (`_EQ0`); faithful:27 (`EQ0=1_000_000`) | Compounding risk base | CONVENTION (mark-to-market compounding never examined vs fixed-base for this book) | Identical | — |
+| H5 | Cash is the ONLY capacity constraint: no max-positions cap live (`max_positions=0`), buy skipped if notional+costs > cash (`skipped_cash`) | R94:843 (max_positions, inert at 0), 876 (cash gate), 837 (CRS fill priority) | Frozen 0084 philosophy ("cash-limited only") | DELIBERATE (0084 pre-reg) | Identical | — |
+| H6 | **Fractional shares**: share count is a float; no integer rounding, no lot handling, no minimum order | R94:868 (`sh = …` never floored) | Modeled sizing precision | **DIVERGENT** (D7) vs the owner's integer-share reality (contrast: momentum path's `base_risk_qty` floors) | Backtest identical (shared fiction) | Small-price × small-book distortion; at ₹10L/2% risk the error is bounded but nonzero per trade |
+| H7 | Sizing invariants enforced by `assert` — a violation CRASHES the whole cron run | R94:884 (`rp`), 889 / 891 (the two asserts) | Fail-loud on sizing bugs | INCIDENTAL (assert-as-guard in a production path) | Same asserts in research runs | One pathological candidate (en≈st float dust) aborts Saturday's entire publish, leaving stale cards (see K4) |
 
 ### I. NAV, ledger, analytics
 
@@ -188,7 +188,9 @@ divergences are in **data, universe, and the switched-on owner overlays**.
 
 ---
 
-## 2. THE DIVERGENT LIST — **9 → 6 open** after the 2026-07-29 remediation
+## 2. THE DIVERGENT LIST — **9 → 7 open** after the 2026-07-29 remediation
+
+*(Header corrected 2026-08-06: this read "9 → 6 open" while the section lists seven open rows — D1, D3, D4, D6, D7, D8, D9, with D2 and D5 struck through. 9 − 2 = 7. The count was the error, not the list; no row's status changed. Flagged by [`STRUCTURAL_DEFECT_MAP.md`](STRUCTURAL_DEFECT_MAP.md) §B, whose total now agrees with this source.)*
 
 **Closed with receipts:** ~~D2~~ (append-only archive + drift log, `7e016b9`), ~~D5~~ (card/record
 parity, `66491e3`), and the B-1 bug behind D-class NAV flattery (`d3b4d5e`). Their entries are kept
@@ -669,7 +671,7 @@ without deciding what it certifies would manufacture a record nobody has agreed 
 | **S2-F2** (dead-man unmerged) | **RESOLVED** — registered and invoked; surfacing to a place the owner reads daily remains S-F3. |
 | **S2-F3** (audit-method) | Standing. Firing evidence = Actions run log, cross-checked against a runner-authored commit. |
 | **S2-F4** (new) | **Cron commits are authored as the owner, not a bot** — a runner-authored commit cannot be told from a hand-made one by author line. Weakens S2-F3's cross-check. One-line workflow fix; owner door because it changes the commit record's appearance. |
-| **S2-F5** (new) | **The R94 golden master is flaky on CI** — the same commit (`44dda60`), with identical dependency versions (numpy 2.5.1 / pandas 3.0.5 / scipy 1.18.0), failed once on `curve_hash` (`54deb7e3…` vs golden `84cc3d09…`) and passed on re-run; it does not reproduce locally across five hash seeds. A guardian of engine reproducibility that is intermittently red on healthy code decays into an ignored alarm — the same pathology as the miscalibrated `cron_health` banner (S-F2). Needs a root-cause pass (non-determinism in the fill/curve path, or a runner-level numeric difference), not a threshold change. |
+| **S2-F5** ~~(new)~~ **CLOSED 2026-08-06 (`f9edf71`)** | **The R94 golden master is flaky on CI** — the same commit (`44dda60`), with identical dependency versions (numpy 2.5.1 / pandas 3.0.5 / scipy 1.18.0), failed once on `curve_hash` (`54deb7e3…` vs golden `84cc3d09…`) and passed on re-run; it does not reproduce locally across five hash seeds. A guardian of engine reproducibility that is intermittently red on healthy code decays into an ignored alarm — the same pathology as the miscalibrated `cron_health` banner (S-F2). Needs a root-cause pass (non-determinism in the fill/curve path, or a runner-level numeric difference), not a threshold change. |
 
 ## S2.10 First heartbeat after activation — and its first false alarm
 
@@ -787,8 +789,17 @@ Every durable fix changes the recorded hash, which this session was explicitly f
 3. Pin a known-green seed — **rejected**: it masks the defect and is fragile to any suite change.
 
 Recommended: (2) then (1), in a dedicated change that re-records the golden deliberately and states
-the diff — precisely what the fixture's own error message calls for. **S2-F5 stays OPEN**; it is now
-a one-line fix waiting on a decision rather than an unexplained ghost.
+the diff — precisely what the fixture's own error message calls for.
+
+**STATUS UPDATE 2026-08-06 — S2-F5 is CLOSED** (commit `f9edf71`, PR #66). Option (1) was taken:
+`_curve_key` now quantises to **8 significant figures** (scale-relative) instead of 4 absolute
+decimals — ₹10 granularity at ₹1.08e8, ₹0.01 on the ₹10L paper book. Measured margin: **zero** of
+the frozen cell's 1,458 curve points sit within 4,096 ULP of a quantisation boundary, against **111
+within 1,000 ULP** at the old pin. Dates and point count stay exact, so the shape of the path is
+still asserted byte-for-byte, and a test pins both directions (4,096 ULP of jitter must not move
+the key; a 1e-6 relative drift and a truncated path must). The golden was re-recorded deliberately
+and the diff stated: **only the three curve digests moved**. The root-cause reading above stands
+unchanged — the diagnosis was right, and this is the fix it called for.
 
 ### Superseded note
 

@@ -1,0 +1,178 @@
+{
+  "cache": "data/ohlcv.pkl as on disk",
+  "overall": "WARN",
+  "symbols_checked": 708,
+  "probe_dates": 519,
+  "n_seams": 13,
+  "n_new_seams": 0,
+  "n_indeterminate": 2,
+  "seams": [
+    {
+      "symbol": "CDSL",
+      "window_start": "2017-06-30",
+      "window_end": "2017-07-03",
+      "adj_before": 0.911383,
+      "adj_after": 0.45543,
+      "step_factor": 2.001147,
+      "known": true,
+      "seam_session": "2017-07-03",
+      "cause": "listing week, pre-census",
+      "provenance": "pre-2019-head"
+    },
+    {
+      "symbol": "CGCL",
+      "window_start": "2023-12-29",
+      "window_end": "2024-01-01",
+      "adj_before": 0.998233,
+      "adj_after": 0.249558,
+      "step_factor": 4.0,
+      "known": true,
+      "seam_session": "2024-01-01",
+      "cause": "split+bonus ex 2024-03-05",
+      "provenance": "foundation-audit-F-1"
+    },
+    {
+      "symbol": "CONCOR",
+      "window_start": "2024-12-31",
+      "window_end": "2025-01-01",
+      "adj_before": 0.977323,
+      "adj_after": 0.781858,
+      "step_factor": 1.25,
+      "known": true,
+      "seam_session": "2025-01-01",
+      "cause": "bonus 1:4 ex 2025-07-04",
+      "provenance": "foundation-audit-F-1"
+    },
+    {
+      "symbol": "GPIL",
+      "window_start": "2023-12-29",
+      "window_end": "2024-01-01",
+      "adj_before": 0.988671,
+      "adj_after": 0.197734,
+      "step_factor": 5.0,
+      "known": true,
+      "seam_session": "2024-01-01",
+      "cause": "split ex 2024 (factor 5)",
+      "provenance": "foundation-audit-F-1"
+    },
+    {
+      "symbol": "HBLENGINE",
+      "window_start": "2024-12-23",
+      "window_end": "2024-12-24",
+      "adj_before": 1.029705,
+      "adj_after": 0.996257,
+      "step_factor": 1.033573,
+      "known": true,
+      "seam_session": "2024-12-24",
+      "cause": "no corporate action in the NSE record",
+      "provenance": "OPEN-undiagnosed"
+    },
+    {
+      "symbol": "INDIAMART",
+      "window_start": "2019-10-27",
+      "window_end": "2019-10-29",
+      "adj_before": 0.935179,
+      "adj_after": 0.467589,
+      "step_factor": 2.0,
+      "known": true,
+      "seam_session": "2019-10-27",
+      "cause": "Muhurat doubled bar (ERRATUM_BARS)",
+      "provenance": "known-erratum"
+    },
+    {
+      "symbol": "INDIAMART",
+      "window_start": "2020-11-14",
+      "window_end": "2020-11-17",
+      "adj_before": 0.938923,
+      "adj_after": 0.469461,
+      "step_factor": 2.0,
+      "known": true,
+      "seam_session": "2020-11-14",
+      "cause": "Muhurat doubled bar (ERRATUM_BARS)",
+      "provenance": "known-erratum"
+    },
+    {
+      "symbol": "J&KBANK",
+      "window_start": "2017-02-23",
+      "window_end": "2017-02-27",
+      "adj_before": 1.950807,
+      "adj_after": 0.955243,
+      "step_factor": 2.042211,
+      "known": true,
+      "seam_session": "2017-02-27",
+      "cause": "face-value split, pre-census",
+      "provenance": "pre-2019-head"
+    },
+    {
+      "symbol": "MAHLIFE",
+      "window_start": "2025-05-13",
+      "window_end": "2025-05-14",
+      "adj_before": 0.992419,
+      "adj_after": 0.911787,
+      "step_factor": 1.088433,
+      "known": true,
+      "seam_session": "2025-05-14",
+      "cause": "rights 3:8 ex 2025-05-23",
+      "provenance": "foundation-audit-F-1"
+    },
+    {
+      "symbol": "MOTILALOFS",
+      "window_start": "2023-12-29",
+      "window_end": "2024-01-01",
+      "adj_before": 0.976453,
+      "adj_after": 0.244113,
+      "step_factor": 4.0,
+      "known": true,
+      "seam_session": "2024-01-01",
+      "cause": "bonus/split ex 2024 (factor 4)",
+      "provenance": "foundation-audit-F-1"
+    },
+    {
+      "symbol": "TRENT",
+      "window_start": "2019-03-06",
+      "window_end": "2019-03-18",
+      "adj_before": 0.991955,
+      "adj_after": 0.971128,
+      "step_factor": 1.021447,
+      "known": true,
+      "seam_session": "2019-03-18",
+      "cause": "no corporate action in the NSE record",
+      "provenance": "OPEN-undiagnosed"
+    },
+    {
+      "symbol": "TRENT",
+      "window_start": "2025-12-31",
+      "window_end": "2026-01-01",
+      "adj_before": 0.998525,
+      "adj_after": 0.665683,
+      "step_factor": 1.5,
+      "known": true,
+      "seam_session": "2026-01-01",
+      "cause": "bonus 1:2 ex 2026-06-04",
+      "provenance": "foundation-audit-F-1"
+    },
+    {
+      "symbol": "UPL",
+      "window_start": "2024-11-14",
+      "window_end": "2024-11-18",
+      "adj_before": 0.990932,
+      "adj_after": 0.950545,
+      "step_factor": 1.042488,
+      "known": true,
+      "seam_session": "2024-11-18",
+      "cause": "rights 1:8 ex 2024-11-26",
+      "provenance": "foundation-audit-F-1"
+    }
+  ],
+  "new_seams": [],
+  "indeterminate": [
+    {
+      "symbol": "JSWDULUX",
+      "reason": "only 1 probe(s) covered"
+    },
+    {
+      "symbol": "LTM",
+      "reason": "only 1 probe(s) covered"
+    }
+  ]
+}

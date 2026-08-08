@@ -31,6 +31,14 @@ dashboard/backend/.env
 !data/nifty500_membership.csv
 !data/problem_sector_map.json
 !data/corporate_actions_demergers.csv
+# The COMPLETE demerger register (all 37 events, descriptive). Distinct from the prescriptive
+# file above, which nq.data.ohlcv reads to decide cleaning. Producer:
+# scripts/build_demerger_register.py — prerequisite for the binder section-10 decision.
+!data/corporate_actions_demerger_register.csv
+# Raw exchange closes on the guard's probe grid. Small, exchange-sourced, and committed on
+# purpose: nq.data.adjustment_guard must be able to run without the network, or it gets skipped
+# on the day the network is flaky. Producer: scripts/build_raw_close_reference.py
+!data/raw_close_reference.parquet
 !data/nse_circulars/
 !data/nse_circulars/*
 !data/README.md
@@ -56,6 +64,19 @@ results/*
 # A directory needs BOTH the dir un-ignored and its contents un-ignored.
 !results/intraday_scan/
 !results/intraday_scan/**
+# The 3-book FORWARD WALL log and its veto-book state. SEVENTH instance of the same trap, caught
+# by tests/test_workflow_output_paths.py the moment the wall got its first scheduled producer
+# (S-F1, 2026-08-06): forward/prereg.md calls this log "the only certifier", and `results/*` above
+# would have made the daily `git add` a silent no-op — the certifier's record discarded with every
+# runner, and the hash chain restarting from GENESIS each day. The veto book's state directory is
+# whitelisted too, because without it the shadow book re-steps from scratch every run.
+!results/forward_wall.csv
+!results/forward_wall_start.json
+!results/wall_veto
+!results/wall_veto/
+!results/wall_veto/**
+# Cron health, read by the monitor. Whitelisted for the same reason.
+!results/scheduler_health.json
 !results/FORWARD_ACCUMULATORS_README.md
 !results/signals_today.json
 !results/signals_history.json
@@ -73,6 +94,9 @@ results/*
 !results/paper_state.json
 # Kill-criteria + paper-equity runtime state must persist across cron runs (Stage E/F).
 !results/kill_state.json
+# Zoo shadow book — OBSERVATIONAL ONLY (pre-reg 0131), traded by nobody. Same class as
+# blend_hybrid_paper.json. Producer: scripts/run_zoo_shadow_book.py
+!results/zoo_shadow_book.json
 !results/kill_log.jsonl
 # Weekly-swing forward-review scorecard (Oct-1 promote/kill machinery) — cron-refreshed, dashboard-read.
 !results/weekly_review_scorecard.json
@@ -108,6 +132,13 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+# EIGHTH instance of the whitelist trap (see results/ above), caught 2026-08-07 while committing the
+# scripts/ -> pipelines/ reorg. The `build/` rule above targets the Python packaging artifact, but it
+# is unanchored, so it also swallows `pipelines/build/` — the harvest/build one-off layer. The 19
+# files already there survived only because `git mv` keeps a tracked file tracked; every NEW file
+# added to that directory would have been silently dropped, including its `__init__.py`.
+!pipelines/build/
+!pipelines/build/**
 # Models — models/long_horizon/config.json is the tracked source of truth (not ignored).
 # Regenerable candidate/baseline model binaries (Stage C+) are not committed (see below).
 
@@ -115,6 +146,27 @@ build/
 .claude/*
 # track project skeptic subagent definitions (Stage-4); rest of .claude stays ignored
 !.claude/agents/
+# The two governance skills CLAUDE.md calls "the laws in enforceable form" existed ONLY under
+# skills/, so the .claude/ skill loader could not see them — the two most binding skills in the
+# repo were the two it could not load. They are mirrored here and tracked, deliberately narrowly:
+# the rest of .claude/skills/ is third-party content vendored via skills-lock.json and stays
+# ignored. tests/test_standing_counts.py asserts the mirrors stay byte-identical to skills/.
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/program-laws/
+!.claude/skills/verdict-machine/
+# The router, the plausibility gate, and the four ritual commands (/pre-register, /verdict, /seal,
+# /re-anchor) are project governance for the same reason the two above are: they are the procedures
+# a session must be able to load without being told they exist.
+!.claude/skills/session-router/
+!.claude/skills/plausibility-check/
+!.claude/skills/pre-register/
+!.claude/skills/verdict/
+!.claude/skills/seal/
+!.claude/skills/re-anchor/
+# Project hooks: the SessionStart brief and the protected-path guard. settings.local.json is
+# personal and stays ignored.
+!.claude/settings.json
 .agents/
 claude-cookbooks/
 skills-lock.json

@@ -1,0 +1,122 @@
+{
+  "candidate": {
+    "final_equity": 6458910.75,
+    "total_return_pct": 545.89,
+    "cagr_pct": 21.73,
+    "sharpe": 1.13,
+    "sortino": 1.249,
+    "max_drawdown_pct": -37.17,
+    "calmar": 0.58,
+    "turnover_per_year": 311.1,
+    "n_trades": 2951,
+    "n_reallocated_exits": 0,
+    "win_rate_pct": 73.09,
+    "profit_factor": 2.0,
+    "avg_return_per_trade_pct": 18.64,
+    "avg_hold_days": 72.5,
+    "avg_positions_held": 31.25,
+    "exit_reasons": {
+      "rebalance_trim": 2045,
+      "rebalance_exit": 905,
+      "stale": 1
+    },
+    "years": 9.49
+  },
+  "control": {
+    "final_equity": 1757477.7,
+    "total_return_pct": 75.75,
+    "cagr_pct": 6.12,
+    "sharpe": 0.416,
+    "sortino": 0.474,
+    "max_drawdown_pct": -57.75,
+    "calmar": 0.11,
+    "turnover_per_year": 437.8,
+    "n_trades": 4153,
+    "n_reallocated_exits": 0,
+    "win_rate_pct": 61.57,
+    "profit_factor": 1.22,
+    "avg_return_per_trade_pct": 4.461,
+    "avg_hold_days": 24.5,
+    "avg_positions_held": 28.81,
+    "exit_reasons": {
+      "rebalance_trim": 1797,
+      "rebalance_exit": 2354,
+      "stale": 2
+    },
+    "years": 9.49
+  },
+  "passive": {
+    "cagr_pct": 13.195,
+    "sharpe": 0.737,
+    "max_drawdown_pct": -52.51,
+    "note": "equal-weight, daily rebalance -> carries a rebalancing premium"
+  },
+  "verdict": {
+    "n_obs": 2347,
+    "n_eff_windows": 37,
+    "n_trials": 2,
+    "base_sharpe": 0.416,
+    "candidate_sharpe": 1.13,
+    "dSharpe": 0.714,
+    "dSharpe_ci": [
+      0.435,
+      1.027
+    ],
+    "dsr_candidate": 0.9909285078969635,
+    "dCalmar": 0.47,
+    "subperiod_2022_dCAGR": 8.555,
+    "fold_pass_frac": 0.875,
+    "n_folds": 8,
+    "turnover_delta": -0.2894,
+    "after_tax_cagr_base": 4.04,
+    "after_tax_cagr_cand": 18.163,
+    "gates": {
+      "dSharpe_meaningful": true,
+      "dCalmar_ge_0.05": true,
+      "subperiod_2022_positive": true,
+      "fold_pass_ge_60pct": true,
+      "turnover_le_30pct": true,
+      "dsr_gt_0.95": true,
+      "n_eff_ge_20": true
+    },
+    "gate_pass": true,
+    "verdict": "PROMOTE-CANDIDATE"
+  },
+  "pbo": {
+    "pbo": 0.4523809523809524,
+    "n_configs": 9,
+    "median_logit": 0.4054651081081642
+  },
+  "monte_carlo": {
+    "block_days": 79,
+    "observed": -0.37168235970309216,
+    "median": -0.37168235970309227,
+    "p95": -0.517565724743523,
+    "p99": -0.5927260628580181,
+    "worst": -0.7324748140697919,
+    "observed_pctile": 0.5132,
+    "prob_loss": 0.0032
+  },
+  "trade_mix": {
+    "rebalance_trim": 2045,
+    "rebalance_exit": 905,
+    "stale": 1
+  },
+  "universe": {
+    "rows": 1585203,
+    "eligible_rows": 817016,
+    "is_member_fail": 427907,
+    "liq_ok_fail": 490982,
+    "hist_ok_fail": 195822,
+    "price_ok_fail": 38548,
+    "circuit_ok_fail": 0,
+    "mean_eligible_per_day": 348.7,
+    "min_eligible_per_day": 6,
+    "mean_per_band": {
+      "LARGE": 90.5,
+      "MID": 149.6,
+      "SMALL": 146.0
+    },
+    "caveat": "size bands are reconstructed from trailing turnover rank, NOT NSE constituent lists; the circuit screen is a returns-based proxy, not a surveillance feed"
+  }
+}

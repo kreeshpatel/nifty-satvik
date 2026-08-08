@@ -1,0 +1,24 @@
+{
+  "name_days": {
+    "both": 249285,
+    "real_only": 27678,
+    "proxy_only": 28498,
+    "imbalance": 820
+  },
+  "missed_rank_median": 243.0,
+  "forward_63d": {
+    "in both": {
+      "n": 240061,
+      "mean_pct": 5.406413747869716
+    },
+    "real only (missed)": {
+      "n": 27066,
+      "mean_pct": 5.1329081079848
+    },
+    "proxy only (added)": {
+      "n": 27780,
+      "mean_pct": 7.568562861192973
+    }
+  },
+  "added_minus_missed_pp": 2.4356547532081727
+}

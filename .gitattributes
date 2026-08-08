@@ -12,3 +12,8 @@
 # still changes the digest.
 tests/fixtures/r94_golden_ohlcv.csv -text
 tests/fixtures/r94_golden_expected.json -text
+# Same treatment for the rebalance_book golden (tests/test_rebalance_golden.py), added 2026-08-07.
+# Its hash is also newline-normalised, so either guard alone would do; both together cost nothing
+# and the r94 fixture proved the failure is real rather than theoretical.
+tests/fixtures/rebalance_golden_panel.csv -text
+tests/fixtures/rebalance_golden_expected.json -text

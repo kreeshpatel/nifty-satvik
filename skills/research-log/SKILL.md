@@ -28,7 +28,7 @@ finding file until the mechanism section is filled in.
 
 ## Standing counts — state them in every readout (2026-07-30)
 
-**screens 12 · sealed opens 1 · n_trials 138.** Three separate ledgers; do not conflate them:
+**screens 19 · sealed opens 1 · n_trials 2.** Three separate ledgers; do not conflate them:
 
 | Ledger | What increments it | Where it lives |
 |---|---|---|

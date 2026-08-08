@@ -1,0 +1,145 @@
+{
+  "_class": "VERIFICATION \u2014 layer 2b vintage-seam localisation",
+  "method": "bisection on adj(t) = pickle(t)/raw(t) against NSE bhavcopy, halving the interval between two quarterly samples until one session remains",
+  "seams_found": 7,
+  "seams_on_january_1": 5,
+  "seams": [
+    {
+      "symbol": "CGCL",
+      "seam_session": "2024-01-01",
+      "prev_session": "2023-12-29",
+      "adj_before": 0.998233,
+      "adj_after": 0.249558,
+      "step_factor": 4.0,
+      "probes": 5,
+      "series_return": -0.748295,
+      "exchange_return": 0.006821,
+      "seam_is_jan1": true,
+      "fabricated_return": -0.755116
+    },
+    {
+      "symbol": "GPIL",
+      "seam_session": "2024-01-01",
+      "prev_session": "2023-12-29",
+      "adj_before": 0.988671,
+      "adj_after": 0.197734,
+      "step_factor": 5.0,
+      "probes": 5,
+      "series_return": -0.795032,
+      "exchange_return": 0.02484,
+      "seam_is_jan1": true,
+      "fabricated_return": -0.819872
+    },
+    {
+      "symbol": "MOTILALOFS",
+      "seam_session": "2024-01-01",
+      "prev_session": "2023-12-29",
+      "adj_before": 0.976453,
+      "adj_after": 0.244113,
+      "step_factor": 3.999999,
+      "probes": 5,
+      "series_return": -0.746132,
+      "exchange_return": 0.015473,
+      "seam_is_jan1": true,
+      "fabricated_return": -0.761605
+    },
+    {
+      "symbol": "UPL",
+      "seam_session": "2024-11-18",
+      "prev_session": "2024-11-14",
+      "adj_before": 0.990932,
+      "adj_after": 0.950545,
+      "step_factor": 1.042488,
+      "probes": 6,
+      "series_return": -0.020506,
+      "exchange_return": 0.021111,
+      "seam_is_jan1": false,
+      "fabricated_return": -0.041617
+    },
+    {
+      "symbol": "CONCOR",
+      "seam_session": "2025-01-01",
+      "prev_session": "2024-12-31",
+      "adj_before": 0.977323,
+      "adj_after": 0.781858,
+      "step_factor": 1.25,
+      "probes": 6,
+      "series_return": -0.208832,
+      "exchange_return": -0.011041,
+      "seam_is_jan1": true,
+      "fabricated_return": -0.197791
+    },
+    {
+      "symbol": "MAHLIFE",
+      "seam_session": "2025-05-14",
+      "prev_session": "2025-05-13",
+      "adj_before": 0.992419,
+      "adj_after": 0.911787,
+      "step_factor": 1.088433,
+      "probes": 6,
+      "series_return": -0.048294,
+      "exchange_return": 0.035868,
+      "seam_is_jan1": false,
+      "fabricated_return": -0.084162
+    },
+    {
+      "symbol": "TRENT",
+      "seam_session": "2026-01-01",
+      "prev_session": "2025-12-31",
+      "adj_before": 0.998525,
+      "adj_after": 0.665683,
+      "step_factor": 1.5,
+      "probes": 6,
+      "series_return": -0.330467,
+      "exchange_return": 0.0043,
+      "seam_is_jan1": true,
+      "fabricated_return": -0.334767
+    }
+  ],
+  "year_boundary_census": {
+    "_note": "complete over the pinned universe x every year boundary 2018..2026 \u2014 this class is closed, not sampled",
+    "seams": [
+      {
+        "symbol": "CGCL",
+        "boundary": "2024-01-01",
+        "prev_session": "2023-12-29",
+        "step_factor": 4.0,
+        "series_return": -0.748295,
+        "exchange_return": 0.006821
+      },
+      {
+        "symbol": "GPIL",
+        "boundary": "2024-01-01",
+        "prev_session": "2023-12-29",
+        "step_factor": 5.0,
+        "series_return": -0.795032,
+        "exchange_return": 0.02484
+      },
+      {
+        "symbol": "MOTILALOFS",
+        "boundary": "2024-01-01",
+        "prev_session": "2023-12-29",
+        "step_factor": 4.0,
+        "series_return": -0.746132,
+        "exchange_return": 0.015473
+      },
+      {
+        "symbol": "CONCOR",
+        "boundary": "2025-01-01",
+        "prev_session": "2024-12-31",
+        "step_factor": 1.25,
+        "series_return": -0.208832,
+        "exchange_return": -0.011041
+      },
+      {
+        "symbol": "TRENT",
+        "boundary": "2026-01-01",
+        "prev_session": "2025-12-31",
+        "step_factor": 1.5,
+        "series_return": -0.330467,
+        "exchange_return": 0.0043
+      }
+    ],
+    "n": 5
+  }
+}

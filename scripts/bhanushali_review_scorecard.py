@@ -25,7 +25,10 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-from config import NSE_HOLIDAYS, RESULTS_DIR  # noqa: E402
+from config import (  # noqa: E402
+    NSE_HOLIDAYS, NSE_HOLIDAYS_COVERED_THROUGH, RESULTS_DIR,
+    CalendarCoverageError, assert_calendar_covers,
+)
 
 INCEPTION = date(2026, 7, 4)                 # forward-watch paper inception (forward/prereg.md)
 BOOK = "weekly-swing-0094-rank"
@@ -44,6 +47,23 @@ def _first_trading_day(y: int, m: int) -> date:
     return d
 
 
+def _is_verified(d: date) -> bool:
+    """Is this review date SOURCED, or did the calendar run out and we skipped weekends only?
+
+    NSE publishes its holiday list one year at a time, so every review date past
+    ``NSE_HOLIDAYS_COVERED_THROUGH`` is a weekends-only guess: the right answer if that month's
+    first weekday happens to be a trading day, silently wrong if it is a holiday. This scorecard
+    is the thing the owner reads the review cadence off, so a guess must never be presented as a
+    known date. It is flagged rather than raised — the cron must keep producing the card, and the
+    fix (re-run ``scripts/build_nse_holidays.py`` once NSE publishes) is a data refresh, not a bug.
+    """
+    try:
+        assert_calendar_covers(d, what="a review date")
+        return True
+    except CalendarCoverageError:
+        return False
+
+
 def _review_dates(y0: int, n: int = 6) -> list[date]:
     return sorted(_first_trading_day(y, m) for y in range(y0, y0 + n) for m in (1, 4, 7, 10))
 
@@ -60,8 +80,19 @@ def _forward_metrics() -> dict:
             if len(df) >= 2 and "total_value" in df:
                 r = df["total_value"].astype(float).pct_change().dropna()
                 if len(r) >= 2 and r.std():
+                    # sqrt(252) is CORRECT here: portfolio_history_weekly.csv is a DAILY series —
+                    # the `_weekly` suffix names the weekly-swing BOOK, not the sampling frequency
+                    # (verified: median row gap 1.0 day). Do NOT "fix" this to sqrt(52) to match the
+                    # filename; that would inflate the forward Sharpe by ~2.2x. Also note rf = 0
+                    # (no risk-free subtraction), which matters for the absolute KILL_SHARPE gate
+                    # below but cancels in any delta comparison. See DEFINITIONS_REGISTER §8.
                     sharpe = float(r.mean() / r.std() * (252 ** 0.5))
                 eq = df["total_value"].astype(float)
+                # MaxDD is GRID-DEPENDENT: a coarser grid cannot see the troughs between samples and
+                # can only UNDERSTATE the drawdown. This is the daily grid (the conservative choice)
+                # and the §4 mechanical -50% halt reads it, so the grid is load-bearing for a risk
+                # control. Finding 0114 publishes -33% for the same book family at MONTHLY
+                # granularity vs -42.4% daily — not a different book. DEFINITIONS_REGISTER §7.
                 maxdd = float((eq / eq.cummax() - 1).min())
         except Exception:
             pass
@@ -88,6 +119,7 @@ def main() -> int:
     quarters_elapsed = len([d for d in rev if INCEPTION < d <= today])
     next_review = min([d for d in rev if d >= today], default=None)
     days_to_review = (next_review - today).days if next_review else None
+    review_verified = next_review is not None and _is_verified(next_review)
     days_live = (today - INCEPTION).days
 
     m = _forward_metrics()
@@ -112,7 +144,9 @@ def main() -> int:
 
     headline = (f"{m['n_closed']}/{READY_CLOSED} closed, {quarters_elapsed}/{READY_QUARTERS} quarters "
                 f"-> {'evaluable' if ready else 'not yet evaluable'}; "
-                f"{days_to_review} days to the {next_review} review")
+                f"{days_to_review} days to the {next_review} review"
+                + ("" if review_verified else " [UNVERIFIED DATE - calendar coverage ends "
+                                              f"{NSE_HOLIDAYS_COVERED_THROUGH}]"))
 
     card = {
         "generated_utc": datetime.now(timezone.utc).isoformat(),
@@ -120,6 +154,9 @@ def main() -> int:
         "book": BOOK, "inception": INCEPTION.isoformat(), "days_live": days_live,
         "next_review": next_review.isoformat() if next_review else None,
         "days_to_review": days_to_review,
+        # False = the calendar ran out and this date skipped weekends only. Not a known date.
+        "next_review_verified": review_verified,
+        "holidays_covered_through": NSE_HOLIDAYS_COVERED_THROUGH,
         "review_cadence": "first trading day of Jan/Apr/Jul/Oct (forward/prereg.md §8)",
         "forward": m,
         "gates": {
@@ -149,6 +186,10 @@ def main() -> int:
         return {True: "TRIGGERED", False: "no", None: "n/a"}[v]
     print(f"=== Weekly-swing forward-review scorecard ({BOOK}) ===")
     print(f"  inception {INCEPTION} | {days_live}d live | next review {next_review} ({days_to_review}d)")
+    if not review_verified:
+        print(f"  !! next review date is UNVERIFIED: NSE_HOLIDAYS covers through "
+              f"{NSE_HOLIDAYS_COVERED_THROUGH}, so it skipped weekends only. Re-run "
+              f"scripts/build_nse_holidays.py once NSE publishes the next year.")
     print(f"  forward: {m['n_closed']} closed | expectancy {exp if exp is None else f'{exp:+.2f}R'} | "
           f"win {m['win_rate_pct']} | Sharpe {sh if sh is None else f'{sh:+.2f}'} | MaxDD {dd}% | NAV {m['nav']:,.0f}")
     print(f"  [readiness] {'READY' if ready else 'ACCRUING'} ({m['n_closed']}/{READY_CLOSED} closed, "

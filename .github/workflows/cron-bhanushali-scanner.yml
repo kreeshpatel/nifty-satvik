@@ -129,6 +129,10 @@ jobs:
           opt results/decision_memos_weekly.json
           opt results/decision_memos_weekly.md
           opt results/blend_hybrid_paper.json
+          # zoo shadow book STOOD DOWN 2026-08-06 (finding 0131, falsifier fired) — no
+          # longer produced weekly. The opt() stays so a deliberate manual re-run of
+          # scripts/run_zoo_shadow_book.py is still committable; opt() never fails.
+          opt results/zoo_shadow_book.json
           if git commit -m "chore(weekly): Saturday weekly-swing paper state $(date -u +%F)"; then
             # --autostash: the OHLCV download leaves UNSTAGED cache changes that abort a plain
             # `git pull --rebase`, which silently swallowed the push as "nothing to push" and dropped

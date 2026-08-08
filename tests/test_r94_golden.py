@@ -128,6 +128,49 @@ def _drift_report(got: dict, exp: dict, label: str) -> str:
     return "\n".join(lines)
 
 
+def test_curve_key_is_pinned_above_float_noise_and_below_real_drift(cells):
+    """Constitution S2-F5, resolved. The curve pin must survive float64 accumulation noise and
+    still catch any drift the engine can physically produce.
+
+    The original key rounded to an ABSOLUTE 1e-4 on a series running to ₹1.08e8, where one ULP is
+    ~1.9e-9 — a tie boundary only ~5e4 ULP away, with 111 of 1458 points inside 1000 ULP of one.
+    Cross-platform summation order moves an accumulated 1e8 by more than that, so the hash flipped
+    on Linux CI (54deb7e30a293cb9) while every economically meaningful field — trades, ledger_hash,
+    final_equity, sharpe, cagr, max_dd, exit_reasons — stayed byte-identical, and Windows reproduced
+    the pinned value at the same commit AND at a558c73, the last commit CI passed. The engine did
+    not drift; the check was pinned below the precision the computation reproduces.
+
+    Both directions are asserted, because a repin that only bought robustness would be a muzzle.
+    """
+    from build_r94_golden_fixture import _curve_key, synth_universe, START_FIX
+    import numpy as np
+    import run_bhanushali_weekly_rank as R94
+
+    ohlcv, index = synth_universe()
+    curve = R94.backtest(R94.prep_weekly_rank(ohlcv, index_provider=lambda _t: index), None,
+                         ledger=[], start=START_FIX)["curve"]
+    base = _curve_key(curve)
+
+    # (a) ROBUST: perturbing every point by 4096 ULP — far beyond any observed cross-platform
+    #     divergence, and ~4e-13 relative — must not move the key.
+    ulp = np.array([np.spacing(float(v)) for v in curve.values])
+    for sign in (+1, -1):
+        jittered = pd.Series(curve.values + sign * 4096 * ulp, index=curve.index)
+        assert _curve_key(jittered) == base, (
+            f"curve key moved under {sign:+d}4096 ULP of float noise — it is pinned below the "
+            "precision this computation reproduces, which is what made CI flake")
+
+    # (b) STILL A CHECK: a drift of 1e-6 relative (₹108 on ₹1.08e8) — three orders of magnitude
+    #     SMALLER than one different trade, fill or exit day — must still be caught.
+    drifted = pd.Series(curve.values * (1 + 1e-6), index=curve.index)
+    assert _curve_key(drifted) != base, "curve key no longer detects a 1e-6 relative drift"
+
+    # (c) The path's SHAPE stays pinned byte-for-byte: dates are exact strings, length is the list.
+    assert [d for d, _ in base] == [str(d.date()) for d in curve.index]
+    dropped = pd.Series(curve.values[:-1], index=curve.index[:-1])
+    assert _curve_key(dropped) != base, "curve key no longer detects a truncated path"
+
+
 def test_frozen_defaults_cell_byte_identical(cells, expected):
     """FROZEN 0094 configuration — may NEVER change. Any diff = the research engine drifted."""
     got, exp = cells[0], expected["frozen_defaults"]
@@ -243,6 +286,30 @@ def test_d5_card_parity_receipt(cells):
             "lifting the stop must PULL IN the +2R target; a positive delta means the arithmetic "
             "is inverted")
         assert c["risk_pct_prefix"] > c["risk_pct_record"]
+
+
+def test_event_badge_cannot_perturb_the_golden():
+    """The event-proximity badge (display-only, added 2026-08-06) reads the REAL PIT results
+    calendar from disk, so it is the one card field that is not hermetic by construction.
+
+    It stays inert here only because no synthetic fixture ticker is a real NSE symbol. That is an
+    accident waiting to break: rename a fixture ticker onto a real one and the envelope hash moves
+    for a reason nobody would look for. Pin it.
+    """
+    from build_r94_golden_fixture import synth_universe
+    try:
+        from nq.data.delivery import apply_alias_map
+        from nq.data.earnings import EARNINGS_RAW_PATH, build_event_table
+    except ImportError:                                     # layer absent -> badge can never fire
+        return
+    if not EARNINGS_RAW_PATH.exists():                      # no feed in CI -> badge degrades to off
+        return
+    ohlcv, _ = synth_universe()
+    calendar = set(build_event_table(apply_alias_map(pd.read_parquet(EARNINGS_RAW_PATH)))["symbol"])
+    collisions = sorted(set(ohlcv) & calendar)
+    assert not collisions, (
+        f"fixture ticker(s) {collisions} exist in the real results calendar, so the event badge "
+        "can fire inside the hermetic golden and move envelope_hash — rename the fixture ticker")
 
 
 def test_b1_gate_off_is_inert(cells, expected):

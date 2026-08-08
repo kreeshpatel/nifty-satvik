@@ -9,7 +9,12 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from nq.data.earnings import build_event_table, events_in_window, known_events_features
+from nq.data.earnings import (
+    build_event_table,
+    card_event_badge,
+    events_in_window,
+    known_events_features,
+)
 
 
 def _raw() -> pd.DataFrame:
@@ -60,3 +65,38 @@ def test_label_side_uses_true_events():
     ev = build_event_table(_raw())
     assert events_in_window(ev, "AAA", "2024-06-01", "2024-06-30") == 1
     assert events_in_window(ev, "AAA", "2024-01-01", "2024-12-31") == 2
+
+
+# ── card badge: display-only, but PIT-legal on exactly the 0120 rule ──────────────────────────
+def test_card_badge_fires_inside_the_window():
+    ev = build_event_table(_raw())
+    # signal Friday 2024-06-07 -> entry Monday 2024-06-10 -> window through 2024-06-24.
+    # AAA's 15-Jun event was announced 01-Jun, so it IS known at 07-Jun.
+    b = card_event_badge(ev, "AAA", "2024-06-07")
+    assert b is not None
+    assert b["event_date"] == "2024-06-15"
+    assert b["days_into_window"] == 5                      # 10-Jun -> 15-Jun
+    assert b["announced_on"] == "2024-06-01"
+    assert b["cohort_cost_r"] == -0.38 and b["false_touch_enrichment_pp"] == 9.8
+
+
+def test_card_badge_hides_an_unannounced_event():
+    """The 15-Jun event is announced 01-Jun; a 24-May signal Friday must NOT see it."""
+    ev = build_event_table(_raw())
+    assert card_event_badge(ev, "AAA", "2024-05-24") is None
+
+
+def test_card_badge_is_silent_outside_the_window_and_for_unknown_symbols():
+    ev = build_event_table(_raw())
+    assert card_event_badge(ev, "AAA", "2024-04-05") is None      # next event >14cd away
+    assert card_event_badge(ev, "ZZZ", "2024-06-07") is None      # symbol not in the calendar
+
+
+def test_card_badge_truncation_invariance():
+    """Truncating the raw feed at T cannot change any badge for a signal Friday <= T."""
+    raw = _raw()
+    T = pd.Timestamp("2024-06-03")
+    raw_tr = raw[pd.to_datetime(raw["ann_ts"], format="%d-%b-%Y %H:%M:%S") <= T]
+    a = card_event_badge(build_event_table(raw), "AAA", "2024-06-03")
+    b = card_event_badge(build_event_table(raw_tr), "AAA", "2024-06-03")
+    assert a == b and a is not None

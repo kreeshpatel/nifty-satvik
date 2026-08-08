@@ -50,7 +50,14 @@ def metrics(r: pd.Series) -> dict:
     if len(r) < 30:
         return {}
     e = (1 + r).cumprod()
+    # TRADING-BAR years (bars/252) — the nq.validation.metrics convention. The swing print in
+    # run_bhanushali_sixstep.py:220 uses CALENDAR years ((last-first).days/365.25) instead, which is
+    # why one book can be published with two CAGRs (24.7 calendar vs 25.21 bar-year, same curve:
+    # Sharpe 1.132 / MaxDD -42.4). Bar-years are the shorter denominator => the higher CAGR.
+    # Never compare a book CAGR to a benchmark CAGR across the two. See DEFINITIONS_REGISTER §6.
     yrs = len(r) / 252
+    # Calendar-year buckets: a PARTIAL first/last year counts as a whole entry in any
+    # "losing years" tally (DEFINITIONS_REGISTER §14).
     per_year = {int(y): round(((1 + g).cumprod().iloc[-1] - 1) * 100, 1)
                 for y, g in r.groupby(r.index.year)}
     at = np.prod([1 + (v / 100 if v <= 0 else v / 100 * (1 - STCG)) for v in per_year.values()])
