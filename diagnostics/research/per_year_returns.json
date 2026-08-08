@@ -1,0 +1,307 @@
+{
+ "_doc": "MEASUREMENT, no trial. Chained year-end over year-end on ONE continuous curve.",
+ "stcg_rate": 0.2,
+ "reproduce": "python pipelines/diagnostics/diag_per_year_returns.py",
+ "note": "2017 and 2026 are PARTIAL years (curve starts 2017-01-02, ends 2026-06-30).",
+ "books": [
+  {
+   "book": "base-swing (certified)",
+   "years": [
+    {
+     "year": 2017,
+     "sessions": 248,
+     "partial": false,
+     "gross_pct": 31.76,
+     "after_tax_pct": 31.76,
+     "intra_year_maxdd_pct": -6.8
+    },
+    {
+     "year": 2018,
+     "sessions": 246,
+     "partial": false,
+     "gross_pct": 11.56,
+     "after_tax_pct": 9.51,
+     "intra_year_maxdd_pct": -18.94
+    },
+    {
+     "year": 2019,
+     "sessions": 245,
+     "partial": false,
+     "gross_pct": 30.83,
+     "after_tax_pct": 25.88,
+     "intra_year_maxdd_pct": -7.2
+    },
+    {
+     "year": 2020,
+     "sessions": 251,
+     "partial": false,
+     "gross_pct": 11.36,
+     "after_tax_pct": 5.66,
+     "intra_year_maxdd_pct": -42.37
+    },
+    {
+     "year": 2021,
+     "sessions": 248,
+     "partial": false,
+     "gross_pct": 34.51,
+     "after_tax_pct": 32.45,
+     "intra_year_maxdd_pct": -12.87
+    },
+    {
+     "year": 2022,
+     "sessions": 248,
+     "partial": false,
+     "gross_pct": 34.81,
+     "after_tax_pct": 27.24,
+     "intra_year_maxdd_pct": -17.81
+    },
+    {
+     "year": 2023,
+     "sessions": 245,
+     "partial": false,
+     "gross_pct": 66.46,
+     "after_tax_pct": 58.71,
+     "intra_year_maxdd_pct": -8.71
+    },
+    {
+     "year": 2024,
+     "sessions": 246,
+     "partial": false,
+     "gross_pct": 9.91,
+     "after_tax_pct": 3.25,
+     "intra_year_maxdd_pct": -17.74
+    },
+    {
+     "year": 2025,
+     "sessions": 249,
+     "partial": false,
+     "gross_pct": -13.02,
+     "after_tax_pct": -16.22,
+     "intra_year_maxdd_pct": -23.39
+    },
+    {
+     "year": 2026,
+     "sessions": 122,
+     "partial": true,
+     "gross_pct": 31.32,
+     "after_tax_pct": 31.32,
+     "intra_year_maxdd_pct": -13.16
+    }
+   ],
+   "n_full_years": 9,
+   "losing_years_gross": [
+    2025
+   ],
+   "losing_years_after_tax": [
+    2025
+   ],
+   "losing_full_years_gross": [
+    2025
+   ],
+   "worst_year_gross_pct": -13.02,
+   "worst_intra_year_dd_pct": -42.37
+  },
+  {
+   "book": "live config P (what trades)",
+   "years": [
+    {
+     "year": 2017,
+     "sessions": 248,
+     "partial": false,
+     "gross_pct": 50.57,
+     "after_tax_pct": 50.57,
+     "intra_year_maxdd_pct": -4.96
+    },
+    {
+     "year": 2018,
+     "sessions": 246,
+     "partial": false,
+     "gross_pct": -18.02,
+     "after_tax_pct": -18.02,
+     "intra_year_maxdd_pct": -25.41
+    },
+    {
+     "year": 2019,
+     "sessions": 245,
+     "partial": false,
+     "gross_pct": 32.25,
+     "after_tax_pct": 29.58,
+     "intra_year_maxdd_pct": -10.16
+    },
+    {
+     "year": 2020,
+     "sessions": 251,
+     "partial": false,
+     "gross_pct": 106.49,
+     "after_tax_pct": 104.48,
+     "intra_year_maxdd_pct": -39.49
+    },
+    {
+     "year": 2021,
+     "sessions": 248,
+     "partial": false,
+     "gross_pct": 41.74,
+     "after_tax_pct": 41.63,
+     "intra_year_maxdd_pct": -12.6
+    },
+    {
+     "year": 2022,
+     "sessions": 248,
+     "partial": false,
+     "gross_pct": 6.18,
+     "after_tax_pct": -2.76,
+     "intra_year_maxdd_pct": -24.78
+    },
+    {
+     "year": 2023,
+     "sessions": 245,
+     "partial": false,
+     "gross_pct": 41.34,
+     "after_tax_pct": 36.42,
+     "intra_year_maxdd_pct": -8.66
+    },
+    {
+     "year": 2024,
+     "sessions": 246,
+     "partial": false,
+     "gross_pct": 18.35,
+     "after_tax_pct": 16.19,
+     "intra_year_maxdd_pct": -14.25
+    },
+    {
+     "year": 2025,
+     "sessions": 249,
+     "partial": false,
+     "gross_pct": -12.17,
+     "after_tax_pct": -15.97,
+     "intra_year_maxdd_pct": -24.41
+    },
+    {
+     "year": 2026,
+     "sessions": 122,
+     "partial": true,
+     "gross_pct": 31.24,
+     "after_tax_pct": 31.24,
+     "intra_year_maxdd_pct": -8.58
+    }
+   ],
+   "n_full_years": 9,
+   "losing_years_gross": [
+    2018,
+    2025
+   ],
+   "losing_years_after_tax": [
+    2018,
+    2022,
+    2025
+   ],
+   "losing_full_years_gross": [
+    2018,
+    2025
+   ],
+   "worst_year_gross_pct": -18.02,
+   "worst_intra_year_dd_pct": -39.49
+  },
+  {
+   "book": "0001 cross-sectional momentum",
+   "years": [
+    {
+     "year": 2017,
+     "sessions": 248,
+     "partial": false,
+     "gross_pct": 0.0,
+     "after_tax_pct": 0.0,
+     "intra_year_maxdd_pct": 0.0
+    },
+    {
+     "year": 2018,
+     "sessions": 246,
+     "partial": false,
+     "gross_pct": -9.57,
+     "after_tax_pct": -9.57,
+     "intra_year_maxdd_pct": -23.38
+    },
+    {
+     "year": 2019,
+     "sessions": 245,
+     "partial": false,
+     "gross_pct": 7.85,
+     "after_tax_pct": 7.85,
+     "intra_year_maxdd_pct": -12.34
+    },
+    {
+     "year": 2020,
+     "sessions": 251,
+     "partial": false,
+     "gross_pct": 52.06,
+     "after_tax_pct": 51.74,
+     "intra_year_maxdd_pct": -37.17
+    },
+    {
+     "year": 2021,
+     "sessions": 248,
+     "partial": false,
+     "gross_pct": 90.38,
+     "after_tax_pct": 82.7,
+     "intra_year_maxdd_pct": -9.55
+    },
+    {
+     "year": 2022,
+     "sessions": 248,
+     "partial": false,
+     "gross_pct": 4.33,
+     "after_tax_pct": -4.45,
+     "intra_year_maxdd_pct": -22.8
+    },
+    {
+     "year": 2023,
+     "sessions": 245,
+     "partial": false,
+     "gross_pct": 53.54,
+     "after_tax_pct": 48.72,
+     "intra_year_maxdd_pct": -12.16
+    },
+    {
+     "year": 2024,
+     "sessions": 246,
+     "partial": false,
+     "gross_pct": 40.49,
+     "after_tax_pct": 35.1,
+     "intra_year_maxdd_pct": -11.41
+    },
+    {
+     "year": 2025,
+     "sessions": 249,
+     "partial": false,
+     "gross_pct": -0.47,
+     "after_tax_pct": -8.11,
+     "intra_year_maxdd_pct": -27.02
+    },
+    {
+     "year": 2026,
+     "sessions": 122,
+     "partial": true,
+     "gross_pct": 2.13,
+     "after_tax_pct": 2.13,
+     "intra_year_maxdd_pct": -14.34
+    }
+   ],
+   "n_full_years": 9,
+   "losing_years_gross": [
+    2018,
+    2025
+   ],
+   "losing_years_after_tax": [
+    2018,
+    2022,
+    2025
+   ],
+   "losing_full_years_gross": [
+    2018,
+    2025
+   ],
+   "worst_year_gross_pct": -9.57,
+   "worst_intra_year_dd_pct": -37.17
+  }
+ ]
+}
