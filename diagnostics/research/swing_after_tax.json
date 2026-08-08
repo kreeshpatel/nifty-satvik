@@ -1,0 +1,88 @@
+{
+ "_doc": "MEASUREMENT, no trial. STCG paid annually out of the book (tax stops compounding).",
+ "stcg_rate": 0.2,
+ "initial_capital": 1000000.0,
+ "reproduce": "python pipelines/diagnostics/diag_swing_after_tax.py",
+ "caveats": [
+  "calendar year approximates the fiscal year",
+  "no loss carry-forward",
+  "no business-income treatment (slab rates with deductible costs)",
+  "net_pnl is already net of brokerage/STT/slippage; STCG is applied on top"
+ ],
+ "books": [
+  {
+   "book": "base-swing (certified, all grades)",
+   "n_closed": 255,
+   "years": 9.487,
+   "gross_cagr_pct": 24.694,
+   "after_tax_cagr_pct": 20.425,
+   "tax_wedge_pp": 4.269,
+   "gross_final": 8114623.22,
+   "after_tax_final": 5830928.25,
+   "gross_maxdd_pct": -42.37,
+   "after_tax_maxdd_pct": -42.37,
+   "realised_gain_by_year": {
+    "2017": 121154.66,
+    "2018": 277912.9,
+    "2019": 492226.07,
+    "2020": 164030.47,
+    "2021": 808580.07,
+    "2022": 903228.03,
+    "2023": 1957574.09,
+    "2024": 1307520.16,
+    "2025": -1230277.55,
+    "2026": 2291623.45
+   },
+   "tax_paid_by_year": {
+    "2017": 24230.93,
+    "2018": 55582.58,
+    "2019": 98445.21,
+    "2020": 32806.09,
+    "2021": 161716.01,
+    "2022": 180645.61,
+    "2023": 391514.82,
+    "2024": 261504.03,
+    "2025": 0.0,
+    "2026": 458324.69
+   },
+   "total_tax_paid": 1664769.98
+  },
+  {
+   "book": "live config P (A-only, what trades)",
+   "n_closed": 130,
+   "years": 9.487,
+   "gross_cagr_pct": 27.175,
+   "after_tax_cagr_pct": 24.299,
+   "tax_wedge_pp": 2.876,
+   "gross_final": 9781800.16,
+   "after_tax_final": 7873803.53,
+   "gross_maxdd_pct": -39.49,
+   "after_tax_maxdd_pct": -39.49,
+   "realised_gain_by_year": {
+    "2017": -7688.36,
+    "2018": 124464.49,
+    "2019": 79250.09,
+    "2020": 13521.58,
+    "2021": 2012203.33,
+    "2022": 881416.05,
+    "2023": 655348.27,
+    "2024": 1836315.08,
+    "2025": 100.71,
+    "2026": 3170299.04
+   },
+   "tax_paid_by_year": {
+    "2017": 0.0,
+    "2018": 24892.9,
+    "2019": 15850.02,
+    "2020": 2704.32,
+    "2021": 402440.67,
+    "2022": 176283.21,
+    "2023": 131069.65,
+    "2024": 367263.02,
+    "2025": 20.14,
+    "2026": 634059.81
+   },
+   "total_tax_paid": 1754583.73
+  }
+ ]
+}
