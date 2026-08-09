@@ -1,11 +1,11 @@
 {
-  "generated_utc": "2026-08-06T11:29:34.603432+00:00",
-  "generated_ist": "2026-08-06 16:59",
+  "generated_utc": "2026-08-09T22:25:20.251211+00:00",
+  "generated_ist": "2026-08-10 03:55",
   "book": "weekly-swing-0094-rank",
   "inception": "2026-07-04",
-  "days_live": 33,
+  "days_live": 37,
   "next_review": "2026-10-01",
-  "days_to_review": 56,
+  "days_to_review": 52,
   "next_review_verified": true,
   "holidays_covered_through": "2026-12-31",
   "review_cadence": "first trading day of Jan/Apr/Jul/Oct (forward/prereg.md \u00a78)",
@@ -41,8 +41,19 @@
       "triggered": false
     }
   },
+  "swing_grading": {
+    "rule": "keep A-only if forward MaxDD shallower AND Calmar >= base - 0.05; revert if MaxDD not shallower OR Calmar > 0.10 below base; < 20 closed per book -> insufficient evidence, DEFAULT TO BASE-SWING and carry A-only (forward/prereg_swing.md \u00a74)",
+    "authority": "forward/prereg_swing.md \u00a74 (frozen 2026-07-13, tighten-only)",
+    "decided_at": "2027-07-01 primary; 2026-10-01 is a first read only",
+    "a_only_closed": 4,
+    "floor_per_book": 20,
+    "not_implemented": "\u00a74's CI-overlap limb of the insufficient-evidence clause. A KEEP or REVERT verdict from this panel is provisional until block-bootstrap CIs on forward MaxDD and Calmar are computed and checked for overlap.",
+    "verdict": "INSUFFICIENT EVIDENCE -> default base-swing, carry A-only",
+    "reason": "results/base_swing_forward.json absent \u2014 the comparator has not accrued",
+    "base_swing_closed": null
+  },
   "status": "ACCRUING",
-  "headline": "4/40 closed, 0/4 quarters -> not yet evaluable; 56 days to the 2026-10-01 review",
-  "spec_note": "The \u00a710.2 registered proposal names practitioner Engine B + 4xATR; the live forward book is weekly-swing-0094-rank. The Oct-1 review must reconcile which spec is judged (forward/prereg.md \u00a710.2). Gates are surfaced, never applied between review dates; the only mechanical action is the \u00a74 halt.",
+  "headline": "4/40 closed, 0/4 quarters -> not yet evaluable; 52 days to the 2026-10-01 review",
+  "spec_note": "The \u00a710.2 registered proposal names practitioner Engine B + 4xATR; the live forward book is weekly-swing-0094-rank. The Oct-1 review must reconcile which spec is judged (forward/prereg.md \u00a710.2). Gates are surfaced, never applied between review dates; the only mechanical action is the \u00a74 halt. The `swing_grading` block encodes the OTHER doc \u2014 forward/prereg_swing.md \u00a74 \u2014 so both candidate specs are now computed rather than argued at the review.",
   "authority": "forward/prereg.md (the doc is the authority; this scorecard only reads it)"
 }
