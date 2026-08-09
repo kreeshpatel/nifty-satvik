@@ -1,5 +1,13 @@
 # Intraday store — feasibility, measured 2026-08-10
 
+> ## ⚠ CORRECTED later the same day
+>
+> The conclusion below — "not startable, treat it as a data-source decision" — was reached against
+> **yfinance only** and generalised too far. Kite Connect's documented limits are **per-request page
+> sizes on history it actually holds**, not ceilings on available history. The store is buildable,
+> the fetch is under an hour, and the depth covers the regimes that matter. The yfinance
+> measurements stand; the conclusion drawn from them does not. See the corrected finding at the end.
+
 **MEASUREMENT, no trial.** Standing counts: screens 19 · sealed opens 1 · n_trials 2.
 
 ## Why this was asked
@@ -82,3 +90,84 @@ wrong store.
 
 Reproduce the limit check: request `interval="15m"` or `"1h"` over any range longer than 60 or 730
 days respectively; Yahoo returns the quoted error rather than truncated data.
+
+---
+
+# Corrected finding — Kite Connect makes this buildable
+
+## The limits are PER REQUEST, not total
+
+[Kite Connect historical candle docs](https://kite.trade/docs/connect/v3/historical/) and the
+developer forum give maximum lookback **per request**:
+
+| interval | days per request |
+|---|--:|
+| 1–2 minute | 60 |
+| 3–10 minute | 100 |
+| **15–30 minute** | **200** |
+| 60 minute – 4 hour | 400 |
+| day / week | 2000 |
+
+You paginate. That is the distinction missed above: yfinance's 60/730-day caps are hard ceilings on
+*available history*; Kite's are page sizes on history it holds.
+
+## Depth reaches the regimes we need
+
+A forum report of minute data for RELIANCE from **2015-01-01**
+([discussion](https://kite.trade/forum/discussion/9129/how-many-past-days-historical-data-can-be-fetched-for-minute-candle))
+puts depth well before our 2017 start. That matters more than the interval: it spans **2018, COVID,
+2022 and 2025** — the four regimes the daily panel's 37 windows cover. **The regime-diversity
+objection raised above does not apply to a Kite-sourced store**, and that objection was the
+load-bearing half of the argument against building.
+
+## Cost of acquisition, computed
+
+2017-01-01 → 2026-06-30 is ~3,468 days. At the documented 3 requests/second:
+
+| interval | pages/instrument | 200 names | 561 names (MID ever-traded) |
+|---|--:|--:|--:|
+| 15-minute | 18 | ~20 min | ~56 min |
+| 60-minute | 9 | ~10 min | ~28 min |
+
+**Under an hour for the full history.** Historical data is now included in the base Kite Connect
+subscription rather than a separate add-on
+([announcement](https://kite.trade/forum/discussion/14806/historical-data-is-now-free-with-base-kite-connect-subscription)).
+
+## The hard parts are NOT the fetching
+
+Three unverified risks, and they are the real project:
+
+1. **Survivorship, possibly worse than the daily pin.** Kite's instrument list is *current*. A name
+   delisted in 2019 may have no retrievable endpoint at all. The daily store already carries 103/813
+   missing members and needed a bhavcopy backfill; an intraday store could be structurally unable to
+   reconstruct the delisted tail — survivor-only **by construction**, flattering in precisely the
+   direction this programme has been burned by.
+2. **Corporate-action convention** — adjusted or unadjusted, and how splits behave across a
+   paginated fetch. The split-vs-demerger distinction (the VEDL lesson) must hold in the new store.
+3. **Instrument-token stability** across nine years of symbol changes.
+
+## Other sources, for comparison
+
+- [TickData](https://www.tickdata.com/equity-data/national-stock-exchange-of-india) — NSE intraday
+  since 2012-01-02, pre-built 1-minute OHLCV. Commercial and properly licensed; would sidestep the
+  survivorship problem *if* their history includes delisted names.
+- [Breeze API, ICICI Direct](https://www.icicidirect.com/futures-and-options/api/breeze) — 1-second
+  and 1-minute, ~3 years for F&O, free.
+- [INDstocks API](https://api-docs.indstocks.com/historicalData/) — claims 15 years of OHLCV.
+- [ShabbirHasan1/NSE-Data](https://github.com/ShabbirHasan1/NSE-Data) — free minute data for Nifty
+  50, Next 100 midcaps and 9 indices, 2017-01-01 → 2020-12-31. Right universe shape, but unknown
+  provenance and no corporate-action contract: a **cross-check** against a Kite fetch, never the
+  store of record.
+
+## Revised recommendation — probe, don't build
+
+Sequence, per the `skills/verdict-machine` rung order where coverage is audited before anything is
+built on a stream:
+
+1. Confirm Kite Connect access and that historical is enabled on the owner's app.
+2. **Probe five known-delisted names** — DHFL, JETAIRWAYS, ALBK, LAKSHVILAS, INFRATEL — for intraday
+   availability.
+3. Only if that passes: scope the universe (F&O per the reset rationale, not all of Nifty 500) and
+   build, with the coverage/PIT audit as the first deliverable rather than the last.
+
+The probe is minutes of work and decides whether the project is worth an hour or is dead on arrival.
