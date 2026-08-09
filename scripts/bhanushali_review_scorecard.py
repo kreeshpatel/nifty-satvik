@@ -292,7 +292,18 @@ def main() -> int:
             "readiness": {"rule": ">=40 closed OR 4 quarters (§10.2)",
                           "n_closed": m["n_closed"], "quarters_elapsed": quarters_elapsed, "ready": ready},
             "promote": {"rule": "expectancy > +0.10R AND MaxDD shallower than -25% (§10.2)",
-                        "expectancy_R": exp, "maxdd_pct": dd, "pass": promote_pass},
+                        "expectancy_R": exp, "maxdd_pct": dd, "pass": promote_pass,
+                        # Stated, not silently reconciled: this gate mixes units. `expectancy_R`
+                        # comes from signal_analytics_weekly.json, where R is computed on RAW
+                        # prices, while `maxdd_pct` is read off the NET NAV curve. So the +0.10R
+                        # limb is measured gross of the costs the -25% limb already pays, and the
+                        # gate is easier to clear than a reader would assume. Recomputing
+                        # expectancy net would change what a pre-committed threshold means, which
+                        # is an amendment at a review date, not an edit here.
+                        "_units": ("expectancy_R is GROSS (raw-price R); maxdd_pct and sharpe are "
+                                   "NET (off the NAV curve). The two limbs of this gate are not in "
+                                   "the same unit — see forward/prereg.md §10.2 and "
+                                   "DEFINITIONS_REGISTER §8.")},
             "kill": {"rule": "net Sharpe < 0 (§10.2)", "sharpe": sh, "triggered": kill_trig},
             "halt": {"rule": "live MaxDD <= -50% (§4, mechanical)", "maxdd_pct": dd, "triggered": halt_trig},
         },

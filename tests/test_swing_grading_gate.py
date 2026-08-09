@@ -164,3 +164,18 @@ def test_the_panel_discloses_the_limb_it_does_not_implement(results_dir):
     assert out["verdict"] == "KEEP A-ONLY"
     assert "CI-overlap limb" in out["not_implemented"]
     assert "provisional" in out["not_implemented"]
+
+
+def test_the_promote_gate_declares_its_mixed_units():
+    """§10.2's promote gate compares a GROSS expectancy against a NET drawdown. That is a real unit
+    mismatch and it makes the gate easier to clear than it reads. Recomputing expectancy net would
+    change what a pre-committed threshold means -- an amendment at a review date, not a code edit --
+    so the artifact states the units instead of quietly reconciling them."""
+    import subprocess
+
+    subprocess.run([sys.executable, str(ROOT / "scripts" / "bhanushali_review_scorecard.py")],
+                   check=True, capture_output=True, cwd=ROOT)
+    card = json.loads((ROOT / "results" / "weekly_review_scorecard.json").read_text(encoding="utf-8"))
+    units = card["gates"]["promote"]["_units"]
+    assert "GROSS" in units and "NET" in units
+    assert "not in the same unit" in units

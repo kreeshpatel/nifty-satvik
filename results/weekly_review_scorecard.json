@@ -1,6 +1,6 @@
 {
-  "generated_utc": "2026-08-09T22:25:20.251211+00:00",
-  "generated_ist": "2026-08-10 03:55",
+  "generated_utc": "2026-08-09T22:39:00.900019+00:00",
+  "generated_ist": "2026-08-10 04:09",
   "book": "weekly-swing-0094-rank",
   "inception": "2026-07-04",
   "days_live": 37,
@@ -28,7 +28,8 @@
       "rule": "expectancy > +0.10R AND MaxDD shallower than -25% (\u00a710.2)",
       "expectancy_R": -1.78,
       "maxdd_pct": -3.7,
-      "pass": false
+      "pass": false,
+      "_units": "expectancy_R is GROSS (raw-price R); maxdd_pct and sharpe are NET (off the NAV curve). The two limbs of this gate are not in the same unit \u2014 see forward/prereg.md \u00a710.2 and DEFINITIONS_REGISTER \u00a78."
     },
     "kill": {
       "rule": "net Sharpe < 0 (\u00a710.2)",
