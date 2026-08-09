@@ -473,3 +473,40 @@ def test_missing_columns_raise():
 def test_empty_window_is_a_noop():
     out = simulate_rebalance_book(_panel(), start="2030-01-01", end="2030-12-31")
     assert out["trades"] == [] and out["equity_curve"] == []
+
+
+# --------------------------------------------------------------------------- cost_mult
+#
+# Added 2026-08-10. Pre-reg 0001 makes surviving 1.5x costs a hard deployability condition, but the
+# runner varied `max_position_pct` and only LABELLED the arms 1.0x/1.5x, so the gate was never
+# evaluated -- both arms printed 21.73% because both arms were the same run. These pin the real
+# lever and the reason the old one could not work.
+def test_cost_mult_one_is_exactly_inert():
+    """The default must be bit-exact, or every golden master moves underneath us."""
+    base = _run(_panel())
+    one = _run(_panel(), cost_mult=1.0)
+    assert [e["equity"] for e in one["equity_curve"]] == [e["equity"] for e in base["equity_curve"]]
+    assert one["trades"] == base["trades"]
+
+
+def test_cost_mult_scales_the_entry_charge_closed_form():
+    """Recompute the first entry independently: 1.5x must scale BOTH slippage and brokerage+STT."""
+    out = _run(_panel(), cost_mult=1.5)
+    t0 = min(out["trades"], key=lambda r: (r["entry_date"], r["ticker"]))
+    px = _panel().set_index(["ticker", "date"]).loc[(t0["ticker"], t0["entry_date"]), "open"]
+    expected = float(px) * (1 + SLIP * 1.5) * (1 + LEG_COST * 1.5)
+    assert t0["entry"] == pytest.approx(expected, abs=1e-4)   # engine rounds `entry` to 4dp
+
+
+def test_cost_mult_of_one_five_actually_costs_money():
+    base, stressed = _run(_panel()), _run(_panel(), cost_mult=1.5)
+    assert stressed["equity_curve"][-1]["equity"] < base["equity_curve"][-1]["equity"]
+    assert len(stressed["trades"]) > 0, "a stress on zero trades would prove nothing"
+
+
+def test_max_position_pct_is_not_a_cost_lever():
+    """The defect, pinned. Lowering the cap while it stays above 1/len(target) changes NOTHING --
+    which is why the old 5.0 -> 3.33 'cost stress' returned an identical curve both times."""
+    loose, tight = _run(_panel(), max_position_pct=50.0), _run(_panel(), max_position_pct=40.0)
+    assert ([e["equity"] for e in tight["equity_curve"]]
+            == [e["equity"] for e in loose["equity_curve"]])
