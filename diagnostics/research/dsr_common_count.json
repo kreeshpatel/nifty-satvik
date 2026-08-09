@@ -1,0 +1,31 @@
+{
+ "_doc": "AUDIT, no trial. 0001's DSR re-read at defensible trial counts.",
+ "reproduce": "python pipelines/diagnostics/diag_dsr_common_count.py",
+ "study_0001": {
+  "annualised_sharpe": 1.13,
+  "per_window_sharpe": 0.5035,
+  "n_eff_windows": 37,
+  "skew": 0.145,
+  "kurtosis": 2.704,
+  "bootstrap_sharpe_ci": [
+   0.38,
+   1.932
+  ],
+  "n_trials": {
+   "committed_post_reset": 2,
+   "swing_certification": 114,
+   "lifetime": 140
+  },
+  "dsr_at": {
+   "committed_post_reset": 0.9909,
+   "swing_certification": 0.4844,
+   "lifetime": 0.4517
+  }
+ },
+ "swing_certification": {
+  "dsr": 0.894,
+  "n_trials": 114,
+  "sharpe": 1.132
+ },
+ "reading": "At the swing book's own certification count (114), 0001 scores DSR 0.4844 against the swing book's 0.894. The 0001 headline of 0.9909 exists only because the counter was reset to 2 hours before the run. 0001 does not clear the DSR>0.95 gate at any defensible count."
+}
