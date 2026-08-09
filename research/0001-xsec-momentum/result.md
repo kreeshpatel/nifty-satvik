@@ -28,7 +28,28 @@
 | 2022 drawdown | **+3.90%** | −9.67% |
 | 2024-26 correction | **+15.23%** | +10.03% |
 
-Cost sensitivity: unchanged at the 1.5× proxy (21.73% → 21.73%).
+Cost sensitivity: **1.5× costs remove 1.04pp of CAGR — 21.73% → 20.69%**, Sharpe 1.130 → 1.085,
+drawdown essentially unmoved at −37.17% → −37.29%. The book still clears passive equal-weight
+ownership (13.20%) under stress, so the pre-reg's deployability condition is met.
+
+> ### ⚠ This line previously read "unchanged at the 1.5× proxy (21.73% → 21.73%)" — corrected 2026-08-10
+>
+> That was not a result. It was the same run reported twice. The multiplier existed only inside the
+> f-string that labelled the output and was never passed to the engine; the parameter that actually
+> varied between the two arms was `max_position_pct` (5.0 → 3.33), which reaches the target-weight
+> cap and no cost path at all. It also barely bound — at 3.33% the cap is below `1/len(target)` only
+> when the book holds exactly 30 names, and the average is 31.25.
+>
+> The substitution could not have worked even in principle: brokerage and STT are proportional
+> rates, so friction per rupee is invariant to position size, and the one size-sensitive cost term —
+> the slippage impact adder above 0.5% of ADV — becomes *less* likely to fire as notional shrinks. A
+> binding cap would have moved costs **down**.
+>
+> `cost_mult` (commit `0be2ef6`) now scales both friction channels. The measured 1.04pp agrees with
+> first-principles arithmetic: 0.35% per leg × 2 legs × 3.11 turnover/yr × 0.5 extra ≈ 1.09pp. The
+> measurement sits just under the prediction because that 0.35% assumes every name pays the MID_CAP
+> slippage tier, while a MID-*band* name whose turnover clears `ADV_LARGE_CAP_RS` pays 0.18%
+> instead — so the true blended leg cost is slightly below the bound used here.
 
 **This is the first configuration in the programme to beat passive ownership on return, Sharpe and
 drawdown simultaneously.**

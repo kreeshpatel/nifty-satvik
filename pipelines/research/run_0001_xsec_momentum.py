@@ -183,12 +183,15 @@ def main() -> int:
 
     # Self-check: the 1.0x arm must reproduce the candidate exactly. If it does not, the multiplier
     # is reaching something other than cost and the stress below means nothing.
-    inert = cost_rows[0]["cagr_pct"] == cand["metrics"]["cagr_pct"]
+    # bool() is load-bearing: these come out of numpy comparisons, and results.json is written with
+    # default=str, which would serialise np.bool_ as the STRING "True"/"False" -- and "False" is
+    # truthy to every consumer that reads it back.
+    inert = bool(cost_rows[0]["cagr_pct"] == cand["metrics"]["cagr_pct"])
     if not inert:
         print("  ** cost_mult=1.0 did NOT reproduce the candidate — the hook is not cost-only **")
 
     drag = cost_rows[0]["cagr_pct"] - cost_rows[1]["cagr_pct"]
-    survives = cost_rows[1]["cagr_pct"] > passive["cagr_pct"]
+    survives = bool(cost_rows[1]["cagr_pct"] > passive["cagr_pct"])
     print(f"\n  1.5x costs remove {drag:.2f}pp of CAGR "
           f"({cost_rows[0]['cagr_pct']:.2f}% -> {cost_rows[1]['cagr_pct']:.2f}%).")
     print(f"  {'PASS' if survives else 'FAIL'}  still clears passive EW "
