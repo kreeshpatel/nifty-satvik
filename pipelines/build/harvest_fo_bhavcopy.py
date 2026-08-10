@@ -13,10 +13,8 @@ skips dates already in the parquet. HEAD is unreliable on archives.nseindia.com 
 from __future__ import annotations
 
 import argparse
-import io
 import sys
 import time
-import zipfile
 from pathlib import Path
 
 import pandas as pd
@@ -24,32 +22,13 @@ import requests
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
+from nq.data.nse_bhavcopy import fetch_for_date  # noqa: E402
 from nq.data.options_oi import OI_RAW_PATH, parse_fo_bhavcopy  # noqa: E402
 
+# URL templates, the 2024-07 UDiFF cutover and the dual-scheme fallback moved to
+# nq.data.nse_bhavcopy on 2026-08-10 so the F&O universe builder could share them rather than
+# copy them. Behaviour here is unchanged: same primary/secondary order, same silent-None on a miss.
 RAW = OI_RAW_PATH
-HDR = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", "Referer": "https://www.nseindia.com/"}
-UDIFF_FROM = pd.Timestamp("2024-07-01")
-
-
-def _url_old(d: pd.Timestamp) -> str:
-    mon = d.strftime("%b").upper()
-    return (f"https://archives.nseindia.com/content/historical/DERIVATIVES/{d.year}/{mon}/"
-            f"fo{d.strftime('%d')}{mon}{d.year}bhav.csv.zip")
-
-
-def _url_udiff(d: pd.Timestamp) -> str:
-    return f"https://nsearchives.nseindia.com/content/fo/BhavCopy_NSE_FO_0_0_0_{d.strftime('%Y%m%d')}_F_0000.csv.zip"
-
-
-def _fetch(sess: requests.Session, url: str) -> pd.DataFrame | None:
-    try:
-        r = sess.get(url, headers=HDR, timeout=40)
-        if r.status_code != 200 or not r.content:
-            return None
-        z = zipfile.ZipFile(io.BytesIO(r.content))
-        return pd.read_csv(z.open(z.namelist()[0]))
-    except Exception:
-        return None
 
 
 def main() -> int:
@@ -68,11 +47,7 @@ def main() -> int:
     sess = requests.Session()
     n_ok = n_rows = n_miss = 0
     for k, d in enumerate(days):
-        primary = _url_udiff(d) if d >= UDIFF_FROM else _url_old(d)
-        secondary = _url_old(d) if d >= UDIFF_FROM else _url_udiff(d)
-        df = _fetch(sess, primary)
-        if df is None:
-            df = _fetch(sess, secondary)
+        df = fetch_for_date(sess, d)
         if df is not None:
             lf = parse_fo_bhavcopy(df, d)
             if len(lf):
