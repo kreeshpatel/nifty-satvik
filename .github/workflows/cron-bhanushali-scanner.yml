@@ -79,6 +79,21 @@ jobs:
         run: python scripts/archive_weekly_cards.py
           || echo "::warning::card archiver FAILED (exit $?) — results/cards_archive.jsonl not appended this week"
       - name: Informed-judge forward stream (pre-reg 0125 — observational, SEALED)
+        # BOUNDED, 2026-08-11. This step has now destroyed a successfully-computed week TWICE in
+        # four days, by two different mechanisms, and both times the engine step had already
+        # succeeded:
+        #   2026-08-08  a bash syntax error (`||` alone on a line in a literal block) -> exit 2
+        #   2026-08-10  a 43m35s hang -> the job's 45-minute timeout -> CANCELLED before the commit
+        # On the second one the "Post Restore/save OHLCV cache" step was skipped too, so the
+        # refreshed cache was not even persisted and the next run would start stale again.
+        #
+        # The `|| true` below was always meant to make this step unable to fail the scanner. It
+        # cannot defend against wall-clock: a step that never returns is not a step that returns
+        # non-zero. So the step now carries its OWN budget, well under the job's, and is explicitly
+        # non-fatal. 17 cards at a sane per-card latency is a couple of minutes; 10 leaves room for
+        # retries without ever reaching the commit step's budget.
+        timeout-minutes: 10
+        continue-on-error: true
         # One structured verdict per issued card, appended to the hash-chained results/judge_log.jsonl.
         # FORWARD ONLY: no historical variant exists or may be added (the model's training data
         # contains the outcomes and the design cannot be blinded — pre-reg 0125 §1).
