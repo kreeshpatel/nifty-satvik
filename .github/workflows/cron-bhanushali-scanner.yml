@@ -144,6 +144,7 @@ jobs:
                   results/paper_portfolio_weekly.json results/weekly_review_scorecard.json \
                   results/weekly_sma_panel.csv results/archive
           need results/portfolio_history_weekly.csv
+          need results/base_swing_forward.json   # prereg_swing §4 comparator; §3 forbids backfilling a missed week
           opt results/judge_log.jsonl
           opt results/cards_archive.jsonl
           opt results/signal_analytics_weekly.json
