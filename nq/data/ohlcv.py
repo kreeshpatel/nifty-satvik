@@ -264,12 +264,25 @@ def demerger_suspect_names(ohlcv_dict: Mapping[str, pd.DataFrame] | None,
 # ── Acquisition + cache ───────────────────────────────────────────────────────────────
 
 def download_ohlcv(tickers: list[str], start: str = "2015-01-01",
-                   end: str | None = None, *, batch_size: int = 25) -> dict[str, pd.DataFrame]:
+                   end: str | None = None, *, batch_size: int = 25,
+                   min_bars: int = 50) -> dict[str, pd.DataFrame]:
     """Download full OHLCV history for ``tickers`` from yfinance (``auto_adjust=True``).
 
     Returns ``{ticker -> DataFrame}`` with title-cased ``Open/High/Low/Close/Volume`` on a
-    ``DatetimeIndex``. Names with < 50 usable bars or no data are skipped. Network-bound —
-    not exercised by the hermetic Stage-1 gate; the backtest reads a cache instead.
+    ``DatetimeIndex``. Network-bound — not exercised by the hermetic Stage-1 gate; the backtest
+    reads a cache instead.
+
+    ``min_bars`` drops a name returning fewer than that many usable bars. The default of 50 is right
+    for a FULL-history pull, where a name with a handful of bars cannot warm up a 44-week SMA and is
+    junk. It is catastrophically wrong for an INCREMENTAL top-up, and was, silently, for as long as
+    the top-up path existed: `run_bhanushali_cron._refresh_ohlcv` asks for a ~25-day window, which is
+    about 18 trading bars, so EVERY warm name was discarded and `merge_ohlcv` folded an empty dict
+    into the cache. The cron then reported success on an unchanged cache.
+
+    The book therefore only advanced when the monthly actions/cache key rolled and every name came
+    back cold — which is why the live book sat at Friday 2026-07-31 (the last session before the
+    2026-08-01 rebuild) through a successful run on 2026-08-10. Callers doing a top-up must pass
+    ``min_bars=1``.
     """
     import time
     from datetime import datetime
@@ -298,7 +311,7 @@ def download_ohlcv(tickers: list[str], start: str = "2015-01-01",
             try:
                 df = data[t_ns].copy() if len(batch) > 1 else data.copy()
                 df = df.dropna(subset=["Close"])
-                if len(df) >= 50:
+                if len(df) >= min_bars:
                     out[t] = df
             except Exception:
                 pass

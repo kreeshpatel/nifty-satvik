@@ -558,7 +558,12 @@ def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
             ohlcv = merge_ohlcv(ohlcv, download_ohlcv(cold, start=hist_start, end=today)) if ohlcv \
                 else download_ohlcv(cold, start=hist_start, end=today)
         if warm:
-            fresh = download_ohlcv(warm, start=inc_start, end=today)
+            # min_bars=1 is load-bearing. download_ohlcv defaults to 50, which is right for a
+            # full-history pull and fatal here: a 25-day window is ~18 trading bars, so every warm
+            # name was dropped and this merged an EMPTY dict into the cache while reporting success.
+            # The book only advanced when the monthly cache key rolled and every name came back
+            # cold — which is how a successful 2026-08-10 run published data dated 2026-07-31.
+            fresh = download_ohlcv(warm, start=inc_start, end=today, min_bars=1)
             readjusted = _detect_readjusted(ohlcv, fresh)
             ohlcv = merge_ohlcv(ohlcv, fresh)
             if readjusted:
