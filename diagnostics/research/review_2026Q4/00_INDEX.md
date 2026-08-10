@@ -62,3 +62,31 @@ would damage the evidence base for the grading decision the programme has pre-co
 Recommended: **extend the acceptance to 2026-11-06 via a dated ADR** — the only option whose cost is
 one already-accepted cost, and what ADR-0013's own reasoning implies. Full memo, options and
 verification in [07_adr0013_seam_expiry.md](07_adr0013_seam_expiry.md).
+
+---
+
+## 08 — Do we want a faster book? (the intraday-store decision)
+
+**Owner decision, not dated but blocking a build that is otherwise finished.** The intraday store's
+whole chain is built and tested and nothing has been fetched, because the reason to fetch turned out
+to be narrower than it was described as.
+
+**An intraday store does not certify the swing book.** The ±0.59 ceiling is `n_eff = 37` independent
+63-day windows — calendar span divided by holding period. Bar frequency does not enter it. The same
+9.5 years at 15-minute resolution gives the same 37 windows, and it does not accelerate the
+30-closed-trade paper gate either. Intraday pays only where the HOLDING PERIOD shrinks: a 3-day hold
+over the same window has of order 800 independent blocks rather than 37.
+
+So the question is not "should we collect intraday data" but **"do we want a second, faster strategy
+family?"** — with its own in-sample work, pre-registration, `n_trials` charge and forward record from
+zero. Finding 0133's case is real (11 of 22 surveyed positive strategies are intraday and untested
+here purely because no store existed) but it is not a swing-book argument.
+
+Recommendation for the review: **defer the fetch.** With the live book UNCERTIFIED at DSR 0.8096, a
+forward record needing a year, and n_trials at 2, opening a second family now competes with the thing
+that actually gates real capital. Revisit here as an explicit yes/no.
+
+Census and full reasoning: [`../fo_universe_census_2026-08-11.md`](../fo_universe_census_2026-08-11.md).
+It also retires the survivorship worry on a second independent ground: of 151 names that left the F&O
+segment, **98 are still trading** — segment exit, not corporate death — and the genuinely-dead tail is
+bounded at 53 of 359 (14.8%) and is probably a fraction of that.
