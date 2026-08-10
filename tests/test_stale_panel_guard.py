@@ -105,3 +105,34 @@ def test_the_guard_is_wired_into_the_run():
     src = (ROOT / "scripts" / "run_bhanushali_cron.py").read_text(encoding="utf-8")
     assert "_assert_data_advanced(_previous_generated_at(sd), generated_at" in src, \
         "the guard exists but nothing calls it"
+
+
+# --------------------------------------------------------------------------- the false positive
+#
+# Added 2026-08-11, after this guard's FIRST firing in production was wrong and blocked the cron.
+# Run 31437501034 raised with prev and now_ both 2026-08-07 — correctly, since Friday was the last
+# session the vendor had settled — because two unsettled calendar sessions sat behind it.
+#
+# The panel's last bar tracks the VENDOR, not the calendar. A short lag is normal. The defect this
+# guard exists for had the panel six sessions behind and climbing, so a tolerance costs nothing:
+# the real case is still caught on the very next weekly run.
+def test_a_short_settlement_lag_does_not_block_the_book():
+    """The exact false positive: Tuesday re-run, Friday data, two unsettled sessions behind."""
+    C._assert_data_advanced("2026-08-07", "2026-08-07", max_stale=3)
+
+
+def test_the_real_defect_is_still_caught_at_the_tolerance():
+    """2026-08-10 was SIX sessions past 2026-07-31 — comfortably past any sane lag."""
+    with pytest.raises(C.StaleDataError):
+        C._assert_data_advanced("2026-07-31", "2026-07-31", max_stale=3)
+
+
+def test_the_tolerance_is_small_enough_to_catch_a_missed_weekly_run():
+    """A weekly cadence means the next run is 5 sessions later. The tolerance must sit below that,
+    or a book frozen for a whole week would pass."""
+    assert C.MAX_STALE_SESSIONS < 5
+
+
+def test_the_message_states_the_tolerance_it_applied():
+    with pytest.raises(C.StaleDataError, match=r"tolerance \d+"):
+        C._assert_data_advanced("2026-07-31", "2026-07-31")

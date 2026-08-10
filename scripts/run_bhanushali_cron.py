@@ -671,7 +671,11 @@ def _sessions_after(day: str, upto: str) -> int:
                if d.date().isoformat() not in hol)
 
 
-def _assert_data_advanced(prev: str | None, now_: str, *, allow_stale: bool = False) -> None:
+MAX_STALE_SESSIONS = 3        # vendor settlement lag tolerance — see _assert_data_advanced
+
+
+def _assert_data_advanced(prev: str | None, now_: str, *, allow_stale: bool = False,
+                          max_stale: int = MAX_STALE_SESSIONS) -> None:
     """Raise when the panel did NOT advance although at least one session has elapsed.
 
     This is the control that was missing. Every existing check verified that a STEP RAN — the
@@ -690,11 +694,27 @@ def _assert_data_advanced(prev: str | None, now_: str, *, allow_stale: bool = Fa
     if prev is None or allow_stale or now_ > prev:
         return
     elapsed = _sessions_after(prev, str(pd.Timestamp.today().date()))
-    if elapsed <= 0:
+    if now_ < prev:
+        # A panel that moved BACKWARDS is never a settlement lag — it means the cache lost history
+        # or an earlier artifact is being republished. No tolerance applies.
+        raise StaleDataError(
+            f"PANEL WENT BACKWARDS. Last published data date {prev}; this run produced {now_} "
+            f"(tolerance {max_stale} does not apply to a regression).\n"
+            "The cache has lost history or a stale artifact is being republished. Do NOT publish.")
+    if elapsed <= max_stale:
+        # A SHORT lag is normal and must not block the book. The panel's last bar is the last one
+        # the VENDOR has settled, not the last one the calendar has produced: a Tuesday re-run
+        # legitimately still ends on Friday, and a same-day re-run advances to nothing at all.
+        # Tolerating that is not a weakening — the defect this guard exists for had the panel SIX
+        # sessions behind and climbing, and would still be caught on the very next weekly run.
+        #
+        # This tolerance was added 2026-08-11 after the guard's own first firing was a FALSE
+        # POSITIVE that blocked the cron: prev and now_ were both 2026-08-07, correctly, with two
+        # unsettled sessions on the calendar behind them.
         return
     raise StaleDataError(
         f"PANEL DID NOT ADVANCE. Last published data date {prev}; this run also produced {now_}, "
-        f"but {elapsed} NSE session(s) have closed since {prev}.\n"
+        f"but {elapsed} NSE session(s) have closed since {prev} (tolerance {max_stale}).\n"
         "The OHLCV cache is not being refreshed. Do NOT publish this book: the artifacts would be "
         "byte-plausible and nine days old, exactly as on 2026-08-10.\n"
         "First suspect the incremental top-up (nq.data.ohlcv.download_ohlcv drops names under "
