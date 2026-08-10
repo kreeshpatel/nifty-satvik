@@ -165,12 +165,45 @@ def main() -> int:
     print("  the search that actually happened, and the pre-reset trials were run on this same data.")
     print(f"  VERDICT: {v['verdict']}")
 
+    # Until 2026-08-10 this block varied `max_position_pct` (5.0 -> 3.33) and merely LABELLED the
+    # arms 1.0x and 1.5x: the multiplier was never passed to the engine. `max_position_pct` reaches
+    # exactly one line -- the target-weight cap -- and no cost path, and at 3.33% it binds only when
+    # the book holds exactly 30 names (the average is 31.25). Both arms were the same run, which is
+    # why both printed 21.73%. The prereg makes surviving 1.5x costs a HARD deployability condition,
+    # so that gate had never been evaluated. `cost_mult` now scales the actual friction terms.
     print("\n=== COST SENSITIVITY (deployable only if it survives 1.5x) ===")
-    print("  (cost is inside the engine; proxied here by scaling the per-name notional down,")
-    print("   which raises effective friction per rupee deployed)")
-    for mult, cap in ((1.0, 5.0), (1.5, 3.33)):
-        m = run(band, max_position_pct=cap)["metrics"]
-        print(f"    {mult:.1f}x  CAGR {m['cagr_pct']:>7.2f}%  Sharpe {m['sharpe']:>6.3f}")
+    print("  cost_mult scales brokerage+STT AND slippage (tier rate + the >0.5%-ADV impact adder).")
+    cost_rows = []
+    for mult in (1.0, 1.5):
+        m = run(band, cost_mult=mult)["metrics"]
+        cost_rows.append({"cost_mult": mult, "cagr_pct": m["cagr_pct"], "sharpe": m["sharpe"],
+                          "max_drawdown_pct": m["max_drawdown_pct"], "n_trades": m["n_trades"]})
+        print(f"    {mult:.1f}x  CAGR {m['cagr_pct']:>7.2f}%  Sharpe {m['sharpe']:>6.3f}  "
+              f"MaxDD {m['max_drawdown_pct']:>7.2f}%  trades {m['n_trades']:>5}")
+
+    # Self-check: the 1.0x arm must reproduce the candidate exactly. If it does not, the multiplier
+    # is reaching something other than cost and the stress below means nothing.
+    # bool() is load-bearing: these come out of numpy comparisons, and results.json is written with
+    # default=str, which would serialise np.bool_ as the STRING "True"/"False" -- and "False" is
+    # truthy to every consumer that reads it back.
+    inert = bool(cost_rows[0]["cagr_pct"] == cand["metrics"]["cagr_pct"])
+    if not inert:
+        print("  ** cost_mult=1.0 did NOT reproduce the candidate — the hook is not cost-only **")
+
+    drag = cost_rows[0]["cagr_pct"] - cost_rows[1]["cagr_pct"]
+    survives = bool(cost_rows[1]["cagr_pct"] > passive["cagr_pct"])
+    print(f"\n  1.5x costs remove {drag:.2f}pp of CAGR "
+          f"({cost_rows[0]['cagr_pct']:.2f}% -> {cost_rows[1]['cagr_pct']:.2f}%).")
+    print(f"  {'PASS' if survives else 'FAIL'}  still clears passive EW "
+          f"({passive['cagr_pct']:.2f}%) under stress — the prereg's own ownership gate, "
+          f"re-evaluated at 1.5x rather than a new threshold.")
+    cost_sensitivity = {"arms": cost_rows, "cagr_drag_pp": round(drag, 3),
+                        "passive_cagr_pct": passive["cagr_pct"],
+                        "clears_passive_at_1_5x": survives,
+                        "one_x_reproduces_candidate": inert,
+                        "note": ("cost_mult scales LEG_COST and the full _slip charge. Before "
+                                 "2026-08-10 this gate varied max_position_pct instead and was "
+                                 "therefore never evaluated; both arms were the same run.")}
 
     print("\n=== PER-REGIME (continuous slices of the one curve) ===")
     for lo, hi, tag in (("2018-01-01", "2018-12-31", "2018 midcap crash"),
@@ -229,6 +262,7 @@ def main() -> int:
         "verdict": v, "pbo": {"pbo": pbo.pbo, "n_configs": pbo.n_configs,
                               "median_logit": pbo.median_logit},
         "monte_carlo": mc_out, "trade_mix": dict(mix),
+        "cost_sensitivity": cost_sensitivity,
         "universe": rep}, indent=2, default=str), encoding="utf-8")
     print(f"\n  -> {OUT / 'results.json'}")
     return 0

@@ -85,6 +85,7 @@ class RebalanceConfig:
     min_trade_pct: float = 0.25       # skip rebalancing trades smaller than this % of equity
     rebalance_band: float = 0.0       # no-trade band as a FRACTION OF TARGET (0 = off; see ENG-01)
     exposure: float = 1.0             # gross exposure multiplier (the vol-target / regime hook)
+    cost_mult: float = 1.0            # scales EVERY friction term — see simulate_rebalance_book
 
 
 @dataclass
@@ -143,6 +144,25 @@ def simulate_rebalance_book(
     knowing anything about either.
     """
     cfg = cfg or RebalanceConfig()
+
+    # The cost-stress hook. `cfg.cost_mult` scales BOTH friction channels — the per-leg
+    # brokerage+STT rate and the full slippage charge (liquidity-tier rate *and* the 0.1% impact
+    # adder above 0.5% ADV). Nothing else in the book responds to it, which is the point: a cost
+    # stress must move costs and only costs.
+    #
+    # This exists because pre-reg 0001 makes surviving 1.5x costs a hard deployability condition
+    # and that gate had never actually been evaluated. The runner varied `max_position_pct`
+    # instead, which reaches only the target-weight line and no cost path, so both arms were the
+    # same run. Shrinking notional would in any case have made the ADV impact adder LESS likely to
+    # fire — a cost RELIEF wearing the label of a stress.
+    #
+    # At the 1.0 default every product below is `x * 1.0`, exact under IEEE-754, so every golden
+    # master stays byte-identical.
+    leg_cost = LEG_COST * cfg.cost_mult
+
+    def slip(adv_rupees: float, notional: float) -> float:
+        return _slip(adv_rupees, notional) * cfg.cost_mult
+
     need = {date_col, "ticker", "open", "high", "low", "close", rank_col}
     missing = need - set(panel.columns)
     if missing:
@@ -209,7 +229,7 @@ def simulate_rebalance_book(
                             # delisted or suspended: realise at the last observed mark rather than
                             # holding a dead name forever. Without this, persistent targets alone
                             # would still let a permanently-absent name occupy a slot for ever.
-                            proceeds_net = pos.qty * pos.mark * (1 - LEG_COST)
+                            proceeds_net = pos.qty * pos.mark * (1 - leg_cost)
                             basis_ps = pos.cost / pos.qty
                             exit_net_ps = proceeds_net / pos.qty
                             cash += proceeds_net
@@ -276,8 +296,8 @@ def simulate_rebalance_book(
                 # the proportional basis reconciles by construction.
                 q = min(-delta, pos.qty)
                 held_qty = pos.qty
-                fill = px * (1 - _slip(adv, q * px))
-                proceeds_net = q * fill * (1 - LEG_COST)
+                fill = px * (1 - slip(adv, q * px))
+                proceeds_net = q * fill * (1 - leg_cost)
                 basis_ps = pos.cost / pos.qty
                 basis_out = basis_ps * q
                 cash += proceeds_net
@@ -312,8 +332,8 @@ def simulate_rebalance_book(
             for tkr, px, adv, delta, _ in plans:
                 if delta <= 0:
                     continue
-                fill1 = px * (1 + _slip(adv, 0.0))
-                budget_ps = px * (1 + _slip(adv, delta * fill1)) * (1 + LEG_COST)
+                fill1 = px * (1 + slip(adv, 0.0))
+                budget_ps = px * (1 + slip(adv, delta * fill1)) * (1 + leg_cost)
                 priced.append((tkr, px, adv, delta, fill1))
                 want += delta * budget_ps
             scale = min(1.0, cash / want) if want > 0 else 0.0
@@ -321,8 +341,8 @@ def simulate_rebalance_book(
                 q = int(delta * scale)
                 if q <= 0:
                     continue
-                fill = px * (1 + _slip(adv, q * fill1))
-                outlay = q * fill * (1 + LEG_COST)
+                fill = px * (1 + slip(adv, q * fill1))
+                outlay = q * fill * (1 + leg_cost)
                 if outlay > cash:                # unreachable by construction; a belt-and-braces
                     continue                     # guard so a pricing change cannot silently borrow
                 cash -= outlay

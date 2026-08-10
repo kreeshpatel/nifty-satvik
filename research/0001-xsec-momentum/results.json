@@ -63,6 +63,8 @@
       1.027
     ],
     "dsr_candidate": 0.9909285078969635,
+    "n_trials_lifetime": 140,
+    "dsr_candidate_lifetime": 0.45173285231413174,
     "dCalmar": 0.47,
     "subperiod_2022_dCAGR": 8.555,
     "fold_pass_frac": 0.875,
@@ -101,6 +103,29 @@
     "rebalance_trim": 2045,
     "rebalance_exit": 905,
     "stale": 1
+  },
+  "cost_sensitivity": {
+    "arms": [
+      {
+        "cost_mult": 1.0,
+        "cagr_pct": 21.73,
+        "sharpe": 1.13,
+        "max_drawdown_pct": -37.17,
+        "n_trades": 2951
+      },
+      {
+        "cost_mult": 1.5,
+        "cagr_pct": 20.69,
+        "sharpe": 1.085,
+        "max_drawdown_pct": -37.29,
+        "n_trades": 2980
+      }
+    ],
+    "cagr_drag_pp": 1.04,
+    "passive_cagr_pct": 13.195,
+    "clears_passive_at_1_5x": true,
+    "one_x_reproduces_candidate": true,
+    "note": "cost_mult scales LEG_COST and the full _slip charge. Before 2026-08-10 this gate varied max_position_pct instead and was therefore never evaluated; both arms were the same run."
   },
   "universe": {
     "rows": 1585203,

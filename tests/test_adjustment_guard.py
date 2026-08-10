@@ -237,3 +237,64 @@ def test_the_shipped_register_has_exactly_one_accepted_seam():
     accepted = {k: v for k, v in KNOWN_SEAMS.items() if v.get("owner_status", "").startswith(
         "ACCEPTED_UNTIL_")}
     assert list(accepted) == [("TRENT", "2026-01-01")], accepted
+
+
+# --------------------------------------------------------------------------- ADR-0013 expiry gap
+#
+# Characterization, added 2026-08-10. ADR-0013 accepted the TRENT seam until 2026-10-01, but its own
+# reason 3 is that the defect self-resolves on 2026-11-06 when the seam leaves the 44-week window.
+# Those dates are five weeks apart, and in that gap the seam is in-window AND unaccepted -- which is
+# the escalation condition, so the weekly scan halts. Five Saturday scans fall inside it.
+#
+# These pin the gap so it cannot be lost. If the review takes option A and extends the acceptance to
+# 2026-11-06, `test_the_acceptance_expires_before_the_seam_leaves_the_window` SHOULD fail and be
+# retired with the new ADR -- that failure is the point, not a nuisance.
+# See diagnostics/research/review_2026Q4/07_adr0013_seam_expiry.md.
+class TestADR0013ExpiryGap:
+    SEAM = ("TRENT", "2026-01-01")
+
+    def _entry(self):
+        from nq.data.adjustment_guard import KNOWN_SEAMS
+        return KNOWN_SEAMS[self.SEAM]
+
+    def test_the_acceptance_expires_before_the_seam_leaves_the_window(self):
+        from nq.data.adjustment_guard import ACCEPTED_PREFIX, LIVE_WINDOW_WEEKS
+
+        status = self._entry()["owner_status"]
+        assert status.startswith(ACCEPTED_PREFIX)
+        until = pd.Timestamp(status[len(ACCEPTED_PREFIX):].split()[0])
+        leaves = pd.Timestamp(self.SEAM[1]) + pd.Timedelta(weeks=LIVE_WINDOW_WEEKS)
+        assert until < leaves, (
+            "the acceptance now outlives the seam -- if this was a deliberate extension, retire this "
+            "test with the ADR that made it")
+        # 2026-10-01 -> 2026-11-05 inclusive: 35 days, five Saturday scans.
+        assert (leaves - until).days == 35, "the halt gap changed; re-read binder item 07"
+
+    def test_the_scan_halts_the_day_after_the_acceptance_lapses(self):
+        from nq.data.adjustment_guard import assert_no_live_escalation, live_exposure
+
+        oh = {"TRENT": pd.DataFrame(
+            {"Open": [1.0], "High": [1.0], "Low": [1.0], "Close": [1.0], "Volume": [1]},
+            index=pd.to_datetime(["2026-01-01"]))}
+        known = {self.SEAM: self._entry()}
+
+        ok = live_exposure(oh, (), as_of="2026-10-01", known=known)
+        assert ok["escalate"] is False, "the acceptance still holds on the review date itself"
+
+        for day in ("2026-10-02", "2026-11-05"):
+            with pytest.raises(ValueError, match="ESCALATION TRIGGER FIRED"):
+                assert_no_live_escalation(oh, (), as_of=day, known=known)
+
+        after = live_exposure(oh, (), as_of="2026-11-06", known=known)
+        assert after["escalate"] is False, "seam has left the 44-week window; it self-resolves"
+
+    def test_only_the_saturday_scanner_is_halted(self):
+        """Bounds the blast radius: the weekday monitor does not run the guarded script, so daily
+        re-pricing of held positions survives the halt. Five weekly scans do not."""
+        root = Path(__file__).resolve().parents[1]
+        wf = root / ".github" / "workflows"
+        callers = [p.name for p in wf.glob("*.yml")
+                   if "run_bhanushali_cron" in p.read_text(encoding="utf-8")]
+        assert callers == ["cron-bhanushali-scanner.yml"], f"blast radius changed: {callers}"
+        sats = pd.date_range("2026-10-02", "2026-11-05", freq="D")
+        assert sum(d.weekday() == 5 for d in sats) == 5

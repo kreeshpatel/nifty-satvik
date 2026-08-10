@@ -104,13 +104,25 @@ direction and its corrected re-run is pending. Any comparison of a corrected-uni
 
 ---
 
-## 8. External literature — **NOT POPULATED**
+## 8. External literature — **populated 2026-08-08**
 
-See [`external_literature.md`](external_literature.md). Until that file is filled in by the owner,
-**this repo has no committed external band for Indian midcap momentum returns or drawdowns**, and no
-session may state one as fact. The internal anchors above are reproducible; a remembered published
-range is not, and stating one with false confidence is precisely the failure this file exists to
-prevent.
+[`external_literature.md`](external_literature.md) now carries the published bands with their
+sources. The two that govern almost every result here:
+
+| | band | our position |
+|---|---|---|
+| Net CAGR, Indian midcap momentum | **14–18%** (low-20s only for the best regime-managed, vol-targeted, quality-filtered combinations) | `baseline_v1` 15.46% sits mid-band; **0001** at 21.73% is above it, 18.16% after tax and back inside |
+| Max drawdown | **−50% to −70%** | `baseline_v1` −46.26% is marginally shallow; **0001 at −37.17% is 13–28pp shallower and is the live anomaly** |
+
+**The drawdown gap is the one to chase.** The literature attributes roughly **14 percentage points**
+of drawdown understatement to survivorship, and our pin is survivor-only (103 of 813 PIT members
+missing). −37.2% + 14pp ≈ −51%, which lands back in the band. Finding 0025 measured the same bias
+independently and found it scales with holding period.
+
+Two honest counterweights before treating that as settled: our window (2017→) **excludes the 2008
+GFC**, which the 18.5-year study includes, so part of the gap is sample period rather than bias; and
+0001 is a narrower universe (MID band, top-30) than the top-200 books the band was measured on.
+Neither is measured. The corrected-universe re-run is what separates them.
 
 ## How to use these
 

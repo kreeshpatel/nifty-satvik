@@ -1,0 +1,91 @@
+{
+ "_doc": "A1 certification of the live configuration. MEASUREMENT, no trial.",
+ "prereg": "forward/prereg_swing_A1.md",
+ "reproduce": "python pipelines/diagnostics/diag_certify_live_config.py",
+ "n_trials_unchanged": 2,
+ "config": {
+  "grading": "A-only",
+  "ext_cap": 0.2,
+  "max_risk_pct": 0.1,
+  "max_notional_pct": 0.2,
+  "stale_absent_days": 10,
+  "exit": "config P (40%@2R / 40% blow-off@2.5R / 20% runner to 44w SMA)"
+ },
+ "primary_at_2025_12_31": {
+  "upto": "2025-12-31",
+  "sessions": 2226,
+  "years": 8.994,
+  "n_closed": 112,
+  "sharpe": 1.201,
+  "cagr_pct": 25.024,
+  "maxdd_pct": -39.49,
+  "calmar": 0.634,
+  "win_rate_pct": 55.36,
+  "final_equity": 7453130.29,
+  "after_tax_cagr_pct": 22.044,
+  "bootstrap_sharpe_ci": [
+   0.516,
+   1.915
+  ],
+  "dsr_at_certified_114": 0.8096,
+  "dsr_at_live": 0.9962,
+  "dsr_at_lifetime": 0.7924,
+  "slices": {
+   "2017-18": {
+    "cagr_pct": 11.14,
+    "sharpe": 0.715
+   },
+   "2019-21": {
+    "cagr_pct": 56.83,
+    "sharpe": 1.946
+   },
+   "2022-onward (2022-2025 at the primary stop)": {
+    "cagr_pct": 11.53,
+    "sharpe": 0.693
+   }
+  },
+  "open_positions_at_date": 8
+ },
+ "secondary_full_window": {
+  "upto": "2026-06-29",
+  "sessions": 2348,
+  "years": 9.487,
+  "n_closed": 130,
+  "sharpe": 1.279,
+  "cagr_pct": 27.175,
+  "maxdd_pct": -39.49,
+  "calmar": 0.688,
+  "win_rate_pct": 57.69,
+  "final_equity": 9781800.16,
+  "after_tax_cagr_pct": 23.204,
+  "bootstrap_sharpe_ci": [
+   0.591,
+   1.9
+  ],
+  "dsr_at_certified_114": 0.8828,
+  "dsr_at_live": 0.9981,
+  "dsr_at_lifetime": 0.871,
+  "slices": {
+   "2017-18": {
+    "cagr_pct": 11.14,
+    "sharpe": 0.715
+   },
+   "2019-21": {
+    "cagr_pct": 56.83,
+    "sharpe": 1.946
+   },
+   "2022-onward (2022-2025 at the primary stop)": {
+    "cagr_pct": 17.09,
+    "sharpe": 0.937
+   }
+  },
+  "open_positions_at_date": 0
+ },
+ "gates": {
+  "dsr_gt_0.95_at_114": false,
+  "ci_low_gt_0": true,
+  "all_slices_positive": true
+ },
+ "outcome": "UNCERTIFIED, BOUNDED",
+ "slice_2022_26_note": "Pre-declared NOT RESOLVABLE in prereg \u00a76: config P scores 0.91 against a 1.04 bar, a -0.13 miss that is roughly one fifth of the \u00b10.59 dSharpe half-width. Recorded, not litigated."
+}

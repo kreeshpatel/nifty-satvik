@@ -1,0 +1,99 @@
+{
+ "_doc": "MEASUREMENT, no trial. End-date sensitivity and unrealised-mark composition.",
+ "reproduce": "python pipelines/diagnostics/diag_end_of_sample_stub.py",
+ "note": "`eos` rows are positions force-closed on the last bar at the closing mark. They have paid no spread, no impact and no STT beyond the modelled cost, and no such trade was ever executed. Every end date carries some marked-open position; the comparison is between end dates, not against an unmarked ideal.",
+ "books": [
+  {
+   "book": "base-swing (certified)",
+   "stub": {
+    "n_eos_positions": 6,
+    "eos_net_pnl": 988633.67,
+    "eos_pnl_share_of_final_equity_pct": 12.18,
+    "eos_exit_dates": [
+     "2026-06-29"
+    ]
+   },
+   "by_end_date": [
+    {
+     "upto": "2026-06-29",
+     "sessions": 2348,
+     "cagr_pct": 24.69,
+     "sharpe": 1.132,
+     "maxdd_pct": -42.37,
+     "final_equity": 8114623.22
+    },
+    {
+     "upto": "2025-12-31",
+     "sessions": 2226,
+     "cagr_pct": 22.45,
+     "sharpe": 1.059,
+     "maxdd_pct": -42.37,
+     "final_equity": 6179496.8
+    },
+    {
+     "upto": "2025-06-30",
+     "sessions": 2100,
+     "cagr_pct": 24.37,
+     "sharpe": 1.121,
+     "maxdd_pct": -42.37,
+     "final_equity": 6371844.53
+    },
+    {
+     "upto": "2024-12-31",
+     "sessions": 1977,
+     "cagr_pct": 27.8,
+     "sharpe": 1.264,
+     "maxdd_pct": -42.37,
+     "final_equity": 7104621.52
+    }
+   ],
+   "cagr_swing_full_vs_2025_pp": 2.24
+  },
+  {
+   "book": "live config P (what trades)",
+   "stub": {
+    "n_eos_positions": 9,
+    "eos_net_pnl": 2742789.08,
+    "eos_pnl_share_of_final_equity_pct": 28.04,
+    "eos_exit_dates": [
+     "2026-06-29"
+    ]
+   },
+   "by_end_date": [
+    {
+     "upto": "2026-06-29",
+     "sessions": 2348,
+     "cagr_pct": 27.17,
+     "sharpe": 1.279,
+     "maxdd_pct": -39.49,
+     "final_equity": 9781800.16
+    },
+    {
+     "upto": "2025-12-31",
+     "sessions": 2226,
+     "cagr_pct": 25.02,
+     "sharpe": 1.201,
+     "maxdd_pct": -39.49,
+     "final_equity": 7453130.29
+    },
+    {
+     "upto": "2025-06-30",
+     "sessions": 2100,
+     "cagr_pct": 27.89,
+     "sharpe": 1.297,
+     "maxdd_pct": -39.49,
+     "final_equity": 8074195.6
+    },
+    {
+     "upto": "2024-12-31",
+     "sessions": 1977,
+     "cagr_pct": 30.67,
+     "sharpe": 1.413,
+     "maxdd_pct": -39.49,
+     "final_equity": 8486130.15
+    }
+   ],
+   "cagr_swing_full_vs_2025_pp": 2.15
+  }
+ ]
+}

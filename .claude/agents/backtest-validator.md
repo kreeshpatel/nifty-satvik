@@ -16,7 +16,11 @@ Load `backtest-rigor` and `plausibility-check`. Then work through the number its
    provenance block looks like.
 2. **Plausibility band.** Compare against the anchors before anything else. A drawdown far shallower
    than the −46.26% anchor, or a Sharpe near 1.0 on the long-horizon book, is a defect signal rather
-   than a discovery — that is the shape a vintage-favourable or gross-vs-net error takes here.
+   than a discovery — that is the shape a vintage-favourable or gross-vs-net error takes here. Study
+   0001 caught a real leak exactly this way: its −19.56% drawdown contradicted every published
+   benchmark, and its own write-up notes that a merely-plausible number would have shipped.
+   Also compare the observed drawdown against the run's own Monte Carlo `dd_p99` — the module calls
+   that "the planning number", and on 0001 it is −59.3% against an observed −37.2%.
 3. **Sub-period gates.** These must be a **continuous slice of one full run**, never a fresh-capital
    re-run from the sub-window start. Fresh capital resets the equity peak and reseasons the
    boundary; it produced a phantom base of 0.762 Sharpe / −40% DD against a correct slice of 0.570 /

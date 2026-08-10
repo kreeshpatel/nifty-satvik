@@ -29,7 +29,7 @@ from nq.data.membership import load_membership, ticker_in_index_on  # noqa: E402
 from nq.engine.portfolio import vol_target_scalar  # noqa: E402  — O-009 de-gross scalar (shared formula, pre-reg 0095)
 from nq.runner.research import _dsr_from_bootstrap  # noqa: E402
 from nq.validation.bootstrap import DEFAULT_BLOCK, block_bootstrap_metric  # noqa: E402
-from nq.validation.dsr import cumulative_n_trials  # noqa: E402
+from nq.validation.dsr import cumulative_n_trials, lifetime_n_trials  # noqa: E402
 from nq.validation.metrics import sharpe as sharpe_fn  # noqa: E402
 from run_bhanushali_faithful import EQ0, START  # noqa: E402
 from run_bhanushali_path1 import corrected_universe  # noqa: E402
@@ -37,6 +37,11 @@ from run_bhanushali_sixstep import RISK, STT_PCT, _cost_leg, _row, _slices, prep
 from run_bhanushali_sixstep_runner import TRAIL_PCT  # noqa: E402
 from run_bhanushali_weekly_full import CAP_WEEKS  # noqa: E402
 
+# The trial count the certification of record was deflated at (forward/prereg_swing.md §0 and §1:
+# Sharpe 1.132 / DSR 0.894 @ n_trials 114). PINNED, never read from the live counter — see the
+# comment at the DSR block below. Changing this re-bases the certification and is a governance act,
+# not an edit. `tests/test_swing_certification_provenance.py` holds it to the pre-registration.
+CERTIFIED_N_TRIALS = 114
 SLOPE_MIN, SLOPE_LOOKBACK, TOUCH_BAND, CRS_LEN = 0.03, 13, 0.07, 40   # the live 0093-N50 params (frozen)
 
 
@@ -974,12 +979,31 @@ def main() -> int:
         yr = led.groupby("yr")["R"].agg(["count", "mean"])
         print("    per-year fills/meanR: " + " | ".join(f"{y} {int(x['count'])}/{x['mean']:+.2f}" for y, x in yr.iterrows()))
 
-    arr = net["ret"].to_numpy(float); n_tr = cumulative_n_trials()
+    arr = net["ret"].to_numpy(float)
     ci = block_bootstrap_metric(arr, sharpe_fn, block_size=DEFAULT_BLOCK, n_samples=5000, seed=12345)
-    dsr = _dsr_from_bootstrap(arr, n_tr, (ci.lower, ci.upper))
+    # THE CERTIFICATION COUNT IS PINNED. It used to read `cumulative_n_trials()`, which meant the run
+    # of record deflated against whatever the live counter said on the day it was re-run. DSR is
+    # strictly decreasing in the trial count, and that counter was reset 138 -> 0 -> 2 on 2026-08-07,
+    # so re-running this unchanged printed a MORE flattering verdict than the one it was certified
+    # with — and the `dsr > 0.95` gate below moved with it. A certification that improves because a
+    # JSON field changed is not a certification.
+    #
+    # All three counts are reported, because each answers a different question and hiding any of them
+    # is how the confusion started:
+    #   pinned   (114) — what the certification of record was actually deflated at (prereg_swing §0)
+    #   live          — the post-reset counter; what a NEW trial today would be judged at
+    #   lifetime      — every trial ever run on this data. See nq.validation.dsr.lifetime_n_trials:
+    #                   those trials happened, on this same 2017-2026 history, and they raised the
+    #                   bar whether or not a counter records them.
+    dsr = _dsr_from_bootstrap(arr, CERTIFIED_N_TRIALS, (ci.lower, ci.upper))
+    dsr_live = _dsr_from_bootstrap(arr, cumulative_n_trials(), (ci.lower, ci.upper))
+    dsr_life = _dsr_from_bootstrap(arr, lifetime_n_trials(), (ci.lower, ci.upper))
     calmar = net["cagr"] / abs(net["dd"]) if net["dd"] else float("nan")
     print(f"\n  NET Sharpe {net['sharpe']:+.3f} | CAGR {net['cagr']*100:+.1f}% | MaxDD {net['dd']*100:.1f}% | Calmar {calmar:.2f}")
-    print(f"  bootstrap 95% CI [{ci.lower:+.3f}, {ci.upper:+.3f}] | DSR @ n_trials={n_tr}: {dsr:.3f}")
+    print(f"  bootstrap 95% CI [{ci.lower:+.3f}, {ci.upper:+.3f}]")
+    print(f"  DSR @ CERTIFIED n_trials={CERTIFIED_N_TRIALS}: {dsr:.3f}   <- the gate reads this")
+    print(f"      @ live n_trials={cumulative_n_trials()}: {dsr_live:.3f}"
+          f"   |   @ lifetime n_trials={lifetime_n_trials()}: {dsr_life:.3f}")
     gates = {"DSR>0.95": bool(np.isfinite(dsr) and dsr > 0.95),
              "CI_low>0": bool(ci.lower > 0), "all_slices>0": bool(a > 0 and b > 0 and c > 0)}
     print("  gates:", {k: ("PASS" if v else "FAIL") for k, v in gates.items()})

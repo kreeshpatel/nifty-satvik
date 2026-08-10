@@ -31,7 +31,18 @@ Reproduced NET after costs (STT 0.1%/leg + brokerage 0.03%/leg + tiered slippage
 
 | Book | Sharpe | CAGR | MaxDD | Calmar | Win% | Trades/yr | DSR |
 |---|--:|--:|--:|--:|--:|--:|--:|
-| **base-swing** (all grades, fund strongest-first) | **1.132** | 24.7% | −42.4% | 0.58 | 59.2% | 27 | 0.894 |
+| **base-swing** (all grades, fund strongest-first) | **1.132** | 24.7% | −42.4% | 0.58 | 59.2% | 27 | 0.894 **@ n_trials 114** |
+
+*Dated clarification, 2026-08-09 (permitted by the tighten-or-clarify rule above; no threshold
+changes).* **DSR 0.894 was deflated at n_trials = 114** — the count stated in §0 — and the two are
+one fact, not two. This matters now because the counter was reset 138 → 0 → 2 on 2026-08-07 by owner
+decision, while `scripts/run_bhanushali_weekly_rank.py:977` computes the run of record's DSR from
+the **live** counter (`n_tr = cumulative_n_trials()`) and gates on `DSR > 0.95` at `:983`. Since
+`expected_max_sharpe` is strictly increasing in the trial count, DSR is strictly decreasing in it —
+so **re-running the certified configuration today, unchanged, yields a higher DSR and a more
+flattering verdict than the one it was certified with.** The certification is therefore no longer
+reproducible from the pipeline; it is reproducible only from this line. `tests/test_swing_certification_provenance.py`
+holds it here.
 | **A-only** (top-5 CRS per ISO week) | 1.003 | 21.2% | **−36.3%** | 0.58 | 54.9% | 26 | — |
 
 Sub-period (continuous-slice) Sharpe — base / A-only: 2017-18 **1.17 / 0.75**, 2019-21 **1.05 / 1.30**,

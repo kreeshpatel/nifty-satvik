@@ -43,3 +43,22 @@ without edge is worth nothing. **What this hands the review is a shape, not a sl
 book with its own trend line and its own exit is the first construction to decorrelate from the incumbent
 pair. Any future third-leg question should start from that shape and ask what would give it an edge,
 rather than re-testing candidates that were never orthogonal to begin with.
+
+---
+
+## 07 — ADR-0013's acceptance expires five weeks before the thing it accepts
+
+**Owner decision required, and it is the only agenda item with a mechanical consequence for not
+deciding.** ADR-0013 accepted the TRENT seam until **2026-10-01**, but its own reason 3 is that the
+defect self-resolves on **2026-11-06** when the seam leaves the 44-week window. `_accepted()` parses
+that date, so from **2026-10-02** the seam is in-window and unaccepted — the escalation condition —
+and `assert_no_live_escalation` halts the weekly scan. **Five scans lost: 10-03, 10-10, 10-17, 10-24,
+10-31.** Only the Saturday scanner is affected; the weekday monitor does not run that script.
+
+The hidden cost: that run also writes `base_swing_forward.json`, the §4 comparator that only started
+accruing on 2026-08-08 and that §3 forbids backfilling. A halt to protect one suppressed candidate
+would damage the evidence base for the grading decision the programme has pre-committed to.
+
+Recommended: **extend the acceptance to 2026-11-06 via a dated ADR** — the only option whose cost is
+one already-accepted cost, and what ADR-0013's own reasoning implies. Full memo, options and
+verification in [07_adr0013_seam_expiry.md](07_adr0013_seam_expiry.md).

@@ -68,31 +68,47 @@ def test_the_cost_stack_matches_config(anchors: str):
         )
 
 
-# --------------------------------------------------------------- the stub must stay honest
-def test_external_literature_declares_itself_unpopulated():
+# ------------------------------------------------- the external bands must stay citeable
+# Populated 2026-08-08 from the owner's research compendia. Until then this file was deliberately
+# empty and these tests asserted it stayed honest about that. The obligation moved rather than
+# ended: a band with a filename gets quoted forever, so what is enforced now is that the bands keep
+# their provenance instead of hardening into received wisdom.
+def test_external_literature_is_populated_and_says_when():
     text = EXTERNAL.read_text(encoding="utf-8")
-    assert "NOT POPULATED" in text or "STUB" in text.upper(), (
-        "external_literature.md no longer declares itself a stub. If it has been populated, delete "
-        "this test and add one asserting every entry carries a source; if it has not, restore the "
-        "declaration — the plausibility-check skill tells sessions to rely on it."
+    assert "POPULATED" in text and "2026-08-08" in text, (
+        "external_literature.md no longer records that it is populated and from when. If it has "
+        "been emptied back to a stub, restore the stub tests from git history — the "
+        "plausibility-check skill routes sessions here and must not find bare numbers."
     )
 
 
-def test_an_unpopulated_stub_carries_no_bands():
-    """A range like '14-18%' or '50-70%' in an empty stub is a band from memory. That is the exact
-    artifact the file exists to refuse: unciteable, and quoted forever once it has a filename."""
+def test_every_band_sits_next_to_a_source():
+    """The bands are only worth having because they are attributable. A table of ranges with the
+    citations stripped out is precisely the artifact this file was created to refuse."""
     text = EXTERNAL.read_text(encoding="utf-8")
-    if "NOT POPULATED" not in text and "STUB" not in text.upper():
-        pytest.skip("stub has been populated — bands are expected, sourcing is tested elsewhere")
-    bands = re.findall(r"\b\d{1,3}\s*[-–—]\s*\d{1,3}\s*%", text)
-    assert not bands, (
-        f"external_literature.md still declares itself unpopulated but states band(s) {bands}. "
-        f"Either cite them properly (source, universe, period, costs, horizon) or remove them."
-    )
+    for source in ("BacktestIndia", "Barroso", "Jegadeesh", "NSE Indices"):
+        assert source in text, f"the bands no longer cite {source}"
 
 
-def test_the_anchors_page_points_at_the_stub(anchors: str):
-    assert "external_literature.md" in anchors and "NOT POPULATED" in anchors, (
-        "the anchors page must say plainly that no external band is committed — otherwise a session "
-        "reading only that page will assume one exists."
+def test_the_headline_band_is_stated():
+    """14-18% net CAGR and -50% to -70% drawdown are what `/plausibility-check` runs a result
+    against. Editing them must be a visible diff, never a silent drift."""
+    text = EXTERNAL.read_text(encoding="utf-8")
+    assert re.search(r"14\s*[-–]\s*18\s*%", text), "the net-CAGR band is missing"
+    assert re.search(r"50%\s*to\s*[−-]70%", text), "the drawdown band is missing"
+
+
+def test_the_documents_own_caveats_survive():
+    """Every headline in these compendia ships with a deflation — backfilled index history, a
+    Clenow India test that was not survivorship-corrected, vendor self-reporting. Strip the caveats
+    and context turns into anchors."""
+    text = EXTERNAL.read_text(encoding="utf-8").lower()
+    for caveat in ("backfilled", "survivorship", "self-reported"):
+        assert caveat in text, f"the '{caveat}' caveat has been removed"
+
+
+def test_the_anchors_page_points_at_the_external_file(anchors: str):
+    assert "external_literature.md" in anchors, (
+        "the anchors page must route to the external bands; a session reading only the internal "
+        "anchors has no outside check at all."
     )

@@ -1,0 +1,42 @@
+{
+ "_doc": "MEASUREMENT, no trial. What the r94 golden fixture exercises.",
+ "reproduce": "python pipelines/diagnostics/diag_golden_exit_coverage.py",
+ "gap_insensitivity": {
+  "fixture_worst_overnight_gap_pct": -0.2,
+  "injected_worst_overnight_gap_pct": -15.0,
+  "defaults_before": {
+   "time": 41,
+   "eos": 1
+  },
+  "defaults_after_gaps": {
+   "time": 43,
+   "eos": 1
+  },
+  "live_before": {
+   "sma_break": 46,
+   "eos": 3,
+   "stale": 1
+  },
+  "live_after_gaps": {
+   "sma_break": 46,
+   "eos": 3,
+   "stale": 1
+  },
+  "unchanged": false,
+  "reading": "hard_stop and disaster_floor_pct are the only gap-aware branches and both are off in the live config, so a -15% overnight gap changes nothing. The live book concedes the whole gap by construction."
+ },
+ "tranche_coverage": {
+  "live_exit_reasons": {
+   "sma_break": 46,
+   "eos": 3,
+   "stale": 1
+  },
+  "ledger_rows": 50,
+  "rows_with_partial_booking": 50,
+  "trades_reaching_2R": 43,
+  "max_R": 38.37,
+  "tp2_frac": 0.0,
+  "reading": "tp2_frac = 0.0, so a position can never be FULLY closed by targets; the 20% runner always sets the final reason. `targets` and `pattern` are therefore absent from the reason vocabulary while firing as partials on every trade."
+ },
+ "what_survives": "The frozen_defaults cell has win_rate 1.0 and no losing trade. That is real and worth fixing, but it is the frozen 0094 research cell, not the live path."
+}

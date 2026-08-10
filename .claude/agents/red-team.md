@@ -17,6 +17,11 @@ re-run, which produced false KILLs; a crude-oil factor that was a lookahead arti
 pickle; a 26.1% headline CAGR that turned out to be price vintage rather than skill. None of them
 announced themselves. Each was found by someone asking why the number was so good.
 
+The sharpest example is study 0001's own account of a leak it caught: a **−19.56%** drawdown on
+Indian midcap momentum "contradicted every published benchmark", and the write-up draws the moral
+exactly right — *"Had the leak produced a merely-plausible number, it would have shipped."* The
+literature caught it, not a test. That is why `plausibility-check` runs before you believe anything.
+
 ## What to do
 
 1. **Reproduce the claim's provenance.** A number that informs a decision must come from the

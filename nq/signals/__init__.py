@@ -234,8 +234,19 @@ def cross_sectional_rank(panel: pd.DataFrame, col: str, *, date_col: str = "date
                          out_col: str = "rank", higher_is_better: bool = True) -> pd.DataFrame:
     """Per-date percentile rank in (0, 1]; 1.0 = best. NaNs stay NaN and never rank.
 
-    Mirrors :func:`nq.data.eligibility.cross_sectional_rank`'s convention so a panel is
-    interchangeable between engines.
+    Shares :func:`nq.data.eligibility.cross_sectional_rank`'s convention **except on ties**: that
+    one passes ``method="first"`` (ties broken by row order), this one takes pandas' default
+    ``"average"``. The two are therefore NOT interchangeable on a panel containing tied scores, and
+    an earlier version of this docstring claimed they were.
+
+    Measured 2026-08-08 on the pinned universe (`dataset-pin-20260701`, MID band, 2017-01 onward):
+    **0 exact NMS ties across 1,822 dates and 198,949 scored rows**, and 0 of 1,822 dates where the
+    top-30 selection differs between the two methods. So the divergence is inert for study 0001 —
+    NMS is a continuous z-score blend and exact float collisions effectively do not occur.
+
+    It would NOT be inert for a discrete or quantised score (an integer quality tier, a rank-of-
+    ranks, a bucketed signal), where ties are the normal case rather than a measure-zero event. Any
+    new ranker of that shape must pass ``method`` explicitly rather than inherit this default.
     """
     out = panel.copy()
     out[out_col] = (out.groupby(date_col)[col]
