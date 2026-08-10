@@ -1,0 +1,45 @@
+{
+  "prev_snapshot": "2026-07-31__rerun-20260810T101618Z",
+  "cur_snapshot": "2026-08-07",
+  "closed_prev": 4,
+  "closed_cur": 5,
+  "closed_delta": 1,
+  "nav_prev": 1013421.36,
+  "nav_cur": 1024062.89,
+  "nav_delta": 10641.53,
+  "n_restated": 1,
+  "restated": [
+    {
+      "trade": "LINDEINDIA|2026-07-20",
+      "changed": {
+        "entry": [
+          7070.0,
+          7058.03
+        ],
+        "close_price": [
+          6752.0,
+          6740.57
+        ],
+        "r_multiple": [
+          -2.32,
+          -2.54
+        ]
+      }
+    }
+  ],
+  "n_vanished": 0,
+  "vanished": [],
+  "n_appeared": 1,
+  "appeared": [
+    "3MINDIA|2026-07-27"
+  ],
+  "inputs_changed": [
+    "ohlcv_cache_sha256",
+    "ohlcv_last_bar",
+    "ohlcv_n_rows"
+  ],
+  "clean": false,
+  "as_of": "2026-08-07",
+  "logged_utc": "2026-08-10T21:52:22.914083+00:00",
+  "is_baseline": false
+}
