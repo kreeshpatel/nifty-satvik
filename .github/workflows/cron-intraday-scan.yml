@@ -1,14 +1,23 @@
 name: cron-intraday-scan
 
-# Cron job #2 (owner request, 2026-07-03): a 14:30-IST SHADOW scan that sees the SAME-DAY forming trend
-# before the 15:30 close. Observational only — it writes results/intraday_scan/*.json and the
-# partial->close confirmation log; it never touches the paper book, wall log, or kill state. Same-day
-# BUYING stays off until the accrued confirmation-survival stats justify proposing it as a
-# pre-registered trial (owner decision). See scripts/run_intraday_scan.py header for the skew notes.
+# Cron job #2 (owner request, 2026-07-03): a daily SHADOW scan of the practitioner watchlist.
+# Observational only — it writes results/intraday_scan/*.json; it never touches the paper book, wall
+# log, or kill state.
+#
+# RESCHEDULED 2026-08-10 (owner decision): 14:30 IST -> 16:30 IST, weekdays.
+# The 14:30 slot was meant to catch a PARTIAL candle with an hour left to act. It never did:
+# measured Actions drift was 49/131/132 minutes, two of three runs fired after the 15:30 close, and
+# confirmation_log.csv never accrued a row. At 16:30 the session is over, so the scan reads a
+# COMPLETE candle deterministically regardless of drift — which is honest, but it also RETIRES the
+# partial->final survival statistic (run_intraday_scan._confirm now refuses to compute it from a
+# post-close scan, because that is a tautology returning ~100%). The same-day-entry question moves
+# to the intraday bar store; see diagnostics/research/intraday_feasibility.md.
+#
+# Saturday is deliberately NOT covered here: cron-bhanushali-scanner.yml owns Saturday 18:00 IST.
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 9 * * 1-5"       # 09:00 UTC = 14:30 IST (IST has no DST), weekdays
+    - cron: "0 11 * * 1-5"      # 11:00 UTC = 16:30 IST (IST has no DST), weekdays
 
 concurrency:
   group: cron-intraday-scan
@@ -48,7 +57,7 @@ jobs:
           # Watcher: results/output_contracts.json (promote to must_update once one lands).
           if [ -d results/intraday_scan ]; then git add results/intraday_scan/
           else echo "::warning::no intraday scan artifacts produced this run"; fi
-          if git commit -m "chore(intraday): 14:30 IST shadow scan $(date -u +%F)"; then
+          if git commit -m "chore(scan): 16:30 IST post-close shadow scan $(date -u +%F)"; then
             # --autostash + retry + exit RED on failure (was the silent-drop pattern that swallowed
             # every shadow scan since inception, so the partial->close survival stats never accrued).
             for i in 1 2 3; do
