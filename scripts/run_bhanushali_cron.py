@@ -47,7 +47,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
-from config import RESULTS_DIR  # noqa: E402
+from config import NSE_HOLIDAYS, RESULTS_DIR  # noqa: E402
 from nq.data.membership import load_membership  # noqa: E402
 from nq.data.ohlcv import OHLCV_CACHE, load_ohlcv_cache  # noqa: E402
 from nq.engine.portfolio import STALE_ABSENT_DAYS  # noqa: E402  — B-1 guard (shared with momentum)
@@ -558,7 +558,12 @@ def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
             ohlcv = merge_ohlcv(ohlcv, download_ohlcv(cold, start=hist_start, end=today)) if ohlcv \
                 else download_ohlcv(cold, start=hist_start, end=today)
         if warm:
-            fresh = download_ohlcv(warm, start=inc_start, end=today)
+            # min_bars=1 is load-bearing. download_ohlcv defaults to 50, which is right for a
+            # full-history pull and fatal here: a 25-day window is ~18 trading bars, so every warm
+            # name was dropped and this merged an EMPTY dict into the cache while reporting success.
+            # The book only advanced when the monthly cache key rolled and every name came back
+            # cold — which is how a successful 2026-08-10 run published data dated 2026-07-31.
+            fresh = download_ohlcv(warm, start=inc_start, end=today, min_bars=1)
             readjusted = _detect_readjusted(ohlcv, fresh)
             ohlcv = merge_ohlcv(ohlcv, fresh)
             if readjusted:
@@ -639,6 +644,62 @@ def _refresh_nifty50(do_download: bool) -> None:
         print(f"nifty-50 refreshed -> {merged['date'].max().date()} ({len(merged)} rows)", flush=True)
     except Exception as exc:  # noqa: BLE001
         print(f"nifty-50 refresh failed ({type(exc).__name__}: {exc}); using committed CSV", flush=True)
+
+
+class StaleDataError(RuntimeError):
+    """The panel did not advance though sessions have elapsed — the cache is frozen."""
+
+
+def _previous_generated_at(state_dir: Path) -> str | None:
+    """The `generated_at` of the last published envelope, or None on a cold checkout."""
+    p = Path(state_dir) / "signals_today_weekly.json"
+    if not p.exists():
+        return None
+    try:
+        return json.loads(p.read_text(encoding="utf-8")).get("generated_at")
+    except Exception:                                   # noqa: BLE001 — absence is not an error
+        return None
+
+
+def _sessions_after(day: str, upto: str) -> int:
+    """NSE sessions strictly after ``day`` and up to ``upto``. Weekend- and holiday-aware."""
+    lo, hi = pd.Timestamp(day), pd.Timestamp(upto)
+    if hi <= lo:
+        return 0
+    hol = set(NSE_HOLIDAYS)
+    return sum(1 for d in pd.bdate_range(lo + pd.Timedelta(days=1), hi)
+               if d.date().isoformat() not in hol)
+
+
+def _assert_data_advanced(prev: str | None, now_: str, *, allow_stale: bool = False) -> None:
+    """Raise when the panel did NOT advance although at least one session has elapsed.
+
+    This is the control that was missing. Every existing check verified that a STEP RAN — the
+    adjustment guard, the output contract, the scheduler-health card, the commit itself — and all of
+    them were green on 2026-08-10 while the panel republished 2026-07-31 for the ninth day running.
+    A control that asserts a job ran cannot see a job that ran on unchanged input.
+
+    Deliberately fatal rather than a warning. The prior design reasoned that "a download hiccup must
+    not lose the existing cache/book", which is right, but it conflated LOSING the cache with
+    PUBLISHING STALE DATA AS FRESH. Refusing to publish keeps the cache and costs one re-run;
+    publishing silently poisons the forward record's freshness and is not detectable downstream.
+
+    Same-day re-runs are legitimate and do not raise: no session has elapsed, so there is nothing to
+    advance to. ``--allow-stale`` exists for a deliberate offline replay.
+    """
+    if prev is None or allow_stale or now_ > prev:
+        return
+    elapsed = _sessions_after(prev, str(pd.Timestamp.today().date()))
+    if elapsed <= 0:
+        return
+    raise StaleDataError(
+        f"PANEL DID NOT ADVANCE. Last published data date {prev}; this run also produced {now_}, "
+        f"but {elapsed} NSE session(s) have closed since {prev}.\n"
+        "The OHLCV cache is not being refreshed. Do NOT publish this book: the artifacts would be "
+        "byte-plausible and nine days old, exactly as on 2026-08-10.\n"
+        "First suspect the incremental top-up (nq.data.ohlcv.download_ohlcv drops names under "
+        "`min_bars`; the cron's 25-day window is ~18 sessions and must pass min_bars=1).\n"
+        "Re-run once the source is serving. --allow-stale forces a deliberate offline replay.")
 
 
 def _base_swing_record(out: dict, ledger: list, inception: str, generated_at: str) -> dict:
@@ -734,6 +795,8 @@ def main(argv=None) -> int:
     ap.add_argument("--state-dir", default=str(RESULTS_DIR))
     ap.add_argument("--no-download", action="store_true", help="use the cache as-is (test/offline)")
     ap.add_argument("--history-days", type=int, default=520, help="calendar days of history before inception for the 44-week-SMA warmup")
+    ap.add_argument("--allow-stale", action="store_true",
+                    help="publish even if the panel did not advance (deliberate offline replay)")
     args = ap.parse_args(argv)
     sd = Path(args.state_dir); sd.mkdir(parents=True, exist_ok=True)
 
@@ -776,6 +839,7 @@ def main(argv=None) -> int:
     # data's last date = the "as of" the book is current to
     last = max((pd.Timestamp(s["dates"][-1]) for s in P.values()), default=pd.Timestamp(args.start))
     generated_at = str(last.date())
+    _assert_data_advanced(_previous_generated_at(sd), generated_at, allow_stale=args.allow_stale)
 
     envelope, sig_hist, analytics, portfolio, hist_df = build_envelopes(
         P, out_all, led_all, out_paper, generated_at, mem)

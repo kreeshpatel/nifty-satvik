@@ -1,8 +1,35 @@
-"""Intraday 14:30-IST SHADOW scan (cron job #2) — see the same-day trend before the close.
+"""Post-close 16:30-IST daily SHADOW scan (cron job #2).
 
-What it does, every trading day at ~14:30 IST:
-  1. Downloads ~2y daily OHLCV for current PIT Nifty-500 members (+ ^NSEI). At 14:30 the latest bar is
-     TODAY'S PARTIAL candle (open/high/low/last so far + volume so far).
+> **RESCHEDULED 2026-08-10, owner decision: 14:30 IST -> 16:30 IST, weekdays.**
+>
+> This job was built to read a PARTIAL candle at 14:30, about an hour before the 15:30 close, so a
+> setup could be seen FORMING with time left to act. It never once did that. GitHub Actions
+> `schedule` events are queued, not guaranteed: measured drift was 49, 131 and 132 minutes, two of
+> three runs fired AFTER the close, `session_fraction` was 1.0 twice, and
+> `confirmation_log.csv` never accrued a single row
+> (`diagnostics/research/intraday_scan_timing.md`).
+>
+> Moving it to 16:30 stops pretending. The session is over by then, so the scan reads a COMPLETE
+> daily candle, deterministically, whatever the drift does. Two consequences, and the second is the
+> dangerous one:
+>
+> 1. **Volume pace becomes a real ratio.** `session_fraction` is 1.0, so
+>    `volume_so_far / (fraction * 20d_avg)` reduces to `volume_today / 20d_avg`. The extrapolation
+>    assumption is gone — this is now a measurement rather than an estimate.
+> 2. **The partial->final survival statistic is DEAD, and must not be faked.** `_confirm` compares a
+>    prior scan's forming list against that day's completed candle. If the prior scan itself ran
+>    post-close, its "forming" list was DERIVED from the completed candle, so confirmation is ~100%
+>    BY TAUTOLOGY. That number is the one this file's own header used to say "decides whether
+>    same-day entries are ever proposed as a real trial" — a manufactured 100% could justify
+>    same-day buying. `_confirm` therefore SKIPS any post-close scan and records why.
+>
+> The same-day-entry question is not answered by rescheduling. It can now only be answered by
+> reconstructing every 14:30 historically from an intraday bar store — see
+> `diagnostics/research/intraday_feasibility.md`.
+
+What it does, every trading day at ~16:30 IST:
+  1. Downloads ~2y daily OHLCV for current PIT Nifty-500 members (+ ^NSEI). After the close the
+     latest bar is TODAY'S COMPLETED candle.
   2. Rebuilds this week's frozen top-50 practitioner watchlist from COMPLETED bars only (strictly before
      this ISO week's first session — identical PIT semantics to the backtest).
   3. Checks each watchlist name's FORMING setup on the partial candle: touch-and-hold of the rising
@@ -48,6 +75,17 @@ SESSION_MIN = (15 * 60 + 30) - (9 * 60 + 15)                     # 375 trading m
 def session_fraction(now_ist: datetime) -> float:
     mins = (now_ist.hour * 60 + now_ist.minute) - (9 * 60 + 15)
     return float(np.clip(mins / SESSION_MIN, 0.05, 1.0))
+
+
+def is_post_close(now_ist: datetime) -> bool:
+    """Did this run start after the 15:30 IST close?
+
+    Read off the CLOCK, not off ``session_fraction``, which clips to 1.0 and so cannot distinguish
+    15:30 from 23:00 — and would also read 1.0 for a badly-drifted run that was scheduled intraday.
+    A post-close scan sees a completed candle, which makes its `forming` list unusable as the
+    "partial" half of a partial->final comparison.
+    """
+    return (now_ist.hour * 60 + now_ist.minute) >= (15 * 60 + 30)
 
 
 def main() -> int:
@@ -119,11 +157,22 @@ def main() -> int:
                 conditions=cond))
 
     OUTDIR.mkdir(parents=True, exist_ok=True)
+    post_close = is_post_close(now)
     out = dict(generated_utc=datetime.now(timezone.utc).isoformat(), ist=f"{now:%Y-%m-%d %H:%M}",
-               session_fraction=round(frac, 3), regime_ok=regime_ok, n_watchlist=len(watch),
+               session_fraction=round(frac, 3), post_close=post_close,
+               regime_ok=regime_ok, n_watchlist=len(watch),
                watchlist=watch, n_forming=len(forming), forming=forming,
-               caveats=dict(shadow_only=True, partial_candle=True,
-                            volume_pace_scaling="volume_so_far / (elapsed_session_fraction * 20d_avg)"))
+               caveats=dict(shadow_only=True, partial_candle=not post_close,
+                            volume_pace_scaling=(
+                                "volume_today / 20d_avg (session complete — no extrapolation)"
+                                if post_close else
+                                "volume_so_far / (elapsed_session_fraction * 20d_avg)"),
+                            confirmation_eligible=not post_close,
+                            confirmation_note=(
+                                "post-close: this scan read a COMPLETED candle, so its forming list "
+                                "cannot serve as the partial half of a partial->final comparison. "
+                                "Excluded from confirmation_log.csv by construction."
+                                if post_close else "intraday: eligible as a partial observation")))
     (OUTDIR / f"{today.date()}.json").write_text(json.dumps(out, indent=1))
     print(f"regime {'OK' if regime_ok else 'OFF'} | watchlist {len(watch)} | forming setups {len(forming)}"
           f" -> results/intraday_scan/{today.date()}.json")
@@ -143,6 +192,20 @@ def _confirm(P, today) -> None:
     if not prev:
         return
     last = json.loads(prev[-1].read_text())
+
+    # A prior scan that ran AFTER the close read a completed candle, so its `forming` list is not a
+    # partial observation and confirming it against the same candle is a tautology returning ~100%.
+    # Legacy files predate the `post_close` flag; infer it from a saturated session_fraction, which
+    # is how the 2026-08 audit identified the two runs that had already fired after the close.
+    stale = last.get("post_close")
+    if stale is None:
+        stale = float(last.get("session_fraction") or 0.0) >= 1.0
+    if stale:
+        print(f"confirmation: SKIPPED — the {last.get('ist', '?')[:10]} scan ran post-close, so its "
+              f"forming list came from a COMPLETED candle. Confirming it would measure a tautology, "
+              f"not partial->final survival.")
+        return
+
     rows = []
     for f_ in last.get("forming", []):
         t = f_["ticker"]
