@@ -1,6 +1,6 @@
 {
-  "generated_utc": "2026-08-10T10:16:17.910987+00:00",
-  "generated_ist": "2026-08-10 15:46",
+  "generated_utc": "2026-08-10T12:10:00.389934+00:00",
+  "generated_ist": "2026-08-10 17:40",
   "book": "weekly-swing-0094-rank",
   "inception": "2026-07-04",
   "days_live": 37,
@@ -49,29 +49,9 @@
     "a_only_closed": 4,
     "floor_per_book": 20,
     "not_implemented": "\u00a74's CI-overlap limb of the insufficient-evidence clause. A KEEP or REVERT verdict from this panel is provisional until block-bootstrap CIs on forward MaxDD and Calmar are computed and checked for overlap.",
-    "base_swing_closed": 0,
-    "common_window": {
-      "from": "2026-07-06",
-      "to": "2026-07-31"
-    },
-    "a_only": {
-      "cagr_pct": -15.115,
-      "maxdd_pct": -3.668,
-      "calmar": -4.1206,
-      "from": "2026-07-06",
-      "to": "2026-07-31",
-      "n_points": 20
-    },
-    "base_swing": {
-      "cagr_pct": -15.115,
-      "maxdd_pct": -3.668,
-      "calmar": -4.1206,
-      "from": "2026-07-06",
-      "to": "2026-07-31",
-      "n_points": 20
-    },
     "verdict": "INSUFFICIENT EVIDENCE -> default base-swing, carry A-only",
-    "reason": "0 closed trades in the thinner book, below the \u00a74 floor of 20 per book"
+    "reason": "results/base_swing_forward.json absent \u2014 the comparator has not accrued",
+    "base_swing_closed": null
   },
   "status": "ACCRUING",
   "headline": "4/40 closed, 0/4 quarters -> not yet evaluable; 52 days to the 2026-10-01 review",

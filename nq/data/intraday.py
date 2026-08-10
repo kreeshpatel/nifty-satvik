@@ -31,7 +31,8 @@ import numpy as np
 import pandas as pd
 
 __all__ = ["PAGE_DAYS", "date_pages", "merge_pages", "fetch_symbol", "coverage_report",
-           "bars_strictly_before", "CoverageReport"]
+           "bars_strictly_before", "CoverageReport", "overnight_gaps", "split_seam_candidates",
+           "SPLIT_RATIOS"]
 
 # Documented maximum lookback PER REQUEST, by interval.
 # https://kite.trade/docs/connect/v3/historical/
@@ -184,3 +185,69 @@ def coverage_report(store: dict[str, pd.DataFrame], requested: Sequence[str], in
         delisted_requested=tuple(delisted),
         delisted_present=tuple(sorted(s for s in delisted if s in present)),
     )
+
+
+# --------------------------------------------------------------------------- corporate actions
+# Ratios a corporate action produces at the overnight seam, as open/prev_close. Kite serves
+# AS-TRADED prices, so a 1:2 split shows up as the next session opening at half the prior close and
+# nothing marks it. This is the VEDL lesson: a split that is not adjusted for is a -50% "return"
+# that no strategy earned, and a demerger is NOT a split even though it looks like one at the seam.
+SPLIT_RATIOS: tuple[float, ...] = (
+    1 / 2, 1 / 3, 1 / 4, 1 / 5, 1 / 10, 1 / 20, 1 / 100,      # splits / bonuses
+    2 / 3, 3 / 4, 4 / 5, 5 / 6,                               # bonus ratios that are not halvings
+    2.0, 3.0, 5.0, 10.0,                                      # reverse splits / consolidations
+)
+
+
+def overnight_gaps(bars: pd.DataFrame) -> pd.DataFrame:
+    """Session-over-session ``open / prev_close`` from an intraday series.
+
+    Collapses the intraday bars to one row per calendar date (first open, last close) before
+    comparing, so this measures the OVERNIGHT seam and never an intraday move.
+    """
+    empty = pd.DataFrame({"date": pd.Series(dtype="datetime64[ns]"),
+                          "prev_close": pd.Series(dtype="float64"),
+                          "open": pd.Series(dtype="float64"),
+                          "ratio": pd.Series(dtype="float64")})
+    if bars is None or len(bars) < 2:
+        return empty
+
+    d = bars.copy()
+    d["_day"] = pd.to_datetime(d["date"]).dt.normalize()
+    daily = d.groupby("_day").agg(open=("open", "first"), close=("close", "last"))
+    if len(daily) < 2:
+        return empty
+
+    prev = daily["close"].shift(1)
+    out = pd.DataFrame({"date": daily.index, "prev_close": prev.to_numpy(),
+                        "open": daily["open"].to_numpy()}).dropna()
+    with np.errstate(divide="ignore", invalid="ignore"):
+        out["ratio"] = np.where(out["prev_close"] > 0, out["open"] / out["prev_close"], np.nan)
+    return out.dropna(subset=["ratio"]).reset_index(drop=True)
+
+
+def split_seam_candidates(bars: pd.DataFrame, *, tol: float = 0.02) -> pd.DataFrame:
+    """Overnight seams whose ratio sits within ``tol`` (relative) of a known corporate-action ratio.
+
+    A CANDIDATE list, deliberately not a correction. Two reasons it must stay that way:
+
+    * A demerger produces the same seam shape as a split and is not one — the value genuinely left
+      the company, so "adjusting" it fabricates return. Distinguishing them needs the NSE
+      corporate-action record, not arithmetic on prices.
+    * A real -50% session is rare but possible, and silently rescaling it would delete a true loss.
+
+    So this flags where to look. `nq.data.adjustment_guard.KNOWN_SEAMS` is where an adjudicated one
+    is recorded, with its cause and its provenance.
+    """
+    gaps = overnight_gaps(bars)
+    if not len(gaps):
+        return gaps.assign(nearest_ratio=pd.Series(dtype="float64"))
+
+    r = gaps["ratio"].to_numpy(dtype=float)
+    ratios = np.asarray(SPLIT_RATIOS, dtype=float)
+    rel = np.abs(r[:, None] / ratios[None, :] - 1.0)
+    best = rel.argmin(axis=1)
+    hit = rel[np.arange(len(r)), best] <= tol
+    out = gaps.loc[hit].copy()
+    out["nearest_ratio"] = ratios[best[hit]]
+    return out.reset_index(drop=True)

@@ -15,6 +15,7 @@ import pandas as pd
 import pytest
 
 from nq.data.intraday import (PAGE_DAYS, bars_strictly_before, coverage_report, date_pages,
+                              overnight_gaps, split_seam_candidates,
                               fetch_symbol, merge_pages)
 
 
@@ -163,3 +164,68 @@ def test_coverage_reports_the_delisted_tail_even_though_ADR_0015_waived_the_prob
 def test_coverage_of_an_empty_request_does_not_divide_by_zero():
     rep = coverage_report({}, [], "day")
     assert rep.linkage_pct == 0.0 and rep.delisted_pct == 0.0 and rep.by_year == {}
+
+
+# --------------------------------------------------------------------------- corporate actions
+def _daily(closes: list[float], opens: list[float] | None = None, start="2026-01-01"):
+    """One session per day, two intraday bars each, so overnight_gaps has a seam to find."""
+    opens = opens or closes
+    rows = []
+    for i, (o, c) in enumerate(zip(opens, closes)):
+        day = pd.Timestamp(start) + pd.Timedelta(days=i)
+        rows.append({"date": day + pd.Timedelta(hours=9, minutes=15), "open": o, "high": max(o, c),
+                     "low": min(o, c), "close": (o + c) / 2, "volume": 10})
+        rows.append({"date": day + pd.Timedelta(hours=15), "open": (o + c) / 2, "high": max(o, c),
+                     "low": min(o, c), "close": c, "volume": 10})
+    return pd.DataFrame(rows)
+
+
+def test_overnight_gaps_measure_the_seam_not_an_intraday_move():
+    bars = _daily(closes=[100.0, 110.0], opens=[100.0, 105.0])
+    g = overnight_gaps(bars)
+    assert len(g) == 1
+    assert g["prev_close"].iloc[0] == pytest.approx(100.0)
+    assert g["open"].iloc[0] == pytest.approx(105.0)
+    assert g["ratio"].iloc[0] == pytest.approx(1.05)
+
+
+def test_a_one_for_two_split_is_flagged_as_a_candidate():
+    """Kite serves AS-TRADED prices, so a 1:2 split opens at half the prior close with nothing
+    marking it — a -50% 'return' no strategy earned."""
+    bars = _daily(closes=[100.0, 50.0], opens=[100.0, 50.0])
+    out = split_seam_candidates(bars)
+    assert len(out) == 1 and out["nearest_ratio"].iloc[0] == pytest.approx(0.5)
+
+
+def test_a_reverse_split_is_flagged_too():
+    bars = _daily(closes=[100.0, 1000.0], opens=[100.0, 1000.0])
+    out = split_seam_candidates(bars)
+    assert len(out) == 1 and out["nearest_ratio"].iloc[0] == pytest.approx(10.0)
+
+
+def test_ordinary_sessions_are_not_flagged():
+    bars = _daily(closes=[100.0, 101.0, 99.5, 103.0], opens=[100.0, 100.5, 100.0, 99.0])
+    assert split_seam_candidates(bars).empty
+
+
+def test_the_tolerance_is_relative_and_bounded():
+    """A -47% session is a catastrophe, not a 1:2 split. Rescaling it would delete a true loss."""
+    near = _daily(closes=[100.0, 50.5], opens=[100.0, 50.5])      # ratio 0.505, within 2% of 0.5
+    far = _daily(closes=[100.0, 53.0], opens=[100.0, 53.0])       # ratio 0.53, 6% off
+    assert len(split_seam_candidates(near)) == 1
+    assert split_seam_candidates(far).empty
+
+
+def test_seam_detection_is_a_candidate_list_not_a_correction():
+    """A demerger produces the same seam as a split and is NOT one — the value genuinely left the
+    company. Nothing here may rewrite a price; adjudication lives in adjustment_guard.KNOWN_SEAMS."""
+    bars = _daily(closes=[100.0, 50.0], opens=[100.0, 50.0])
+    before = bars.copy()
+    split_seam_candidates(bars)
+    pd.testing.assert_frame_equal(bars, before)
+
+
+@pytest.mark.parametrize("bars", [None, pd.DataFrame(), _daily(closes=[100.0])])
+def test_gap_helpers_are_safe_on_degenerate_input(bars):
+    assert overnight_gaps(bars).empty
+    assert split_seam_candidates(bars).empty
