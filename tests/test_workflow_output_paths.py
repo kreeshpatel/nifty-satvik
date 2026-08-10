@@ -163,3 +163,47 @@ def test_no_silent_guards_in_workflows():
         "silent guard(s) reintroduced — replace with an annotated fallback:\n  "
         + "\n  ".join(offenders)
     )
+
+
+# --------------------------------------------------------------------------- the undeclared gap
+#
+# Added 2026-08-11. The guard above asserts that every DECLARED path is stageable. It cannot see a
+# path that is never declared, and that is exactly how `results/base_swing_forward.json` was lost:
+# the cron wrote it every run from 2026-08-08, the workflow's commit list did not name it, and
+# `.gitignore`'s `results/*` would have swallowed a `git add` anyway. It was doubly invisible.
+#
+# The cost is not recoverable. That file is prereg_swing.md §4's COMPARATOR, §3 forbids backfilling
+# reconstructed history into the forward record, and §4 defaults to base-swing on insufficient
+# evidence — so a comparator that never accrues retires the live product by default, on schedule.
+#
+# The invariant: every results/ artifact the weekly cron writes must be named by the workflow that
+# runs it. Writing a file nobody commits is computing a week and throwing it away.
+CRON_SRC = ROOT / "scripts" / "run_bhanushali_cron.py"
+SCANNER_WF = WORKFLOWS / "cron-bhanushali-scanner.yml"
+
+# Written deliberately for the runner's own use and never committed. Keep this list SHORT and
+# justified — it is the exemption that could hide the next instance.
+_NOT_COMMITTED: set[str] = set()
+
+
+def _cron_written_artifacts() -> set[str]:
+    """Filenames the weekly cron writes into its state dir (`sd / "name"`)."""
+    src = CRON_SRC.read_text(encoding="utf-8")
+    return {m for m in re.findall(r'sd\s*/\s*"([^"]+)"', src)} - _NOT_COMMITTED
+
+
+def test_the_cron_writes_something_we_can_see():
+    """Guard the guard: an empty set would make the assertion below vacuous."""
+    found = _cron_written_artifacts()
+    assert len(found) >= 5, f"only found {found} — the write pattern changed, fix the parser"
+    assert "signals_today_weekly.json" in found
+
+
+def test_every_artifact_the_cron_writes_is_declared_by_its_workflow():
+    declared = " ".join(declared_add_paths().get(SCANNER_WF.name, []))
+    missing = sorted(a for a in _cron_written_artifacts() if a not in declared)
+    assert not missing, (
+        "the weekly cron writes these and the workflow never commits them, so they die with the "
+        "runner every week:\n  " + "\n  ".join(missing) +
+        "\nAdd `need`/`opt` lines in cron-bhanushali-scanner.yml — and whitelist them in .gitignore, "
+        "or the git add is a silent no-op.")

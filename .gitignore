@@ -57,6 +57,13 @@ results/*
 # visible was itself about to be silently dropped by `results/*`. Watcher:
 # tests/test_output_contracts.py fails on a fresh clone if this file is absent.
 !results/output_contracts.json
+# The base-swing WATCHED arm — prereg_swing.md §4's COMPARATOR. Yet another instance of the same
+# trap, and the worst-placed one: the arm shipped 2026-08-08 and has NEVER been persisted, because
+# it was whitelisted nowhere AND absent from the workflow's commit list. §3 forbids backfilling
+# reconstructed history into the forward record, so every unlogged week is permanently lost from a
+# comparison window that is already truncated on the left. §4 defaults to base-swing on insufficient
+# evidence, so a comparator that never accrues retires the live product by default.
+!results/base_swing_forward.json
 # The intraday shadow-scan artifacts. FIFTH instance of the same trap, caught by
 # tests/test_workflow_output_paths.py on its first run (2026-08-05): the workflow declares
 # `git add results/intraday_scan/` but `results/*` above made it a silent no-op, so the
