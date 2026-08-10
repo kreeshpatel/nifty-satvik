@@ -96,7 +96,13 @@ jobs:
           # Belt-and-braces AFTER in-script handling (missing key / SDK / model drift / per-card
           # failure all exit 0 inside the script). Watchers: the output contract's judge_log row
           # and the hash-chain test. The scanner must never fail because of the judge.
-          python scripts/run_judge_cron.py
+          # NOTE the `\` continuation. This block is a LITERAL scalar (`run: |`), so newlines survive
+          # into the script — an `||` alone on the next line is a bash syntax error, not a fallback.
+          # That is what broke the 2026-08-08 run: the engine had already produced the week's state,
+          # the judge step exited 2 before the commit step, and the whole week was discarded. The
+          # sibling steps get away with the same shape only because they are PLAIN scalars, which
+          # YAML folds onto one line.
+          python scripts/run_judge_cron.py \
             || echo "::warning::judge cron exited non-zero ($?) — no verdicts appended this week"
       - name: Log the swing x low-vol blend hybrid (observational WATCHED book, finding 0107)
         # Runs AFTER the swing cron so it uses the freshly-downloaded OHLCV + the just-written swing NAV.
