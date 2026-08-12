@@ -43,3 +43,44 @@ is right.
 Neither is taken unilaterally: (1) amends a registered pre-reg arm, (2) sources external factor data.
 Both are the owner's call, and this diagnosis is why the "veto arm — retire or fund" item is now also
 the gate on whether 0001 gets a live forward record at all.
+
+---
+
+## Update 2026-08-12 — the wall cron now fails RED every weekday; the concrete runner cause
+
+The forward-wall cron (`cron-forward-wall.yml`, `0 13 * * 1-5`) has failed every trading day (08-10,
+08-11, 08-12 confirmed). Exact chain, from run 31605608695:
+
+```
+forward-wall: SKIPPED (FileNotFoundError: .../data/ff_india_factors.parquet)
+→ results/forward_wall.csv never produced
+→ commit step `need results/forward_wall.csv` → "::error:: the wall produced no log" → exit 1
+```
+
+This is a **sharper** cause than the 2026-08-11 note above (which described the factor data as *stale*
+locally). On the CI runner the factor panel is not stale — it is **absent**: `data/ff_india_factors.parquet`
+is gitignored (`/data/*`), and **no workflow builds it.** A builder exists —
+`pipelines/build/build_ff_india_factors.py` — and its inputs are present on the runner
+(`data/fundamentals_pit_screener.pkl` is committed/whitelisted; OHLCV is downloaded by the cron), so
+the panel *could* be built there. The workflow simply never calls the builder; it runs only
+`run_paper_cron.py`. The output contract failing red is the guard working, not the bug.
+
+So the daily red is the veto-arm strand of §6 made concrete, and there are three responses, all owner
+calls because they touch a registered pre-reg arm:
+
+1. **Fund it — add a build step.** Insert `python pipelines/build/build_ff_india_factors.py` before
+   `run_paper_cron.py` in the workflow. Lowest-effort, and it lets the wall accrue the forward
+   evidence the Oct-1 decision needs (accruing ≠ promoting). **Caveat, unverified:** the HML factor
+   depends on `bp` from the committed fundamentals scrape; if that scrape ends ~2026-06-29, HML — and
+   therefore the residual ranks the veto arm needs — may still not extend to recent weeks even after
+   a build. Confirm the built panel's date range on the runner before trusting this as a full fix.
+2. **Retire the veto arm** (the §6 "retire" branch). Then the wall logs base-swing + drift-degross,
+   which need no factor data, and starts accruing immediately. This pre-empts the Oct-1 promote/kill
+   in the "kill" direction, so it is an owner decision, not a cron fix.
+3. **Stop the daily red without deciding** — e.g. demote `forward_wall.csv` from `need` to `opt`, or
+   pause the schedule until Oct-1. Silences a real "wall not producing" signal the contract author
+   made loud on purpose; a stopgap, not a fix.
+
+Note the base-swing forward record is blocked by this too: `_assert_veto_arm_live` refuses to log the
+WHOLE wall when the veto arm cannot fire, so the certifier book is not accruing either. That raises the
+priority of resolving the veto-arm question above "wait until Oct-1".
