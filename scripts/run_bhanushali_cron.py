@@ -199,6 +199,62 @@ def _record_stop(entry: float, week_low: float) -> float:
     return st
 
 
+# Body/range threshold below which a signal week is an INDECISION candle. Measured 2026-08-11 on the
+# touch44 substrate: tiny-body (<0.25) weeks average +0.03R vs +0.39R for solid-body (>0.45) weeks,
+# monotone across three buckets. Surfaced as a conviction FLAG only — it changes no traded value and
+# is not a filter; adopting it as a screen would need the full gate (it is adjacent to the killed
+# 0098 wide-candle-reject / body-gain-cap levers, so cite-and-narrow).
+LOW_CONVICTION_BODY_RATIO = 0.25
+# Don't-chase ceiling: buying more than this fraction above the modelled entry meaningfully distorts
+# R (a 3% chase on a ~9% stop eats ~0.3R and walks toward the +2R target). Capped by the band top.
+NO_CHASE_FRAC = 0.03
+
+
+def _sig_week_oc(s, fri_idx):
+    """Signal-week (open, close) reconstructed from the daily arrays — NOT from `last_signal`.
+
+    Kept out of the engine's `last_signal` on purpose: that dict is captured by the r94 golden
+    fixture, so adding a field there breaks byte-identity. The card builder already holds the daily
+    o/c arrays, so the body/range flag is computed live here with zero engine change.
+    """
+    try:
+        dates = pd.DatetimeIndex(s["dates"])
+        iso = dates[fri_idx].isocalendar()
+        i = int(fri_idx)
+        while i > 0:                                            # walk back to the week's first bar
+            p = dates[i - 1].isocalendar()
+            if (p.year, p.week) != (iso.year, iso.week):
+                break
+            i -= 1
+        return float(s["o"][i]), float(s["c"][fri_idx])
+    except Exception:                                          # noqa: BLE001 — flag is optional
+        return None, None
+
+
+def _buy_guidance(entry: float, lo: float, hi: float, wo, wc) -> dict:
+    """Precise execution guidance for a wide signal-week band. ADDITIVE — no traded value changes.
+
+    `entry_low`/`entry_high` remain the raw band; this adds a TIGHT buy zone and a no-chase ceiling
+    so a user does not fill at the top of a 5-10% band and get caught by the pullback, nor buy near
+    the low (which is the stop, i.e. buying into weakness).
+    """
+    band_w = (hi - lo) / entry * 100.0 if entry > 0 else 0.0
+    out = {
+        # buy from the modelled entry up to a small chase; never below entry (that is toward the stop)
+        "buy_zone_low": round(entry, 2),
+        "buy_zone_high": round(min(hi, entry * (1.0 + NO_CHASE_FRAC)), 2),
+        "no_chase_above": round(entry * (1.0 + NO_CHASE_FRAC), 2),
+        "band_width_pct": round(band_w, 1),
+        "band_is_wide": bool(band_w > 10.0),
+    }
+    # conviction flag needs the signal-week open/close; omit cleanly if absent (older P without wo/wc)
+    if wo is not None and wc is not None and hi > lo:
+        body_ratio = abs(float(wc) - float(wo)) / (hi - lo)
+        out["body_ratio"] = round(body_ratio, 3)
+        out["signal_conviction"] = "low" if body_ratio < LOW_CONVICTION_BODY_RATIO else "normal"
+    return out
+
+
 def _ext_flags(entry: float, sma44: float) -> dict:
     """Extension vs the signal-week 44w SMA + whether the RECORD would refuse this fill.
 
@@ -332,6 +388,13 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
             "target": round(entry + TARGET_R * (entry - stop), 2),
             **_ext_flags(entry, sma_sig),
             "entry_low": round(lo, 2), "entry_high": round(hi, 2),
+            # EXECUTION GUIDANCE (additive, 2026-08-11). The band [entry_low, entry_high] is the
+            # signal-week low..high and is 8.9% wide at the median (42% of signals >10%). `entry_low`
+            # is the STOP reference, NOT a buy price — buying near it is buying into weakness (the
+            # early-dip finding: trades that dip after entry are the losers). So surface a TIGHT buy
+            # zone centred on the modelled entry and a ceiling not to chase past. Nothing traded
+            # changes: `entry`/`stop`/`target`/bands stay byte-identical; these are display fields.
+            **_buy_guidance(entry, lo, hi, *_sig_week_oc(s, ls["fri_idx"])),
             "current_price": round(cur, 2), "close": round(cur, 2),
             "signal_date": str(fri.date()),                    # the just-closed setup week (stable)
             # Entry window is the FULL trading week AFTER the setup Friday (buy Mon–Fri). The
