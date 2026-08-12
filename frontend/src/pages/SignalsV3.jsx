@@ -34,6 +34,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { sizePortfolio, SIZER_STATUS } from '@/lib/sizing';
 import { useHoldings, useMarkBought, useUnmarkBought } from '@/hooks/queries/useHoldings';
+import { useExecutionPositions } from '@/hooks/queries/useExecution';
 import { useJourney } from '@/hooks/queries/useJourney';
 import { useSizerConfig, useSizingPrefs, useUpdateSizingPrefs } from '@/hooks/queries/useSizingPrefs';
 import '@/styles/signals-v3.css';
@@ -149,7 +150,7 @@ function deriveAction(sig) {
 }
 
 // ── Signal enrichment — maps real API fields to UI fields ─────────────
-function enrichSignal(raw, quotes) {
+function enrichSignal(raw, quotes, posBySignal) {
   const { action, sellReason } = deriveAction(raw);
   const ticker = raw.ticker || raw.sym || '';
   const q = quotes?.[ticker.toUpperCase()] || null;
@@ -190,6 +191,23 @@ function enrichSignal(raw, quotes) {
   const isWatch = action === 'brewing';
   const grade = raw.grade || 'B';
 
+  // The user's OWN position from the durable execution ledger (self-reported buy price + qty), keyed
+  // by the same signal_id. P&L is derived here from the live LTP against the recorded average buy —
+  // NOT the model's signal entry — so a held row shows the owner's real, daily-updated gain/loss.
+  const sid = signalIdOf({ sym: ticker, signal_date: raw.signal_date, signal_id: raw.signal_id });
+  const pos = posBySignal?.get(sid) || null;
+  const recordedBuy = pos && pos.avg_buy_price ? Number(pos.avg_buy_price) : null;
+  const myQty = pos ? Number(pos.remaining_qty || 0) : 0;
+  // The reference buy price: the user's real recorded fill if they marked one, otherwise the MODELLED
+  // fill — the Monday open of the entry week (backend `entry_week_open`), the price the forward book
+  // assumes. So every current pick shows a tracked P&L from Monday's open even before it is bought.
+  const modelBuy = typeof raw.entry_week_open === 'number' ? raw.entry_week_open : null;
+  const myBuy = recordedBuy ?? modelBuy;
+  const pnlIsModeled = recordedBuy == null && modelBuy != null;
+  const myPnlPct = myBuy && myBuy > 0 ? (ltp / myBuy - 1) * 100 : null;
+  // Rupee P&L needs a real quantity; a modelled fill has none, so it shows the % only.
+  const myPnl = recordedBuy && myQty > 0 ? (ltp - recordedBuy) * myQty : null;
+
   return {
     ...raw,
     sym: ticker,
@@ -207,7 +225,8 @@ function enrichSignal(raw, quotes) {
     _fromEntry: fromEntry,
     _upside: upside,
     _zeroRisk: zeroRisk,
-    _signalId: signalIdOf({ sym: ticker, signal_date: raw.signal_date, signal_id: raw.signal_id }),
+    _signalId: sid,
+    _myBuy: myBuy, _myQty: myQty, _myPnl: myPnl, _myPnlPct: myPnlPct, _pnlIsModeled: pnlIsModeled,
     buyByStr, daysLeft, dayOf, weekOf,
     hold: raw.hold_days || 10,
     conv: convOf(grade, isWatch),
@@ -238,8 +257,10 @@ function potentialCell(s) {
     return { main: 'below gate', sub: dist != null ? `${fmtPct1(dist)} to enter` : '', tone: 'warn' };
   }
   if (s.action === 'holding' || s.action === 'sell-now') {
-    // A held trade counts days UP from entry toward the ~13-week (65d) exit.
-    return { main: fmtPct1(s._fromEntry), sub: s.weekOf ? `week ${s.weekOf} of 13` : '', tone: s._fromEntry >= 0 ? 'bull' : 'bear' };
+    // Once the user has recorded a buy, the potential is measured from THEIR fill (real gain/loss),
+    // not the model's signal entry. Falls back to from-entry when nothing was recorded.
+    const pct = s._myPnlPct != null ? s._myPnlPct : s._fromEntry;
+    return { main: fmtPct1(pct), sub: s.weekOf ? `week ${s.weekOf} of 13` : '', tone: pct >= 0 ? 'bull' : 'bear' };
   }
   if (s.action === 'closed') {
     // Buy window elapsed and it was never bought — not a live trade, so no day count.
@@ -262,6 +283,15 @@ function monitorChip(s) {
     return { label: 'Near stop', cls: 'mon-warn' };
   if (m.kind === 'buy' && m.buy_window_open && m.filled_today === false)
     return { label: 'Gapped — wait', cls: 'mon-warn' };
+  return null;
+}
+
+// Signal-week candle quality — the wide-band / small-body flag (backend 2026-08-11). A wide-range
+// small-body (indecision) week measures +0.03R vs +0.39R for a solid-body week, so it is surfaced
+// as a low-conviction chip. Reuses the .ri-mon pill; no new CSS. Flag only — nothing traded changes.
+function convictionChip(s) {
+  if (s.signal_conviction === 'low') return { label: 'Low conviction', cls: 'mon-warn' };
+  if (s.band_is_wide) return { label: 'Wide band', cls: 'mon-info' };
   return null;
 }
 
@@ -530,6 +560,7 @@ function CallRow({ s, onOpen, onAction, held, onToggleBought }) {
   const g = (s.grade || 'B')[0].toUpperCase();
   const dayChg = s._dayChangePct;
   const mon = monitorChip(s);
+  const conv = convictionChip(s);
   return (
     <div className="ri-row" onClick={() => onOpen(s)} role="button" tabIndex={0}
       onKeyDown={(e) => {
@@ -546,6 +577,7 @@ function CallRow({ s, onOpen, onAction, held, onToggleBought }) {
           <div className="ri-scrip-sub">
             {s.sector}{s.isFreshToday && <> · <span className="num-info">fresh</span></>} · {s.ex}
             {mon && <span className={`ri-mon ${mon.cls}`}>{mon.label}</span>}
+            {conv && <span className={`ri-mon ${conv.cls}`}>{conv.label}</span>}
           </div>
         </div>
       </div>
@@ -565,6 +597,28 @@ function CallRow({ s, onOpen, onAction, held, onToggleBought }) {
           </>
         ) : (
           <div className="ri-cell-main tnum">{fmtNum(s.entry)}</div>
+        )}
+      </div>
+
+      <div className="ri-cell ri-pnl">
+        {s._myPnlPct != null ? (
+          s._myPnl != null ? (
+            // A recorded fill: rupee P&L (from real qty) with the percent beneath.
+            <>
+              <div className={`ri-cell-main tnum ${s._myPnl >= 0 ? 'num-bull' : 'num-bear'}`}>
+                {s._myPnl >= 0 ? '+' : '−'}₹{fmtNum(Math.abs(s._myPnl))}
+              </div>
+              <div className={`ri-cell-sub tnum ${s._myPnlPct >= 0 ? 'num-bull' : 'num-bear'}`}>{fmtPct1(s._myPnlPct)}</div>
+            </>
+          ) : (
+            // Modelled from the entry-week Monday open (no qty) — percent only, labelled.
+            <>
+              <div className={`ri-cell-main tnum ${s._myPnlPct >= 0 ? 'num-bull' : 'num-bear'}`}>{fmtPct1(s._myPnlPct)}</div>
+              <div className="ri-cell-sub">from Mon open</div>
+            </>
+          )
+        ) : (
+          <div className="ri-cell-main ri-pnl-empty">—</div>
         )}
       </div>
 
@@ -617,6 +671,13 @@ export default function SignalsV3() {
 
   // Per-user ephemeral holdings — merged CLIENT-SIDE (GET /api/signals stays model-only).
   const holdingsQuery = useHoldings();
+  // The user's durable positions (execution ledger) → live unrealised P&L on held rows. Sold trades
+  // land in Portfolio → Closed Trades via the same ledger, so nothing extra is needed for history.
+  const execQuery = useExecutionPositions();
+  const posBySignal = useMemo(
+    () => new Map((execQuery.data ?? []).map((p) => [p.signal_id, p])),
+    [execQuery.data],
+  );
   const heldIds = useMemo(
     () => new Set((holdingsQuery.data ?? []).map((h) => h.signal_id)),
     [holdingsQuery.data]
@@ -646,14 +707,14 @@ export default function SignalsV3() {
   // same model book.
   const allEnriched = useMemo(() => {
     const enriched = [
-      ...rawSignals.map((s) => enrichSignal(s, quotes)),
-      ...rawWatchlist.map((s) => enrichSignal({ ...s, actionability: 'WATCHLIST', tier: 'watchlist' }, quotes)),
+      ...rawSignals.map((s) => enrichSignal(s, quotes, posBySignal)),
+      ...rawWatchlist.map((s) => enrichSignal({ ...s, actionability: 'WATCHLIST', tier: 'watchlist' }, quotes, posBySignal)),
     ];
     const seen = new Set();
     return enriched
       .filter((s) => { if (seen.has(s.sym)) return false; seen.add(s.sym); return true; })
       .sort((a, b) => (ACTION_RANK[a.action] ?? 9) - (ACTION_RANK[b.action] ?? 9));
-  }, [rawSignals, rawWatchlist, quotes]);
+  }, [rawSignals, rawWatchlist, quotes, posBySignal]);
 
   const buyPool = useMemo(
     () => allEnriched.filter((s) => s.action === 'buy-today' || s.action === 'closing'),
@@ -795,6 +856,7 @@ export default function SignalsV3() {
               <span>Scrip</span>
               <span className="ri-th-r">LTP</span>
               <span className="ri-th-r">Buy range</span>
+              <span className="ri-th-r">P&amp;L</span>
               <span className="ri-th-r">Potential</span>
               <span />
             </div>

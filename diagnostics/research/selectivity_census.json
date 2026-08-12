@@ -1,0 +1,226 @@
+{
+ "_doc": "MEASUREMENT. Zero trials, zero screen-ledger rows: reads the uncapped substrate and the committed capped export, never the banked label dataset.",
+ "reproduce": "python pipelines/diagnostics/diag_selectivity_census.py --setup touch44",
+ "setup": "touch44",
+ "n": 1720,
+ "eq0": 1000000.0,
+ "risk_per_trade": 0.02,
+ "band_edges_pct": [
+  null,
+  0.0,
+  5.0,
+  10.0,
+  15.0,
+  20.0,
+  25.0,
+  null
+ ],
+ "table": [
+  {
+   "band": "<0 (below wk line)",
+   "N": 39,
+   "share_pct": 2.27,
+   "win_pct": 61.5,
+   "meanR": 2.088,
+   "medR": 1.585,
+   "mean_equity_pct": 4.826,
+   "med_equity_pct": 3.242,
+   "med_stop_width_pct": 5.155,
+   "med_notional_pct_of_equity": 38.8
+  },
+  {
+   "band": "0-5%",
+   "N": 379,
+   "share_pct": 22.03,
+   "win_pct": 50.4,
+   "meanR": 0.576,
+   "medR": 0.029,
+   "mean_equity_pct": 1.213,
+   "med_equity_pct": -0.204,
+   "med_stop_width_pct": 5.81,
+   "med_notional_pct_of_equity": 34.42
+  },
+  {
+   "band": "5-10%",
+   "N": 615,
+   "share_pct": 35.76,
+   "win_pct": 39.7,
+   "meanR": 0.094,
+   "medR": -1.028,
+   "mean_equity_pct": 0.218,
+   "med_equity_pct": -2.255,
+   "med_stop_width_pct": 5.562,
+   "med_notional_pct_of_equity": 35.96
+  },
+  {
+   "band": "10-15%",
+   "N": 457,
+   "share_pct": 26.57,
+   "win_pct": 43.3,
+   "meanR": 0.325,
+   "medR": -0.973,
+   "mean_equity_pct": 0.719,
+   "med_equity_pct": -2.092,
+   "med_stop_width_pct": 7.481,
+   "med_notional_pct_of_equity": 26.73
+  },
+  {
+   "band": "15-20%",
+   "N": 155,
+   "share_pct": 9.01,
+   "win_pct": 43.2,
+   "meanR": 0.292,
+   "medR": -0.979,
+   "mean_equity_pct": 0.69,
+   "med_equity_pct": -2.006,
+   "med_stop_width_pct": 11.125,
+   "med_notional_pct_of_equity": 17.98
+  },
+  {
+   "band": "20-25%",
+   "N": 37,
+   "share_pct": 2.15,
+   "win_pct": 45.9,
+   "meanR": 0.415,
+   "medR": -0.368,
+   "mean_equity_pct": 0.943,
+   "med_equity_pct": -0.85,
+   "med_stop_width_pct": 15.395,
+   "med_notional_pct_of_equity": 12.99
+  },
+  {
+   "band": ">25%",
+   "N": 38,
+   "share_pct": 2.21,
+   "win_pct": 42.1,
+   "meanR": 0.093,
+   "medR": -0.986,
+   "mean_equity_pct": 0.229,
+   "med_equity_pct": -2.037,
+   "med_stop_width_pct": 19.359,
+   "med_notional_pct_of_equity": 10.33
+  },
+  {
+   "band": "ALL",
+   "N": 1720,
+   "share_pct": 100.0,
+   "win_pct": 44.0,
+   "meanR": 0.331,
+   "medR": -0.942,
+   "mean_equity_pct": 0.733,
+   "med_equity_pct": -2.047,
+   "med_stop_width_pct": 6.998,
+   "med_notional_pct_of_equity": 28.58
+  }
+ ],
+ "denominator_check": {
+  "corr_R_vs_equity_pct": 0.98959,
+  "median_equity_pct_per_R": 2.103,
+  "expected_if_risk_is_fixed": 2.0,
+  "stop_width_by_band_sub10pct_ext": {
+   "<0 (below wk line)": 5.155,
+   "0-5%": 5.81,
+   "5-10%": 5.562
+  },
+  "stop_width_is_monotone_below_10pct_ext": false,
+  "reading": "R and % of equity are proportional because per-trade risk is FIXED, so R carries no denominator distortion at trade level and the near-SMA result survives in money terms. Below 10% extension the median stop width is also FLAT, so the large meanR differences in that region are not explained by stop width either. The r_denominator_audit concern is resolved for this population \u2014 it does NOT explain the near-SMA gradient."
+ },
+ "funded_share": {
+  "available": true,
+  "by_band": {
+   "<0 (below wk line)": {
+    "n_signals": 39,
+    "n_funded": 0,
+    "funded_pct": 0.0
+   },
+   "0-5%": {
+    "n_signals": 379,
+    "n_funded": 2,
+    "funded_pct": 0.53
+   },
+   "5-10%": {
+    "n_signals": 615,
+    "n_funded": 8,
+    "funded_pct": 1.3
+   },
+   "10-15%": {
+    "n_signals": 457,
+    "n_funded": 28,
+    "funded_pct": 6.13
+   },
+   "15-20%": {
+    "n_signals": 155,
+    "n_funded": 18,
+    "funded_pct": 11.61
+   },
+   "20-25%": {
+    "n_signals": 37,
+    "n_funded": 10,
+    "funded_pct": 27.03
+   },
+   ">25%": {
+    "n_signals": 38,
+    "n_funded": 21,
+    "funded_pct": 55.26
+   }
+  },
+  "capped_rows_matched": 87,
+  "capped_rows_total": 255
+ },
+ "selection_vs_cash": {
+  "by_band": {
+   "<0 (below wk line)": {
+    "n": 39,
+    "top5_by_crs_pct": 28.2,
+    "funded_pct": 0.0,
+    "funded_given_top5_pct": 0.0,
+    "median_crs": 0.0391
+   },
+   "0-5%": {
+    "n": 379,
+    "top5_by_crs_pct": 39.6,
+    "funded_pct": 0.5,
+    "funded_given_top5_pct": 1.3,
+    "median_crs": 0.0346
+   },
+   "5-10%": {
+    "n": 615,
+    "top5_by_crs_pct": 65.7,
+    "funded_pct": 1.3,
+    "funded_given_top5_pct": 2.0,
+    "median_crs": 0.0349
+   },
+   "10-15%": {
+    "n": 457,
+    "top5_by_crs_pct": 79.6,
+    "funded_pct": 6.1,
+    "funded_given_top5_pct": 7.7,
+    "median_crs": 0.0577
+   },
+   "15-20%": {
+    "n": 155,
+    "top5_by_crs_pct": 82.6,
+    "funded_pct": 11.6,
+    "funded_given_top5_pct": 14.1,
+    "median_crs": 0.0975
+   },
+   "20-25%": {
+    "n": 37,
+    "top5_by_crs_pct": 97.3,
+    "funded_pct": 27.0,
+    "funded_given_top5_pct": 27.8,
+    "median_crs": 0.1163
+   },
+   ">25%": {
+    "n": 38,
+    "top5_by_crs_pct": 97.4,
+    "funded_pct": 55.3,
+    "funded_given_top5_pct": 56.8,
+    "median_crs": 0.1622
+   }
+  },
+  "corr_ext_vs_crs": 0.3425,
+  "_proxy_note": "top-5 is ranked over the uncapped substrate's trades per ISO week, a close proxy for grade_a_entries rather than the same population.",
+  "reading": "BOTH mechanisms operate and they compound. Selection is real \u2014 the near-SMA bands are top-5 far less often. But conditional on BEING top-5 they are still funded far less often, which selection cannot explain. That residual is the cash gate: per-trade risk is fixed, so a tight stop buys a large position, and the cheapest positions are the most extended ones. The book funds what it can afford."
+ }
+}

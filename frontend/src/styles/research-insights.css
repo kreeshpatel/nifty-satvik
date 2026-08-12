@@ -66,8 +66,10 @@
 }
 .ri-thead, .ri-row {
   display: grid;
-  /* last col holds two controls (Bought + action), so it's wider than the old single-button 88px */
-  grid-template-columns: minmax(0, 1fr) 88px 92px 112px 150px;
+  /* Scrip · LTP · Buy range · P&L · Potential · actions. P&L (2026-08-11) shows the owner's live
+     unrealised gain from their recorded buy; the 1fr Scrip column absorbs the extra width.
+     last col holds two controls (Bought + action), so it's wider than the old single-button 88px */
+  grid-template-columns: minmax(0, 1fr) 88px 92px 96px 112px 150px;
   align-items: center; gap: 10px;
   padding: 12px 16px;
 }
