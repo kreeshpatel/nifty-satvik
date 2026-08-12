@@ -216,8 +216,12 @@ export function buildAnchorRow(sig = {}, fmtPrice, fmtPct) {
  *   state: 'ok' | 'past'   tone: 'brand' | 'warn'   head: the price line   sub: the rule
  */
 export function buyPlan(sig = {}, fmtPrice = (v) => `₹${v}`) {
-  const { entry, max_entry, current_price } = sig;
-  const limit = typeof max_entry === 'number' ? max_entry : null;
+  const { entry, max_entry, current_price, no_chase_above } = sig;
+  // `no_chase_above` (backend 2026-08-11) is the buy-card twin of `max_entry`: the ceiling past which
+  // chasing a wide signal-week band distorts R. Prefer max_entry when present; otherwise use it, so
+  // the "don't chase above" guidance flows to the card and the drawer with no per-view change.
+  const limit = typeof max_entry === 'number' ? max_entry
+    : typeof no_chase_above === 'number' ? no_chase_above : null;
   if (limit != null && typeof current_price === 'number' && current_price > limit) {
     return {
       state: 'past', tone: 'warn',

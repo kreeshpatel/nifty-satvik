@@ -265,6 +265,15 @@ function monitorChip(s) {
   return null;
 }
 
+// Signal-week candle quality — the wide-band / small-body flag (backend 2026-08-11). A wide-range
+// small-body (indecision) week measures +0.03R vs +0.39R for a solid-body week, so it is surfaced
+// as a low-conviction chip. Reuses the .ri-mon pill; no new CSS. Flag only — nothing traded changes.
+function convictionChip(s) {
+  if (s.signal_conviction === 'low') return { label: 'Low conviction', cls: 'mon-warn' };
+  if (s.band_is_wide) return { label: 'Wide band', cls: 'mon-info' };
+  return null;
+}
+
 // ── Forward-review scorecard tile (weekly book — Oct-1 promote/kill machinery) ──
 function ReviewCard({ card }) {
   if (!card) return null;
@@ -530,6 +539,7 @@ function CallRow({ s, onOpen, onAction, held, onToggleBought }) {
   const g = (s.grade || 'B')[0].toUpperCase();
   const dayChg = s._dayChangePct;
   const mon = monitorChip(s);
+  const conv = convictionChip(s);
   return (
     <div className="ri-row" onClick={() => onOpen(s)} role="button" tabIndex={0}
       onKeyDown={(e) => {
@@ -546,6 +556,7 @@ function CallRow({ s, onOpen, onAction, held, onToggleBought }) {
           <div className="ri-scrip-sub">
             {s.sector}{s.isFreshToday && <> · <span className="num-info">fresh</span></>} · {s.ex}
             {mon && <span className={`ri-mon ${mon.cls}`}>{mon.label}</span>}
+            {conv && <span className={`ri-mon ${conv.cls}`}>{conv.label}</span>}
           </div>
         </div>
       </div>
