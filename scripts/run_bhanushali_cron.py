@@ -231,6 +231,25 @@ def _sig_week_oc(s, fri_idx):
         return None, None
 
 
+def _entry_week_open(s, fri_idx):
+    """The open of the first trading day AFTER the signal Friday — the Monday of the entry week.
+
+    This is the price the forward book models a fill at: the signal fires on the setup week's Friday
+    (`fri_idx`), and the trade is entered the following week. The first bar after the signal Friday is
+    that week's first session (Monday, or the first open one if Monday is a holiday), so its open is
+    the modelled entry. Returns None for a FRESH signal whose entry week has not opened yet (fri_idx
+    is the last bar), which is the honest state — there is no modelled fill until the week opens.
+
+    Reconstructed from the daily arrays, deliberately NOT stored on `last_signal` (the r94 golden
+    fixture snapshots that dict; a field there would break byte identity).
+    """
+    try:
+        j = int(fri_idx) + 1
+        return round(float(s["o"][j]), 2) if j < len(s["o"]) else None
+    except Exception:                                          # noqa: BLE001 — display-only
+        return None
+
+
 def _buy_guidance(entry: float, lo: float, hi: float, wo, wc) -> dict:
     """Precise execution guidance for a wide signal-week band. ADDITIVE — no traded value changes.
 
@@ -395,6 +414,10 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
             # zone centred on the modelled entry and a ceiling not to chase past. Nothing traded
             # changes: `entry`/`stop`/`target`/bands stay byte-identical; these are display fields.
             **_buy_guidance(entry, lo, hi, *_sig_week_oc(s, ls["fri_idx"])),
+            # Modelled fill for the P&L tracker: the Monday open of the entry week (the week the buy
+            # was indicated). The card's live P&L is (current − this) when the user has not recorded
+            # an actual fill. None until the entry week opens.
+            "entry_week_open": _entry_week_open(s, ls["fri_idx"]),
             "current_price": round(cur, 2), "close": round(cur, 2),
             "signal_date": str(fri.date()),                    # the just-closed setup week (stable)
             # Entry window is the FULL trading week AFTER the setup Friday (buy Mon–Fri). The

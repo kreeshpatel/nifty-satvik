@@ -196,10 +196,17 @@ function enrichSignal(raw, quotes, posBySignal) {
   // NOT the model's signal entry — so a held row shows the owner's real, daily-updated gain/loss.
   const sid = signalIdOf({ sym: ticker, signal_date: raw.signal_date, signal_id: raw.signal_id });
   const pos = posBySignal?.get(sid) || null;
-  const myBuy = pos && pos.avg_buy_price ? Number(pos.avg_buy_price) : null;
+  const recordedBuy = pos && pos.avg_buy_price ? Number(pos.avg_buy_price) : null;
   const myQty = pos ? Number(pos.remaining_qty || 0) : 0;
+  // The reference buy price: the user's real recorded fill if they marked one, otherwise the MODELLED
+  // fill — the Monday open of the entry week (backend `entry_week_open`), the price the forward book
+  // assumes. So every current pick shows a tracked P&L from Monday's open even before it is bought.
+  const modelBuy = typeof raw.entry_week_open === 'number' ? raw.entry_week_open : null;
+  const myBuy = recordedBuy ?? modelBuy;
+  const pnlIsModeled = recordedBuy == null && modelBuy != null;
   const myPnlPct = myBuy && myBuy > 0 ? (ltp / myBuy - 1) * 100 : null;
-  const myPnl = myBuy && myQty > 0 ? (ltp - myBuy) * myQty : null;
+  // Rupee P&L needs a real quantity; a modelled fill has none, so it shows the % only.
+  const myPnl = recordedBuy && myQty > 0 ? (ltp - recordedBuy) * myQty : null;
 
   return {
     ...raw,
@@ -219,7 +226,7 @@ function enrichSignal(raw, quotes, posBySignal) {
     _upside: upside,
     _zeroRisk: zeroRisk,
     _signalId: sid,
-    _myBuy: myBuy, _myQty: myQty, _myPnl: myPnl, _myPnlPct: myPnlPct,
+    _myBuy: myBuy, _myQty: myQty, _myPnl: myPnl, _myPnlPct: myPnlPct, _pnlIsModeled: pnlIsModeled,
     buyByStr, daysLeft, dayOf, weekOf,
     hold: raw.hold_days || 10,
     conv: convOf(grade, isWatch),
@@ -594,13 +601,22 @@ function CallRow({ s, onOpen, onAction, held, onToggleBought }) {
       </div>
 
       <div className="ri-cell ri-pnl">
-        {s._myPnl != null ? (
-          <>
-            <div className={`ri-cell-main tnum ${s._myPnl >= 0 ? 'num-bull' : 'num-bear'}`}>
-              {s._myPnl >= 0 ? '+' : '−'}₹{fmtNum(Math.abs(s._myPnl))}
-            </div>
-            <div className={`ri-cell-sub tnum ${s._myPnlPct >= 0 ? 'num-bull' : 'num-bear'}`}>{fmtPct1(s._myPnlPct)}</div>
-          </>
+        {s._myPnlPct != null ? (
+          s._myPnl != null ? (
+            // A recorded fill: rupee P&L (from real qty) with the percent beneath.
+            <>
+              <div className={`ri-cell-main tnum ${s._myPnl >= 0 ? 'num-bull' : 'num-bear'}`}>
+                {s._myPnl >= 0 ? '+' : '−'}₹{fmtNum(Math.abs(s._myPnl))}
+              </div>
+              <div className={`ri-cell-sub tnum ${s._myPnlPct >= 0 ? 'num-bull' : 'num-bear'}`}>{fmtPct1(s._myPnlPct)}</div>
+            </>
+          ) : (
+            // Modelled from the entry-week Monday open (no qty) — percent only, labelled.
+            <>
+              <div className={`ri-cell-main tnum ${s._myPnlPct >= 0 ? 'num-bull' : 'num-bear'}`}>{fmtPct1(s._myPnlPct)}</div>
+              <div className="ri-cell-sub">from Mon open</div>
+            </>
+          )
         ) : (
           <div className="ri-cell-main ri-pnl-empty">—</div>
         )}

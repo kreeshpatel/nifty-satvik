@@ -75,3 +75,19 @@ def test_no_traded_value_is_touched():
     g = C._buy_guidance(entry=100.0, lo=95.0, hi=105.0, wo=99.0, wc=100.0)
     traded = {"entry", "stop", "target", "entry_low", "entry_high", "stop_week_low"}
     assert not (set(g) & traded), "guidance must not overwrite a traded value"
+
+
+def test_entry_week_open_is_the_first_bar_after_the_signal_friday():
+    """The modelled fill = the Monday open of the entry week (first session after the signal Friday).
+    None at the last bar (fresh signal, entry week not opened). New helper — fails on old code."""
+    s = {"o": [10.0, 11.0, 12.0, 13.0]}
+    assert C._entry_week_open(s, 0) == 11.0          # bar after fri_idx 0
+    assert C._entry_week_open(s, 2) == 13.0
+    assert C._entry_week_open(s, 3) is None          # last bar -> entry week not open yet
+    assert C._entry_week_open({"o": []}, 0) is None  # degenerate
+
+
+def test_the_card_emits_entry_week_open():
+    """Guard the wiring: the card builder must include the field, or the P&L tracker has no buy ref."""
+    src = (ROOT / "scripts" / "run_bhanushali_cron.py").read_text(encoding="utf-8")
+    assert '"entry_week_open": _entry_week_open(s, ls["fri_idx"])' in src
