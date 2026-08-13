@@ -69,8 +69,26 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
-      - name: Run the momentum paper cron (steps the base book, then appends the 3-book wall row)
-        run: python scripts/run_paper_cron.py --start "${{ github.event.inputs.inception || '2026-06-30' }}"
+      # The veto arm regresses each name on the FF-India [mkt, hml] factors, read from
+      # data/ff_india_factors.parquet. That file is gitignored (a build artifact) and absent on the
+      # runner, so every wall pass hit FileNotFoundError and SKIPPED the wall row — the contracted
+      # results/forward_wall.csv never appeared and the commit step went RED daily. Build it here.
+      #
+      # Ordering is load-bearing: the builder reads the LIVE OHLCV cache, so it must run AFTER a fresh
+      # download. run_paper_cron (no --no-download) is what refreshes+saves the cache. So:
+      #   1. paper cron once — downloads fresh OHLCV, steps the base book, wall SKIPS (no factors yet,
+      #      non-fatal by design: run_paper_cron.py:199). This pass exists only to refresh the cache.
+      #   2. build the factor panel from the just-refreshed cache. HML carries the last-AVAILABLE book
+      #      value forward against the live price, so the panel reaches today, not the fundamentals'
+      #      last period_end.
+      #   3. paper cron again with --no-download — reuses the fresh cache (no second download), finds
+      #      the factors, and appends the 3-book wall row.
+      - name: Refresh OHLCV and build the FF-India factor panel
+        run: |
+          python scripts/run_paper_cron.py --start "${{ github.event.inputs.inception || '2026-06-30' }}"
+          python pipelines/build/build_ff_india_factors.py
+      - name: Step the base book and append the 3-book wall row (factors now present)
+        run: python scripts/run_paper_cron.py --start "${{ github.event.inputs.inception || '2026-06-30' }}" --no-download
       - name: Scheduler health (records that this job now HAS a producer)
         run: python scripts/scheduler_health.py || echo "::warning::scheduler_health exited non-zero"
       - name: Commit the wall log + paper state
