@@ -1,0 +1,132 @@
+{
+  "book": "base-swing",
+  "rule": "all grades, fund strongest-first, \u20b910L cash gate (forward/prereg_swing.md \u00a72)",
+  "status": "WATCHED \u2014 logged, never traded, never surfaced (contains Grade-B names)",
+  "authority": "forward/prereg_swing.md \u00a74 (A-only vs base-swing, decided 2027-07-01)",
+  "inception": "2026-07-04",
+  "as_of": "2026-08-12",
+  "n_closed": 0,
+  "sharpe": -0.2178,
+  "cagr_pct": -4.858,
+  "maxdd_pct": -3.668,
+  "calmar": -1.3245,
+  "win_rate_pct": null,
+  "expectancy_R_gross": null,
+  "exit_reasons": {},
+  "nav": [
+    {
+      "date": "2026-07-06",
+      "equity": 1024851.98
+    },
+    {
+      "date": "2026-07-07",
+      "equity": 1029572.87
+    },
+    {
+      "date": "2026-07-08",
+      "equity": 1007201.38
+    },
+    {
+      "date": "2026-07-09",
+      "equity": 1027101.38
+    },
+    {
+      "date": "2026-07-10",
+      "equity": 1029144.3
+    },
+    {
+      "date": "2026-07-13",
+      "equity": 1017562.15
+    },
+    {
+      "date": "2026-07-14",
+      "equity": 1010671.61
+    },
+    {
+      "date": "2026-07-15",
+      "equity": 1006440.48
+    },
+    {
+      "date": "2026-07-16",
+      "equity": 1007068.12
+    },
+    {
+      "date": "2026-07-17",
+      "equity": 1012185.29
+    },
+    {
+      "date": "2026-07-20",
+      "equity": 1014242.53
+    },
+    {
+      "date": "2026-07-21",
+      "equity": 1025090.66
+    },
+    {
+      "date": "2026-07-22",
+      "equity": 1019394.18
+    },
+    {
+      "date": "2026-07-23",
+      "equity": 995633.94
+    },
+    {
+      "date": "2026-07-24",
+      "equity": 991807.39
+    },
+    {
+      "date": "2026-07-27",
+      "equity": 998875.97
+    },
+    {
+      "date": "2026-07-28",
+      "equity": 1017426.78
+    },
+    {
+      "date": "2026-07-29",
+      "equity": 1023711.61
+    },
+    {
+      "date": "2026-07-30",
+      "equity": 1013597.21
+    },
+    {
+      "date": "2026-07-31",
+      "equity": 1013016.1
+    },
+    {
+      "date": "2026-08-03",
+      "equity": 1015941.33
+    },
+    {
+      "date": "2026-08-04",
+      "equity": 1021034.55
+    },
+    {
+      "date": "2026-08-05",
+      "equity": 1018972.46
+    },
+    {
+      "date": "2026-08-06",
+      "equity": 1019711.43
+    },
+    {
+      "date": "2026-08-07",
+      "equity": 1024062.89
+    },
+    {
+      "date": "2026-08-10",
+      "equity": 1031024.67
+    },
+    {
+      "date": "2026-08-11",
+      "equity": 1017226.19
+    },
+    {
+      "date": "2026-08-12",
+      "equity": 1019694.7
+    }
+  ],
+  "_units": "cagr/maxdd/calmar/sharpe are NET of costs, off the NAV curve. expectancy_R is GROSS \u2014 R is computed on raw prices (run_bhanushali_weekly_rank), so it is NOT comparable to the net NAV metrics. \u00a74 decides on MaxDD and Calmar only.",
+  "_why": "\u00a72 registered this arm as reconstructable from the uncapped signal ledger, but that ledger is filtered to Grade A, so the arm never accrued. Logging started 2026-08-08; anything before that date is absent by design \u2014 \u00a73 forbids backfilling reconstructed history into the forward record."
+}

@@ -1,38 +1,38 @@
-# Weekly Decision Memos — 2026-08-07 | regime CHOPPY | 20 signals
+# Weekly Decision Memos — 2026-08-12 | regime CHOPPY | 20 signals
 
 ### DECISION MEMO — ENGINERSIN  (ENGINERSIN__2026-08-07)
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
-2. **Signal strength** — ****.  (grade A, CRS rank 0.1259)
-3. **Risk** — MODERATE-HIGH · stop width 8.2% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 240.6 (band [222.38, 245.75]) · SL 222.38 · TP 277.04
+2. **Signal strength** — ****.  (grade A, CRS rank 0.1258)
+3. **Risk** — MODERATE · stop width 7.6% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 239.2 (band [222.38, 245.75]) · SL 222.38 · TP 272.84
 5. **Status** — [OK] **APPROVED** — Execute — buy in the band [222.38, 245.75]; fund strongest CRS rank first.
 
 ### DECISION MEMO — HINDALCO  (HINDALCO__2026-08-07)
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
-2. **Signal strength** — ****.  (grade A, CRS rank 0.1233)
+2. **Signal strength** — ****.  (grade A, CRS rank 0.1232)
 3. **Risk** — MODERATE · stop width 4.0% · R:R 1:2.0 · max-loss-in-plan YES
 4. **Trade plan** — entry 1020.47 (band [981.35, 1059.6]) · SL 981.35 · TP 1098.71
 5. **Status** — [OK] **APPROVED** — Execute — buy in the band [981.35, 1059.6]; fund strongest CRS rank first.
 
 ### DECISION MEMO — GRAPHITE  (GRAPHITE__2026-08-07)
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
-2. **Signal strength** — ****.  (grade A, CRS rank 0.1141)
-3. **Risk** — MODERATE-HIGH · stop width 8.5% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 709.95 (band [654.35, 744.8]) · SL 654.35 · TP 821.15
+2. **Signal strength** — ****.  (grade A, CRS rank 0.114)
+3. **Risk** — MODERATE-HIGH · stop width 11.0% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 726.25 (band [654.35, 744.8]) · SL 654.35 · TP 870.05
 5. **Status** — [OK] **APPROVED** — Execute — buy in the band [654.35, 744.8]; fund strongest CRS rank first.
 
 ### DECISION MEMO — UNIONBANK  (UNIONBANK__2026-08-07)
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
-2. **Signal strength** — ****.  (grade A, CRS rank 0.108)
-3. **Risk** — MODERATE · stop width 7.1% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 183.6 (band [171.4, 184.9]) · SL 171.4 · TP 208.0
+2. **Signal strength** — ****.  (grade A, CRS rank 0.1079)
+3. **Risk** — MODERATE · stop width 3.9% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 178.15 (band [171.4, 184.9]) · SL 171.4 · TP 191.65
 5. **Status** — [OK] **APPROVED** — Execute — buy in the band [171.4, 184.9]; fund strongest CRS rank first.
 
 ### DECISION MEMO — PTCIL  (PTCIL__2026-08-07)
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
-2. **Signal strength** — ****.  (grade A, CRS rank 0.0991)
-3. **Risk** — MODERATE · stop width 7.3% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 19076.0 (band [17776.0, 19400.0]) · SL 17776.0 · TP 21676.0
+2. **Signal strength** — ****.  (grade A, CRS rank 0.099)
+3. **Risk** — MODERATE · stop width 6.3% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 18895.0 (band [17776.0, 19400.0]) · SL 17776.0 · TP 21133.0
 5. **Status** — [OK] **APPROVED** — Execute — buy in the band [17776.0, 19400.0]; fund strongest CRS rank first.
 
 ### DECISION MEMO — DELHIVERY  (DELHIVERY__2026-07-06)
@@ -75,7 +75,7 @@
 2. **Signal strength** — ****.  (grade A, CRS rank None)
 3. **Risk** — MODERATE · stop width 5.9% · R:R 1:2.0 · max-loss-in-plan YES
 4. **Trade plan** — entry 310.0 (band [None, None]) · SL 292.7 · TP 344.6
-5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
+5. **Status** — [WATCH] **WATCHLIST** — Monitor — below the A-grade / actionable bar; do not fund yet.
 
 ### DECISION MEMO — BAJAJ-AUTO  (BAJAJ-AUTO__2026-07-13)
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
@@ -117,7 +117,7 @@
 2. **Signal strength** — ****.  (grade A, CRS rank None)
 3. **Risk** — MODERATE · stop width 7.4% · R:R 1:2.0 · max-loss-in-plan YES
 4. **Trade plan** — entry 1423.68 (band [None, None]) · SL 1325.74 · TP 1619.58
-5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
+5. **Status** — [WATCH] **WATCHLIST** — Monitor — below the A-grade / actionable bar; do not fund yet.
 
 ### DECISION MEMO — M&MFIN  (M&MFIN__2026-07-27)
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
