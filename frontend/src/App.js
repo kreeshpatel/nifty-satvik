@@ -41,6 +41,7 @@ const TrackRecordV2   = React.lazy(() => import('@/pages/TrackRecordV2'));
 const TrackRecordV3   = React.lazy(() => import('@/pages/TrackRecordV3'));
 const PortfolioV3     = React.lazy(() => import('@/pages/PortfolioV3'));
 const ThisWeek        = React.lazy(() => import('@/pages/ThisWeek'));
+const RecommendationHistory = React.lazy(() => import('@/pages/RecommendationHistory'));
 const SettingsV2      = React.lazy(() => import('@/pages/SettingsV2'));
 const PrimitivesShowcase = React.lazy(() => import('@/pages/_internal/Primitives'));
 const PreviewDashboard   = React.lazy(() => import('@/pages/_internal/PreviewDashboard'));
@@ -241,6 +242,9 @@ function AnimatedRoutes() {
           {/* Journal (nq-orders Kite machinery) removed per ADR 0011 — your own record lives on /portfolio. */}
           <Route path="/journal" element={<Navigate to="/portfolio" replace />} />
           <Route path="/track-record" element={<PageTransition><TrackRecordV3 /></PageTransition>} />
+          {/* Recommendation history: every posted weekly call and how it performed from the entry-week
+              Monday open. Exited calls (target/stop/expired) live here, not on the live Research board. */}
+          <Route path="/history" element={<PageTransition><RecommendationHistory /></PageTransition>} />
           <Route path="/backtest" element={<PageTransition><BacktestV2 /></PageTransition>} />
           <Route path="/settings" element={<PageTransition><SettingsV2 /></PageTransition>} />
           <Route path="/stock/:symbol" element={<PageTransition><StockDetailV2 /></PageTransition>} />

@@ -3,7 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import {
   Search, Bell, User, LogOut, Menu, X,
   LayoutDashboard, LineChart, Trophy, Briefcase, ListChecks,
-  Settings as SettingsIcon, Shield, Minus, Plus,
+  Settings as SettingsIcon, Shield, Minus, Plus, History,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { searchStocks } from '@/services/kiteStock';
@@ -46,6 +46,7 @@ const PRIMARY_TABS = [
 // Ledger) stripped — users track those on their broker. Only the model's own
 // Track record remains under the account menu.
 const ACCOUNT_LINKS = [
+  { to: '/history',      label: 'Recommendation history', icon: History },
   { to: '/track-record', label: 'Track record',   icon: Trophy },
 ];
 

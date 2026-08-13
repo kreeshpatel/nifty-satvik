@@ -19,6 +19,11 @@
 }
 .ri-sub { margin: 6px 0 0; font-size: 14px; color: var(--text-2); max-width: 62ch; }
 .ri-head-r { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.ri-history-link {
+  font-size: 12.5px; font-weight: 600; color: var(--text-2); text-decoration: none;
+  white-space: nowrap; transition: color 140ms;
+}
+.ri-history-link:hover { color: var(--text-1); }
 
 /* ── filter chips ── */
 .ri-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }

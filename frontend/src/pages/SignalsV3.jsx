@@ -18,7 +18,7 @@
  */
 
 import React, { useState, useEffect, useMemo, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { KiteContext } from '@/App';
 import { AuthContext } from '@/context/AuthContext';
 import { useSignals } from '@/hooks/queries/useSignals';
@@ -717,6 +717,15 @@ export default function SignalsV3() {
     const seen = new Set();
     return enriched
       .filter((s) => { if (seen.has(s.sym)) return false; seen.add(s.sym); return true; })
+      // Exited/closed calls belong on the Recommendation History page (/history), not the live
+      // board — a call the model has already stopped or targeted is not "what to do this week".
+      // The one exception: a name the user REALLY holds (a real execution qty) still needs a
+      // visible exit action, so keep sell-now rows that carry a genuine position.
+      .filter((s) => {
+        if (s.action === 'closed') return false;
+        if (s.action === 'sell-now' && !(s._myQty > 0)) return false;
+        return true;
+      })
       .sort((a, b) => (ACTION_RANK[a.action] ?? 9) - (ACTION_RANK[b.action] ?? 9));
   }, [rawSignals, rawWatchlist, quotes, posBySignal]);
 
@@ -819,6 +828,7 @@ export default function SignalsV3() {
             size="md"
           />
           <span className="chip c-warn">Forward-watch · paper</span>
+          <Link to="/history" className="ri-history-link">Past calls →</Link>
           {model === 'bhanushali' && monitorStamp && (
             <span className="ri-fresh" title={`Live re-price as of ${monitorAsOf}`}>
               prices updated {monitorStamp} IST

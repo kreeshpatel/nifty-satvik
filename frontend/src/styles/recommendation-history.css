@@ -1,0 +1,59 @@
+/* recommendation-history.css — the /history page. Reuses the Research page's .ri-* atoms
+   (table container, scrip cell, cells, chips) and only overrides what differs: the row grid
+   template (7 columns instead of 6), the outcome badges, and the summary stat strip. */
+
+.rh-scope .ri-thead,
+.rh-scope .ri-row {
+  /* Scrip · Signal date · Entry · Exit/now · Return · R · Outcome */
+  grid-template-columns: minmax(0, 1fr) 96px 92px 104px 90px 78px 96px;
+}
+
+.rh-back {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12.5px; font-weight: 600; color: var(--text-3);
+  text-decoration: none; margin-bottom: 8px;
+  transition: color 140ms;
+}
+.rh-back:hover { color: var(--text-1); }
+
+/* ── summary stat strip ── */
+.rh-stats {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px; margin-bottom: 18px;
+}
+@media (max-width: 720px) {
+  .rh-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.rh-stat {
+  background: var(--surface-1); border: 1px solid var(--edge-1);
+  border-radius: 12px; padding: 12px 14px;
+}
+.rh-stat-label {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-3); margin-bottom: 6px;
+}
+.rh-stat-value {
+  font-family: var(--font-display); font-size: 20px; font-weight: 600;
+  color: var(--text-1); line-height: 1;
+}
+
+/* ── outcome badges ── */
+.rh-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 3px 9px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.rh-win  { background: rgba(63,221,138,0.15);  color: var(--bull); }
+.rh-loss { background: rgba(255,99,99,0.15);   color: var(--bear); }
+.rh-run  { background: rgba(79,140,255,0.14);  color: var(--accent, #4f8cff); }
+
+/* skeleton + empty + footer */
+.rh-skel { height: 44px; opacity: 0.5; }
+.rh-empty {
+  padding: 28px 16px; text-align: center; color: var(--text-3); font-size: 13px;
+}
+.rh-foot {
+  margin: 16px 2px 0; font-size: 11px; color: var(--text-3); max-width: 80ch; line-height: 1.5;
+}
