@@ -199,9 +199,13 @@ function enrichSignal(raw, quotes, posBySignal) {
   const recordedBuy = pos && pos.avg_buy_price ? Number(pos.avg_buy_price) : null;
   const myQty = pos ? Number(pos.remaining_qty || 0) : 0;
   // The reference buy price: the user's real recorded fill if they marked one, otherwise the MODELLED
-  // fill — the Monday open of the entry week (backend `entry_week_open`), the price the forward book
-  // assumes. So every current pick shows a tracked P&L from Monday's open even before it is bought.
-  const modelBuy = typeof raw.entry_week_open === 'number' ? raw.entry_week_open : null;
+  // fill — the Monday open of the entry week — so every recommendation shows a tracked P&L from that
+  // open even if the user never bought it. Fresh signals carry it as `entry_week_open`; picks the
+  // model is already tracking as positions carry the same Monday open as `fill_price` (a fractional
+  // qty marks them modelled, not a real fill). Either way it is the forward book's assumed entry.
+  const modelBuy = typeof raw.entry_week_open === 'number' ? raw.entry_week_open
+    : typeof raw.fill_price === 'number' ? raw.fill_price
+    : null;
   const myBuy = recordedBuy ?? modelBuy;
   const pnlIsModeled = recordedBuy == null && modelBuy != null;
   const myPnlPct = myBuy && myBuy > 0 ? (ltp / myBuy - 1) * 100 : null;
