@@ -83,9 +83,16 @@ jobs:
       #      last period_end.
       #   3. paper cron again with --no-download — reuses the fresh cache (no second download), finds
       #      the factors, and appends the 3-book wall row.
-      - name: Refresh OHLCV and build the FF-India factor panel
+      - name: Refresh OHLCV, deepen history, build the FF-India factor panel
         run: |
+          # 1. refresh the tail (downloads fresh OHLCV, steps base book; wall skips — no factors yet).
           python scripts/run_paper_cron.py --start "${{ github.event.inputs.inception || '2026-06-30' }}"
+          # 2. deepen the cache HEAD. The paper cron only tops up ~15 days on a warm cache, so the
+          #    runner's history stays ~520d and the factor panel spans <278 sessions — too short for the
+          #    veto arm's residual regression (REG_WIN 252 + SKIP 21 + 5). Gated: a full deep fetch runs
+          #    at most once per monthly actions/cache roll, then no-ops as the deep cache persists.
+          python scripts/ensure_ohlcv_depth.py --start 2023-06-01 --mode current
+          # 3. build the factor panel from the now-deep cache — enough history for residual_ranks.
           python pipelines/build/build_ff_india_factors.py
       - name: Step the base book and append the 3-book wall row (factors now present)
         run: python scripts/run_paper_cron.py --start "${{ github.event.inputs.inception || '2026-06-30' }}" --no-download
