@@ -1,0 +1,418 @@
+{
+  "cash": 7986.009861057245,
+  "peak": 1000000.0,
+  "pending": [
+    "WELCORP",
+    "LAURUSLABS",
+    "SYRMA",
+    "APARINDS",
+    "NATIONALUM",
+    "BHARATFORG"
+  ],
+  "positions": {
+    "VEDL": {
+      "ticker": "VEDL",
+      "entry_date": "2026-07-01 00:00:00",
+      "entry": 280.890375,
+      "qty": 531,
+      "stop": 239.55494975851138,
+      "target": 344.14688745,
+      "peak": 283.6499938964844,
+      "atr_pct": 4.00977023470704,
+      "adv": 7843204206.451306,
+      "days_held": 30,
+      "last_mark": 275.79998779296875,
+      "absent_run": 0
+    },
+    "HINDCOPPER": {
+      "ticker": "HINDCOPPER",
+      "entry_date": "2026-07-01 00:00:00",
+      "entry": 501.35055610656735,
+      "qty": 297,
+      "stop": 430.36623522002117,
+      "target": 614.2547013417663,
+      "peak": 547.7000122070312,
+      "atr_pct": 3.8579346472714215,
+      "adv": 1784083774.3056443,
+      "days_held": 30,
+      "last_mark": 547.7000122070312,
+      "absent_run": 0
+    },
+    "ADANIPOWER": {
+      "ticker": "ADANIPOWER",
+      "entry_date": "2026-07-01 00:00:00",
+      "entry": 223.88188927459714,
+      "qty": 661,
+      "stop": 196.67192444909185,
+      "target": 274.30009073923645,
+      "peak": 226.1699981689453,
+      "atr_pct": 3.311638729252035,
+      "adv": 6897609307.745554,
+      "days_held": 30,
+      "last_mark": 206.99000549316406,
+      "absent_run": 0
+    },
+    "MCX": {
+      "ticker": "MCX",
+      "entry_date": "2026-07-01 00:00:00",
+      "entry": 2859.9292499999997,
+      "qty": 38,
+      "stop": 2493.142506614686,
+      "target": 3503.9853171,
+      "peak": 2970.10009765625,
+      "atr_pct": 3.494558193374999,
+      "adv": 9835581952.2,
+      "days_held": 30,
+      "last_mark": 2970.10009765625,
+      "absent_run": 0
+    },
+    "KIRLOSENG": {
+      "ticker": "KIRLOSENG",
+      "entry_date": "2026-07-20 00:00:00",
+      "entry": 2252.0661859202114,
+      "qty": 63,
+      "stop": 1866.4583445491337,
+      "target": 2759.231490989443,
+      "peak": 2278.283203125,
+      "atr_pct": 4.665504822250521,
+      "adv": 3546216280.3383546,
+      "days_held": 17,
+      "last_mark": 2053.39990234375,
+      "absent_run": 0
+    },
+    "GVT&D": {
+      "ticker": "GVT&D",
+      "entry_date": "2026-07-30 00:00:00",
+      "entry": 4102.05,
+      "qty": 28,
+      "stop": 3328.174299605813,
+      "target": 5025.831660000001,
+      "peak": 4420.0,
+      "atr_pct": 5.140486182735624,
+      "adv": 4600091395.234131,
+      "days_held": 9,
+      "last_mark": 4406.5,
+      "absent_run": 0
+    },
+    "RRKABEL": {
+      "ticker": "RRKABEL",
+      "entry_date": "2026-07-30 00:00:00",
+      "entry": 2560.179352294922,
+      "qty": 1,
+      "stop": 2193.300793371712,
+      "target": 3136.7317424317384,
+      "peak": 2812.800048828125,
+      "atr_pct": 3.9046838534468735,
+      "adv": 1927087207.895288,
+      "days_held": 9,
+      "last_mark": 2789.60009765625,
+      "absent_run": 0
+    },
+    "BHEL": {
+      "ticker": "BHEL",
+      "entry_date": "2026-07-30 00:00:00",
+      "entry": 406.203,
+      "qty": 3,
+      "stop": 355.5539107655623,
+      "target": 497.6799156,
+      "peak": 420.0,
+      "atr_pct": 3.397523345039985,
+      "adv": 6584336330.650001,
+      "days_held": 9,
+      "last_mark": 420.0,
+      "absent_run": 0
+    },
+    "HFCL": {
+      "ticker": "HFCL",
+      "entry_date": "2026-08-04 00:00:00",
+      "entry": 202.5011938934326,
+      "qty": 686,
+      "stop": 166.338188915977,
+      "target": 248.10446275823364,
+      "peak": 221.52000427246094,
+      "atr_pct": 4.86598604231189,
+      "adv": 5235208154.722885,
+      "days_held": 6,
+      "last_mark": 221.52000427246094,
+      "absent_run": 0
+    }
+  },
+  "trades": [
+    {
+      "ticker": "NATIONALUM",
+      "entry_date": "2026-07-01",
+      "exit_date": "2026-07-17",
+      "entry": 338.12,
+      "exit": 339.73,
+      "qty": 443,
+      "days_held": 12,
+      "reason": "trailing",
+      "return_pct": 0.48,
+      "pnl": 323.32
+    },
+    {
+      "ticker": "KIRLOSENG",
+      "entry_date": "2026-07-01",
+      "exit_date": "2026-07-17",
+      "entry": 2371.97,
+      "exit": 2249.82,
+      "qty": 63,
+      "days_held": 12,
+      "reason": "trailing",
+      "return_pct": -5.15,
+      "pnl": -8074.45
+    },
+    {
+      "ticker": "HFCL",
+      "entry_date": "2026-07-02",
+      "exit_date": "2026-07-17",
+      "entry": 209.6,
+      "exit": 213.06,
+      "qty": 1,
+      "days_held": 11,
+      "reason": "trailing",
+      "return_pct": 1.65,
+      "pnl": 2.91
+    },
+    {
+      "ticker": "GVT&D",
+      "entry_date": "2026-07-01",
+      "exit_date": "2026-07-29",
+      "entry": 4979.49,
+      "exit": 4099.55,
+      "qty": 29,
+      "days_held": 20,
+      "reason": "stop",
+      "return_pct": -17.67,
+      "pnl": -25860.52
+    },
+    {
+      "ticker": "HFCL",
+      "entry_date": "2026-07-20",
+      "exit_date": "2026-08-03",
+      "entry": 208.35,
+      "exit": 202.42,
+      "qty": 688,
+      "days_held": 10,
+      "reason": "trailing",
+      "return_pct": -2.85,
+      "pnl": -4450.94
+    },
+    {
+      "ticker": "NATIONALUM",
+      "entry_date": "2026-07-20",
+      "exit_date": "2026-08-12",
+      "entry": 340.77,
+      "exit": 417.3,
+      "qty": 19,
+      "days_held": 17,
+      "reason": "target",
+      "return_pct": 22.46,
+      "pnl": 1435.4
+    }
+  ],
+  "equity_curve": [
+    {
+      "date": "2026-06-30",
+      "equity": 1000000.0,
+      "cash": 1000000.0,
+      "n_positions": 0
+    },
+    {
+      "date": "2026-07-01",
+      "equity": 992297.93,
+      "cash": 358.83,
+      "n_positions": 7
+    },
+    {
+      "date": "2026-07-02",
+      "equity": 986459.53,
+      "cash": 148.95,
+      "n_positions": 8
+    },
+    {
+      "date": "2026-07-03",
+      "equity": 972927.61,
+      "cash": 148.95,
+      "n_positions": 8
+    },
+    {
+      "date": "2026-07-06",
+      "equity": 975838.07,
+      "cash": 148.95,
+      "n_positions": 8
+    },
+    {
+      "date": "2026-07-07",
+      "equity": 961395.89,
+      "cash": 148.95,
+      "n_positions": 8
+    },
+    {
+      "date": "2026-07-08",
+      "equity": 964579.42,
+      "cash": 148.95,
+      "n_positions": 8
+    },
+    {
+      "date": "2026-07-09",
+      "equity": 979686.06,
+      "cash": 148.95,
+      "n_positions": 8
+    },
+    {
+      "date": "2026-07-10",
+      "equity": 992364.26,
+      "cash": 148.95,
+      "n_positions": 8
+    },
+    {
+      "date": "2026-07-13",
+      "equity": 981330.54,
+      "cash": 148.95,
+      "n_positions": 8
+    },
+    {
+      "date": "2026-07-14",
+      "equity": 988519.26,
+      "cash": 148.95,
+      "n_positions": 8
+    },
+    {
+      "date": "2026-07-15",
+      "equity": 987367.4,
+      "cash": 148.95,
+      "n_positions": 8
+    },
+    {
+      "date": "2026-07-16",
+      "equity": 971908.03,
+      "cash": 148.95,
+      "n_positions": 8
+    },
+    {
+      "date": "2026-07-17",
+      "equity": 944367.76,
+      "cash": 292220.61,
+      "n_positions": 5
+    },
+    {
+      "date": "2026-07-20",
+      "equity": 953047.95,
+      "cash": 138.96,
+      "n_positions": 8
+    },
+    {
+      "date": "2026-07-21",
+      "equity": 965424.07,
+      "cash": 138.96,
+      "n_positions": 8
+    },
+    {
+      "date": "2026-07-22",
+      "equity": 958610.83,
+      "cash": 138.96,
+      "n_positions": 8
+    },
+    {
+      "date": "2026-07-23",
+      "equity": 943099.73,
+      "cash": 138.96,
+      "n_positions": 8
+    },
+    {
+      "date": "2026-07-24",
+      "equity": 928871.82,
+      "cash": 138.96,
+      "n_positions": 8
+    },
+    {
+      "date": "2026-07-27",
+      "equity": 934375.97,
+      "cash": 138.96,
+      "n_positions": 8
+    },
+    {
+      "date": "2026-07-28",
+      "equity": 912523.78,
+      "cash": 138.96,
+      "n_positions": 8
+    },
+    {
+      "date": "2026-07-29",
+      "equity": 921488.6,
+      "cash": 118871.33,
+      "n_positions": 7
+    },
+    {
+      "date": "2026-07-30",
+      "equity": 913809.7,
+      "cash": 80.92,
+      "n_positions": 10
+    },
+    {
+      "date": "2026-07-31",
+      "equity": 931283.88,
+      "cash": 80.92,
+      "n_positions": 10
+    },
+    {
+      "date": "2026-08-03",
+      "equity": 943149.96,
+      "cash": 139163.97,
+      "n_positions": 9
+    },
+    {
+      "date": "2026-08-04",
+      "equity": 944483.79,
+      "cash": 67.56,
+      "n_positions": 10
+    },
+    {
+      "date": "2026-08-05",
+      "equity": 964129.52,
+      "cash": 67.56,
+      "n_positions": 10
+    },
+    {
+      "date": "2026-08-06",
+      "equity": 961020.8,
+      "cash": 67.56,
+      "n_positions": 10
+    },
+    {
+      "date": "2026-08-07",
+      "equity": 956199.08,
+      "cash": 67.56,
+      "n_positions": 10
+    },
+    {
+      "date": "2026-08-10",
+      "equity": 963933.22,
+      "cash": 67.56,
+      "n_positions": 10
+    },
+    {
+      "date": "2026-08-11",
+      "equity": 967158.6,
+      "cash": 67.56,
+      "n_positions": 10
+    },
+    {
+      "date": "2026-08-12",
+      "equity": 975545.42,
+      "cash": 7986.01,
+      "n_positions": 9
+    }
+  ],
+  "config": {
+    "initial_capital": 1000000.0,
+    "vol_target": {
+      "_note": "Applied by long_horizon_cron to the paper-book sizing equity. NOT part of the frozen `cfg` block (load_frozen_cfg returns `cfg` only), so the research backtest baselines + golden master are unaffected. The backtest VALIDATED the vol-target via pre-reg 0068 (arm V2, the best-Calmar arm); the live scanner applies the IDENTICAL shared formula (portfolio.vol_target_scalar) to the trailing paper-portfolio equity (results/portfolio_history.csv). Shipped 2026-06-26 to the paper path; remove this block or set vol_target_annual=0 to disable.",
+      "vol_target_annual": 0.15,
+      "vol_window": 42,
+      "vol_floor": 0.4,
+      "provenance": "pre-reg 0068 V2 (target_vol 0.15 / floor 0.40); CAGR-neutral DD reduction (~-45 -> -39 in-backtest); 0070 confirmed sizing/market-state overlays plateau ~-38 (a dependable -30 needs the deferred tail hedge)."
+    }
+  }
+}
