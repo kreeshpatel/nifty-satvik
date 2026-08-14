@@ -9,7 +9,9 @@ computed NAV streams at the frozen 0081 ERC weight:
   * low-vol NAV = run_backtest(low-vol sleeve, frozen cfg) from the same inception forward
 
 Like the swing book, it is EMPTY until fresh post-inception bars exist (the research OHLCV cache lags; the
-real cron downloads). ERC weight defaults to 0.5 until 63 sessions of forward vol accrue, then inverse-vol.
+real cron downloads). Blend weight is the OWNER-FIXED barbell dial (prereg_swing.md §7): 0.60 swing /
+0.40 low-vol, chosen 2026-08-14 over the ERC default ~0.37 for +CAGR (21.4% vs 18.8%) accepting a deeper
+drawdown and one small down year. Override with --swing-weight only via an owner amendment in the spec.
 
     python scripts/run_blend_paper.py --start 2026-07-04
 """
@@ -53,6 +55,10 @@ def _lowvol_nav(start: str) -> pd.Series:
 
 def main() -> int:
     ap = argparse.ArgumentParser(); ap.add_argument("--start", default=INCEPTION)
+    # OWNER-FIXED barbell weight (prereg_swing.md §7 amendment 2026-08-14). The spec registered the
+    # weight as an owner dial to be fixed before logging; owner chose 0.60 swing (21.4% CAGR / 1.25
+    # Sharpe / -36.4% DD / one -2% year in-sample) over the ERC default ~0.37. Not dynamic ERC.
+    ap.add_argument("--swing-weight", type=float, default=0.60)
     args = ap.parse_args()
 
     sw_path = RESULTS_DIR / "portfolio_history_weekly.csv"
@@ -71,8 +77,7 @@ def main() -> int:
              "observational": True, "n_points": int(len(idx))}
     if len(idx) >= 2:
         sr = swing.reindex(idx).pct_change(); lr = _daily_returns(lvnav).reindex(idx)
-        vm, vl = sr.rolling(63).std().shift(1), lr.rolling(63).std().shift(1)
-        w = ((1 / vm) / (1 / vm + 1 / vl)).clip(0, 1).fillna(0.5)   # ERC once 63d accrues, else 0.5
+        w = pd.Series(float(args.swing_weight), index=idx)   # owner-fixed barbell weight (not ERC)
         br = (w * sr + (1 - w) * lr).fillna(0.0)
         nav = 1_000_000.0 * (1 + br).cumprod()
         state.update(asof=str(idx[-1].date()), blend_nav=round(float(nav.iloc[-1]), 2),

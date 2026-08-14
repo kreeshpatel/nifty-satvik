@@ -212,3 +212,21 @@ blend is reproducible offline only (`scripts/run_blend_hybrid.py`, returns in
 
 **Decision cadence:** resolved at the multi-sleeve fork of the quarterly review, on forward evidence — never
 in-sample. Thresholds tighten, never relax.
+
+## Amendment 2026-08-14 — owner fixes the barbell weight at 0.60 swing, and funds the sleeve cron
+
+**Owner decision (the §7 "OWNER dial", now fixed before logging):** the blend logs at a **fixed 0.60 swing /
+0.40 low-vol** weight, NOT the ERC default (~0.37). Chosen from the reproduced in-sample barbell curve
+(`pipelines/research/run_blend_hybrid.py` + fixed-weight sweep): 0.60 gives **CAGR 21.4% · Sharpe 1.25 ·
+MaxDD −36.4% · one −2% year (2025)**, versus 0.37 ERC (18.8% / 1.26 / −32.9% / zero down years). The owner
+elected +CAGR into the upper half of the 18–22% target, accepting a deeper drawdown and one small down year.
+This is the barbell dial the spec reserved for the owner; it does not retune the frozen ERC *recipe* — it
+fixes the *weight input*. Certification stays **forward-wall only**; the live A-only book is unchanged; the
+blend still carries **no paper capital** (observational logging only).
+
+**Blocker cleared (was stale):** the logger `scripts/run_blend_paper.py` is ALREADY scheduled — the weekly
+scanner cron runs it (`.github/workflows/cron-bhanushali-scanner.yml`, "Log the swing x low-vol blend
+hybrid"), on fresh OHLCV, after the swing paper book writes `results/portfolio_history_weekly.csv`, and
+commits `results/blend_hybrid_paper.json`. The only real change here is the **weight**: the logger blended
+at dynamic ERC (~0.37–0.5); it now blends at the owner-fixed **0.60**. It stays observational (no paper
+capital); empty until fresh post-inception bars accrue in both sleeves — valid, not an error.
