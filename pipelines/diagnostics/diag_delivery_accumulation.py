@@ -78,6 +78,9 @@ def build_weekly_A() -> pd.DataFrame:
     W["A_div"] = (zroll(obd.groupby(W["symbol"]).transform(lambda x: x.rolling(8, min_periods=4).apply(_slope, raw=True)), 52)
                   - zroll(g["close"].transform(lambda x: x.rolling(8, min_periods=4).apply(_slope, raw=True)), 52))
     W["A"] = W[["A_level", "A_trend", "A_surge", "A_div"]].mean(axis=1)
+    # lagged base accumulation (strictly pre-signal): weeks entry-13 .. entry-4
+    W["A_prior"] = g["A"].transform(lambda x: x.shift(4).rolling(10, min_periods=5).max())
+    W["A_base_mean"] = g["A"].transform(lambda x: x.shift(4).rolling(10, min_periods=5).mean())
     W["sma44"] = g["close"].transform(lambda x: x.rolling(44, min_periods=30).mean())
     W["ext"] = 100 * (W["close"] / W["sma44"] - 1)
     for k in (1, 2, 4, 8, 13, 26):
@@ -109,10 +112,11 @@ def merge_book(W: pd.DataFrame) -> pd.DataFrame:
     tr = pd.read_parquet(TRADES)
     tr = tr[pd.to_datetime(tr["entry_date"]) >= "2019-01-01"].copy()
     tr["wk"] = pd.to_datetime(tr["entry_date"]).dt.to_period("W-FRI").dt.end_time.dt.normalize()
-    Aw = W[["symbol", "wk", "A"]].copy()
+    Aw = W[["symbol", "wk", "A", "A_prior", "A_base_mean"]].copy()
     Aw["wk"] = Aw["wk"].dt.normalize()
     tr = tr.merge(Aw, left_on=["ticker", "wk"], right_on=["symbol", "wk"], how="left")
-    return tr.dropna(subset=["A", "R", "ext_vs_sma", "rank_crs", "mfe_pct"]).copy()
+    return tr.replace([np.inf, -np.inf], np.nan).dropna(
+        subset=["A", "R", "ext_vs_sma", "rank_crs", "mfe_pct"]).copy()
 
 
 def section_book(m: pd.DataFrame) -> None:
@@ -170,6 +174,32 @@ def section_prebreakout(W: pd.DataFrame) -> tuple:
     return hz, base, extd, null
 
 
+def section_confirmation(m: pd.DataFrame) -> None:
+    """Version 2: does PRIOR base-accumulation (weeks entry-13..entry-4) confirm the breakout —
+    i.e. raise win rate / R controlling for ext & CRS? Bumps the Section-I pre-entry wall."""
+    print("\n[5] CONFIRMATION — does prior base-accumulation confirm the breakout? (pre-entry wall)")
+    mm = m.replace([np.inf, -np.inf], np.nan).dropna(
+        subset=["A", "A_prior", "A_base_mean", "R", "ext_vs_sma", "rank_crs"])
+
+    def partial(col: str) -> tuple:
+        X = np.column_stack([np.ones(len(mm)), mm["ext_vs_sma"], mm["rank_crs"], mm[col]])
+        y = mm["R"].to_numpy()
+        b, *_ = np.linalg.lstsq(X, y, rcond=None)
+        r = y - X @ b
+        se = np.sqrt(np.diag(np.linalg.pinv(X.T @ X) * (r @ r) / (len(y) - X.shape[1])))
+        return b[3], b[3] / se[3]
+
+    for col in ("A", "A_prior", "A_base_mean"):
+        c, t = partial(col)
+        print(f"    R ~ ext+CRS+{col:12}: coef {c:+.4f}  t={t:+.2f}")
+    strong = mm["A_prior"] >= 1
+    ws, wn = 100 * (mm.loc[strong, "R"] > 0).mean(), 100 * (mm.loc[~strong, "R"] > 0).mean()
+    tt = stats.ttest_ind(mm.loc[strong, "R"], mm.loc[~strong, "R"], equal_var=False)
+    print(f"    base-accumulated (A_prior>=1, n={int(strong.sum())}): meanR {mm.loc[strong, 'R'].mean():+.3f} "
+          f"(win {ws:.0f}%)  vs  {mm.loc[~strong, 'R'].mean():+.3f} (win {wn:.0f}%)  "
+          f"Welch t={tt.statistic:+.2f} p={tt.pvalue:.3f}")
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--chart", default=None, help="write the two-phase PNG here")
@@ -183,6 +213,7 @@ def main(argv=None) -> int:
     m = merge_book(W)
     section_book(m)
     section_mechanism(m)
+    section_confirmation(m)
     hz, base, extd, null = section_prebreakout(W)
     if args.chart:
         _chart(m, hz, base, extd, null, Path(args.chart))

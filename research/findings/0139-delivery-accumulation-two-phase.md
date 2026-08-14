@@ -93,6 +93,32 @@ requires the full verdict-machine gate under the current harness, with a fresh o
   to the Oct-1 §4 agenda and, if pursued, to the full gate (coverage/PIT → screen → activation bound
   → pre-registered trial), never as an overlay on the touch funnel.
 
+## 7b. Addendum — "can we use it to double-confirm and raise win rate?" (both versions null)
+
+Tested directly, because it is the natural next question. Two readings of "confirmation":
+
+- **Concurrent filter** (require delivery to be accumulating *at* the Bhanushali buy): backfires —
+  it selects the wrong phase (§3: less extension, more stops). Matched gap −0.05R.
+- **Prior confirmation** (did the name accumulate *in its base, before* the breakout?): **null.**
+  `A_prior` = peak weekly-A over weeks entry-13..entry-4, strictly pre-signal. Controlling for
+  ext & CRS: `A_prior` coef **+0.041, t=+0.44**; `A_base_mean` +0.127, t=+1.14 — indistinguishable
+  from zero. And on the target metrics directly: trades whose base **did** accumulate (A_prior≥1,
+  n=628) returned **+0.501 R at a 49% win rate** vs **+0.485 R at 51%** for those that did not —
+  **Welch t=+0.15, p=0.877.** Win rate is flat; return is unchanged.
+
+**This makes delivery the 6th independent instrument to fail the pre-entry wall (Section I)** — and
+the **first from a genuinely orthogonal, non-price source.** The prior five (bar-ML, loser forensics,
+path-shape, chart-formulas, perception) were all price/chart-derived; a natural rejoinder was "you
+used the wrong features." Delivery is smart-money position-taking, orthogonal-to-price by
+construction (0118), and it *still* cannot tell, in advance, which touch-entry wins. That strengthens
+the wall rather than adding a caveat: on this funnel entry quality is not visible before entry, full
+stop. The book's R is earned by holding through post-entry noise the information cannot resolve
+(Law V), not by pre-screening it. A confirmation filter that lifts hit-rate by cutting the big
+extended winners is the costliest mistake available here (Law VII / VII-adjacent).
+
+Delivery is a **sourcing** signal for a book that enters *during* accumulation (§4–5), never a
+**confirmation** signal for the names the momentum book already picked.
+
 ## 8. Reproduction
 
 `pipelines/diagnostics/diag_delivery_accumulation.py` — sections [1] universe IC/persistence,
