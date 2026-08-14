@@ -7,7 +7,7 @@ Sections (criteria are VERBATIM transcriptions from the source docs; evidence sl
 4. 04_breadth50_proposal.md — the watched-pair amendment ask (feasibility memo §3)
 5. 05_capstone_carryforward.md — external-data campaign synthesis (capstone memo)
 6. 06_habit_ledger_spec.md — forward memory layer, DESIGN SPEC ONLY (owner approve/decline; build is a separate cfg-gated session)
-9. 09_category_a_reexamination.md — the closed-verdict re-examination campaign (Find-Its-Home): 4 of 13 Category-A signals placed (delivery→pre-breakout home; low-vol→live-logging at 0.60; PEAD→closed; zoo→provisional weak home). Feeds §4 — the homes converge on the second book shape. Zero trials, zero new screens spent.
+9. 09_category_a_reexamination.md — the closed-verdict re-examination campaign (Find-Its-Home): 4 of 13 Category-A signals placed (delivery→pre-breakout home; low-vol→live-logging at 0.60; PEAD→closed; zoo→closed (real per-trade edge, worse+redundant book)). Feeds §4 — the homes converge on the second book shape. Zero trials, zero new screens spent.
 
 Standing counts at binder creation: screens 11 · sealed opens 1 · n_trials 138.
 Standing counts as of 2026-07-31: **screens 12 · sealed opens 1 · n_trials 138** (0123 moved screens 11->12; 0124 Weinstein spent neither).

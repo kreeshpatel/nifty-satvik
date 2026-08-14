@@ -32,7 +32,7 @@ finding **0139** (delivery).
 | A1/A2 | **Delivery** | ✅ **placed** — real universe alpha (IC t=6, every year), *wrong phase* for the momentum book (partial t=−1.16). Home = a **pre-breakout / breadth-50** book: base-onset accumulation pays +8.3% vs +6.3% @13w (t=2.56, p=0.010). | finding **0139** + `diag_delivery_accumulation.py` |
 | A6 | **Low-volatility sleeve** | ✅ **placed + actioned** — the one Category-A signal already *transferred to the live vehicle* (0107). Now **forward-logging at the owner-fixed 0.60 barbell weight** (21.4% CAGR / 1.25 Sharpe / −36.4% DD / one −2% year), certified forward-wall only. | `prereg_swing.md` amendment + `run_blend_paper.py` |
 | A3 | **Earnings / PEAD** | ⛔ **stays closed** — real drift (+6.6%, 4/4 yr) but **momentum-entangled** (same return source) and **absent in the liquid names traded at size**; survivorship-inflated. No tradeable home. Confounds already measured on the current harness. | finding **0128** |
-| A4 | **Chart-pattern zoo** | 🔶 **provisional — weak home.** Per-trade edge real (cup 0.70R / box 0.62 / dbl 0.60, above touch). But the standalone sleeve is **squeezed between starvation (few seats → long holds can't stay deployed) and dilution (many seats → 0131's −1.94pp)**, and correlates ≥+0.24 with swing (long-momentum). A *valid* sleeve profile needs a real pattern-book backtest — the substrate trade-list can't certify it. | 0131 + substrate sim (structural read only) |
+| A4 | **Chart-pattern zoo** | ⛔ **closed.** The real standalone backtest (box+cup+double_bottom, own capital, frozen exit) is **worse than swing on every axis — Sharpe 0.80 vs 1.13, CAGR 16.3% vs 24.7%, MaxDD −47.3% vs −42.4%** — and correlates **+0.60**, so the blend never beats swing-alone. 0131's preserved own-capital escape does NOT rescue it: the real per-trade edge does not survive to the book even standalone (Law II + Law VII, the wider stops buy nothing). | 0131 + `diag_pattern_sleeve_a4.py` |
 
 ## The pattern that decides the review
 
@@ -54,13 +54,14 @@ calibration a blanket re-open would have missed.
    the earliest real evidence on whether the diversification free-lunch holds forward.
 2. **Delivery has a named home here** — a pre-breakout / broad book is the vehicle that could express
    the delivery accumulation edge (0139); it does not belong on the momentum book.
-3. **The zoo and USD are candidate sleeves** pending their own real backtests — not overlays on the
-   current book.
-4. **PEAD is closed** — do not carry it forward as a sleeve candidate.
+3. **USD (A7) is the remaining candidate sleeve** pending its own real backtest — not an overlay.
+4. **PEAD and the chart-zoo are closed** — do not carry either forward as a sleeve candidate. The zoo
+   is the sharpest lesson: a real per-trade edge, its own capital, and it *still* underperforms and
+   fails to diversify — per-trade quality is not portfolio value, even in the sleeve that was built
+   to rescue it.
 
 ## Remaining work (next dedicated sessions, all measurement until a trial is earned)
 
-- Real standalone pattern-book backtest (A4) — mark-to-market profile + a clean swing correlation.
 - The remaining Category-A items (A5 52-week-high, A7 USD ERC sleeve, A9 residual-momentum,
   A11 GBM-selector defensive variant) via the same Find-Its-Home protocol.
 - Category-B re-runs only where a home is plausible (B1–B5 superseded books, B2/B1 exit-edge) —
