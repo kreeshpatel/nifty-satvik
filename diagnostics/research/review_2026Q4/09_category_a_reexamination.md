@@ -25,13 +25,14 @@ finding **0139** (delivery).
 | C — genuinely null even at the population level | 34 | stay closed; no home to find |
 | D — method / structural laws | 17 | not signals |
 
-## Placements so far (4 of 13 Category-A)
+## Placements so far (5 of 13 Category-A)
 
 | # | signal | outcome | receipt |
 |---|---|---|---|
 | A1/A2 | **Delivery** | ✅ **placed** — real universe alpha (IC t=6, every year), *wrong phase* for the momentum book (partial t=−1.16). Home = a **pre-breakout / breadth-50** book: base-onset accumulation pays +8.3% vs +6.3% @13w (t=2.56, p=0.010). | finding **0139** + `diag_delivery_accumulation.py` |
 | A6 | **Low-volatility sleeve** | ✅ **placed + actioned** — the one Category-A signal already *transferred to the live vehicle* (0107). Now **forward-logging at the owner-fixed 0.60 barbell weight** (21.4% CAGR / 1.25 Sharpe / −36.4% DD / one −2% year), certified forward-wall only. | `prereg_swing.md` amendment + `run_blend_paper.py` |
 | A3 | **Earnings / PEAD** | ⛔ **stays closed** — real drift (+6.6%, 4/4 yr) but **momentum-entangled** (same return source) and **absent in the liquid names traded at size**; survivorship-inflated. No tradeable home. Confounds already measured on the current harness. | finding **0128** |
+| A7 | **USD/INR sensitivity** | ⛔ **closed.** Real, orthogonal, non-price signal (the arc's one genuinely-new find) — but every long-only construction is killed: rank tilt (0018, KILL, Law II) and the **ERC sleeve on the live vehicle** (0115: low-USD-beta Sharpe 0.18, corr 0.59, breaks the zero-losing-year property). Its only real home is a **long-short** construction — out of scope for a long-only book. Second "real but structurally trapped" case (with PEAD). | 0018 + **0115 (current harness)** |
 | A4 | **Chart-pattern zoo** | ⛔ **closed.** The real standalone backtest (box+cup+double_bottom, own capital, frozen exit) is **worse than swing on every axis — Sharpe 0.80 vs 1.13, CAGR 16.3% vs 24.7%, MaxDD −47.3% vs −42.4%** — and correlates **+0.60**, so the blend never beats swing-alone. 0131's preserved own-capital escape does NOT rescue it: the real per-trade edge does not survive to the book even standalone (Law II + Law VII, the wider stops buy nothing). | 0131 + `diag_pattern_sleeve_a4.py` |
 
 ## The pattern that decides the review
@@ -54,15 +55,14 @@ calibration a blanket re-open would have missed.
    the earliest real evidence on whether the diversification free-lunch holds forward.
 2. **Delivery has a named home here** — a pre-breakout / broad book is the vehicle that could express
    the delivery accumulation edge (0139); it does not belong on the momentum book.
-3. **USD (A7) is the remaining candidate sleeve** pending its own real backtest — not an overlay.
-4. **PEAD and the chart-zoo are closed** — do not carry either forward as a sleeve candidate. The zoo
+3. **PEAD, the chart-zoo, and USD (A7) are all closed** — none is a live sleeve candidate — do not carry either forward as a sleeve candidate. The zoo
    is the sharpest lesson: a real per-trade edge, its own capital, and it *still* underperforms and
    fails to diversify — per-trade quality is not portfolio value, even in the sleeve that was built
    to rescue it.
 
 ## Remaining work (next dedicated sessions, all measurement until a trial is earned)
 
-- The remaining Category-A items (A5 52-week-high, A7 USD ERC sleeve, A9 residual-momentum,
+- The remaining Category-A items (A5 52-week-high, A9 residual-momentum,
   A11 GBM-selector defensive variant) via the same Find-Its-Home protocol.
 - Category-B re-runs only where a home is plausible (B1–B5 superseded books, B2/B1 exit-edge) —
   expecting UNDERPOWERED, logging the bound.
