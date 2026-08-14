@@ -27,5 +27,44 @@
         ]
       }
     ]
+  },
+  "autoMode": {
+    "environment": [
+      "### Org-wide",
+      "**Organization**: None configured (personal GitHub account kreeshpatel; no org gathered)",
+      "**Cloud provider(s)**: Fly.io (nifty-satvik-api.fly.dev) and Vercel (nifty-satvik.vercel.app) — inferred from usage hosts",
+      "**Repository visibility**: public (gh API authoritative — kreeshpatel/nifty-satvik is PUBLIC; any push there is publishing)",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Secrets management**: CI secrets referenced by name (ANTHROPIC_API_KEY, DATABASE_URL, ENCRYPTION_KEY, GITHUB_TOKEN, KITE_API_KEY, KITE_API_SECRET, KITE_PROXY_URL, ZERODHA_PASSWORD, ZERODHA_TOTP_SECRET, ZERODHA_USER_ID); local .env files gitignored",
+      "**Default / protected branches**: default main; no rulesets or protected branches listed via gh API",
+      "**CI/CD deploy targets**: Fly.io (fly CLI, 36x in shell history) and Vercel — dashboard/backend FastAPI + frontend React landing",
+      "**Network posture**: None configured",
+      "**Source control**: The trusted repo and its remote (origin https://github.com/kreeshpatel/nifty-satvik.git) only",
+      "**Trusted internal domains**: nifty-satvik-api.fly.dev, nifty-satvik.vercel.app (this project's own deploy hosts)",
+      "**Trusted cloud buckets**: None configured",
+      "**Key internal services**: nifty-satvik-api.fly.dev (FastAPI backend), nifty-satvik.vercel.app (landing/dashboard)",
+      "**Internal package registry**: None configured",
+      "**Sensitive data locations & audiences**: dashboard/backend/.env and .env.local (gitignored); Kite/Zerodha OAuth credentials and trading secrets; any file holding personal data, confidential business data, credentials, or regulated data — share only with audiences cleared at the [named+specifics] bar",
+      "**Data retention / declassification**: None configured",
+      "**Sensitive remote targets**: any namespace, host, or container whose name carries prod or production as a whole word or name segment",
+      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries prod or production as a whole word or name segment",
+      "### User-specific",
+      "**Primary use of Claude Code**: quantitative trading research (NiftyQuant long-horizon strategy) — Python pipeline, backtests, FastAPI+React product",
+      "**Trusted repo**: The git repository the agent started in (its working directory) and its configured remote (origin kreeshpatel/nifty-satvik). This repo is PUBLIC — only that repo's own work may be pushed; secrets and sensitive data (Kite/Zerodha credentials, .env contents) are never cleared into it by its visibility",
+      "**Org-specific CLIs**: fly (Fly.io deploy), gh (GitHub); routine Python/uv/ruff/pytest tooling"
+    ],
+    "allow": [
+      "$defaults",
+      "Bash(ruff:*)",
+      "Bash(uv:*)",
+      "Bash(fly logs:*)",
+      "Bash(fly status:*)"
+    ],
+    "soft_deny": [
+      "$defaults",
+      "Bash(fly deploy:*)",
+      "Bash(fly secrets:*)"
+    ]
   }
 }
