@@ -168,6 +168,10 @@ function enrichSignal(raw, quotes, posBySignal) {
   const upside = entry > 0 ? ((target - entry) / entry) * 100 : 0;
   // Potential return = % to the +2R target from the MIDDLE of the buy range (fill-dependent).
   const toTarget = buyMid > 0 ? ((target - buyMid) / buyMid) * 100 : upside;
+  // For a name already held, the potential that still matters is the upside REMAINING from where the
+  // price is NOW to the target — a live number distinct from P&L (the gain since the Monday-open
+  // entry). Without this the Potential column just echoed the P&L for held rows.
+  const toTargetNow = ltp > 0 && target > 0 ? ((target - ltp) / ltp) * 100 : null;
   const zeroRisk = entry === stop;
 
   let buyByStr = null, daysLeft = null;
@@ -222,7 +226,7 @@ function enrichSignal(raw, quotes, posBySignal) {
     action,
     sellReason: sellReason ?? null,
     entry, stop, target,
-    _buyLow: buyLow, _buyHigh: buyHigh, _toTarget: toTarget,
+    _buyLow: buyLow, _buyHigh: buyHigh, _toTarget: toTarget, _toTargetNow: toTargetNow,
     _ltp: ltp,
     _rr: rr,
     _dayChangePct: dayChangePct,
@@ -261,10 +265,12 @@ function potentialCell(s) {
     return { main: 'below gate', sub: dist != null ? `${fmtPct1(dist)} to enter` : '', tone: 'warn' };
   }
   if (s.action === 'holding' || s.action === 'sell-now') {
-    // Once the user has recorded a buy, the potential is measured from THEIR fill (real gain/loss),
-    // not the model's signal entry. Falls back to from-entry when nothing was recorded.
-    const pct = s._myPnlPct != null ? s._myPnlPct : s._fromEntry;
-    return { main: fmtPct1(pct), sub: s.weekOf ? `week ${s.weekOf} of 13` : '', tone: pct >= 0 ? 'bull' : 'bear' };
+    // Potential = the upside STILL AHEAD, from the current price to the target — deliberately NOT the
+    // P&L (that's its own column: the gain since the Monday-open entry). Falls back to the from-buy
+    // figure if we have no live price. Sub carries the hold progress.
+    const rem = s._toTargetNow != null ? s._toTargetNow : s._toTarget;
+    return { main: fmtPct1(rem), sub: s.weekOf ? `week ${s.weekOf} of 13` : `to target ${fmtNum(s.target)}`,
+             tone: rem >= 0 ? 'bull' : 'bear' };
   }
   if (s.action === 'closed') {
     // Buy window elapsed and it was never bought — not a live trade, so no day count.
