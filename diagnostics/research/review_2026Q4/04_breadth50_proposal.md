@@ -38,10 +38,19 @@ paper book), and — per the book's stricter discipline — **reports no spread 
 (`--validate`: 78 weeks, weight-integrity True every week, returns finite, 3 arms present; no
 performance emitted). Still wired into NO cron: activation = the two boxes below.
 
-**EVIDENCE (September fills):**
-- [ ] owner sign-off / decline at the Oct-1 amendment slot (now a 3-arm ask: EW / SW / SW-accum)
-- [ ] if signed: set the inception date + hook `run_breadth50_paper.py` into the weekly cron
-      (the logger is built and validated; activation is a one-line schedule + the inception date)
+**ACTIVATED — owner started the forward clock 2026-08-16 (the §4 amendment taken early).** The 3-arm
+watched book (EW / SW / SW-accum) is registered with a **fixed inception of 2026-08-16**, frozen and
+forward-only: `run_breadth50_paper.py` appends only W-FRI weeks ≥ the inception that already have a
+following realized return, so no past week can enter the record (no backfill by construction). The
+inception is pinned in the logger and here; it does not move. Owner's rationale: the design is frozen
+and validated, so an earlier start buys more forward evidence by the review at no fitting cost.
+
+**EVIDENCE:**
+- [x] owner sign-off — **signed 2026-08-16**, 3-arm ask (EW / SW / SW-accum), clock started early
+- [x] inception date fixed — **2026-08-16** (registered here + in `run_breadth50_paper.py`)
+- [ ] weekly cron hook + the pinned vendor artifacts (delivery / earnings / options-OI) fetched on the
+      runner — the operational plumbing (same class as the wall's factor build); until wired, the log
+      accrues from the first weekly run that has the data
 
 ---
 

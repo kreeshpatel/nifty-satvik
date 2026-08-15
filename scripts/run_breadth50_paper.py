@@ -35,7 +35,11 @@ from nq.data.ohlcv import OHLCV_CACHE, load_ohlcv_cache  # noqa: E402
 from nq.research.breadth50 import EVENT_WINDOW_CD, build_books, weekly_crs_dist  # noqa: E402
 
 OUT = RESULTS_DIR / "breadth50_forward.json"
-INCEPTION = "2026-10-01"   # placeholder — the OWNER sets the real inception at the §4 amendment slot
+# INCEPTION FIXED by owner decision 2026-08-16 (the §4 amendment taken early — start the forward clock
+# now for more evidence by the review). Forward-only and never backfilled: the logger only appends
+# W-FRI weeks >= inception that already have a following week's realized return, so past weeks cannot
+# enter the record. Registered in review_2026Q4/04_breadth50_proposal.md; do not move this date.
+INCEPTION = "2026-08-16"
 
 
 def _load():
