@@ -25,7 +25,7 @@ finding **0139** (delivery).
 | C — genuinely null even at the population level | 34 | stay closed; no home to find |
 | D — method / structural laws | 17 | not signals |
 
-## Placements so far (8 of 13 Category-A)
+## Placements — ALL 13 Category-A signals placed (campaign complete)
 
 | # | signal | outcome | receipt |
 |---|---|---|---|
@@ -37,6 +37,9 @@ finding **0139** (delivery).
 | A9 | **Residual momentum** | ✅ **placed — and the home is already LIVE.** KILL as a sole ranker, but the DD mechanism is real (2022-26 MaxDD −46.3 → −24.9), reframing it as a risk-overlay/veto. That veto is **in production**: the forward-wall **veto-0.1 arm** drops the bottom-decile residual-momentum names (`nq/paper/wall_cron.py`), forward-logging in the hash-chained 3-book wall. The signal's home was already built. | 0011/0012 + the live wall veto-0.1 arm |
 | A5 | **52-week-high proximity** | ⛔ **closed.** A momentum proxy on an already-momentum book — higher IC than base (0.068 vs 0.062) yet kills as a ranker (Sharpe 0.67 → 0.48, Law II). Momentum-redundant; no diversifying home, no risk-axis benefit. | 0079 / O-015 |
 | A11 | **Trained GBM selector** | ⛔ **closed.** Real +0.215 per-trade pool lift that dies as fill-priority (Sharpe 1.132 → 1.035, Law II). Its only expression is a defensive zero-losing-year variant (Law VII) — **dominated by the low-vol sleeve (A6)**, which reaches the same zero-losing-year profile as a Sharpe-*lifting* diversifier, not a return-*cutting* selector. Logged, not live. | 0112 |
+| A10 | **Revenue-growth (fundamentals)** | ⛔ **closed.** Real single orthogonal feature (rev_yoy \|IC\| ≈ 0.58× base) but ONE feature at *uncertifiable-tilt magnitude* (below the ±10R/yr floor, Law VI); and as a long-only fundamental sleeve it shares the market factor (0115's law, corr ~0.6) so it can't diversify. Real, sub-floor, no home. | 0019 |
+| A12 | **HEG-class cohort** | ⛔ **closed.** A real, materially-*worse* cohort (+0.062R vs +0.494R, win 40.6% vs 48.1%) — but both activation bounds FAIL "by identity" and it is 2.4% of book R. Removing worse-than-average trades is Law-III-negative; there is nothing to harvest. Real but un-actionable. | 0127 (bound #14) |
+| A13 | **Within-top-15 conviction** | ⛔ **closed.** Weak-but-real IC (0.056) on realised per-trade P&L — but killed as a sizer (0004/C3) and far below the activation floor; a weak per-trade rank does not survive to the concentrated book (Law II, delivery's fate). | 0002 |
 
 ## The pattern that decides the review
 
@@ -65,12 +68,28 @@ calibration a blanket re-open would have missed.
    and fails to diversify — per-trade quality is not portfolio value), and A11 is the second: its
    defensive variant is dominated by the low-vol sleeve, which lifts Sharpe rather than cutting it.
 
-## Remaining work (next dedicated sessions, all measurement until a trial is earned)
+## Final tally — the campaign's answer
 
-- The last Category-A items, all flagged "real but sub-floor" in the inventory ranking:
-  **A10 revenue-growth** (real orthogonal, single-feature, uncertifiable-tilt magnitude),
-  **A12 HEG-class cohort** (real but a "nothing" cohort, 2.4% of book R), **A13 within-top-15
-  conviction** (weak-but-real IC 0.056, killed as a sizer). Prior: all three place as closed /
-  risk-axis-only, but each earns its own read.
+**All 13 Category-A signals are placed: 3 homes, 10 closed.** And the shape of the answer is the
+point:
+
+- **The three homes were mostly already built.** Low-vol is live-logging (0.60); residual-momentum's
+  veto is the production wall arm; only **delivery** points to something not yet built — and it points
+  to the **breadth-50 second book** (§4).
+- **The ten closures are ten real signals, each stopped by a real structural wall** — momentum-
+  redundant (zoo, 52wh), momentum-entangled (PEAD), needs-a-short-side (USD), per-trade≠portfolio
+  (GBM, conviction, HEG), or sub-floor single-feature (revenue-growth). Not one hides a usable overlay
+  for the current book.
+
+**The decisive conclusion for §4:** the current momentum book is *fully optimized* — every banked
+signal that could improve it has now been re-examined on the current apparatus and fails on it. The
+only place remaining value can live is the **second book shape (breadth-50)**, which is exactly where
+delivery's home is and where the whole campaign converges. Building that book is therefore not one
+option among many; it is *the* lever that unlocks the single remaining unrealised home. All of this
+at **zero trials and zero screen rows**.
+
+## Remaining work (optional, lower priority)
+
 - Category-B re-runs only where a home is plausible (B1–B5 superseded books, B2/B1 exit-edge) —
-  expecting UNDERPOWERED, logging the bound.
+  expecting UNDERPOWERED, logging the bound. These add little: they re-measure old *book* results, not
+  new signals, and the modal outcome at n_eff≈37 is UNDERPOWERED.
