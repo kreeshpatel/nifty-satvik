@@ -17,8 +17,22 @@ PIT joins lagged >= 0 with the 10d staleness cap, all event flags pre-announced)
 (`a2825cd7…`). Fetch commands and full hashes: [§1 provenance block](01_reanchor.md). Do not trust
 local `data/` — fetch and `sha256sum` first.
 
+**Amendment 2026-08-16 — owner adds a third watched arm, SW-accum.** Following finding **0139**
+(delivery's temporal *accumulation* composite is the real signal, IC t=6 on the broad universe, with
+this breadth-50 book named as its home), the owner elected to add a third arm rather than change the
+frozen SW. `nq/research/breadth50.build_books(..., accum=)` now emits `w_sw_accum`, tilted by the same
+frozen shape (0.5 + 1.5·pctile, ×0.5 on the event flag, clipped) but ranked by the 0139 accumulation
+composite (definition frozen from `pipelines/diagnostics/diag_delivery_accumulation.py`) instead of
+the 0118 dlv_med21 level. The watched comparison is now **EW vs SW vs SW-accum**; the EW-vs-SW-accum
+spread forward-tests 0139 directly, zero in-sample fitting. Construction validated (3-arm weights sum
+to 1, event names down-weighted, golden master byte-identical, module still wired nowhere).
+
+**Frozen params (per the audit note): rebalance anchor = weekly (W-FRI, top-50 by weekly CRS);
+estimation lookbacks = dlv_med21's 21d (SW) and the 0139 composite's trailing windows (SW-accum,
+52/21/8-week per its z-components). Stated before logging; a forward book is not anchor-swept.**
+
 **EVIDENCE (September fills):**
-- [ ] owner sign-off / decline at the Oct-1 amendment slot
+- [ ] owner sign-off / decline at the Oct-1 amendment slot (now a 3-arm ask: EW / SW / SW-accum)
 - [ ] if signed: logging wiring + inception date
 
 ---

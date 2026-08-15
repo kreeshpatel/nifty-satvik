@@ -60,17 +60,42 @@ def sw_tilts(names: list[str], dlv_med21: pd.Series, event_flag: pd.Series) -> p
     return tilt.clip(TILT_LO, TILT_HI)
 
 
+def sw_accum_tilts(names: list[str], accum: pd.Series, event_flag: pd.Series) -> pd.Series:
+    """The SW-accum tilt (owner-added arm, 2026-08-16): the SAME frozen tilt SHAPE as ``sw_tilts``
+    (0.5 + 1.5*pctile within the 50, *0.5 on the event flag, clipped) but ranked by the 0139 delivery
+    ACCUMULATION composite ``accum`` (mean of the four trailing-only z-components, definition frozen
+    from `pipelines/diagnostics/diag_delivery_accumulation.py`) instead of the 0118 dlv_med21 LEVEL.
+    The EW-vs-SW-accum forward spread isolates 0139's portfolio-expressed value with zero in-sample
+    fitting — the same construction logic as SW, a different (banked) signal."""
+    a = accum.reindex(names)
+    pct = a.rank(pct=True).fillna(0.5)                     # missing accumulation -> neutral percentile
+    tilt = 0.5 + 1.5 * pct
+    ev = event_flag.reindex(names).fillna(False).astype(bool)
+    tilt = tilt.where(~ev, tilt * 0.5)
+    return tilt.clip(TILT_LO, TILT_HI)
+
+
 def build_books(crs: pd.Series, dlv_med21: pd.Series, event_flag: pd.Series,
-                eligible: set[str] | None = None) -> pd.DataFrame:
-    """-> DataFrame[name, crs, dlv_med21, event_flag, w_ew, w_sw]; both weight columns sum to 1."""
+                eligible: set[str] | None = None, accum: pd.Series | None = None) -> pd.DataFrame:
+    """-> DataFrame[name, crs, dlv_med21, event_flag, w_ew, w_sw(, w_sw_accum)]; weight columns sum to 1.
+
+    ``accum`` (optional, the 0139 accumulation composite per name) adds the third watched arm
+    ``w_sw_accum``. Omitted -> the original two-book EW/SW frame, byte-identical (backward compatible)."""
     names = select_top50(crs, eligible)
     tilt = sw_tilts(names, dlv_med21, event_flag)
-    out = pd.DataFrame({
+    cols = {
         "crs": crs.reindex(names),
         "dlv_med21": dlv_med21.reindex(names),
         "event_flag": event_flag.reindex(names).fillna(False).astype(bool),
         "w_ew": 1.0 / len(names),
         "w_sw": (tilt / tilt.sum()).to_numpy(),
-    }, index=pd.Index(names, name="ticker"))
+    }
+    if accum is not None:
+        atilt = sw_accum_tilts(names, accum, event_flag)
+        cols["accum"] = accum.reindex(names)
+        cols["w_sw_accum"] = (atilt / atilt.sum()).to_numpy()
+    out = pd.DataFrame(cols, index=pd.Index(names, name="ticker"))
     assert np.isclose(out["w_ew"].sum(), 1.0) and np.isclose(out["w_sw"].sum(), 1.0)
+    if accum is not None:
+        assert np.isclose(out["w_sw_accum"].sum(), 1.0)
     return out
