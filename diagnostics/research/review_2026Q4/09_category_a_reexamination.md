@@ -88,8 +88,17 @@ delivery's home is and where the whole campaign converges. Building that book is
 option among many; it is *the* lever that unlocks the single remaining unrealised home. All of this
 at **zero trials and zero screen rows**.
 
-## Remaining work (optional, lower priority)
+## Category-B — owner decision (2026-08): do NOT bulk re-run
 
-- Category-B re-runs only where a home is plausible (B1–B5 superseded books, B2/B1 exit-edge) —
-  expecting UNDERPOWERED, logging the bound. These add little: they re-measure old *book* results, not
-  new signals, and the modal outcome at n_eff≈37 is UNDERPOWERED.
+Unlike the Category-A sweep (all measurement, zero cost), a Category-B re-run is a **trial**: each
+re-tests an old *book-level* config for a promote/kill decision, so it increments `n_trials` and
+runs on the same 2017–2026 windows, raising multiplicity exactly as the amendment warns. Bulk-running
+the 23 would take `n_trials` 2 → ~25 — **re-poisoning the Deflated-Sharpe bar the 2026-08-07 reset
+deliberately lowered** — for a **modal outcome of UNDERPOWERED** (n_eff≈37 → dSharpe half-width ~0.59,
+below these effects). The reset note is explicit: *"do not read the reset as a licence to re-run dead
+tests on the same data."*
+
+**Decision (owner, this campaign): leave Category-B as quotable priors.** Reopen an individual item
+only when a specific one becomes decision-relevant, pre-registered properly at that point (pre-reg
+committed → counter incremented → run → verdict). The signal sweep (Category-A) is the substantive
+result; the book-level re-runs add cost, not information. `n_trials` stays **2**.
