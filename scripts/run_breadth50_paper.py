@@ -46,8 +46,11 @@ def _load():
     oh = load_ohlcv_cache(OHLCV_CACHE)
     closes = pd.DataFrame({t: g["Close"] for t, g in oh.items()})
     closes.index = pd.to_datetime(closes.index)
-    oi = pd.read_parquet(ROOT / "data" / "options_oi_pit.parquet")
-    idx = oi["spot"]; idx.index = pd.to_datetime(oi.index)
+    # Nifty-50 reference = the engine's OWN committed series (run_bhanushali_weekly_crs.NIFTY50_CSV),
+    # not the pinned options-OI spot. Same index the live 0094 book uses for CRS -> the breadth-50 CRS
+    # convention matches the live book exactly, and there is no unpinned-artifact dependency on the runner.
+    idx = pd.read_csv(ROOT / "research" / "exports" / "benchmark_nifty50.csv",
+                      parse_dates=["date"]).set_index("date")["nifty50_close"].sort_index()
     # weekly A composite (0139), definition frozen from the committed diagnostic
     from diag_delivery_accumulation import build_weekly_A  # noqa: E402
     W = build_weekly_A()
