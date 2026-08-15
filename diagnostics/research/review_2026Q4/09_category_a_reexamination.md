@@ -25,7 +25,7 @@ finding **0139** (delivery).
 | C — genuinely null even at the population level | 34 | stay closed; no home to find |
 | D — method / structural laws | 17 | not signals |
 
-## Placements so far (5 of 13 Category-A)
+## Placements so far (8 of 13 Category-A)
 
 | # | signal | outcome | receipt |
 |---|---|---|---|
@@ -34,6 +34,9 @@ finding **0139** (delivery).
 | A3 | **Earnings / PEAD** | ⛔ **stays closed** — real drift (+6.6%, 4/4 yr) but **momentum-entangled** (same return source) and **absent in the liquid names traded at size**; survivorship-inflated. No tradeable home. Confounds already measured on the current harness. | finding **0128** |
 | A7 | **USD/INR sensitivity** | ⛔ **closed.** Real, orthogonal, non-price signal (the arc's one genuinely-new find) — but every long-only construction is killed: rank tilt (0018, KILL, Law II) and the **ERC sleeve on the live vehicle** (0115: low-USD-beta Sharpe 0.18, corr 0.59, breaks the zero-losing-year property). Its only real home is a **long-short** construction — out of scope for a long-only book. Second "real but structurally trapped" case (with PEAD). | 0018 + **0115 (current harness)** |
 | A4 | **Chart-pattern zoo** | ⛔ **closed.** The real standalone backtest (box+cup+double_bottom, own capital, frozen exit) is **worse than swing on every axis — Sharpe 0.80 vs 1.13, CAGR 16.3% vs 24.7%, MaxDD −47.3% vs −42.4%** — and correlates **+0.60**, so the blend never beats swing-alone. 0131's preserved own-capital escape does NOT rescue it: the real per-trade edge does not survive to the book even standalone (Law II + Law VII, the wider stops buy nothing). | 0131 + `diag_pattern_sleeve_a4.py` |
+| A9 | **Residual momentum** | ✅ **placed — and the home is already LIVE.** KILL as a sole ranker, but the DD mechanism is real (2022-26 MaxDD −46.3 → −24.9), reframing it as a risk-overlay/veto. That veto is **in production**: the forward-wall **veto-0.1 arm** drops the bottom-decile residual-momentum names (`nq/paper/wall_cron.py`), forward-logging in the hash-chained 3-book wall. The signal's home was already built. | 0011/0012 + the live wall veto-0.1 arm |
+| A5 | **52-week-high proximity** | ⛔ **closed.** A momentum proxy on an already-momentum book — higher IC than base (0.068 vs 0.062) yet kills as a ranker (Sharpe 0.67 → 0.48, Law II). Momentum-redundant; no diversifying home, no risk-axis benefit. | 0079 / O-015 |
+| A11 | **Trained GBM selector** | ⛔ **closed.** Real +0.215 per-trade pool lift that dies as fill-priority (Sharpe 1.132 → 1.035, Law II). Its only expression is a defensive zero-losing-year variant (Law VII) — **dominated by the low-vol sleeve (A6)**, which reaches the same zero-losing-year profile as a Sharpe-*lifting* diversifier, not a return-*cutting* selector. Logged, not live. | 0112 |
 
 ## The pattern that decides the review
 
@@ -55,10 +58,12 @@ calibration a blanket re-open would have missed.
    the earliest real evidence on whether the diversification free-lunch holds forward.
 2. **Delivery has a named home here** — a pre-breakout / broad book is the vehicle that could express
    the delivery accumulation edge (0139); it does not belong on the momentum book.
-3. **PEAD, the chart-zoo, and USD (A7) are all closed** — none is a live sleeve candidate — do not carry either forward as a sleeve candidate. The zoo
-   is the sharpest lesson: a real per-trade edge, its own capital, and it *still* underperforms and
-   fails to diversify — per-trade quality is not portfolio value, even in the sleeve that was built
-   to rescue it.
+3. **Residual momentum (A9) already has a live home** — the forward-wall veto-0.1 arm. No build
+   needed; its Oct-1 read is part of the wall's evidence.
+4. **PEAD, chart-zoo, USD, 52-week-high, and the GBM selector are all closed** — none is a live sleeve
+   candidate. The zoo is the sharpest lesson (a real per-trade edge, own capital, still underperforms
+   and fails to diversify — per-trade quality is not portfolio value), and A11 is the second: its
+   defensive variant is dominated by the low-vol sleeve, which lifts Sharpe rather than cutting it.
 
 ## Remaining work (next dedicated sessions, all measurement until a trial is earned)
 
