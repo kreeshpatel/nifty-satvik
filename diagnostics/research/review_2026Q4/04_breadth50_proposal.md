@@ -31,9 +31,17 @@ to 1, event names down-weighted, golden master byte-identical, module still wire
 estimation lookbacks = dlv_med21's 21d (SW) and the 0139 composite's trailing windows (SW-accum,
 52/21/8-week per its z-components). Stated before logging; a forward book is not anchor-swept.**
 
+**Forward logger BUILT (2026-08-16).** `scripts/run_breadth50_paper.py` logs the three arms' realized
+weekly NAVs from a fixed inception FORWARD only (empty until post-inception bars accrue, like the swing
+paper book), and — per the book's stricter discipline — **reports no spread and no arm comparison**
+(the verdict is the wall/review's to read, never the logger's, never in-sample). Structurally validated
+(`--validate`: 78 weeks, weight-integrity True every week, returns finite, 3 arms present; no
+performance emitted). Still wired into NO cron: activation = the two boxes below.
+
 **EVIDENCE (September fills):**
 - [ ] owner sign-off / decline at the Oct-1 amendment slot (now a 3-arm ask: EW / SW / SW-accum)
-- [ ] if signed: logging wiring + inception date
+- [ ] if signed: set the inception date + hook `run_breadth50_paper.py` into the weekly cron
+      (the logger is built and validated; activation is a one-line schedule + the inception date)
 
 ---
 
