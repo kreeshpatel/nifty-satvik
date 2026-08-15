@@ -67,7 +67,10 @@ calibration a blanket re-open would have missed.
 
 ## Remaining work (next dedicated sessions, all measurement until a trial is earned)
 
-- The remaining Category-A items (A5 52-week-high, A9 residual-momentum,
-  A11 GBM-selector defensive variant) via the same Find-Its-Home protocol.
+- The last Category-A items, all flagged "real but sub-floor" in the inventory ranking:
+  **A10 revenue-growth** (real orthogonal, single-feature, uncertifiable-tilt magnitude),
+  **A12 HEG-class cohort** (real but a "nothing" cohort, 2.4% of book R), **A13 within-top-15
+  conviction** (weak-but-real IC 0.056, killed as a sizer). Prior: all three place as closed /
+  risk-axis-only, but each earns its own read.
 - Category-B re-runs only where a home is plausible (B1–B5 superseded books, B2/B1 exit-edge) —
   expecting UNDERPOWERED, logging the bound.
