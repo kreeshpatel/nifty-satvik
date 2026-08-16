@@ -51,11 +51,18 @@ def _load():
     # convention matches the live book exactly, and there is no unpinned-artifact dependency on the runner.
     idx = pd.read_csv(ROOT / "research" / "exports" / "benchmark_nifty50.csv",
                       parse_dates=["date"]).set_index("date")["nifty50_close"].sort_index()
-    # weekly A composite (0139), definition frozen from the committed diagnostic
+    # weekly A composite (0139), definition frozen from the committed diagnostic. Robust: if the
+    # delivery/OHLCV join yields nothing on this run, the SW-accum arm is SKIPPED and only EW/SW are
+    # logged — honest degradation (never a crash, never a faked neutral tilt into the forward record).
     from diag_delivery_accumulation import build_weekly_A  # noqa: E402
-    W = build_weekly_A()
-    A = W.pivot_table(index="wk", columns="symbol", values="A")
-    A.index = pd.to_datetime(A.index)
+    try:
+        W = build_weekly_A()
+        A = W.pivot_table(index="wk", columns="symbol", values="A")
+        A.index = pd.to_datetime(A.index)
+    except Exception as exc:  # noqa: BLE001
+        print(f"::warning::breadth-50 SW-accum unavailable this run — build_weekly_A failed "
+              f"({type(exc).__name__}: {exc})", flush=True)
+        A = pd.DataFrame()
     # delivery dlv_med21 (0118), daily -> reduce per week in the loop
     dfeat = derive_delivery_features(apply_alias_map(pd.read_parquet(DELIVERY_RAW_PATH)))
     dfeat["date"] = pd.to_datetime(dfeat["date"])
@@ -86,17 +93,20 @@ def main(argv=None) -> int:
     start = pd.Timestamp(args.start)
 
     closes, idx, A, dfeat, events = _load()
+    has_accum = not A.empty
     wret = closes.resample("W-FRI").last().pct_change()          # per-name weekly return
     weeks = [w for w in wret.index if w >= start and w < wret.index[-1]]
 
-    arms = {"ew": "w_ew", "sw": "w_sw", "sw_accum": "w_sw_accum"}
+    arms = {"ew": "w_ew", "sw": "w_sw"}
+    if has_accum:
+        arms["sw_accum"] = "w_sw_accum"                          # third arm only when 0139 A is available
     rows = {k: [] for k in arms}                                 # (week, arm_return)
     integrity_ok = True
     for w in weeks:
         crs, dlv, accum, flag = _week_features(w, closes, idx, A, dfeat, events)
         if crs.dropna().shape[0] < 50:
             continue
-        books = build_books(crs, dlv, flag, accum=accum)
+        books = build_books(crs, dlv, flag, accum=(accum if has_accum else None))
         nxt = wret.index[wret.index.get_loc(w) + 1]
         r = wret.loc[nxt].reindex(books.index)                  # next-week realized return per name
         for k, wc in arms.items():

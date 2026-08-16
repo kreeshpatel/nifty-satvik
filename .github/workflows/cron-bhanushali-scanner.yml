@@ -133,9 +133,11 @@ jobs:
         # never touches the certified book/wall, and reports NO spread (the seal on the experiment).
         # Empty until fresh post-inception bars exist (not an error). Delivery top-up is non-fatal — a
         # miss just means the newest weeks fall back to the committed delivery (neutral tilt), not a crash.
-        run: |
-          python scripts/harvest_delivery.py --start 2026-07-01 || echo "::warning::delivery top-up non-fatal — breadth-50 uses committed delivery"
-          python scripts/run_breadth50_paper.py --start "${{ github.event.inputs.breadth50_inception || '2026-08-16' }}" || echo "::warning::breadth-50 forward log FAILED (exit $?) — observational book not updated"
+        # Uses the COMMITTED _delivery_raw.parquet (covers the trailing dlv_med21 / 0139 windows); no
+        # weekly scrape (a harvest_delivery top-up here proved fragile and non-essential — recent-week
+        # tilts fall back to the committed delivery's staleness cap, which is neutral, not wrong).
+        run: python scripts/run_breadth50_paper.py --start "${{ github.event.inputs.breadth50_inception || '2026-08-16' }}"
+          || echo "::warning::breadth-50 forward log FAILED (exit $?) — observational book not updated"
       - name: Commit weekly paper state
         run: |
           # Author with the owner's GitHub-matched email so Vercel (auto-deploys main) doesn't
