@@ -105,13 +105,16 @@ class TestTheFirstRunCannotFakeForwardEvidence:
         assert 'Path(state_dir) / "forward_wall_start.json"' in CRON_SRC
         assert "_wall_start(args.state_dir" in CRON_SRC
 
-    def test_the_anchor_refuses_a_date_before_its_own_preregistration(self):
+    def test_the_anchor_refuses_a_date_before_its_own_preregistration(self, tmp_path):
         """Defence in depth for the same failure: even at the right path, a stale cache or fixture
-        must not be able to anchor the wall in the past."""
+        must not be able to anchor the wall in the past. Uses a CLEAN state dir so the date-guard is
+        the path under test — once the live wall committed its results/forward_wall_start.json (which
+        it now has), `_wall_start` correctly RETURNS that registered anchor instead of re-deriving,
+        which is the separate also-safe path asserted by test_the_anchor_is_never_rewritten_once_it_exists."""
         from run_paper_cron import WALL_PREREG_DATE, _wall_start
         assert WALL_PREREG_DATE == "2026-07-02"      # forward/prereg.md registration date
         with pytest.raises(ValueError, match="predates its own"):
-            _wall_start(ROOT / "results", "2016-12-30")   # the exact date the leak wrote
+            _wall_start(tmp_path, "2016-12-30")   # the exact date the leak wrote; empty dir => date guard runs
 
     def test_the_anchor_is_committed_not_computed_each_run(self):
         assert "forward_wall_start.json" in CRON_SRC
