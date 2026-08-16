@@ -113,6 +113,25 @@ KNOWN_SEAMS: dict[tuple[str, str], dict] = {
                                   "found": "2026-08-06", "provenance": "OPEN-undiagnosed"},
     ("TRENT", "2019-03-18"): {"factor": 1.0214, "cause": "no corporate action in the NSE record",
                               "found": "2026-08-06", "provenance": "OPEN-undiagnosed"},
+
+    # FOUND BY THIS GUARD 2026-08-16 on the weekly scanner (the cron had run green earlier the same
+    # day, so the vendor re-adjusted these three between runs — the documented upstream defect class,
+    # not a cache-assembly artifact). All three are dividend-SIZED steps in the same Q3-FY25 window
+    # [2025-01-10 .. 2025-02-17] on large dividend-paying names; a plausible interim-dividend partial
+    # adjustment, but the exact ex-date/factor was NOT localised (audit_foundation_seam_2026Q3.py did
+    # not reproduce locally), so they are carried OPEN, not settled. NONE is inside the trailing 44w
+    # window (as-of − 44w ≈ 2025-10, the seams are 2025-01) and NONE is currently held, so they are
+    # NOT live-affecting — assert_no_live_escalation does not fire. Registered to make the guard usable
+    # from today; localisation + the repair decision are an owner follow-up (FOUNDATION_AUDIT F-1 class).
+    ("HINDPETRO", "2025-01-10"): {"factor": 1.0515, "cause": "dividend-sized step, Q3-FY25 window (HPCL "
+                                  "interim-dividend suspected, ex-date not localised)",
+                                  "found": "2026-08-16", "provenance": "OPEN-undiagnosed"},
+    ("IOC", "2025-01-10"): {"factor": 1.0089, "cause": "dividend-sized step, Q3-FY25 window (IOC "
+                            "interim-dividend suspected, ex-date not localised)",
+                            "found": "2026-08-16", "provenance": "OPEN-undiagnosed"},
+    ("NCC", "2025-01-10"): {"factor": 1.0154, "cause": "dividend-sized step, Q3-FY25 window (interim-"
+                            "dividend suspected, ex-date not localised)",
+                            "found": "2026-08-16", "provenance": "OPEN-undiagnosed"},
 }
 
 
