@@ -1,0 +1,13 @@
+{
+  "model": "breadth-50 watched book (EW / SW / SW-accum), proposal \u00a74",
+  "inception": "2026-08-16",
+  "observational": true,
+  "arms": [
+    "ew",
+    "sw",
+    "sw_accum"
+  ],
+  "n_points": 0,
+  "construction": "frozen; zero in-sample fitting; logger reports no spread",
+  "note": "no post-inception weeks with data yet (research OHLCV lags the inception; the real cron downloads) \u2014 empty is valid, not an error"
+}

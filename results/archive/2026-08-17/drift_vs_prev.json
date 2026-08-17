@@ -1,0 +1,29 @@
+{
+  "prev_snapshot": "2026-08-14__rerun-20260816T004818Z",
+  "cur_snapshot": "2026-08-17",
+  "closed_prev": 5,
+  "closed_cur": 8,
+  "closed_delta": 3,
+  "nav_prev": 1019996.97,
+  "nav_cur": 1019488.85,
+  "nav_delta": -508.12,
+  "n_restated": 0,
+  "restated": [],
+  "n_vanished": 0,
+  "vanished": [],
+  "n_appeared": 3,
+  "appeared": [
+    "DELHIVERY|2026-07-06",
+    "GESHIP|2026-07-27",
+    "NLCINDIA|2026-07-13"
+  ],
+  "inputs_changed": [
+    "ohlcv_cache_sha256",
+    "ohlcv_last_bar",
+    "ohlcv_n_rows"
+  ],
+  "clean": true,
+  "as_of": "2026-08-17",
+  "logged_utc": "2026-08-17T07:25:29.663706+00:00",
+  "is_baseline": false
+}

@@ -1,46 +1,39 @@
-# Weekly Decision Memos — 2026-08-14 | regime BEAR | 25 signals
+# Weekly Decision Memos — 2026-08-17 | regime BEAR | 22 signals
 
 ### DECISION MEMO — MCX  (MCX__2026-08-14)
 1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
 2. **Signal strength** — ****.  (grade A, CRS rank 0.1436)
 3. **Risk** — MODERATE-HIGH · stop width 11.1% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 2911.5 (band [2603.2, 3023.7]) · SL 2620.35 · TP 3493.8
+4. **Trade plan** — entry 2961.0 (band [2603.2, 3023.7]) · SL 2664.9 · TP 3553.2
 5. **Status** — [OK] **APPROVED** — Execute — buy in the band [2603.2, 3023.7]; fund strongest CRS rank first.
 
 ### DECISION MEMO — IKS  (IKS__2026-08-14)
 1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
 2. **Signal strength** — ****.  (grade A, CRS rank 0.1425)
-3. **Risk** — MODERATE · stop width 6.7% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 1840.0 (band [1725.0, 1848.1]) · SL 1725.0 · TP 2070.0
+3. **Risk** — MODERATE · stop width 6.4% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 1835.0 (band [1725.0, 1848.1]) · SL 1725.0 · TP 2055.0
 5. **Status** — [OK] **APPROVED** — Execute — buy in the band [1725.0, 1848.1]; fund strongest CRS rank first.
 
 ### DECISION MEMO — APLAPOLLO  (APLAPOLLO__2026-08-14)
 1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
 2. **Signal strength** — ****.  (grade A, CRS rank 0.0904)
-3. **Risk** — MODERATE · stop width 6.7% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 2083.3 (band [1951.7, 2099.0]) · SL 1951.7 · TP 2346.5
+3. **Risk** — MODERATE · stop width 7.4% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 2096.7 (band [1951.7, 2099.0]) · SL 1951.7 · TP 2386.7
 5. **Status** — [OK] **APPROVED** — Execute — buy in the band [1951.7, 2099.0]; fund strongest CRS rank first.
 
-### DECISION MEMO — NATIONALUM  (NATIONALUM__2026-08-07)
+### DECISION MEMO — ADANIPORTS  (ADANIPORTS__2026-08-14)
 1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
-2. **Signal strength** — ****.  (grade A, CRS rank 0.0777)
-3. **Risk** — MODERATE · stop width 4.5% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 369.27 (band [353.5, 385.05]) · SL 353.5 · TP 400.81
-5. **Status** — [OK] **APPROVED** — Execute — buy in the band [353.5, 385.05]; fund strongest CRS rank first.
+2. **Signal strength** — ****.  (grade A, CRS rank 0.0783)
+3. **Risk** — MODERATE · stop width 2.9% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 1688.4 (band [1640.4, 1703.4]) · SL 1640.4 · TP 1784.4
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [1640.4, 1703.4]; fund strongest CRS rank first.
 
 ### DECISION MEMO — CCL  (CCL__2026-08-14)
 1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
 2. **Signal strength** — ****.  (grade A, CRS rank 0.0774)
-3. **Risk** — MODERATE · stop width 1.5% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 1133.4 (band [1116.2, 1149.9]) · SL 1116.2 · TP 1167.8
+3. **Risk** — MODERATE · stop width 1.7% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 1135.0 (band [1116.2, 1149.9]) · SL 1116.2 · TP 1172.6
 5. **Status** — [OK] **APPROVED** — Execute — buy in the band [1116.2, 1149.9]; fund strongest CRS rank first.
-
-### DECISION MEMO — DELHIVERY  (DELHIVERY__2026-07-06)
-1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
-2. **Signal strength** — ****.  (grade A, CRS rank None)
-3. **Risk** — MODERATE-HIGH · stop width 10.8% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 510.95 (band [None, None]) · SL 461.0 · TP 610.85
-5. **Status** — [WATCH] **WATCHLIST** — Monitor — below the A-grade / actionable bar; do not fund yet.
 
 ### DECISION MEMO — INDUSINDBK  (INDUSINDBK__2026-07-06)
 1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
@@ -69,13 +62,6 @@
 3. **Risk** — MODERATE · stop width 5.8% · R:R 1:2.0 · max-loss-in-plan YES
 4. **Trade plan** — entry 314.75 (band [None, None]) · SL 297.5 · TP 349.25
 5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
-
-### DECISION MEMO — NLCINDIA  (NLCINDIA__2026-07-13)
-1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
-2. **Signal strength** — ****.  (grade A, CRS rank None)
-3. **Risk** — MODERATE · stop width 5.9% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 310.0 (band [None, None]) · SL 292.7 · TP 344.6
-5. **Status** — [WATCH] **WATCHLIST** — Monitor — below the A-grade / actionable bar; do not fund yet.
 
 ### DECISION MEMO — BAJAJ-AUTO  (BAJAJ-AUTO__2026-07-13)
 1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
@@ -111,13 +97,6 @@
 3. **Risk** — MODERATE-HIGH · stop width 11.1% · R:R 1:2.0 · max-loss-in-plan YES
 4. **Trade plan** — entry 650.0 (band [None, None]) · SL 585.0 · TP 780.0
 5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
-
-### DECISION MEMO — GESHIP  (GESHIP__2026-07-27)
-1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
-2. **Signal strength** — ****.  (grade A, CRS rank None)
-3. **Risk** — MODERATE · stop width 7.4% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 1423.68 (band [None, None]) · SL 1325.74 · TP 1619.58
-5. **Status** — [WATCH] **WATCHLIST** — Monitor — below the A-grade / actionable bar; do not fund yet.
 
 ### DECISION MEMO — M&MFIN  (M&MFIN__2026-07-27)
 1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)

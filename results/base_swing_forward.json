@@ -4,15 +4,17 @@
   "status": "WATCHED \u2014 logged, never traded, never surfaced (contains Grade-B names)",
   "authority": "forward/prereg_swing.md \u00a74 (A-only vs base-swing, decided 2027-07-01)",
   "inception": "2026-07-04",
-  "as_of": "2026-08-14",
-  "n_closed": 0,
-  "sharpe": -0.1936,
-  "cagr_pct": -4.35,
+  "as_of": "2026-08-17",
+  "n_closed": 1,
+  "sharpe": -0.2181,
+  "cagr_pct": -4.46,
   "maxdd_pct": -3.668,
-  "calmar": -1.1858,
-  "win_rate_pct": null,
-  "expectancy_R_gross": null,
-  "exit_reasons": {},
+  "calmar": -1.216,
+  "win_rate_pct": 0.0,
+  "expectancy_R_gross": -1.046,
+  "exit_reasons": {
+    "stop": 1
+  },
   "nav": [
     {
       "date": "2026-07-06",
@@ -133,6 +135,10 @@
     {
       "date": "2026-08-14",
       "equity": 1019996.97
+    },
+    {
+      "date": "2026-08-17",
+      "equity": 1019488.85
     }
   ],
   "_units": "cagr/maxdd/calmar/sharpe are NET of costs, off the NAV curve. expectancy_R is GROSS \u2014 R is computed on raw prices (run_bhanushali_weekly_rank), so it is NOT comparable to the net NAV metrics. \u00a74 decides on MaxDD and Calmar only.",
