@@ -132,6 +132,19 @@ KNOWN_SEAMS: dict[tuple[str, str], dict] = {
     ("NCC", "2025-01-10"): {"factor": 1.0154, "cause": "dividend-sized step, Q3-FY25 window (interim-"
                             "dividend suspected, ex-date not localised)",
                             "found": "2026-08-16", "provenance": "OPEN-undiagnosed"},
+
+    # FOUND BY THIS GUARD 2026-08-17 — the SECOND consecutive day a new name surfaced in the SAME
+    # Q3-FY25 window [2025-01-10 .. 2025-02-17] (HINDPETRO/IOC/NCC were 2026-08-16). This is the
+    # documented upstream re-adjustment defect walking through the large dividend-paying universe one
+    # cache-rebuild at a time, not a cache-assembly artifact. BANDHANBNK is a private-bank name that
+    # paid an interim dividend in this window; ex-date/factor not localised, so carried OPEN. NOT held
+    # (book holds DELHIVERY/INDUSINDBK/NESTLEIND/CUB/HEG) and the seam session 2025-01-10 is well
+    # before the trailing-44w cutoff (as-of − 44w ≈ 2025-10), so assert_no_live_escalation does not
+    # fire. The recurrence is now a pattern worth an owner-level durable fix (localise the window's
+    # dividends once, or pin the OHLCV adjustment basis) rather than continued per-name registration.
+    ("BANDHANBNK", "2025-01-10"): {"factor": 1.0087, "cause": "dividend-sized step, Q3-FY25 window "
+                                   "(interim-dividend suspected, ex-date not localised)",
+                                   "found": "2026-08-17", "provenance": "OPEN-undiagnosed"},
 }
 
 
