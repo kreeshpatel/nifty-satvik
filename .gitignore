@@ -89,6 +89,9 @@ results/*
 # silently drop it from the weekly commit (the D5 defect); whitelist it so the scanner's `opt()` can
 # stage it. Watcher: tests/test_workflow_output_paths.py.
 !results/breadth50_forward.json
+# Forward per-signal quality->outcome table (4-axis family, prereg_signal_quality.md). Same D5
+# whitelist reasoning as the breadth-50 log so the scanner's opt() can stage it each week.
+!results/signal_quality_forward.csv
 !results/signals_today.json
 !results/signals_history.json
 !results/signal_analytics.json

@@ -141,6 +141,15 @@ jobs:
         run: |
           gh release download dataset-pin-20260729 --pattern _delivery_raw.parquet --pattern _earnings_raw.parquet --dir data --clobber || echo "::warning::pinned delivery/earnings fetch failed - breadth-50 arms degrade this run"
           python scripts/run_breadth50_paper.py --start "${{ github.event.inputs.breadth50_inception || '2026-08-16' }}" || echo "::warning::breadth-50 forward log FAILED - book not updated"
+      - name: Collect the forward signal-quality table (prereg_signal_quality.md, 4-axis family)
+        # Runs AFTER the swing cron so it reads the freshly-committed signal snapshot + history and the
+        # fresh OHLCV (so touch_depth Q2 covers the pullback window). BUILD-ONLY and forward-sealed:
+        # it joins each signal's quality flags recorded AT signal time to its realized outcome and
+        # writes results/signal_quality_forward.csv, reporting only structural coverage and NEVER the
+        # axis->outcome relationship (the wall computes that via adjudicate_family). Deterministic
+        # rebuild from the immutable archives; non-fatal (a miss just skips this week's table refresh).
+        run: python scripts/collect_signal_quality_forward.py
+          || echo "::warning::signal-quality collector FAILED (exit $?) - forward table not refreshed this week"
       - name: Commit weekly paper state
         run: |
           # Author with the owner's GitHub-matched email so Vercel (auto-deploys main) doesn't
@@ -168,6 +177,7 @@ jobs:
           opt results/decision_memos_weekly.md
           opt results/blend_hybrid_paper.json
           opt results/breadth50_forward.json   # §4 watched book (EW/SW/SW-accum), observational, forward-only
+          opt results/signal_quality_forward.csv  # 4-axis per-signal quality->outcome table (prereg_signal_quality.md)
           # zoo shadow book STOOD DOWN 2026-08-06 (finding 0131, falsifier fired) — no
           # longer produced weekly. The opt() stays so a deliberate manual re-run of
           # scripts/run_zoo_shadow_book.py is still committable; opt() never fails.
