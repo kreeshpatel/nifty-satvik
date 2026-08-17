@@ -35,6 +35,7 @@ from nq.validation.dsr import (cumulative_n_trials, deflated_sharpe_ratio,
                                lifetime_n_trials, min_track_record_length,
                                probabilistic_sharpe_ratio)
 from nq.validation.metrics import TRADING_DAYS, sharpe
+from nq.validation.pbo import cscv_pbo
 
 NOISE_FLOOR = 0.3   # minimum meaningful ΔSharpe point estimate (program standard)
 
@@ -315,6 +316,71 @@ def adjudicate(
         "after_tax_cagr_base": _after_tax_cagr(base_bt, initial_capital),
         "after_tax_cagr_cand": _after_tax_cagr(cand_bt, initial_capital),
         "gates": gates, "gate_pass": gate_pass, "verdict": verdict,
+    }
+
+
+def adjudicate_family(
+    family: Mapping[str, Mapping[str, Any]], *,
+    n_blocks: int = 16, periods: int = TRADING_DAYS, seed: int | None = 12345,
+    block_size: int = DEFAULT_BLOCK, n_samples: int = 5000,
+) -> dict[str, Any]:
+    """Selection-robustness of a CONFIG FAMILY (a parameter sweep) — the complement to
+    :func:`adjudicate`, and the standing home for PBO.
+
+    ``adjudicate`` asks whether ONE candidate beats the base. It cannot see the failure mode where a
+    sweep of many near-identical configs manufactures a confident-looking winner whose in-sample
+    ranking is pure noise. That is the Probability of Backtest Overfitting (Bailey, Borwein, López de
+    Prado & Zhu 2015, via CSCV — :func:`nq.validation.pbo.cscv_pbo`): pick the in-sample best, and
+    measure how often it lands in the bottom half out-of-sample. It is a statement about the
+    SELECTION PROCEDURE, not the winner, so it needs the whole family — which is why it lives here
+    and not in ``adjudicate``. DSR and PBO are complements: DSR can pass while PBO says the choice
+    between configs was arbitrary.
+
+    ``family`` maps a config label to that config's already-run backtest dict (the
+    ``{equity_curve, ...}`` contract). Engine-agnostic like ``adjudicate``: nothing here reads a
+    panel or a cfg. The per-config daily returns are aligned on their COMMON dates into the
+    ``(n_periods, n_configs)`` matrix CSCV consumes (label order is sorted for determinism).
+
+    Reports, never gates — PBO is a standing cross-check recorded ALONGSIDE the verdict, not an
+    eighth promotion gate. The headline is ``selection_informative`` (PBO < 0.5). The full-sample
+    winner's Sharpe is additionally deflated at the FAMILY size (``n_configs`` — the multiplicity the
+    sweep itself spent); program-wide multiplicity stays ``adjudicate``'s DSR concern.
+    """
+    labels = [k for k in sorted(family)
+              if not _daily_returns(family[k].get("equity_curve", [])).empty]
+    if len(labels) < 2:
+        return {"verdict": "UNDERPOWERED", "reason": "PBO compares configs; need >=2 with returns",
+                "n_configs": len(labels)}
+    rets = {k: _daily_returns(family[k]["equity_curve"]) for k in labels}
+    common = rets[labels[0]].index
+    for k in labels[1:]:
+        common = common.intersection(rets[k].index)
+    n_periods = int(common.size)
+    # CSCV needs an even block count >= 4 and >= 2*n_blocks aligned periods. Step the requested
+    # n_blocks DOWN to the largest admissible even value rather than raising, so a short-but-usable
+    # family still yields a PBO; too few periods for any split is UNDERPOWERED, not a crash.
+    nb = min(n_blocks - (n_blocks % 2), (n_periods // 2) - ((n_periods // 2) % 2))
+    if nb < 4:
+        return {"verdict": "UNDERPOWERED", "n_configs": len(labels), "n_periods": n_periods,
+                "reason": f"need >= 8 aligned periods for a CSCV split, got {n_periods}"}
+    M = np.column_stack([rets[k].loc[common].to_numpy(dtype=float) for k in labels])
+    pbo = cscv_pbo(M, n_blocks=nb, periods=periods)
+
+    # The winner a naive sweep would report = best FULL-SAMPLE Sharpe, deflated at the family size.
+    full_sharpes = [float(sharpe(M[:, j])) for j in range(len(labels))]
+    best = int(np.argmax(full_sharpes))
+    col = M[:, best]
+    ci = (block_bootstrap_metric(col, sharpe, block_size=block_size, n_samples=n_samples, seed=seed)
+          if col.size > block_size else None)
+    dsr_family = _dsr_from_bootstrap(col, len(labels), (ci.lower, ci.upper) if ci else None)
+    return {
+        "n_configs": len(labels), "n_periods": n_periods, "n_blocks": nb, "n_splits": pbo.n_splits,
+        "pbo": round(pbo.pbo, 4), "selection_informative": bool(pbo.pbo < 0.5),
+        "median_logit": round(pbo.median_logit, 4),
+        "winner": labels[best], "winner_sharpe": round(full_sharpes[best], 3),
+        "winner_dsr_in_family": (round(dsr_family, 4) if np.isfinite(dsr_family) else None),
+        "labels": labels,
+        "verdict": "SELECTION-INFORMATIVE" if pbo.pbo < 0.5 else "SELECTION-NOISE",
     }
 
 

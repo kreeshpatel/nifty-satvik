@@ -46,6 +46,7 @@ flowchart LR
     nq_validation_cpcv["nq/validation/cpcv"]
     nq_validation_dsr["nq/validation/dsr"]
     nq_validation_metrics["nq/validation/metrics"]
+    nq_validation_pbo["nq/validation/pbo"]
     nq_data --> nq_data_eligibility
     nq_data --> nq_data_features
     nq_data --> nq_data_fundamentals
@@ -97,6 +98,7 @@ flowchart LR
     nq_runner_research --> nq_validation_bootstrap
     nq_runner_research --> nq_validation_dsr
     nq_runner_research --> nq_validation_metrics
+    nq_runner_research --> nq_validation_pbo
     nq_runner_scan --> config
     nq_runner_scan --> nq_data_features
     nq_runner_scan --> nq_data_fundamentals

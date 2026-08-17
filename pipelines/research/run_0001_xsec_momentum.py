@@ -21,12 +21,11 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 from nq.data.membership import load_membership  # noqa: E402
 from nq.engine.portfolio import elapsed_years  # noqa: E402
-from nq.engine.rebalance_book import RebalanceConfig, rebalance_dates, simulate_rebalance_book  # noqa: E402
-from nq.runner.research import adjudicate  # noqa: E402
+from nq.engine.rebalance_book import RebalanceConfig, simulate_rebalance_book  # noqa: E402
+from nq.runner.research import adjudicate, adjudicate_family  # noqa: E402
 from nq.signals import SKIP_DAYS, YEAR_DAYS, nse_momentum_score, vol_adjusted_return  # noqa: E402
 from nq.universe import build_universe, screen_report  # noqa: E402
-from nq.validation.montecarlo import resample_equity_curve, suggest_block_days  # noqa: E402
-from nq.validation.pbo import cscv_pbo  # noqa: E402
+from nq.validation.montecarlo import resample_equity_curve  # noqa: E402
 from run_bhanushali_path1 import corrected_universe  # noqa: E402
 
 START, END = "2017-01-01", "2026-06-30"
@@ -110,7 +109,7 @@ def sub_slice(curve: list[dict], lo: str, hi: str) -> float | None:
 
 def main() -> int:
     print("=== PRE-REG 0001 — cross-sectional momentum, Indian midcaps ===")
-    print(f"    frozen in research/0001-xsec-momentum/prereg.md · n_trials incremented to 1\n")
+    print("    frozen in research/0001-xsec-momentum/prereg.md · n_trials incremented to 1\n")
 
     ohlcv, mem = corrected_universe(), load_membership()
     u = build_universe(ohlcv, mem, start=START, end=END)
@@ -216,18 +215,17 @@ def main() -> int:
               f"control {r if r is not None else 'n/a':>8}%")
 
     print("\n=== PBO across the parameter neighbourhood (adopts NOTHING) ===")
-    grid, cols = [], []
-    for n in (20, 30, 50):
-        for b in (1.0, 1.5, 2.0):
-            bt = run(band, top_n=n, buffer_mult=b)
-            eq = pd.Series({e["date"]: e["equity"] for e in bt["equity_curve"]})
-            grid.append(eq.pct_change().fillna(0.0).to_numpy())
-            cols.append(f"n{n}_b{b}")
-    M = np.column_stack(grid)
-    pbo = cscv_pbo(M, n_blocks=10)
-    print(f"  configs {pbo.n_configs} · splits {pbo.n_splits} · PBO {pbo.pbo:.3f} "
-          f"({'informative' if pbo.selection_is_informative else 'NOT informative'})")
-    print(f"  median logit {pbo.median_logit:+.3f}")
+    # Standing selection-robustness output: the config family runs through the verdict machine's own
+    # nq.runner.research.adjudicate_family (which made PBO a first-class field alongside DSR), rather
+    # than a one-off cscv_pbo call. Same CSCV (n_blocks=10) on the same neighbourhood; the wrapper
+    # additionally deflates the in-sample winner's Sharpe at the family size.
+    family = {f"n{n}_b{b}": run(band, top_n=n, buffer_mult=b)
+              for n in (20, 30, 50) for b in (1.0, 1.5, 2.0)}
+    fam = adjudicate_family(family, n_blocks=10, seed=SEED)
+    print(f"  configs {fam['n_configs']} · splits {fam['n_splits']} · PBO {fam['pbo']:.3f} "
+          f"({fam['verdict']})")
+    print(f"  median logit {fam['median_logit']:+.3f} · winner {fam['winner']} "
+          f"(Sharpe {fam['winner_sharpe']:.2f}, DSR-in-family {fam['winner_dsr_in_family']})")
 
     # What is the book actually DOING? A turnover number does not distinguish "changed its mind
     # about a name" from "nudged an equal weight back into line", and the two have very different
@@ -245,7 +243,7 @@ def main() -> int:
                   "p95": mc.dd_p95, "p99": mc.dd_p99, "worst": mc.dd_worst,
                   "observed_pctile": mc.dd_observed_pctile, "prob_loss": mc.prob_loss}
         print(f"  block {mc.block} sessions, read off the ACF of |daily return| (volatility")
-        print(f"  clustering is what produces drawdowns; raw returns are near-uncorrelated)")
+        print("  clustering is what produces drawdowns; raw returns are near-uncorrelated)")
         print(f"  observed {mc.dd_observed*100:>7.2f}%  median {mc.dd_median*100:>7.2f}%  "
               f"p95 {mc.dd_p95*100:>7.2f}%  p99 {mc.dd_p99*100:>7.2f}%")
         print(f"  observed sat at the {mc.dd_observed_pctile*100:.0f}th percentile · "
@@ -259,8 +257,9 @@ def main() -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "results.json").write_text(json.dumps({
         "candidate": cand["metrics"], "control": ctrl["metrics"], "passive": passive,
-        "verdict": v, "pbo": {"pbo": pbo.pbo, "n_configs": pbo.n_configs,
-                              "median_logit": pbo.median_logit},
+        "verdict": v, "pbo": {"pbo": fam["pbo"], "n_configs": fam["n_configs"],
+                              "median_logit": fam["median_logit"], "winner": fam["winner"],
+                              "winner_dsr_in_family": fam["winner_dsr_in_family"]},
         "monte_carlo": mc_out, "trade_mix": dict(mix),
         "cost_sensitivity": cost_sensitivity,
         "universe": rep}, indent=2, default=str), encoding="utf-8")

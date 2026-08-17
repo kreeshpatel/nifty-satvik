@@ -75,3 +75,55 @@ def test_evaluate_overlay_gates_mechanized_and_fail_closed():
     for k in ("dCalmar", "subperiod_2022_dCAGR", "fold_pass_frac", "turnover_delta",
               "after_tax_cagr_base", "after_tax_cagr_cand"):     # mechanized fields are emitted
         assert k in res
+
+
+# ── adjudicate_family: PBO as the standing selection-robustness output ────────────────────────────
+# Hermetic — adjudicate_family reads only the {equity_curve} contract, so synthetic curves exercise
+# it without the engine. PBO answers "is the in-sample winner of this family also its OOS winner?":
+# pure noise -> the pick is a coin flip (PBO ~ 0.5); a genuinely dominant config -> the pick holds
+# out of sample (PBO ~ 0).
+
+def _bt_from_returns(r):
+    eq = 1_000_000.0 * np.cumprod(1.0 + np.asarray(r, dtype=float))
+    idx = pd.bdate_range("2015-01-01", periods=eq.size)
+    return {"equity_curve": [{"date": str(d.date()), "equity": float(e)} for d, e in zip(idx, eq)],
+            "metrics": {}, "trades": []}
+
+
+def _noise_family(k, n=520, mu=0.0, sigma=0.01):
+    return {f"c{j}": _bt_from_returns(np.random.default_rng(100 + j).normal(mu, sigma, n))
+            for j in range(k)}
+
+
+def test_adjudicate_family_pure_noise_selection_uninformative():
+    from nq.runner.research import adjudicate_family
+    # Mirror pbo.py's own calibration regime (1000 periods x 12 zero-drift configs, n_blocks=10),
+    # where PBO genuinely sits near the 0.5 coin flip. A smaller family is far noisier — that finite-
+    # sample behaviour is cscv_pbo's concern (test_pure_noise_gives_pbo_near_a_coin_flip), not the
+    # wrapper's; here we only confirm adjudicate_family threads the family through correctly.
+    res = adjudicate_family(_noise_family(12, n=1000), n_blocks=10, n_samples=400)
+    assert res["n_configs"] == 12 and res["n_periods"] == 999 and res["n_blocks"] == 10
+    assert 0.3 <= res["pbo"] <= 0.7                          # iid columns -> PBO near the 0.5 coin flip
+    assert res["selection_informative"] is (res["pbo"] < 0.5)
+    assert res["verdict"] in ("SELECTION-INFORMATIVE", "SELECTION-NOISE")
+    assert res["winner"] in res["labels"]
+    assert res["winner_dsr_in_family"] is None or 0.0 <= res["winner_dsr_in_family"] <= 1.0
+
+
+def test_adjudicate_family_dominant_config_is_informative():
+    from nq.runner.research import adjudicate_family
+    fam = _noise_family(4)                                   # four coin-flip configs...
+    fam["star"] = _bt_from_returns(np.random.default_rng(7).normal(0.003, 0.008, 520))  # ...one clear edge
+    res = adjudicate_family(fam, n_samples=400)
+    assert res["winner"] == "star"                          # highest full-sample Sharpe
+    assert res["selection_informative"] and res["pbo"] < 0.4  # the IS winner also wins OOS
+    assert res["verdict"] == "SELECTION-INFORMATIVE"
+
+
+def test_adjudicate_family_underpowered_paths():
+    from nq.runner.research import adjudicate_family
+    one = adjudicate_family({"only": _bt_from_returns(np.random.default_rng(1).normal(0, 0.01, 520))})
+    assert one["verdict"] == "UNDERPOWERED" and one["n_configs"] == 1   # PBO needs >= 2 configs
+    short = adjudicate_family({"a": _bt_from_returns(np.random.default_rng(2).normal(0, 0.01, 6)),
+                               "b": _bt_from_returns(np.random.default_rng(3).normal(0, 0.01, 6))})
+    assert short["verdict"] == "UNDERPOWERED"               # 6 periods < one CSCV split
