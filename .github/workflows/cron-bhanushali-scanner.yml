@@ -136,8 +136,11 @@ jobs:
         # Uses the COMMITTED _delivery_raw.parquet (covers the trailing dlv_med21 / 0139 windows); no
         # weekly scrape (a harvest_delivery top-up here proved fragile and non-essential — recent-week
         # tilts fall back to the committed delivery's staleness cap, which is neutral, not wrong).
-        run: python scripts/run_breadth50_paper.py --start "${{ github.event.inputs.breadth50_inception || '2026-08-16' }}"
-          || echo "::warning::breadth-50 forward log FAILED (exit $?) — observational book not updated"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download dataset-pin-20260729 --pattern _delivery_raw.parquet --pattern _earnings_raw.parquet --dir data --clobber || echo "::warning::pinned delivery/earnings fetch failed - breadth-50 arms degrade this run"
+          python scripts/run_breadth50_paper.py --start "${{ github.event.inputs.breadth50_inception || '2026-08-16' }}" || echo "::warning::breadth-50 forward log FAILED - book not updated"
       - name: Commit weekly paper state
         run: |
           # Author with the owner's GitHub-matched email so Vercel (auto-deploys main) doesn't
