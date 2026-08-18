@@ -1,115 +1,115 @@
 {
-  "generated_utc": "2026-08-17T11:01:34.381328+00:00",
-  "generated_ist": "2026-08-17 16:31",
-  "as_of": "2026-08-17",
+  "generated_utc": "2026-08-18T11:01:17.970815+00:00",
+  "generated_ist": "2026-08-18 16:31",
+  "as_of": "2026-08-18",
   "model": "weekly-swing-0094-rank-P",
   "source": "signals_today_weekly.json",
   "note": "OBSERVATIONAL re-pricing of the frozen Saturday weekly signals \u2014 live current_price + intra-week event flags mapped to the frozen exit tranches. Does NOT recompute signals or move any frozen level; the paper record is untouched and the weekly decision cadence is unchanged. ONLY the +2R target tranche (a resting broker limit) is actionable intra-week; the blow-off pattern and the 44w-SMA runner are decided ONLY at the Saturday weekly recompute and are flagged here as WATCH-only, never actionable.",
   "n_monitored": 22,
-  "n_flags": 5,
-  "n_actionable": 5,
+  "n_flags": 6,
+  "n_actionable": 6,
   "monitors": [
     {
       "ticker": "MCX",
       "kind": "buy",
-      "current_price": 2933.1,
+      "current_price": 3040.0,
       "frozen_price": 2961.0,
-      "sma20": 2764.03,
-      "as_of": "2026-08-17",
+      "sma20": 2775.97,
+      "as_of": "2026-08-18",
       "entry_low": 2603.2,
       "entry_high": 3023.7,
       "buy_window_until": "2026-08-21",
       "buy_window_open": true,
       "filled_today": true,
       "expired": false,
-      "today_open": 2913.1
+      "today_open": 2949.9
     },
     {
       "ticker": "IKS",
       "kind": "buy",
-      "current_price": 1830.2,
+      "current_price": 1861.6,
       "frozen_price": 1835.0,
-      "sma20": 1809.57,
-      "as_of": "2026-08-17",
+      "sma20": 1805.86,
+      "as_of": "2026-08-18",
       "entry_low": 1725.0,
       "entry_high": 1848.1,
       "buy_window_until": "2026-08-21",
       "buy_window_open": true,
-      "filled_today": false,
+      "filled_today": true,
       "expired": false,
-      "today_open": 1849.9
+      "today_open": 1830.2
     },
     {
       "ticker": "APLAPOLLO",
       "kind": "buy",
-      "current_price": 2081.3,
+      "current_price": 2115.0,
       "frozen_price": 2096.7,
-      "sma20": 1927.95,
-      "as_of": "2026-08-17",
+      "sma20": 1942.72,
+      "as_of": "2026-08-18",
       "entry_low": 1951.7,
       "entry_high": 2099.0,
       "buy_window_until": "2026-08-21",
       "buy_window_open": true,
       "filled_today": true,
       "expired": false,
-      "today_open": 2093.0
+      "today_open": 2082.0
     },
     {
       "ticker": "ADANIPORTS",
       "kind": "buy",
-      "current_price": 1691.0,
+      "current_price": 1682.4,
       "frozen_price": 1688.4,
-      "sma20": 1719.87,
-      "as_of": "2026-08-17",
+      "sma20": 1719.89,
+      "as_of": "2026-08-18",
       "entry_low": 1640.4,
       "entry_high": 1703.4,
       "buy_window_until": "2026-08-21",
       "buy_window_open": true,
       "filled_today": true,
       "expired": false,
-      "today_open": 1700.0
+      "today_open": 1691.6
     },
     {
       "ticker": "CCL",
       "kind": "buy",
-      "current_price": 1130.4,
+      "current_price": 1132.1,
       "frozen_price": 1135.0,
-      "sma20": 1156.54,
-      "as_of": "2026-08-17",
+      "sma20": 1152.89,
+      "as_of": "2026-08-18",
       "entry_low": 1116.2,
       "entry_high": 1149.9,
       "buy_window_until": "2026-08-21",
       "buy_window_open": true,
       "filled_today": true,
       "expired": false,
-      "today_open": 1144.4
+      "today_open": 1134.0
     },
     {
       "ticker": "INDUSINDBK",
       "kind": "hold",
-      "current_price": 1010.6,
+      "current_price": 1015.0,
       "frozen_price": 1013.4,
-      "sma20": 1020.57,
-      "as_of": "2026-08-17",
+      "sma20": 1017.13,
+      "as_of": "2026-08-18",
       "entry": 968.0,
       "stop": 908.1,
       "target": 1087.8,
-      "pnl_pct": 4.4,
-      "dist_to_stop_pct": 11.29,
-      "dist_to_target_pct": 7.64,
-      "r_multiple": 0.71,
+      "pnl_pct": 4.86,
+      "dist_to_stop_pct": 11.77,
+      "dist_to_target_pct": 7.17,
+      "r_multiple": 0.78,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 979.75,
+      "implied_trail_sma20": 976.44,
       "tranches": [
         {
           "type": "target",
           "pct": 40,
           "level": 1087.8,
           "actionable": false,
-          "status": "7.6% away",
+          "status": "7.2% away",
           "hit": false,
-          "dist_pct": 7.64
+          "dist_pct": 7.17
         },
         {
           "type": "pattern",
@@ -119,18 +119,18 @@
           "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
           "hit": false,
           "armed": false,
-          "r_multiple": 0.71,
-          "weak_close_today": true
+          "r_multiple": 0.78,
+          "weak_close_today": false
         },
         {
           "type": "runner",
           "pct": 20,
           "level": 897.92,
           "actionable": false,
-          "status": "+12.6% vs the 44w-SMA 897.92; hold the last 20% runner",
+          "status": "+13.0% vs the 44w-SMA 897.92; hold the last 20% runner",
           "hit": false,
           "below_sma": false,
-          "dist_pct": 12.55
+          "dist_pct": 13.04
         }
       ],
       "plan_tags": [
@@ -142,29 +142,29 @@
     {
       "ticker": "NESTLEIND",
       "kind": "hold",
-      "current_price": 1470.0,
+      "current_price": 1462.5,
       "frozen_price": 1480.3,
-      "sma20": 1497.91,
-      "as_of": "2026-08-17",
+      "sma20": 1498.44,
+      "as_of": "2026-08-18",
       "entry": 1450.13,
       "stop": 1374.89,
       "target": 1600.61,
-      "pnl_pct": 1.37,
-      "dist_to_stop_pct": 6.92,
-      "dist_to_target_pct": 8.89,
-      "r_multiple": 0.26,
+      "pnl_pct": 0.85,
+      "dist_to_stop_pct": 6.37,
+      "dist_to_target_pct": 9.44,
+      "r_multiple": 0.16,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 1437.99,
+      "implied_trail_sma20": 1438.5,
       "tranches": [
         {
           "type": "target",
           "pct": 40,
           "level": 1600.61,
           "actionable": false,
-          "status": "8.9% away",
+          "status": "9.4% away",
           "hit": false,
-          "dist_pct": 8.89
+          "dist_pct": 9.44
         },
         {
           "type": "pattern",
@@ -174,7 +174,7 @@
           "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
           "hit": false,
           "armed": false,
-          "r_multiple": 0.26,
+          "r_multiple": 0.16,
           "weak_close_today": true
         },
         {
@@ -182,10 +182,10 @@
           "pct": 20,
           "level": 1331.56,
           "actionable": false,
-          "status": "+10.4% vs the 44w-SMA 1331.56; hold the last 20% runner",
+          "status": "+9.8% vs the 44w-SMA 1331.56; hold the last 20% runner",
           "hit": false,
           "below_sma": false,
-          "dist_pct": 10.4
+          "dist_pct": 9.83
         }
       ],
       "plan_tags": [
@@ -197,29 +197,29 @@
     {
       "ticker": "CUB",
       "kind": "hold",
-      "current_price": 215.2,
+      "current_price": 222.18,
       "frozen_price": 210.47,
-      "sma20": 214.91,
-      "as_of": "2026-08-17",
+      "sma20": 214.63,
+      "as_of": "2026-08-18",
       "entry": 210.03,
       "stop": 197.35,
       "target": 235.39,
-      "pnl_pct": 2.46,
-      "dist_to_stop_pct": 9.04,
-      "dist_to_target_pct": 9.38,
-      "r_multiple": 0.41,
+      "pnl_pct": 5.78,
+      "dist_to_stop_pct": 12.58,
+      "dist_to_target_pct": 5.95,
+      "r_multiple": 0.96,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 206.31,
+      "implied_trail_sma20": 206.05,
       "tranches": [
         {
           "type": "target",
           "pct": 40,
           "level": 235.39,
           "actionable": false,
-          "status": "9.4% away",
+          "status": "6.0% away",
           "hit": false,
-          "dist_pct": 9.38
+          "dist_pct": 5.95
         },
         {
           "type": "pattern",
@@ -229,7 +229,7 @@
           "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
           "hit": false,
           "armed": false,
-          "r_multiple": 0.41,
+          "r_multiple": 0.96,
           "weak_close_today": false
         },
         {
@@ -237,10 +237,10 @@
           "pct": 20,
           "level": 199.85,
           "actionable": false,
-          "status": "+7.7% vs the 44w-SMA 199.85; hold the last 20% runner",
+          "status": "+11.2% vs the 44w-SMA 199.85; hold the last 20% runner",
           "hit": false,
           "below_sma": false,
-          "dist_pct": 7.68
+          "dist_pct": 11.17
         }
       ],
       "plan_tags": [
@@ -252,29 +252,29 @@
     {
       "ticker": "LTF",
       "kind": "hold",
-      "current_price": 315.0,
+      "current_price": 325.1,
       "frozen_price": 313.1,
-      "sma20": 311.28,
-      "as_of": "2026-08-17",
+      "sma20": 312.47,
+      "as_of": "2026-08-18",
       "entry": 314.75,
       "stop": 297.5,
       "target": 349.25,
-      "pnl_pct": 0.08,
-      "dist_to_stop_pct": 5.88,
-      "dist_to_target_pct": 10.87,
-      "r_multiple": 0.01,
+      "pnl_pct": 3.29,
+      "dist_to_stop_pct": 9.28,
+      "dist_to_target_pct": 7.43,
+      "r_multiple": 0.6,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 298.83,
+      "implied_trail_sma20": 299.97,
       "tranches": [
         {
           "type": "target",
           "pct": 40,
           "level": 349.25,
           "actionable": false,
-          "status": "10.9% away",
+          "status": "7.4% away",
           "hit": false,
-          "dist_pct": 10.87
+          "dist_pct": 7.43
         },
         {
           "type": "pattern",
@@ -284,7 +284,7 @@
           "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
           "hit": false,
           "armed": false,
-          "r_multiple": 0.01,
+          "r_multiple": 0.6,
           "weak_close_today": false
         },
         {
@@ -292,10 +292,10 @@
           "pct": 20,
           "level": 288.61,
           "actionable": false,
-          "status": "+9.1% vs the 44w-SMA 288.61; hold the last 20% runner",
+          "status": "+12.6% vs the 44w-SMA 288.61; hold the last 20% runner",
           "hit": false,
           "below_sma": false,
-          "dist_pct": 9.14
+          "dist_pct": 12.64
         }
       ],
       "plan_tags": [
@@ -307,20 +307,20 @@
     {
       "ticker": "BAJAJ-AUTO",
       "kind": "hold",
-      "current_price": 11663.0,
+      "current_price": 11607.0,
       "frozen_price": 11752.0,
-      "sma20": 11416.08,
-      "as_of": "2026-08-17",
+      "sma20": 11526.15,
+      "as_of": "2026-08-18",
       "entry": 10080.0,
       "stop": 9785.5,
       "target": 10669.0,
-      "pnl_pct": 15.7,
-      "dist_to_stop_pct": 19.19,
-      "dist_to_target_pct": -8.52,
-      "r_multiple": 5.38,
+      "pnl_pct": 15.15,
+      "dist_to_stop_pct": 18.61,
+      "dist_to_target_pct": -8.08,
+      "r_multiple": 5.19,
       "stop_breached": false,
       "target_reached": true,
-      "implied_trail_sma20": 10959.43,
+      "implied_trail_sma20": 11065.1,
       "tranches": [
         {
           "type": "target",
@@ -329,7 +329,7 @@
           "actionable": true,
           "status": "reached \u2014 your resting limit to sell 40% should fill",
           "hit": true,
-          "dist_pct": -8.52
+          "dist_pct": -8.08
         },
         {
           "type": "pattern",
@@ -339,7 +339,7 @@
           "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
           "hit": false,
           "armed": false,
-          "r_multiple": 5.38,
+          "r_multiple": 5.19,
           "weak_close_today": true
         },
         {
@@ -347,10 +347,10 @@
           "pct": 20,
           "level": 9713.02,
           "actionable": false,
-          "status": "+20.1% vs the 44w-SMA 9713.02; hold the last 20% runner",
+          "status": "+19.5% vs the 44w-SMA 9713.02; hold the last 20% runner",
           "hit": false,
           "below_sma": false,
-          "dist_pct": 20.08
+          "dist_pct": 19.5
         }
       ],
       "plan_tags": [
@@ -362,29 +362,29 @@
     {
       "ticker": "BIOCON",
       "kind": "hold",
-      "current_price": 412.0,
+      "current_price": 417.5,
       "frozen_price": 412.05,
-      "sma20": 428.72,
-      "as_of": "2026-08-17",
+      "sma20": 427.04,
+      "as_of": "2026-08-18",
       "entry": 440.4,
       "stop": 402.7,
       "target": 515.8,
-      "pnl_pct": -6.45,
-      "dist_to_stop_pct": 2.31,
-      "dist_to_target_pct": 25.19,
-      "r_multiple": -0.75,
+      "pnl_pct": -5.2,
+      "dist_to_stop_pct": 3.68,
+      "dist_to_target_pct": 23.54,
+      "r_multiple": -0.61,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 411.57,
+      "implied_trail_sma20": 409.96,
       "tranches": [
         {
           "type": "target",
           "pct": 40,
           "level": 515.8,
           "actionable": false,
-          "status": "25.2% away",
+          "status": "23.5% away",
           "hit": false,
-          "dist_pct": 25.19
+          "dist_pct": 23.54
         },
         {
           "type": "pattern",
@@ -394,18 +394,18 @@
           "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
           "hit": false,
           "armed": false,
-          "r_multiple": -0.75,
-          "weak_close_today": true
+          "r_multiple": -0.61,
+          "weak_close_today": false
         },
         {
           "type": "runner",
           "pct": 20,
           "level": 393.15,
           "actionable": false,
-          "status": "+4.8% vs the 44w-SMA 393.15; hold the last 20% runner",
+          "status": "+6.2% vs the 44w-SMA 393.15; hold the last 20% runner",
           "hit": false,
           "below_sma": false,
-          "dist_pct": 4.79
+          "dist_pct": 6.19
         }
       ],
       "plan_tags": [
@@ -417,29 +417,29 @@
     {
       "ticker": "SIEMENS",
       "kind": "hold",
-      "current_price": 3943.0,
+      "current_price": 3957.0,
       "frozen_price": 3935.3,
-      "sma20": 3827.06,
-      "as_of": "2026-08-17",
+      "sma20": 3847.4,
+      "as_of": "2026-08-18",
       "entry": 3633.15,
       "stop": 3420.19,
       "target": 4059.05,
-      "pnl_pct": 8.53,
-      "dist_to_stop_pct": 15.29,
-      "dist_to_target_pct": 2.94,
-      "r_multiple": 1.45,
+      "pnl_pct": 8.91,
+      "dist_to_stop_pct": 15.7,
+      "dist_to_target_pct": 2.58,
+      "r_multiple": 1.52,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 3673.98,
+      "implied_trail_sma20": 3693.5,
       "tranches": [
         {
           "type": "target",
           "pct": 40,
           "level": 4059.05,
           "actionable": false,
-          "status": "2.9% away",
+          "status": "2.6% away",
           "hit": false,
-          "dist_pct": 2.94
+          "dist_pct": 2.58
         },
         {
           "type": "pattern",
@@ -449,18 +449,18 @@
           "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
           "hit": false,
           "armed": false,
-          "r_multiple": 1.45,
-          "weak_close_today": false
+          "r_multiple": 1.52,
+          "weak_close_today": true
         },
         {
           "type": "runner",
           "pct": 20,
           "level": 3384.55,
           "actionable": false,
-          "status": "+16.5% vs the 44w-SMA 3384.55; hold the last 20% runner",
+          "status": "+16.9% vs the 44w-SMA 3384.55; hold the last 20% runner",
           "hit": false,
           "below_sma": false,
-          "dist_pct": 16.5
+          "dist_pct": 16.91
         }
       ],
       "plan_tags": [
@@ -472,29 +472,29 @@
     {
       "ticker": "MRPL",
       "kind": "hold",
-      "current_price": 177.15,
+      "current_price": 177.44,
       "frozen_price": 173.68,
-      "sma20": 170.51,
-      "as_of": "2026-08-17",
+      "sma20": 170.57,
+      "as_of": "2026-08-18",
       "entry": 172.0,
       "stop": 156.15,
       "target": 203.7,
-      "pnl_pct": 2.99,
-      "dist_to_stop_pct": 13.45,
-      "dist_to_target_pct": 14.99,
-      "r_multiple": 0.32,
+      "pnl_pct": 3.16,
+      "dist_to_stop_pct": 13.63,
+      "dist_to_target_pct": 14.8,
+      "r_multiple": 0.34,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 163.69,
+      "implied_trail_sma20": 163.74,
       "tranches": [
         {
           "type": "target",
           "pct": 40,
           "level": 203.7,
           "actionable": false,
-          "status": "15.0% away",
+          "status": "14.8% away",
           "hit": false,
-          "dist_pct": 14.99
+          "dist_pct": 14.8
         },
         {
           "type": "pattern",
@@ -504,18 +504,18 @@
           "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
           "hit": false,
           "armed": false,
-          "r_multiple": 0.32,
-          "weak_close_today": false
+          "r_multiple": 0.34,
+          "weak_close_today": true
         },
         {
           "type": "runner",
           "pct": 20,
           "level": 165.12,
           "actionable": false,
-          "status": "+7.3% vs the 44w-SMA 165.12; hold the last 20% runner",
+          "status": "+7.5% vs the 44w-SMA 165.12; hold the last 20% runner",
           "hit": false,
           "below_sma": false,
-          "dist_pct": 7.29
+          "dist_pct": 7.46
         }
       ],
       "plan_tags": [
@@ -527,29 +527,29 @@
     {
       "ticker": "HEG",
       "kind": "hold",
-      "current_price": 698.3,
+      "current_price": 739.25,
       "frozen_price": 704.6,
-      "sma20": 660.29,
-      "as_of": "2026-08-17",
+      "sma20": 670.49,
+      "as_of": "2026-08-18",
       "entry": 650.0,
       "stop": 585.0,
       "target": 780.0,
-      "pnl_pct": 7.43,
-      "dist_to_stop_pct": 19.37,
-      "dist_to_target_pct": 11.7,
-      "r_multiple": 0.74,
+      "pnl_pct": 13.73,
+      "dist_to_stop_pct": 26.37,
+      "dist_to_target_pct": 5.51,
+      "r_multiple": 1.37,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 633.88,
+      "implied_trail_sma20": 643.67,
       "tranches": [
         {
           "type": "target",
           "pct": 40,
           "level": 780.0,
           "actionable": false,
-          "status": "11.7% away",
+          "status": "5.5% away",
           "hit": false,
-          "dist_pct": 11.7
+          "dist_pct": 5.51
         },
         {
           "type": "pattern",
@@ -559,18 +559,18 @@
           "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
           "hit": false,
           "armed": false,
-          "r_multiple": 0.74,
-          "weak_close_today": true
+          "r_multiple": 1.37,
+          "weak_close_today": false
         },
         {
           "type": "runner",
           "pct": 20,
           "level": 565.75,
           "actionable": false,
-          "status": "+23.4% vs the 44w-SMA 565.75; hold the last 20% runner",
+          "status": "+30.7% vs the 44w-SMA 565.75; hold the last 20% runner",
           "hit": false,
           "below_sma": false,
-          "dist_pct": 23.43
+          "dist_pct": 30.67
         }
       ],
       "plan_tags": [
@@ -582,29 +582,29 @@
     {
       "ticker": "M&MFIN",
       "kind": "hold",
-      "current_price": 388.9,
+      "current_price": 386.2,
       "frozen_price": 388.5,
-      "sma20": 384.11,
-      "as_of": "2026-08-17",
+      "sma20": 384.52,
+      "as_of": "2026-08-18",
       "entry": 361.0,
       "stop": 324.9,
       "target": 433.2,
-      "pnl_pct": 7.73,
-      "dist_to_stop_pct": 19.7,
-      "dist_to_target_pct": 11.39,
-      "r_multiple": 0.77,
+      "pnl_pct": 6.98,
+      "dist_to_stop_pct": 18.87,
+      "dist_to_target_pct": 12.17,
+      "r_multiple": 0.7,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 368.75,
+      "implied_trail_sma20": 369.14,
       "tranches": [
         {
           "type": "target",
           "pct": 40,
           "level": 433.2,
           "actionable": false,
-          "status": "11.4% away",
+          "status": "12.2% away",
           "hit": false,
-          "dist_pct": 11.39
+          "dist_pct": 12.17
         },
         {
           "type": "pattern",
@@ -614,7 +614,7 @@
           "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
           "hit": false,
           "armed": false,
-          "r_multiple": 0.77,
+          "r_multiple": 0.7,
           "weak_close_today": true
         },
         {
@@ -622,10 +622,10 @@
           "pct": 20,
           "level": 333.67,
           "actionable": false,
-          "status": "+16.6% vs the 44w-SMA 333.67; hold the last 20% runner",
+          "status": "+15.7% vs the 44w-SMA 333.67; hold the last 20% runner",
           "hit": false,
           "below_sma": false,
-          "dist_pct": 16.55
+          "dist_pct": 15.74
         }
       ],
       "plan_tags": [
@@ -637,29 +637,29 @@
     {
       "ticker": "TVSMOTOR",
       "kind": "hold",
-      "current_price": 4385.9,
+      "current_price": 4356.8,
       "frozen_price": 4376.5,
-      "sma20": 4176.51,
-      "as_of": "2026-08-17",
+      "sma20": 4200.37,
+      "as_of": "2026-08-18",
       "entry": 3905.0,
       "stop": 3550.1,
       "target": 4614.8,
-      "pnl_pct": 12.31,
-      "dist_to_stop_pct": 23.54,
-      "dist_to_target_pct": 5.22,
-      "r_multiple": 1.36,
+      "pnl_pct": 11.57,
+      "dist_to_stop_pct": 22.72,
+      "dist_to_target_pct": 5.92,
+      "r_multiple": 1.27,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 4009.44,
+      "implied_trail_sma20": 4032.35,
       "tranches": [
         {
           "type": "target",
           "pct": 40,
           "level": 4614.8,
           "actionable": false,
-          "status": "5.2% away",
+          "status": "5.9% away",
           "hit": false,
-          "dist_pct": 5.22
+          "dist_pct": 5.92
         },
         {
           "type": "pattern",
@@ -669,18 +669,18 @@
           "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
           "hit": false,
           "armed": false,
-          "r_multiple": 1.36,
-          "weak_close_today": false
+          "r_multiple": 1.27,
+          "weak_close_today": true
         },
         {
           "type": "runner",
           "pct": 20,
           "level": 3655.72,
           "actionable": false,
-          "status": "+20.0% vs the 44w-SMA 3655.72; hold the last 20% runner",
+          "status": "+19.2% vs the 44w-SMA 3655.72; hold the last 20% runner",
           "hit": false,
           "below_sma": false,
-          "dist_pct": 19.97
+          "dist_pct": 19.18
         }
       ],
       "plan_tags": [
@@ -692,29 +692,29 @@
     {
       "ticker": "GVT&D",
       "kind": "hold",
-      "current_price": 4290.0,
+      "current_price": 4195.0,
       "frozen_price": 4336.1,
-      "sma20": 4314.41,
-      "as_of": "2026-08-17",
+      "sma20": 4299.8,
+      "as_of": "2026-08-18",
       "entry": 4323.0,
       "stop": 3962.2,
       "target": 5044.6,
-      "pnl_pct": -0.76,
-      "dist_to_stop_pct": 8.27,
-      "dist_to_target_pct": 17.59,
-      "r_multiple": -0.09,
+      "pnl_pct": -2.96,
+      "dist_to_stop_pct": 5.88,
+      "dist_to_target_pct": 20.25,
+      "r_multiple": -0.35,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 4141.84,
+      "implied_trail_sma20": 4127.81,
       "tranches": [
         {
           "type": "target",
           "pct": 40,
           "level": 5044.6,
           "actionable": false,
-          "status": "17.6% away",
+          "status": "20.2% away",
           "hit": false,
-          "dist_pct": 17.59
+          "dist_pct": 20.25
         },
         {
           "type": "pattern",
@@ -724,7 +724,7 @@
           "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
           "hit": false,
           "armed": false,
-          "r_multiple": -0.09,
+          "r_multiple": -0.35,
           "weak_close_today": true
         },
         {
@@ -732,10 +732,10 @@
           "pct": 20,
           "level": 3847.47,
           "actionable": false,
-          "status": "+11.5% vs the 44w-SMA 3847.47; hold the last 20% runner",
+          "status": "+9.0% vs the 44w-SMA 3847.47; hold the last 20% runner",
           "hit": false,
           "below_sma": false,
-          "dist_pct": 11.5
+          "dist_pct": 9.03
         }
       ],
       "plan_tags": [
@@ -747,29 +747,29 @@
     {
       "ticker": "ENGINERSIN",
       "kind": "hold",
-      "current_price": 240.18,
+      "current_price": 244.78,
       "frozen_price": 240.13,
-      "sma20": 232.94,
-      "as_of": "2026-08-17",
+      "sma20": 233.41,
+      "as_of": "2026-08-18",
       "entry": 240.6,
       "stop": 222.38,
       "target": 277.04,
-      "pnl_pct": -0.17,
-      "dist_to_stop_pct": 8.0,
-      "dist_to_target_pct": 15.35,
-      "r_multiple": -0.02,
+      "pnl_pct": 1.74,
+      "dist_to_stop_pct": 10.07,
+      "dist_to_target_pct": 13.18,
+      "r_multiple": 0.23,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 223.62,
+      "implied_trail_sma20": 224.07,
       "tranches": [
         {
           "type": "target",
           "pct": 40,
           "level": 277.04,
           "actionable": false,
-          "status": "15.3% away",
+          "status": "13.2% away",
           "hit": false,
-          "dist_pct": 15.35
+          "dist_pct": 13.18
         },
         {
           "type": "pattern",
@@ -779,18 +779,18 @@
           "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
           "hit": false,
           "armed": false,
-          "r_multiple": -0.02,
-          "weak_close_today": true
+          "r_multiple": 0.23,
+          "weak_close_today": false
         },
         {
           "type": "runner",
           "pct": 20,
           "level": 214.18,
           "actionable": false,
-          "status": "+12.1% vs the 44w-SMA 214.18; hold the last 20% runner",
+          "status": "+14.3% vs the 44w-SMA 214.18; hold the last 20% runner",
           "hit": false,
           "below_sma": false,
-          "dist_pct": 12.14
+          "dist_pct": 14.29
         }
       ],
       "plan_tags": [
@@ -802,29 +802,29 @@
     {
       "ticker": "GRAPHITE",
       "kind": "hold",
-      "current_price": 729.5,
+      "current_price": 737.15,
       "frozen_price": 734.3,
-      "sma20": 687.58,
-      "as_of": "2026-08-17",
+      "sma20": 693.62,
+      "as_of": "2026-08-18",
       "entry": 710.0,
       "stop": 654.35,
       "target": 821.3,
-      "pnl_pct": 2.75,
-      "dist_to_stop_pct": 11.48,
-      "dist_to_target_pct": 12.58,
-      "r_multiple": 0.35,
+      "pnl_pct": 3.82,
+      "dist_to_stop_pct": 12.65,
+      "dist_to_target_pct": 11.42,
+      "r_multiple": 0.49,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 660.08,
+      "implied_trail_sma20": 665.88,
       "tranches": [
         {
           "type": "target",
           "pct": 40,
           "level": 821.3,
           "actionable": false,
-          "status": "12.6% away",
+          "status": "11.4% away",
           "hit": false,
-          "dist_pct": 12.58
+          "dist_pct": 11.42
         },
         {
           "type": "pattern",
@@ -834,7 +834,7 @@
           "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
           "hit": false,
           "armed": false,
-          "r_multiple": 0.35,
+          "r_multiple": 0.49,
           "weak_close_today": false
         },
         {
@@ -842,10 +842,10 @@
           "pct": 20,
           "level": 638.6,
           "actionable": false,
-          "status": "+14.2% vs the 44w-SMA 638.6; hold the last 20% runner",
+          "status": "+15.4% vs the 44w-SMA 638.6; hold the last 20% runner",
           "hit": false,
           "below_sma": false,
-          "dist_pct": 14.23
+          "dist_pct": 15.43
         }
       ],
       "plan_tags": [
@@ -857,29 +857,29 @@
     {
       "ticker": "UNIONBANK",
       "kind": "hold",
-      "current_price": 188.9,
+      "current_price": 185.5,
       "frozen_price": 189.24,
-      "sma20": 177.24,
-      "as_of": "2026-08-17",
+      "sma20": 177.03,
+      "as_of": "2026-08-18",
       "entry": 183.69,
       "stop": 171.4,
       "target": 208.27,
-      "pnl_pct": 2.84,
-      "dist_to_stop_pct": 10.21,
-      "dist_to_target_pct": 10.25,
-      "r_multiple": 0.42,
+      "pnl_pct": 0.99,
+      "dist_to_stop_pct": 8.23,
+      "dist_to_target_pct": 12.27,
+      "r_multiple": 0.15,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 170.15,
+      "implied_trail_sma20": 169.95,
       "tranches": [
         {
           "type": "target",
           "pct": 40,
           "level": 208.27,
           "actionable": false,
-          "status": "10.2% away",
+          "status": "12.3% away",
           "hit": false,
-          "dist_pct": 10.25
+          "dist_pct": 12.27
         },
         {
           "type": "pattern",
@@ -889,18 +889,18 @@
           "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
           "hit": false,
           "armed": false,
-          "r_multiple": 0.42,
-          "weak_close_today": false
+          "r_multiple": 0.15,
+          "weak_close_today": true
         },
         {
           "type": "runner",
           "pct": 20,
           "level": 165.68,
           "actionable": false,
-          "status": "+14.0% vs the 44w-SMA 165.68; hold the last 20% runner",
+          "status": "+12.0% vs the 44w-SMA 165.68; hold the last 20% runner",
           "hit": false,
           "below_sma": false,
-          "dist_pct": 14.01
+          "dist_pct": 11.96
         }
       ],
       "plan_tags": [
@@ -912,29 +912,29 @@
     {
       "ticker": "PTCIL",
       "kind": "hold",
-      "current_price": 20584.0,
+      "current_price": 19791.0,
       "frozen_price": 20340.0,
-      "sma20": 18411.6,
-      "as_of": "2026-08-17",
+      "sma20": 18499.65,
+      "as_of": "2026-08-18",
       "entry": 19299.0,
       "stop": 17776.0,
       "target": 22345.0,
-      "pnl_pct": 6.66,
-      "dist_to_stop_pct": 15.8,
-      "dist_to_target_pct": 8.56,
-      "r_multiple": 0.84,
+      "pnl_pct": 2.55,
+      "dist_to_stop_pct": 11.34,
+      "dist_to_target_pct": 12.9,
+      "r_multiple": 0.32,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 17675.14,
+      "implied_trail_sma20": 17759.66,
       "tranches": [
         {
           "type": "target",
           "pct": 40,
           "level": 22345.0,
           "actionable": false,
-          "status": "8.6% away",
+          "status": "12.9% away",
           "hit": false,
-          "dist_pct": 8.56
+          "dist_pct": 12.9
         },
         {
           "type": "pattern",
@@ -944,18 +944,18 @@
           "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
           "hit": false,
           "armed": false,
-          "r_multiple": 0.84,
-          "weak_close_today": false
+          "r_multiple": 0.32,
+          "weak_close_today": true
         },
         {
           "type": "runner",
           "pct": 20,
           "level": 17496.8,
           "actionable": false,
-          "status": "+17.6% vs the 44w-SMA 17496.8; hold the last 20% runner",
+          "status": "+13.1% vs the 44w-SMA 17496.8; hold the last 20% runner",
           "hit": false,
           "below_sma": false,
-          "dist_pct": 17.64
+          "dist_pct": 13.11
         }
       ],
       "plan_tags": [
@@ -967,29 +967,29 @@
     {
       "ticker": "HINDALCO",
       "kind": "hold",
-      "current_price": 1049.9,
+      "current_price": 1041.6,
       "frozen_price": 1046.85,
-      "sma20": 1000.55,
-      "as_of": "2026-08-17",
+      "sma20": 1006.39,
+      "as_of": "2026-08-18",
       "entry": 1053.4,
       "stop": 981.35,
       "target": 1197.5,
-      "pnl_pct": -0.33,
-      "dist_to_stop_pct": 6.99,
-      "dist_to_target_pct": 14.06,
-      "r_multiple": -0.05,
+      "pnl_pct": -1.12,
+      "dist_to_stop_pct": 6.14,
+      "dist_to_target_pct": 14.97,
+      "r_multiple": -0.16,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 960.53,
+      "implied_trail_sma20": 966.13,
       "tranches": [
         {
           "type": "target",
           "pct": 40,
           "level": 1197.5,
           "actionable": false,
-          "status": "14.1% away",
+          "status": "15.0% away",
           "hit": false,
-          "dist_pct": 14.06
+          "dist_pct": 14.97
         },
         {
           "type": "pattern",
@@ -999,18 +999,18 @@
           "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
           "hit": false,
           "armed": false,
-          "r_multiple": -0.05,
-          "weak_close_today": false
+          "r_multiple": -0.16,
+          "weak_close_today": true
         },
         {
           "type": "runner",
           "pct": 20,
           "level": 941.95,
           "actionable": false,
-          "status": "+11.5% vs the 44w-SMA 941.95; hold the last 20% runner",
+          "status": "+10.6% vs the 44w-SMA 941.95; hold the last 20% runner",
           "hit": false,
           "below_sma": false,
-          "dist_pct": 11.46
+          "dist_pct": 10.58
         }
       ],
       "plan_tags": [
@@ -1025,35 +1025,41 @@
       "ticker": "MCX",
       "event": "FILLED_TODAY",
       "severity": "action",
-      "message": "MCX opened 2913.10 inside the band [2603.20, 3023.70] \u2014 buyable at today's open"
+      "message": "MCX opened 2949.90 inside the band [2603.20, 3023.70] \u2014 buyable at today's open"
+    },
+    {
+      "ticker": "IKS",
+      "event": "FILLED_TODAY",
+      "severity": "action",
+      "message": "IKS opened 1830.20 inside the band [1725.00, 1848.10] \u2014 buyable at today's open"
     },
     {
       "ticker": "APLAPOLLO",
       "event": "FILLED_TODAY",
       "severity": "action",
-      "message": "APLAPOLLO opened 2093.00 inside the band [1951.70, 2099.00] \u2014 buyable at today's open"
+      "message": "APLAPOLLO opened 2082.00 inside the band [1951.70, 2099.00] \u2014 buyable at today's open"
     },
     {
       "ticker": "ADANIPORTS",
       "event": "FILLED_TODAY",
       "severity": "action",
-      "message": "ADANIPORTS opened 1700.00 inside the band [1640.40, 1703.40] \u2014 buyable at today's open"
+      "message": "ADANIPORTS opened 1691.60 inside the band [1640.40, 1703.40] \u2014 buyable at today's open"
     },
     {
       "ticker": "CCL",
       "event": "FILLED_TODAY",
       "severity": "action",
-      "message": "CCL opened 1144.40 inside the band [1116.20, 1149.90] \u2014 buyable at today's open"
+      "message": "CCL opened 1134.00 inside the band [1116.20, 1149.90] \u2014 buyable at today's open"
     },
     {
       "ticker": "BAJAJ-AUTO",
       "event": "TRANCHE_TARGET_2R",
       "severity": "action",
-      "message": "BAJAJ-AUTO: +2R target 10669.0 reached (last 11663.00) \u2014 your resting limit to sell 40% should fill (intra-week OK)."
+      "message": "BAJAJ-AUTO: +2R target 10669.0 reached (last 11607.00) \u2014 your resting limit to sell 40% should fill (intra-week OK)."
     }
   ],
   "scheduler_health": {
-    "checked_utc": "2026-08-17T11:01:34.383493+00:00",
+    "checked_utc": "2026-08-18T11:01:17.973170+00:00",
     "overall": "CONTRACT_BREACH",
     "source_of_truth": "actions-run-log",
     "jobs": [
@@ -1067,7 +1073,7 @@
         "last_fired_utc": "2026-08-01T14:05:07+00:00",
         "artifact_last_utc": "2026-08-17T00:00:00+00:00",
         "artifact_corroborates": false,
-        "age_days": 15.87,
+        "age_days": 16.87,
         "overdue_after_days": 9,
         "status": "OVERDUE"
       },
@@ -1077,11 +1083,11 @@
         "cadence": "weekday",
         "proof": "forward_accum_health.json",
         "source": "run-log",
-        "run_id": 31796153598,
-        "last_fired_utc": "2026-08-14T11:25:29+00:00",
-        "artifact_last_utc": "2026-08-14T11:26:19+00:00",
+        "run_id": 32022876754,
+        "last_fired_utc": "2026-08-17T11:00:52+00:00",
+        "artifact_last_utc": "2026-08-17T11:01:37+00:00",
         "artifact_corroborates": true,
-        "age_days": 2.98,
+        "age_days": 1.0,
         "overdue_after_days": 5,
         "status": "OK"
       },
@@ -1093,9 +1099,9 @@
         "source": "run-log",
         "run_id": 30703039244,
         "last_fired_utc": "2026-08-01T14:05:07+00:00",
-        "artifact_last_utc": "2026-08-17T11:01:01.004281+00:00",
+        "artifact_last_utc": "2026-08-18T11:00:43.191288+00:00",
         "artifact_corroborates": false,
-        "age_days": 15.87,
+        "age_days": 16.87,
         "overdue_after_days": 9,
         "status": "OVERDUE"
       },
@@ -1107,9 +1113,9 @@
         "source": "run-log",
         "run_id": 30703039244,
         "last_fired_utc": "2026-08-01T14:05:07+00:00",
-        "artifact_last_utc": "2026-08-17T11:01:01.000818+00:00",
+        "artifact_last_utc": "2026-08-18T11:00:43.187470+00:00",
         "artifact_corroborates": false,
-        "age_days": 15.87,
+        "age_days": 16.87,
         "overdue_after_days": 9,
         "status": "OVERDUE"
       },
@@ -1119,11 +1125,11 @@
         "cadence": "weekday",
         "proof": "intraday_scan",
         "source": "run-log",
-        "run_id": 31797745562,
-        "last_fired_utc": "2026-08-14T11:49:10+00:00",
-        "artifact_last_utc": "2026-08-17T11:01:01.002113+00:00",
+        "run_id": 32025315514,
+        "last_fired_utc": "2026-08-17T11:31:16+00:00",
+        "artifact_last_utc": "2026-08-18T11:00:43.188874+00:00",
         "artifact_corroborates": false,
-        "age_days": 2.97,
+        "age_days": 0.98,
         "overdue_after_days": 5,
         "status": "OK"
       },
@@ -1133,11 +1139,11 @@
         "cadence": "weekday",
         "proof": "paper_portfolio.json",
         "source": "run-log",
-        "run_id": 31808038182,
-        "last_fired_utc": "2026-08-14T14:08:19+00:00",
-        "artifact_last_utc": "2026-08-17T11:01:01.002740+00:00",
+        "run_id": 32035595460,
+        "last_fired_utc": "2026-08-17T13:31:40+00:00",
+        "artifact_last_utc": "2026-08-18T11:00:43.190188+00:00",
         "artifact_corroborates": false,
-        "age_days": 2.87,
+        "age_days": 0.9,
         "overdue_after_days": 5,
         "status": "OK"
       }
@@ -1146,11 +1152,11 @@
     "note": "Dead-man reconstruction produced by the daily monitor (the proven weekday heartbeat). Firing truth is the Actions run log; committed artifacts corroborate only. If THIS block's checked_utc is itself stale, the monitor has stopped and every downstream freshness claim is suspect.",
     "output_contracts": {
       "overall": "RED",
-      "checked_at": "2026-08-17T11:01:36.782352+00:00",
+      "checked_at": "2026-08-18T11:01:19.873793+00:00",
       "history": {
         "adequate": true,
         "shallow": false,
-        "n_commits": 633,
+        "n_commits": 637,
         "oldest_commit": "2026-06-29T03:34:14+05:30",
         "reaches_back_past_cadence": true
       },
@@ -1160,7 +1166,7 @@
           "status": "OK",
           "last_commit": "1f177d13",
           "committed_at": "2026-08-17T07:36:41Z",
-          "age_days": 0.14,
+          "age_days": 1.14,
           "missing_required": [],
           "missing_conditional": [],
           "n_paths_in_commit": 23
@@ -1168,9 +1174,9 @@
         {
           "job": "forward-accumulators",
           "status": "OK",
-          "last_commit": "8242cc9a",
-          "committed_at": "2026-08-14T11:26:22Z",
-          "age_days": 2.98,
+          "last_commit": "63c13848",
+          "committed_at": "2026-08-17T11:01:40Z",
+          "age_days": 1.0,
           "missing_required": [],
           "missing_conditional": [],
           "n_paths_in_commit": 4
@@ -1180,7 +1186,7 @@
           "status": "STALE",
           "last_commit": "141c7801",
           "committed_at": "2026-08-10T10:07:54Z",
-          "age_days": 7.04,
+          "age_days": 8.04,
           "missing_required": [],
           "missing_conditional": [],
           "n_paths_in_commit": 1
@@ -1188,23 +1194,22 @@
         {
           "job": "forward-wall-log",
           "status": "OK_WITH_WARN",
-          "last_commit": "b4e857b1",
-          "committed_at": "2026-08-14T14:10:26Z",
-          "age_days": 2.87,
+          "last_commit": "b08ed756",
+          "committed_at": "2026-08-17T13:35:48Z",
+          "age_days": 0.89,
           "missing_required": [],
           "missing_conditional": [
             "results/forward_wall_start.json",
-            "results/forward_wall.csv",
             "results/scheduler_health.json"
           ],
-          "n_paths_in_commit": 2
+          "n_paths_in_commit": 10
         }
       ],
       "breaches": [
-        "intraday-scan: last cron commit is 7.0d old (cadence 5d)"
+        "intraday-scan: last cron commit is 8.0d old (cadence 5d)"
       ],
       "warnings": [
-        "forward-wall-log: conditional artifact(s) not persisted: results/forward_wall_start.json, results/forward_wall.csv, results/scheduler_health.json"
+        "forward-wall-log: conditional artifact(s) not persisted: results/forward_wall_start.json, results/scheduler_health.json"
       ],
       "indeterminate": [],
       "_standard": "the commit diff is the receipt \u2014 a green workflow that persisted nothing is red here"
