@@ -55,6 +55,16 @@ REFERENCE = DATA_DIR / "raw_close_reference.parquet"
 # smallest seam on the register (UPL, ×1.0425) is eight times larger than it.
 STEP_TOL = 0.005
 
+# DETECTION stays size-free (``check_adjustment_monotonicity`` still flags every seam, however small).
+# This bound governs only the HALT decision in ``assert_no_new_seams`` (see its docstring): a NEW,
+# unregistered seam is AUTO-TOLERATED (warned + recorded, not halted) when it is provably harmless —
+# BELOW this factor **and** outside the trailing live window **and** not on a held name. The recurring
+# upstream defect is yfinance re-adjusting one dividend-paying name at a time by a dividend-sized step;
+# every such seam observed sits in [1.0087 .. 1.0884], while every real split/bonus on the register is
+# ≥ 1.25, so 1.10 separates the benign dividend class from a corporate action cleanly with margin. A
+# seam at or above it still HALTS even when old and unheld — a large step wants a human look.
+BENIGN_FACTOR_MAX = 1.10
+
 # THE REGISTER — a ledger of every monotonicity violation known to be in the cache, not a
 # suppression list. The guard prints every seam it finds on every run whether or not it is here;
 # registration only decides whether the build HALTS. Entries are REMOVED as they are repaired, and
@@ -156,6 +166,7 @@ class SeamReport:
     overall: str                                    # OK | WARN | RED | INDETERMINATE
     seams: list[dict] = field(default_factory=list)          # every monotonicity violation
     new_seams: list[dict] = field(default_factory=list)      # violations NOT on the register
+    tolerated_seams: list[dict] = field(default_factory=list)  # new + provably-benign: warned, not halted
     indeterminate: list[dict] = field(default_factory=list)  # could not be checked
     symbols_checked: int = 0
     probe_dates: int = 0
@@ -163,9 +174,10 @@ class SeamReport:
     def as_dict(self) -> dict:
         return {"overall": self.overall, "symbols_checked": self.symbols_checked,
                 "probe_dates": self.probe_dates, "n_seams": len(self.seams),
-                "n_new_seams": len(self.new_seams), "n_indeterminate": len(self.indeterminate),
+                "n_new_seams": len(self.new_seams), "n_tolerated": len(self.tolerated_seams),
+                "n_indeterminate": len(self.indeterminate),
                 "seams": self.seams, "new_seams": self.new_seams,
-                "indeterminate": self.indeterminate}
+                "tolerated_seams": self.tolerated_seams, "indeterminate": self.indeterminate}
 
 
 def load_reference(path: Path | None = None) -> pd.DataFrame:
@@ -264,27 +276,79 @@ def check_adjustment_monotonicity(ohlcv: dict, ref: pd.DataFrame | None = None, 
     return rep
 
 
-def assert_no_new_seams(ohlcv: dict, ref: pd.DataFrame | None = None, *,
-                        known: dict | None = None) -> SeamReport:
-    """Build-path gate. Raises on a seam that is not on the register; known seams warn.
+def _new_seam_is_benign(seam: dict, held: set[str], cutoff: pd.Timestamp) -> bool:
+    """A new (unregistered) seam is provably harmless — and so auto-tolerated rather than halted —
+    only when ALL THREE hold: its step is below a dividend scale, it is entirely OLDER than the
+    trailing live window, and its name is not held. Any one failing keeps the hard halt: a large step
+    (possible real corporate action / corruption), a step inside the 44-week window (moves a live
+    gate), or a step on an open position (a wrong input behind capital) each returns to a human."""
+    try:
+        big = float(seam["step_factor"]) >= BENIGN_FACTOR_MAX
+        in_window = pd.Timestamp(seam["window_end"]) >= cutoff       # step reaches into the live window
+    except Exception:  # noqa: BLE001 — a seam we cannot classify is not one we may wave through
+        return False
+    return not big and not in_window and seam["symbol"] not in held
 
-    The asymmetry is deliberate and is not a softening. The seven registered seams are a live owner
-    decision (FOUNDATION_AUDIT.md F-1); halting the book over them would be this guard deciding that
-    question by itself. A seam that is NOT registered is a new, undiagnosed discontinuity entering
-    the cache, which is precisely what must never pass silently.
+
+def assert_no_new_seams(ohlcv: dict, ref: pd.DataFrame | None = None, *,
+                        known: dict | None = None, positions=None, as_of=None) -> SeamReport:
+    """Build-path gate. Raises on a DANGEROUS unregistered seam; known seams warn; and — when the
+    caller supplies ``positions`` — a new seam that is *provably benign* is warned and recorded rather
+    than halted.
+
+    The asymmetry for registered seams is deliberate: the F-1 seams are a live owner decision
+    (FOUNDATION_AUDIT.md); halting the book over them would be this guard deciding that question by
+    itself.
+
+    The benign auto-tolerance (2026-08-18, owner decision — resolves the recurring scheduled-scanner
+    halts) is NOT a softening of detection: ``check_adjustment_monotonicity`` still flags every seam,
+    however small, so nothing enters silently. It relaxes only the HALT, and only for a seam that
+    cannot affect a decision — below ``BENIGN_FACTOR_MAX``, entirely older than the trailing
+    ``LIVE_WINDOW_WEEKS`` window, and not on a held name (:func:`_new_seam_is_benign`). This is the
+    recurring upstream defect: yfinance re-adjusts one dividend-paying name at a time by a
+    dividend-sized step on an old, unheld session — halting the live scanner weekly over a step that
+    moves nothing. A seam that is large, in-window, or held still HALTS exactly as before.
+
+    ``positions=None`` (the default) keeps the legacy strict behaviour — every unregistered seam
+    halts — so existing callers and tests are unchanged. Pass ``positions`` (a possibly-empty held
+    list) to enable auto-tolerance; ``as_of`` defaults to the latest bar in the cache.
     """
     rep = check_adjustment_monotonicity(ohlcv, ref, known=known)
-    if rep.new_seams:
-        lines = [f"  {s['symbol']}: adj fell x{s['step_factor']:.4f} between {s['window_start']} "
-                 f"and {s['window_end']} ({s['adj_before']:.6f} -> {s['adj_after']:.6f})"
-                 for s in rep.new_seams]
-        raise ValueError(
-            "ADJUSTMENT MONOTONICITY VIOLATED — the cache contains a price step no market "
-            f"produced:\n" + "\n".join(lines) +
-            "\n\nAn adjustment factor cannot decrease as time advances. Localise the exact session "
-            "with scripts/audit_foundation_seam_2026Q3.py, then either repair the series or add the "
-            "seam to nq.data.adjustment_guard.KNOWN_SEAMS with its cause. Do NOT widen STEP_TOL.")
-    return rep
+    if not rep.new_seams:
+        return rep
+
+    if positions is not None:
+        # Auto-tolerance active: split the new seams into benign (warn + record) and dangerous (halt).
+        held = {str(p).upper() for p in positions}
+        if as_of is None:
+            ends = [pd.DatetimeIndex(df.index).max() for df in ohlcv.values()
+                    if df is not None and len(df)]
+            as_of = max(ends) if ends else pd.Timestamp.today().normalize()
+        cutoff = pd.Timestamp(as_of) - pd.Timedelta(weeks=LIVE_WINDOW_WEEKS)
+        benign = [s for s in rep.new_seams if _new_seam_is_benign(s, held, cutoff)]
+        dangerous = [s for s in rep.new_seams if s not in benign]
+        rep.tolerated_seams = benign
+        rep.new_seams = dangerous
+        for s in benign:
+            s["tolerated"] = True
+            print(f"::warning::adjustment guard TOLERATED a benign vendor seam (below x{BENIGN_FACTOR_MAX}, "
+                  f"outside the {LIVE_WINDOW_WEEKS}w window, not held): {s['symbol']} "
+                  f"x{s['step_factor']:.4f} between {s['window_start']} and {s['window_end']}", flush=True)
+        if not dangerous:
+            rep.overall = "WARN" if (rep.seams or benign) else "OK"
+            return rep
+
+    lines = [f"  {s['symbol']}: adj fell x{s['step_factor']:.4f} between {s['window_start']} "
+             f"and {s['window_end']} ({s['adj_before']:.6f} -> {s['adj_after']:.6f})"
+             for s in rep.new_seams]
+    raise ValueError(
+        "ADJUSTMENT MONOTONICITY VIOLATED — the cache contains a price step no market "
+        f"produced:\n" + "\n".join(lines) +
+        "\n\nAn adjustment factor cannot decrease as time advances. Localise the exact session "
+        "with scripts/audit_foundation_seam_2026Q3.py, then either repair the series or add the "
+        "seam to nq.data.adjustment_guard.KNOWN_SEAMS with its cause. Do NOT widen STEP_TOL.\n"
+        "(A benign vendor re-adjustment — below the dividend scale, outside the live window, not "
+        "held — is auto-tolerated when the caller passes positions; this seam is not that.)")
 
 
 # ─────────────────────────────────────────────────────────────────────────────────────────────────

@@ -105,6 +105,53 @@ def test_an_unregistered_seam_raises_with_symbol_and_dates():
     assert "4.0" in msg
 
 
+# ── benign auto-tolerance (2026-08-18 owner decision) — halt only DANGEROUS new seams ─────────────
+# A small seam that is old AND unheld: cache falls x1.05 at 2024-07-01 then recovers. `as_of` far in
+# the future puts it outside the trailing 44-week window.
+_SMALL = [100, 100, 100 / 1.05, 100 / 1.05, 100]
+_LATE = "2025-12-01"          # cutoff = as_of - 44w ≈ 2025-01, so the 2024-07 seam is OUT of window
+
+
+def test_a_benign_new_seam_is_tolerated_not_halted():
+    """Below the dividend scale, outside the live window, not held -> warn + record, never raise."""
+    ref = _ref("AAA", [100, 100, 100, 100, 100])
+    rep = assert_no_new_seams({"AAA": _series(_SMALL)}, ref, known={}, positions=[], as_of=_LATE)
+    assert rep.overall == "WARN"
+    assert len(rep.tolerated_seams) == 1 and rep.new_seams == []
+    assert rep.tolerated_seams[0]["symbol"] == "AAA"
+    assert rep.tolerated_seams[0]["step_factor"] == pytest.approx(1.05, rel=1e-3)
+
+
+def test_a_small_seam_INSIDE_the_window_still_halts():
+    """Small but recent moves a live gate -> dangerous, halts even with auto-tolerance on."""
+    ref = _ref("AAA", [100, 100, 100, 100, 100])
+    with pytest.raises(ValueError, match="MONOTONICITY VIOLATED"):
+        # default as_of = 2025-01-01 latest bar -> the 2024-07 seam is inside the 44w window
+        assert_no_new_seams({"AAA": _series(_SMALL)}, ref, known={}, positions=[])
+
+
+def test_a_small_seam_on_a_HELD_name_still_halts():
+    """A wrong input behind an open position is a different question -> halts regardless of size/age."""
+    ref = _ref("AAA", [100, 100, 100, 100, 100])
+    with pytest.raises(ValueError, match="MONOTONICITY VIOLATED"):
+        assert_no_new_seams({"AAA": _series(_SMALL)}, ref, known={}, positions=["AAA"], as_of=_LATE)
+
+
+def test_a_large_old_unheld_seam_still_halts():
+    """Split/bonus-scale step wants a human look even when old and unheld -> not benign."""
+    ref = _ref("AAA", [100, 100, 100, 100, 100])
+    with pytest.raises(ValueError, match="MONOTONICITY VIOLATED"):
+        assert_no_new_seams({"AAA": _series([100, 100, 25, 25, 100])}, ref, known={},
+                            positions=[], as_of=_LATE)
+
+
+def test_legacy_strict_when_positions_not_passed():
+    """positions=None (default) keeps the old behaviour: any unregistered seam halts, benign or not."""
+    ref = _ref("AAA", [100, 100, 100, 100, 100])
+    with pytest.raises(ValueError, match="MONOTONICITY VIOLATED"):
+        assert_no_new_seams({"AAA": _series(_SMALL)}, ref, known={})   # no positions -> strict
+
+
 def test_absent_reference_is_indeterminate_never_ok():
     """S2.14: a checker that says OK when it could not look is worse than no checker."""
     rep = check_adjustment_monotonicity({"AAA": _series([1, 2, 3, 4, 5])},

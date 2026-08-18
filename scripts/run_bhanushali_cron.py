@@ -672,9 +672,17 @@ def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
     from nq.data.adjustment_guard import (
         assert_no_live_escalation, assert_no_new_seams, load_book_positions,
     )
-    rep = assert_no_new_seams(ohlcv)
+    # Pass the held book so the guard can AUTO-TOLERATE a provably-benign vendor seam (below the
+    # dividend scale, outside the 44w window, not held) instead of halting the weekly scan over the
+    # recurring upstream re-adjustment. A dangerous seam (large / in-window / held) still halts.
+    positions = load_book_positions()
+    rep = assert_no_new_seams(ohlcv, positions=positions)
     print(f"adjustment guard: {rep.overall} | symbols {rep.symbols_checked} | "
-          f"known seams {len(rep.seams)} | indeterminate {len(rep.indeterminate)}", flush=True)
+          f"known seams {len(rep.seams)} | tolerated {len(rep.tolerated_seams)} | "
+          f"indeterminate {len(rep.indeterminate)}", flush=True)
+    for s in rep.tolerated_seams:
+        print(f"  tolerated (benign) {s['symbol']} {s['window_start']}..{s['window_end']} "
+              f"x{s['step_factor']:.4f}", flush=True)
     for s in rep.seams:
         print(f"  seam {s['symbol']} {s['window_start']}..{s['window_end']} "
               f"x{s['step_factor']:.4f} ({s.get('provenance', '?')})", flush=True)
@@ -682,7 +690,7 @@ def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
     # ESCALATION TRIGGER (ADR-0013, pre-committed 2026-08-06). Decision (b) deferred the live seam
     # repair to the 2026-10-01 review on a stated scope: one suppressed candidate, no open position.
     # This evaluates that scope every run and raises the moment it stops holding.
-    ex = assert_no_live_escalation(ohlcv, load_book_positions())
+    ex = assert_no_live_escalation(ohlcv, positions)
     print(f"  live exposure: {len(ex['in_window'])} seam(s) inside the 44w window "
           f"({[s['symbol'] for s in ex['in_window']]}), "
           f"{len(ex['accepted_live'])} owner-accepted, 0 on open positions", flush=True)
