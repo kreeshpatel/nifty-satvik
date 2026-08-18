@@ -177,9 +177,16 @@ def _classify_status_for_user(
     kite_qty: int,
     actionability: str,
     signal_status: str,
+    has_tranche_sell: bool = False,
 ) -> str:
     """The per-(user, signal) state used by the frontend to choose what
-    affordance to show (Buy / Hold / Sell / Missed)."""
+    affordance to show (Buy / Hold / Trim / Sell / Missed).
+
+    ACTIONABLE_SELL is a FULL exit (stop / target / time hit — the whole position closes).
+    ACTIONABLE_TRIM is a PARTIAL take-profit: a scaled-exit tranche (the +2R target tranche) has
+    been reached on a position that is otherwise still held. Both surface on the sell tier; the
+    frontend can render "sell all" vs "sell 40%" from the distinct status + sell_guidance.partial_pct.
+    """
     if held_qty <= 0:
         if actionability == "BUY_OPEN":
             return "ACTIONABLE_BUY"
@@ -192,21 +199,46 @@ def _classify_status_for_user(
         return "HOLDING_PARTIAL_SOLD"
     if actionability == "EXIT_REQUIRED":
         return "ACTIONABLE_SELL"
+    if has_tranche_sell:                       # a profit tranche is due, but the position stays open
+        return "ACTIONABLE_TRIM"
     return "HOLDING"
 
 
-def _build_sell_guidance(sig: dict, last_price: Optional[float]) -> Optional[dict]:
-    """Surface a clear sell recommendation when the signal has hit its
-    exit conditions. Returns None for signals still in the Hold or Buy
-    states — the UI shouldn't render a sell banner for those.
+def _active_tranche_sell(sig: dict, price: Optional[float]) -> Optional[dict]:
+    """A held position's PARTIAL take-profit that is actionable intra-week: a `type=='target'`
+    tranche of the scaled exit plan whose level price has reached.
 
-    We expose `original_target` and `original_stop` separately from the
-    live `target`/`stop` so the user can see post-issuance breakeven
-    migrations without losing the issue-time frame of reference.
+    Mirrors the daily monitor's rule (scripts/run_bhanushali_monitor.py `_tranche_status`): ONLY the
+    target tranches are intra-week actionable. The blow-off (`pattern`) and 44w-runner (`runner`)
+    tranches are decided ONLY at the Saturday weekly close, so they are deliberately NOT surfaced as
+    an act-now sell here — surfacing them would tell the user to sell on an intra-week wick the
+    weekly recompute might not confirm. Returns the reached target tranche (lowest level first, the
+    +2R book) or None when no plan / none reached / no price.
+    """
+    if price is None:
+        return None
+    try:
+        price = float(price)
+    except (TypeError, ValueError):
+        return None
+    tranches = (sig.get("exit_plan") or {}).get("tranches") or []
+    reached = [t for t in tranches
+               if t.get("type") == "target" and t.get("level") is not None
+               and price >= float(t["level"])]
+    if not reached:
+        return None
+    return min(reached, key=lambda t: float(t["level"]))    # the +2R tranche is the act-now one
+
+
+def _build_sell_guidance(sig: dict, last_price: Optional[float]) -> Optional[dict]:
+    """Surface a clear sell recommendation when the signal has hit an exit condition — a FULL exit
+    (stop / target / time) OR a PARTIAL scaled-exit tranche (the +2R take-profit) on a still-held
+    position. Returns None for signals still purely in the Hold or Buy states.
+
+    We expose `original_target` and `original_stop` separately from the live `target`/`stop` so the
+    user can see post-issuance breakeven migrations without losing the issue-time frame of reference.
     """
     status = (sig.get("status") or "").upper()
-    if status not in ("HIT_TARGET", "HIT_STOP", "EXPIRED"):
-        return None
 
     if status == "HIT_TARGET":
         return {
@@ -224,13 +256,33 @@ def _build_sell_guidance(sig: dict, last_price: Optional[float]) -> Optional[dic
             "suggested_exit_price": last_price or sig.get("stop"),
             "urgency": "high",
         }
-    return {
-        "reason": "time",
-        "tone": "warn",
-        "headline": "Time exit reached — close position",
-        "suggested_exit_price": last_price,
-        "urgency": "normal",
-    }
+    if status == "EXPIRED":
+        return {
+            "reason": "time",
+            "tone": "warn",
+            "headline": "Time exit reached — close position",
+            "suggested_exit_price": last_price,
+            "urgency": "normal",
+        }
+
+    # Still held (ACTIVE): a scaled-exit profit tranche may be due even though the position is not
+    # fully closed. This is the "sell your winner" recommendation the binary full-exit statuses above
+    # can never express — the actual profit-taking on this book is a 40/40/20 tranche plan.
+    price = last_price if last_price is not None else sig.get("current_price")
+    tr = _active_tranche_sell(sig, price)
+    if tr:
+        pct = tr.get("pct")
+        return {
+            "reason": "target_tranche",
+            "tone": "bull",
+            "headline": (f"+2R target reached — trim {pct}%" if pct else "Profit target reached — trim"),
+            "suggested_exit_price": tr.get("level"),
+            "partial_pct": pct,
+            "urgency": "normal",
+            "note": ("Scaled exit: book this tranche now. The blow-off and 44-week-runner tranches "
+                     "are decided only at the Saturday weekly close."),
+        }
+    return None
 
 
 def _index_kite_holdings(holdings: list[dict]) -> dict[str, dict]:
@@ -357,11 +409,18 @@ def build_nq_positions(
             except Exception:
                 pass
 
+        # Partial take-profit: is a scaled-exit target tranche due on this still-held position?
+        # Uses the live Kite price when present, else the monitor's current_price from history.
+        tranche_price = last_price if last_price is not None else sig.get("current_price")
+        has_tranche_sell = signal_status not in ("HIT_TARGET", "HIT_STOP", "EXPIRED") and \
+            _active_tranche_sell(sig, tranche_price) is not None
+
         status_for_user = _classify_status_for_user(
             held_qty=nq_qty,
             kite_qty=kite_qty_total if kite_holding else nq_qty,
             actionability=actionability,
             signal_status=signal_status,
+            has_tranche_sell=has_tranche_sell,
         )
 
         sell_guidance = _build_sell_guidance(sig, last_price)

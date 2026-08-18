@@ -245,12 +245,21 @@ def _stamp_actionability(signals: list) -> list:
     """
     if not signals:
         return signals
-    from services.nq_positions import _compute_actionability
+    from services.nq_positions import _build_sell_guidance, _compute_actionability
     today = date.today()
     out = []
     for sig in signals:
         enriched = dict(sig)
         enriched["actionability"] = sig.get("actionability") or _compute_actionability(sig, today)
+        # Model-centric sell surface: attach the same sell_guidance the Positions page computes, so a
+        # scaled-exit profit tranche (the +2R take-profit) renders as a first-class SELL on the
+        # Signals page — symmetric with the buy cards — not only as a low-key monitor flag. Runs after
+        # the monitor overlay, so current_price is live. Best-effort: never break serving over it.
+        try:
+            enriched["sell_guidance"] = sig.get("sell_guidance") or _build_sell_guidance(
+                sig, sig.get("current_price"))
+        except Exception:  # noqa: BLE001
+            enriched["sell_guidance"] = sig.get("sell_guidance")
         out.append(enriched)
     return out
 
@@ -533,7 +542,10 @@ def get_sell_guidance(
     # No per-user broker connection (ADR 0011) — self-reported fills only. Build off the
     # per-user NQOrder ledger with no Kite holdings join (Stage-4/5 wire the self-report source).
     positions = build_nq_positions(user.id, db, kite_holdings=[])
-    actionable = [p for p in positions if p["status_for_user"] == "ACTIONABLE_SELL"]
+    # ACTIONABLE_SELL = full exit (stop/target/time); ACTIONABLE_TRIM = a scaled-exit profit tranche
+    # (+2R take-profit) due on a still-held position. Both belong on the sell tier.
+    actionable = [p for p in positions
+                  if p["status_for_user"] in ("ACTIONABLE_SELL", "ACTIONABLE_TRIM")]
     return {
         "positions": actionable,
         "count": len(actionable),
