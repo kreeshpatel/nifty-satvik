@@ -400,3 +400,25 @@ def health_root():
 @app.api_route("/api/health", methods=["GET", "HEAD"])
 def health():
     return {"status": "ok", "timestamp": datetime.now().isoformat()}
+
+
+# ── Parallel terminal frontend (frontend2/) served SAME-ORIGIN at /terminal ──────────────────────
+# Serving it from the API origin means the nq_access cookie and /api calls work with zero CORS, and
+# frontend2's LIVE/SAMPLE badge flips to LIVE. frontend2/ is baked into the image by `COPY . .`
+# (it is NOT in .dockerignore, unlike `frontend`/`dashboard/frontend`). Registered LAST so it can
+# never shadow an /api route, and guarded so a missing directory never breaks API startup. The
+# explicit /terminal -> /terminal/ redirect makes the page's relative asset paths resolve.
+from pathlib import Path as _TermPath
+from fastapi.responses import RedirectResponse as _TermRedirect
+from fastapi.staticfiles import StaticFiles as _TermStatic
+
+_FRONTEND2_DIR = _TermPath(__file__).resolve().parents[2] / "frontend2"
+if (_FRONTEND2_DIR / "index.html").is_file():
+    @app.get("/terminal", include_in_schema=False)
+    def _terminal_index_redirect():
+        return _TermRedirect(url="/terminal/")
+
+    app.mount("/terminal", _TermStatic(directory=str(_FRONTEND2_DIR), html=True), name="terminal")
+    logger.info("Parallel terminal frontend mounted at /terminal (%s)", _FRONTEND2_DIR)
+else:
+    logger.warning("frontend2/ not found at %s — /terminal not mounted", _FRONTEND2_DIR)
