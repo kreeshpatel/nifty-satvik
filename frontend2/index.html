@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nifty Satvik Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="top">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="8" fill="#0f1520" stroke="#242c3c"/><path d="M9 22.5V9.5l10 10V9.5" stroke="#26c281" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 9.5H23V14" stroke="#3b76f0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Nifty Satvik
+  </div>
+  <div class="idx" id="idx"></div>
+  <div class="grow"></div>
+  <span class="src" id="srcBadge" title="data source">…</span>
+  <div class="acct"><div class="k">PAPER NAV</div><div class="v n" id="acctNav">—</div></div>
+  <div class="av"></div>
+</div>
+
+<div class="wrap">
+  <div class="colL">
+    <div class="panel">
+      <div class="ph"><span>Watchlist</span></div>
+      <div class="subhdr">Fresh buys · this week</div>
+      <div class="wl" id="wlBuys"></div>
+      <div class="subhdr">Holdings · open</div>
+      <div class="wl" id="wlHolds"></div>
+    </div>
+  </div>
+
+  <div class="panel chart">
+    <div class="cbar">
+      <div><div class="tk" id="cTk">—</div><div class="co" id="cCo">—</div></div>
+      <div><div class="px n" id="cPx">—</div><div class="pchg n" id="cChg">—</div></div>
+      <div class="tf" id="tf"><b data-tf="1M">1M</b><b data-tf="6M">6M</b><b class="on" data-tf="1Y">1Y</b><b data-tf="2Y">2Y</b></div>
+      <div class="tf" id="subtog" style="margin-left:8px"><b class="on" data-sub="RSI">RSI</b><b data-sub="MACD">MACD</b></div>
+    </div>
+    <div class="cwrap" id="cwrap">
+      <div class="legend" id="legend"></div>
+      <div class="tip" id="tip"></div>
+      <svg class="k" id="kchart" preserveAspectRatio="none"></svg>
+    </div>
+  </div>
+
+  <div class="colR">
+    <div class="panel">
+      <div class="ph"><span id="odTitle">Order</span></div>
+      <div class="od" id="od"></div>
+    </div>
+    <div class="panel" id="tpPanel" style="display:none">
+      <div class="ph"><span>Take profit</span></div>
+      <div class="od" style="padding:12px 14px" id="tpBody"></div>
+    </div>
+    <div class="panel">
+      <div class="ph"><span>Portfolio equity</span></div>
+      <div style="padding:8px 6px 6px"><svg id="navspark" style="display:block;width:100%;height:96px" preserveAspectRatio="none"></svg>
+        <div class="navmeta n" id="navMeta"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="panel pos">
+  <div class="ph"><span>Positions</span><span class="sp"></span><span id="posMeta" style="text-transform:none;letter-spacing:0;color:var(--muted)"></span></div>
+  <table>
+    <thead><tr><th>Symbol</th><th>Qty</th><th>Avg</th><th>Last</th><th>Mkt value</th><th>Unreal. P&L</th><th>%</th><th>Stop → Target</th></tr></thead>
+    <tbody id="pos"></tbody>
+  </table>
+</div>
+
+<div class="foot" id="foot"></div>
+
+<script src="./config.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>
