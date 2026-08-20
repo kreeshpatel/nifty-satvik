@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-19",
+  "generated_at": "2026-08-20",
   "signals": [
     {
       "ticker": "SYRMA",
@@ -13,7 +13,7 @@
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
-      "status": "FRESH",
+      "status": "ACTIVE",
       "buy_window": "T+1..T+3 at open",
       "indicative_close": 1471.1,
       "indicative_entry": 1471.84
@@ -30,7 +30,7 @@
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
-      "status": "FRESH",
+      "status": "ACTIVE",
       "buy_window": "T+1..T+3 at open",
       "indicative_close": 16549.0,
       "indicative_entry": 16557.27
@@ -47,7 +47,7 @@
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
-      "status": "FRESH",
+      "status": "ACTIVE",
       "buy_window": "T+1..T+3 at open",
       "indicative_close": 2088.0,
       "indicative_entry": 2089.04
