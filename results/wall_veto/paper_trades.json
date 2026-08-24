@@ -88,5 +88,20 @@
     "net_pct": 22.46,
     "net_pnl": 1435.4,
     "hold_days": 17
+  },
+  {
+    "ticker": "GVT&D",
+    "entry_date": "2026-07-30",
+    "exit_date": "2026-08-18",
+    "entry": 4102.05,
+    "exit": 4182.55,
+    "qty": 28,
+    "days_held": 13,
+    "reason": "trailing",
+    "return_pct": 1.96,
+    "pnl": 1952.43,
+    "net_pct": 1.96,
+    "net_pnl": 1952.43,
+    "hold_days": 13
   }
 ]

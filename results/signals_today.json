@@ -1,56 +1,22 @@
 {
-  "generated_at": "2026-08-21",
+  "generated_at": "2026-08-24",
   "signals": [
     {
-      "ticker": "SYRMA",
-      "entry": 1471.84,
-      "stop": 1275.94,
-      "target": 1803.3,
+      "ticker": "CHENNPETRO",
+      "entry": 1394.2,
+      "stop": 1168.24,
+      "target": 1708.17,
       "target_pct": 22.52,
-      "current_price": 1471.1,
-      "close": 1471.1,
-      "signal_date": "2026-08-19",
+      "current_price": 1393.5,
+      "close": 1393.5,
+      "signal_date": "2026-08-24",
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
-      "status": "ACTIVE",
+      "status": "FRESH",
       "buy_window": "T+1..T+3 at open",
-      "indicative_close": 1471.1,
-      "indicative_entry": 1471.84
-    },
-    {
-      "ticker": "APARINDS",
-      "entry": 16557.27,
-      "stop": 14018.34,
-      "target": 20285.97,
-      "target_pct": 22.52,
-      "current_price": 16549.0,
-      "close": 16549.0,
-      "signal_date": "2026-08-19",
-      "hold_days": 63,
-      "grade": "B",
-      "tier": "signal",
-      "status": "ACTIVE",
-      "buy_window": "T+1..T+3 at open",
-      "indicative_close": 16549.0,
-      "indicative_entry": 16557.27
-    },
-    {
-      "ticker": "BHARATFORG",
-      "entry": 2089.04,
-      "stop": 1872.73,
-      "target": 2559.49,
-      "target_pct": 22.52,
-      "current_price": 2088.0,
-      "close": 2088.0,
-      "signal_date": "2026-08-19",
-      "hold_days": 63,
-      "grade": "B",
-      "tier": "signal",
-      "status": "ACTIVE",
-      "buy_window": "T+1..T+3 at open",
-      "indicative_close": 2088.0,
-      "indicative_entry": 2089.04
+      "indicative_close": 1393.5,
+      "indicative_entry": 1394.2
     }
   ],
   "regime": {
@@ -59,12 +25,12 @@
     "vix": 0,
     "breadth": 0
   },
-  "n_positions": 12,
-  "cash": 58.37,
+  "n_positions": 14,
+  "cash": 622.28,
   "kill_state": {
-    "wr_last20": 33.3,
+    "wr_last20": 50.0,
     "wr_breach": false,
-    "sharpe_30d": 0.639,
+    "sharpe_30d": 1.885,
     "sharpe_30d_breach": false,
     "mode": "observe"
   }

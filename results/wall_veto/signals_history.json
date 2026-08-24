@@ -84,18 +84,32 @@
     "exit_reason": "target"
   },
   {
+    "ticker": "GVT&D",
+    "signal_date": "2026-07-30",
+    "status": "HIT_STOP",
+    "entry": 4102.05,
+    "close_price": 4182.55,
+    "close_date": "2026-08-18",
+    "return_pct": 1.96,
+    "pnl_pct": 1.96,
+    "close_pnl_pct": 1.96,
+    "days_since": 13,
+    "hold_days": 13,
+    "exit_reason": "trailing"
+  },
+  {
     "ticker": "VEDL",
     "signal_date": "2026-07-01",
     "status": "ACTIVE",
     "entry": 280.89,
     "stop": 239.55,
     "target": 344.15,
-    "current_price": 269.0,
-    "close_price": 269.0,
-    "pnl_pct": -4.23,
-    "return_pct": -4.23,
-    "days_since": 33,
-    "hold_days": 33
+    "current_price": 279.0,
+    "close_price": 279.0,
+    "pnl_pct": -0.67,
+    "return_pct": -0.67,
+    "days_since": 37,
+    "hold_days": 37
   },
   {
     "ticker": "HINDCOPPER",
@@ -104,12 +118,12 @@
     "entry": 501.35,
     "stop": 430.37,
     "target": 614.25,
-    "current_price": 566.15,
-    "close_price": 566.15,
-    "pnl_pct": 12.92,
-    "return_pct": 12.92,
-    "days_since": 33,
-    "hold_days": 33
+    "current_price": 572.7,
+    "close_price": 572.7,
+    "pnl_pct": 14.23,
+    "return_pct": 14.23,
+    "days_since": 37,
+    "hold_days": 37
   },
   {
     "ticker": "ADANIPOWER",
@@ -118,12 +132,12 @@
     "entry": 223.88,
     "stop": 196.67,
     "target": 274.3,
-    "current_price": 203.58,
-    "close_price": 203.58,
-    "pnl_pct": -9.07,
-    "return_pct": -9.07,
-    "days_since": 33,
-    "hold_days": 33
+    "current_price": 205.5,
+    "close_price": 205.5,
+    "pnl_pct": -8.21,
+    "return_pct": -8.21,
+    "days_since": 37,
+    "hold_days": 37
   },
   {
     "ticker": "MCX",
@@ -132,12 +146,12 @@
     "entry": 2859.93,
     "stop": 2493.14,
     "target": 3503.99,
-    "current_price": 2961.0,
-    "close_price": 2961.0,
-    "pnl_pct": 3.53,
-    "return_pct": 3.53,
-    "days_since": 33,
-    "hold_days": 33
+    "current_price": 3185.0,
+    "close_price": 3185.0,
+    "pnl_pct": 11.37,
+    "return_pct": 11.37,
+    "days_since": 37,
+    "hold_days": 37
   },
   {
     "ticker": "KIRLOSENG",
@@ -146,26 +160,12 @@
     "entry": 2252.07,
     "stop": 1866.46,
     "target": 2759.23,
-    "current_price": 2081.0,
-    "close_price": 2081.0,
-    "pnl_pct": -7.6,
-    "return_pct": -7.6,
-    "days_since": 20,
-    "hold_days": 20
-  },
-  {
-    "ticker": "GVT&D",
-    "signal_date": "2026-07-30",
-    "status": "ACTIVE",
-    "entry": 4102.05,
-    "stop": 3328.17,
-    "target": 5025.83,
-    "current_price": 4336.1,
-    "close_price": 4336.1,
-    "pnl_pct": 5.71,
-    "return_pct": 5.71,
-    "days_since": 12,
-    "hold_days": 12
+    "current_price": 2150.1,
+    "close_price": 2150.1,
+    "pnl_pct": -4.53,
+    "return_pct": -4.53,
+    "days_since": 24,
+    "hold_days": 24
   },
   {
     "ticker": "RRKABEL",
@@ -174,12 +174,12 @@
     "entry": 2560.18,
     "stop": 2193.3,
     "target": 3136.73,
-    "current_price": 2746.5,
-    "close_price": 2746.5,
-    "pnl_pct": 7.28,
-    "return_pct": 7.28,
-    "days_since": 12,
-    "hold_days": 12
+    "current_price": 2919.3,
+    "close_price": 2919.3,
+    "pnl_pct": 14.03,
+    "return_pct": 14.03,
+    "days_since": 16,
+    "hold_days": 16
   },
   {
     "ticker": "BHEL",
@@ -188,12 +188,12 @@
     "entry": 406.2,
     "stop": 355.55,
     "target": 497.68,
-    "current_price": 430.95,
-    "close_price": 430.95,
-    "pnl_pct": 6.09,
-    "return_pct": 6.09,
-    "days_since": 12,
-    "hold_days": 12
+    "current_price": 413.0,
+    "close_price": 413.0,
+    "pnl_pct": 1.67,
+    "return_pct": 1.67,
+    "days_since": 16,
+    "hold_days": 16
   },
   {
     "ticker": "HFCL",
@@ -202,12 +202,12 @@
     "entry": 202.5,
     "stop": 166.34,
     "target": 248.1,
-    "current_price": 222.05,
-    "close_price": 222.05,
-    "pnl_pct": 9.65,
-    "return_pct": 9.65,
-    "days_since": 9,
-    "hold_days": 9
+    "current_price": 228.01,
+    "close_price": 228.01,
+    "pnl_pct": 12.6,
+    "return_pct": 12.6,
+    "days_since": 13,
+    "hold_days": 13
   },
   {
     "ticker": "WELCORP",
@@ -216,12 +216,12 @@
     "entry": 1870.53,
     "stop": 1686.52,
     "target": 2291.78,
-    "current_price": 1857.8,
-    "close_price": 1857.8,
-    "pnl_pct": -0.68,
-    "return_pct": -0.68,
-    "days_since": 2,
-    "hold_days": 2
+    "current_price": 2311.9,
+    "close_price": 2311.9,
+    "pnl_pct": 23.6,
+    "return_pct": 23.6,
+    "days_since": 6,
+    "hold_days": 6
   },
   {
     "ticker": "NATIONALUM",
@@ -230,10 +230,24 @@
     "entry": 410.71,
     "stop": 362.71,
     "target": 503.2,
-    "current_price": 388.15,
-    "close_price": 388.15,
-    "pnl_pct": -5.49,
-    "return_pct": -5.49,
+    "current_price": 394.45,
+    "close_price": 394.45,
+    "pnl_pct": -3.96,
+    "return_pct": -3.96,
+    "days_since": 6,
+    "hold_days": 6
+  },
+  {
+    "ticker": "SYRMA",
+    "signal_date": "2026-08-19",
+    "status": "ACTIVE",
+    "entry": 1508.65,
+    "stop": 1312.56,
+    "target": 1848.4,
+    "current_price": 1439.3,
+    "close_price": 1439.3,
+    "pnl_pct": -4.6,
+    "return_pct": -4.6,
     "days_since": 2,
     "hold_days": 2
   }
