@@ -32,6 +32,32 @@ def test_every_scheduled_workflow_has_a_contract():
     assert not missing, f"workflows commit state but have no output contract: {sorted(missing)}"
 
 
+def test_every_commit_prefix_matches_the_workflow_that_emits_it():
+    """The manifest matches jobs by COMMIT SUBJECT, so a rename desynchronises it silently.
+
+    Paid for on 2026-08-25. The intraday scan moved from 14:30 to post-close and its commit subject
+    changed with it ("chore(intraday): 14:30 IST shadow scan" -> "chore(scan): 16:30 IST post-close
+    shadow scan"), but this manifest kept the old string. `_last_cron_commit` therefore kept scoring
+    a 2026-08-10 commit and reported the job 15 days stale while it was committing a scan every
+    trading day. Fifteen consecutive days of RED, entirely from one stale string — the precise
+    failure mode `output_contracts.py`'s own docstring warns about, since a false positive is how an
+    alarm stops being read.
+
+    So: every declared `commit_prefix` must literally appear in its workflow file. A rename now
+    fails here, on the same commit that makes it, instead of degrading an alarm nobody re-reads.
+    """
+    for c in load_contracts():
+        wf = ROOT / ".github" / "workflows" / f"{c['workflow']}.yml"
+        assert wf.exists(), f"{c['job']}: contract names a workflow that does not exist ({wf.name})"
+        body = wf.read_text(encoding="utf-8")
+        assert c["commit_prefix"] in body, (
+            f"{c['job']}: commit_prefix {c['commit_prefix']!r} appears nowhere in {wf.name}. "
+            f"The checker matches on the commit subject, so this contract can never find its job "
+            f"and will report a healthy cron as stale. Update the prefix to the subject the "
+            f"workflow actually commits."
+        )
+
+
 def test_touched_matches_files_and_directories():
     changed = {"results/a.json", "results/intraday_scan/2026-08-05.json"}
     assert _touched("results/a.json", changed)

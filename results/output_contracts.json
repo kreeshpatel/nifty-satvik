@@ -39,13 +39,13 @@
   {
    "job": "intraday-scan",
    "workflow": "cron-intraday-scan",
-   "commit_prefix": "chore(intraday): 14:30 IST shadow scan",
+   "commit_prefix": "chore(scan): 16:30 IST post-close shadow scan",
    "cadence_days": 5,
    "must_update": [],
    "must_update_if_produced": [
     "results/intraday_scan"
    ],
-   "note": "must_update is EMPTY and must stay empty until the first successful persist. The whitelist that made `git add results/intraday_scan/` a silent no-op was only fixed 2026-08-05 (the fifth instance of the trap), so no historical commit can satisfy a hard contract. Promote to must_update once a scan has demonstrably landed."
+   "note": "must_update is EMPTY and must stay empty until the first successful persist. The whitelist that made `git add results/intraday_scan/` a silent no-op was only fixed 2026-08-05 (the fifth instance of the trap), so no historical commit can satisfy a hard contract. Promote to must_update once a scan has demonstrably landed. || PREFIX CORRECTED 2026-08-25. The workflow's commit subject changed to 'chore(scan): 16:30 IST post-close shadow scan' when the job moved from 14:30 to post-close, and this manifest was not changed with it. The checker matches on the SUBJECT, so it kept scoring the last 14:30-era commit (2026-08-10) and reported the job 15 days stale while it was in fact committing a scan every trading day — 15 consecutive days of RED from one stale string. That is the exact failure this module's docstring names: a false positive in an alarm is as damaging as a missed defect, because it is how alarms stop being read. tests/test_output_contracts.py now pins every commit_prefix to the workflow that emits it, so a rename cannot silently desynchronise them again."
   },
   {
    "job": "forward-wall-log",
