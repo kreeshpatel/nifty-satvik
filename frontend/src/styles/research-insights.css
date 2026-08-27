@@ -18,12 +18,6 @@
   letter-spacing: -0.02em; color: var(--text-1); margin: 0;
 }
 .ri-sub { margin: 6px 0 0; font-size: 14px; color: var(--text-2); max-width: 62ch; }
-.ri-head-r { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-.ri-history-link {
-  font-size: 12.5px; font-weight: 600; color: var(--text-2); text-decoration: none;
-  white-space: nowrap; transition: color 140ms;
-}
-.ri-history-link:hover { color: var(--text-1); }
 
 /* ── filter chips ── */
 .ri-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
@@ -50,18 +44,10 @@
 .ri-pick { margin-bottom: 18px; }
 
 /* ── two-column body ── */
-.ri-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 18px;
-  align-items: start;
-}
 /* Matches the watchlist rail's own collapse point (watchlist-rail.css) so
    the right rail doesn't drop to the bottom on ordinary 1200-1360px laptop
    windows at 100% browser zoom while the left rail is still showing. */
 @media (max-width: 1024px) {
-  .ri-grid { grid-template-columns: 1fr; }
-  .ri-rail { order: -1; }
 }
 
 /* ── calls table ── */
@@ -111,7 +97,6 @@
 .ri-cell-main { font-size: 13.5px; font-weight: 600; color: var(--text-1); }
 .ri-cell-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
 
-.ri-act { display: flex; justify-content: flex-end; align-items: center; gap: 6px; flex-wrap: nowrap; }
 .ri-btn {
   min-width: 54px; padding: 7px 10px; border-radius: 8px; border: 1px solid transparent;
   font-family: var(--font-sans); font-size: 12px; font-weight: 600; cursor: pointer;
@@ -125,22 +110,8 @@
 .ri-btn-bought:hover:not(:disabled) { color: var(--text-1); border-color: var(--edge-2); }
 .ri-btn-bought.on { background: rgba(63,221,138,0.16); color: var(--bull); border-color: rgba(63,221,138,0.35); }
 .ri-btn-bought:disabled { opacity: 0.4; cursor: default; }
-.ri-btn-buy   { background: rgba(63,221,138,0.16); color: var(--bull); border-color: rgba(63,221,138,0.3); }
-.ri-btn-buy:hover { background: rgba(63,221,138,0.26); }
-.ri-btn-sell  { background: rgba(255,92,122,0.16); color: var(--bear); border-color: rgba(255,92,122,0.3); }
-.ri-btn-sell:hover { background: rgba(255,92,122,0.26); }
-.ri-btn-watch { background: rgba(91,199,255,0.14); color: var(--info); border-color: rgba(91,199,255,0.3); }
-.ri-btn-watch:hover { background: rgba(91,199,255,0.24); }
-.ri-btn-hold, .ri-btn-view {
-  background: var(--surface-2); color: var(--text-2); border-color: var(--edge-1);
-}
-.ri-btn-hold:hover, .ri-btn-view:hover { color: var(--text-1); border-color: var(--edge-2); }
-
-.ri-row-skel { height: 58px; margin: 0; border-radius: 0; border-bottom: 1px solid var(--edge-1); }
-.ri-empty { padding: 40px 20px; text-align: center; color: var(--text-3); font-size: 13.5px; }
 
 /* ── right rail cards ── */
-.ri-rail { display: flex; flex-direction: column; gap: 14px; }
 .ri-card {
   background: var(--surface-1); border: 1px solid var(--edge-1);
   border-radius: 16px; padding: 16px;
@@ -216,18 +187,9 @@
 .rsm-totals b { font-size: 14px; color: var(--text-1); }
 .rsm-note { margin-top: 12px; font-size: 11px; color: var(--text-3); line-height: 1.5; }
 
-.ri-statrow { display: grid; grid-template-columns: 62px 1fr 26px; align-items: center; gap: 8px; padding: 5px 0; }
-.ri-stat-l { font-size: 12.5px; color: var(--text-2); }
-.ri-bar { height: 6px; border-radius: 999px; background: rgba(255,255,255,0.06); overflow: hidden; }
-.ri-bar-fill { display: block; height: 100%; border-radius: 999px; background: var(--brand-grad, linear-gradient(90deg, #4F8CFF, #7B5BFF)); }
-.ri-stat-v { font-size: 12.5px; color: var(--text-1); text-align: right; }
-
 .ri-how { font-size: 12.5px; color: var(--text-2); line-height: 1.6; }
 
 /* ── footer ── */
-.ri-foot { margin-top: 26px; padding-top: 16px; border-top: 1px solid var(--edge-1); }
-.ri-disclaimer { font-size: 11.5px; color: var(--text-3); line-height: 1.5; max-width: 90ch; }
-.ri-foot-meta { margin-top: 8px; font-size: 10.5px; color: var(--text-3); opacity: 0.8; }
 
 /* ── Execution capture popup (Stage 4 — self-reported buy/sell, ADR 0011) ── */
 .ecm { padding: 16px; }
@@ -288,13 +250,5 @@
 /* Reference row — the static context cards (signal stats, how calls are made) moved out of the
    right rail. The rail was ~5 cards tall against a call list that is often 1-5 rows, so scrolling
    left a tall empty column beside it. Two columns on desktop, stacking on narrow windows. */
-.ri-reference {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-  margin-top: 18px;
-  align-items: start;
-}
 @media (max-width: 900px) {
-  .ri-reference { grid-template-columns: minmax(0, 1fr); }
 }
