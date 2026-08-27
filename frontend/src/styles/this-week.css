@@ -23,6 +23,25 @@
 .tw-cadence-row span { color: var(--text-3); }
 .tw-cadence-note { margin-top: 6px; font-size: 11.5px; line-height: 1.45; color: var(--text-3); }
 
+/* ── Summary spine ── the page's own shape, stated before it is scrolled. Same tone ladder as
+   the sections below it (bear = off-plan, warn = due, brand = buys, muted = holds), so the
+   header and the body can never imply different priorities. */
+.tw-summary { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.tw-sum {
+  display: inline-flex; align-items: baseline; gap: 5px;
+  padding: 4px 10px; border-radius: 999px;
+  font-size: 11.5px; font-weight: 500; color: var(--text-2);
+  background: var(--surface-1); border: 1px solid var(--edge-1);
+}
+.tw-sum b { font-size: 12.5px; font-weight: 700; color: var(--text-1); }
+.tw-sum-missed { color: var(--bear); background: var(--bear-soft); border-color: var(--bear); }
+.tw-sum-missed b { color: var(--bear); }
+.tw-sum-due { color: var(--warn); background: var(--surface-2); border-color: var(--edge-2); }
+.tw-sum-due b { color: var(--warn); }
+.tw-sum-buy b { color: var(--brand-hi); }
+.tw-sum-hold { color: var(--text-3); }
+.tw-sum-hold b { color: var(--text-2); }
+
 /* ── Sections ── */
 .tw-section { margin-bottom: 26px; }
 .tw-section-h { display: flex; align-items: baseline; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
@@ -112,3 +131,18 @@
   .tw-row { align-items: flex-start; flex-direction: column; gap: 10px; }
   .tw-row-r { width: 100%; justify-content: space-between; }
 }
+
+/* ── Missed exits ── the model is already flat and the reader is not. Loud enough to break the
+   scan pattern of the calm rows above it, still built from house tokens only (no new colours). */
+.tw-section-missed .tw-row-missed {
+  border-color: var(--edge-2);
+  box-shadow: inset 3px 0 0 var(--bear);
+}
+.tw-count-alarm { color: var(--bear); }
+.tw-tag {
+  margin-left: 8px; padding: 1px 7px; border-radius: 999px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.02em;
+  color: var(--text-3); background: var(--surface-3); vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+}
+.tw-row-do { margin-top: 4px; font-size: 12px; font-weight: 600; color: var(--text-2); }

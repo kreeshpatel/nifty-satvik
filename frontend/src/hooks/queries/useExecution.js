@@ -53,6 +53,35 @@ export function useReconciliation(options = {}) {
   });
 }
 
+/**
+ * The nav-badge counts: how many lines /this-week is holding for you right now.
+ *
+ * Shares RECONCILIATION_KEY with useReconciliation, so the badge costs no extra request — it is
+ * the same cached payload read through a different select. It exists because a daily alarm that
+ * only speaks on the page you have to remember to open is not an alarm: the missed-exit item is
+ * derived every weekday, and until it was counted in the chrome the user could go a week without
+ * learning the model had sold a name they still hold.
+ *
+ * `missed` is kept SEPARATE from `exitsDue` rather than summed into one number, because they carry
+ * different urgency — an exit that is still due is on-plan, one already missed is not — and the
+ * badge colours on that distinction.
+ */
+export function useOutstandingActions(options = {}) {
+  return useQuery({
+    queryKey: RECONCILIATION_KEY,
+    queryFn: fetchReconciliation,
+    select: (data) => {
+      const items = Array.isArray(data?.action_items) ? data.action_items : [];
+      const missed = items.filter((i) => i.type === 'MISSED_EXIT').length;
+      const exitsDue = items.filter((i) => i.type === 'SELL_DUE' || i.type === 'STALE_HOLD').length;
+      return { missed, exitsDue, total: missed + exitsDue };
+    },
+    staleTime: 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    ...options,
+  });
+}
+
 /** The user's durable positions → array of { signal_id, ticker, remaining_qty, realized_pnl, ... }. */
 export function useExecutionPositions(options = {}) {
   return useQuery({

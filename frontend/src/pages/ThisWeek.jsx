@@ -11,6 +11,14 @@
  * (model plan − your ledger), and holds are positions with nothing outstanding. Recording a fill
  * clears the line, because reconciliation is derived rather than stored.
  *
+ * MISSED EXITS (the "I didn't get out at my stop" case). The book's stop is a weekly-close stop
+ * executed at the next open, so a sell the model booked LEAVES the weekly envelope on the following
+ * Saturday — and the position the user still holds went dark on the one page meant to instruct it.
+ * The daily monitor now re-prices every booked exit (`missed_exits`), reconciliation raises one only
+ * for a user whose ledger still shows the shares, and this section states the cost of waiting in the
+ * numbers that make it act-on-able: what the record sold at, when, and where the price is now. It is
+ * NOT new advice — the exit is the model's own, already taken; only the drift is computed here.
+ *
  * CADENCE (the honest version): the book is decided at the Saturday close, but this is NOT a
  * "do nothing until Saturday" product — the +2R tranche is a resting intraweek limit and a stop can
  * breach midweek. So the header states the next scan AND that a midweek trigger is acted on at the
@@ -107,10 +115,25 @@ export default function ThisWeek() {
     () => (sized?.rows ?? []).filter((r) => r.status === SIZER_STATUS.FUNDED), [sized]);
 
   const exits = items.filter((i) => i.type === 'SELL_DUE' || i.type === 'STALE_HOLD');
-  const quietHolds = openPositions.filter((p) => !exits.some((e) => e.signal_id === p.signal_id));
+  // Rendered in their OWN section rather than folded into "Exits due": an exit that is still due is
+  // on-plan, and one you have already missed is not. Collapsing the two would let the urgent case
+  // inherit the calm copy of the ordinary one.
+  const missedExits = items.filter((i) => i.type === 'MISSED_EXIT');
+  const actionable = [...exits, ...missedExits];
+  const quietHolds = openPositions.filter((p) => !actionable.some((e) => e.signal_id === p.signal_id));
+
+  // The page's own shape, stated before it is scrolled. Ordered the way the sections are — sells
+  // before buys — so the summary and the body can never imply different priorities. Holds are
+  // counted but toned down: they are the absence of work, not a fifth item on the list.
+  const summary = [
+    missedExits.length && { k: 'missed', n: missedExits.length, label: missedExits.length === 1 ? 'missed exit' : 'missed exits' },
+    exits.length && { k: 'due', n: exits.length, label: exits.length === 1 ? 'exit due' : 'exits due' },
+    buyCandidates.length && { k: 'buy', n: buyCandidates.length, label: buyCandidates.length === 1 ? 'buy open' : 'buys open' },
+    quietHolds.length && { k: 'hold', n: quietHolds.length, label: 'holding' },
+  ].filter(Boolean);
 
   const loading = signalsQuery.isLoading || reconQuery.isLoading || execQuery.isLoading;
-  const nothingToDo = !loading && buyCandidates.length === 0 && exits.length === 0;
+  const nothingToDo = !loading && buyCandidates.length === 0 && actionable.length === 0;
   const scan = nextScan();
 
   const sigFor = (signalId) => {
@@ -156,6 +179,15 @@ export default function ThisWeek() {
           <p className="tw-sub">
             Everything the model expects of you, in one place. Recording a fill clears its line.
           </p>
+          {!loading && summary.length > 0 && (
+            <div className="tw-summary">
+              {summary.map((s2) => (
+                <span className={`tw-sum tw-sum-${s2.k}`} key={s2.k}>
+                  <b className="tnum">{s2.n}</b> {s2.label}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <div className="tw-cadence">
           <div className="tw-cadence-row">Next scan · <b>{scan.when} 6:00 PM IST</b> <span>({scan.inWords})</span></div>
@@ -179,7 +211,72 @@ export default function ThisWeek() {
         </div>
       )}
 
-      {/* ── EXITS FIRST: acting late costs more than buying late ── */}
+      {/* ── MISSED EXITS FIRST: the model is already flat and you are not, so this is the
+           only section where every day of delay has a running cost. Sells before buys
+           throughout — acting late on an exit costs more than acting late on an entry. ── */}
+      {missedExits.length > 0 && (
+        <section className="tw-section tw-section-missed">
+          <div className="tw-section-h">
+            <h2>Missed exits <span className="tw-count tw-count-alarm">{missedExits.length}</span></h2>
+            <span className="tw-section-sub">
+              The model has already sold these. Re-checked every day until you record the sell.
+            </span>
+          </div>
+          {missedExits.map((it) => {
+            const drift = Number(it.drift_pct);
+            const hasDrift = Number.isFinite(drift);
+            return (
+              <div className="tw-row tw-row-missed" key={`${it.signal_id}-missed`}>
+                <div className="tw-row-l">
+                  <span className="tw-dot num-bear" />
+                  <div>
+                    <div className="tw-sym">
+                      {it.ticker}
+                      <span className="tw-tag">sold {it.due_date}</span>
+                    </div>
+                    <div className="tw-row-msg">
+                      The record sold at <b className="tnum">{fmtNum(it.due_price)}</b>
+                      {it.cause ? <> — {it.cause}</> : null}.{' '}
+                      Now <b className="tnum">{fmtNum(it.last_close)}</b>
+                      {hasDrift && (
+                        <>
+                          {' '}(<span className={`tnum ${drift < 0 ? 'num-bear' : 'num-bull'}`}>
+                            {drift > 0 ? '+' : ''}{drift.toFixed(1)}%
+                          </span>{' '}vs the model's exit)
+                        </>
+                      )}
+                      {it.r_at_exit != null && (
+                        <> · booked <b className="tnum">{Number(it.r_at_exit).toFixed(2)}R</b></>
+                      )}
+                    </div>
+                    <div className="tw-row-do">Sell the remainder at market at the next open.</div>
+                  </div>
+                </div>
+                <div className="tw-row-r">
+                  <span className="tw-qty tnum">{it.remaining_qty} held</span>
+                  <button
+                    type="button" className="tw-btn tw-btn-primary"
+                    onClick={() => {
+                      const sig = sigFor(it.signal_id) || {
+                        // The card is GONE from the envelope once the model books the exit — which is
+                        // exactly when this item exists — so fall back to the item's own numbers
+                        // rather than sending the user off to another page to do the same thing.
+                        sym: it.ticker, signalId: it.signal_id, current_price: it.last_close,
+                        entry: it.entry, stop: it.stop,
+                      };
+                      setCapture({ mode: 'sell', sig, tranche: 'manual' });
+                    }}
+                  >
+                    Record sell
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </section>
+      )}
+
+      {/* ── EXITS DUE: on-plan sells, after the off-plan ones above ── */}
       {exits.length > 0 && (
         <section className="tw-section">
           <div className="tw-section-h">

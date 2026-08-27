@@ -12,6 +12,7 @@ import BrandLogo from './BrandLogo';
 import HeaderTicker from './HeaderTicker';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useUiScale } from '@/hooks/useUiScale';
+import { useOutstandingActions } from '@/hooks/queries/useExecution';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,6 +50,50 @@ const ACCOUNT_LINKS = [
   { to: '/history',      label: 'Recommendation history', icon: History },
   { to: '/track-record', label: 'Track record',   icon: Trophy },
 ];
+
+/**
+ * The count of outstanding actions, rendered on the "This week" tab.
+ *
+ * RED when the model has already sold something you still hold (a missed exit — off-plan, and the
+ * cost grows daily); BRAND otherwise (exits due — on-plan, act at the next open). Zero renders
+ * nothing at all: a badge that is always present stops being read, which is the failure this is
+ * here to prevent, not repeat.
+ */
+function ActionBadge({ compact = false }) {
+  const { data } = useOutstandingActions();
+  const total = data?.total ?? 0;
+  if (!total) return null;
+  const alarm = (data?.missed ?? 0) > 0;
+  const title = alarm
+    ? `${data.missed} missed exit${data.missed === 1 ? '' : 's'} — the model has already sold `
+      + `${data.missed === 1 ? 'this' : 'these'}`
+    : `${total} exit${total === 1 ? '' : 's'} due`;
+  return (
+    <span
+      title={title}
+      aria-label={title}
+      style={{
+        minWidth: compact ? 20 : 17,
+        height: compact ? 20 : 17,
+        padding: '0 5px',
+        marginLeft: 2,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 999,
+        fontSize: compact ? 11 : 10,
+        fontWeight: 700,
+        fontVariantNumeric: 'tabular-nums',
+        lineHeight: 1,
+        color: alarm ? 'var(--bear)' : 'var(--brand-hi)',
+        background: alarm ? 'var(--bear-soft)' : 'var(--brand-soft)',
+        boxShadow: `inset 0 0 0 1px ${alarm ? 'var(--bear)' : 'var(--brand-edge)'}`,
+      }}
+    >
+      {total}
+    </span>
+  );
+}
 
 export function TopBar() {
   const navigate = useNavigate();
@@ -400,6 +445,7 @@ export function TopBar() {
                     >
                       <Icon size={18} />
                       {t.label}
+                      {t.to === '/this-week' && <ActionBadge compact />}
                     </Link>
                   );
                 })}
@@ -483,6 +529,7 @@ export function TopBar() {
             >
               <Icon size={13} />
               {t.label}
+              {t.to === '/this-week' && <ActionBadge />}
             </Link>
           );
         })}

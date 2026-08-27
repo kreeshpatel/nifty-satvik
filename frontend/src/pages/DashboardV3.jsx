@@ -27,7 +27,7 @@ import { useWatchlist } from '@/hooks/queries/useWatchlist';
 import { useOverview } from '@/hooks/queries/useOverview';
 import { useIndexSparklines } from '@/hooks/queries/useIndexSparklines';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
-import { useExecutionPositions } from '@/hooks/queries/useExecution';
+import { useExecutionPositions, useOutstandingActions } from '@/hooks/queries/useExecution';
 import { DISCLAIMER } from '@/lib/signalCopy';
 import TradeCardModal from '@/components/shared/TradeCardModal';
 import '@/styles/dashboard-proto.css';
@@ -339,6 +339,60 @@ function GlobalIndices({ indexData }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────
+// Outstanding-actions strip — the one thing on this page you cannot scroll past
+// ─────────────────────────────────────────────────────────────────────
+/**
+ * A single line, ABOVE the grid rather than inside a column, when /this-week is holding something.
+ *
+ * The Dashboard is where a reader lands, and until now it said nothing about the model having sold
+ * a name they still hold — that fact lived only on /this-week, one click they had to think to make.
+ * A missed exit is the case where every day of not-knowing costs money, so it gets the top line and
+ * the bear tone; ordinary exits due get the calm one. Nothing renders at zero.
+ */
+function OutstandingStrip() {
+  const { data } = useOutstandingActions();
+  const missed = data?.missed ?? 0;
+  const due = data?.exitsDue ?? 0;
+  if (!missed && !due) return null;
+  const alarm = missed > 0;
+  const headline = alarm
+    ? `The model has already sold ${missed} ${missed === 1 ? 'name' : 'names'} you still hold`
+    : `${due} exit${due === 1 ? '' : 's'} due on your book`;
+  const sub = alarm
+    ? (due ? `Plus ${due} ordinary exit${due === 1 ? '' : 's'} due. Sell at the next open.`
+           : 'Sell the remainder at the next open — re-checked every day until you record it.')
+    : 'From the model’s plan versus your recorded ledger.';
+  return (
+    <Link
+      to="/this-week"
+      className="card"
+      style={{
+        display: 'flex', alignItems: 'center', gap: 14, marginBottom: 14,
+        padding: '12px 16px', textDecoration: 'none',
+        boxShadow: `inset 3px 0 0 ${alarm ? 'var(--bear)' : 'var(--brand)'}`,
+      }}
+    >
+      <span style={{
+        width: 8, height: 8, borderRadius: '50%', flex: '0 0 auto',
+        background: alarm ? 'var(--bear)' : 'var(--brand)',
+      }} />
+      <span style={{ minWidth: 0 }}>
+        <span style={{ display: 'block', fontSize: 13.5, fontWeight: 600, color: 'var(--text-1)' }}>
+          {headline}
+        </span>
+        <span style={{ display: 'block', fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>
+          {sub}
+        </span>
+      </span>
+      <span style={{ marginLeft: 'auto', flex: '0 0 auto', fontSize: 12, fontWeight: 600,
+                     color: alarm ? 'var(--bear)' : 'var(--brand-hi)' }}>
+        This week →
+      </span>
+    </Link>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────
 // Action tiles — prototype .grid3/.qa
 // ─────────────────────────────────────────────────────────────────────
 function ActionTiles() {
@@ -617,6 +671,7 @@ export default function DashboardV3() {
 
   return (
     <div className="dv3-proto" style={{ maxWidth: 1760, margin: '0 auto', padding: '18px 22px 60px' }}>
+      <OutstandingStrip />
       <div className="dash-grid">
         {/* CENTER */}
         <div className="stack">
