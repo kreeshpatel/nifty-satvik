@@ -32,12 +32,11 @@ const DashboardV3     = React.lazy(() => import('@/pages/DashboardV3'));
 const SignalsV3       = React.lazy(() => import('@/pages/SignalsV3'));
 const BacktestV2      = React.lazy(() => import('@/pages/BacktestV2'));
 const StockDetailV2   = React.lazy(() => import('@/pages/StockDetailV2'));
-// AdminV2 is the canonical admin console (4-tab layout). The legacy Admin
-// page is retained behind the /admin route only as a temporary fallback
-// until V2 is soaked; the route below points at AdminV2.
-const Admin           = React.lazy(() => import('@/pages/Admin'));
+// AdminV2 is the canonical admin console (4-tab layout). The legacy Admin page and
+// TrackRecordV2 were DELETED 2026-08-27 — both had been unrouted for weeks, kept as
+// "emergency rollback", which git already is. An unrouted import is not a rollback, it
+// is a second copy of a page nobody maintains that still ships in the bundle graph.
 const AdminV2         = React.lazy(() => import('@/pages/AdminV2'));
-const TrackRecordV2   = React.lazy(() => import('@/pages/TrackRecordV2'));
 const TrackRecordV3   = React.lazy(() => import('@/pages/TrackRecordV3'));
 const PortfolioV3     = React.lazy(() => import('@/pages/PortfolioV3'));
 const ThisWeek        = React.lazy(() => import('@/pages/ThisWeek'));
@@ -193,8 +192,14 @@ function RouteFallback() {
 function AnimatedRoutes() {
   const location = useLocation();
 
+  // NO mode="wait" (removed 2026-08-27). AnimatePresence's direct child here is ErrorBoundary,
+  // not a motion component, so it never reports an exit completion — and under mode="wait" the
+  // INCOMING page then waited forever at PageTransition's `initial` state. Every route that
+  // redirects on mount (an unknown slug, /landing-v1, /portfolio-v2) therefore rendered a fully
+  // populated DOM stuck at opacity 0: a blank page with 30KB of content behind it. Without
+  // mode="wait" the incoming page animates in immediately, which is also what a redirect wants.
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence>
       {/* ErrorBoundary scoped to the route — a crash in one page (e.g.
           StockDetailV2) shows a useful card with the error message + a
           reload button, instead of leaving the user on a fully-black
@@ -233,14 +238,11 @@ function AnimatedRoutes() {
               (the Kite-mirror page) stays stripped. */}
           <Route path="/portfolio" element={<PageTransition><PortfolioV3 /></PageTransition>} />
           <Route path="/portfolio-v2" element={<Navigate to="/portfolio" replace />} />
-          <Route path="/positions" element={<Navigate to="/premove" replace />} />
-          {/* Broker-mirror pages stripped 2026-07-13 (research-only; track on your broker). */}
-          <Route path="/orders" element={<Navigate to="/premove" replace />} />
-          <Route path="/funds" element={<Navigate to="/premove" replace />} />
-          <Route path="/pnl" element={<Navigate to="/premove" replace />} />
-          <Route path="/accounting" element={<Navigate to="/premove" replace />} />
-          {/* Journal (nq-orders Kite machinery) removed per ADR 0011 — your own record lives on /portfolio. */}
-          <Route path="/journal" element={<Navigate to="/portfolio" replace />} />
+          {/* The broker-mirror redirects (/positions /orders /funds /pnl /accounting /journal)
+              were REMOVED 2026-08-27 with the dead Sidebar that was their only entry point. They
+              pointed at /premove, which is not what any of those words mean — a redirect that
+              lands somewhere unrelated is worse than the catch-all, which sends an old bookmark
+              home instead of to a page the user then has to make sense of. */}
           <Route path="/track-record" element={<PageTransition><TrackRecordV3 /></PageTransition>} />
           {/* Recommendation history: every posted weekly call and how it performed from the entry-week
               Monday open. Exited calls (target/stop/expired) live here, not on the live Research board. */}
@@ -248,8 +250,6 @@ function AnimatedRoutes() {
           <Route path="/backtest" element={<PageTransition><BacktestV2 /></PageTransition>} />
           <Route path="/settings" element={<PageTransition><SettingsV2 /></PageTransition>} />
           <Route path="/stock/:symbol" element={<PageTransition><StockDetailV2 /></PageTransition>} />
-          {/* /admin → AdminV2 (4-tab console). Legacy Admin import kept for emergency
-              rollback only — not routed. Will be removed after AdminV2 soaks. */}
           <Route path="/admin" element={<PageTransition><AdminV2 /></PageTransition>} />
         </Route>
 
