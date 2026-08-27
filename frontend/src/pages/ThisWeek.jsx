@@ -61,6 +61,10 @@ const signalIdOf = (s) => {
 };
 
 const SEV_TONE = { high: 'bear', action: 'bull', warn: 'warn', info: 'info' };
+// Summary chip tone -> the same ladder the sections use, so the header and the body can
+// never imply different priorities.
+const SUM_TONE = { missed: 'ns-chip--alarm', due: 'ns-chip--warn',
+                   buy: 'ns-chip--brand', hold: 'ns-chip--quiet' };
 
 export default function ThisWeek() {
   const signalsQuery = useSignals({ model: 'bhanushali' });
@@ -167,22 +171,22 @@ export default function ThisWeek() {
   };
 
   if (signalsQuery.error) {
-    return <div className="tw-page"><EmptyState title="Couldn’t load this week" body="Try again shortly." /></div>;
+    return <div className="ns-page"><EmptyState title="Couldn’t load this week" body="Try again shortly." /></div>;
   }
 
   return (
-    <div className="tw-page">
+    <div className="ns-page">
       <header className="tw-head">
         <div>
-          <div className="tw-kicker">THIS WEEK · WHAT TO DO</div>
-          <h1 className="tw-title">This week</h1>
-          <p className="tw-sub">
+          <div className="ns-kicker">THIS WEEK · WHAT TO DO</div>
+          <h1 className="ns-title">This week</h1>
+          <p className="ns-sub">
             Everything the model expects of you, in one place. Recording a fill clears its line.
           </p>
           {!loading && summary.length > 0 && (
             <div className="tw-summary">
               {summary.map((s2) => (
-                <span className={`tw-sum tw-sum-${s2.k}`} key={s2.k}>
+                <span className={`ns-chip ${SUM_TONE[s2.k]}`} key={s2.k}>
                   <b className="tnum">{s2.n}</b> {s2.label}
                 </span>
               ))}
@@ -199,12 +203,12 @@ export default function ThisWeek() {
         </div>
       </header>
 
-      {loading && <div className="tw-card tw-muted">Loading this week’s actions…</div>}
+      {loading && <div className="ns-card ns-prose">Loading this week’s actions…</div>}
 
       {nothingToDo && (
-        <div className="tw-card tw-nothing">
+        <div className="ns-card tw-nothing">
           <div className="tw-nothing-title">Nothing to do this week.</div>
-          <div className="tw-nothing-body">
+          <div className="ns-prose">
             No new buys cleared the gate and nothing you hold needs action. Sitting on your hands is
             what the backtest assumes you do between scans — idle is the strategy working.
           </div>
@@ -215,10 +219,10 @@ export default function ThisWeek() {
            only section where every day of delay has a running cost. Sells before buys
            throughout — acting late on an exit costs more than acting late on an entry. ── */}
       {missedExits.length > 0 && (
-        <section className="tw-section tw-section-missed">
-          <div className="tw-section-h">
-            <h2>Missed exits <span className="tw-count tw-count-alarm">{missedExits.length}</span></h2>
-            <span className="tw-section-sub">
+        <section className="ns-section">
+          <div className="ns-section-h">
+            <h2>Missed exits <span className="ns-count ns-count--alarm">{missedExits.length}</span></h2>
+            <span className="ns-section-sub">
               The model has already sold these. Re-checked every day until you record the sell.
             </span>
           </div>
@@ -226,15 +230,15 @@ export default function ThisWeek() {
             const drift = Number(it.drift_pct);
             const hasDrift = Number.isFinite(drift);
             return (
-              <div className="tw-row tw-row-missed" key={`${it.signal_id}-missed`}>
-                <div className="tw-row-l">
-                  <span className="tw-dot num-bear" />
+              <div className="ns-row ns-row--alarm" key={`${it.signal_id}-missed`}>
+                <div className="ns-row-l">
+                  <span className="ns-dot num-bear" />
                   <div>
-                    <div className="tw-sym">
+                    <div className="ns-sym">
                       {it.ticker}
-                      <span className="tw-tag">sold {it.due_date}</span>
+                      <span className="ns-tag">sold {it.due_date}</span>
                     </div>
-                    <div className="tw-row-msg">
+                    <div className="ns-meta">
                       The record sold at <b className="tnum">{fmtNum(it.due_price)}</b>
                       {it.cause ? <> — {it.cause}</> : null}.{' '}
                       Now <b className="tnum">{fmtNum(it.last_close)}</b>
@@ -249,13 +253,13 @@ export default function ThisWeek() {
                         <> · booked <b className="tnum">{Number(it.r_at_exit).toFixed(2)}R</b></>
                       )}
                     </div>
-                    <div className="tw-row-do">Sell the remainder at market at the next open.</div>
+                    <div className="ns-meta ns-meta--do">Sell the remainder at market at the next open.</div>
                   </div>
                 </div>
-                <div className="tw-row-r">
-                  <span className="tw-qty tnum">{it.remaining_qty} held</span>
+                <div className="ns-row-r">
+                  <span className="ns-num">{it.remaining_qty} held</span>
                   <button
-                    type="button" className="tw-btn tw-btn-primary"
+                    type="button" className="ns-btn ns-btn--primary"
                     onClick={() => {
                       const sig = sigFor(it.signal_id) || {
                         // The card is GONE from the envelope once the model books the exit — which is
@@ -278,24 +282,24 @@ export default function ThisWeek() {
 
       {/* ── EXITS DUE: on-plan sells, after the off-plan ones above ── */}
       {exits.length > 0 && (
-        <section className="tw-section">
-          <div className="tw-section-h">
-            <h2>Exits due <span className="tw-count">{exits.length}</span></h2>
-            <span className="tw-section-sub">From the model’s plan vs your recorded ledger</span>
+        <section className="ns-section">
+          <div className="ns-section-h">
+            <h2>Exits due <span className="ns-count">{exits.length}</span></h2>
+            <span className="ns-section-sub">From the model’s plan vs your recorded ledger</span>
           </div>
           {exits.map((it) => (
-            <div className="tw-row" key={`${it.signal_id}-${it.type}`}>
-              <div className="tw-row-l">
-                <span className={`tw-dot num-${SEV_TONE[it.severity] || 'info'}`} />
+            <div className="ns-row" key={`${it.signal_id}-${it.type}`}>
+              <div className="ns-row-l">
+                <span className={`ns-dot num-${SEV_TONE[it.severity] || 'info'}`} />
                 <div>
-                  <div className="tw-sym">{it.ticker}</div>
-                  <div className="tw-row-msg">{it.message}</div>
+                  <div className="ns-sym">{it.ticker}</div>
+                  <div className="ns-meta">{it.message}</div>
                 </div>
               </div>
-              <div className="tw-row-r">
-                <span className="tw-qty tnum">{it.remaining_qty} held</span>
+              <div className="ns-row-r">
+                <span className="ns-num">{it.remaining_qty} held</span>
                 <button
-                  type="button" className="tw-btn tw-btn-primary"
+                  type="button" className="ns-btn ns-btn--primary"
                   onClick={() => {
                     const sig = sigFor(it.signal_id);
                     if (sig) setCapture({ mode: 'sell', sig, tranche: 'manual' });
@@ -313,10 +317,10 @@ export default function ThisWeek() {
 
       {/* ── BUYS ── */}
       {buyCandidates.length > 0 && (
-        <section className="tw-section">
-          <div className="tw-section-h">
-            <h2>Buys open <span className="tw-count">{buyCandidates.length}</span></h2>
-            <span className="tw-section-sub">
+        <section className="ns-section">
+          <div className="ns-section-h">
+            <h2>Buys open <span className="ns-count">{buyCandidates.length}</span></h2>
+            <span className="ns-section-sub">
               {capital
                 ? `Sized to ${money0(capital)} · ${tier} · ${Math.round(tierPct * 100)}% risk per trade`
                 : 'Set your capital on Research → Position sizer to see quantities'}
@@ -325,7 +329,7 @@ export default function ThisWeek() {
 
           {fundedRows.length > 1 && (
             <div className="tw-bulk">
-              <button type="button" className="tw-btn tw-btn-primary tw-bulk-btn"
+              <button type="button" className="ns-btn ns-btn--primary ns-btn--lg"
                       onClick={() => setBulkOpen(true)}>
                 Take this week’s book ({fundedRows.length})
               </button>
@@ -338,12 +342,12 @@ export default function ThisWeek() {
             const sym = (s.ticker || '').toUpperCase();
             const row = (sized?.rows ?? []).find((r) => r.signalId === id);
             return (
-              <div className="tw-row" key={id}>
-                <div className="tw-row-l">
-                  <span className="tw-dot num-info" />
+              <div className="ns-row" key={id}>
+                <div className="ns-row-l">
+                  <span className="ns-dot num-info" />
                   <div>
-                    <div className="tw-sym">{sym}</div>
-                    <div className="tw-row-msg">
+                    <div className="ns-sym">{sym}</div>
+                    <div className="ns-meta">
                       Buy {s.entry_low != null && s.entry_high != null
                         ? <>between <b className="tnum">{fmtNum(s.entry_low)}</b>–<b className="tnum">{fmtNum(s.entry_high)}</b></>
                         : <>near <b className="tnum">{fmtNum(s.entry)}</b></>}
@@ -351,15 +355,15 @@ export default function ThisWeek() {
                     </div>
                   </div>
                 </div>
-                <div className="tw-row-r">
-                  <span className="tw-qty tnum">
+                <div className="ns-row-r">
+                  <span className="ns-num">
                     {row?.status === SIZER_STATUS.FUNDED ? `${row.qty} sh · ${money0(row.cost)}`
                       : row?.status === SIZER_STATUS.OUT_OF_RANGE ? 'above buy range'
                       : row?.status === SIZER_STATUS.NOT_FUNDED ? 'no cash left'
                       : capital ? '—' : 'set capital'}
                   </span>
                   <button
-                    type="button" className="tw-btn"
+                    type="button" className="ns-btn"
                     onClick={() => setCapture({
                       mode: 'buy', sizerQty: row?.qty ?? null,
                       sig: { sym, signalId: id, entry: s.entry, stop: s.stop, target: s.target },
@@ -376,57 +380,57 @@ export default function ThisWeek() {
 
       {/* ── HOLDING: explicit "no action" so silence is never ambiguous ── */}
       {quietHolds.length > 0 && (
-        <section className="tw-section">
-          <div className="tw-section-h">
-            <h2>Holding <span className="tw-count">{quietHolds.length}</span></h2>
-            <span className="tw-section-sub">Nothing due — the plan is to let these run</span>
+        <section className="ns-section">
+          <div className="ns-section-h">
+            <h2>Holding <span className="ns-count">{quietHolds.length}</span></h2>
+            <span className="ns-section-sub">Nothing due — the plan is to let these run</span>
           </div>
           {quietHolds.map((p) => (
-            <div className="tw-row tw-row-quiet" key={p.signal_id}>
-              <div className="tw-row-l">
-                <span className="tw-dot num-muted" />
+            <div className="ns-row ns-row--quiet" key={p.signal_id}>
+              <div className="ns-row-l">
+                <span className="ns-dot num-muted" />
                 <div>
-                  <div className="tw-sym">{p.ticker}</div>
-                  <div className="tw-row-msg">
+                  <div className="ns-sym">{p.ticker}</div>
+                  <div className="ns-meta">
                     {p.remaining_qty} sh · avg <span className="tnum">{fmtNum(p.avg_buy_price)}</span>
                   </div>
                 </div>
               </div>
-              <div className="tw-row-r"><span className="tw-qty">no action</span></div>
+              <div className="ns-row-r"><span className="ns-num">no action</span></div>
             </div>
           ))}
         </section>
       )}
 
-      <footer className="tw-foot">
-        <Link to="/premove" className="tw-link">Full research book →</Link>
-        <Link to="/portfolio" className="tw-link">Your portfolio →</Link>
-        <div className="tw-disclaimer">{DISCLAIMER}</div>
+      <footer className="ns-foot">
+        <Link to="/premove" className="ns-link">Full research book →</Link>
+        <Link to="/portfolio" className="ns-link">Your portfolio →</Link>
+        <div className="ns-disclaimer">{DISCLAIMER}</div>
       </footer>
 
       {/* Bulk confirm — shows exactly what will be recorded before it writes. */}
       {bulkOpen && (
-        <div className="tw-modal-wrap" role="dialog" aria-modal="true" aria-label="Take this week's book">
-          <div className="tw-modal">
-            <div className="tw-modal-h">Take this week’s book</div>
-            <div className="tw-modal-sub">
+        <div className="ns-modal-wrap" role="dialog" aria-modal="true" aria-label="Take this week's book">
+          <div className="ns-modal">
+            <div className="ns-modal-h">Take this week’s book</div>
+            <div className="ns-modal-sub">
               Records a buy for each funded name at its entry price. Edit any that filled differently
               from Portfolio afterwards — corrections are kept as new events, never overwrites.
             </div>
             <div className="tw-modal-list">
               {fundedRows.map((r) => (
                 <div className="tw-modal-row" key={r.signalId}>
-                  <span className="tw-sym">{r.sym}</span>
+                  <span className="ns-sym">{r.sym}</span>
                   <span className="tnum">{r.qty} sh @ {fmtNum(r.entry)}</span>
-                  <span className="tnum tw-muted">{money0(r.cost)}</span>
+                  <span className="ns-num">{money0(r.cost)}</span>
                 </div>
               ))}
             </div>
             <div className="tw-modal-actions">
-              <button type="button" className="tw-btn" onClick={() => setBulkOpen(false)} disabled={bulkBusy}>
+              <button type="button" className="ns-btn" onClick={() => setBulkOpen(false)} disabled={bulkBusy}>
                 Cancel
               </button>
-              <button type="button" className="tw-btn tw-btn-primary" onClick={takeTheBook} disabled={bulkBusy}>
+              <button type="button" className="ns-btn ns-btn--primary" onClick={takeTheBook} disabled={bulkBusy}>
                 {bulkBusy ? 'Recording…' : `Record ${fundedRows.length} buys`}
               </button>
             </div>
