@@ -1,11 +1,11 @@
 {
-  "generated_utc": "2026-08-26T11:05:52.780215+00:00",
-  "generated_ist": "2026-08-26 16:35",
+  "generated_utc": "2026-08-27T20:45:58.460404+00:00",
+  "generated_ist": "2026-08-28 02:15",
   "as_of": "2026-08-26",
   "model": "weekly-swing-0094-rank-P",
   "source": "signals_today_weekly.json",
   "note": "OBSERVATIONAL re-pricing of the frozen Saturday weekly signals \u2014 live current_price + intra-week event flags mapped to the frozen exit tranches. Does NOT recompute signals or move any frozen level; the paper record is untouched and the weekly decision cadence is unchanged. ONLY the +2R target tranche (a resting broker limit) is actionable intra-week; the blow-off pattern and the 44w-SMA runner are decided ONLY at the Saturday weekly recompute and are flagged here as WATCH-only, never actionable.",
-  "n_monitored": 24,
+  "n_monitored": 23,
   "n_flags": 4,
   "n_actionable": 2,
   "monitors": [
@@ -920,61 +920,6 @@
       ]
     },
     {
-      "ticker": "HINDALCO",
-      "kind": "hold",
-      "current_price": 1053.0,
-      "frozen_price": 1029.85,
-      "sma20": 1035.03,
-      "as_of": "2026-08-26",
-      "entry": 1053.4,
-      "stop": 981.35,
-      "target": 1197.5,
-      "pnl_pct": -0.04,
-      "dist_to_stop_pct": 7.3,
-      "dist_to_target_pct": 13.72,
-      "r_multiple": -0.01,
-      "stop_breached": false,
-      "target_reached": false,
-      "implied_trail_sma20": 993.63,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 1197.5,
-          "actionable": false,
-          "status": "13.7% away",
-          "hit": false,
-          "dist_pct": 13.72
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": -0.01,
-          "weak_close_today": false
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 941.56,
-          "actionable": false,
-          "status": "+11.8% vs the 44w-SMA 941.56; hold the last 20% runner",
-          "hit": false,
-          "below_sma": false,
-          "dist_pct": 11.84
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 1197.5 (+2R) \u2014 resting limit",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 941.56"
-      ]
-    },
-    {
       "ticker": "MCX",
       "kind": "hold",
       "current_price": 3350.0,
@@ -1277,7 +1222,7 @@
     }
   ],
   "scheduler_health": {
-    "checked_utc": "2026-08-26T11:05:52.782385+00:00",
+    "checked_utc": "2026-08-27T20:45:58.462522+00:00",
     "overall": "CONTRACT_BREACH",
     "source_of_truth": "actions-run-log",
     "jobs": [
@@ -1291,7 +1236,7 @@
         "last_fired_utc": "2026-08-22T13:08:24+00:00",
         "artifact_last_utc": "2026-08-21T00:00:00+00:00",
         "artifact_corroborates": true,
-        "age_days": 3.91,
+        "age_days": 5.32,
         "overdue_after_days": 9,
         "status": "OK"
       },
@@ -1301,11 +1246,11 @@
         "cadence": "weekday",
         "proof": "forward_accum_health.json",
         "source": "run-log",
-        "run_id": 32840329198,
-        "last_fired_utc": "2026-08-25T11:03:23+00:00",
-        "artifact_last_utc": "2026-08-25T11:04:01+00:00",
+        "run_id": 32961535624,
+        "last_fired_utc": "2026-08-26T11:05:17+00:00",
+        "artifact_last_utc": "2026-08-26T11:05:54+00:00",
         "artifact_corroborates": true,
-        "age_days": 1.0,
+        "age_days": 1.4,
         "overdue_after_days": 5,
         "status": "OK"
       },
@@ -1317,9 +1262,9 @@
         "source": "run-log",
         "run_id": 32574910662,
         "last_fired_utc": "2026-08-22T13:08:24+00:00",
-        "artifact_last_utc": "2026-08-26T11:05:24.099169+00:00",
+        "artifact_last_utc": "2026-08-27T20:45:20.131464+00:00",
         "artifact_corroborates": false,
-        "age_days": 3.91,
+        "age_days": 5.32,
         "overdue_after_days": 9,
         "status": "OK"
       },
@@ -1331,9 +1276,9 @@
         "source": "run-log",
         "run_id": 32574910662,
         "last_fired_utc": "2026-08-22T13:08:24+00:00",
-        "artifact_last_utc": "2026-08-26T11:05:24.094963+00:00",
+        "artifact_last_utc": "2026-08-27T20:45:20.127342+00:00",
         "artifact_corroborates": false,
-        "age_days": 3.91,
+        "age_days": 5.32,
         "overdue_after_days": 9,
         "status": "OK"
       },
@@ -1343,11 +1288,11 @@
         "cadence": "weekday",
         "proof": "intraday_scan",
         "source": "run-log",
-        "run_id": 32842922264,
-        "last_fired_utc": "2026-08-25T11:33:24+00:00",
-        "artifact_last_utc": "2026-08-26T11:05:24.095828+00:00",
+        "run_id": 32964016530,
+        "last_fired_utc": "2026-08-26T11:34:43+00:00",
+        "artifact_last_utc": "2026-08-27T20:45:20.128932+00:00",
         "artifact_corroborates": false,
-        "age_days": 0.98,
+        "age_days": 1.38,
         "overdue_after_days": 5,
         "status": "OK"
       },
@@ -1357,11 +1302,11 @@
         "cadence": "weekday",
         "proof": "paper_portfolio.json",
         "source": "run-log",
-        "run_id": 32854717580,
-        "last_fired_utc": "2026-08-25T13:40:06+00:00",
-        "artifact_last_utc": "2026-08-26T11:05:24.096828+00:00",
+        "run_id": 32976032211,
+        "last_fired_utc": "2026-08-26T13:44:47+00:00",
+        "artifact_last_utc": "2026-08-27T20:45:20.130464+00:00",
         "artifact_corroborates": false,
-        "age_days": 0.89,
+        "age_days": 1.29,
         "overdue_after_days": 5,
         "status": "OK"
       }
@@ -1370,11 +1315,11 @@
     "note": "Dead-man reconstruction produced by the daily monitor (the proven weekday heartbeat). Firing truth is the Actions run log; committed artifacts corroborate only. If THIS block's checked_utc is itself stale, the monitor has stopped and every downstream freshness claim is suspect.",
     "output_contracts": {
       "overall": "RED",
-      "checked_at": "2026-08-26T11:05:54.280286+00:00",
+      "checked_at": "2026-08-27T20:46:00.862494+00:00",
       "history": {
         "adequate": true,
         "shallow": false,
-        "n_commits": 661,
+        "n_commits": 664,
         "oldest_commit": "2026-06-29T03:34:14+05:30",
         "reaches_back_past_cadence": true
       },
@@ -1384,7 +1329,7 @@
           "status": "OK",
           "last_commit": "f78fed11",
           "committed_at": "2026-08-22T13:21:21Z",
-          "age_days": 3.91,
+          "age_days": 5.31,
           "missing_required": [],
           "missing_conditional": [],
           "n_paths_in_commit": 23
@@ -1392,9 +1337,9 @@
         {
           "job": "forward-accumulators",
           "status": "OK",
-          "last_commit": "ad3379df",
-          "committed_at": "2026-08-25T11:04:03Z",
-          "age_days": 1.0,
+          "last_commit": "4c1130e0",
+          "committed_at": "2026-08-26T11:05:57Z",
+          "age_days": 1.4,
           "missing_required": [],
           "missing_conditional": [],
           "n_paths_in_commit": 4
@@ -1404,7 +1349,7 @@
           "status": "STALE",
           "last_commit": "141c7801",
           "committed_at": "2026-08-10T10:07:54Z",
-          "age_days": 16.04,
+          "age_days": 17.44,
           "missing_required": [],
           "missing_conditional": [],
           "n_paths_in_commit": 1
@@ -1412,9 +1357,9 @@
         {
           "job": "forward-wall-log",
           "status": "OK_WITH_WARN",
-          "last_commit": "486e5e10",
-          "committed_at": "2026-08-25T13:42:30Z",
-          "age_days": 0.89,
+          "last_commit": "986f929d",
+          "committed_at": "2026-08-26T13:47:18Z",
+          "age_days": 1.29,
           "missing_required": [],
           "missing_conditional": [
             "results/forward_wall_start.json",
@@ -1426,7 +1371,7 @@
         }
       ],
       "breaches": [
-        "intraday-scan: last cron commit is 16.0d old (cadence 5d)"
+        "intraday-scan: last cron commit is 17.4d old (cadence 5d)"
       ],
       "warnings": [
         "forward-wall-log: conditional artifact(s) not persisted: results/forward_wall_start.json, results/forward_wall.csv, results/paper_portfolio.json, results/scheduler_health.json"
