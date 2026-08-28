@@ -78,7 +78,7 @@ Written by the daily monitor (weekdays 16:15 IST).
 | `entry` | hold,missed_exits | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
 | `entry_high` | buy | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
 | `entry_low` | buy | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
-| `expired` | buy | · | · | · | ✓ | · | ✓ | · | ✓ | ✓ | **4** |
+| `expired` | buy | ✓ | · | · | ✓ | · | ✓ | · | ✓ | ✓ | **5** |
 | `filled_on` | buy | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `filled_price` | buy | · | · | · | ✓ | · | ✓ | · | · | · | **2** |
 | `filled_today` | buy | · | · | · | · | · | ✓ | · | · | · | **1** |

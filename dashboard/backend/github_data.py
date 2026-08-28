@@ -1,6 +1,7 @@
 """Fetch result files from local filesystem first, then GitHub as fallback."""
 
 import io
+import logging
 import json
 import os
 import time
@@ -8,6 +9,8 @@ import time
 import requests
 
 from config import PROJECT_ROOT
+
+_log = logging.getLogger("niftyquant.github_data")
 
 # Re-pointed 2026-07-01: the clean nifty-satvik engine now owns results/* (the
 # paper book's cron pushes paper_portfolio.json / portfolio_history.csv /
@@ -46,10 +49,29 @@ def _read_local(path: str) -> str | None:
     return None
 
 
+def _fetch_public_raw(path: str) -> str | None:
+    """Read over the PUBLIC raw URL — no token, and not subject to the API's 60/hour limit."""
+    try:
+        r = requests.get(f"{GITHUB_RAW}/{path}", timeout=10)
+        if r.status_code == 200:
+            return r.text
+        _log.warning("public raw fetch %s -> HTTP %s", path, r.status_code)
+    except requests.RequestException as exc:
+        _log.warning("public raw fetch %s failed: %s", path, exc)
+    return None
+
+
 def _fetch_remote(path: str) -> str | None:
+    """Authenticated contents endpoint, falling back to the public raw URL.
+
+    `results/` is in .dockerignore and so is absent from the image: without a working remote read
+    there is no local copy to serve. A single expired token used to take this to zero. The repo is
+    public, so it no longer has to. Both fallbacks log — a quiet fallback hides a dead primary.
+    """
     token = os.environ.get("GITHUB_TOKEN")
     if not token:
-        return None  # no unauthenticated path wired; falls back to the local read
+        _log.warning("no GITHUB_TOKEN — reading %s over the public raw URL (60/hour per IP)", path)
+        return _fetch_public_raw(path)
     try:
         r = requests.get(
             f"{GITHUB_API_CONTENTS}/{path}?ref=main",
@@ -62,9 +84,14 @@ def _fetch_remote(path: str) -> str | None:
         )
         if r.status_code == 200:
             return r.text
-    except Exception:
-        pass
-    return None
+        # Expired / revoked / rate-limited token. Recoverable, because the data is public — but
+        # never silently, or a dead token is indistinguishable from a healthy one.
+        _log.warning("authenticated fetch of %s -> HTTP %s; falling back to the public raw URL. "
+                     "Check GITHUB_TOKEN.", path, r.status_code)
+    except requests.RequestException as exc:
+        _log.warning("authenticated fetch of %s failed (%s); falling back to the public raw URL",
+                     path, exc)
+    return _fetch_public_raw(path)
 
 
 def fetch_github_file(path: str) -> str | None:
