@@ -34,6 +34,7 @@ import { useTrades, flattenTrades } from '@/hooks/queries/useTrades';
 import { useSignals } from '@/hooks/queries/useSignals';
 import { DISCLAIMER } from '@/lib/signalCopy';
 import { guardrailVerdict, guardrailCoverage, verdictLabel, VERDICT } from '@/lib/guardrails';
+import { monthlySeries } from '@/lib/monthly';
 import PaperRefRecord from '@/components/portfolio/PaperRefRecord';
 import '@/styles/portfolio-v3.css';
 
@@ -188,14 +189,32 @@ function StateStrip({ kiteConnected, regime, drawdownPct }) {
   const regimeLabel = isBull ? 'Bullish' : isBear ? 'Bearish' : 'Choppy';
   const regimeCls = isBull ? 'num-bull' : isBear ? 'num-bear' : 'num-warn';
 
-  // Computable risk status from drawdown_pct
-  // Kill threshold: 15% drawdown (documented in CLAUDE.md). We can compute % to kill.
-  const DRAWDOWN_KILL = 15;
+  // Drawdown status — and ONLY drawdown, which is what this badge now says.
+  //
+  // It used to read `riskOk = ddPct == null || ...` and print a bare ALL CLEAR: an unknown
+  // drawdown evaluated to cleared, from ONE input, with no hint that four other kill limits
+  // exist and are unevaluated. A reader taking "ALL CLEAR" from a strip is taking it about their
+  // risk, not about one metric. A badge that names what it measured cannot overclaim.
+  //
+  // The threshold's citation was also wrong: the comment said "15% drawdown (documented in
+  // CLAUDE.md)" and CLAUDE.md documents no such thing — the book's own pinned anchor runs to a
+  // −46% max drawdown, so 15% is unlikely to describe the live book at all. Left in place and
+  // flagged, because changing a kill threshold is a pre-registered governance decision and not a
+  // UI edit. Same annotation as KILL_DD_THRESHOLD below, which duplicates it.
+  const DRAWDOWN_KILL = 15;   // UNVERIFIED — no counterpart in CLAUDE.md or the engine
   const ddPct = drawdownPct != null ? Math.abs(Number(drawdownPct)) : null;
-  const riskOk = ddPct == null || ddPct < DRAWDOWN_KILL * 0.6;
-  const riskSoft = ddPct != null && ddPct >= DRAWDOWN_KILL * 0.6 && ddPct < DRAWDOWN_KILL;
-  const riskWord = riskSoft ? 'SOFT WARNING' : ddPct != null && ddPct >= DRAWDOWN_KILL ? 'HARD KILL' : 'ALL CLEAR';
-  const riskCls = riskSoft ? 'kw-soft' : (ddPct != null && ddPct >= DRAWDOWN_KILL) ? 'kw-hard' : 'kw-ok';
+  const ddStatus = ddPct == null ? 'unknown'
+    : ddPct >= DRAWDOWN_KILL ? 'hard'
+    : ddPct >= DRAWDOWN_KILL * 0.6 ? 'soft'
+    : 'ok';
+  const riskWord = ddStatus === 'hard' ? 'DRAWDOWN: HARD KILL'
+    : ddStatus === 'soft' ? 'DRAWDOWN: WARNING'
+    : ddStatus === 'ok' ? 'DRAWDOWN OK'
+    : 'DRAWDOWN NOT EVALUATED';
+  const riskCls = ddStatus === 'hard' ? 'kw-hard'
+    : ddStatus === 'soft' ? 'kw-soft'
+    : ddStatus === 'ok' ? 'kw-ok'
+    : 'kw-soft';   // unknown is amber, never green
 
   return (
     <div className="pv3-regime-strip">
@@ -715,31 +734,24 @@ function RiskRibbon({ portfolio, metrics, isLoading }) {
 
 // ─────────────────────────────────────────────────────────────────────
 // SECTION 5 — MonthlyPnl
-// Client-side: bucket useTrades() by exit_date month, sum return_pct
-// Axis label: "monthly realised return %" (honest — qty not in trade shape)
-// TODO: monthly P&L endpoint or position-size on trades
+//
+// It used to bucket closed trades by exit month and SUM THEIR RETURN PERCENTAGES. Five trades at
+// +10% drew a +50% bar. Percentages of different denominators do not add: each position is a
+// fraction of the book, so the portfolio moved a small multiple of that, and the number scaled
+// with how many trades a month happened to close rather than with how the month went.
+//
+// The old TODO asked for "a monthly P&L endpoint or position-size on trades". Neither was needed
+// — the equity curve was already being fetched by this page for the hero chart and simply never
+// reached here. Month-end against previous month-end IS the monthly return. See lib/monthly.js;
+// when no curve is available it falls back to sum-of-R, which does add, and labels the unit so
+// it cannot be misread as a percentage.
 // ─────────────────────────────────────────────────────────────────────
-function MonthlyPnl({ trades, isLoading }) {
-  const data = useMemo(() => {
-    if (!trades || trades.length === 0) return [];
-    const byMonth = new Map();
-    for (const t of trades) {
-      const dateStr = t.exit_date || t.entry_date || '';
-      if (!dateStr) continue;
-      const month = dateStr.slice(0, 7); // YYYY-MM
-      const existing = byMonth.get(month) || { month, sumRetPct: 0, count: 0 };
-      existing.sumRetPct += Number(t.return_pct) || 0;
-      existing.count += 1;
-      byMonth.set(month, existing);
-    }
-    return Array.from(byMonth.values())
-      .sort((a, b) => a.month.localeCompare(b.month))
-      .slice(-12) // last 12 months
-      .map((m) => ({
-        label: new Date(m.month + '-01').toLocaleString('en-IN', { month: 'short' }),
-        value: m.sumRetPct, // sum of return_pct
-      }));
-  }, [trades]);
+function MonthlyPnl({ trades, history, isLoading }) {
+  const series = useMemo(
+    () => monthlySeries({ history: history ?? [], trades: trades ?? [] }),
+    [history, trades],
+  );
+  const data = series.data;
 
   const posMonths = data.filter((d) => d.value >= 0).length;
   const maxAbs = data.length > 0 ? Math.max(...data.map((d) => Math.abs(d.value))) || 1 : 1;
@@ -748,20 +760,21 @@ function MonthlyPnl({ trades, isLoading }) {
     <div className="pv3-card">
       <div className="pv3-card-head">
         <div>
-          <div className="pv3-t-ui-headline">Monthly realised return</div>
-          {/* TODO: monthly P&L endpoint or position-size on trades */}
+          <div className="pv3-t-ui-headline">
+            {series.unit === 'R' ? 'Monthly result (R)' : 'Monthly realised return'}
+          </div>
           <div className="pv3-t-ui-footnote">
             {isLoading
               ? 'Loading…'
               : data.length > 0
-                ? `model track record · sum of return %/mo · ${posMonths}/${data.length} +ve`
-                : 'No closed trades — chart populates after first signal closes'}
+                ? `model track record · ${series.source} · ${posMonths}/${data.length} +ve`
+                : 'No equity history or closed trades yet — the chart populates from the first month'}
           </div>
         </div>
       </div>
       {!isLoading && data.length === 0 ? (
         <div className="pv3-monthly-empty">
-          No closed trade data yet. Return % by month appears here as signals close.
+          No monthly history yet. Each month appears here once it has a full month before it to measure against.
         </div>
       ) : (
         <div className="pv3-mp-chart">
@@ -782,7 +795,7 @@ function MonthlyPnl({ trades, isLoading }) {
                   <div
                     key={d.label}
                     className="pv3-mp-col"
-                    title={`${d.label} · ${d.value >= 0 ? '+' : ''}${d.value.toFixed(2)}%`}
+                    title={`${d.label} · ${d.value >= 0 ? '+' : ''}${d.value.toFixed(2)}${series.unit === 'R' ? 'R' : '%'}`}
                   >
                     <div className="pv3-mp-bar-wrap">
                       <span
@@ -1443,6 +1456,9 @@ export default function PortfolioV3() {
   const metrics    = useMemo(() => overviewQuery.data?.metrics ?? {}, [overviewQuery.data]);
   const regime     = signalsQuery.data?.regime ?? {};
   const navHistory = navHistoryQuery.data ?? null;
+  // The curve the monthly chart measures. Same source the hero plots, so the two cannot
+  // disagree about what month a return belongs to.
+  const monthlyHistory = (isPaper ? paperHistoryQuery.data?.history : navHistoryQuery.data?.history) ?? [];
   const paperHistory = paperHistoryQuery.data ?? null;
 
   const paperPos    = useMemo(() => paperQuery.data ?? [], [paperQuery.data]);
@@ -1622,7 +1638,7 @@ export default function PortfolioV3() {
         <>
           <section className="pv3-row"><RealizedStrip trades={trades} /></section>
           <section className="pv3-row"><ClosedTradesTable trades={trades} isLoading={closedLoading} /></section>
-          <section className="pv3-row"><MonthlyPnl trades={trades} isLoading={closedLoading} /></section>
+          <section className="pv3-row"><MonthlyPnl trades={trades} history={monthlyHistory} isLoading={closedLoading} /></section>
         </>
       )}
 
