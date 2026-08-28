@@ -33,9 +33,16 @@ MODELS_DIR = PROJECT_ROOT / "models"
 # Re-pointed 2026-07-01: results/* (signals_today_weekly.json etc.) now live in the
 # clean nifty-satvik engine repo, pushed by its paper-book cron.
 GITHUB_RAW = "https://raw.githubusercontent.com/kreeshpatel/nifty-satvik/main"
-# The repo is PRIVATE — raw.githubusercontent URLs 404 without auth. Read
-# cron-published results/ files through the authenticated GitHub API contents
-# endpoint instead, using the same GITHUB_TOKEN the cron uses to push.
+# CORRECTED 2026-08-29: this said "the repo is PRIVATE — raw.githubusercontent URLs 404 without
+# auth". The repo is PUBLIC, and an unauthenticated raw fetch returns 200. It was true when
+# written; the visibility changed and the comment did not.
+#
+# Reading through the authenticated contents endpoint is still the right default, but for a
+# different reason than the one stated: rate limits. The GitHub API allows 60 requests/hour
+# unauthenticated (shared per IP, across both Fly machines) against 5,000 authenticated, and the
+# 30s per-path cache below can easily exceed 60/hour across several paths. GITHUB_RAW is not
+# subject to that limit and is now usable without a token — see _fetch_github_raw for why that
+# is a live option rather than a change made here.
 GITHUB_API_CONTENTS = "https://api.github.com/repos/kreeshpatel/nifty-satvik/contents"
 
 # ── The single live model (the momentum book was fully removed 2026-07-13) ──
@@ -78,12 +85,19 @@ _GITHUB_CACHE_TTL = 30.0
 
 
 def _fetch_github_raw(github_path: str):
-    """Fetch JSON for a cron-published results/ file from the PRIVATE repo via the
-    authenticated GitHub API contents endpoint, with a 30s in-memory cache.
+    """Fetch JSON for a cron-published results/ file via the authenticated GitHub API contents
+    endpoint, with a 30s in-memory cache. Keeps live signal data fresh on a host whose local
+    filesystem only refreshes on rebuild.
 
-    Returns None on any failure (incl. missing GITHUB_TOKEN) so the caller falls
-    back to the local file. Since the repo went private, the old unauthenticated
-    raw.githubusercontent URL 404s — this keeps live signal data fresh on Render.
+    Returns None on any failure (incl. a missing GITHUB_TOKEN) so the caller falls back to the
+    local file.
+
+    NOTE (2026-08-29): the no-token early return below was written when the repo was private, so
+    "no token" genuinely meant "unreadable". The repo is public now and GITHUB_RAW returns 200
+    without auth, which makes that return a self-imposed limitation rather than a necessity: a
+    tokenless deploy silently serves a possibly-stale local file for data it could fetch. Wiring
+    GITHUB_RAW as the tokenless fallback is a small change and deliberately NOT made here, because
+    it alters a live data path and should be its own reviewed commit.
     """
     now = _time.time()
     cached = _GITHUB_CACHE.get(github_path)
@@ -91,8 +105,8 @@ def _fetch_github_raw(github_path: str):
         return cached[1]
     token = os.environ.get("GITHUB_TOKEN")
     if not token:
-        # No token on this service → can't read the private repo. Caller will
-        # use the local file. (Set GITHUB_TOKEN on the web service to enable.)
+        # No token → fall back to the local file. Not because the data is unreachable (the repo
+        # is public), but because no unauthenticated path is wired yet. See the docstring.
         return None
     try:
         r = requests.get(
@@ -506,7 +520,7 @@ def get_signal_history(
 
     Replaces the retired Vercel `/fn/signals` serverless function, which read
     the repo's PUBLIC raw URLs and served the data UNAUTHENTICATED. Now the repo
-    is private and this endpoint is auth-gated, the data is read server-side via
+    is public but this endpoint is auth-gated, the data is read server-side via
     the GitHub-first/local-fallback helper (authenticated). Live-price
     enrichment that the Vercel function did client-of-GitHub-side is dropped;
     the frontend's existing price/Kite hooks cover live overlays, and history

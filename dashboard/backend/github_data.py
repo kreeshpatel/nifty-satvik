@@ -13,8 +13,10 @@ from config import PROJECT_ROOT
 # paper book's cron pushes paper_portfolio.json / portfolio_history.csv /
 # paper_ledger_history.csv / paper_trades.json / signals_today.json here).
 GITHUB_RAW = "https://raw.githubusercontent.com/kreeshpatel/nifty-satvik/main"
-# Repo is PRIVATE — raw URLs 404 without auth. Use the authenticated GitHub API
-# contents endpoint for the network fallback (local read is still tried first).
+# CORRECTED 2026-08-29: this said the repo is PRIVATE and raw URLs 404 without auth. It is
+# PUBLIC and they return 200. The authenticated contents endpoint is still preferred, for rate
+# limits (60 req/hour unauthenticated vs 5,000) rather than for access. Same correction as
+# routers/signals.py, which carried the identical stale claim.
 GITHUB_API_CONTENTS = "https://api.github.com/repos/kreeshpatel/nifty-satvik/contents"
 
 
@@ -47,7 +49,7 @@ def _read_local(path: str) -> str | None:
 def _fetch_remote(path: str) -> str | None:
     token = os.environ.get("GITHUB_TOKEN")
     if not token:
-        return None  # private repo unreadable without a token
+        return None  # no unauthenticated path wired; falls back to the local read
     try:
         r = requests.get(
             f"{GITHUB_API_CONTENTS}/{path}?ref=main",
