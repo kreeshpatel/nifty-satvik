@@ -11,17 +11,25 @@
  * (model plan − your ledger), and holds are positions with nothing outstanding. Recording a fill
  * clears the line, because reconciliation is derived rather than stored.
  *
+ * MISSED EXITS (the "I didn't get out at my stop" case). The book's stop is a weekly-close stop
+ * executed at the next open, so a sell the model booked LEAVES the weekly envelope on the following
+ * Saturday — and the position the user still holds went dark on the one page meant to instruct it.
+ * The daily monitor now re-prices every booked exit (`missed_exits`), reconciliation raises one only
+ * for a user whose ledger still shows the shares, and this section states the cost of waiting in the
+ * numbers that make it act-on-able: what the record sold at, when, and where the price is now. It is
+ * NOT new advice — the exit is the model's own, already taken; only the drift is computed here.
+ *
  * CADENCE (the honest version): the book is decided at the Saturday close, but this is NOT a
  * "do nothing until Saturday" product — the +2R tranche is a resting intraweek limit and a stop can
  * breach midweek. So the header states the next scan AND that a midweek trigger is acted on at the
  * next open, matching the engine (weekly-close decision, next-open execution).
  */
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useSignals } from '@/hooks/queries/useSignals';
 import { useReconciliation, useExecutionPositions, useRecordBuy } from '@/hooks/queries/useExecution';
-import { useSizerConfig, useSizingPrefs } from '@/hooks/queries/useSizingPrefs';
+import { useSizerConfig, useSizingPrefs, useUpdateSizingPrefs } from '@/hooks/queries/useSizingPrefs';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import ExecutionCaptureModal from '@/components/shared/ExecutionCaptureModal';
 import { EmptyState } from '@/components/shared/EmptyState';
@@ -53,6 +61,69 @@ const signalIdOf = (s) => {
 };
 
 const SEV_TONE = { high: 'bear', action: 'bull', warn: 'warn', info: 'info' };
+// Summary chip tone -> the same ladder the sections use, so the header and the body can
+// never imply different priorities.
+const SUM_TONE = { missed: 'ns-chip--alarm', due: 'ns-chip--warn',
+                   buy: 'ns-chip--brand', hold: 'ns-chip--quiet' };
+
+/**
+ * The sizing control — capital + risk tier, edited where the sizing is USED.
+ *
+ * It used to live only in the Research rail, which meant this page's own quantities depended on a
+ * setting you could not reach from here: the empty state literally read "Set your capital on
+ * Research → Position sizer". Research is where you read the case for a name; this is where the
+ * book gets sized and taken, so the control belongs here and Research keeps one job.
+ *
+ * Both fields persist per-user through the same PUT /api/me/sizing-prefs the old card used, so
+ * nothing about the stored value or the allocator changes — only where it is reachable.
+ */
+function SizingControl({ capital, tier, tiers, capPct, open, onToggle }) {
+  const update = useUpdateSizingPrefs();
+  const [draft, setDraft] = useState(capital == null ? '' : String(capital));
+  useEffect(() => { setDraft(capital == null ? '' : String(capital)); }, [capital]);
+
+  const commit = () => {
+    const n = Number(draft);
+    if (n > 0 && n !== capital) update.mutate({ default_capital: n });
+  };
+
+  return (
+    <>
+      <button type="button" className="tw-sizing-btn" onClick={onToggle} aria-expanded={open}>
+        {capital
+          ? `Sized to ${money0(capital)} · ${tier} · ${Math.round((tiers[tier] ?? 0.02) * 100)}% risk per trade`
+          : 'Set your capital to see quantities'}
+        <span aria-hidden="true"> {open ? '▴' : '▾'}</span>
+      </button>
+      {open && (
+        <div className="tw-sizing">
+          <label className="tw-sizing-l" htmlFor="tw-capital">
+            Capital available <span>(free, for new buys)</span>
+          </label>
+          <input
+            id="tw-capital" className="tw-sizing-in" type="number" inputMode="decimal"
+            placeholder="e.g. 500000" value={draft}
+            onChange={(e) => setDraft(e.target.value)} onBlur={commit}
+            onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
+          />
+          <div className="tw-sizing-tiers" role="group" aria-label="Risk tier">
+            {['medium', 'high'].map((t) => (
+              <button key={t} type="button" className={`ns-btn${t === tier ? ' ns-btn--primary' : ''}`}
+                      onClick={() => update.mutate({ risk_tier: t })}>
+                {t === 'medium' ? 'Medium' : 'High'} · {Math.round((tiers[t] ?? 0) * 100)}%
+              </button>
+            ))}
+          </div>
+          <div className="tw-sizing-note">
+            {Math.round((tiers[tier] ?? 0.02) * 100)}% risk per trade · at most {Math.round(capPct * 100)}% of
+            capital in one name.
+            {tier === 'high' && <> <span className="num-bear">High is aggressive — above the validated 2%.</span></>}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 
 export default function ThisWeek() {
   const signalsQuery = useSignals({ model: 'bhanushali' });
@@ -64,6 +135,7 @@ export default function ThisWeek() {
 
   const [capture, setCapture] = useState(null);
   const [bulkOpen, setBulkOpen] = useState(false);
+  const [sizingOpen, setSizingOpen] = useState(false);
   const [bulkBusy, setBulkBusy] = useState(false);
 
   const rawSignals = useMemo(() => signalsQuery.data?.signals ?? [], [signalsQuery.data]);
@@ -107,10 +179,25 @@ export default function ThisWeek() {
     () => (sized?.rows ?? []).filter((r) => r.status === SIZER_STATUS.FUNDED), [sized]);
 
   const exits = items.filter((i) => i.type === 'SELL_DUE' || i.type === 'STALE_HOLD');
-  const quietHolds = openPositions.filter((p) => !exits.some((e) => e.signal_id === p.signal_id));
+  // Rendered in their OWN section rather than folded into "Exits due": an exit that is still due is
+  // on-plan, and one you have already missed is not. Collapsing the two would let the urgent case
+  // inherit the calm copy of the ordinary one.
+  const missedExits = items.filter((i) => i.type === 'MISSED_EXIT');
+  const actionable = [...exits, ...missedExits];
+  const quietHolds = openPositions.filter((p) => !actionable.some((e) => e.signal_id === p.signal_id));
+
+  // The page's own shape, stated before it is scrolled. Ordered the way the sections are — sells
+  // before buys — so the summary and the body can never imply different priorities. Holds are
+  // counted but toned down: they are the absence of work, not a fifth item on the list.
+  const summary = [
+    missedExits.length && { k: 'missed', n: missedExits.length, label: missedExits.length === 1 ? 'missed exit' : 'missed exits' },
+    exits.length && { k: 'due', n: exits.length, label: exits.length === 1 ? 'exit due' : 'exits due' },
+    buyCandidates.length && { k: 'buy', n: buyCandidates.length, label: buyCandidates.length === 1 ? 'buy open' : 'buys open' },
+    quietHolds.length && { k: 'hold', n: quietHolds.length, label: 'holding' },
+  ].filter(Boolean);
 
   const loading = signalsQuery.isLoading || reconQuery.isLoading || execQuery.isLoading;
-  const nothingToDo = !loading && buyCandidates.length === 0 && exits.length === 0;
+  const nothingToDo = !loading && buyCandidates.length === 0 && actionable.length === 0;
   const scan = nextScan();
 
   const sigFor = (signalId) => {
@@ -144,18 +231,27 @@ export default function ThisWeek() {
   };
 
   if (signalsQuery.error) {
-    return <div className="tw-page"><EmptyState title="Couldn’t load this week" body="Try again shortly." /></div>;
+    return <div className="ns-page"><EmptyState title="Couldn’t load this week" body="Try again shortly." /></div>;
   }
 
   return (
-    <div className="tw-page">
+    <div className="ns-page">
       <header className="tw-head">
         <div>
-          <div className="tw-kicker">THIS WEEK · WHAT TO DO</div>
-          <h1 className="tw-title">This week</h1>
-          <p className="tw-sub">
+          <div className="ns-kicker">THIS WEEK · WHAT TO DO</div>
+          <h1 className="ns-title">This week</h1>
+          <p className="ns-sub">
             Everything the model expects of you, in one place. Recording a fill clears its line.
           </p>
+          {!loading && summary.length > 0 && (
+            <div className="tw-summary">
+              {summary.map((s2) => (
+                <span className={`ns-chip ${SUM_TONE[s2.k]}`} key={s2.k}>
+                  <b className="tnum">{s2.n}</b> {s2.label}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
         <div className="tw-cadence">
           <div className="tw-cadence-row">Next scan · <b>{scan.when} 6:00 PM IST</b> <span>({scan.inWords})</span></div>
@@ -167,38 +263,103 @@ export default function ThisWeek() {
         </div>
       </header>
 
-      {loading && <div className="tw-card tw-muted">Loading this week’s actions…</div>}
+      {loading && <div className="ns-card ns-prose">Loading this week’s actions…</div>}
 
       {nothingToDo && (
-        <div className="tw-card tw-nothing">
+        <div className="ns-card tw-nothing">
           <div className="tw-nothing-title">Nothing to do this week.</div>
-          <div className="tw-nothing-body">
+          <div className="ns-prose">
             No new buys cleared the gate and nothing you hold needs action. Sitting on your hands is
             what the backtest assumes you do between scans — idle is the strategy working.
           </div>
         </div>
       )}
 
-      {/* ── EXITS FIRST: acting late costs more than buying late ── */}
-      {exits.length > 0 && (
-        <section className="tw-section">
-          <div className="tw-section-h">
-            <h2>Exits due <span className="tw-count">{exits.length}</span></h2>
-            <span className="tw-section-sub">From the model’s plan vs your recorded ledger</span>
+      {/* ── MISSED EXITS FIRST: the model is already flat and you are not, so this is the
+           only section where every day of delay has a running cost. Sells before buys
+           throughout — acting late on an exit costs more than acting late on an entry. ── */}
+      {missedExits.length > 0 && (
+        <section className="ns-section">
+          <div className="ns-section-h">
+            <h2>Missed exits <span className="ns-count ns-count--alarm">{missedExits.length}</span></h2>
+            <span className="ns-section-sub">
+              The model has already sold these. Re-checked every day until you record the sell.
+            </span>
           </div>
-          {exits.map((it) => (
-            <div className="tw-row" key={`${it.signal_id}-${it.type}`}>
-              <div className="tw-row-l">
-                <span className={`tw-dot num-${SEV_TONE[it.severity] || 'info'}`} />
-                <div>
-                  <div className="tw-sym">{it.ticker}</div>
-                  <div className="tw-row-msg">{it.message}</div>
+          {missedExits.map((it) => {
+            const drift = Number(it.drift_pct);
+            const hasDrift = Number.isFinite(drift);
+            return (
+              <div className="ns-row ns-row--alarm" key={`${it.signal_id}-missed`}>
+                <div className="ns-row-l">
+                  <span className="ns-dot num-bear" />
+                  <div>
+                    <div className="ns-sym">
+                      {it.ticker}
+                      <span className="ns-tag">sold {it.due_date}</span>
+                    </div>
+                    <div className="ns-meta">
+                      The record sold at <b className="tnum">{fmtNum(it.due_price)}</b>
+                      {it.cause ? <> — {it.cause}</> : null}.{' '}
+                      Now <b className="tnum">{fmtNum(it.last_close)}</b>
+                      {hasDrift && (
+                        <>
+                          {' '}(<span className={`tnum ${drift < 0 ? 'num-bear' : 'num-bull'}`}>
+                            {drift > 0 ? '+' : ''}{drift.toFixed(1)}%
+                          </span>{' '}vs the model's exit)
+                        </>
+                      )}
+                      {it.r_at_exit != null && (
+                        <> · booked <b className="tnum">{Number(it.r_at_exit).toFixed(2)}R</b></>
+                      )}
+                    </div>
+                    <div className="ns-meta ns-meta--do">Sell the remainder at market at the next open.</div>
+                  </div>
+                </div>
+                <div className="ns-row-r">
+                  <span className="ns-num">{it.remaining_qty} held</span>
+                  <button
+                    type="button" className="ns-btn ns-btn--primary"
+                    onClick={() => {
+                      const sig = sigFor(it.signal_id) || {
+                        // The card is GONE from the envelope once the model books the exit — which is
+                        // exactly when this item exists — so fall back to the item's own numbers
+                        // rather than sending the user off to another page to do the same thing.
+                        sym: it.ticker, signalId: it.signal_id, current_price: it.last_close,
+                        entry: it.entry, stop: it.stop,
+                      };
+                      setCapture({ mode: 'sell', sig, tranche: 'manual' });
+                    }}
+                  >
+                    Record sell
+                  </button>
                 </div>
               </div>
-              <div className="tw-row-r">
-                <span className="tw-qty tnum">{it.remaining_qty} held</span>
+            );
+          })}
+        </section>
+      )}
+
+      {/* ── EXITS DUE: on-plan sells, after the off-plan ones above ── */}
+      {exits.length > 0 && (
+        <section className="ns-section">
+          <div className="ns-section-h">
+            <h2>Exits due <span className="ns-count">{exits.length}</span></h2>
+            <span className="ns-section-sub">From the model’s plan vs your recorded ledger</span>
+          </div>
+          {exits.map((it) => (
+            <div className="ns-row" key={`${it.signal_id}-${it.type}`}>
+              <div className="ns-row-l">
+                <span className={`ns-dot num-${SEV_TONE[it.severity] || 'info'}`} />
+                <div>
+                  <div className="ns-sym">{it.ticker}</div>
+                  <div className="ns-meta">{it.message}</div>
+                </div>
+              </div>
+              <div className="ns-row-r">
+                <span className="ns-num">{it.remaining_qty} held</span>
                 <button
-                  type="button" className="tw-btn tw-btn-primary"
+                  type="button" className="ns-btn ns-btn--primary"
                   onClick={() => {
                     const sig = sigFor(it.signal_id);
                     if (sig) setCapture({ mode: 'sell', sig, tranche: 'manual' });
@@ -216,19 +377,18 @@ export default function ThisWeek() {
 
       {/* ── BUYS ── */}
       {buyCandidates.length > 0 && (
-        <section className="tw-section">
-          <div className="tw-section-h">
-            <h2>Buys open <span className="tw-count">{buyCandidates.length}</span></h2>
-            <span className="tw-section-sub">
-              {capital
-                ? `Sized to ${money0(capital)} · ${tier} · ${Math.round(tierPct * 100)}% risk per trade`
-                : 'Set your capital on Research → Position sizer to see quantities'}
-            </span>
+        <section className="ns-section">
+          <div className="ns-section-h">
+            <h2>Buys open <span className="ns-count">{buyCandidates.length}</span></h2>
+            <SizingControl
+              capital={capital} tier={tier} tiers={cfgQuery.data?.tiers ?? { medium: 0.02, high: 0.03 }}
+              capPct={capPct} open={sizingOpen} onToggle={() => setSizingOpen((v) => !v)}
+            />
           </div>
 
           {fundedRows.length > 1 && (
             <div className="tw-bulk">
-              <button type="button" className="tw-btn tw-btn-primary tw-bulk-btn"
+              <button type="button" className="ns-btn ns-btn--primary ns-btn--lg"
                       onClick={() => setBulkOpen(true)}>
                 Take this week’s book ({fundedRows.length})
               </button>
@@ -241,12 +401,12 @@ export default function ThisWeek() {
             const sym = (s.ticker || '').toUpperCase();
             const row = (sized?.rows ?? []).find((r) => r.signalId === id);
             return (
-              <div className="tw-row" key={id}>
-                <div className="tw-row-l">
-                  <span className="tw-dot num-info" />
+              <div className="ns-row" key={id}>
+                <div className="ns-row-l">
+                  <span className="ns-dot num-info" />
                   <div>
-                    <div className="tw-sym">{sym}</div>
-                    <div className="tw-row-msg">
+                    <div className="ns-sym">{sym}</div>
+                    <div className="ns-meta">
                       Buy {s.entry_low != null && s.entry_high != null
                         ? <>between <b className="tnum">{fmtNum(s.entry_low)}</b>–<b className="tnum">{fmtNum(s.entry_high)}</b></>
                         : <>near <b className="tnum">{fmtNum(s.entry)}</b></>}
@@ -254,15 +414,15 @@ export default function ThisWeek() {
                     </div>
                   </div>
                 </div>
-                <div className="tw-row-r">
-                  <span className="tw-qty tnum">
+                <div className="ns-row-r">
+                  <span className="ns-num">
                     {row?.status === SIZER_STATUS.FUNDED ? `${row.qty} sh · ${money0(row.cost)}`
                       : row?.status === SIZER_STATUS.OUT_OF_RANGE ? 'above buy range'
                       : row?.status === SIZER_STATUS.NOT_FUNDED ? 'no cash left'
                       : capital ? '—' : 'set capital'}
                   </span>
                   <button
-                    type="button" className="tw-btn"
+                    type="button" className="ns-btn"
                     onClick={() => setCapture({
                       mode: 'buy', sizerQty: row?.qty ?? null,
                       sig: { sym, signalId: id, entry: s.entry, stop: s.stop, target: s.target },
@@ -279,57 +439,57 @@ export default function ThisWeek() {
 
       {/* ── HOLDING: explicit "no action" so silence is never ambiguous ── */}
       {quietHolds.length > 0 && (
-        <section className="tw-section">
-          <div className="tw-section-h">
-            <h2>Holding <span className="tw-count">{quietHolds.length}</span></h2>
-            <span className="tw-section-sub">Nothing due — the plan is to let these run</span>
+        <section className="ns-section">
+          <div className="ns-section-h">
+            <h2>Holding <span className="ns-count">{quietHolds.length}</span></h2>
+            <span className="ns-section-sub">Nothing due — the plan is to let these run</span>
           </div>
           {quietHolds.map((p) => (
-            <div className="tw-row tw-row-quiet" key={p.signal_id}>
-              <div className="tw-row-l">
-                <span className="tw-dot num-muted" />
+            <div className="ns-row ns-row--quiet" key={p.signal_id}>
+              <div className="ns-row-l">
+                <span className="ns-dot num-muted" />
                 <div>
-                  <div className="tw-sym">{p.ticker}</div>
-                  <div className="tw-row-msg">
+                  <div className="ns-sym">{p.ticker}</div>
+                  <div className="ns-meta">
                     {p.remaining_qty} sh · avg <span className="tnum">{fmtNum(p.avg_buy_price)}</span>
                   </div>
                 </div>
               </div>
-              <div className="tw-row-r"><span className="tw-qty">no action</span></div>
+              <div className="ns-row-r"><span className="ns-num">no action</span></div>
             </div>
           ))}
         </section>
       )}
 
-      <footer className="tw-foot">
-        <Link to="/premove" className="tw-link">Full research book →</Link>
-        <Link to="/portfolio" className="tw-link">Your portfolio →</Link>
-        <div className="tw-disclaimer">{DISCLAIMER}</div>
+      <footer className="ns-foot">
+        <Link to="/premove" className="ns-link">Full research book →</Link>
+        <Link to="/portfolio" className="ns-link">Your portfolio →</Link>
+        <div className="ns-disclaimer">{DISCLAIMER}</div>
       </footer>
 
       {/* Bulk confirm — shows exactly what will be recorded before it writes. */}
       {bulkOpen && (
-        <div className="tw-modal-wrap" role="dialog" aria-modal="true" aria-label="Take this week's book">
-          <div className="tw-modal">
-            <div className="tw-modal-h">Take this week’s book</div>
-            <div className="tw-modal-sub">
+        <div className="ns-modal-wrap" role="dialog" aria-modal="true" aria-label="Take this week's book">
+          <div className="ns-modal">
+            <div className="ns-modal-h">Take this week’s book</div>
+            <div className="ns-modal-sub">
               Records a buy for each funded name at its entry price. Edit any that filled differently
               from Portfolio afterwards — corrections are kept as new events, never overwrites.
             </div>
             <div className="tw-modal-list">
               {fundedRows.map((r) => (
                 <div className="tw-modal-row" key={r.signalId}>
-                  <span className="tw-sym">{r.sym}</span>
+                  <span className="ns-sym">{r.sym}</span>
                   <span className="tnum">{r.qty} sh @ {fmtNum(r.entry)}</span>
-                  <span className="tnum tw-muted">{money0(r.cost)}</span>
+                  <span className="ns-num">{money0(r.cost)}</span>
                 </div>
               ))}
             </div>
             <div className="tw-modal-actions">
-              <button type="button" className="tw-btn" onClick={() => setBulkOpen(false)} disabled={bulkBusy}>
+              <button type="button" className="ns-btn" onClick={() => setBulkOpen(false)} disabled={bulkBusy}>
                 Cancel
               </button>
-              <button type="button" className="tw-btn tw-btn-primary" onClick={takeTheBook} disabled={bulkBusy}>
+              <button type="button" className="ns-btn ns-btn--primary" onClick={takeTheBook} disabled={bulkBusy}>
                 {bulkBusy ? 'Recording…' : `Record ${fundedRows.length} buys`}
               </button>
             </div>

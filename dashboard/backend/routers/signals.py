@@ -48,7 +48,7 @@ _MODELS = {
     "bhanushali": {
         "today": "signals_today_weekly.json", "history": "signals_history_weekly.json",
         "analytics": "signal_analytics_weekly.json", "portfolio": "paper_portfolio_weekly.json",
-        "watchlist": None, "config": "models/bhanushali_weekly/config.json",
+        "config": "models/bhanushali_weekly/config.json",
     },
 }
 # Back-compat: `?model=weekly` resolves to the same Bhanushali book.
@@ -553,58 +553,12 @@ def get_sell_guidance(
     }
 
 
-@router.get("/signals/watchlist")
-def get_watchlist(
-    model: str = Query("bhanushali", description="Strategy book: 'bhanushali'"),
-):
-    """Borderline candidates from today's scan (conf 0.75-0.92).
-
-    These are signals the model surfaced but didn't clear the entry
-    confidence gate (currently 0.92). They're tracked but not buyable —
-    surfacing them gives users visibility into what the system is
-    monitoring, which is otherwise invisible.
-
-    Reads `results/signals_watchlist.json` written by the cron's
-    write step (envelope shape identical to signals_today_weekly.json,
-    `tier: 'watchlist'`). Falls back to GitHub raw URL if the local
-    file is missing on Render.
-
-    Each signal carries `actionability='WATCHLIST'` so the frontend can
-    distinguish "monitoring only" from "buyable now" without parsing
-    confidence ranges client-side.
-    """
-    files = _model_or_400(model)
-    if files["watchlist"] is None:            # the weekly book has no watchlist tier
-        return {"signals": [], "count": 0, "generated_at": None, "tier": "watchlist"}
-    raw = _read_json_with_fallback(
-        RESULTS_DIR / files["watchlist"],
-        f"results/{files['watchlist']}",
-        {},
-    )
-    # Tolerate both envelope and bare-list shapes for forward compat.
-    if isinstance(raw, list):
-        signals = raw
-        generated_at = None
-    else:
-        signals = raw.get("signals", []) or []
-        generated_at = raw.get("generated_at")
-
-    # Stamp actionability so the frontend treats these uniformly with
-    # how the entry-tier signals are rendered (TierSection knows about
-    # actionability strings already).
-    enriched = []
-    for s in _stamp_sector(signals):
-        copy = dict(s)
-        copy["actionability"] = "WATCHLIST"
-        enriched.append(copy)
-
-    return {
-        "signals": enriched,
-        "count": len(enriched),
-        "generated_at": generated_at,
-        "tier": "watchlist",
-    }
-
+# GET /api/signals/watchlist was REMOVED 2026-08-27. The live weekly book has no watchlist
+# tier -- `_MODELS["bhanushali"]["watchlist"]` is None -- so the endpoint returned an empty
+# list unconditionally, while the Dashboard and Research both rendered a "Brewing watchlist"
+# section against it: a whole surface, with its own title, empty state and loading gate, that
+# no data could ever reach. Restoring it means writing results/signals_watchlist.json from the
+# scanner first; the reader is eight lines and is in this file's history.
 
 @router.get("/signals/regime")
 def get_regime():

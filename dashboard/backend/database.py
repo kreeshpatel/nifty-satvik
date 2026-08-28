@@ -301,39 +301,12 @@ class UserWatchlist(Base):
     user = relationship("User")
 
 
-class UserHolding(Base):
-    """Per-user EPHEMERAL 'I bought this signal' marks (Signals page, added 2026-07-13).
-
-    The user manually marks a research recommendation as bought; the row lives ONLY
-    while the trade is open and is ERASED the moment the model completes the trade
-    (target/stop/expiry — see routers/holdings.py, which prunes on read against the
-    weekly history). There is NO lifecycle column and NO permanent per-user track
-    record: the completed-trade record is the model's shared signals_history_weekly.json.
-
-    Keyed by signal_id = '{ticker}__{signal_date}' — the same canonical key used by
-    NQOrder.signal_id and nq_position_id — so a re-signal of the same name in a later
-    week is a distinct record. NOT reused from NQOrder: that table is Kite-execution
-    machinery (kite_order_id + WS fills) feeding the Accounting/Journal FY-P&L pages;
-    a self-reported mark would pollute those. Brand-new table ⇒ create_all() handles it.
-    """
-    __tablename__ = "user_holdings"
-    __table_args__ = (
-        UniqueConstraint("user_id", "signal_id", name="uix_holding_user_signal"),
-    )
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"),
-                     nullable=False, index=True)
-    signal_id = Column(String(128), nullable=False, index=True)   # "{ticker}__{signal_date}"
-    ticker = Column(String(32), nullable=False, index=True)
-    entry = Column(Float, nullable=True)
-    stop = Column(Float, nullable=True)
-    qty = Column(Integer, nullable=True)                          # NULL = mark-only (no capital known)
-    risk_tier_at_buy = Column(String(16), nullable=False, default="medium")
-    bought_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-
-    user = relationship("User")
-
+# `UserHolding` (table `user_holdings`) was REMOVED 2026-08-27. It held an ephemeral
+# "I bought this signal" mark that was erased when the model completed the trade -- a second,
+# weaker answer to the question the durable ExecutionEvent ledger already answers, and one that
+# disagreed with it precisely when a trade closed. See routers/holdings.py for the full
+# reasoning. The physical table is intentionally NOT dropped: nothing reads it, and deleting
+# hand-entered rows is the one part of this that cannot be undone.
 
 class UserJourneyFlag(Base):
     """Durable per-user onboarding / journey memory (Stage-6, docs/PRODUCT_SYNTHESIS.md Phase D).

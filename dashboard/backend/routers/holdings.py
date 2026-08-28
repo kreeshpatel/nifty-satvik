@@ -1,46 +1,42 @@
 """
-Holdings + sizer router — the per-user layer of the Signals page (added 2026-07-13).
+Sizer router — the per-user sizing preferences behind the position sizer.
 
-Two concerns, one router:
+- GET  /api/sizer/config        the tier %s + single-position cap (from config.py; one source)
+- GET  /api/me/sizing-prefs     the user's saved risk_tier + default_capital
+- PUT  /api/me/sizing-prefs     update them
 
-1. **Sizer prefs / config** — the position sizer's risk tier + capital.
-   - GET  /api/sizer/config        the tier %s + single-position cap (from config.py; one source)
-   - GET  /api/me/sizing-prefs     the user's saved risk_tier + default_capital
-   - PUT  /api/me/sizing-prefs     update them
+WHAT LEFT, AND WHY (2026-08-27). This router also owned an EPHEMERAL "bought" mark
+(GET/POST/DELETE /api/holdings, table `user_holdings`): the user marked a recommendation as
+bought, and the row was erased the moment the model completed the trade. It has been removed.
 
-2. **Ephemeral "bought" marks** — the user MANUALLY marks a research recommendation as bought;
-   the mark lives ONLY while the trade is open and is ERASED the moment the model completes the
-   trade. No Kite sync, no permanent per-user track record (that's the model's shared
-   signals_history_weekly.json). Keyed by signal_id = "{ticker}__{signal_date}".
-   - GET    /api/holdings              the user's STILL-OPEN marks (prunes completed ones on read)
-   - POST   /api/holdings              mark bought (idempotent: re-POST overwrites qty)
-   - DELETE /api/holdings/{signal_id}  manual unmark (sold early / fat-finger)
+It answered the same question as the durable execution ledger — did you buy this — and only the
+ledger survives trade completion, so the two disagreed exactly when it mattered: a real recorded
+position whose mark had been pruned read back as "not held", and the Research page offered to
+record a buy on shares the user already owned. Reconciliation, P&L, the discipline score and the
+missed-exit items were all already derived from the ledger; the mark was a second, weaker copy of
+a fact with an owner.
+
+The `user_holdings` TABLE is deliberately left in place rather than dropped. Nothing reads or
+writes it now, and an orphan table costs a line in the schema; a destructive migration against
+rows a user entered by hand costs those rows, and is not reversible if this call is wrong.
 
 Tenant-isolated: every query is scoped to the authenticated user (the bearer token is the
-authority — the frontend never sends a user id). `GET /api/signals` is deliberately left
-model-only; the page merges the held signal_id set client-side.
+authority — the frontend never sends a user id).
 """
 
 import logging
-import re
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from config import RISK_TIERS, POSITION_CAP_PCT
-from database import get_db, User, UserHolding
+from database import get_db, User
 from auth import get_current_user
-from services.nq_positions import signal_lifecycle_state
 
 logger = logging.getLogger("holdings")
 
-router = APIRouter(tags=["holdings"])
-
-MAX_HOLDINGS = 100
-# signal_id == "{TICKER}__{YYYY-MM-DD}" — the canonical key (NQOrder.signal_id / nq_position_id).
-_SIGNAL_ID_RE = re.compile(r"^([A-Z0-9&._-]{1,32})__(\d{4}-\d{2}-\d{2})$")
+router = APIRouter(tags=["sizer"])
 
 
 def _valid_tier(tier: str) -> str:
@@ -100,107 +96,3 @@ def put_sizing_prefs(
 
 
 # ── Ephemeral holdings ────────────────────────────────
-
-def _row_dict(r: UserHolding) -> dict:
-    return {
-        "signal_id": r.signal_id, "ticker": r.ticker, "entry": r.entry, "stop": r.stop,
-        "qty": r.qty, "risk_tier_at_buy": r.risk_tier_at_buy,
-        "bought_at": r.bought_at.isoformat() if r.bought_at else None,
-    }
-
-
-@router.get("/holdings")
-def get_holdings(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """The user's STILL-OPEN bought-marks. Erase-on-completion: any mark whose signal the model
-    has completed (target/stop/expiry) is deleted here and omitted — this write-in-fetch IS the
-    'remembered till the trade completes, then erased' semantic, and touches only the caller's rows."""
-    rows = db.query(UserHolding).filter(UserHolding.user_id == user.id).all()
-    open_rows, pruned = [], 0
-    for r in rows:
-        if signal_lifecycle_state(r.signal_id, r.ticker) == "closed":
-            db.delete(r)
-            pruned += 1
-        else:
-            open_rows.append(r)
-    if pruned:
-        db.commit()
-        logger.info("holdings erase-on-completion user=%s pruned=%d", user.id, pruned)
-    open_rows.sort(key=lambda r: r.bought_at or 0, reverse=True)
-    return {"holdings": [_row_dict(r) for r in open_rows]}
-
-
-class MarkBoughtRequest(BaseModel):
-    signal_id: str = Field(..., min_length=3, max_length=128)
-    ticker: str | None = Field(default=None, max_length=32)
-    entry: float | None = None
-    stop: float | None = None
-    qty: int | None = Field(default=None, ge=0)      # None = mark-only (no capital known)
-    risk_tier_at_buy: str | None = None
-
-
-@router.post("/holdings", status_code=201)
-def mark_bought(
-    req: MarkBoughtRequest,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Mark a signal bought. Idempotent: re-POST of the same signal_id OVERWRITES qty/entry/stop
-    (a 'mark', not order accumulation)."""
-    ticker, signal_id = _parse_signal_id(req.signal_id)
-    tier = _valid_tier(req.risk_tier_at_buy) if req.risk_tier_at_buy else "medium"
-
-    existing = (
-        db.query(UserHolding)
-        .filter(UserHolding.user_id == user.id, UserHolding.signal_id == signal_id)
-        .first()
-    )
-    if existing is not None:
-        existing.qty = req.qty
-        if req.entry is not None:
-            existing.entry = req.entry
-        if req.stop is not None:
-            existing.stop = req.stop
-        existing.risk_tier_at_buy = tier
-        db.commit()
-        return _row_dict(existing)
-
-    count = db.query(UserHolding).filter(UserHolding.user_id == user.id).count()
-    if count >= MAX_HOLDINGS:
-        raise HTTPException(status_code=400, detail=f"Too many holdings (max {MAX_HOLDINGS})")
-
-    row = UserHolding(
-        user_id=user.id, signal_id=signal_id, ticker=(req.ticker or ticker).upper(),
-        entry=req.entry, stop=req.stop, qty=req.qty, risk_tier_at_buy=tier,
-    )
-    db.add(row)
-    try:
-        db.commit()
-    except IntegrityError:
-        db.rollback()  # lost a race on the unique (user_id, signal_id) — re-read below
-        row = (
-            db.query(UserHolding)
-            .filter(UserHolding.user_id == user.id, UserHolding.signal_id == signal_id)
-            .first()
-        )
-    logger.info("holdings mark user=%s signal=%s qty=%s", user.id, signal_id, req.qty)
-    return _row_dict(row)
-
-
-@router.delete("/holdings/{signal_id}", status_code=204)
-def unmark_bought(
-    signal_id: str,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
-):
-    """Manual unmark (sold early / fat-finger). Unrestricted — nothing permanent to protect."""
-    row = (
-        db.query(UserHolding)
-        .filter(UserHolding.user_id == user.id, UserHolding.signal_id == signal_id.strip())
-        .first()
-    )
-    if row is None:
-        raise HTTPException(status_code=404, detail="Not held")
-    db.delete(row)
-    db.commit()
-    logger.info("holdings unmark user=%s signal=%s", user.id, signal_id)
-    return None

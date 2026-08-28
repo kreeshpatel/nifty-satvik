@@ -1,0 +1,236 @@
+/* ================================================================
+   PRIMITIVES — the composite layer every app page is built from.
+
+   WHY THIS FILE EXISTS. Eight page stylesheets (portfolio-v3, dashboard-proto, signals-v3,
+   research-insights, this-week, preview-dashboard, recommendation-history, landing-v2) each
+   re-implemented card / section-header / row / count-pill / button against the SAME tokens.
+   That is why no two pages quite matched, and why a single change was never a single edit.
+   This is the one place those shapes are defined.
+
+   Prefix `ns-` (nifty satvik). Deliberately namespaced so it can be adopted one page at a
+   time without colliding with the legacy layers below it (liquid-glass, page-patterns), both
+   of which reference an OLDER token vocabulary (--text-main, --text-muted, #22DD88) that
+   contradicts tokens.css. Nothing here may reference those — tokens.css only.
+
+   RULES for anything added here:
+     1. tokens only. A literal colour, or a bare pixel font-size, is a bug in this file.
+     2. spacing comes off the 4pt grid (--space-*).
+     3. a primitive earns its place by being used on two pages, not one.
+   ================================================================ */
+
+/* -- Page container --
+   max-width, not full-bleed: these are reading surfaces (a list of decisions), not a
+   Bloomberg grid. 1100px holds ~90ch at 13px, past which a row's left and right ends stop
+   being scannable in one fixation. Dense data pages use .page-container instead. */
+.ns-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5) var(--space-8);
+}
+.ns-page--wide { max-width: 1440px; }
+
+/* -- Page header -- */
+.ns-kicker {
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.ns-title {
+  font-size: var(--fs-2xl);
+  line-height: var(--lh-2xl);
+  font-weight: 700;
+  letter-spacing: var(--track-tight);
+  color: var(--text-1);
+  margin: var(--space-2) 0 0;
+}
+.ns-sub {
+  font-size: var(--fs-sm);
+  line-height: var(--lh-sm);
+  color: var(--text-3);
+  margin: var(--space-2) 0 0;
+  max-width: 56ch;
+}
+
+/* -- Section --
+   24px between sections against 8px between rows inside one: the 3:1 ratio is what makes a
+   section read as a group at a glance, before any heading is read. */
+.ns-section { margin-bottom: var(--space-6); }
+.ns-section-h {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  flex-wrap: wrap;
+}
+.ns-section-h h2 {
+  font-size: var(--fs-md);
+  line-height: var(--lh-md);
+  font-weight: 700;
+  letter-spacing: var(--track-snug);
+  color: var(--text-1);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.ns-section-sub { font-size: var(--fs-micro); color: var(--text-3); }
+
+/* -- Count pill: the number beside a section heading -- */
+.ns-count {
+  font-size: var(--fs-micro);
+  font-weight: 700;
+  color: var(--text-2);
+  background: var(--surface-3);
+  border-radius: 999px;
+  padding: 2px var(--space-2);
+  font-variant-numeric: tabular-nums;
+}
+.ns-count--alarm { color: var(--bear); background: var(--bear-soft); }
+
+/* -- Card -- */
+.ns-card {
+  background: var(--surface-1);
+  border: 1px solid var(--edge-1);
+  border-radius: var(--r-card);
+  padding: var(--space-4) var(--space-5);
+}
+
+/* -- Row: one item in a list, with an action on the right -- */
+.ns-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: 12px;
+  margin-bottom: var(--space-2);
+  background: var(--surface-1);
+  border: 1px solid var(--edge-1);
+}
+.ns-row-l { display: flex; align-items: flex-start; gap: var(--space-3); min-width: 0; }
+.ns-row-r { display: flex; align-items: center; gap: var(--space-3); flex-shrink: 0; }
+.ns-row--quiet { opacity: 0.82; }
+/* Tone rails. An inset left rail rather than a tinted fill: it survives on top of the row's
+   own hover state, and never fights the text contrast the way a wash does. */
+.ns-row--alarm { border-color: var(--edge-2); box-shadow: inset 3px 0 0 var(--bear); }
+.ns-row--warn  { border-color: var(--edge-2); box-shadow: inset 3px 0 0 var(--warn); }
+.ns-row--brand { border-color: var(--edge-2); box-shadow: inset 3px 0 0 var(--brand); }
+
+.ns-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: currentColor; margin-top: 6px; flex-shrink: 0;
+}
+.ns-sym {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  letter-spacing: var(--track-snug);
+  color: var(--text-1);
+}
+.ns-meta {
+  font-size: var(--fs-xs);
+  line-height: var(--lh-xs);
+  color: var(--text-3);
+  margin-top: 2px;
+}
+.ns-meta b { color: var(--text-2); font-weight: 600; }
+.ns-meta--do { margin-top: var(--space-1); font-weight: 600; color: var(--text-2); }
+.ns-num {
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* -- Chip: inline pill for a count+label, or an inline tag -- */
+.ns-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  padding: var(--space-1) 10px;
+  border-radius: 999px;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--text-2);
+  background: var(--surface-1);
+  border: 1px solid var(--edge-1);
+}
+.ns-chip b { font-size: var(--fs-sm); font-weight: 700; color: var(--text-1); }
+.ns-chip--alarm { color: var(--bear); background: var(--bear-soft); border-color: var(--bear); }
+.ns-chip--alarm b { color: var(--bear); }
+.ns-chip--warn { color: var(--warn); background: var(--surface-2); border-color: var(--edge-2); }
+.ns-chip--warn b { color: var(--warn); }
+.ns-chip--brand b { color: var(--brand-hi); }
+.ns-chip--quiet { color: var(--text-3); }
+.ns-chip--quiet b { color: var(--text-2); }
+/* Tag: the smallest form -- an inline stamp inside a line of text, not a standalone chip. */
+.ns-tag {
+  margin-left: var(--space-2);
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  color: var(--text-3);
+  background: var(--surface-3);
+  vertical-align: middle;
+  font-variant-numeric: tabular-nums;
+}
+
+/* -- Button -- */
+.ns-btn {
+  padding: var(--space-2) var(--space-4);
+  border-radius: 9px;
+  cursor: pointer;
+  white-space: nowrap;
+  background: var(--surface-2);
+  border: 1px solid var(--edge-1);
+  color: var(--text-2);
+  font-family: var(--font-sans);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  transition: background-color var(--dur-hover), border-color var(--dur-hover), color var(--dur-hover);
+}
+.ns-btn:hover:not(:disabled) { color: var(--text-1); border-color: var(--edge-2); background: var(--surface-3); }
+.ns-btn:disabled { opacity: 0.5; cursor: default; }
+.ns-btn--primary { background: var(--brand-soft); border-color: var(--brand-edge); color: var(--brand); }
+.ns-btn--primary:hover:not(:disabled) { background: var(--brand); color: var(--brand-fg); border-color: var(--brand); }
+.ns-btn--lg { padding: 9px var(--space-5); }
+
+/* -- Modal: plain, no dialog dependency -- */
+.ns-modal-wrap {
+  position: fixed; inset: 0; z-index: 60;
+  display: grid; place-items: center;
+  background: rgba(4, 6, 18, 0.62);
+  backdrop-filter: blur(3px);
+  padding: var(--space-5);
+}
+.ns-modal {
+  width: 100%; max-width: 440px;
+  border-radius: var(--r-card);
+  padding: var(--space-5);
+  background: var(--surface-solid-1);
+  border: 1px solid var(--edge-2);
+  box-shadow: var(--shadow-lg);
+}
+.ns-modal-h { font-size: var(--fs-md); font-weight: 700; color: var(--text-1); }
+.ns-modal-sub { margin-top: var(--space-2); font-size: var(--fs-xs); line-height: var(--lh-xs); color: var(--text-3); }
+
+/* -- Footer / prose -- */
+.ns-foot { margin-top: var(--space-7); padding-top: var(--space-4); border-top: 1px solid var(--edge-1); }
+.ns-link { font-size: var(--fs-sm); color: var(--brand); text-decoration: none; margin-right: var(--space-5); }
+.ns-link:hover { text-decoration: underline; }
+/* 90ch, not 56ch: legal text is skimmed for terms, not read line by line, and a narrow
+   column makes it LOOK like the important part of the page. */
+.ns-disclaimer { font-size: var(--fs-micro); line-height: var(--lh-micro); color: var(--text-3); max-width: 90ch; }
+.ns-prose { font-size: var(--fs-xs); line-height: 1.55; color: var(--text-3); max-width: 62ch; }
+
+/* -- Responsive --
+   One breakpoint. The row is the only primitive whose layout must change: a side-by-side
+   label/action stops working once the label wraps to three lines. */
+@media (max-width: 760px) {
+  .ns-page { padding: var(--space-5) var(--space-3) var(--space-7); }
+  .ns-title { font-size: var(--fs-xl); }
+  .ns-row { align-items: flex-start; flex-direction: column; gap: var(--space-3); }
+  .ns-row-r { width: 100%; justify-content: space-between; }
+}

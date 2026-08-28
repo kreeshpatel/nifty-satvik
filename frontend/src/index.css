@@ -13,6 +13,9 @@
 
 /* Legacy page-level composite patterns (PageShell, section labels, num-* utilities). */
 @import './styles/page-patterns.css';
+/* primitives LAST in the base layer: it is the CURRENT system, and must win over the two
+   legacy layers above it (liquid-glass, page-patterns) wherever they ever collide. */
+@import './styles/primitives.css';
 
 /* Mobile-browser compliance (Android Chrome + iOS Safari): tap delay,
    safe-area helpers, hover-stickiness fix, touch targets. */

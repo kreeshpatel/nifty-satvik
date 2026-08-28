@@ -125,6 +125,223 @@ def _tranche_status(tr: dict, bar: "_Bar", entry: float, stop: float) -> dict:
     return out
 
 
+# ── MISSED EXITS — the daily "you were supposed to be out of this" recommendation ──────────
+# WHY THIS EXISTS. The book's stop is a WEEKLY-CLOSE stop, executed at the NEXT session's open
+# (run_bhanushali_cron: "Weekly close below the stop — SELL the remaining position at Monday's
+# open"). A reader who does not sell at that open is off-plan — and until now nothing told them so
+# on any day but Saturday. The EXIT_REQUIRED card is dropped from the NEXT weekly envelope the
+# moment the model books the trade, so a missed exit simply VANISHED from the surface that was
+# meant to instruct it, and the position went dark exactly when it was costing the most.
+#
+# This block re-prices, EVERY DAY, every exit the model has already taken, so a reader still
+# holding one is told what it now costs to keep waiting. It invents NO new judgement: the exit
+# decision, its date and its booked price are all the model's own, read back off the record
+# (signals_history_weekly.json) or off the card the Saturday scan already stamped EXIT_REQUIRED.
+# The only thing computed here is the DRIFT since — which is a fact, not an opinion.
+#
+# Strictly observational like the rest of this job: it never books, retracts, or re-decides
+# anything, and the paper record never reads it.
+MISSED_LOOKBACK_DAYS = 120        # stop re-pricing an exit the reader has clearly abandoned
+_MISSED_CLOSED_STATUS = {"HIT_STOP", "HIT_TARGET", "EXPIRED", "CLOSED", "RESOLVED"}
+# exit reason (or status) -> (severity, plain-English cause). "stop" is the risk line, so it is the
+# only family that carries `high`: a missed target leaves money on the table, a missed stop keeps
+# unbounded risk on the book.
+_MISSED_CAUSE = {
+    "stop": ("high", "the weekly close broke its stop"),
+    "stop_part": ("high", "the weekly close broke its stop"),
+    "stop_half": ("high", "the weekly close broke its stop"),
+    "trail": ("high", "the trailing stop broke"),
+    "sma_break": ("high", "the weekly close broke the 44-week SMA — the runner's trend is gone"),
+    "wk20": ("high", "the weekly close broke the 20-week trail"),
+    "HIT_STOP": ("high", "the weekly close broke its stop"),
+    "target": ("action", "the +2R target was reached"),
+    "targets": ("action", "the +2R target was reached"),
+    "target3": ("action", "the target was reached"),
+    "pattern": ("action", "a blow-off/exhaustion week closed"),
+    "blowoff": ("action", "a blow-off/exhaustion week closed"),
+    "HIT_TARGET": ("action", "the model's profit target was reached"),
+    "time": ("action", "the position hit its time cap"),
+    "eos": ("action", "the position hit its time cap"),
+    "stale": ("action", "the position went stale (no tradable bars)"),
+    "EXPIRED": ("action", "the position hit its time cap"),
+}
+
+
+def _first_session_at_or_after(df: pd.DataFrame, when: str) -> "tuple[pd.Timestamp, float] | None":
+    """(date, OPEN) of the first daily bar at/after `when` — the model's execution price.
+
+    The engine executes a weekly-close decision at the NEXT session's open, so that bar's open IS
+    the booked exit. Reading it back here means the "you should have sold at" price the reader sees
+    is the same number the record used, never a reconstruction of it.
+    """
+    if df is None or len(df) == 0 or "Close" not in df.columns:
+        return None
+    try:
+        ts = pd.Timestamp(when).normalize()
+    except (ValueError, TypeError):
+        return None
+    idx = pd.DatetimeIndex(df.index).normalize()
+    hit = int(idx.searchsorted(ts, side="left"))
+    if hit >= len(df):
+        return None                                   # the due open has not happened yet
+    o = df["Open"] if "Open" in df.columns else df["Close"]
+    return pd.Timestamp(df.index[hit]), float(o.iloc[hit])
+
+
+def _why_unpriceable(df, due_date) -> str:
+    """Plain-English reason a closed trade could not be re-priced — the fix differs per cause."""
+    bar = _last_bar(df)
+    if bar is None:
+        return "no daily bars cached for this ticker"
+    try:
+        if pd.Timestamp(bar.date).normalize() < pd.Timestamp(due_date).normalize():
+            return f"last bar {str(bar.date)[:10]} predates the exit - stale cache or failed download"
+    except (ValueError, TypeError):
+        return "unparseable exit date on the record"
+    return "no exit price on the record"
+
+
+def _missed_row(*, ticker, signal_date, reason, due_date, due_price, entry, stop, bar,
+                r_at_exit=None) -> "dict | None":
+    """One re-priced missed exit. `bar` is today's daily bar; every other input is the record's."""
+    if bar is None or not due_price or float(due_price) <= 0:
+        return None
+    # STALE-BAR GUARD. `drift` only means anything if today's bar is at/after the exit. On a cold or
+    # part-refreshed cache the last bar can PREDATE the due date, and the row would then quote a
+    # price from before the sell as "where it is now" — a confident number pointing the wrong way.
+    # Say nothing rather than say that.
+    try:
+        if pd.Timestamp(bar.date).normalize() < pd.Timestamp(due_date).normalize():
+            return None
+    except (ValueError, TypeError):
+        return None
+    sev, cause = _MISSED_CAUSE.get(reason, ("high", "the model closed this trade"))
+    last = float(bar.close)
+    due_px = float(due_price)
+    drift = (last / due_px - 1) * 100.0
+    row = {
+        "ticker": ticker,
+        "signal_id": f"{ticker}__{signal_date}" if signal_date else None,
+        "signal_date": signal_date,
+        "reason": reason,
+        "severity": sev,
+        "cause": cause,
+        "due_date": str(due_date)[:10],
+        "due_price": round(due_px, 2),
+        "last_close": round(last, 2),
+        "as_of": str(bar.date.date()),
+        # NEGATIVE = waiting has cost you; POSITIVE = it happens to have recovered since. Reported
+        # both ways, because a rule that only speaks when it looks right is not a rule.
+        "drift_pct": round(drift, 2),
+        "entry": round(float(entry), 2) if entry else None,
+        "stop": round(float(stop), 2) if stop else None,
+    }
+    if r_at_exit is not None:
+        row["r_at_exit"] = round(float(r_at_exit), 2)
+    if entry and stop and float(entry) > float(stop):
+        risk = float(entry) - float(stop)
+        row["r_at_exit"] = round((due_px - float(entry)) / risk, 2)
+        row["r_now"] = round((last - float(entry)) / risk, 2)
+    verb = "still" if drift <= 0 else "now"
+    row["do"] = (f"The model sold {ticker} on {row['due_date']} at Rs {row['due_price']:,.2f} — "
+                 f"{cause}. If you did not sell, you are holding a position the record is flat on: "
+                 f"sell the remainder at market at the next open. It is {verb} at "
+                 f"Rs {row['last_close']:,.2f} ({drift:+.1f}% vs the model's exit).")
+    return row
+
+
+def build_missed_exits(envelope: dict, history: list, ohlcv: dict,
+                       today: "pd.Timestamp | None" = None) -> list:
+    """The priced half of `build_missed_exits_report` — every exit we could re-price (pure)."""
+    return build_missed_exits_report(envelope, history, ohlcv, today=today)["rows"]
+
+
+def build_missed_exits_report(envelope: dict, history: list, ohlcv: dict,
+                              today: "pd.Timestamp | None" = None) -> dict:
+    """Every exit the model has ALREADY taken, re-priced against today's bar (pure).
+
+    Returns BOTH halves — `{"rows": [...], "unpriceable": [...]}` — because the guard that keeps
+    this safe is also the one that can silence it. `_missed_row` says nothing when the bar it would
+    quote predates the exit, which is exactly right for a cold cache and exactly WRONG to report as
+    "no missed exits": a failed download in the cron produces the same empty list as a reader who
+    is perfectly on-plan. Two very different facts must not share one number. So a candidate the
+    record says is closed, but whose drift we cannot compute, is returned separately and annotated
+    ::warning by the caller rather than dropped into silence.
+
+    Two sources, because a missed exit changes shape the moment the weekend recompute runs:
+      1. `signals_history_weekly.json` — the BOOKED record. Authoritative: it carries the exit price
+         and date the record actually used, so nothing here is reconstructed.
+      2. the live envelope's `actionability == EXIT_REQUIRED` cards — the sell the Saturday scan has
+         issued but the record has not booked yet. Counted only once its due OPEN has PASSED; before
+         then it is simply this week's instruction, not a missed one.
+
+    History WINS on conflict — a booked price beats an inferred one.
+    """
+    cutoff = (today or pd.Timestamp.today()).normalize() - pd.Timedelta(days=MISSED_LOOKBACK_DAYS)
+    rows: dict = {}
+    unpriceable: list[dict] = []
+
+    for h in history or []:
+        status = str(h.get("status") or "").upper()
+        if status not in _MISSED_CLOSED_STATUS:
+            continue
+        t, cd, px = h.get("ticker"), h.get("close_date"), h.get("close_price")
+        if not (t and cd and px):
+            continue
+        try:
+            if pd.Timestamp(cd).normalize() < cutoff:
+                continue
+        except (ValueError, TypeError):
+            continue
+        row = _missed_row(ticker=t, signal_date=h.get("signal_date"),
+                          reason=str(h.get("exit_reason") or status), due_date=cd, due_price=px,
+                          entry=h.get("entry"), stop=h.get("stop"), bar=_last_bar(ohlcv.get(t)),
+                          r_at_exit=h.get("r_multiple"))
+        if row:
+            row["source"] = "booked"
+            rows[row["signal_id"] or f"{t}__"] = row
+        else:
+            # In the lookback and closed by the record, yet unpriceable: no bars for the name, or
+            # the last bar predates the sell. Either way the reader still holding it hears nothing,
+            # so the RUN has to say so even though the page cannot.
+            unpriceable.append({"ticker": t, "due_date": str(cd)[:10], "source": "booked",
+                                "why": _why_unpriceable(ohlcv.get(t), cd)})
+
+    gen = (envelope or {}).get("generated_at")
+    for sig in (envelope or {}).get("signals", []):
+        if str(sig.get("actionability") or "").upper() != "EXIT_REQUIRED":
+            continue
+        t = sig.get("ticker")
+        sid = f"{t}__{sig.get('signal_date')}"
+        if not t or sid in rows:
+            continue                                  # already booked — the record's price wins
+        df = ohlcv.get(t)
+        bar = _last_bar(df)
+        if bar is None:
+            continue
+        # The sell was due at the first OPEN after the weekly close that decided it.
+        due = _first_session_at_or_after(df, str(gen)[:10]) if gen else None
+        if due is None:
+            continue                                  # due open still ahead — not a miss
+        due_dt, due_px = due
+        if due_dt.normalize() >= pd.Timestamp(bar.date).normalize():
+            continue                                  # the due open IS today — not missed yet
+        row = _missed_row(ticker=t, signal_date=sig.get("signal_date"),
+                          reason=str(sig.get("status") or "HIT_STOP").upper(), due_date=due_dt,
+                          due_price=due_px, entry=sig.get("entry"), stop=sig.get("stop"), bar=bar)
+        if row:
+            row["source"] = "issued"
+            rows[sid] = row
+
+    order = {"high": 0, "action": 1}
+    return {
+        "rows": sorted(rows.values(), key=lambda r: (order.get(r["severity"], 9), r["due_date"])),
+        # A ticker already reported in `rows` under a newer episode is still listed here for the
+        # older one — the two are different positions and only one of them is being watched.
+        "unpriceable": sorted(unpriceable, key=lambda u: (u["due_date"], u["ticker"])),
+    }
+
+
 def _refresh(tickers: list[str], do_download: bool) -> dict:
     """Return the OHLCV cache, refreshed for just the envelope's tickers.
 
@@ -149,8 +366,13 @@ def _refresh(tickers: list[str], do_download: bool) -> dict:
     return ohlcv
 
 
-def build_monitor(envelope: dict, ohlcv: dict) -> dict:
-    """Re-price the frozen weekly cards and flag intra-week events. Pure — reads, never mutates."""
+def build_monitor(envelope: dict, ohlcv: dict, history: list | None = None) -> dict:
+    """Re-price the frozen weekly cards and flag intra-week events. Pure — reads, never mutates.
+
+    `history` is the booked weekly record (signals_history_weekly.json). It is what lets the
+    MISSED-EXIT pass see trades the model has already closed and DROPPED from the envelope —
+    the exact positions a reader who skipped the sell is still carrying, unwatched.
+    """
     monitors: list[dict] = []
     flags: list[dict] = []
     as_of: pd.Timestamp | None = None
@@ -262,6 +484,15 @@ def build_monitor(envelope: dict, ohlcv: dict) -> dict:
                               "message": f"{t} buy-window closed {bw} with no in-range open — signal expired, no trade"})
         monitors.append(rec)
 
+    # Exits the model has already TAKEN. Emitted as flags so they travel the same path every other
+    # event does (reconciliation only raises one for a reader whose ledger still shows the shares),
+    # and published whole under `missed_exits` so the surface can show the drift, not just the fact.
+    missed_report = build_missed_exits_report(envelope, history or [], ohlcv, today=as_of)
+    missed, unpriceable = missed_report["rows"], missed_report["unpriceable"]
+    for m in missed:
+        flags.append({"ticker": m["ticker"], "event": "MISSED_EXIT", "severity": m["severity"],
+                      "message": m["do"]})
+
     return {
         "generated_utc": datetime.now(timezone.utc).isoformat(),
         "generated_ist": datetime.now(IST).strftime("%Y-%m-%d %H:%M"),
@@ -279,6 +510,13 @@ def build_monitor(envelope: dict, ohlcv: dict) -> dict:
         "n_actionable": sum(1 for f in flags if f.get("severity") == "action"),
         "monitors": monitors,
         "flags": flags,
+        "n_missed_exits": len(missed),
+        "missed_exits": missed,
+        # Published NEXT TO the count it would otherwise hide inside. `n_missed_exits: 0` means
+        # "nobody is off-plan" only when this is also 0; with bars missing it means "we could not
+        # look". See build_missed_exits_report.
+        "n_missed_unpriceable": len(unpriceable),
+        "missed_unpriceable": unpriceable,
     }
 
 
@@ -294,13 +532,27 @@ def main(argv=None) -> int:
         print(f"no frozen weekly envelope at {env_path} — nothing to monitor (run the weekly cron first)")
         return 0
     envelope = json.loads(env_path.read_text(encoding="utf-8"))
-    tickers = sorted({s.get("ticker") for s in envelope.get("signals", []) if s.get("ticker")})
+    # The BOOKED record. A trade the model has closed is gone from the envelope, so without this the
+    # missed-exit pass could only ever see the current week's un-booked sells — i.e. it would go
+    # blind on exactly the positions that have been missed the longest.
+    hist_path = sd / "signals_history_weekly.json"
+    history: list = []
+    if hist_path.exists():
+        try:
+            loaded = json.loads(hist_path.read_text(encoding="utf-8"))
+            history = loaded if isinstance(loaded, list) else loaded.get("signals", [])
+        except (ValueError, OSError) as exc:      # a malformed record must not kill the re-pricing
+            print(f"could not read {hist_path} ({type(exc).__name__}: {exc}); missed exits limited "
+                  f"to this week's issued sells", flush=True)
+
+    tickers = sorted({s.get("ticker") for s in envelope.get("signals", []) if s.get("ticker")}
+                     | {h.get("ticker") for h in history if h.get("ticker")})
     if not tickers:
         print("weekly envelope has no signals — nothing to monitor")
         return 0
 
     ohlcv = _refresh(tickers, not args.no_download)
-    monitor = build_monitor(envelope, ohlcv)
+    monitor = build_monitor(envelope, ohlcv, history=history)
 
     # DEAD-MAN'S SWITCH (scheduler appendix): the daily monitor is the one job proven to fire every
     # weekday, so it reconstructs every OTHER job's freshness from committed artifacts and folds a
@@ -335,7 +587,13 @@ def main(argv=None) -> int:
     sh = monitor.get("scheduler_health", {})
     overdue = [j["job"] for j in sh.get("jobs", []) if j.get("status") != "OK"]
     print(f"weekly monitor: as-of {monitor['as_of']} | {monitor['n_monitored']} cards re-priced | "
-          f"{monitor['n_flags']} flags [{fired}] -> {sd / 'weekly_monitor.json'}")
+          f"{monitor['n_flags']} flags [{fired}] | {monitor['n_missed_exits']} missed exits "
+          f"-> {sd / 'weekly_monitor.json'}")
+    # A missed exit we could not price is a reader holding a position nothing on the site mentions.
+    # ::warning so it is visible on the run that caused it, not only to whoever opens the JSON.
+    for u in monitor.get("missed_unpriceable", []):
+        print(f"::warning::missed-exit re-pricing suppressed for {u['ticker']} "
+              f"(exit {u['due_date']}): {u['why']}")
     print(f"scheduler health: {sh.get('overall', 'n/a')}"
           + (f" | attention: {', '.join(overdue)}" if overdue else " | all jobs fresh")
           + f" | unscheduled: {', '.join(u['job'] for u in sh.get('unscheduled', []))}")

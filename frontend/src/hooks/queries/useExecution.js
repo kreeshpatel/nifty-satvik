@@ -3,7 +3,8 @@
  *
  * The site instructs; the user executes on their own broker and reports each fill (qty + price)
  * via a popup. These hooks read the durable positions and record buy/sell events. Unlike the
- * ephemeral useHoldings mark, this is the truth-of-record: remaining qty, cost basis, and realized
+ * ephemeral bought-mark this replaced (removed 2026-08-27), this is the truth-of-record:
+ * remaining qty, cost basis, and realized
  * P&L are derived server-side from the append-only events.
  *
  * Backing endpoints: GET /api/execution/positions, GET /api/execution/position/{id},
@@ -19,7 +20,6 @@ import {
   recordBuy,
   recordSell,
 } from '@/services/api';
-import { HOLDINGS_KEY } from './useHoldings';
 
 export const EXECUTION_KEY = ['user', 'execution', 'positions'];
 export const RECONCILIATION_KEY = ['user', 'execution', 'reconciliation'];
@@ -47,6 +47,35 @@ export function useReconciliation(options = {}) {
       nOpen: data?.n_open ?? 0,
       items: Array.isArray(data?.action_items) ? data.action_items : [],
     }),
+    staleTime: 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    ...options,
+  });
+}
+
+/**
+ * The nav-badge counts: how many lines /this-week is holding for you right now.
+ *
+ * Shares RECONCILIATION_KEY with useReconciliation, so the badge costs no extra request — it is
+ * the same cached payload read through a different select. It exists because a daily alarm that
+ * only speaks on the page you have to remember to open is not an alarm: the missed-exit item is
+ * derived every weekday, and until it was counted in the chrome the user could go a week without
+ * learning the model had sold a name they still hold.
+ *
+ * `missed` is kept SEPARATE from `exitsDue` rather than summed into one number, because they carry
+ * different urgency — an exit that is still due is on-plan, one already missed is not — and the
+ * badge colours on that distinction.
+ */
+export function useOutstandingActions(options = {}) {
+  return useQuery({
+    queryKey: RECONCILIATION_KEY,
+    queryFn: fetchReconciliation,
+    select: (data) => {
+      const items = Array.isArray(data?.action_items) ? data.action_items : [];
+      const missed = items.filter((i) => i.type === 'MISSED_EXIT').length;
+      const exitsDue = items.filter((i) => i.type === 'SELL_DUE' || i.type === 'STALE_HOLD').length;
+      return { missed, exitsDue, total: missed + exitsDue };
+    },
     staleTime: 60 * 1000,
     gcTime: 10 * 60 * 1000,
     ...options,
@@ -90,13 +119,13 @@ function useRecordEvent(mutationFn, verb) {
               (pos.realized_pnl ? ` · realized ₹${Math.round(pos.realized_pnl).toLocaleString('en-IN')}` : '') },
         );
       }
-      // The ledger changed → refresh positions, this position's trail, outstanding actions,
-      // the discipline gauge, and the held-set.
+      // The ledger changed → refresh positions, this position's trail, outstanding actions
+      // and the discipline gauge. Held-ness is DERIVED from positions now, so there is no second
+      // store to invalidate alongside them.
       qc.invalidateQueries({ queryKey: EXECUTION_KEY });
       if (vars?.signal_id) qc.invalidateQueries({ queryKey: executionPositionKey(vars.signal_id) });
       qc.invalidateQueries({ queryKey: RECONCILIATION_KEY });
       qc.invalidateQueries({ queryKey: DISCIPLINE_KEY });
-      qc.invalidateQueries({ queryKey: HOLDINGS_KEY });
     },
     onError: (err) => toast.error(`Could not record ${verb.toLowerCase()}`, { description: err?.message }),
   });
