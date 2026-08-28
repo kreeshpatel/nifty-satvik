@@ -67,3 +67,16 @@ def test_sizing_prefs_rejects_bad_tier(client: TestClient, make_user: Any, auth_
     u = make_user(name="BadTier")
     r = client.put("/api/me/sizing-prefs", json={"risk_tier": "reckless"}, cookies=auth_cookies(u))
     assert r.status_code == 422
+
+
+def test_user_holdings_is_not_in_the_schema() -> None:
+    """The table must stay out of `Base.metadata`, or the drop migration fights create_all.
+
+    `init_db()` runs `Base.metadata.create_all` and THEN the migrations. If a `UserHolding` model
+    were ever re-added, every startup would recreate the table and immediately drop it again --
+    a silent churn that also makes the drop's row-count log meaningless. Pinning the metadata is
+    the cheap half of the guard the migration itself cannot express.
+    """
+    from database import Base
+
+    assert "user_holdings" not in Base.metadata.tables
