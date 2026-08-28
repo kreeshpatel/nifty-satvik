@@ -55,6 +55,16 @@ function nextScan(now = new Date()) {
   return { when: d.toLocaleDateString('en-IN', { weekday: 'long' }), inWords };
 }
 
+// The band the record actually buys inside.
+//
+// `entry_low/high` is the whole SIGNAL WEEK's candle, and its low IS the stop -- so quoting it as
+// the buy band told the reader to "buy between 1,250.40 and 1,310.60" on a card whose real zone
+// starts at 1,293.70, i.e. to buy AT the stop. Research was fixed on 2026-08-27 and this page was
+// not, which left the two surfaces printing different bands for the same name on the same day.
+// One reading, one helper, both pages.
+const buyLowOf = (s) => s?.buy_zone_low ?? s?.entry_low ?? s?.entry ?? null;
+const buyHighOf = (s) => s?.buy_zone_high ?? s?.entry_high ?? s?.entry ?? null;
+
 const signalIdOf = (s) => {
   const t = String(s?.ticker || s?.sym || '').toUpperCase();
   return s?.signal_id || (t && s?.signal_date ? `${t}__${s.signal_date}` : null);
@@ -169,7 +179,7 @@ export default function ThisWeek() {
     return sizePortfolio({
       signals: buyCandidates.map((s) => ({
         signalId: signalIdOf(s), sym: (s.ticker || '').toUpperCase(), entry: s.entry, stop: s.stop,
-        buyHigh: s.entry_high ?? s.entry, ltp: quotes?.[(s.ticker || '').toUpperCase()]?.last_price ?? s.current_price,
+        buyHigh: buyHighOf(s) ?? s.entry, ltp: quotes?.[(s.ticker || '').toUpperCase()]?.last_price ?? s.current_price,
       })),
       heldSignalIds: [...heldIds], capital, tierPct, capPct,
     });
@@ -407,8 +417,8 @@ export default function ThisWeek() {
                   <div>
                     <div className="ns-sym">{sym}</div>
                     <div className="ns-meta">
-                      Buy {s.entry_low != null && s.entry_high != null
-                        ? <>between <b className="tnum">{fmtNum(s.entry_low)}</b>–<b className="tnum">{fmtNum(s.entry_high)}</b></>
+                      Buy {buyLowOf(s) != null && buyHighOf(s) != null
+                        ? <>between <b className="tnum">{fmtNum(buyLowOf(s))}</b>–<b className="tnum">{fmtNum(buyHighOf(s))}</b></>
                         : <>near <b className="tnum">{fmtNum(s.entry)}</b></>}
                       {' '}· stop <b className="tnum">{fmtNum(s.stop)}</b>
                     </div>

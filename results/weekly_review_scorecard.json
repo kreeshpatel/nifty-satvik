@@ -1,11 +1,11 @@
 {
-  "generated_utc": "2026-08-22T13:10:05.292292+00:00",
-  "generated_ist": "2026-08-22 18:40",
+  "generated_utc": "2026-08-28T19:58:14.681377+00:00",
+  "generated_ist": "2026-08-29 01:28",
   "book": "weekly-swing-0094-rank",
   "inception": "2026-07-04",
-  "days_live": 49,
+  "days_live": 55,
   "next_review": "2026-10-01",
-  "days_to_review": 40,
+  "days_to_review": 34,
   "next_review_verified": true,
   "holidays_covered_through": "2026-12-31",
   "review_cadence": "first trading day of Jan/Apr/Jul/Oct (forward/prereg.md \u00a78)",
@@ -74,7 +74,7 @@
     "reason": "1 closed trades in the thinner book, below the \u00a74 floor of 20 per book"
   },
   "status": "ACCRUING",
-  "headline": "8/40 closed, 0/4 quarters -> not yet evaluable; 40 days to the 2026-10-01 review",
+  "headline": "8/40 closed, 0/4 quarters -> not yet evaluable; 34 days to the 2026-10-01 review",
   "spec_note": "The \u00a710.2 registered proposal names practitioner Engine B + 4xATR; the live forward book is weekly-swing-0094-rank. The Oct-1 review must reconcile which spec is judged (forward/prereg.md \u00a710.2). Gates are surfaced, never applied between review dates; the only mechanical action is the \u00a74 halt. The `swing_grading` block encodes the OTHER doc \u2014 forward/prereg_swing.md \u00a74 \u2014 so both candidate specs are now computed rather than argued at the review.",
   "authority": "forward/prereg.md (the doc is the authority; this scorecard only reads it)"
 }

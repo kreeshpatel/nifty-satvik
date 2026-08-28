@@ -66,9 +66,26 @@ function addTradingDays(dateStr, n) {
   }
   return d;
 }
+/** Parse a bare 'YYYY-MM-DD' as a LOCAL calendar date.
+ *
+ * `new Date('2026-08-28')` is UTC midnight, and formatting that in a timezone behind UTC renders
+ * the PREVIOUS day -- so a buy window closing on the 28th displayed as "Thu, 27 Aug" to anyone
+ * west of Greenwich. These fields carry no time and no zone; they are days on the NSE calendar,
+ * and they should read as the same day everywhere. */
+function parseCalendarDate(v) {
+  if (!v) return null;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(v));
+  return m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(v);
+}
 function fmtBuyBy(date) {
   if (!date) return null;
-  return new Date(date).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+  const d = date instanceof Date ? date : parseCalendarDate(date);
+  return d ? d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }) : null;
+}
+/** "Mon 24 Aug" — the compact form the monitor chips use. */
+function fmtDayMon(v) {
+  const d = parseCalendarDate(v);
+  return d ? d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }) : '—';
 }
 function daysLeftUntil(dateObj, now = new Date()) {
   if (!dateObj) return null;
@@ -175,7 +192,7 @@ function enrichSignal(raw, quotes, posBySignal) {
 
   let buyByStr = null, daysLeft = null;
   if (raw.buy_window_until) {
-    const d = new Date(raw.buy_window_until);
+    const d = parseCalendarDate(raw.buy_window_until);
     buyByStr = fmtBuyBy(d); daysLeft = daysLeftUntil(d);
   } else if (raw.signal_date && (action === 'buy-today' || action === 'closing')) {
     const d = addTradingDays(raw.signal_date, 2);
@@ -277,8 +294,14 @@ function monitorChip(s) {
   if (m.target_reached) return { label: '✓ +2R', cls: 'mon-bull' };
   if (m.kind === 'hold' && m.dist_to_stop_pct != null && m.dist_to_stop_pct <= 2)
     return { label: 'Near stop', cls: 'mon-warn' };
+  // A filled window OUTRANKS today's price, and it has to. `filled_today` is recomputed against
+  // the last bar every run, so by Thursday it says nothing about Monday -- and the old rule read
+  // that as "Gapped — wait" on JSWSTEEL, which had opened 1,298.00 inside its band on Monday and
+  // then run to 1,351. The trade was taken; the surface called it pending.
+  if (m.kind === 'buy' && m.window_filled)
+    return { label: `Filled ${fmtDayMon(m.filled_on)}`, cls: 'mon-bull' };
   if (m.kind === 'buy' && m.buy_window_open && m.filled_today === false)
-    return { label: 'Gapped — wait', cls: 'mon-warn' };
+    return { label: 'No open in band yet', cls: 'mon-warn' };
   return null;
 }
 
