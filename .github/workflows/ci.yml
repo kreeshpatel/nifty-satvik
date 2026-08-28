@@ -52,30 +52,32 @@ jobs:
   # while -- dashboard/backend/tests never ran in CI at all, so every auth guard, tenant-isolation
   # check and reconciliation contract was verified only on whoever's laptop last touched it.
   #
-  # Python 3.11 and a plain `-r requirements.txt`, deliberately: that is exactly what ships
-  # (dashboard/backend/runtime.txt pins python-3.11.0 and nixpacks.toml installs the same
-  # unpinned file), and a test job on a different interpreter than production tests something
-  # nobody deploys. The float that requirements.txt allows is fine HERE -- these are API-contract
-  # tests, not the engine's byte-sensitive golden master, which is why that suite stays pinned to
-  # its own job above.
+  # Python 3.12 and the LOCK, because that is what actually ships. CORRECTED 2026-08-29: this job
+  # was originally 3.11 + `-r requirements.txt`, chosen from dashboard/backend/runtime.txt and
+  # nixpacks.toml. Both are dead Render-era files. fly.toml builds `deploy/Dockerfile`, which is
+  # `FROM python:3.12-slim` and installs `--require-hashes -r requirements.lock`. So the job added
+  # to catch backend problems was running on an interpreter and a dependency set that nothing
+  # deploys -- the exact failure it was created to prevent, one layer up.
+  #
+  # `--require-hashes` is per-invocation and refuses anything unhashed, so the test-only deps go
+  # in a second pip call. pytest and httpx are NOT in the lock and must not be; httpx specifically
+  # because starlette's TestClient needs it and `pip install fastapi` does not pull it in.
   backend:
-    name: Backend tests (Python 3.11, Ubuntu)
+    name: Backend tests (Python 3.12, Ubuntu)
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           cache: pip
-          cache-dependency-path: dashboard/backend/requirements.txt
-      - name: Install
-        # pytest and httpx are NOT in requirements.txt and must not be: they are test-only.
-        # httpx specifically -- starlette's TestClient needs it, and `pip install fastapi` does
-        # not pull it in, so without this every test errors at import with a bare TestClient.
+          cache-dependency-path: dashboard/backend/requirements.lock
+      - name: Install (the same locked, hashed set the image installs)
         run: |
           python -m pip install --upgrade pip
-          pip install -r dashboard/backend/requirements.txt pytest httpx
+          pip install --require-hashes -r dashboard/backend/requirements.lock
+          pip install pytest httpx
       - name: Tests
         # Run from the backend directory, the invocation its own conftest documents. That makes
         # pytest's rootdir dashboard/backend, so the repo-root pyproject (and its

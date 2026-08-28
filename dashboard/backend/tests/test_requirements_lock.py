@@ -1,0 +1,120 @@
+"""`requirements.lock` is what production installs, so it must not silently drift from its source.
+
+**Why this exists.** On 2026-08-28 `pandas_ta` was removed from `requirements.txt` on the belief
+that a fresh deploy would otherwise fail. That belief was wrong, and the reason it was wrong is
+worth pinning here: `dashboard/backend/runtime.txt` (python-3.11.0) and `nixpacks.toml` were dead
+Render-era files, while `fly.toml` builds `deploy/Dockerfile` — `FROM python:3.12-slim`, installing
+`--require-hashes -r requirements.lock`. The deploy never reads `requirements.txt` at all, and
+`pandas-ta==0.4.71b0` installs perfectly well on 3.12.
+
+The edit was therefore harmless in production but left the two files disagreeing: the lock still
+listed `pandas-ta` as `# via -r requirements.txt` for a package requirements.txt no longer
+requested. Nothing caught that, which is what these tests are for.
+
+The lock was regenerated on 2026-08-29 by pip-compile INSIDE the 3.12 image, which is the only
+way to do it correctly — removing `pandas-ta` by hand orphans `numba`, which orphans `llvmlite`,
+and that closure is not something a regex should compute against a hash-pinned file. Repeat this
+whenever requirements.txt changes:
+
+    docker run --rm -v "$PWD/dashboard/backend:/w" -w /w python:3.12-slim sh -c \\
+      "pip install pip-tools && pip-compile --allow-unsafe --generate-hashes \\
+       --output-file=requirements.lock requirements.txt"
+
+That regeneration also corrected two things nobody had noticed. The lock's header had said
+Python 3.13 — a third interpreter, different again from the image — and because it had been
+compiled on Windows it carried `pywin32`, `win32-setctime` and `colorama` into a Linux image.
+Resolving inside the image dropped those along with the `pandas-ta` closure: 98 entries to 90,
+with zero version changes and zero additions.
+"""
+from __future__ import annotations
+
+import re
+from pathlib import Path
+
+BACKEND = Path(__file__).resolve().parent.parent
+REQ = BACKEND / "requirements.txt"
+LOCK = BACKEND / "requirements.lock"
+
+# Divergences that are KNOWN and deliberately not yet fixed, each with the reason. Same shape as
+# the wiring map's INTENTIONALLY_UNREAD: a new divergence fails, a declared one does not.
+KNOWN_DIVERGENCE: dict[str, str] = {
+    # Empty, and the test below keeps it honest: a declaration that no longer describes a real
+    # divergence fails, so this cannot quietly become a dumping ground. `pandas-ta` lived here
+    # for one commit and was retired on 2026-08-29 when the lock was regenerated properly.
+}
+
+
+def _canon(name: str) -> str:
+    return name.split("[")[0].strip().lower().replace("_", "-")
+
+
+def _requested() -> set[str]:
+    out = set()
+    for line in REQ.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        out.add(_canon(re.split(r"[<>=;!]", line)[0]))
+    return out
+
+
+def _locked_direct() -> set[str]:
+    """Lock entries pip-compile attributes to requirements.txt (possibly among other sources)."""
+    text = LOCK.read_text(encoding="utf-8")
+    entries = re.split(r"\n(?=[a-zA-Z0-9._\[\]-]+==)", text)
+    direct = set()
+    for e in entries:
+        m = re.match(r"([a-zA-Z0-9._\[\]-]+)==", e)
+        if m and "# via" in e and "-r requirements.txt" in e.split("# via", 1)[1]:
+            direct.add(_canon(m.group(1)))
+    return direct
+
+
+def test_every_requested_package_is_in_the_lock():
+    """The lock is what ships. A package in requirements.txt but absent from it never installs."""
+    text = LOCK.read_text(encoding="utf-8")
+    present = {_canon(n) for n in re.findall(r"^([a-zA-Z0-9._\[\]-]+)==", text, re.M)}
+    missing = sorted(_requested() - present)
+    assert not missing, (
+        f"requested in requirements.txt but absent from the lock, so never installed: {missing}. "
+        "Regenerate the lock — see this module's docstring."
+    )
+
+
+def test_the_lock_carries_nothing_requirements_txt_no_longer_asks_for():
+    """The ratchet. A package the lock still attributes to requirements.txt, which requirements.txt
+    has stopped requesting, means the two have drifted — and the lock is the one that ships."""
+    stale = sorted(_locked_direct() - _requested() - set(KNOWN_DIVERGENCE))
+    assert not stale, (
+        f"the lock still lists {stale} as coming from requirements.txt, which no longer requests "
+        "them. Regenerate the lock inside python:3.12-slim (see this module's docstring), or add "
+        "an entry to KNOWN_DIVERGENCE with the reason it is being left."
+    )
+
+
+def test_known_divergences_are_real_and_get_retired():
+    """A declared exception that has already been fixed should be deleted, not left to rot —
+    otherwise the list stops describing anything and the ratchet loosens."""
+    stale_decls = sorted(set(KNOWN_DIVERGENCE) - (_locked_direct() - _requested()))
+    assert not stale_decls, (
+        f"these are declared in KNOWN_DIVERGENCE but no longer diverge: {stale_decls}. "
+        "Delete the entries."
+    )
+
+
+def test_the_image_and_the_lock_agree_on_python():
+    """The lock is resolved for one interpreter and installed on another only by accident.
+
+    runtime.txt (3.11) and nixpacks.toml were deleted on 2026-08-29 precisely because they claimed
+    a different version from the image and misled a change. The Dockerfile is now the single
+    statement of which Python this service runs.
+    """
+    dockerfile = (BACKEND.parent.parent / "deploy" / "Dockerfile").read_text(encoding="utf-8")
+    assert "FROM python:3.12-slim" in dockerfile, (
+        "the backend image's Python changed; the CI backend job and the lock's pip-compile "
+        "interpreter must move with it"
+    )
+    ci = (BACKEND.parent.parent / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+    assert 'python-version: "3.12"' in ci and "requirements.lock" in ci, (
+        "the CI backend job no longer mirrors the image it is supposed to be testing"
+    )
