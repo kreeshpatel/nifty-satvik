@@ -44,3 +44,42 @@ jobs:
       - name: Tests
         # No --cov (coverage instrumentation segfaulted the old runner).
         run: pytest -v --tb=short
+
+  # ── The product backend ──────────────────────────────────────────────────────
+  # A SEPARATE job, not another step, because the two suites cannot share an env: the engine
+  # installs `.[dev]` and its pytest run carries `--ignore=dashboard` (pyproject.toml), since the
+  # backend has its own config.py shim and import layout. The consequence went unnoticed for a
+  # while -- dashboard/backend/tests never ran in CI at all, so every auth guard, tenant-isolation
+  # check and reconciliation contract was verified only on whoever's laptop last touched it.
+  #
+  # Python 3.11 and a plain `-r requirements.txt`, deliberately: that is exactly what ships
+  # (dashboard/backend/runtime.txt pins python-3.11.0 and nixpacks.toml installs the same
+  # unpinned file), and a test job on a different interpreter than production tests something
+  # nobody deploys. The float that requirements.txt allows is fine HERE -- these are API-contract
+  # tests, not the engine's byte-sensitive golden master, which is why that suite stays pinned to
+  # its own job above.
+  backend:
+    name: Backend tests (Python 3.11, Ubuntu)
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: dashboard/backend/requirements.txt
+      - name: Install
+        # pytest and httpx are NOT in requirements.txt and must not be: they are test-only.
+        # httpx specifically -- starlette's TestClient needs it, and `pip install fastapi` does
+        # not pull it in, so without this every test errors at import with a bare TestClient.
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r dashboard/backend/requirements.txt pytest httpx
+      - name: Tests
+        # Run from the backend directory, the invocation its own conftest documents. That makes
+        # pytest's rootdir dashboard/backend, so the repo-root pyproject (and its
+        # --ignore=dashboard) never applies. conftest.py supplies JWT_SECRET, ENCRYPTION_KEY and
+        # a sqlite DATABASE_URL, so no secrets are needed here.
+        working-directory: dashboard/backend
+        run: pytest tests -v --tb=short
