@@ -71,7 +71,7 @@ Written by the daily monitor (weekdays 16:15 IST).
 | `current_price` | buy,hold | ✓ | · | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | **6** |
 | `dist_to_stop_pct` | hold | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `dist_to_target_pct` | hold | · | · | · | · | · | ✓ | · | · | · | **1** |
-| `do` | missed_exits | · | · | ✓ | · | ✓ | ✓ | ✓ | · | ✓ | **5** |
+| `do` | missed_exits | · | · | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | **6** |
 | `drift_pct` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | **2** |
 | `due_date` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | **2** |
 | `due_price` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | **2** |
