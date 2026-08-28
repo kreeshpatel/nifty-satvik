@@ -582,3 +582,30 @@ def init_db():
         BEFORE UPDATE OR DELETE ON execution_events
         FOR EACH ROW EXECUTE FUNCTION execution_events_protect()
     """)
+
+    # Drop `user_holdings`, the ephemeral "I bought this" mark retired on 2026-08-27 when the
+    # durable execution ledger became the single answer to that question. The model and its three
+    # endpoints went then; the table was left standing deliberately, because dropping rows a user
+    # typed by hand is the one part of that change that cannot be undone. Owner decision to drop
+    # it: 2026-08-28.
+    #
+    # The count is logged BEFORE the drop, in the same statement, so the deletion leaves a receipt
+    # in the startup log rather than happening silently. If it turns out to matter later, the
+    # number of rows lost is at least knowable — and if it is zero, this whole migration was free.
+    #
+    # No IF EXISTS dance beyond the DROP's own: `Base.metadata.create_all` above can no longer
+    # recreate the table (the model is gone), so this runs at most once and is a no-op on every
+    # restart after it. A lock_timeout during a rolling deploy just defers it, like every other
+    # step here.
+    _run_migration("user_holdings_row_count_before_drop", """
+        DO $$
+        DECLARE n bigint;
+        BEGIN
+          IF EXISTS (SELECT 1 FROM information_schema.tables
+                     WHERE table_schema = current_schema() AND table_name = 'user_holdings') THEN
+            EXECUTE 'SELECT count(*) FROM user_holdings' INTO n;
+            RAISE NOTICE 'dropping user_holdings with % row(s)', n;
+          END IF;
+        END $$
+    """)
+    _run_migration("user_holdings_drop", "DROP TABLE IF EXISTS user_holdings")
