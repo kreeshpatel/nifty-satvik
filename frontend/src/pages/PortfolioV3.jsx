@@ -9,11 +9,13 @@
  *   StateStrip  — regime badge + LIVE/PAPER mode + RISK status (computable cells only)
  *   EquityHero  — total value + 4-KPI stack + equity curve (useOverview + useNavHistory)
  *   PerfRibbon  — Sharpe, max drawdown, win rate, avg win/loss (useOverview().metrics)
- *   RiskRibbon  — drawdown headroom + win-rate headroom (computed from real data)
- *                 // TODO: kill-system state endpoint (partial — 2 of 5 cells computable)
+ *   RiskRibbon  — drawdown + win-rate headroom, and an HONEST verdict about the three kill
+ *                 limits nothing computes (see lib/guardrails.js)
  *   MonthlyPnl  — monthly realised return % bucketed from useTrades()
  *                 // TODO: monthly P&L endpoint or position-size on trades
- *   HoldingsTable — useKiteHoldings (connected) OR usePaperPositions (else)
+ *   HoldingsTable — the user's own execution ledger, or the paper book in Paper mode. (This
+ *                 said "useKiteHoldings" until 2026-08-29; that hook is not imported and the
+ *                 per-user Kite connection went with ADR 0011.)
  *   AllocCard   — stacked bar + ranked list by sector (Kite or paper)
  *   ClosedCard  — useTrades() first 5 entries
  *
@@ -31,6 +33,7 @@ import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import { useTrades, flattenTrades } from '@/hooks/queries/useTrades';
 import { useSignals } from '@/hooks/queries/useSignals';
 import { DISCLAIMER } from '@/lib/signalCopy';
+import { guardrailVerdict, guardrailCoverage, verdictLabel, VERDICT } from '@/lib/guardrails';
 import PaperRefRecord from '@/components/portfolio/PaperRefRecord';
 import '@/styles/portfolio-v3.css';
 
@@ -602,16 +605,32 @@ function PerfRibbon({ metrics, portfolio, isLoading }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// SECTION 4 — RiskRibbon (kill guardrails, partial)
-// Only 2 cells computable from available hooks:
-//   1. Drawdown headroom (portfolio.drawdown_pct vs 15% kill)
-//   2. Win-rate headroom (metrics.win_rate vs 45% kill)
-// Other 3 cells (consecutive losses, single-day loss, days-without-signal)
-// require backend kill-state endpoint — shown as "—" with honest label.
-// TODO: kill-system state endpoint
+// SECTION 4 — RiskRibbon (kill guardrails, PARTIALLY evaluated — and it now says so)
+//
+// Two of five limits are computable from the hooks this page has: drawdown headroom and rolling
+// win-rate headroom. The other three — consecutive losses, single-day loss, days-without-signal
+// — are not merely "pending an endpoint", which is what the old TODO implied. NOTHING computes
+// them: nq/paper/book.py::kill_flags returns only a win-rate and a 30d-Sharpe breach, and its
+// kill_state.json is not in results/ at all because the live weekly-swing cron never writes one.
+//
+// They are deliberately NOT invented here. A kill threshold is a pre-registered governance
+// value (CLAUDE.md: thresholds are fixed in the pre-reg and are not revisited afterwards);
+// choosing three of them inside a frontend fix would be exactly the category error the programme
+// warns about. The honest move is to evaluate what exists and refuse to imply the rest passed.
+//
+// THE DEFECT THIS REPLACES. The verdict reducer was seeded at 'ok' and returned the accumulator
+// unchanged for an `unknown` cell, so three permanently-unknown limits contributed nothing and
+// the card printed ALL CLEAR on a 2-of-5 sample. That is the same shape as a monitor reporting
+// zero missed exits after a failed download: "we did not look" rendered as "nothing found".
+// See lib/guardrails.js, where the rule now lives and is tested.
 // ─────────────────────────────────────────────────────────────────────
-const KILL_DD_THRESHOLD  = 15; // % drawdown kill
-const KILL_WR_THRESHOLD  = 45; // % rolling win-rate kill
+// NOTE — these two are hardcoded here and duplicate values whose authority lives in the engine.
+// `kill_flags(wr_min=45.0)` matches the 45 below; the 15% drawdown kill has NO counterpart in
+// nq/paper/book.py at all, so it may be a long-horizon-era number that no longer describes the
+// live book. Flagged rather than changed: correcting a kill threshold is a governance decision,
+// not a UI one. Duplicated constants are the drift hazard skills/repo-map §2.1 exists to name.
+const KILL_DD_THRESHOLD  = 15; // % drawdown kill — UNVERIFIED against the live book's pre-reg
+const KILL_WR_THRESHOLD  = 45; // % rolling win-rate kill — matches nq/paper/book.py::kill_flags
 
 function riskCell(value, fill, status) {
   return { value, fill: Math.min(1, Math.max(0, fill)), status };
@@ -641,20 +660,20 @@ function RiskRibbon({ portfolio, metrics, isLoading }) {
   const cells = [
     { name: 'Drawdown',       ...riskCell(ddValue, ddFill ?? 0, ddStatus) },
     { name: 'Rolling-20 WR',  ...riskCell(wrValue, wrFill ?? 0, wrStatus) },
-    // These three require the kill-system state endpoint — not available in frontend hooks
-    { name: 'Consec. losses', ...riskCell('—', 0, 'unknown') },
-    { name: 'Single-day loss', ...riskCell('—', 0, 'unknown') },
-    { name: 'Days w/o signal', ...riskCell('—', 0, 'unknown') },
+    // Not computed anywhere — see the block comment above. "not evaluated" is the honest word;
+    // "—" reads like a value that failed to load rather than a limit nobody measures.
+    { name: 'Consec. losses', ...riskCell('not evaluated', 0, 'unknown') },
+    { name: 'Single-day loss', ...riskCell('not evaluated', 0, 'unknown') },
+    { name: 'Days w/o signal', ...riskCell('not evaluated', 0, 'unknown') },
   ];
 
-  const worst = cells.reduce((w, c) => {
-    if (c.status === 'hard') return 'hard';
-    if (c.status === 'soft' && w !== 'hard') return 'soft';
-    return w;
-  }, 'ok');
-
-  const overallWord = worst === 'hard' ? 'HARD KILL' : worst === 'soft' ? 'SOFT WARNING' : 'ALL CLEAR';
-  const overallCls  = worst === 'hard' ? 'kw-hard' : worst === 'soft' ? 'kw-soft' : 'kw-ok';
+  const worst = guardrailVerdict(cells);
+  const coverage = guardrailCoverage(cells);
+  const overallWord = verdictLabel(worst, coverage);
+  const overallCls = worst === VERDICT.HARD ? 'kw-hard'
+    : worst === VERDICT.SOFT ? 'kw-soft'
+    : worst === VERDICT.PARTIAL ? 'kw-soft'   // amber, not green: this is not an all-clear
+    : 'kw-ok';
 
   return (
     <div className="pv3-card pv3-risk-card">
@@ -662,11 +681,12 @@ function RiskRibbon({ portfolio, metrics, isLoading }) {
         <div>
           <div className="pv3-t-ui-headline">
             Risk guardrails
-            <span className="pv3-partial-note"> (partial — live kill-state endpoint pending)</span>
+            <span className="pv3-partial-note"> (partially evaluated)</span>
           </div>
-          {/* TODO: kill-system state endpoint */}
           <div className="pv3-t-ui-footnote">
-            2 of 5 limits computed · 3 need backend kill-state API
+            {coverage.known} of {coverage.total} limits evaluated · consecutive losses, single-day
+            loss and days-without-signal are not computed for this book, so this panel cannot tell
+            you they are clear
           </div>
         </div>
         <span className={`pv3-kw ${overallCls}`}>{overallWord}</span>
