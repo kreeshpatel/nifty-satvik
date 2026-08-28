@@ -33,7 +33,10 @@ import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import { useTrades, flattenTrades } from '@/hooks/queries/useTrades';
 import { useSignals } from '@/hooks/queries/useSignals';
 import { DISCLAIMER } from '@/lib/signalCopy';
-import { guardrailVerdict, guardrailCoverage, verdictLabel, VERDICT } from '@/lib/guardrails';
+import {
+  guardrailVerdict, guardrailCoverage, verdictLabel, VERDICT,
+  drawdownStatus, drawdownLabel, DRAWDOWN_HALT_PCT,
+} from '@/lib/guardrails';
 import { monthlySeries } from '@/lib/monthly';
 import PaperRefRecord from '@/components/portfolio/PaperRefRecord';
 import '@/styles/portfolio-v3.css';
@@ -189,28 +192,16 @@ function StateStrip({ kiteConnected, regime, drawdownPct }) {
   const regimeLabel = isBull ? 'Bullish' : isBear ? 'Bearish' : 'Choppy';
   const regimeCls = isBull ? 'num-bull' : isBear ? 'num-bear' : 'num-warn';
 
-  // Drawdown status — and ONLY drawdown, which is what this badge now says.
+  // Drawdown status — and ONLY drawdown, which is what this badge says.
   //
-  // It used to read `riskOk = ddPct == null || ...` and print a bare ALL CLEAR: an unknown
-  // drawdown evaluated to cleared, from ONE input, with no hint that four other kill limits
-  // exist and are unevaluated. A reader taking "ALL CLEAR" from a strip is taking it about their
-  // risk, not about one metric. A badge that names what it measured cannot overclaim.
-  //
-  // The threshold's citation was also wrong: the comment said "15% drawdown (documented in
-  // CLAUDE.md)" and CLAUDE.md documents no such thing — the book's own pinned anchor runs to a
-  // −46% max drawdown, so 15% is unlikely to describe the live book at all. Left in place and
-  // flagged, because changing a kill threshold is a pre-registered governance decision and not a
-  // UI edit. Same annotation as KILL_DD_THRESHOLD below, which duplicates it.
-  const DRAWDOWN_KILL = 15;   // UNVERIFIED — no counterpart in CLAUDE.md or the engine
+  // The threshold comes from the pre-registration now, not from a comment. It read 15% and cited
+  // "documented in CLAUDE.md"; CLAUDE.md says no such thing and both preregs say −50%. 15% sits
+  // inside the range §4 explicitly calls normal ("31% of days spent >20% underwater ... Firing
+  // there would sell normal pain"), so the badge would have alarmed on roughly a third of all
+  // days. See lib/guardrails.js for the quotes.
   const ddPct = drawdownPct != null ? Math.abs(Number(drawdownPct)) : null;
-  const ddStatus = ddPct == null ? 'unknown'
-    : ddPct >= DRAWDOWN_KILL ? 'hard'
-    : ddPct >= DRAWDOWN_KILL * 0.6 ? 'soft'
-    : 'ok';
-  const riskWord = ddStatus === 'hard' ? 'DRAWDOWN: HARD KILL'
-    : ddStatus === 'soft' ? 'DRAWDOWN: WARNING'
-    : ddStatus === 'ok' ? 'DRAWDOWN OK'
-    : 'DRAWDOWN NOT EVALUATED';
+  const ddStatus = drawdownStatus(ddPct);
+  const riskWord = drawdownLabel(ddStatus);
   const riskCls = ddStatus === 'hard' ? 'kw-hard'
     : ddStatus === 'soft' ? 'kw-soft'
     : ddStatus === 'ok' ? 'kw-ok'
@@ -643,12 +634,12 @@ function PerfRibbon({ metrics, portfolio, isLoading }) {
 // zero missed exits after a failed download: "we did not look" rendered as "nothing found".
 // See lib/guardrails.js, where the rule now lives and is tested.
 // ─────────────────────────────────────────────────────────────────────
-// NOTE — these two are hardcoded here and duplicate values whose authority lives in the engine.
-// `kill_flags(wr_min=45.0)` matches the 45 below; the 15% drawdown kill has NO counterpart in
-// nq/paper/book.py at all, so it may be a long-horizon-era number that no longer describes the
-// live book. Flagged rather than changed: correcting a kill threshold is a governance decision,
-// not a UI one. Duplicated constants are the drift hazard skills/repo-map §2.1 exists to name.
-const KILL_DD_THRESHOLD  = 15; // % drawdown kill — UNVERIFIED against the live book's pre-reg
+// The drawdown halt is no longer duplicated here: it lives in lib/guardrails.js, quoted from
+// forward/prereg.md §4 and forward/prereg_swing.md §5, and both this card and the StateStrip
+// badge read that one value. Two copies of a kill threshold in one file is precisely the drift
+// hazard skills/repo-map §2.1 names, and they had already drifted — the strip said 15% via one
+// constant while this card said 15% via another, both wrong, and fixing one would not have fixed
+// the other.
 const KILL_WR_THRESHOLD  = 45; // % rolling win-rate kill — matches nq/paper/book.py::kill_flags
 
 function riskCell(value, fill, status) {
@@ -660,11 +651,8 @@ function RiskRibbon({ portfolio, metrics, isLoading }) {
   const winRate     = metrics?.win_rate       ?? null;
 
   const ddAbs  = drawdownPct != null ? Math.abs(Number(drawdownPct)) : null;
-  const ddFill = ddAbs != null ? ddAbs / KILL_DD_THRESHOLD : null;
-  const ddStatus = ddFill == null ? 'unknown'
-    : ddFill >= 1 ? 'hard'
-    : ddFill >= 0.75 ? 'soft'
-    : 'ok';
+  const ddFill = ddAbs != null ? ddAbs / DRAWDOWN_HALT_PCT : null;
+  const ddStatus = drawdownStatus(ddAbs);
   const ddValue = ddAbs != null ? `−${ddAbs.toFixed(1)}%` : '—';
 
   const wrFill = winRate != null
@@ -677,7 +665,7 @@ function RiskRibbon({ portfolio, metrics, isLoading }) {
   const wrValue = winRate != null ? `${Number(winRate).toFixed(0)}%` : '—';
 
   const cells = [
-    { name: 'Drawdown',       ...riskCell(ddValue, ddFill ?? 0, ddStatus) },
+    { name: 'Drawdown vs −50% halt', ...riskCell(ddValue, ddFill ?? 0, ddStatus) },
     { name: 'Rolling-20 WR',  ...riskCell(wrValue, wrFill ?? 0, wrStatus) },
     // Not computed anywhere — see the block comment above. "not evaluated" is the honest word;
     // "—" reads like a value that failed to load rather than a limit nobody measures.
