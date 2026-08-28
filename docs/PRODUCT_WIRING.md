@@ -64,31 +64,47 @@ Written by the daily monitor (weekdays 16:15 IST).
 
 | field | on cards | api | api-exec | recon | cards lib | This week | Research | Dashboard | Portfolio | History | read by |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| `as_of` | buy,hold | ✓ | · | ✓ | · | · | · | ✓ | · | · | **3** |
+| `as_of` | buy,hold,missed_exits | ✓ | · | ✓ | · | · | · | ✓ | · | · | **3** |
 | `buy_window_open` | buy | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `buy_window_until` | buy | · | · | · | ✓ | · | ✓ | · | · | · | **2** |
+| `cause` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | **2** |
 | `current_price` | buy,hold | ✓ | · | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | **6** |
 | `dist_to_stop_pct` | hold | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `dist_to_target_pct` | hold | · | · | · | · | · | ✓ | · | · | · | **1** |
-| `entry` | hold | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
+| `do` | missed_exits | · | · | ✓ | · | ✓ | ✓ | ✓ | · | ✓ | **5** |
+| `drift_pct` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | **2** |
+| `due_date` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | **2** |
+| `due_price` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | **2** |
+| `entry` | hold,missed_exits | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
 | `entry_high` | buy | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
 | `entry_low` | buy | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
 | `expired` | buy | · | · | · | ✓ | · | ✓ | · | ✓ | ✓ | **4** |
+| `filled_on` | buy | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `filled_price` | buy | · | · | · | ✓ | · | ✓ | · | · | · | **2** |
 | `filled_today` | buy | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `frozen_price` | buy,hold | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `implied_trail_sma20` | hold | · | · | · | · | · | · | · | · | · | **0** |
 | `kind` | buy,hold | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `last_close` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | **2** |
 | `plan_tags` | hold | · | · | · | · | · | · | · | · | · | **0** |
 | `pnl_pct` | hold | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `r_at_exit` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | **2** |
 | `r_multiple` | hold | · | · | · | · | · | · | · | · | ✓ | **1** |
+| `r_now` | missed_exits | · | · | ✓ | · | · | · | · | · | · | **1** |
+| `reason` | missed_exits | · | · | ✓ | · | · | · | · | ✓ | · | **2** |
+| `severity` | missed_exits | · | · | ✓ | · | ✓ | · | · | ✓ | · | **3** |
+| `signal_date` | missed_exits | · | · | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | **5** |
+| `signal_id` | missed_exits | ✓ | ✓ | ✓ | · | ✓ | ✓ | · | ✓ | · | **6** |
 | `sma20` | buy,hold | · | · | · | · | · | · | · | · | · | **0** |
-| `stop` | hold | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **9** |
+| `source` | missed_exits | ✓ | ✓ | · | · | · | ✓ | · | ✓ | · | **4** |
+| `stop` | hold,missed_exits | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **9** |
 | `stop_breached` | hold | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `target` | hold | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **9** |
 | `target_reached` | hold | · | · | · | · | · | ✓ | · | · | · | **1** |
-| `ticker` | buy,hold | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
+| `ticker` | buy,hold,missed_exits | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
 | `today_open` | buy | · | · | · | · | · | · | · | · | · | **0** |
 | `tranches` | hold | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
+| `window_filled` | buy | · | · | · | · | · | ✓ | · | · | · | **1** |
 
 **Unread by decision (4)**
 
@@ -120,6 +136,8 @@ Parse them as LOCAL dates (`parseCalendarDate` in SignalsV3.jsx), never with a b
 | `as_of` | api, recon, Dashboard |
 | `bought_date` | api, recon, cards lib, This week, Research |
 | `buy_window_until` | cards lib, Research |
+| `due_date` | recon, This week |
+| `filled_on` | Research |
 | `signal_date` | recon, cards lib, This week, Research, History |
 
 ## How to use this
