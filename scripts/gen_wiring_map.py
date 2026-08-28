@@ -43,10 +43,14 @@ PRODUCERS: dict[str, str] = {
 }
 
 # Consumers, in the order a value travels. Label -> path relative to ROOT.
+# `cards lib` holds the pure derivations that were extracted OUT of the pages on
+# 2026-08-28 precisely because inline expressions are how four of them went wrong
+# unnoticed. It reads field names too, so it belongs on the path.
 CONSUMERS: list[tuple[str, str]] = [
     ("api", "dashboard/backend/routers/signals.py"),
     ("api-exec", "dashboard/backend/routers/execution.py"),
     ("recon", "dashboard/backend/services/reconciliation.py"),
+    ("cards lib", "frontend/src/lib/cards.js"),
     ("This week", "frontend/src/pages/ThisWeek.jsx"),
     ("Research", "frontend/src/pages/SignalsV3.jsx"),
     ("Dashboard", "frontend/src/pages/DashboardV3.jsx"),

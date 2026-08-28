@@ -18,45 +18,45 @@ choice somebody made, not an oversight nobody noticed.
 
 Written by the weekly scanner (Saturday).
 
-| field | on cards | api | api-exec | recon | This week | Research | Dashboard | Portfolio | History | read by |
-|---|---|---|---|---|---|---|---|---|---|---|
-| `actionability` | HIT_STOP | ✓ | · | ✓ | ✓ | ✓ | · | · | · | **4** |
-| `band_is_wide` | FRESH | · | · | · | · | ✓ | · | · | · | **1** |
-| `band_width_pct` | FRESH | · | · | · | · | ✓ | · | · | · | **1** |
-| `body_ratio` | FRESH | · | · | · | · | ✓ | · | · | · | **1** |
-| `bought_date` | ACTIVE,HIT_STOP | ✓ | · | ✓ | ✓ | ✓ | · | · | · | **4** |
-| `buy_window` | FRESH | · | · | · | · | ✓ | · | · | · | **1** |
-| `buy_window_until` | FRESH | · | · | · | · | ✓ | · | · | · | **1** |
-| `buy_zone_high` | FRESH | · | · | · | ✓ | ✓ | · | · | · | **2** |
-| `buy_zone_low` | FRESH | · | · | · | ✓ | ✓ | · | · | · | **2** |
-| `close` | ACTIVE,FRESH,HIT_STOP | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | · | **6** |
-| `crs_rank` | FRESH | · | · | · | · | ✓ | · | · | · | **1** |
-| `current_price` | ACTIVE,FRESH,HIT_STOP | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | **6** |
-| `entry` | ACTIVE,FRESH,HIT_STOP | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **7** |
-| `entry_high` | FRESH | · | · | · | ✓ | ✓ | · | · | · | **2** |
-| `entry_low` | FRESH | · | · | · | ✓ | ✓ | · | · | · | **2** |
-| `entry_week_open` | FRESH | · | · | · | · | ✓ | · | · | · | **1** |
-| `exit_plan` | ACTIVE,FRESH,HIT_STOP | · | · | · | ✓ | ✓ | · | · | · | **2** |
-| `exit_stage` | ACTIVE,HIT_STOP | · | · | · | · | ✓ | · | · | · | **1** |
-| `ext_cap_pct` | FRESH | · | · | · | · | ✓ | · | · | · | **1** |
-| `ext_pct_over_sma44` | FRESH | · | · | · | · | ✓ | · | · | · | **1** |
-| `fill_price` | ACTIVE,HIT_STOP | · | · | · | · | ✓ | · | · | · | **1** |
-| `grade` | ACTIVE,FRESH,HIT_STOP | · | · | · | · | ✓ | ✓ | · | ✓ | **3** |
-| `hold_days` | ACTIVE,FRESH,HIT_STOP | · | · | · | · | ✓ | · | ✓ | ✓ | **3** |
-| `no_chase_above` | FRESH | · | · | · | · | ✓ | · | · | · | **1** |
-| `nq_position_id` | ACTIVE,HIT_STOP | · | · | ✓ | · | ✓ | · | · | · | **2** |
-| `pattern` | ACTIVE,FRESH,HIT_STOP | · | ✓ | · | · | ✓ | · | · | · | **2** |
-| `qty` | ACTIVE,HIT_STOP | ✓ | ✓ | · | ✓ | ✓ | ✓ | ✓ | · | **6** |
-| `record_would_skip_as_extended` | FRESH | · | · | · | · | ✓ | · | · | · | **1** |
-| `signal_conviction` | FRESH | · | · | · | · | ✓ | · | · | · | **1** |
-| `signal_date` | ACTIVE,FRESH,HIT_STOP | · | · | ✓ | ✓ | ✓ | · | · | ✓ | **4** |
-| `status` | ACTIVE,FRESH,HIT_STOP | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **7** |
-| `stop` | ACTIVE,FRESH,HIT_STOP | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
-| `stop_week_low` | FRESH | · | · | · | · | · | · | · | · | **0** |
-| `target` | ACTIVE,FRESH,HIT_STOP | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
-| `ticker` | ACTIVE,FRESH,HIT_STOP | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
-| `tier` | ACTIVE,FRESH,HIT_STOP | ✓ | · | · | ✓ | ✓ | · | · | · | **3** |
-| `why` | HIT_STOP | ✓ | · | · | · | ✓ | · | · | ✓ | **3** |
+| field | on cards | api | api-exec | recon | cards lib | This week | Research | Dashboard | Portfolio | History | read by |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| `actionability` | HIT_STOP | ✓ | · | ✓ | · | ✓ | ✓ | · | · | · | **4** |
+| `band_is_wide` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `band_width_pct` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `body_ratio` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `bought_date` | ACTIVE,HIT_STOP | ✓ | · | ✓ | ✓ | ✓ | ✓ | · | · | · | **5** |
+| `buy_window` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `buy_window_until` | FRESH | · | · | · | ✓ | · | ✓ | · | · | · | **2** |
+| `buy_zone_high` | FRESH | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
+| `buy_zone_low` | FRESH | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
+| `close` | ACTIVE,FRESH,HIT_STOP | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | **7** |
+| `crs_rank` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `current_price` | ACTIVE,FRESH,HIT_STOP | ✓ | · | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | **6** |
+| `entry` | ACTIVE,FRESH,HIT_STOP | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
+| `entry_high` | FRESH | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
+| `entry_low` | FRESH | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
+| `entry_week_open` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `exit_plan` | ACTIVE,FRESH,HIT_STOP | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
+| `exit_stage` | ACTIVE,HIT_STOP | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `ext_cap_pct` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `ext_pct_over_sma44` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `fill_price` | ACTIVE,HIT_STOP | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `grade` | ACTIVE,FRESH,HIT_STOP | · | · | · | · | · | ✓ | ✓ | · | ✓ | **3** |
+| `hold_days` | ACTIVE,FRESH,HIT_STOP | · | · | · | · | · | ✓ | · | ✓ | ✓ | **3** |
+| `no_chase_above` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `nq_position_id` | ACTIVE,HIT_STOP | · | · | ✓ | · | · | ✓ | · | · | · | **2** |
+| `pattern` | ACTIVE,FRESH,HIT_STOP | · | ✓ | · | · | · | ✓ | · | · | · | **2** |
+| `qty` | ACTIVE,HIT_STOP | ✓ | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | · | **6** |
+| `record_would_skip_as_extended` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `signal_conviction` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `signal_date` | ACTIVE,FRESH,HIT_STOP | · | · | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | **5** |
+| `status` | ACTIVE,FRESH,HIT_STOP | ✓ | · | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | **7** |
+| `stop` | ACTIVE,FRESH,HIT_STOP | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **9** |
+| `stop_week_low` | FRESH | · | · | · | · | · | · | · | · | · | **0** |
+| `target` | ACTIVE,FRESH,HIT_STOP | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **9** |
+| `ticker` | ACTIVE,FRESH,HIT_STOP | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
+| `tier` | ACTIVE,FRESH,HIT_STOP | ✓ | · | · | · | ✓ | ✓ | · | · | · | **3** |
+| `why` | HIT_STOP | ✓ | · | · | · | · | ✓ | · | · | ✓ | **3** |
 
 **Published and read by nothing (1):** `stop_week_low`.
 
@@ -67,33 +67,33 @@ surface it, or record why it is engine-internal.
 
 Written by the daily monitor (weekdays 16:15 IST).
 
-| field | on cards | api | api-exec | recon | This week | Research | Dashboard | Portfolio | History | read by |
-|---|---|---|---|---|---|---|---|---|---|---|
-| `as_of` | buy,hold | ✓ | · | ✓ | · | · | ✓ | · | · | **3** |
-| `buy_window_open` | buy | · | · | · | · | ✓ | · | · | · | **1** |
-| `buy_window_until` | buy | · | · | · | · | ✓ | · | · | · | **1** |
-| `current_price` | buy,hold | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | **6** |
-| `dist_to_stop_pct` | hold | · | · | · | · | ✓ | · | · | · | **1** |
-| `dist_to_target_pct` | hold | · | · | · | · | · | · | · | · | **0** |
-| `entry` | hold | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **7** |
-| `entry_high` | buy | · | · | · | ✓ | ✓ | · | · | · | **2** |
-| `entry_low` | buy | · | · | · | ✓ | ✓ | · | · | · | **2** |
-| `expired` | buy | · | · | · | · | · | · | ✓ | ✓ | **2** |
-| `filled_today` | buy | · | · | · | · | ✓ | · | · | · | **1** |
-| `frozen_price` | buy,hold | · | · | · | · | · | · | · | · | **0** |
-| `implied_trail_sma20` | hold | · | · | · | · | · | · | · | · | **0** |
-| `kind` | buy,hold | · | · | · | · | ✓ | · | · | · | **1** |
-| `plan_tags` | hold | · | · | · | · | · | · | · | · | **0** |
-| `pnl_pct` | hold | · | · | · | · | · | · | · | · | **0** |
-| `r_multiple` | hold | · | · | · | · | · | · | · | ✓ | **1** |
-| `sma20` | buy,hold | · | · | · | · | · | · | · | · | **0** |
-| `stop` | hold | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
-| `stop_breached` | hold | · | · | · | · | ✓ | · | · | · | **1** |
-| `target` | hold | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
-| `target_reached` | hold | · | · | · | · | ✓ | · | · | · | **1** |
-| `ticker` | buy,hold | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
-| `today_open` | buy | · | · | · | · | · | · | · | · | **0** |
-| `tranches` | hold | · | · | · | ✓ | ✓ | · | · | · | **2** |
+| field | on cards | api | api-exec | recon | cards lib | This week | Research | Dashboard | Portfolio | History | read by |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| `as_of` | buy,hold | ✓ | · | ✓ | · | · | · | ✓ | · | · | **3** |
+| `buy_window_open` | buy | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `buy_window_until` | buy | · | · | · | ✓ | · | ✓ | · | · | · | **2** |
+| `current_price` | buy,hold | ✓ | · | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | **6** |
+| `dist_to_stop_pct` | hold | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `dist_to_target_pct` | hold | · | · | · | · | · | · | · | · | · | **0** |
+| `entry` | hold | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
+| `entry_high` | buy | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
+| `entry_low` | buy | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
+| `expired` | buy | · | · | · | ✓ | · | ✓ | · | ✓ | ✓ | **4** |
+| `filled_today` | buy | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `frozen_price` | buy,hold | · | · | · | · | · | · | · | · | · | **0** |
+| `implied_trail_sma20` | hold | · | · | · | · | · | · | · | · | · | **0** |
+| `kind` | buy,hold | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `plan_tags` | hold | · | · | · | · | · | · | · | · | · | **0** |
+| `pnl_pct` | hold | · | · | · | · | · | · | · | · | · | **0** |
+| `r_multiple` | hold | · | · | · | · | · | · | · | · | ✓ | **1** |
+| `sma20` | buy,hold | · | · | · | · | · | · | · | · | · | **0** |
+| `stop` | hold | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **9** |
+| `stop_breached` | hold | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `target` | hold | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **9** |
+| `target_reached` | hold | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `ticker` | buy,hold | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
+| `today_open` | buy | · | · | · | · | · | · | · | · | · | **0** |
+| `tranches` | hold | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
 
 **Published and read by nothing (7):** `dist_to_target_pct`, `frozen_price`, `implied_trail_sma20`, `plan_tags`, `pnl_pct`, `sma20`, `today_open`.
 
@@ -121,9 +121,9 @@ Parse them as LOCAL dates (`parseCalendarDate` in SignalsV3.jsx), never with a b
 | field | referenced by |
 |---|---|
 | `as_of` | api, recon, Dashboard |
-| `bought_date` | api, recon, This week, Research |
-| `buy_window_until` | Research |
-| `signal_date` | recon, This week, Research, History |
+| `bought_date` | api, recon, cards lib, This week, Research |
+| `buy_window_until` | cards lib, Research |
+| `signal_date` | recon, cards lib, This week, Research, History |
 
 ## How to use this
 

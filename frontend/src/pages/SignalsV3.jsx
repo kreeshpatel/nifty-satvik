@@ -39,6 +39,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { useExecutionPositions } from '@/hooks/queries/useExecution';
 import { useJourney } from '@/hooks/queries/useJourney';
+import { nseToday, parseCalendarDate, positionR, toTargetPct, holdWeek } from '@/lib/cards';
 import '@/styles/signals-v3.css';
 import '@/styles/research-insights.css';
 import '@/styles/research.css';
@@ -54,7 +55,10 @@ const signalIdOf = (s) => {
 const fmtNum  = (n) => n == null ? '—' : Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtPct1 = (n) => n == null ? '—' : (n >= 0 ? '+' : '−') + Math.abs(n).toFixed(1) + '%';
 
-function todayISO() { return new Date().toISOString().slice(0, 10); }
+// The NSE calendar day, not the UTC one — see lib/cards.js. `new Date().toISOString()` is
+// 5h30m behind IST, so it returned yesterday for the whole 00:00–05:30 IST window, and this
+// value decides whether a buy window is open, closing or closed.
+const todayISO = () => nseToday();
 
 function addTradingDays(dateStr, n) {
   const d = new Date(dateStr);
@@ -65,17 +69,6 @@ function addTradingDays(dateStr, n) {
     if (dow !== 0 && dow !== 6) added++;
   }
   return d;
-}
-/** Parse a bare 'YYYY-MM-DD' as a LOCAL calendar date.
- *
- * `new Date('2026-08-28')` is UTC midnight, and formatting that in a timezone behind UTC renders
- * the PREVIOUS day -- so a buy window closing on the 28th displayed as "Thu, 27 Aug" to anyone
- * west of Greenwich. These fields carry no time and no zone; they are days on the NSE calendar,
- * and they should read as the same day everywhere. */
-function parseCalendarDate(v) {
-  if (!v) return null;
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(v));
-  return m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(v);
 }
 function fmtBuyBy(date) {
   if (!date) return null;
@@ -182,8 +175,10 @@ function enrichSignal(raw, quotes, posBySignal) {
   const rr = entry !== stop ? (target - entry) / (entry - stop) : Infinity;
   const fromEntry = entry > 0 ? ((ltp - entry) / entry) * 100 : 0;
   const upside = entry > 0 ? ((target - entry) / entry) * 100 : 0;
-  // Potential return = % to the +2R target from the MIDDLE of the buy range (fill-dependent).
-  const toTarget = buyMid > 0 ? ((target - buyMid) / buyMid) * 100 : upside;
+  // Potential to target — from the ACTUAL fill once the monitor knows it, from the band's mid
+  // only while it does not. See lib/cards.js.
+  const toTarget = toTargetPct({ target, filledPrice: raw.monitor?.filled_price,
+                                 buyLow, buyHigh, entry }) ?? upside;
   // For a name already held, the potential that still matters is the upside REMAINING from where the
   // price is NOW to the target — a live number distinct from P&L (the gain since the Monday-open
   // entry). Without this the Potential column just echoed the P&L for held rows.
@@ -199,17 +194,13 @@ function enrichSignal(raw, quotes, posBySignal) {
     buyByStr = fmtBuyBy(d); daysLeft = daysLeftUntil(d);
   }
 
-  let dayOf = null, weekOf = null;
-  // Any card the model actually opened, not just the ones still calm: a position it has now
-  // flagged for exit still has a hold age, and "week — of 13" beside an exit reads as missing
-  // data rather than as the deliberate blank it was.
-  if (raw.signal_date && (action === 'holding' || action === 'sell-now')) {
-    const calDays = Math.max(1, Math.round((Date.now() - new Date(raw.signal_date)) / 86400000));
-    dayOf = Math.min(calDays, raw.hold_days || calDays);
-    // The book's cap is 13 WEEKS; dayOf above is calendar days (unit mismatch, fault F9), so express
-    // hold progress in weeks against the real 13-week cap.
-    weekOf = Math.min(13, Math.max(1, Math.ceil(calDays / 7)));
-  }
+  // Hold age runs from the day the position OPENED — the fill — not from the signal date. See
+  // lib/cards.js; counting from the signal ages every position up to three days early.
+  const isFilledUnbooked = !!(raw.monitor?.window_filled && !raw.bought_date);
+  const weekOf = (action === 'holding' || action === 'sell-now' || isFilledUnbooked)
+    ? holdWeek({ filledOn: raw.monitor?.filled_on, boughtDate: raw.bought_date,
+                 signalDate: raw.signal_date })
+    : null;
 
   const grade = raw.grade || 'B';
 
@@ -225,7 +216,12 @@ function enrichSignal(raw, quotes, posBySignal) {
   // open even if the user never bought it. Fresh signals carry it as `entry_week_open`; picks the
   // model is already tracking as positions carry the same Monday open as `fill_price` (a fractional
   // qty marks them modelled, not a real fill). Either way it is the forward book's assumed entry.
-  const modelBuy = typeof raw.entry_week_open === 'number' ? raw.entry_week_open
+  // A card whose window filled MID-WEEK has no bought_date yet — the Saturday scan books it —
+  // but the monitor already knows the price it filled at, and that is the reference the reader's
+  // position is actually running from. It wins over the modelled Monday open for exactly the
+  // period between the fill and the book.
+  const modelBuy = typeof raw.monitor?.filled_price === 'number' ? raw.monitor.filled_price
+    : typeof raw.entry_week_open === 'number' ? raw.entry_week_open
     : typeof raw.fill_price === 'number' ? raw.fill_price
     : null;
   const myBuy = recordedBuy ?? modelBuy;
@@ -277,7 +273,7 @@ function enrichSignal(raw, quotes, posBySignal) {
     _upside: upside,
     _signalId: sid,
     _myBuy: myBuy, _myQty: myQty, _myPnl: myPnl, _myPnlPct: myPnlPct, _pnlIsModeled: pnlIsModeled,
-    buyByStr, daysLeft, dayOf, weekOf,
+    buyByStr, daysLeft, weekOf, isFilledUnbooked,
     hold: raw.hold_days || 10,
     isFreshToday: raw.signal_date === todayISO(),
   };
@@ -548,13 +544,17 @@ function FreshRow({ s, rank, open, onToggle, onAction }) {
 function OpenRow({ s, open, onToggle, onAction, onToggleBought, held }) {
   const exiting = s.action === 'sell-now';
   const unreal = s._myPnlPct;
-  const rNow = s._myBuy && s.entry !== s.stop ? (s._ltp - s._myBuy) / (s.entry - s.stop) : null;
+  // Gain and risk measured from the SAME fill. Dividing the reader's own gain by the MODEL's
+  // risk-per-share flattered every fill above the model entry — a 4% chase read +0.80R when the
+  // true figure was +0.37R. See lib/cards.js.
+  const rNow = positionR({ ltp: s._ltp, fill: s._myBuy, stop: s.stop });
   const next = s._nextTranche;
   return (
     <>
       <div className={`rs-tr${exiting ? ' ns-row--alarm' : ''}`}>
         <Scrip s={s} chips={[monitorChip(s), exiting ? { label: 'Exit now', cls: 'mon-bear' } : null]} />
-        <Cell v={fmtNum(s._myBuy ?? s.entry)} c={s._pnlIsModeled ? 'model fill' : 'your fill'} />
+        <Cell v={fmtNum(s._myBuy ?? s.entry)}
+              c={s.isFilledUnbooked ? 'window fill' : s._pnlIsModeled ? 'model fill' : 'your fill'} />
         <Cell v={fmtNum(s._ltp)} c={s._dayChangePct != null ? fmtPct1(s._dayChangePct) : 'now'}
               tone={s._dayChangePct == null ? null : s._dayChangePct >= 0 ? 'bull' : 'bear'} />
         <Cell v={unreal == null ? '—' : fmtPct1(unreal)}
@@ -563,9 +563,14 @@ function OpenRow({ s, open, onToggle, onAction, onToggleBought, held }) {
         <div className="rs-hide-md">
           <div className="rs-plan-next">
             {exiting ? (s.why || 'Close the position.')
+              : s.isFilledUnbooked ? 'Filled — the Saturday scan books it'
               : next ? `${next.pct}% at ${fmtNum(next.level ?? next.arm)}` : 'Runner — hold'}
           </div>
-          <div className="rs-c">{exiting ? 'the model is already out' : `next tranche · ${next?.type ?? 'runner'}`}</div>
+          <div className="rs-c">
+            {exiting ? 'the model is already out'
+              : s.isFilledUnbooked ? 'not yet in the weekly record'
+              : `next tranche · ${next?.type ?? 'runner'}`}
+          </div>
         </div>
         <div className="rs-r rs-hide-md">
           <div className="rs-v">{s.weekOf ? `wk ${s.weekOf}` : '—'}</div>
@@ -590,13 +595,23 @@ function OpenRow({ s, open, onToggle, onAction, onToggleBought, held }) {
 
 /** §3 Closed this cycle — why a name left the board. The full record lives on /history. */
 function ClosedRow({ s }) {
+  // Two different endings share this table, and they are not the same fact. A position the model
+  // EXITED has an outcome (target / stop). A buy window that expired with no open inside the band
+  // was never a trade at all — reading its `status` gave the outcome "fresh", and the fallback
+  // sentence claimed the model had closed a call it never opened.
+  const untaken = s.action === 'closed';
   const good = /TARGET/i.test(s.status || '');
   return (
     <div className="rs-tr">
       <Scrip s={s} />
       <Cell v={fmtNum(s._ltp)} c="last price" />
-      <Cell v={(s.status || 'closed').replace('HIT_', '').toLowerCase()} c="outcome" tone={good ? 'bull' : 'bear'} />
-      <div className="rs-why">{s.why || 'The model closed this call.'}</div>
+      <Cell v={untaken ? 'not taken' : (s.status || 'closed').replace('HIT_', '').toLowerCase()}
+            c="outcome" tone={untaken ? null : good ? 'bull' : 'bear'} />
+      <div className="rs-why">
+        {untaken
+          ? `The buy window closed ${s.buy_window_until ? fmtDayMon(s.buy_window_until) : ''} with no open inside the band — no trade.`
+          : (s.why || 'The model closed this call.')}
+      </div>
     </div>
   );
 }
@@ -667,19 +682,25 @@ export default function SignalsV3() {
   // "fund strongest CRS rank first". That instruction has been in the payload all along and was
   // never once shown, so the board's order silently disagreed with the book's own rule.
   const freshRows = useMemo(() => allEnriched
-    .filter((s) => s.action === 'buy-today' || s.action === 'closing')
+    .filter((s) => !s.isFilledUnbooked && (s.action === 'buy-today' || s.action === 'closing'))
     .sort((a, b) => (b.crs_rank ?? -1) - (a.crs_rank ?? -1)), [allEnriched]);
 
   // §2 — the model's open positions, plus any exit it has issued. An exit sorts to the top:
   // acting late on one costs more than acting late on anything else on this page.
+  // A window that FILLED belongs here even before the Saturday scan books it. The envelope still
+  // says FRESH and carries no bought_date until the weekend recompute, so these cards used to
+  // fall through to "Closed this cycle" — a trade the reader now owns, filed under "already
+  // exited", labelled with the outcome "fresh". Every part of that was false.
   const openRows = useMemo(() => allEnriched
-    .filter((s) => s.action === 'holding' || (s.action === 'sell-now' && s._myQty > 0))
+    .filter((s) => s.action === 'holding' || s.isFilledUnbooked
+      || (s.action === 'sell-now' && s._myQty > 0))
     .sort((a, b) => (a.action === 'sell-now' ? -1 : 0) - (b.action === 'sell-now' ? -1 : 0)), [allEnriched]);
 
   // §3 — closed in the CURRENT envelope only. The full record is /history; this section exists
   // to answer "where did that name go", which /history answers too slowly to be useful here.
   const closedRows = useMemo(() => allEnriched
-    .filter((s) => (s.action === 'sell-now' && !(s._myQty > 0)) || s.action === 'closed'), [allEnriched]);
+    .filter((s) => !s.isFilledUnbooked
+      && ((s.action === 'sell-now' && !(s._myQty > 0)) || s.action === 'closed')), [allEnriched]);
 
   const buyPool = freshRows;
   const freshCount = useMemo(() => allEnriched.filter((s) => s.isFreshToday).length, [allEnriched]);
