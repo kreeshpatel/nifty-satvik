@@ -52,16 +52,11 @@ Written by the weekly scanner (Saturday).
 | `signal_date` | ACTIVE,FRESH,HIT_STOP | · | · | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | **5** |
 | `status` | ACTIVE,FRESH,HIT_STOP | ✓ | · | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | **7** |
 | `stop` | ACTIVE,FRESH,HIT_STOP | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **9** |
-| `stop_week_low` | FRESH | · | · | · | · | · | · | · | · | · | **0** |
+| `stop_week_low` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `target` | ACTIVE,FRESH,HIT_STOP | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **9** |
 | `ticker` | ACTIVE,FRESH,HIT_STOP | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
 | `tier` | ACTIVE,FRESH,HIT_STOP | ✓ | · | · | · | ✓ | ✓ | · | · | · | **3** |
 | `why` | HIT_STOP | ✓ | · | · | · | · | ✓ | · | · | ✓ | **3** |
-
-**Published and read by nothing (1):** `stop_week_low`.
-
-Each is a value the model computed and no surface shows. Decide per field:
-surface it, or record why it is engine-internal.
 
 ## `results/weekly_monitor.json`
 
@@ -74,17 +69,17 @@ Written by the daily monitor (weekdays 16:15 IST).
 | `buy_window_until` | buy | · | · | · | ✓ | · | ✓ | · | · | · | **2** |
 | `current_price` | buy,hold | ✓ | · | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | **6** |
 | `dist_to_stop_pct` | hold | · | · | · | · | · | ✓ | · | · | · | **1** |
-| `dist_to_target_pct` | hold | · | · | · | · | · | · | · | · | · | **0** |
+| `dist_to_target_pct` | hold | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `entry` | hold | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
 | `entry_high` | buy | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
 | `entry_low` | buy | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
 | `expired` | buy | · | · | · | ✓ | · | ✓ | · | ✓ | ✓ | **4** |
 | `filled_today` | buy | · | · | · | · | · | ✓ | · | · | · | **1** |
-| `frozen_price` | buy,hold | · | · | · | · | · | · | · | · | · | **0** |
+| `frozen_price` | buy,hold | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `implied_trail_sma20` | hold | · | · | · | · | · | · | · | · | · | **0** |
 | `kind` | buy,hold | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `plan_tags` | hold | · | · | · | · | · | · | · | · | · | **0** |
-| `pnl_pct` | hold | · | · | · | · | · | · | · | · | · | **0** |
+| `pnl_pct` | hold | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `r_multiple` | hold | · | · | · | · | · | · | · | · | ✓ | **1** |
 | `sma20` | buy,hold | · | · | · | · | · | · | · | · | · | **0** |
 | `stop` | hold | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **9** |
@@ -95,10 +90,12 @@ Written by the daily monitor (weekdays 16:15 IST).
 | `today_open` | buy | · | · | · | · | · | · | · | · | · | **0** |
 | `tranches` | hold | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
 
-**Published and read by nothing (7):** `dist_to_target_pct`, `frozen_price`, `implied_trail_sma20`, `plan_tags`, `pnl_pct`, `sma20`, `today_open`.
+**Unread by decision (4)**
 
-Each is a value the model computed and no surface shows. Decide per field:
-surface it, or record why it is engine-internal.
+- `implied_trail_sma20` — The producer marks it NOT an active level — the ratchet trail only moves at the weekly close. Showing a level the engine will not act on until Saturday invites acting on it.
+- `plan_tags` — A second, LOSSIER phrasing of `exit_plan.tranches[].do`, which CasePanel already prints verbatim. The tag reads 'Hold 20% runner to the 44w-SMA 897.65'; the `do` reads 'Exit only on a weekly CLOSE below the 44-week SMA'. Dropping the weekly-close condition changes the rule from a close to a touch. Two phrasings of one instruction, and only one of them was backtested.
+- `sma20` — Raw input to implied_trail_sma20 above; carries no instruction of its own.
+- `today_open` — Engine input to window_filled. The reader-facing fact it supports — 'Filled Mon, 24 Aug at 1,298.00' — is already on the row, priced and dated.
 
 ## Alias hazards
 
@@ -130,5 +127,8 @@ Parse them as LOCAL dates (`parseCalendarDate` in SignalsV3.jsx), never with a b
 1. Adding a field to the weekly envelope? Regenerate and check it has a consumer.
 2. Reading a field on a page? Check the hazards table first — the plausible name
    is not always the right one.
-3. Reviewing a surface that 'looks thin'? Scan the unread list. That is the model's
-   own reasoning, already computed, sitting unused.
+3. Reviewing a surface that 'looks thin'? Scan the unread lists. That is the
+   model's own reasoning, already computed, sitting unused.
+4. Publishing a NEW field? It lands in 'unread and undeclared' and fails the test
+   until it is wired or declared. That is deliberate — the alternative is a list
+   that grows quietly.

@@ -415,7 +415,7 @@ function HowCallsMadeCard() {
 // envelope carries (30-field FRESH, 18-field ACTIVE, 20-field closed). That intersection was
 // six columns and a lot of dashes. These are the three unions instead.
 
-function Scrip({ s, chips = [] }) {
+function Scrip({ s, chips = [], note }) {
   return (
     <div className="rs-scrip">
       <Logo sym={s.sym} size={28} radius={8} />
@@ -425,16 +425,18 @@ function Scrip({ s, chips = [] }) {
           <span className="rs-grade">{(s.grade || 'A')[0].toUpperCase()}</span>
           {chips.filter(Boolean).map((c) => <span key={c.label} className={`ri-mon ${c.cls}`}>{c.label}</span>)}
         </div>
-        <div className="rs-scrip-sub">{s.sector}{s.isFreshToday ? ' · new this scan' : ''}</div>
+        <div className="rs-scrip-sub" title={note || undefined}>
+          {note || `${s.sector}${s.isFreshToday ? ' · new this scan' : ''}`}
+        </div>
       </div>
     </div>
   );
 }
 
 /** Value over caption — the only cell shape the tables use, so every column shares a baseline. */
-function Cell({ v, c, tone, right = true }) {
+function Cell({ v, c, tone, right = true, className = '' }) {
   return (
-    <div className={right ? 'rs-r' : undefined}>
+    <div className={`${right ? 'rs-r' : ''} ${className}`.trim() || undefined}>
       <div className={`rs-v${tone ? ` num-${tone}` : ''}`}>{v}</div>
       {c ? <div className="rs-c">{c}</div> : null}
     </div>
@@ -467,8 +469,24 @@ function ExpandBtn({ open, onClick, sym }) {
 
 /** The case: the model's own reasoning, printed rather than summarised. */
 function CasePanel({ s, onAction, extraAction }) {
+  const m = s.monitor || {};
+  // `frozen_price` is Saturday's card price. The daily overlay REPLACES current_price with the
+  // live one, so without this the reader has no way to see what the week has done to a name
+  // since the book was decided.
+  const sinceSat = m.frozen_price > 0 && s._ltp > 0
+    ? ((s._ltp / m.frozen_price - 1) * 100) : null;
   const facts = [
     s._ext != null && ['Extension over the 44-week SMA', `${s._ext.toFixed(2)}% of ${s._extCap}% cap`],
+    s.weekOf ? ['Hold age', `week ${s.weekOf} of 13`] : null,
+    s._nextTranche && ['Next tranche',
+      `${s._nextTranche.pct}% at ${fmtNum(s._nextTranche.level ?? s._nextTranche.arm)}`],
+    sinceSat != null && ['Since Saturday\u2019s close',
+                         `${fmtNum(m.frozen_price)} \u2192 ${fmtNum(s._ltp)} (${fmtPct1(sinceSat)})`],
+    // The taught rule stops at the signal week's low; the RECORD trades a discipline-lifted stop,
+    // and every R on the card is computed off the lifted one. Showing both is the only way the
+    // difference is visible rather than assumed away.
+    typeof s.stop_week_low === 'number' && s.stop_week_low !== s.stop
+      && ['Signal-week low (taught rule)', `${fmtNum(s.stop_week_low)} \u00b7 record stops ${fmtNum(s.stop)}`],
     typeof s.band_width_pct === 'number' && ['Signal-week range', `${s.band_width_pct.toFixed(1)}%${s.band_is_wide ? ' · wide' : ''}`],
     typeof s.body_ratio === 'number' && ['Body ratio', `${(s.body_ratio * 100).toFixed(0)}% of range`],
     typeof s.crs_rank === 'number' && ['Relative-strength score', s.crs_rank.toFixed(4)],
@@ -548,11 +566,13 @@ function OpenRow({ s, open, onToggle, onAction, onToggleBought, held }) {
   // risk-per-share flattered every fill above the model entry — a 4% chase read +0.80R when the
   // true figure was +0.37R. See lib/cards.js.
   const rNow = positionR({ ltp: s._ltp, fill: s._myBuy, stop: s.stop });
-  const next = s._nextTranche;
+  const mon = s.monitor || {};
   return (
     <>
       <div className={`rs-tr${exiting ? ' ns-row--alarm' : ''}`}>
-        <Scrip s={s} chips={[monitorChip(s), exiting ? { label: 'Exit now', cls: 'mon-bear' } : null]} />
+        <Scrip s={s} chips={[monitorChip(s), exiting ? { label: 'Exit now', cls: 'mon-bear' } : null]}
+               note={exiting ? (s.why || 'Close the position at the next open.')
+                 : s.isFilledUnbooked ? 'Filled — the Saturday scan books it' : null} />
         <Cell v={fmtNum(s._myBuy ?? s.entry)}
               c={s.isFilledUnbooked ? 'window fill' : s._pnlIsModeled ? 'model fill' : 'your fill'} />
         <Cell v={fmtNum(s._ltp)} c={s._dayChangePct != null ? fmtPct1(s._dayChangePct) : 'now'}
@@ -560,22 +580,14 @@ function OpenRow({ s, open, onToggle, onAction, onToggleBought, held }) {
         <Cell v={unreal == null ? '—' : fmtPct1(unreal)}
               c={rNow == null ? 'unrealised' : `${rNow >= 0 ? '+' : '−'}${Math.abs(rNow).toFixed(2)}R`}
               tone={unreal == null ? null : unreal >= 0 ? 'bull' : 'bear'} />
-        <div className="rs-hide-md">
-          <div className="rs-plan-next">
-            {exiting ? (s.why || 'Close the position.')
-              : s.isFilledUnbooked ? 'Filled — the Saturday scan books it'
-              : next ? `${next.pct}% at ${fmtNum(next.level ?? next.arm)}` : 'Runner — hold'}
-          </div>
-          <div className="rs-c">
-            {exiting ? 'the model is already out'
-              : s.isFilledUnbooked ? 'not yet in the weekly record'
-              : `next tranche · ${next?.type ?? 'runner'}`}
-          </div>
-        </div>
-        <div className="rs-r rs-hide-md">
-          <div className="rs-v">{s.weekOf ? `wk ${s.weekOf}` : '—'}</div>
-          <div className="rs-c">of 13</div>
-        </div>
+        {/* The MODEL's own numbers, from the model's entry and as of the daily bar — deliberately
+            beside the reader's rather than instead of them. The two agree only when the fill
+            matched the plan, so the gap between these columns IS the discipline signal, and it is
+            the one thing this page could show and did not. */}
+        <Cell right className="rs-hide-md"
+              v={mon.pnl_pct == null ? '—' : fmtPct1(mon.pnl_pct)}
+              c={mon.dist_to_target_pct == null ? 'model' : `${Math.abs(mon.dist_to_target_pct).toFixed(1)}% to target`}
+              tone={mon.pnl_pct == null ? null : mon.pnl_pct >= 0 ? 'bull' : 'bear'} />
         <ExpandBtn open={open} onClick={onToggle} sym={s.sym} />
       </div>
       {open && (
@@ -837,9 +849,8 @@ export default function SignalsV3() {
                   <span>Scrip</span>
                   <span className="rs-r">Entry</span>
                   <span className="rs-r">Now</span>
-                  <span className="rs-r">Unrealised</span>
-                  <span className="rs-hide-md">Next</span>
-                  <span className="rs-r rs-hide-md">Held</span>
+                  <span className="rs-r">Yours</span>
+                  <span className="rs-r rs-hide-md">Model</span>
                   <span />
                 </div>
                 {openRows.map((s) => (

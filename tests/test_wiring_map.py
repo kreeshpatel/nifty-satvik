@@ -45,3 +45,29 @@ def test_the_map_names_the_alias_hazards_that_have_actually_bitten():
     body = OUT.read_text(encoding="utf-8")
     for pair in ("`buy_zone_low` | `entry_low`", "`window_filled` | `filled_today`"):
         assert pair in body, f"the map no longer warns about {pair}"
+
+
+def test_no_published_field_is_unread_without_a_recorded_reason():
+    """The ratchet. Every field the book publishes is either read by a surface, or declared in
+    `INTENTIONALLY_UNREAD` with the reason it stays unread.
+
+    Without this the unread list is a report: it can grow and nothing stops it. A published field
+    nobody reads is a decision the model made and the product withheld, and "nobody looked" is not
+    an acceptable reason for that — "engine-internal, because X" is. This makes the next such
+    field fail here instead of sitting in a doc until someone happens to scan it.
+
+    Asserts against the generator's own join rather than a second implementation of it, so the
+    test and the doc cannot agree while both are wrong.
+    """
+    import sys
+
+    sys.path.insert(0, str(ROOT / "scripts"))
+    from gen_wiring_map import undeclared_unread
+
+    missing = undeclared_unread()
+    assert not missing, (
+        "these published fields are read by nothing and have no recorded reason:\n"
+        + "\n".join(f"  {rel}: {', '.join(fs)}" for rel, fs in missing.items())
+        + "\n\nWire each to a surface, or add it to INTENTIONALLY_UNREAD in "
+          "scripts/gen_wiring_map.py with the reason it stays unread."
+    )

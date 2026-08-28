@@ -77,6 +77,32 @@ ALIAS_HAZARDS: list[tuple[str, str, str]] = [
      "open'. window_filled is whether the signal ever triggered."),
 ]
 
+# Fields published on purpose that NO surface reads, each with the reason it stays that way.
+#
+# This is the difference between a report and a gate. The unread list started as something you
+# could scroll past; with this registry the doc splits it in two, and a test asserts the
+# UNDECLARED half is empty. A new field the scanner or monitor starts publishing then fails CI
+# until somebody either wires it or writes down why not — which is the only way a list like this
+# stays at zero instead of quietly growing.
+#
+# "Engine-internal" is a legitimate answer. "Nobody looked" is not, and is what this prevents.
+INTENTIONALLY_UNREAD: dict[str, str] = {
+    "plan_tags":
+        "A second, LOSSIER phrasing of `exit_plan.tranches[].do`, which CasePanel already prints "
+        "verbatim. The tag reads 'Hold 20% runner to the 44w-SMA 897.65'; the `do` reads 'Exit "
+        "only on a weekly CLOSE below the 44-week SMA'. Dropping the weekly-close condition "
+        "changes the rule from a close to a touch. Two phrasings of one instruction, and only "
+        "one of them was backtested.",
+    "implied_trail_sma20":
+        "The producer marks it NOT an active level — the ratchet trail only moves at the weekly "
+        "close. Showing a level the engine will not act on until Saturday invites acting on it.",
+    "sma20":
+        "Raw input to implied_trail_sma20 above; carries no instruction of its own.",
+    "today_open":
+        "Engine input to window_filled. The reader-facing fact it supports — 'Filled Mon, 24 Aug "
+        "at 1,298.00' — is already on the row, priced and dated.",
+}
+
 # Fields that carry a calendar DATE with no time and no zone. `new Date('YYYY-MM-DD')` is UTC
 # midnight, so formatting one in a timezone behind UTC renders the previous day.
 DATE_FIELDS = {
@@ -166,13 +192,21 @@ def render() -> str:
             shapes = ",".join(sorted(fields[field]))
             lines.append(f"| `{field}` | {shapes} | " + " | ".join(marks) + f" | **{n}** |")
         lines.append("")
-        if unread:
+        declared = [f for f in unread if f in INTENTIONALLY_UNREAD]
+        undeclared = [f for f in unread if f not in INTENTIONALLY_UNREAD]
+        if declared:
+            lines += [f"**Unread by decision ({len(declared)})**", ""]
+            for f in declared:
+                lines.append(f"- `{f}` — {INTENTIONALLY_UNREAD[f]}")
+            lines.append("")
+        if undeclared:
             lines += [
-                f"**Published and read by nothing ({len(unread)}):** "
-                + ", ".join(f"`{f}`" for f in unread) + ".",
+                f"**Unread and UNDECLARED ({len(undeclared)}):** "
+                + ", ".join(f"`{f}`" for f in undeclared) + ".",
                 "",
-                "Each is a value the model computed and no surface shows. Decide per field:",
-                "surface it, or record why it is engine-internal.",
+                "Each is a value the model computed and no surface shows, with no reason on",
+                "record. Wire it, or add it to `INTENTIONALLY_UNREAD` in the generator with the",
+                "reason. `tests/test_wiring_map.py` fails while this list is non-empty.",
                 "",
             ]
 
@@ -201,10 +235,32 @@ def render() -> str:
               "1. Adding a field to the weekly envelope? Regenerate and check it has a consumer.",
               "2. Reading a field on a page? Check the hazards table first — the plausible name",
               "   is not always the right one.",
-              "3. Reviewing a surface that 'looks thin'? Scan the unread list. That is the model's",
-              "   own reasoning, already computed, sitting unused.",
+              "3. Reviewing a surface that 'looks thin'? Scan the unread lists. That is the",
+              "   model's own reasoning, already computed, sitting unused.",
+              "4. Publishing a NEW field? It lands in 'unread and undeclared' and fails the test",
+              "   until it is wired or declared. That is deliberate — the alternative is a list",
+              "   that grows quietly.",
               ""]
     return "\n".join(lines)
+
+
+def undeclared_unread() -> dict[str, list[str]]:
+    """{producer: [field, ...]} published by that producer, read by nothing, and not declared.
+
+    Exported so the test asserts against the SAME join the doc renders, rather than a second
+    implementation of it that could agree while both are wrong.
+    """
+    tokens = consumer_tokens()
+    out: dict[str, list[str]] = {}
+    for rel, fields in sorted(envelope_fields().items()):
+        missing = sorted(
+            f for f in fields
+            if f not in INTENTIONALLY_UNREAD
+            and not any(f in tokens[label] for label, _ in CONSUMERS)
+        )
+        if missing:
+            out[rel] = missing
+    return out
 
 
 def main() -> int:
