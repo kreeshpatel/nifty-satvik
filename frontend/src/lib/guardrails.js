@@ -75,29 +75,32 @@ export function verdictLabel(verdict, { known, total } = {}) {
  * stops adding risk and forces a human decision; it does not pre-commit to selling." A risk panel
  * that tells you to do the opposite of the governing rule is worse than one that says nothing.
  *
- * The warning band is the BACKTEST MAX, not an invented fraction of the halt: §4's own rationale
- * calls −50% "a margin beyond the −46.26% backtest max — i.e. the point at which the backtest no
- * longer bounds the realized risk". Crossing −46.26% is therefore a real, documented boundary —
- * you are outside anything the book has been measured through — and it is the only second level
- * these documents support. Nothing here is chosen; both numbers are quoted.
+ * NO WARNING BAND (owner decision, 2026-08-29). A −46.26% level was briefly added here, reasoning
+ * that §4's rationale — −50% is "a margin beyond the −46.26% backtest max" — made the backtest max
+ * a second boundary. It does not. §4 registers ONE condition, and the backtest max appears there
+ * to explain where −50% came from, not as a threshold of its own. Deriving a second level from a
+ * sentence explaining the first is exactly the goalpost-invention the pre-registration exists to
+ * prevent, and it was my inference rather than the document's.
+ *
+ * So: one registered condition, one status change. Proximity is still visible — the card renders
+ * the drawdown's magnitude and a fill bar against the halt — but proximity is a number the reader
+ * reads, not a verdict the panel issues.
  */
 export const DRAWDOWN_HALT_PCT = 50;      // forward/prereg.md §4 · forward/prereg_swing.md §5
-export const DRAWDOWN_BACKTEST_MAX_PCT = 46.26;  // forward/prereg.md §3 reference metrics
 
 /** Status for a live drawdown, as a POSITIVE percentage (12.3 means −12.3%). */
 export function drawdownStatus(ddPct) {
   if (ddPct === null || ddPct === undefined || !Number.isFinite(Number(ddPct))) return 'unknown';
   const dd = Math.abs(Number(ddPct));
-  if (dd >= DRAWDOWN_HALT_PCT) return 'hard';
-  if (dd >= DRAWDOWN_BACKTEST_MAX_PCT) return 'soft';
-  return 'ok';
+  // One registered condition, so one boundary. Anything short of it is "not a halt condition",
+  // which is the document's own phrasing — see the block comment above.
+  return dd >= DRAWDOWN_HALT_PCT ? 'hard' : 'ok';
 }
 
 /** The words. "HALT NEW ENTRIES" because that is the action §4 prescribes — not liquidation. */
 export function drawdownLabel(status) {
   switch (status) {
     case 'hard': return 'HALT NEW ENTRIES';
-    case 'soft': return 'BEYOND BACKTEST MAX';
     case 'ok':   return 'DRAWDOWN OK';
     default:     return 'DRAWDOWN NOT EVALUATED';
   }
