@@ -59,21 +59,25 @@ export function verdictLabel(verdict, { known, total } = {}) {
  * CORRECTED 2026-08-29. The UI carried 15%, sourced from a comment claiming it was "documented in
  * CLAUDE.md". CLAUDE.md documents no such thing, and both governing documents say −50%:
  *
- *   forward/prereg.md §4        — "live max drawdown breaches −50% ... halt new entries
- *                                  immediately; hold existing positions"
- *   forward/prereg_swing.md §5  — "draws down −50% from its logged peak NAV, halt new entries"
+ *   CITES forward/prereg.md: "live max drawdown breaches **−50%**"
+ *   CITES forward/prereg.md: "halt **new entries** immediately; **hold** existing positions"
+ *   CITES forward/prereg_swing.md: "draws down **−50%** from its logged peak NAV"
  *
  * 15% was not merely unverified, it was inside the range the pre-registration explicitly names as
- * normal: "A −35% or −40% live DD is NOT a halt condition — it is inside designed-for experience
- * (worst realized 12m return −29%; 31% of days spent >20% underwater). Firing there would sell
- * normal pain." With 31% of days beyond 20% underwater, a 15% trigger fires on roughly a third of
+ * normal:
+ *   CITES forward/prereg.md: "A −35% or −40% live DD is NOT a halt condition"
+ *   CITES forward/prereg.md: "31% of days spent >20% underwater"
+ *   CITES forward/prereg.md: "Firing there would sell normal pain."
+ * With 31% of days beyond 20% underwater, a 15% trigger fires on roughly a third of
  * all days, and its 9% warning band more often than that. An alarm at that rate is not a
  * guardrail; it is noise that trains the reader to ignore the panel.
  *
  * THE WORDING WAS INVERTED TOO. The badge said HARD KILL, which reads as "sell". §4 is explicitly
- * "halt-not-liquidate": "an automatic liquidation at −50% crystallizes the bottom ... The halt
- * stops adding risk and forces a human decision; it does not pre-commit to selling." A risk panel
- * that tells you to do the opposite of the governing rule is worse than one that says nothing.
+ * "halt-not-liquidate":
+ *   CITES forward/prereg.md: "an automatic liquidation at −50% crystallizes the bottom"
+ *   CITES forward/prereg.md: "it does not pre-commit to selling"
+ * A risk panel that tells you to do the opposite of the governing rule is worse than one that
+ * says nothing.
  *
  * NO WARNING BAND (owner decision, 2026-08-29). A −46.26% level was briefly added here, reasoning
  * that §4's rationale — −50% is "a margin beyond the −46.26% backtest max" — made the backtest max
