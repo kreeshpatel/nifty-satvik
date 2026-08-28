@@ -6,10 +6,18 @@ Uses PostgreSQL on Render via DATABASE_URL.
 import os
 from datetime import datetime
 
+import logging as _logging
+import re as _re
+
 from sqlalchemy import (
     create_engine, Column, Integer, String, Boolean, DateTime, Date, Float,
-    ForeignKey, Text, UniqueConstraint, event
+    ForeignKey, Text, UniqueConstraint, event, inspect as sa_inspect, text
 )
+from sqlalchemy.exc import OperationalError, ProgrammingError
+
+# Table names reaching _count_rows are our own literals; the guard is defence in depth, because
+# the value is interpolated into SQL that no bind parameter can carry.
+_SAFE_TABLE = _re.compile(r"[a-z_][a-z0-9_]*")
 from sqlalchemy.orm import declarative_base, sessionmaker, relationship
 
 DATABASE_URL = os.getenv("DATABASE_URL", "")
@@ -425,45 +433,92 @@ def get_db():
         db.close()
 
 
+_migration_logger = _logging.getLogger("niftyquant.db_migration")
+
+# Every migration step runs in its own short-lived transaction with a 3s lock_timeout and a
+# try/except wrapper. Rationale: during a rolling deploy the OLD container is still serving
+# requests and holding read locks on these tables, so a naive ALTER TABLE / CREATE TRIGGER blocks
+# waiting for an ACCESS EXCLUSIVE lock — startup hangs, the new container never binds its port,
+# and the platform kills it. Failing fast and skipping is safe because every step is a no-op on
+# subsequent runs (IF NOT EXISTS / CREATE OR REPLACE) — once the old container exits and lock
+# contention clears, the next restart picks them up cleanly.
+#
+# These live at MODULE level, not nested inside init_db(), so they can be unit-tested. They were
+# nested, and the consequence was the user_holdings receipt below: a piece of observability that
+# was never exercised by a test and turned out not to work.
+
+
+def _run_migration(label: str, sql: str) -> None:
+    """One idempotent migration step. Deferred, never fatal, on a lock or permission error."""
+    try:
+        with engine.begin() as conn:
+            if engine.dialect.name == "postgresql":
+                conn.execute(text("SET LOCAL lock_timeout = '3s'"))
+            conn.execute(text(sql))
+        _migration_logger.info("migration ok: %s", label)
+    except (OperationalError, ProgrammingError) as e:
+        # OperationalError covers lock_timeout / canceling-statement-due-to-statement-timeout.
+        # ProgrammingError catches things like "permission denied for function ..."
+        # Both are non-fatal — the next clean restart will retry idempotently.
+        _migration_logger.warning(
+            "migration deferred (%s): %s — will retry on next restart",
+            label, str(e).splitlines()[0] if str(e) else type(e).__name__,
+        )
+
+
+def _count_rows(table: str) -> "int | None":
+    """Rows in `table`, or None if it is absent or unreadable.
+
+    Dialect-agnostic on purpose (SQLAlchemy's inspector, not information_schema or to_regclass)
+    so the tests can exercise it on sqlite instead of trusting it unexercised — which is exactly
+    how the previous version of this receipt failed.
+    """
+    if not _SAFE_TABLE.fullmatch(table):        # only our own literals reach here; belt and braces
+        return None
+    try:
+        if not sa_inspect(engine).has_table(table):
+            return None
+        with engine.begin() as conn:
+            if engine.dialect.name == "postgresql":
+                conn.execute(text("SET LOCAL lock_timeout = '3s'"))
+            return int(conn.execute(text(f"SELECT count(*) FROM {table}")).scalar() or 0)
+    except (OperationalError, ProgrammingError) as e:
+        _migration_logger.warning("could not count %s before dropping it: %s", table, e)
+        return None
+
+
+def _run_destructive_migration(label: str, table: str, sql: str) -> None:
+    """A migration that DESTROYS rows, with its receipt logged before the fact.
+
+    The count goes through the PYTHON logger, deliberately. The first version of this receipt
+    used `RAISE NOTICE` inside a `DO $$ ... $$` block, and Postgres sends notices on the client
+    channel — psycopg2 stashes them on `connection.notices` and SQLAlchemy logs nothing. So when
+    `user_holdings` was dropped on 2026-08-28 the receipt was written somewhere nobody reads, and
+    the number of rows that deletion removed is simply gone.
+
+    A destructive migration is the one kind whose evidence cannot be reconstructed afterwards, so
+    its evidence has to travel the same path as every other line the app logs. WARNING level when
+    rows are actually lost: this is the one migration class that cannot be re-run to find out.
+    """
+    n = _count_rows(table)
+    if n is None:
+        _migration_logger.info(
+            "destructive migration %s: %s is absent or unreadable — nothing to lose", label, table)
+    elif n:
+        _migration_logger.warning(
+            "destructive migration %s: %s holds %d row(s), destroying them now — "
+            "this is not recoverable", label, table, n)
+    else:
+        _migration_logger.info("destructive migration %s: %s is empty", label, table)
+    _run_migration(label, sql)
+
+
 def init_db():
     """Create all tables (called on startup)."""
     if engine is None:
         return
 
     Base.metadata.create_all(bind=engine)
-
-    # Idempotent live migrations for tables that already exist on Render.
-    #
-    # Each step runs in its own short-lived transaction with a 3s lock_timeout
-    # and a try/except wrapper. Rationale: during a Render rolling deploy the
-    # OLD container is still serving requests and holding read locks on these
-    # tables, so a naive ALTER TABLE / CREATE TRIGGER blocks waiting for an
-    # ACCESS EXCLUSIVE lock — startup hangs, the new container never binds
-    # its port, and Render kills it. Failing fast + skipping is safe because
-    # every step is a no-op on subsequent runs (IF NOT EXISTS / CREATE OR
-    # REPLACE) — once the old container exits and lock contention clears,
-    # the next restart picks them up cleanly.
-    import logging as _logging
-    from sqlalchemy import text
-    from sqlalchemy.exc import OperationalError, ProgrammingError
-
-    _migration_logger = _logging.getLogger("niftyquant.db_migration")
-
-    def _run_migration(label: str, sql: str) -> None:
-        try:
-            with engine.begin() as conn:
-                conn.execute(text("SET LOCAL lock_timeout = '3s'"))
-                conn.execute(text(sql))
-            _migration_logger.info("migration ok: %s", label)
-        except (OperationalError, ProgrammingError) as e:
-            # OperationalError covers lock_timeout / canceling-statement-due-to-statement-timeout.
-            # ProgrammingError catches things like "permission denied for function ..."
-            # (Render free-tier role can't always CREATE FUNCTION). Both are
-            # non-fatal — the next clean restart will retry idempotently.
-            _migration_logger.warning(
-                "migration deferred (%s): %s — will retry on next restart",
-                label, str(e).splitlines()[0] if str(e) else type(e).__name__,
-            )
 
     # P0-5: refresh-token reuse detection columns
     _run_migration("refresh_tokens.parent_token_hash",
@@ -597,15 +652,5 @@ def init_db():
     # recreate the table (the model is gone), so this runs at most once and is a no-op on every
     # restart after it. A lock_timeout during a rolling deploy just defers it, like every other
     # step here.
-    _run_migration("user_holdings_row_count_before_drop", """
-        DO $$
-        DECLARE n bigint;
-        BEGIN
-          IF EXISTS (SELECT 1 FROM information_schema.tables
-                     WHERE table_schema = current_schema() AND table_name = 'user_holdings') THEN
-            EXECUTE 'SELECT count(*) FROM user_holdings' INTO n;
-            RAISE NOTICE 'dropping user_holdings with % row(s)', n;
-          END IF;
-        END $$
-    """)
-    _run_migration("user_holdings_drop", "DROP TABLE IF EXISTS user_holdings")
+    _run_destructive_migration(
+        "user_holdings_drop", "user_holdings", "DROP TABLE IF EXISTS user_holdings")
