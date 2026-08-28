@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-27",
+  "generated_at": "2026-08-28",
   "signals": [
     {
       "ticker": "CHENNPETRO",
@@ -9,11 +9,11 @@
       "target_pct": 22.52,
       "current_price": 1393.5,
       "close": 1393.5,
-      "signal_date": "2026-08-24",
+      "signal_date": "2026-08-28",
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
-      "status": "ACTIVE",
+      "status": "FRESH",
       "buy_window": "T+1..T+3 at open",
       "indicative_close": 1393.5,
       "indicative_entry": 1394.2
