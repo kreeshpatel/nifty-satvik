@@ -3,7 +3,8 @@
  *
  * The site instructs; the user executes on their own broker and reports each fill (qty + price)
  * via a popup. These hooks read the durable positions and record buy/sell events. Unlike the
- * ephemeral useHoldings mark, this is the truth-of-record: remaining qty, cost basis, and realized
+ * ephemeral bought-mark this replaced (removed 2026-08-27), this is the truth-of-record:
+ * remaining qty, cost basis, and realized
  * P&L are derived server-side from the append-only events.
  *
  * Backing endpoints: GET /api/execution/positions, GET /api/execution/position/{id},
@@ -19,7 +20,6 @@ import {
   recordBuy,
   recordSell,
 } from '@/services/api';
-import { HOLDINGS_KEY } from './useHoldings';
 
 export const EXECUTION_KEY = ['user', 'execution', 'positions'];
 export const RECONCILIATION_KEY = ['user', 'execution', 'reconciliation'];
@@ -119,13 +119,13 @@ function useRecordEvent(mutationFn, verb) {
               (pos.realized_pnl ? ` · realized ₹${Math.round(pos.realized_pnl).toLocaleString('en-IN')}` : '') },
         );
       }
-      // The ledger changed → refresh positions, this position's trail, outstanding actions,
-      // the discipline gauge, and the held-set.
+      // The ledger changed → refresh positions, this position's trail, outstanding actions
+      // and the discipline gauge. Held-ness is DERIVED from positions now, so there is no second
+      // store to invalidate alongside them.
       qc.invalidateQueries({ queryKey: EXECUTION_KEY });
       if (vars?.signal_id) qc.invalidateQueries({ queryKey: executionPositionKey(vars.signal_id) });
       qc.invalidateQueries({ queryKey: RECONCILIATION_KEY });
       qc.invalidateQueries({ queryKey: DISCIPLINE_KEY });
-      qc.invalidateQueries({ queryKey: HOLDINGS_KEY });
     },
     onError: (err) => toast.error(`Could not record ${verb.toLowerCase()}`, { description: err?.message }),
   });

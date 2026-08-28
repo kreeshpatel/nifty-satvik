@@ -41,8 +41,6 @@
 }
 .ri-chip.on .ri-chip-n { background: rgba(79,140,255,0.3); color: #fff; }
 
-.ri-pick { margin-bottom: 18px; }
-
 /* ── two-column body ── */
 /* Matches the watchlist rail's own collapse point (watchlist-rail.css) so
    the right rail doesn't drop to the bottom on ordinary 1200-1360px laptop
@@ -103,13 +101,6 @@
   white-space: nowrap; transition: background-color 160ms, border-color 160ms, color 160ms, box-shadow 160ms, transform 160ms, opacity 160ms;
 }
 /* Ephemeral "I bought this" toggle — muted until set, then a solid confirmation. */
-.ri-btn-bought {
-  min-width: 62px; padding: 7px 9px; font-size: 11.5px; background: var(--surface-3);
-  color: var(--text-2); border-color: var(--edge-2);
-}
-.ri-btn-bought:hover:not(:disabled) { color: var(--text-1); border-color: var(--edge-2); }
-.ri-btn-bought.on { background: rgba(63,221,138,0.16); color: var(--bull); border-color: rgba(63,221,138,0.35); }
-.ri-btn-bought:disabled { opacity: 0.4; cursor: default; }
 
 /* ── right rail cards ── */
 .ri-card {
@@ -130,15 +121,6 @@
 .ri-kv b { font-size: 13.5px; color: var(--text-1); }
 
 /* Position sizer card */
-.ri-sizer-sym { font-size: 14px; font-weight: 600; color: var(--text-1); margin-bottom: 10px; }
-.ri-sizer-entry { font-size: 12px; font-weight: 500; color: var(--text-3); }
-.ri-sizer-label { display: block; font-size: 11px; color: var(--text-3); margin-bottom: 5px; }
-.ri-sizer-input {
-  width: 100%; padding: 8px 10px; margin-bottom: 8px; border-radius: 8px;
-  background: var(--surface-2); border: 1px solid var(--edge-1); color: var(--text-1);
-  font-family: var(--font-sans); font-size: 13px;
-}
-.ri-sizer-input:focus { outline: none; border-color: rgba(79,140,255,0.5); }
 .ri-sizer-note { font-size: 11px; color: var(--text-3); line-height: 1.4; margin-top: 4px; }
 .ri-sizer-btn {
   width: 100%; margin-top: 12px; padding: 9px 0; border-radius: 8px; border: none;
@@ -148,17 +130,8 @@
 }
 .ri-sizer-btn:hover:not(:disabled) { background: rgba(63,221,138,0.26); }
 .ri-sizer-btn:disabled { opacity: 0.45; cursor: default; }
-.ri-sizer-hint { color: var(--text-4); font-weight: 400; }
 
 /* Risk-tier toggle */
-.ri-sizer-tiers { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0 6px; }
-.ri-tier {
-  padding: 7px 0; border-radius: 8px; border: 1px solid var(--edge-1);
-  background: var(--surface-2); color: var(--text-3);
-  font-family: var(--font-sans); font-size: 12px; font-weight: 600; cursor: pointer; transition: background-color 160ms, border-color 160ms, color 160ms, box-shadow 160ms, transform 160ms, opacity 160ms;
-}
-.ri-tier:hover { color: var(--text-1); }
-.ri-tier.on { background: var(--brand-soft); color: var(--brand-hi); border-color: var(--brand-edge); }
 
 /* Sizer results modal */
 .rsm-dialog { background: var(--surface-1); border: 1px solid var(--edge-1); border-radius: 18px; overflow: hidden; }
@@ -166,25 +139,6 @@
 .rsm-h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
 .rsm-h > span:first-child { font-size: 16px; font-weight: 700; color: var(--text-1); }
 .rsm-hsub { font-size: 11.5px; color: var(--text-3); text-transform: capitalize; }
-.rsm-list { display: flex; flex-direction: column; max-height: 46vh; overflow-y: auto; }
-.rsm-row {
-  display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 10px;
-  padding: 9px 0; border-bottom: 1px solid var(--edge-1);
-}
-.rsm-row.is-bought { opacity: 0.62; }
-.rsm-sym { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.rsm-badge { font-size: 10.5px; font-weight: 600; }
-.rsm-nums { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; font-size: 12.5px; color: var(--text-2); }
-.rsm-qty { color: var(--text-1); font-weight: 600; }
-.rsm-cost { font-size: 11px; color: var(--text-3); }
-.rsm-risk { font-size: 10.5px; color: var(--text-4); }
-.rsm-totals {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 14px;
-  padding: 12px; border-radius: 12px; background: var(--surface-2);
-}
-.rsm-totals > div { display: flex; flex-direction: column; gap: 3px; }
-.rsm-totals span { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.04em; }
-.rsm-totals b { font-size: 14px; color: var(--text-1); }
 .rsm-note { margin-top: 12px; font-size: 11px; color: var(--text-3); line-height: 1.5; }
 
 .ri-how { font-size: 12.5px; color: var(--text-2); line-height: 1.6; }
@@ -241,7 +195,6 @@
 .dsc-improve { margin: 6px 0 4px; font-size: 11.5px; line-height: 1.4; }
 
 /* Sizer skip-friction footer (rank-named; informational, never blocking) */
-.rsm-friction { padding: 8px 14px 0; font-size: 11.5px; line-height: 1.45; color: var(--warn, #ffc15e); }
 
 /* Cold-start onboarding modal */
 .ecm-coldstart-points { margin: 10px 0 0; padding-left: 18px; display: flex; flex-direction: column;

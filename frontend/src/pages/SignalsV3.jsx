@@ -1,41 +1,44 @@
 /**
  * SignalsV3 — the Research page (/premove).
  *
- * Rebuilt 2026-07-07 to the "Research Insights" layout: a graded calls table
- * plus a right rail (Morning commentary · Signal stats · How calls are made).
- * The position sizer, chart and order pad were intentionally removed from this
- * page — sizing + order entry live on the stock detail page (reached via each
- * row's Buy/Sell action, which deep-links /stock/:sym?action=...).
+ * ONE QUESTION: why is this name on the book, and what does the plan expect of it. What to
+ * actually DO today is /this-week; where to place the order is your broker.
  *
- * Data (unchanged from the previous split-pane version):
- *   - useSignals()       → the MODEL's book: open/hold/exit signals + regime + cron_health
- *   - useWatchlist()     → brewing/watchlist signals
- *   - useQuoteBatch()    → live LTP / day-change overlay
+ * Rebuilt 2026-08-27 into three tables, because the weekly envelope carries three card shapes:
+ * a 30-field FRESH entry case, an 18-field ACTIVE position, and a closed card with a `why`. One
+ * row component could only render their intersection, which is what made the old board six thin
+ * columns and a lot of dashes.
+ *
+ * Data:
+ *   - useSignals()            → the MODEL's book: open/hold/exit signals + regime + cron_health
+ *   - useQuoteBatch()         → live LTP / day-change overlay
+ *   - useExecutionPositions() → the user's OWN durable ledger, the single source of "held"
  *   (Kite / personal-position mapping removed 2026-07-13 — this page is model-centric.)
  *
- * Compliance: client-facing conviction/section strings sourced from
- *   @/lib/signalCopy. No "guarantee/will/sure" language.
+ * The position sizer moved to /this-week (2026-08-27), where the book is actually sized and
+ * taken; Research reads the case for a name and does not also price it. The brewing-watchlist
+ * merge went with it — its endpoint had no producer for the live book. The chart and order pad
+ * were removed earlier (2026-07-07); levels live on /stock/:sym.
+ *
+ * Compliance: client-facing section strings sourced from @/lib/signalCopy. No
+ * "guarantee/will/sure" language. The exit_plan `do` strings are printed verbatim.
  */
 
 import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '@/context/AuthContext';
 import { useSignals } from '@/hooks/queries/useSignals';
-import { useWatchlist } from '@/hooks/queries/useWatchlist';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import { GlassTabs } from '@/components/shared/GlassTabs';
-import { CONVICTION, DISCLAIMER, STATES, DISCIPLINE, COLD_START, LESSONS } from '@/lib/signalCopy';
+import { DISCLAIMER, STATES, COLD_START, LESSONS } from '@/lib/signalCopy';
 import { EmptyState } from '@/components/shared/EmptyState';
 import TradeCardModal from '@/components/shared/TradeCardModal';
 import ExecutionCaptureModal from '@/components/shared/ExecutionCaptureModal';
 import DisciplineCard from '@/components/shared/DisciplineCard';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { sizePortfolio, SIZER_STATUS } from '@/lib/sizing';
-import { useHoldings, useMarkBought, useUnmarkBought } from '@/hooks/queries/useHoldings';
 import { useExecutionPositions } from '@/hooks/queries/useExecution';
 import { useJourney } from '@/hooks/queries/useJourney';
-import { useSizerConfig, useSizingPrefs, useUpdateSizingPrefs } from '@/hooks/queries/useSizingPrefs';
 import '@/styles/signals-v3.css';
 import '@/styles/research-insights.css';
 import '@/styles/research.css';
@@ -49,7 +52,6 @@ const signalIdOf = (s) => {
 
 // ── Formatters ────────────────────────────────────────────────────────
 const fmtNum  = (n) => n == null ? '—' : Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const fmtNum0 = (n) => n == null ? '—' : Math.round(Number(n)).toLocaleString('en-IN');
 const fmtPct1 = (n) => n == null ? '—' : (n >= 0 ? '+' : '−') + Math.abs(n).toFixed(1) + '%';
 
 function todayISO() { return new Date().toISOString().slice(0, 10); }
@@ -107,14 +109,6 @@ function Logo({ sym, size = 34, radius = 10 }) {
       <img src={sources[idx]} alt={sym} onError={() => setIdx((i) => i + 1)} />
     </div>
   );
-}
-
-function convOf(grade, isWatch) {
-  const g = (grade || 'B')[0].toUpperCase();
-  if (isWatch && g !== 'A') return { word: CONVICTION.LOW.label, cls: 'conv-c' };
-  if (g === 'A') return { word: CONVICTION.HIGH.label, cls: 'conv-a' };
-  if (g === 'B') return { word: CONVICTION.MED.label, cls: 'conv-b' };
-  return { word: CONVICTION.LOW.label, cls: 'conv-c' };
 }
 
 // ── Action derivation (deterministic, MODEL-centric) ──────────────────
@@ -200,7 +194,6 @@ function enrichSignal(raw, quotes, posBySignal) {
     weekOf = Math.min(13, Math.max(1, Math.ceil(calDays / 7)));
   }
 
-  const isWatch = action === 'brewing';
   const grade = raw.grade || 'B';
 
   // The user's OWN position from the durable execution ledger (self-reported buy price + qty), keyed
@@ -269,7 +262,6 @@ function enrichSignal(raw, quotes, posBySignal) {
     _myBuy: myBuy, _myQty: myQty, _myPnl: myPnl, _myPnlPct: myPnlPct, _pnlIsModeled: pnlIsModeled,
     buyByStr, daysLeft, dayOf, weekOf,
     hold: raw.hold_days || 10,
-    conv: convOf(grade, isWatch),
     isFreshToday: raw.signal_date === todayISO(),
   };
 }
@@ -363,154 +355,6 @@ function CommentaryCard({ regime, model, freshCount }) {
         </div>
       )}
     </div>
-  );
-}
-
-// Map an enriched signal → the pure sizer's input shape.
-const toSizerSig = (s) => ({
-  signalId: s._signalId, sym: s.sym, entry: s.entry, stop: s.stop, buyHigh: s._buyHigh, ltp: s._ltp,
-});
-
-// Right-rail sizer — risk-as-%-of-capital tiers (from config), funded strongest-first.
-// "Calculate" hands the sized plan up to the SizerResultsModal. Tier + capital persist
-// per-user (useSizingPrefs) so the card isn't blank on return.
-function SizerCard({ buyPool, heldIds, onCalculate }) {
-  const { data: config } = useSizerConfig();
-  const { data: prefs } = useSizingPrefs();
-  const updatePrefs = useUpdateSizingPrefs();
-  const [cash, setCash] = useState('');
-  const [tier, setTier] = useState('medium');
-
-  useEffect(() => {
-    if (!prefs) return;
-    setTier(prefs.risk_tier || 'medium');
-    if (prefs.default_capital != null) setCash((c) => (c === '' ? String(prefs.default_capital) : c));
-  }, [prefs]);
-
-  const tiers = config?.tiers || { medium: 0.02, high: 0.03 };
-  const capPct = config?.position_cap_pct ?? 0.20;
-  const tierPct = tiers[tier] ?? 0.02;
-  const cashNum = Number(cash) || 0;
-  const nOpen = buyPool.length;
-
-  const chooseTier = (t) => { setTier(t); updatePrefs.mutate({ risk_tier: t }); };
-  const persistCapital = () => { if (cashNum > 0) updatePrefs.mutate({ default_capital: cashNum }); };
-  const calc = () => {
-    const plan = sizePortfolio({
-      signals: buyPool.map(toSizerSig), heldSignalIds: [...heldIds],
-      capital: cashNum, tierPct, capPct,
-    });
-    onCalculate({ ...plan, capital: cashNum, tier, tierPct, capPct });
-  };
-
-  return (
-    <div className="ri-card">
-      <div className="ri-card-h">POSITION SIZER</div>
-      <label className="ri-sizer-label" htmlFor="ri-sizer-cash">Capital available <span className="ri-sizer-hint">(free, for new buys)</span></label>
-      <input
-        id="ri-sizer-cash" className="ri-sizer-input" type="number" inputMode="decimal"
-        placeholder="e.g. 2000000" value={cash}
-        onChange={(e) => setCash(e.target.value)} onBlur={persistCapital}
-      />
-      <div className="ri-sizer-tiers" role="group" aria-label="Risk tier">
-        {['medium', 'high'].map((t) => (
-          <button
-            key={t} type="button"
-            className={`ri-tier${tier === t ? ' on' : ''}`}
-            onClick={() => chooseTier(t)}
-          >
-            {t === 'medium' ? 'Medium' : 'High'} · {Math.round((tiers[t] ?? 0) * 100)}%
-          </button>
-        ))}
-      </div>
-      <div className="ri-sizer-note">
-        {Math.round(tierPct * 100)}% risk/trade · max {Math.round(capPct * 100)}% per name.
-        {tier === 'high' && <> <span className="num-bear">High is aggressive — above the validated 2%.</span></>}
-      </div>
-      <button
-        type="button" className="ri-sizer-btn" disabled={nOpen === 0 || cashNum <= 0}
-        onClick={calc}
-      >
-        {cashNum <= 0 ? 'Enter capital to size' : `Size ${nOpen} open A-call${nOpen === 1 ? '' : 's'} →`}
-      </button>
-    </div>
-  );
-}
-
-// One row inside the sizer results popup.
-function SizerRow({ r, held, onBought }) {
-  const s = r.status;
-  const badge = s === SIZER_STATUS.OUT_OF_RANGE ? { t: 'chased — above buy range', cls: 'warn' }
-    : s === SIZER_STATUS.NOT_FUNDED ? { t: 'no cash left', cls: 'warn' }
-    : s === SIZER_STATUS.BOUGHT ? { t: '✓ bought', cls: 'bull' }
-    : r.rangeUnknown ? { t: 'range unknown', cls: 'warn' } : null;
-  const canBuy = s === SIZER_STATUS.FUNDED && !held;
-  return (
-    <div className={`rsm-row${held || s === SIZER_STATUS.BOUGHT ? ' is-bought' : ''}`}>
-      <div className="rsm-sym">
-        <span className="ri-sym">{r.sym}</span>
-        {badge && <span className={`rsm-badge num-${badge.cls}`}>{badge.t}</span>}
-      </div>
-      <div className="rsm-nums tnum">
-        <span className="rsm-qty">{r.qty > 0 ? `${r.qty} sh` : '—'}</span>
-        <span className="rsm-cost">{r.qty > 0 ? `₹${fmtNum0(r.cost)}` : ''}</span>
-        <span className="rsm-risk">{r.risk > 0 ? `risk ₹${fmtNum0(r.risk)}` : ''}</span>
-      </div>
-      <button
-        type="button"
-        className={`ri-btn ri-btn-bought${held ? ' on' : ''}`}
-        disabled={!canBuy && !held}
-        onClick={() => onBought(r)}
-      >
-        {held ? '✓' : 'Bought'}
-      </button>
-    </div>
-  );
-}
-
-// The "Calculate" popup — the sized plan across every open Grade-A call.
-function SizerResultsModal({ open, onOpenChange, result, heldIds, onMarkBought }) {
-  if (!result) return null;
-  const { rows, totals, capital, tier, tierPct } = result;
-  // Stage 6 — rank-named skip friction: rows are strongest-first, so the first funded row the user
-  // hasn't taken is the highest-ranked skip. Named, costed, never blocking (their capital).
-  const fundedUntaken = rows
-    .map((r, i) => ({ r, rank: i + 1 }))
-    .filter(({ r }) => r.status === SIZER_STATUS.FUNDED && !heldIds.has(r.signalId));
-  const topSkip = fundedUntaken.length > 0 && fundedUntaken.length < rows.length
-    ? fundedUntaken[0] : null;
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="border-0 p-0 rsm-dialog" style={{ maxWidth: 480 }}
-                     srTitle="Position plan — take this week's book">
-        <div className="rsm">
-          <div className="rsm-h">
-            <span>Take this week&rsquo;s book ({rows.length})</span>
-            <span className="rsm-hsub">{tier} · {Math.round(tierPct * 100)}% risk · ₹{fmtNum0(capital)} free</span>
-          </div>
-          <div className="rsm-list">
-            {rows.map((r) => (
-              <SizerRow key={r.signalId || r.sym} r={r} held={heldIds.has(r.signalId)} onBought={onMarkBought} />
-            ))}
-          </div>
-          <div className="rsm-totals">
-            <div><span>Deployed</span><b className="tnum">₹{fmtNum0(totals.deployed)}</b></div>
-            <div><span>At risk</span><b className="tnum">{totals.atRiskPct.toFixed(1)}%</b></div>
-            <div><span>Cash left</span><b className="tnum">₹{fmtNum0(totals.cashLeft)}</b></div>
-            <div><span>Funded</span><b className="tnum">{totals.namesFunded}</b></div>
-          </div>
-          {topSkip && (
-            <div className="rsm-friction">
-              {DISCIPLINE.skipFriction(topSkip.rank, topSkip.r.sym)}
-            </div>
-          )}
-          <div className="rsm-note">
-            Indicative sizing — research output, not advice. Names you already hold are excluded;
-            a “Bought” mark is remembered only until the model completes that trade.
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
   );
 }
 
@@ -743,33 +587,28 @@ export default function SignalsV3() {
   // Bhanushali weekly-swing is the ONLY live model (momentum removed 2026-07-13).
   const [model, setModel] = useState('bhanushali');
   const [tradeCard, setTradeCard] = useState(null);
-  const [sizerResult, setSizerResult] = useState(null);   // the "Calculate" popup's sized plan
 
   const signalsQuery    = useSignals({ model });
-  const watchlistQuery  = useWatchlist({ model });
 
-  // Per-user ephemeral holdings — merged CLIENT-SIDE (GET /api/signals stays model-only).
-  const holdingsQuery = useHoldings();
-  // The user's durable positions (execution ledger) → live unrealised P&L on held rows. Sold trades
-  // land in Portfolio → Closed Trades via the same ledger, so nothing extra is needed for history.
+  // ONE store for "did you buy this": the durable execution ledger.
+  //
+  // There used to be two. `/api/holdings` kept an ephemeral "bought" mark that was erased the
+  // moment the model completed the trade, while `/api/execution` kept the append-only ledger the
+  // reconciliation and the P&L are derived from. Both answered the same question, this page wrote
+  // to the ephemeral one and read from it, and a real recorded position whose mark had been pruned
+  // read back as "not held". Two stores of one fact is one store too many, and the durable one is
+  // the one every other surface already trusts.
   const execQuery = useExecutionPositions();
   const posBySignal = useMemo(
     () => new Map((execQuery.data ?? []).map((p) => [p.signal_id, p])),
     [execQuery.data],
   );
-  const heldIds = useMemo(
-    () => new Set((holdingsQuery.data ?? []).map((h) => h.signal_id)),
-    [holdingsQuery.data]
-  );
-  const markBought = useMarkBought();
-  const unmarkBought = useUnmarkBought();
 
-  const rawSignals   = useMemo(() => signalsQuery.data?.signals ?? [], [signalsQuery.data]);
-  const rawWatchlist = useMemo(() => watchlistQuery.data?.signals ?? [], [watchlistQuery.data]);
+  const rawSignals = useMemo(() => signalsQuery.data?.signals ?? [], [signalsQuery.data]);
 
   const quoteSymbols = useMemo(
-    () => [...new Set([...rawSignals, ...rawWatchlist].map((s) => (s.ticker || '').toUpperCase()).filter(Boolean))],
-    [rawSignals, rawWatchlist]
+    () => [...new Set(rawSignals.map((s) => (s.ticker || '').toUpperCase()).filter(Boolean))],
+    [rawSignals]
   );
   const quotesQuery = useQuoteBatch(quoteSymbols);
   const quotes = quotesQuery.data ?? null;
@@ -791,13 +630,15 @@ export default function SignalsV3() {
   // position card ended up sharing six columns. Each bucket now gets the columns its own card
   // shape actually carries.
   const allEnriched = useMemo(() => {
-    const enriched = [
-      ...rawSignals.map((s) => enrichSignal(s, quotes, posBySignal)),
-      ...rawWatchlist.map((s) => enrichSignal({ ...s, actionability: 'WATCHLIST', tier: 'watchlist' }, quotes, posBySignal)),
-    ];
+    // The brewing/watchlist tier was merged in here from GET /api/signals/watchlist. That endpoint
+    // returned an empty list unconditionally for the live book -- the weekly model has no watchlist
+    // file and `_MODELS["bhanushali"]["watchlist"]` was None -- so the merge could only ever add
+    // nothing. It is gone; `deriveAction` still understands a 'brewing' card, so a future watchlist
+    // tier only needs its producer back.
+    const enriched = rawSignals.map((s) => enrichSignal(s, quotes, posBySignal));
     const seen = new Set();
     return enriched.filter((s) => { if (seen.has(s.sym)) return false; seen.add(s.sym); return true; });
-  }, [rawSignals, rawWatchlist, quotes, posBySignal]);
+  }, [rawSignals, quotes, posBySignal]);
 
   // §1 — buyable this week, ranked the way the envelope's own buy_window instructs:
   // "fund strongest CRS rank first". That instruction has been in the payload all along and was
@@ -842,13 +683,7 @@ export default function SignalsV3() {
   };
 
   // Row "Bought" toggle: not-held → open the BUY capture popup; already-held → open the SELL popup.
-  // "Held" is read from the DURABLE ledger first, and only then from the ephemeral mark.
-  //
-  // The two stores answer the same question -- did you buy this -- and only the ledger survives
-  // the model completing the trade, so a real recorded position that had lost its ephemeral mark
-  // was being offered "record a buy" on shares the user already owns. Which store is WRITTEN is a
-  // separate decision (they should be one store); this only fixes which one is BELIEVED.
-  const isHeld = (s) => (s?._myQty > 0) || heldIds.has(s?._signalId);
+  const isHeld = (s) => s?._myQty > 0;
 
   const toggleBought = (s) => {
     const id = s._signalId;
@@ -857,24 +692,12 @@ export default function SignalsV3() {
                   target: s.target, exitLevel: s.exitLevel, current_price: s._ltp ?? s.current_price };
     setCapture(isHeld(s) ? { mode: 'sell', sig, tranche: 'target' } : { mode: 'buy', sig });
   };
-  // Sizer modal "Bought": open the BUY capture popup pre-filled with the sized qty (close the sizer first).
-  const markSized = (r) => {
-    if (!r?.signalId) return;
-    setSizerResult(null);
-    setCapture({ mode: 'buy', sizerQty: r.qty || null,
-                 sig: { sym: r.sym, signalId: r.signalId, entry: r.entry, stop: r.stop } });
-  };
-  // After a fill is recorded, keep the ephemeral held-set (row highlighting) in sync with the ledger:
-  // a buy or a partial sell means "held"; a full exit (nothing left) clears the mark. Also fires the
-  // event-unlocked just-in-time lessons (Stage 6c) — first buy, first +2R partial.
+  // Recording a fill no longer has to mirror itself into a second store: the ledger mutation
+  // invalidates the positions query, and held-ness is derived from that. This function is now only
+  // the just-in-time lessons (Stage 6c) — first buy, first +2R partial.
   const onRecorded = (res, { mode: recMode, signalId }) => {
     const pos = res?.position;
     if (!signalId || !pos) return;
-    if (pos.remaining_qty > 0) {
-      markBought.mutate({ signal_id: signalId, ticker: pos.ticker, qty: pos.remaining_qty });
-    } else {
-      unmarkBought.mutate(signalId);
-    }
     if (recMode === 'buy') fireLesson('lesson_first_buy');
     if (recMode === 'sell' && capture?.tranche === 'target' && (pos.realized_pnl ?? 0) > 0) {
       fireLesson('lesson_first_2r');
@@ -1007,7 +830,6 @@ export default function SignalsV3() {
         </div>
 
         <aside className="rs-rail">
-          <SizerCard buyPool={buyPool} heldIds={heldIds} onCalculate={setSizerResult} />
           <DisciplineCard />
           {isAdmin && model === 'bhanushali' && <ReviewCard card={reviewScorecard} />}
           <CommentaryCard regime={regime} model={model} freshCount={freshCount} />
@@ -1017,7 +839,7 @@ export default function SignalsV3() {
       {/* Reference — static context, kept out of the rail so the rail stays actionable and the
           page doesn't leave a tall empty column beside a short call list. */}
       <div className="rs-reference">
-        <SignalStatsCard buyPool={buyPool} heldCount={heldIds.size} />
+        <SignalStatsCard buyPool={buyPool} heldCount={openRows.length} />
         <HowCallsMadeCard />
       </div>
 
@@ -1029,10 +851,6 @@ export default function SignalsV3() {
       </footer>
 
       <TradeCardModal sig={tradeCard} open={!!tradeCard} onOpenChange={(o) => !o && setTradeCard(null)} />
-      <SizerResultsModal
-        open={!!sizerResult} onOpenChange={(o) => !o && setSizerResult(null)}
-        result={sizerResult} heldIds={heldIds} onMarkBought={markSized}
-      />
       <ExecutionCaptureModal
         open={!!capture} mode={capture?.mode} sig={capture?.sig}
         sizerQty={capture?.sizerQty} tranche={capture?.tranche}

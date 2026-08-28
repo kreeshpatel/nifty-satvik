@@ -24,12 +24,12 @@
  * breach midweek. So the header states the next scan AND that a midweek trigger is acted on at the
  * next open, matching the engine (weekly-close decision, next-open execution).
  */
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useSignals } from '@/hooks/queries/useSignals';
 import { useReconciliation, useExecutionPositions, useRecordBuy } from '@/hooks/queries/useExecution';
-import { useSizerConfig, useSizingPrefs } from '@/hooks/queries/useSizingPrefs';
+import { useSizerConfig, useSizingPrefs, useUpdateSizingPrefs } from '@/hooks/queries/useSizingPrefs';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import ExecutionCaptureModal from '@/components/shared/ExecutionCaptureModal';
 import { EmptyState } from '@/components/shared/EmptyState';
@@ -66,6 +66,65 @@ const SEV_TONE = { high: 'bear', action: 'bull', warn: 'warn', info: 'info' };
 const SUM_TONE = { missed: 'ns-chip--alarm', due: 'ns-chip--warn',
                    buy: 'ns-chip--brand', hold: 'ns-chip--quiet' };
 
+/**
+ * The sizing control — capital + risk tier, edited where the sizing is USED.
+ *
+ * It used to live only in the Research rail, which meant this page's own quantities depended on a
+ * setting you could not reach from here: the empty state literally read "Set your capital on
+ * Research → Position sizer". Research is where you read the case for a name; this is where the
+ * book gets sized and taken, so the control belongs here and Research keeps one job.
+ *
+ * Both fields persist per-user through the same PUT /api/me/sizing-prefs the old card used, so
+ * nothing about the stored value or the allocator changes — only where it is reachable.
+ */
+function SizingControl({ capital, tier, tiers, capPct, open, onToggle }) {
+  const update = useUpdateSizingPrefs();
+  const [draft, setDraft] = useState(capital == null ? '' : String(capital));
+  useEffect(() => { setDraft(capital == null ? '' : String(capital)); }, [capital]);
+
+  const commit = () => {
+    const n = Number(draft);
+    if (n > 0 && n !== capital) update.mutate({ default_capital: n });
+  };
+
+  return (
+    <>
+      <button type="button" className="tw-sizing-btn" onClick={onToggle} aria-expanded={open}>
+        {capital
+          ? `Sized to ${money0(capital)} · ${tier} · ${Math.round((tiers[tier] ?? 0.02) * 100)}% risk per trade`
+          : 'Set your capital to see quantities'}
+        <span aria-hidden="true"> {open ? '▴' : '▾'}</span>
+      </button>
+      {open && (
+        <div className="tw-sizing">
+          <label className="tw-sizing-l" htmlFor="tw-capital">
+            Capital available <span>(free, for new buys)</span>
+          </label>
+          <input
+            id="tw-capital" className="tw-sizing-in" type="number" inputMode="decimal"
+            placeholder="e.g. 500000" value={draft}
+            onChange={(e) => setDraft(e.target.value)} onBlur={commit}
+            onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); }}
+          />
+          <div className="tw-sizing-tiers" role="group" aria-label="Risk tier">
+            {['medium', 'high'].map((t) => (
+              <button key={t} type="button" className={`ns-btn${t === tier ? ' ns-btn--primary' : ''}`}
+                      onClick={() => update.mutate({ risk_tier: t })}>
+                {t === 'medium' ? 'Medium' : 'High'} · {Math.round((tiers[t] ?? 0) * 100)}%
+              </button>
+            ))}
+          </div>
+          <div className="tw-sizing-note">
+            {Math.round((tiers[tier] ?? 0.02) * 100)}% risk per trade · at most {Math.round(capPct * 100)}% of
+            capital in one name.
+            {tier === 'high' && <> <span className="num-bear">High is aggressive — above the validated 2%.</span></>}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 export default function ThisWeek() {
   const signalsQuery = useSignals({ model: 'bhanushali' });
   const reconQuery = useReconciliation();
@@ -76,6 +135,7 @@ export default function ThisWeek() {
 
   const [capture, setCapture] = useState(null);
   const [bulkOpen, setBulkOpen] = useState(false);
+  const [sizingOpen, setSizingOpen] = useState(false);
   const [bulkBusy, setBulkBusy] = useState(false);
 
   const rawSignals = useMemo(() => signalsQuery.data?.signals ?? [], [signalsQuery.data]);
@@ -320,11 +380,10 @@ export default function ThisWeek() {
         <section className="ns-section">
           <div className="ns-section-h">
             <h2>Buys open <span className="ns-count">{buyCandidates.length}</span></h2>
-            <span className="ns-section-sub">
-              {capital
-                ? `Sized to ${money0(capital)} · ${tier} · ${Math.round(tierPct * 100)}% risk per trade`
-                : 'Set your capital on Research → Position sizer to see quantities'}
-            </span>
+            <SizingControl
+              capital={capital} tier={tier} tiers={cfgQuery.data?.tiers ?? { medium: 0.02, high: 0.03 }}
+              capPct={capPct} open={sizingOpen} onToggle={() => setSizingOpen((v) => !v)}
+            />
           </div>
 
           {fundedRows.length > 1 && (

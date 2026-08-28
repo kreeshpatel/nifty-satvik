@@ -47,3 +47,37 @@
 @media (max-width: 760px) {
   .tw-cadence { max-width: none; }
 }
+
+/* -- Sizing control -- capital + tier, edited where the sizing is used. Sits in the section
+   header where the static "Sized to ..." line used to be, so the page gains a control without
+   gaining a row. */
+.tw-sizing-btn {
+  padding: 0; border: 0; background: none; cursor: pointer;
+  font-family: var(--font-sans); font-size: var(--fs-micro);
+  color: var(--text-3); text-align: left;
+}
+.tw-sizing-btn:hover { color: var(--text-2); }
+.tw-sizing {
+  flex-basis: 100%;
+  margin-top: var(--space-2);
+  padding: var(--space-4);
+  border-radius: 12px;
+  background: var(--surface-1);
+  border: 1px solid var(--edge-1);
+  max-width: 420px;
+}
+.tw-sizing-l { display: block; font-size: var(--fs-xs); font-weight: 600; color: var(--text-2); }
+.tw-sizing-l span { font-weight: 400; color: var(--text-4); }
+.tw-sizing-in {
+  width: 100%; margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: 8px;
+  background: var(--surface-3); border: 1px solid var(--edge-1);
+  color: var(--text-1);
+  font-family: var(--font-sans); font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+}
+.tw-sizing-in:focus { outline: none; border-color: var(--brand-edge); }
+.tw-sizing-tiers { display: flex; gap: var(--space-2); margin-top: var(--space-3); }
+.tw-sizing-tiers .ns-btn { flex: 1; text-align: center; }
+.tw-sizing-note { margin-top: var(--space-3); font-size: var(--fs-micro); line-height: 1.5; color: var(--text-4); }

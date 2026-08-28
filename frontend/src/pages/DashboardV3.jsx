@@ -9,7 +9,6 @@
  *
  * Data sources (unchanged from the pre-port version):
  *   useSignals({model:'bhanushali'}) — signals + regime + cron_health (live book)
- *   useWatchlist({model:'bhanushali'}) — brewing/below-gate candidates
  *   useOverview() — paper portfolio + performance metrics
  *   (per-user broker state removed per ADR 0011 — holdings panel shows its empty state)
  *   useIndexSparklines() — NIFTY/SENSEX/VIX/... ticker values
@@ -23,7 +22,6 @@ import React, { useContext, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { KiteContext } from '@/App';
 import { useSignals } from '@/hooks/queries/useSignals';
-import { useWatchlist } from '@/hooks/queries/useWatchlist';
 import { useOverview } from '@/hooks/queries/useOverview';
 import { useIndexSparklines } from '@/hooks/queries/useIndexSparklines';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
@@ -177,6 +175,10 @@ function RegimeCard({ regime, indexData, heldCount }) {
 // ─────────────────────────────────────────────────────────────────────
 // Research-call card — prototype .sig
 // ─────────────────────────────────────────────────────────────────────
+// `brewing` is kept, unused by any current caller: it is a complete presentational
+// variant (amber stroke, a distance-to-gate line instead of a target) that a restored
+// watchlist producer would want back exactly as-is. Deleting it would cost more to
+// rebuild than it saves.
 function SigCard({ sig, modelWinRate, brewing, idx, onOpen }) {
   const sym    = sig.ticker || sig.sym || sig.symbol || '??';
   const name   = sig.name || sym;
@@ -612,7 +614,6 @@ export default function DashboardV3() {
   // The live book is Bhanushali (weekly-swing) — momentum is suspended
   // (2026-07-06) — so the dashboard queries 'bhanushali', same as Research.
   const signalsQuery   = useSignals({ model: 'bhanushali' });
-  const watchlistQuery = useWatchlist({ model: 'bhanushali' });
   const overviewQuery  = useOverview();
   const indexQuery     = useIndexSparklines();
 
@@ -643,7 +644,6 @@ export default function DashboardV3() {
   }), [openPositions, quotesQuery.data, execQuery.isLoading]);
 
   const signals    = useMemo(() => signalsQuery.data?.signals ?? [], [signalsQuery.data]);
-  const watchlist  = useMemo(() => watchlistQuery.data?.signals ?? [], [watchlistQuery.data]);
   const regime     = useMemo(() => signalsQuery.data?.regime ?? {}, [signalsQuery.data]);
   const cronHealth = useMemo(() => signalsQuery.data?.cron_health ?? {}, [signalsQuery.data]);
   const portfolio  = useMemo(() => overviewQuery.data?.portfolio ?? {}, [overviewQuery.data]);
@@ -656,16 +656,14 @@ export default function DashboardV3() {
     return (b.confidence ?? b.ml_score ?? 0) - (a.confidence ?? a.ml_score ?? 0);
   });
 
-  const top4 = useMemo(() => (signals.length ? rankByGrade(signals).slice(0, 4) : []), [signals]);
-  const brewing4 = useMemo(
-    () => (!signals.length && watchlist.length ? rankByGrade(watchlist).slice(0, 4) : []),
-    [signals, watchlist]
-  );
-  const showingBrewing = top4.length === 0 && brewing4.length > 0;
-  const displayCards = top4.length ? top4 : brewing4;
-  const breadthSource = signals.length ? signals : watchlist;
+  // The brewing fallback is gone with its endpoint. GET /api/signals/watchlist returned an empty
+  // list unconditionally for the live book (the weekly model has no watchlist file), so
+  // `showingBrewing` could never be true and this panel had a second title, a second empty-state
+  // sentence and a second loading gate that no data could ever reach. An empty scan now says so.
+  const displayCards = useMemo(() => (signals.length ? rankByGrade(signals).slice(0, 4) : []), [signals]);
+  const breadthSource = signals;
   const indexData = indexQuery.data ?? {};
-  const sigLoading = signalsQuery.isLoading || watchlistQuery.isLoading;
+  const sigLoading = signalsQuery.isLoading;
   const heldCount = kite?.connected ? (holdingsQuery.data ?? []).length : null;
   const scanNote = cronHealth?.last_run_today ? 'Last scan: 4:15 PM IST' : 'Next scan: 4:15 PM IST';
 
@@ -683,7 +681,7 @@ export default function DashboardV3() {
 
           <div className="card panel">
             <div className="panel-head">
-              <h3>{showingBrewing ? 'Brewing watchlist' : 'Research calls'}</h3>
+              <h3>Research calls</h3>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <div className="seg"><button className="on">Systematic</button></div>
                 <Link className="chip-drop" to="/premove?filter=today">Fresh today ▾</Link>
@@ -693,9 +691,7 @@ export default function DashboardV3() {
               <div className="micro" style={{ marginBottom: 10, textTransform: 'none', letterSpacing: 0, fontWeight: 500, color: 'var(--text-3)' }}>
                 {signals.length > 0
                   ? `${signals.length} of 441 stocks scored above conviction threshold · ${scanNote}`
-                  : showingBrewing
-                    ? `No fresh buys today — ${watchlist.length} names brewing below the entry gate · ${scanNote}`
-                    : `No signals from today's scan · ${scanNote}`}
+                  : `No signals from today's scan · ${scanNote}`}
               </div>
             )}
             <div className="callgrid">
@@ -707,7 +703,7 @@ export default function DashboardV3() {
                 </div>
               ) : (
                 displayCards.map((sig, i) => (
-                  <SigCard key={sig.ticker || sig.sym || sig.symbol} sig={sig} modelWinRate={winRate} brewing={showingBrewing} idx={i} onOpen={setTradeCard} />
+                  <SigCard key={sig.ticker || sig.sym || sig.symbol} sig={sig} modelWinRate={winRate} idx={i} onOpen={setTradeCard} />
                 ))
               )}
             </div>
