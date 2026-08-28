@@ -1,6 +1,6 @@
 import {
   guardrailVerdict, guardrailCoverage, verdictLabel, VERDICT,
-  drawdownStatus, drawdownLabel, DRAWDOWN_HALT_PCT, DRAWDOWN_BACKTEST_MAX_PCT,
+  drawdownStatus, drawdownLabel, DRAWDOWN_HALT_PCT,
 } from './guardrails';
 
 const ok = { status: 'ok' };
@@ -70,9 +70,12 @@ describe('drawdownStatus — the pre-registration, not a number someone remember
     expect(drawdownStatus(40)).toBe('ok');
   });
 
-  it('warns once past the backtest max, where the backtest stops bounding the risk', () => {
-    expect(drawdownStatus(46.26)).toBe('soft');
-    expect(drawdownStatus(48)).toBe('soft');
+  it('has NO second level — §4 registers one condition, so the panel has one boundary', () => {
+    // A −46.26% band was briefly inferred from §4's rationale and removed on 2026-08-29: the
+    // backtest max appears there to explain where −50% came from, not as a threshold of its own.
+    // Deriving a second level from the sentence explaining the first is goalpost invention.
+    expect(drawdownStatus(46.26)).toBe('ok');
+    expect(drawdownStatus(49.9)).toBe('ok');
   });
 
   it('halts at the registered −50%', () => {
@@ -95,8 +98,7 @@ describe('drawdownStatus — the pre-registration, not a number someone remember
     expect(drawdownLabel('unknown')).toBe('DRAWDOWN NOT EVALUATED');
   });
 
-  it('pins the registered numbers so a future edit has to argue with the document', () => {
+  it('pins the one registered number so a future edit has to argue with the document', () => {
     expect(DRAWDOWN_HALT_PCT).toBe(50);
-    expect(DRAWDOWN_BACKTEST_MAX_PCT).toBeCloseTo(46.26, 2);
   });
 });

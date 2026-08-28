@@ -711,7 +711,7 @@ function RiskRibbon({ portfolio, metrics, isLoading }) {
             <div className="pv3-rc-pct">
               {k.status === 'unknown'
                 ? 'not tracked yet'
-                : `${Math.round(k.fill * 100)}% to kill`}
+                : `${Math.round(k.fill * 100)}% to halt`}
             </div>
           </div>
         ))}
