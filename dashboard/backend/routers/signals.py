@@ -84,6 +84,25 @@ _GITHUB_CACHE: dict[str, tuple[float, object]] = {}
 _GITHUB_CACHE_TTL = 30.0
 
 
+def _fetch_public_raw(github_path: str, now: float):
+    """Read a results/ file over the PUBLIC raw URL. No token, no API rate limit.
+
+    Shares `_GITHUB_CACHE` with the authenticated path deliberately: which route served a file
+    changes nothing about the file, and giving each route its own cache would double the request
+    rate for no benefit.
+    """
+    try:
+        r = requests.get(f"{GITHUB_RAW}/{github_path}", timeout=10)
+        if r.status_code == 200:
+            data = json.loads(r.text)
+            _GITHUB_CACHE[github_path] = (now, data)
+            return data
+        logger.warning("public raw fetch %s -> HTTP %s", github_path, r.status_code)
+    except (requests.RequestException, ValueError) as exc:
+        logger.warning("public raw fetch %s failed: %s", github_path, exc)
+    return None
+
+
 def _fetch_github_raw(github_path: str):
     """Fetch JSON for a cron-published results/ file via the authenticated GitHub API contents
     endpoint, with a 30s in-memory cache. Keeps live signal data fresh on a host whose local
@@ -92,12 +111,19 @@ def _fetch_github_raw(github_path: str):
     Returns None on any failure (incl. a missing GITHUB_TOKEN) so the caller falls back to the
     local file.
 
-    NOTE (2026-08-29): the no-token early return below was written when the repo was private, so
-    "no token" genuinely meant "unreadable". The repo is public now and GITHUB_RAW returns 200
-    without auth, which makes that return a self-imposed limitation rather than a necessity: a
-    tokenless deploy silently serves a possibly-stale local file for data it could fetch. Wiring
-    GITHUB_RAW as the tokenless fallback is a small change and deliberately NOT made here, because
-    it alters a live data path and should be its own reviewed commit.
+    TWO PATHS, and the second one is why this function is not a single-point-of-failure any more.
+    The authenticated contents endpoint is preferred for its rate limit (5,000 requests/hour
+    against 60 unauthenticated, shared per IP across both machines). When there is no token, or
+    the authenticated call fails for any reason, it falls back to the PUBLIC raw URL.
+
+    That fallback is not theoretical tidying. `results/` is in .dockerignore, so it is not in the
+    image at all — the "local file" this used to fall back to does not exist in production. Until
+    2026-08-29 a single expired or revoked GITHUB_TOKEN therefore took the entire product's data
+    to ZERO, not to something stale, and the only signal would have been empty pages. The repo is
+    public; there is no reason for a secret to be load-bearing on a public read.
+
+    Every fallback logs a WARNING. A fallback that works silently is how you discover months later
+    that the primary path has been dead the whole time.
     """
     now = _time.time()
     cached = _GITHUB_CACHE.get(github_path)
@@ -105,9 +131,10 @@ def _fetch_github_raw(github_path: str):
         return cached[1]
     token = os.environ.get("GITHUB_TOKEN")
     if not token:
-        # No token → fall back to the local file. Not because the data is unreachable (the repo
-        # is public), but because no unauthenticated path is wired yet. See the docstring.
-        return None
+        logger.warning(
+            "no GITHUB_TOKEN — reading %s over the public raw URL. Works, but rate-limited "
+            "(60/hour per IP); set the token to restore the 5,000/hour path.", github_path)
+        return _fetch_public_raw(github_path, now)
     try:
         r = requests.get(
             f"{GITHUB_API_CONTENTS}/{github_path}?ref=main",
@@ -122,7 +149,14 @@ def _fetch_github_raw(github_path: str):
             data = json.loads(r.text)
             _GITHUB_CACHE[github_path] = (now, data)
             return data
-        logger.warning(f"GitHub API fetch {github_path} -> HTTP {r.status_code}")
+        # An expired, revoked or rate-limited token lands here. The data is public, so this is
+        # recoverable — but it must not be recovered QUIETLY, or a dead token looks like health.
+        logger.warning(
+            "authenticated fetch of %s -> HTTP %s; falling back to the public raw URL. "
+            "Check GITHUB_TOKEN.", github_path, r.status_code)
+        fallback = _fetch_public_raw(github_path, now)
+        if fallback is not None:
+            return fallback
     except Exception as e:
         logger.error(f"GitHub API fetch failed for {github_path}: {e}")
     return None
