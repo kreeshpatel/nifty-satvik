@@ -65,8 +65,12 @@
    remainder -- never the other way round, or the ticker is what gets truncated. */
 .rs-table--fresh .rs-tr,
 .rs-table--fresh .rs-th { grid-template-columns: 22px minmax(0, 1fr) 76px 128px 84px 104px 88px 26px; }
+/* Open book, 2026-08-29: `Held` left the row to pay for `Model`, so the column count is
+   unchanged and the flexible columns keep their width. Every fixed column was trimmed a few px
+   to fund the wider Model caption ("8.4% to target"). Re-measured in-browser, per the warning
+   above — not derived on paper. */
 .rs-table--open .rs-tr,
-.rs-table--open .rs-th  { grid-template-columns: minmax(0, 1.1fr) 88px 96px 100px minmax(0, 1fr) 72px 26px; }
+.rs-table--open .rs-th  { grid-template-columns: minmax(0, 1fr) 80px 86px 90px 108px 26px; }
 .rs-table--closed .rs-tr,
 .rs-table--closed .rs-th { grid-template-columns: minmax(0, 1fr) 96px 88px minmax(0, 1.6fr); }
 
@@ -82,8 +86,11 @@
 /* -- Scrip cell -- */
 .rs-scrip { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .rs-scrip-l { min-width: 0; }
-.rs-scrip-top { display: flex; align-items: center; gap: 6px; min-width: 0; }
-.rs-scrip-top .ns-sym { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* The TICKER is the one thing in this cell that must never be the part that shrinks: it is the
+   row's identity, and "JSWSTEE…" is not a name. Chips are the variable-width element, so they
+   wrap to a second line instead of squeezing the symbol. */
+.rs-scrip-top { display: flex; align-items: center; gap: 6px; min-width: 0; flex-wrap: wrap; }
+.rs-scrip-top .ns-sym { flex: 0 0 auto; white-space: nowrap; }
 .rs-scrip-sub {
   margin-top: 1px;
   font-size: var(--fs-micro);
@@ -242,7 +249,7 @@
   .rs-table--fresh .rs-th { grid-template-columns: 22px minmax(0, 1fr) 76px 128px 84px 104px 26px; }
   .rs-table--fresh .rs-hide-md { display: none; }
   .rs-table--open .rs-tr,
-  .rs-table--open .rs-th { grid-template-columns: minmax(0, 1fr) 88px 96px 100px 26px; }
+  .rs-table--open .rs-th { grid-template-columns: minmax(0, 1fr) 80px 86px 90px 26px; }
   .rs-table--open .rs-hide-md { display: none; }
   .rs-case-grid { grid-template-columns: minmax(0, 1fr); gap: var(--space-4); }
   .rs-reference { grid-template-columns: 1fr; }

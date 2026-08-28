@@ -39,6 +39,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { useExecutionPositions } from '@/hooks/queries/useExecution';
 import { useJourney } from '@/hooks/queries/useJourney';
+import { nseToday, parseCalendarDate, positionR, toTargetPct, holdWeek } from '@/lib/cards';
 import '@/styles/signals-v3.css';
 import '@/styles/research-insights.css';
 import '@/styles/research.css';
@@ -54,7 +55,10 @@ const signalIdOf = (s) => {
 const fmtNum  = (n) => n == null ? '—' : Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtPct1 = (n) => n == null ? '—' : (n >= 0 ? '+' : '−') + Math.abs(n).toFixed(1) + '%';
 
-function todayISO() { return new Date().toISOString().slice(0, 10); }
+// The NSE calendar day, not the UTC one — see lib/cards.js. `new Date().toISOString()` is
+// 5h30m behind IST, so it returned yesterday for the whole 00:00–05:30 IST window, and this
+// value decides whether a buy window is open, closing or closed.
+const todayISO = () => nseToday();
 
 function addTradingDays(dateStr, n) {
   const d = new Date(dateStr);
@@ -68,7 +72,13 @@ function addTradingDays(dateStr, n) {
 }
 function fmtBuyBy(date) {
   if (!date) return null;
-  return new Date(date).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+  const d = date instanceof Date ? date : parseCalendarDate(date);
+  return d ? d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }) : null;
+}
+/** "Mon 24 Aug" — the compact form the monitor chips use. */
+function fmtDayMon(v) {
+  const d = parseCalendarDate(v);
+  return d ? d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }) : '—';
 }
 function daysLeftUntil(dateObj, now = new Date()) {
   if (!dateObj) return null;
@@ -165,8 +175,10 @@ function enrichSignal(raw, quotes, posBySignal) {
   const rr = entry !== stop ? (target - entry) / (entry - stop) : Infinity;
   const fromEntry = entry > 0 ? ((ltp - entry) / entry) * 100 : 0;
   const upside = entry > 0 ? ((target - entry) / entry) * 100 : 0;
-  // Potential return = % to the +2R target from the MIDDLE of the buy range (fill-dependent).
-  const toTarget = buyMid > 0 ? ((target - buyMid) / buyMid) * 100 : upside;
+  // Potential to target — from the ACTUAL fill once the monitor knows it, from the band's mid
+  // only while it does not. See lib/cards.js.
+  const toTarget = toTargetPct({ target, filledPrice: raw.monitor?.filled_price,
+                                 buyLow, buyHigh, entry }) ?? upside;
   // For a name already held, the potential that still matters is the upside REMAINING from where the
   // price is NOW to the target — a live number distinct from P&L (the gain since the Monday-open
   // entry). Without this the Potential column just echoed the P&L for held rows.
@@ -175,24 +187,20 @@ function enrichSignal(raw, quotes, posBySignal) {
 
   let buyByStr = null, daysLeft = null;
   if (raw.buy_window_until) {
-    const d = new Date(raw.buy_window_until);
+    const d = parseCalendarDate(raw.buy_window_until);
     buyByStr = fmtBuyBy(d); daysLeft = daysLeftUntil(d);
   } else if (raw.signal_date && (action === 'buy-today' || action === 'closing')) {
     const d = addTradingDays(raw.signal_date, 2);
     buyByStr = fmtBuyBy(d); daysLeft = daysLeftUntil(d);
   }
 
-  let dayOf = null, weekOf = null;
-  // Any card the model actually opened, not just the ones still calm: a position it has now
-  // flagged for exit still has a hold age, and "week — of 13" beside an exit reads as missing
-  // data rather than as the deliberate blank it was.
-  if (raw.signal_date && (action === 'holding' || action === 'sell-now')) {
-    const calDays = Math.max(1, Math.round((Date.now() - new Date(raw.signal_date)) / 86400000));
-    dayOf = Math.min(calDays, raw.hold_days || calDays);
-    // The book's cap is 13 WEEKS; dayOf above is calendar days (unit mismatch, fault F9), so express
-    // hold progress in weeks against the real 13-week cap.
-    weekOf = Math.min(13, Math.max(1, Math.ceil(calDays / 7)));
-  }
+  // Hold age runs from the day the position OPENED — the fill — not from the signal date. See
+  // lib/cards.js; counting from the signal ages every position up to three days early.
+  const isFilledUnbooked = !!(raw.monitor?.window_filled && !raw.bought_date);
+  const weekOf = (action === 'holding' || action === 'sell-now' || isFilledUnbooked)
+    ? holdWeek({ filledOn: raw.monitor?.filled_on, boughtDate: raw.bought_date,
+                 signalDate: raw.signal_date })
+    : null;
 
   const grade = raw.grade || 'B';
 
@@ -208,7 +216,12 @@ function enrichSignal(raw, quotes, posBySignal) {
   // open even if the user never bought it. Fresh signals carry it as `entry_week_open`; picks the
   // model is already tracking as positions carry the same Monday open as `fill_price` (a fractional
   // qty marks them modelled, not a real fill). Either way it is the forward book's assumed entry.
-  const modelBuy = typeof raw.entry_week_open === 'number' ? raw.entry_week_open
+  // A card whose window filled MID-WEEK has no bought_date yet — the Saturday scan books it —
+  // but the monitor already knows the price it filled at, and that is the reference the reader's
+  // position is actually running from. It wins over the modelled Monday open for exactly the
+  // period between the fill and the book.
+  const modelBuy = typeof raw.monitor?.filled_price === 'number' ? raw.monitor.filled_price
+    : typeof raw.entry_week_open === 'number' ? raw.entry_week_open
     : typeof raw.fill_price === 'number' ? raw.fill_price
     : null;
   const myBuy = recordedBuy ?? modelBuy;
@@ -260,7 +273,7 @@ function enrichSignal(raw, quotes, posBySignal) {
     _upside: upside,
     _signalId: sid,
     _myBuy: myBuy, _myQty: myQty, _myPnl: myPnl, _myPnlPct: myPnlPct, _pnlIsModeled: pnlIsModeled,
-    buyByStr, daysLeft, dayOf, weekOf,
+    buyByStr, daysLeft, weekOf, isFilledUnbooked,
     hold: raw.hold_days || 10,
     isFreshToday: raw.signal_date === todayISO(),
   };
@@ -277,8 +290,14 @@ function monitorChip(s) {
   if (m.target_reached) return { label: '✓ +2R', cls: 'mon-bull' };
   if (m.kind === 'hold' && m.dist_to_stop_pct != null && m.dist_to_stop_pct <= 2)
     return { label: 'Near stop', cls: 'mon-warn' };
+  // A filled window OUTRANKS today's price, and it has to. `filled_today` is recomputed against
+  // the last bar every run, so by Thursday it says nothing about Monday -- and the old rule read
+  // that as "Gapped — wait" on JSWSTEEL, which had opened 1,298.00 inside its band on Monday and
+  // then run to 1,351. The trade was taken; the surface called it pending.
+  if (m.kind === 'buy' && m.window_filled)
+    return { label: `Filled ${fmtDayMon(m.filled_on)}`, cls: 'mon-bull' };
   if (m.kind === 'buy' && m.buy_window_open && m.filled_today === false)
-    return { label: 'Gapped — wait', cls: 'mon-warn' };
+    return { label: 'No open in band yet', cls: 'mon-warn' };
   return null;
 }
 
@@ -396,7 +415,7 @@ function HowCallsMadeCard() {
 // envelope carries (30-field FRESH, 18-field ACTIVE, 20-field closed). That intersection was
 // six columns and a lot of dashes. These are the three unions instead.
 
-function Scrip({ s, chips = [] }) {
+function Scrip({ s, chips = [], note }) {
   return (
     <div className="rs-scrip">
       <Logo sym={s.sym} size={28} radius={8} />
@@ -406,16 +425,18 @@ function Scrip({ s, chips = [] }) {
           <span className="rs-grade">{(s.grade || 'A')[0].toUpperCase()}</span>
           {chips.filter(Boolean).map((c) => <span key={c.label} className={`ri-mon ${c.cls}`}>{c.label}</span>)}
         </div>
-        <div className="rs-scrip-sub">{s.sector}{s.isFreshToday ? ' · new this scan' : ''}</div>
+        <div className="rs-scrip-sub" title={note || undefined}>
+          {note || `${s.sector}${s.isFreshToday ? ' · new this scan' : ''}`}
+        </div>
       </div>
     </div>
   );
 }
 
 /** Value over caption — the only cell shape the tables use, so every column shares a baseline. */
-function Cell({ v, c, tone, right = true }) {
+function Cell({ v, c, tone, right = true, className = '' }) {
   return (
-    <div className={right ? 'rs-r' : undefined}>
+    <div className={`${right ? 'rs-r' : ''} ${className}`.trim() || undefined}>
       <div className={`rs-v${tone ? ` num-${tone}` : ''}`}>{v}</div>
       {c ? <div className="rs-c">{c}</div> : null}
     </div>
@@ -448,8 +469,24 @@ function ExpandBtn({ open, onClick, sym }) {
 
 /** The case: the model's own reasoning, printed rather than summarised. */
 function CasePanel({ s, onAction, extraAction }) {
+  const m = s.monitor || {};
+  // `frozen_price` is Saturday's card price. The daily overlay REPLACES current_price with the
+  // live one, so without this the reader has no way to see what the week has done to a name
+  // since the book was decided.
+  const sinceSat = m.frozen_price > 0 && s._ltp > 0
+    ? ((s._ltp / m.frozen_price - 1) * 100) : null;
   const facts = [
     s._ext != null && ['Extension over the 44-week SMA', `${s._ext.toFixed(2)}% of ${s._extCap}% cap`],
+    s.weekOf ? ['Hold age', `week ${s.weekOf} of 13`] : null,
+    s._nextTranche && ['Next tranche',
+      `${s._nextTranche.pct}% at ${fmtNum(s._nextTranche.level ?? s._nextTranche.arm)}`],
+    sinceSat != null && ['Since Saturday\u2019s close',
+                         `${fmtNum(m.frozen_price)} \u2192 ${fmtNum(s._ltp)} (${fmtPct1(sinceSat)})`],
+    // The taught rule stops at the signal week's low; the RECORD trades a discipline-lifted stop,
+    // and every R on the card is computed off the lifted one. Showing both is the only way the
+    // difference is visible rather than assumed away.
+    typeof s.stop_week_low === 'number' && s.stop_week_low !== s.stop
+      && ['Signal-week low (taught rule)', `${fmtNum(s.stop_week_low)} \u00b7 record stops ${fmtNum(s.stop)}`],
     typeof s.band_width_pct === 'number' && ['Signal-week range', `${s.band_width_pct.toFixed(1)}%${s.band_is_wide ? ' · wide' : ''}`],
     typeof s.body_ratio === 'number' && ['Body ratio', `${(s.body_ratio * 100).toFixed(0)}% of range`],
     typeof s.crs_rank === 'number' && ['Relative-strength score', s.crs_rank.toFixed(4)],
@@ -525,29 +562,32 @@ function FreshRow({ s, rank, open, onToggle, onAction }) {
 function OpenRow({ s, open, onToggle, onAction, onToggleBought, held }) {
   const exiting = s.action === 'sell-now';
   const unreal = s._myPnlPct;
-  const rNow = s._myBuy && s.entry !== s.stop ? (s._ltp - s._myBuy) / (s.entry - s.stop) : null;
-  const next = s._nextTranche;
+  // Gain and risk measured from the SAME fill. Dividing the reader's own gain by the MODEL's
+  // risk-per-share flattered every fill above the model entry — a 4% chase read +0.80R when the
+  // true figure was +0.37R. See lib/cards.js.
+  const rNow = positionR({ ltp: s._ltp, fill: s._myBuy, stop: s.stop });
+  const mon = s.monitor || {};
   return (
     <>
       <div className={`rs-tr${exiting ? ' ns-row--alarm' : ''}`}>
-        <Scrip s={s} chips={[monitorChip(s), exiting ? { label: 'Exit now', cls: 'mon-bear' } : null]} />
-        <Cell v={fmtNum(s._myBuy ?? s.entry)} c={s._pnlIsModeled ? 'model fill' : 'your fill'} />
+        <Scrip s={s} chips={[monitorChip(s), exiting ? { label: 'Exit now', cls: 'mon-bear' } : null]}
+               note={exiting ? (s.why || 'Close the position at the next open.')
+                 : s.isFilledUnbooked ? 'Filled — the Saturday scan books it' : null} />
+        <Cell v={fmtNum(s._myBuy ?? s.entry)}
+              c={s.isFilledUnbooked ? 'window fill' : s._pnlIsModeled ? 'model fill' : 'your fill'} />
         <Cell v={fmtNum(s._ltp)} c={s._dayChangePct != null ? fmtPct1(s._dayChangePct) : 'now'}
               tone={s._dayChangePct == null ? null : s._dayChangePct >= 0 ? 'bull' : 'bear'} />
         <Cell v={unreal == null ? '—' : fmtPct1(unreal)}
               c={rNow == null ? 'unrealised' : `${rNow >= 0 ? '+' : '−'}${Math.abs(rNow).toFixed(2)}R`}
               tone={unreal == null ? null : unreal >= 0 ? 'bull' : 'bear'} />
-        <div className="rs-hide-md">
-          <div className="rs-plan-next">
-            {exiting ? (s.why || 'Close the position.')
-              : next ? `${next.pct}% at ${fmtNum(next.level ?? next.arm)}` : 'Runner — hold'}
-          </div>
-          <div className="rs-c">{exiting ? 'the model is already out' : `next tranche · ${next?.type ?? 'runner'}`}</div>
-        </div>
-        <div className="rs-r rs-hide-md">
-          <div className="rs-v">{s.weekOf ? `wk ${s.weekOf}` : '—'}</div>
-          <div className="rs-c">of 13</div>
-        </div>
+        {/* The MODEL's own numbers, from the model's entry and as of the daily bar — deliberately
+            beside the reader's rather than instead of them. The two agree only when the fill
+            matched the plan, so the gap between these columns IS the discipline signal, and it is
+            the one thing this page could show and did not. */}
+        <Cell right className="rs-hide-md"
+              v={mon.pnl_pct == null ? '—' : fmtPct1(mon.pnl_pct)}
+              c={mon.dist_to_target_pct == null ? 'model' : `${Math.abs(mon.dist_to_target_pct).toFixed(1)}% to target`}
+              tone={mon.pnl_pct == null ? null : mon.pnl_pct >= 0 ? 'bull' : 'bear'} />
         <ExpandBtn open={open} onClick={onToggle} sym={s.sym} />
       </div>
       {open && (
@@ -567,13 +607,23 @@ function OpenRow({ s, open, onToggle, onAction, onToggleBought, held }) {
 
 /** §3 Closed this cycle — why a name left the board. The full record lives on /history. */
 function ClosedRow({ s }) {
+  // Two different endings share this table, and they are not the same fact. A position the model
+  // EXITED has an outcome (target / stop). A buy window that expired with no open inside the band
+  // was never a trade at all — reading its `status` gave the outcome "fresh", and the fallback
+  // sentence claimed the model had closed a call it never opened.
+  const untaken = s.action === 'closed';
   const good = /TARGET/i.test(s.status || '');
   return (
     <div className="rs-tr">
       <Scrip s={s} />
       <Cell v={fmtNum(s._ltp)} c="last price" />
-      <Cell v={(s.status || 'closed').replace('HIT_', '').toLowerCase()} c="outcome" tone={good ? 'bull' : 'bear'} />
-      <div className="rs-why">{s.why || 'The model closed this call.'}</div>
+      <Cell v={untaken ? 'not taken' : (s.status || 'closed').replace('HIT_', '').toLowerCase()}
+            c="outcome" tone={untaken ? null : good ? 'bull' : 'bear'} />
+      <div className="rs-why">
+        {untaken
+          ? `The buy window closed ${s.buy_window_until ? fmtDayMon(s.buy_window_until) : ''} with no open inside the band — no trade.`
+          : (s.why || 'The model closed this call.')}
+      </div>
     </div>
   );
 }
@@ -644,19 +694,25 @@ export default function SignalsV3() {
   // "fund strongest CRS rank first". That instruction has been in the payload all along and was
   // never once shown, so the board's order silently disagreed with the book's own rule.
   const freshRows = useMemo(() => allEnriched
-    .filter((s) => s.action === 'buy-today' || s.action === 'closing')
+    .filter((s) => !s.isFilledUnbooked && (s.action === 'buy-today' || s.action === 'closing'))
     .sort((a, b) => (b.crs_rank ?? -1) - (a.crs_rank ?? -1)), [allEnriched]);
 
   // §2 — the model's open positions, plus any exit it has issued. An exit sorts to the top:
   // acting late on one costs more than acting late on anything else on this page.
+  // A window that FILLED belongs here even before the Saturday scan books it. The envelope still
+  // says FRESH and carries no bought_date until the weekend recompute, so these cards used to
+  // fall through to "Closed this cycle" — a trade the reader now owns, filed under "already
+  // exited", labelled with the outcome "fresh". Every part of that was false.
   const openRows = useMemo(() => allEnriched
-    .filter((s) => s.action === 'holding' || (s.action === 'sell-now' && s._myQty > 0))
+    .filter((s) => s.action === 'holding' || s.isFilledUnbooked
+      || (s.action === 'sell-now' && s._myQty > 0))
     .sort((a, b) => (a.action === 'sell-now' ? -1 : 0) - (b.action === 'sell-now' ? -1 : 0)), [allEnriched]);
 
   // §3 — closed in the CURRENT envelope only. The full record is /history; this section exists
   // to answer "where did that name go", which /history answers too slowly to be useful here.
   const closedRows = useMemo(() => allEnriched
-    .filter((s) => (s.action === 'sell-now' && !(s._myQty > 0)) || s.action === 'closed'), [allEnriched]);
+    .filter((s) => !s.isFilledUnbooked
+      && ((s.action === 'sell-now' && !(s._myQty > 0)) || s.action === 'closed')), [allEnriched]);
 
   const buyPool = freshRows;
   const freshCount = useMemo(() => allEnriched.filter((s) => s.isFreshToday).length, [allEnriched]);
@@ -793,9 +849,8 @@ export default function SignalsV3() {
                   <span>Scrip</span>
                   <span className="rs-r">Entry</span>
                   <span className="rs-r">Now</span>
-                  <span className="rs-r">Unrealised</span>
-                  <span className="rs-hide-md">Next</span>
-                  <span className="rs-r rs-hide-md">Held</span>
+                  <span className="rs-r">Yours</span>
+                  <span className="rs-r rs-hide-md">Model</span>
                   <span />
                 </div>
                 {openRows.map((s) => (

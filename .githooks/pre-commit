@@ -1,15 +1,35 @@
 #!/bin/sh
-# Keep docs/DEPENDENCY_MAP.md current with the nq/ import graph.
-# When any nq/**.py or config.py is staged, regenerate the map and re-stage it.
+# Keep the two generated maps current with the code they describe.
 #
 # Enable once per clone:  git config core.hooksPath .githooks
+#
+# Each block is INDEPENDENT and none of them exits early. An earlier version guarded the
+# dependency map with `[ -z "$changed" ] && exit 0`, which returned from the whole hook when no
+# nq/ file was staged -- so the wiring map, added below it, only ever regenerated on commits
+# that happened to also touch the engine. A generated map that silently stops regenerating is
+# the exact failure it exists to prevent.
 
-changed=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '^(nq/.*\.py|config\.py)$')
-[ -z "$changed" ] && exit 0
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
 
-python scripts/gen_depgraph.py || {
-    echo "pre-commit: gen_depgraph.py failed" >&2
-    exit 1
-}
-git add docs/DEPENDENCY_MAP.md
+# 1. docs/DEPENDENCY_MAP.md -- the nq/ import graph.
+if printf '%s\n' "$staged" | grep -qE '^(nq/.*\.py|config\.py)$'; then
+    python scripts/gen_depgraph.py || {
+        echo "pre-commit: gen_depgraph.py failed" >&2
+        exit 1
+    }
+    git add docs/DEPENDENCY_MAP.md
+fi
+
+# 2. docs/PRODUCT_WIRING.md -- the envelope -> API -> page value map.
+# Triggered by the artifacts that PRODUCE fields AND the files that CONSUME them, because the
+# map is a join of the two: a page that stops reading a field changes it as surely as a scanner
+# that stops writing one.
+if printf '%s\n' "$staged" | grep -qE '^(results/(signals_today_weekly|weekly_monitor)\.json|dashboard/backend/(routers|services)/.*\.py|frontend/src/pages/.*\.jsx|scripts/gen_wiring_map\.py)$'; then
+    python scripts/gen_wiring_map.py || {
+        echo "pre-commit: gen_wiring_map.py failed" >&2
+        exit 1
+    }
+    git add docs/PRODUCT_WIRING.md
+fi
+
 exit 0

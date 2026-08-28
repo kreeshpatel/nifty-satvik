@@ -188,6 +188,39 @@ def _first_session_at_or_after(df: pd.DataFrame, when: str) -> "tuple[pd.Timesta
     return pd.Timestamp(df.index[hit]), float(o.iloc[hit])
 
 
+def _window_fill(df, *, signal_date, buy_window_until, lo: float, hi: float) -> "dict | None":
+    """The FIRST session in the buy window whose OPEN fell inside the band, or None.
+
+    WHY THIS EXISTS. `filled_today` is recomputed against the LAST bar every run, so it answers
+    "can I buy at today's open", not "did this signal ever trigger". Those are the same question
+    on Monday and opposite questions by Thursday: JSWSTEEL opened 1,298.00 inside its band on
+    Monday 2026-08-24 -- a clean fill, exactly as the card instructs -- then ran to 1,326 / 1,329
+    / 1,351 on the next three opens, at which point the surface said "Gapped - wait" about a trade
+    that had already been taken. A card cannot instruct with a fact that forgets itself daily.
+
+    The window opens at the first session AFTER the signal date (the card is issued at the
+    Saturday close and executed at the next open) and closes at `buy_window_until` inclusive.
+    """
+    if df is None or len(df) == 0 or not (lo and hi) or "Open" not in df.columns:
+        return None
+    try:
+        start = pd.Timestamp(signal_date).normalize()
+        end = pd.Timestamp(buy_window_until).normalize() if buy_window_until else None
+    except (ValueError, TypeError):
+        return None
+    idx = pd.DatetimeIndex(df.index).normalize()
+    for i in range(len(df)):
+        d = idx[i]
+        if d <= start:
+            continue                                   # the signal's own week, not yet buyable
+        if end is not None and d > end:
+            break                                      # window closed
+        o = float(df["Open"].iloc[i])
+        if lo <= o <= hi:
+            return {"date": str(d.date()), "open": round(o, 2)}
+    return None
+
+
 def _why_unpriceable(df, due_date) -> str:
     """Plain-English reason a closed trade could not be re-priced — the fix differs per cause."""
     bar = _last_bar(df)
@@ -464,21 +497,37 @@ def build_monitor(envelope: dict, ohlcv: dict, history: list | None = None) -> d
                 flags.append({"ticker": t, "event": "NEAR_STOP", "severity": "warn",
                               "message": f"{t} is {dist_stop:.1f}% above its stop {stop:.2f}"})
         else:
-            lo = float(sig.get("entry_low") or 0.0)
-            hi = float(sig.get("entry_high") or 0.0)
+            # The band is `buy_zone_low/high` where the cron writes it. `entry_low/high` is the
+            # whole SIGNAL WEEK's candle, whose low IS the stop -- reading that as the buy band
+            # counts a fill at the stop as a fill inside the zone. Candle stays as the fallback
+            # for cards written before the zone fields existed.
+            lo = float(sig.get("buy_zone_low") or sig.get("entry_low") or 0.0)
+            hi = float(sig.get("buy_zone_high") or sig.get("entry_high") or 0.0)
             bw = sig.get("buy_window_until")
             in_range = bool(lo and hi and lo <= last_open <= hi)
             window_open = bool(bw and str(as_of.date()) <= bw) if as_of else None
             expired = bool(bw and str(as_of.date()) > bw) if as_of else False
+            # Did the window EVER fill? `in_range` above only knows about today.
+            fill = _window_fill(ohlcv.get(t), signal_date=sig.get("signal_date"),
+                                buy_window_until=bw, lo=lo, hi=hi)
             rec.update({
                 "entry_low": round(lo, 2), "entry_high": round(hi, 2),
                 "buy_window_until": bw, "buy_window_open": window_open,
                 "filled_today": in_range, "expired": expired,
                 "today_open": round(last_open, 2),
+                # The window's memory. `filled_on`/`filled_price` are what the card should say
+                # once the trade has triggered; `filled_today` stays for back-compat and means
+                # only what its name says.
+                "window_filled": fill is not None,
+                "filled_on": fill["date"] if fill else None,
+                "filled_price": fill["open"] if fill else None,
             })
             if window_open and in_range:
                 flags.append({"ticker": t, "event": "FILLED_TODAY", "severity": "action",
                               "message": f"{t} opened {last_open:.2f} inside the band [{lo:.2f}, {hi:.2f}] — buyable at today's open"})
+            elif expired and fill:
+                flags.append({"ticker": t, "event": "WINDOW_FILLED", "severity": "info",
+                              "message": f"{t} filled {fill['date']} at {fill['open']:.2f} — buy window now closed"})
             elif expired:
                 flags.append({"ticker": t, "event": "WINDOW_EXPIRED", "severity": "info",
                               "message": f"{t} buy-window closed {bw} with no in-range open — signal expired, no trade"})
