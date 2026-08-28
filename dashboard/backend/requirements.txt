@@ -21,6 +21,13 @@ bcrypt==4.0.1
 cryptography>=42.0.0
 slowapi>=0.1.9
 pyotp>=2.9.0
-pandas_ta
+# pandas_ta REMOVED 2026-08-28. Nothing in dashboard/, scripts/, nq/ or tests/ imports it,
+# and it cannot install on the Python this service actually pins: the only releases left on
+# PyPI are the 0.4.x betas, which declare Requires-Python >=3.12, while runtime.txt pins
+# python-3.11.0 and nixpacks.toml installs THIS file. So `pip install -r requirements.txt`
+# on 3.11 fails outright -- which means the next fresh `fly deploy` would have failed on a
+# dependency the service never used. Found by giving the backend tests a CI job at all.
+# (`ta>=0.11.0` above is also unimported, but it installs cleanly, so it is left for a
+#  deliberate dependency sweep rather than removed as a rider here.)
 schedule>=1.2.0
 matplotlib>=3.8.0
