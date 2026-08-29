@@ -1,18 +1,18 @@
-# Weekly Decision Memos — 2026-08-21 | regime CHOPPY | 24 signals
+# Weekly Decision Memos — 2026-08-28 | regime CHOPPY | 26 signals
 
-### DECISION MEMO — JSWSTEEL  (JSWSTEEL__2026-08-21)
+### DECISION MEMO — USHAMART  (USHAMART__2026-08-28)
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
-2. **Signal strength** — ****.  (grade A, CRS rank 0.0791)
-3. **Risk** — MODERATE · stop width 3.5% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 1293.7 (band [1250.4, 1310.6]) · SL 1250.4 · TP 1380.3
-5. **Status** — [OK] **APPROVED** — Execute — buy in the band [1250.4, 1310.6]; fund strongest CRS rank first.
+2. **Signal strength** — ****.  (grade A, CRS rank 0.1097)
+3. **Risk** — MODERATE · stop width 2.8% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 492.45 (band [479.0, 498.8]) · SL 479.0 · TP 519.35
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [479.0, 498.8]; fund strongest CRS rank first.
 
-### DECISION MEMO — SAIL  (SAIL__2026-08-21)
+### DECISION MEMO — HINDZINC  (HINDZINC__2026-08-28)
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
-2. **Signal strength** — ****.  (grade A, CRS rank 0.0765)
-3. **Risk** — MODERATE · stop width 3.2% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 173.46 (band [168.11, 177.0]) · SL 168.11 · TP 184.16
-5. **Status** — [OK] **APPROVED** — Execute — buy in the band [168.11, 177.0]; fund strongest CRS rank first.
+2. **Signal strength** — ****.  (grade A, CRS rank 0.1031)
+3. **Risk** — MODERATE · stop width 6.0% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 622.0 (band [586.85, 632.0]) · SL 586.85 · TP 692.3
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [586.85, 632.0]; fund strongest CRS rank first.
 
 ### DECISION MEMO — INDUSINDBK  (INDUSINDBK__2026-07-06)
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
@@ -137,7 +137,7 @@
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
 2. **Signal strength** — ****.  (grade A, CRS rank None)
 3. **Risk** — MODERATE-HIGH · stop width 11.1% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 2913.1 (band [None, None]) · SL 2621.79 · TP 3495.72
+4. **Trade plan** — entry 2905.98 (band [None, None]) · SL 2615.38 · TP 3487.18
 5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
 
 ### DECISION MEMO — APLAPOLLO  (APLAPOLLO__2026-08-17)
@@ -154,16 +154,30 @@
 4. **Trade plan** — entry 1700.0 (band [None, None]) · SL 1640.4 · TP 1819.2
 5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
 
-### DECISION MEMO — CCL  (CCL__2026-08-17)
-1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
-2. **Signal strength** — ****.  (grade A, CRS rank None)
-3. **Risk** — MODERATE · stop width 2.5% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 1144.4 (band [None, None]) · SL 1116.2 · TP 1200.8
-5. **Status** — [WATCH] **WATCHLIST** — Monitor — below the A-grade / actionable bar; do not fund yet.
-
 ### DECISION MEMO — IKS  (IKS__2026-08-18)
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
 2. **Signal strength** — ****.  (grade A, CRS rank None)
 3. **Risk** — MODERATE · stop width 6.1% · R:R 1:2.0 · max-loss-in-plan YES
 4. **Trade plan** — entry 1830.2 (band [None, None]) · SL 1725.0 · TP 2040.6
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
+
+### DECISION MEMO — PHOENIXLTD  (PHOENIXLTD__2026-08-24)
+1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
+2. **Signal strength** — ****.  (grade A, CRS rank None)
+3. **Risk** — MODERATE · stop width 2.1% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 1916.1 (band [None, None]) · SL 1876.0 · TP 1996.3
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
+
+### DECISION MEMO — JSWSTEEL  (JSWSTEEL__2026-08-24)
+1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
+2. **Signal strength** — ****.  (grade A, CRS rank None)
+3. **Risk** — MODERATE · stop width 3.8% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 1298.0 (band [None, None]) · SL 1250.4 · TP 1393.2
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
+
+### DECISION MEMO — SAIL  (SAIL__2026-08-24)
+1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
+2. **Signal strength** — ****.  (grade A, CRS rank None)
+3. **Risk** — MODERATE · stop width 4.0% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 174.8 (band [None, None]) · SL 168.11 · TP 188.18
 5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.

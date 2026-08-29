@@ -1,0 +1,28 @@
+{
+  "prev_snapshot": "2026-08-21",
+  "cur_snapshot": "2026-08-28",
+  "closed_prev": 8,
+  "closed_cur": 9,
+  "closed_delta": 1,
+  "nav_prev": 1040062.52,
+  "nav_cur": 1059202.64,
+  "nav_delta": 19140.12,
+  "n_restated": 0,
+  "restated": [],
+  "n_vanished": 0,
+  "vanished": [],
+  "n_appeared": 1,
+  "appeared": [
+    "CCL|2026-08-17"
+  ],
+  "inputs_changed": [
+    "nifty50_csv_sha256",
+    "ohlcv_cache_sha256",
+    "ohlcv_last_bar",
+    "ohlcv_n_rows"
+  ],
+  "clean": true,
+  "as_of": "2026-08-28",
+  "logged_utc": "2026-08-29T16:51:34.565782+00:00",
+  "is_baseline": false
+}

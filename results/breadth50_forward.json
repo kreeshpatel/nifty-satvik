@@ -7,7 +7,27 @@
     "sw",
     "sw_accum"
   ],
-  "n_points": 0,
+  "n_points": 1,
   "construction": "frozen; zero in-sample fitting; logger reports no spread",
-  "note": "no post-inception weeks with data yet (research OHLCV lags the inception; the real cron downloads) \u2014 empty is valid, not an error"
+  "weekly_returns": {
+    "ew": [
+      [
+        "2026-08-28",
+        0.006857831796237876
+      ]
+    ],
+    "sw": [
+      [
+        "2026-08-28",
+        0.006857831796237876
+      ]
+    ],
+    "sw_accum": [
+      [
+        "2026-08-28",
+        0.008074392205065348
+      ]
+    ]
+  },
+  "asof": "2026-08-28"
 }
