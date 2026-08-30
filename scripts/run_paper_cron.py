@@ -42,66 +42,28 @@ def _live_vol_target() -> dict | None:
 WALL_PREREG_DATE = "2026-07-02"
 
 
-class WallBackfillRefused(RuntimeError):
-    """The wall would log more than one unlogged session — reconstruction, not observation."""
+def _wall_gap_report(state_dir: Path, book, *, wall_start: str | None) -> list[str]:
+    """The sessions this run will mark as `gap` rather than log — the stall, made visible.
 
+    `forward/prereg.md` SS3 rule 4 is what decides their fate: "a missed day is a gap, never
+    reconstructed." `wall_cron.update_wall` enforces it structurally — only the most recent session
+    becomes an `ok` row and the ones before it become hash-chained gaps — so nothing here can change
+    the outcome. This exists so the outcome is not silent.
 
-def _assert_no_silent_backfill(state_dir: Path, book, *, wall_start: str | None,
-                               allow: bool = False) -> None:
-    """Refuse to append a MULTI-session catch-up to the wall without an explicit decision.
-
-    `update_wall` appends one `ok` row per base session after the wall's last logged date. In normal
-    daily operation that is exactly one row, which is the whole design. After a stall it is however
-    many sessions the stall lasted — and those rows are indistinguishable, in the log and in the
-    chain, from rows written on the day.
-
-    `forward/prereg.md` SS3 rule 4 is explicit about which of those two things is allowed:
-
-        "No back-dating. A row's date must be strictly after the last; a missed day is a gap,
-        never reconstructed."
-
-    and SS3's missed-day rule prescribes the alternative:
-
-        "Missed day. Detected against the NSE calendar and filled with hash-chained `gap` markers
-        - never back-dated, never silently skipped."
-
-    `wall_cron.update_wall`'s own docstring reaches the same conclusion about a bulk append: "Every
-    row would pass the chain (dates strictly increase) and every row would be a lie about when it
-    was known."
-
-    This matters because the log is append-only and hash-chained: once five reconstructed rows are
-    written they cannot be removed without breaking the chain. So the safe default is to refuse and
-    let a person choose, exactly as `_assert_veto_arm_live` refuses rather than log agreement it did
-    not measure. Refusing costs a re-run; the alternative cannot be undone.
-
-    Not fired by: the ordinary one-session-per-day append, a same-day re-run (zero unlogged), or a
-    cold wall with no rows yet (nothing to reconstruct relative to).
+    That matters because the stall it was written for WAS silent: five runs (2026-08-24 .. 08-28)
+    printed "appended 0 row(s)" and committed a daily-log message, and nothing in the run log said a
+    session had been lost. A gap is the honest record, but a gap nobody is told about is still a
+    surprise for whoever reads the wall next.
     """
-    if allow:
-        return
     from nq.paper.forward_wall import _load
     existing = _load(state_dir / "forward_wall.csv")
     if not existing or not book.equity_curve:
-        return                                   # cold wall: `wall_start` is the bound that applies
+        return []                                # cold wall: `wall_start` is the bound that applies
     last_wall = existing[-1]["date"]
     todo = [str(e["date"])[:10] for e in book.equity_curve
             if str(e["date"])[:10] > last_wall
             and (wall_start is None or str(e["date"])[:10] >= str(wall_start)[:10])]
-    if len(todo) <= 1:
-        return
-    raise WallBackfillRefused(" ".join([
-        f"the wall would log {len(todo)} unlogged sessions in one run ({todo[0]} .. {todo[-1]}),",
-        f"but it last logged {last_wall}. A daily cron appends ONE.",
-        "Those rows would enter an append-only hash-chained log as ordinary `ok` rows,",
-        "indistinguishable from rows written on the day, and could not be removed afterwards",
-        "without breaking the chain. forward/prereg.md SS3 rule 4: 'a missed day is a gap, never",
-        "reconstructed.'",
-        "This is an owner decision, not a cron's:",
-        "(a) accept the reconstruction -> re-run with --allow-wall-backfill;",
-        "(b) honour SS3 and mark the stall -> log the missed sessions as `gap` markers instead.",
-        "Fix the cause first (`python scripts/check_ohlcv_topup_contract.py`, and check that",
-        "data/ff_india_factors.parquet reaches the sessions being logged).",
-    ]))
+    return todo[:-1]                             # the last one is logged; the rest are the gap
 
 
 def _wall_start(state_dir: str | Path, last_session: str) -> str:
@@ -187,8 +149,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--no-download", action="store_true", help="use the cache as-is (test/offline)")
     ap.add_argument("--history-days", type=int, default=520, help="calendar days of history before inception for warmup")
     ap.add_argument("--allow-wall-backfill", action="store_true",
-                    help="permit the wall to log MORE than one unlogged session in a single run "
-                         "(forward/prereg.md SS3 rule 4 forbids reconstruction — owner decision)")
+                    help="log every missed session as an `ok` row instead of a `gap` marker. "
+                         "forward/prereg.md SS3 rule 4 says a missed day is a gap, never "
+                         "reconstructed — this overrides that, and is an owner decision")
     args = ap.parse_args(argv)
 
     import pandas as pd
@@ -289,10 +252,14 @@ def main(argv: list[str] | None = None) -> int:
         from nq.paper.wall_cron import update_wall
         ws = (_wall_start(args.state_dir, str(book.equity_curve[-1]["date"])[:10])
               if book.equity_curve else None)
-        _assert_no_silent_backfill(Path(args.state_dir), book, wall_start=ws,
-                                   allow=args.allow_wall_backfill)
+        gapped = _wall_gap_report(Path(args.state_dir), book, wall_start=ws)
+        if gapped and not args.allow_wall_backfill:
+            print(f"::warning::forward-wall: {len(gapped)} missed session(s) "
+                  f"({gapped[0]} .. {gapped[-1]}) will be logged as `gap`, not reconstructed "
+                  f"(forward/prereg.md SS3 rule 4). --allow-wall-backfill overrides.", flush=True)
         wrote = update_wall(book, panel, cfg, state_dir=args.state_dir,
-                            vol_target=_live_vol_target(), wall_start=ws)
+                            vol_target=_live_vol_target(), wall_start=ws,
+                            backfill=args.allow_wall_backfill)
         print(f"forward-wall: start {ws} | appended {wrote} row(s) "
               f"-> {args.state_dir}/forward_wall.csv", flush=True)
     except Exception as exc:  # noqa: BLE001 -- the wall must never break the paper cron

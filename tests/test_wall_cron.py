@@ -55,3 +55,56 @@ def test_update_wall_reconciles_verifies_and_is_idempotent(tmp_path):
     assert abs(float(rows[-1]["base_equity"]) - base.equity_curve[-1]["equity"]) < 0.01
     # idempotent: a second call appends nothing (the chain's date guard refuses a double-run)
     assert update_wall(base, panel, cfg, state_dir=tmp_path, factors_path=facp, holidays=[]) == 0
+
+
+def test_a_stall_is_logged_as_gaps_and_only_the_latest_session_is_a_row(tmp_path):
+    """forward/prereg.md §3 rule 4: "a missed day is a gap, never reconstructed."
+
+    The 2026-08-24..28 stall would otherwise have entered the chain as five `ok` rows — recomputed
+    history that a later reader cannot tell from rows written on the day. This asserts the shape of
+    the log after a catch-up, which is the thing the chain itself cannot check.
+    """
+    cfg = load_frozen_cfg()
+    facp = tmp_path / "ff.parquet"
+    panel = _synthetic(facp)
+    dates = sorted(panel["date"].unique())
+
+    # Log up to a first session, then let the wall fall four sessions behind.
+    early = panel[panel["date"] <= dates[-5]]
+    b1 = PaperBook(cfg)
+    b1.run_batch(early)
+    update_wall(b1, early, cfg, state_dir=tmp_path, factors_path=facp, holidays=[])
+    logged_through = read_verified(tmp_path / "forward_wall.csv")[-1]["date"]
+
+    b2 = PaperBook(cfg)
+    b2.run_batch(panel)
+    n = update_wall(b2, panel, cfg, state_dir=tmp_path, factors_path=facp, holidays=[])
+
+    rows = read_verified(tmp_path / "forward_wall.csv")          # chain still intact
+    new = [r for r in rows if r["date"] > logged_through]
+    assert n == 1, "only the most recent session may be logged as an observation"
+    assert new[-1]["status"] == "ok", "the current session must still be logged"
+    assert [r["status"] for r in new[:-1]] == ["gap"] * (len(new) - 1)
+    assert len(new) > 1, "the fixture did not actually produce a stall to catch up from"
+    for r in new[:-1]:
+        assert r["base_equity"] == "", "a gap carries no book fields — it is not an observation"
+
+
+def test_the_owner_override_restores_the_reconstruction(tmp_path):
+    """`backfill=True` is a deliberate override of §3 rule 4, so it must actually do something."""
+    cfg = load_frozen_cfg()
+    facp = tmp_path / "ff.parquet"
+    panel = _synthetic(facp)
+    dates = sorted(panel["date"].unique())
+
+    early = panel[panel["date"] <= dates[-5]]
+    b1 = PaperBook(cfg)
+    b1.run_batch(early)
+    update_wall(b1, early, cfg, state_dir=tmp_path, factors_path=facp, holidays=[])
+
+    b2 = PaperBook(cfg)
+    b2.run_batch(panel)
+    n = update_wall(b2, panel, cfg, state_dir=tmp_path, factors_path=facp, holidays=[],
+                    backfill=True)
+    assert n > 1, "the override must log every missed session, not just the latest"
+    assert all(r["status"] == "ok" for r in read_verified(tmp_path / "forward_wall.csv")[-n:])
