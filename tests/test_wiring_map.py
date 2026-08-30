@@ -71,3 +71,39 @@ def test_no_published_field_is_unread_without_a_recorded_reason():
         + "\n\nWire each to a surface, or add it to INTENTIONALLY_UNREAD in "
           "scripts/gen_wiring_map.py with the reason it stays unread."
     )
+
+
+def test_the_status_column_survives_a_week_with_no_stopped_out_name():
+    """The map must not churn on data. It briefly did, and that is the harder failure to notice.
+
+    The `card statuses` column was read from the CURRENT envelope only, so the mix of card statuses
+    in one Saturday's scan decided it. The 2026-08-29 scan carried no HIT_STOP card, which dropped
+    `HIT_STOP` from nineteen rows at once and turned this file red on a cron commit that changed no
+    code. A map that reports a data fluctuation as a wiring change trains its reader to regenerate
+    without looking — which is exactly how a real wiring change would then slip past.
+
+    Reading the archive union makes an absent status silent and a genuinely NEW one still a diff.
+    """
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("gen_wiring_map", GEN)
+    gen = importlib.util.module_from_spec(spec)
+    sys.modules["gen_wiring_map"] = gen
+    spec.loader.exec_module(gen)
+
+    rel = "results/signals_today_weekly.json"
+
+    def statuses(blob):
+        return {str(r.get("status") or "") for r in (blob.get("signals") or [])}
+
+    current = statuses(gen.json.loads((ROOT / rel).read_text(encoding="utf-8")))
+    archived = set().union(*(statuses(b) for b in gen._archived(rel))) if gen._archived(rel) else set()
+    only_archived = archived - current
+    assert only_archived, (
+        "no status exists only in the archive, so this test cannot prove the union is being used. "
+        "Re-point it at a producer whose archive is richer than its current file.")
+
+    listed = {s for shapes in gen.envelope_fields()[rel].values() for s in shapes}
+    assert only_archived <= listed, (
+        f"{sorted(only_archived)} appear only in the archive and are absent from the generated map "
+        "— the column is being read from the current envelope alone, and will churn every week the "
+        "card mix changes")

@@ -126,9 +126,21 @@ def envelope_fields() -> dict[str, dict[str, set[str]]]:
             continue
         fields: dict[str, set[str]] = {}
         records: list[tuple[str, dict]] = []
-        if isinstance(blob, dict):
+        # The CURRENT envelope plus every archived snapshot of it.
+        #
+        # Reading only the current file made the `card statuses` column describe THIS WEEK's card
+        # mix, so the committed map churned whenever the mix changed and the test went red on a
+        # cron commit that had changed no code. A week with no stopped-out name dropped `HIT_STOP`
+        # from nineteen rows at once — a diff that looks like a wiring change and is not one.
+        #
+        # The union over the archive is monotonic: a status that has ever been observed stays
+        # listed, so an absent status is silent and a genuinely NEW one still shows up as a real
+        # diff. That is the signal the column is for.
+        for b in [blob, *_archived(rel)]:
+            if not isinstance(b, dict):
+                continue
             for key in ("signals", "monitors", "missed_exits"):
-                for rec in blob.get(key) or []:
+                for rec in b.get(key) or []:
                     if isinstance(rec, dict):
                         shape = str(rec.get("status") or rec.get("kind") or key)
                         records.append((shape, rec))
@@ -137,6 +149,21 @@ def envelope_fields() -> dict[str, dict[str, set[str]]]:
                 fields.setdefault(f, set()).add(shape)
         if fields:
             out[rel] = fields
+    return out
+
+
+def _archived(rel: str) -> list[dict]:
+    """Every committed archive snapshot of the producer at `rel`, oldest first.
+
+    Sorted so the generator is deterministic regardless of filesystem order — the map is committed
+    and diffed, so a stable byte-for-byte output is the whole contract.
+    """
+    out: list[dict] = []
+    for snap in sorted((ROOT / "results" / "archive").glob(f"*/{Path(rel).name}")):
+        try:
+            out.append(json.loads(snap.read_text(encoding="utf-8")))
+        except (ValueError, OSError):
+            continue
     return out
 
 
