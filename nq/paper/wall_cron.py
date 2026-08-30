@@ -126,7 +126,8 @@ def _step_veto_book(panel: pd.DataFrame, cfg: Mapping[str, Any], factors_path: P
 def update_wall(base_book: PaperBook, panel: pd.DataFrame, cfg: Mapping[str, Any], *,
                 state_dir: str | Path = RESULTS_DIR, vol_target: Mapping[str, Any] | None = None,
                 factors_path: str | Path = DATA_DIR / "ff_india_factors.parquet",
-                holidays: Iterable[Any] | None = None, wall_start: str | None = None) -> int:
+                holidays: Iterable[Any] | None = None, wall_start: str | None = None,
+                backfill: bool = False) -> int:
     """Append 3-book wall rows for every base session not yet logged. Returns the number appended.
 
     ``wall_start`` (ISO date) is the wall's REGISTERED START — no session before it is ever written.
@@ -141,6 +142,11 @@ def update_wall(base_book: PaperBook, panel: pd.DataFrame, cfg: Mapping[str, Any
 
     Default ``None`` preserves the previous behaviour, so existing callers and tests are unaffected;
     the scheduled cron is required to pass one (asserted in `tests/test_wall_schedule.py`).
+
+    ``backfill`` (default False) decides what happens to sessions this job MISSED. Off, only the most
+    recent session is logged as an ``ok`` row and the ones before it become hash-chained ``gap``
+    markers — `forward/prereg.md` SS3 rule 4, "a missed day is a gap, never reconstructed". On, every
+    unlogged session is written as an ``ok`` row, which is an owner override of that rule.
     """
     if not base_book.equity_curve:
         return 0
@@ -172,7 +178,24 @@ def update_wall(base_book: PaperBook, panel: pd.DataFrame, cfg: Mapping[str, Any
     # written wall, and an append-only hash chain has no way to take a row back.
     _assert_veto_arm_live(todo, veto_covered_through)
 
-    for d in todo:
+    # `forward/prereg.md` SS3 rule 4: "No back-dating. A row's date must be strictly after the last;
+    # a missed day is a gap, never reconstructed." Only the MOST RECENT session in `todo` is an
+    # observation; everything before it is a session this job failed to log on its day, and SS3's
+    # missed-day rule says those are `gap` markers.
+    #
+    # `record_trading_day` already fills the trading days strictly between the last logged date and
+    # the date it is given with hash-chained gaps, so writing only the last session produces exactly
+    # the shape SS3 asks for. Looping over every date instead wrote one `ok` row per missed session
+    # — reconstruction that the chain accepts (dates strictly increase) and that a later reader
+    # cannot tell from a row written on the day. That is what would have entered the log after the
+    # 2026-08-24..28 stall: five recomputed rows presented as five observations.
+    #
+    # `backfill=True` is the owner override that restores the old behaviour. It exists because the
+    # numbers ARE deterministic EOD values, so someone may reasonably decide a complete comparison
+    # is worth more than a truthful provenance — but that is a decision about a pre-registered
+    # record, so it has to be typed, not defaulted into.
+    to_log = todo if backfill else todo[-1:]
+    for d in to_log:
         record_trading_day(d, base_daily[d], veto_daily[d], path=wall_path,
                            initial_capital=base_book.initial_capital, holidays=holidays)
-    return len(todo)
+    return len(to_log)

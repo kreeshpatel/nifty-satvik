@@ -42,6 +42,30 @@ def _live_vol_target() -> dict | None:
 WALL_PREREG_DATE = "2026-07-02"
 
 
+def _wall_gap_report(state_dir: Path, book, *, wall_start: str | None) -> list[str]:
+    """The sessions this run will mark as `gap` rather than log — the stall, made visible.
+
+    `forward/prereg.md` SS3 rule 4 is what decides their fate: "a missed day is a gap, never
+    reconstructed." `wall_cron.update_wall` enforces it structurally — only the most recent session
+    becomes an `ok` row and the ones before it become hash-chained gaps — so nothing here can change
+    the outcome. This exists so the outcome is not silent.
+
+    That matters because the stall it was written for WAS silent: five runs (2026-08-24 .. 08-28)
+    printed "appended 0 row(s)" and committed a daily-log message, and nothing in the run log said a
+    session had been lost. A gap is the honest record, but a gap nobody is told about is still a
+    surprise for whoever reads the wall next.
+    """
+    from nq.paper.forward_wall import _load
+    existing = _load(state_dir / "forward_wall.csv")
+    if not existing or not book.equity_curve:
+        return []                                # cold wall: `wall_start` is the bound that applies
+    last_wall = existing[-1]["date"]
+    todo = [str(e["date"])[:10] for e in book.equity_curve
+            if str(e["date"])[:10] > last_wall
+            and (wall_start is None or str(e["date"])[:10] >= str(wall_start)[:10])]
+    return todo[:-1]                             # the last one is logged; the rest are the gap
+
+
 def _wall_start(state_dir: str | Path, last_session: str) -> str:
     """The wall's REGISTERED START — read from `<state_dir>/forward_wall_start.json`, written once.
 
@@ -124,6 +148,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--initial-capital", type=float, default=1_000_000.0)
     ap.add_argument("--no-download", action="store_true", help="use the cache as-is (test/offline)")
     ap.add_argument("--history-days", type=int, default=520, help="calendar days of history before inception for warmup")
+    ap.add_argument("--allow-wall-backfill", action="store_true",
+                    help="log every missed session as an `ok` row instead of a `gap` marker. "
+                         "forward/prereg.md SS3 rule 4 says a missed day is a gap, never "
+                         "reconstructed — this overrides that, and is an owner decision")
     args = ap.parse_args(argv)
 
     import pandas as pd
@@ -143,10 +171,42 @@ def main(argv: list[str] | None = None) -> int:
 
     ohlcv = load_ohlcv_cache(cache)
     if not args.no_download:
-        # incremental: refresh recent bars (or full history on a cold cache) and merge
-        dl_start = hist_start if not ohlcv else (date.today() - timedelta(days=15)).isoformat()
-        print(f"downloading OHLCV {dl_start}..{end} for {len(universe)} names ...", flush=True)
-        fresh = download_ohlcv(universe, start=dl_start, end=end)
+        # Cold cache -> full history. Warm cache -> a 15-day top-up. The two need DIFFERENT
+        # `min_bars`, and that is the whole point of splitting them.
+        #
+        # `download_ohlcv` drops any name returning fewer than `min_bars` usable bars. The default
+        # of 50 is right for the full pull, where a name with a handful of bars cannot warm up the
+        # features. It is fatal for the top-up: 15 calendar days is ~11 sessions, so EVERY name is
+        # discarded, `merge_ohlcv` folds an empty dict into the cache, and the job prints a success
+        # line over data that did not move.
+        #
+        # That is exactly what froze the forward wall. Five green runs, 2026-08-24 to 2026-08-28,
+        # each downloaded nothing, left the cache at 2026-08-21, rebuilt a byte-identical factor
+        # panel (619 days, 2024-02-15..2026-08-21) and appended 0 rows to results/forward_wall.csv
+        # — while committing "chore(wall): forward-wall daily log 2026-08-28". A pre-registered
+        # forward record (forward/prereg.md §3) lost five sessions and reported success.
+        #
+        # The failure was already known and already written down: nq.data.ohlcv.download_ohlcv's
+        # docstring ends "Callers doing a top-up must pass ``min_bars=1``", after the same bug held
+        # the live swing book at 2026-07-31 through a successful 2026-08-10 run. That fix updated
+        # one caller. The test that guarded it asserted a literal line of that one file, so this
+        # caller could — and did — repeat the defect with the guard green. tests/test_ohlcv_topup.py
+        # now checks the contract at every call site instead.
+        if not ohlcv:
+            print(f"downloading OHLCV {hist_start}..{end} for {len(universe)} names "
+                  f"(full history) ...", flush=True)
+            fresh = download_ohlcv(universe, start=hist_start, end=end)
+        else:
+            topup_start = (date.today() - timedelta(days=15)).isoformat()
+            print(f"downloading OHLCV {topup_start}..{end} for {len(universe)} names "
+                  f"(top-up) ...", flush=True)
+            fresh = download_ohlcv(universe, start=topup_start, end=end, min_bars=1)
+        # A top-up that comes back empty is the signature of the bug above, not a quiet no-op:
+        # a weekday run after a session always has bars to fetch. Say so rather than composing a
+        # panel from an unchanged cache and letting the wall report "appended 0 row(s)".
+        if ohlcv and not fresh:
+            print(f"::warning::OHLCV top-up returned 0 of {len(universe)} names through {end} "
+                  f"— the cache did not advance; downstream panel/wall will not move", flush=True)
         ohlcv = merge_ohlcv(ohlcv, fresh) if ohlcv else fresh
         save_ohlcv_cache(ohlcv, cache)
     if not ohlcv:
@@ -192,8 +252,14 @@ def main(argv: list[str] | None = None) -> int:
         from nq.paper.wall_cron import update_wall
         ws = (_wall_start(args.state_dir, str(book.equity_curve[-1]["date"])[:10])
               if book.equity_curve else None)
+        gapped = _wall_gap_report(Path(args.state_dir), book, wall_start=ws)
+        if gapped and not args.allow_wall_backfill:
+            print(f"::warning::forward-wall: {len(gapped)} missed session(s) "
+                  f"({gapped[0]} .. {gapped[-1]}) will be logged as `gap`, not reconstructed "
+                  f"(forward/prereg.md SS3 rule 4). --allow-wall-backfill overrides.", flush=True)
         wrote = update_wall(book, panel, cfg, state_dir=args.state_dir,
-                            vol_target=_live_vol_target(), wall_start=ws)
+                            vol_target=_live_vol_target(), wall_start=ws,
+                            backfill=args.allow_wall_backfill)
         print(f"forward-wall: start {ws} | appended {wrote} row(s) "
               f"-> {args.state_dir}/forward_wall.csv", flush=True)
     except Exception as exc:  # noqa: BLE001 -- the wall must never break the paper cron
