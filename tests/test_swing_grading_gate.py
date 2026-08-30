@@ -166,16 +166,24 @@ def test_the_panel_discloses_the_limb_it_does_not_implement(results_dir):
     assert "provisional" in out["not_implemented"]
 
 
-def test_the_promote_gate_declares_its_mixed_units():
+def test_the_promote_gate_declares_its_mixed_units(results_dir, capsys):
     """§10.2's promote gate compares a GROSS expectancy against a NET drawdown. That is a real unit
     mismatch and it makes the gate easier to clear than it reads. Recomputing expectancy net would
     change what a pre-committed threshold means -- an amendment at a review date, not a code edit --
-    so the artifact states the units instead of quietly reconciling them."""
-    import subprocess
+    so the artifact states the units instead of quietly reconciling them.
 
-    subprocess.run([sys.executable, str(ROOT / "scripts" / "bhanushali_review_scorecard.py")],
-                   check=True, capture_output=True, cwd=ROOT)
-    card = json.loads((ROOT / "results" / "weekly_review_scorecard.json").read_text(encoding="utf-8"))
+    Runs `main()` against the `results_dir` fixture rather than shelling out with `cwd=ROOT`. The
+    subprocess form regenerated the COMMITTED results/weekly_review_scorecard.json on every suite
+    run: the working tree came back dirty, and a test artifact was one `git add` away from being
+    committed as if it were Saturday's cron output. It was also the slowest test in the file, for a
+    string the card declares unconditionally.
+
+    An empty results dir is deliberate. Every input is read through `RESULTS_DIR` with a default, so
+    the card renders with no data — and `_units` is a fixed declaration, not a computed value, which
+    is precisely the claim under test."""
+    assert S.main() == 0
+    capsys.readouterr()                      # main() prints the human panel; keep the report quiet
+    card = json.loads((results_dir / "weekly_review_scorecard.json").read_text(encoding="utf-8"))
     units = card["gates"]["promote"]["_units"]
     assert "GROSS" in units and "NET" in units
     assert "not in the same unit" in units
