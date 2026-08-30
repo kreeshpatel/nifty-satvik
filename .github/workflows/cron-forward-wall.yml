@@ -96,6 +96,13 @@ jobs:
           python pipelines/build/build_ff_india_factors.py
       - name: Step the base book and append the 3-book wall row (factors now present)
         run: python scripts/run_paper_cron.py --start "${{ github.event.inputs.inception || '2026-06-30' }}" --no-download
+      # The commit step below goes red when a contracted artifact is MISSING. It cannot see the
+      # other failure: every artifact present, unchanged, and a commit announcing a daily log that
+      # was never written. Five runs (2026-08-24 .. 2026-08-28) shipped exactly that. Assert the
+      # wall GAINED a row before anything is committed — same-day re-runs, weekends and published
+      # NSE holidays do not fire; see scripts/assert_wall_advanced.py.
+      - name: The wall must have advanced
+        run: python scripts/assert_wall_advanced.py
       - name: Scheduler health (records that this job now HAS a producer)
         run: python scripts/scheduler_health.py || echo "::warning::scheduler_health exited non-zero"
       - name: Commit the wall log + paper state
