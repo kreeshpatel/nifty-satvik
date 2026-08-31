@@ -40,6 +40,77 @@ OUT = RESULTS_DIR / "signal_quality_forward.csv"
 ARCHIVE = RESULTS_DIR / "archive"
 HISTORY = RESULTS_DIR / "signals_history_weekly.json"
 
+# ── axis-completeness ratchet ────────────────────────────────────────────────────────────────────
+# The producer computes the quality axes for FRESH cards ONLY: in a live envelope 2/2 FRESH rows
+# carry body_ratio / signal_conviction / crs_rank and 0/24 ACTIVE rows carry any of them. Archives
+# are written on Saturday. A signal that goes FRESH -> ACTIVE between two Saturdays is therefore
+# first SEEN as ACTIVE, its axes are already gone, and nothing in the archive can recover them.
+#
+# That is not hypothetical and not historical: PHOENIXLTD below is the first instance, and it sits
+# in the middle of an otherwise complete run (2026-08-21 and 2026-08-28 are both full).
+#
+# Raw coverage counts already existed and could not surface it. `body_ratio: 15/37` reads the same
+# whether the nulls are the documented pre-schema rows or a hole that opened last week, so the
+# number stayed flat and unread. This splits the two: rows on or after SCHEMA_COMPLETE_FROM are
+# expected to carry every axis, known holes are DECLARED with a reason, and anything undeclared is
+# a new one. `--validate` exits non-zero on an undeclared hole.
+#
+# Adding a row here is an admission that a signal's quality is permanently unmeasurable, so it costs
+# a sentence saying why. It is not a way to make the check quiet.
+SCHEMA_COMPLETE_FROM = "2026-08-07"   # first archived snapshot emitting all four axes on FRESH cards
+QUALITY_AXES = ("body_ratio", "signal_conviction", "crs_rank")
+
+KNOWN_INCOMPLETE: dict[tuple[str, str], str] = {
+    ("PHOENIXLTD", "2026-08-24"):
+        "First seen in the 2026-08-28 archive already ACTIVE, dated to the preceding Monday. Its "
+        "FRESH state fell between the 08-21 and 08-28 Saturday snapshots and was never archived, so "
+        "the axes were never recorded and cannot be recovered from an immutable source. Q2 "
+        "(touch_depth_min_ext) and R_pct survive because they are recomputed from OHLCV. Recording "
+        "it rather than backfilling: prereg_signal_quality.md freezes the axes AT SIGNAL, and a "
+        "value derived later from a different week's candle would not be that measurement.",
+}
+
+
+def axis_holes(df) -> list[tuple[str, str, list[str]]]:
+    """[(ticker, signal_date, missing axes)] for rows that SHOULD be complete and are not.
+
+    Only rows on/after SCHEMA_COMPLETE_FROM are judged — before it the producer did not emit the
+    axes at all, which is a documented start-up condition rather than a hole. Declared rows in
+    KNOWN_INCOMPLETE are excluded; everything else is a hole that opened without a decision.
+    """
+    out: list[tuple[str, str, list[str]]] = []
+    if df is None or not len(df):
+        return out
+    for _, r in df.iterrows():
+        sd = str(r.get("signal_date") or "")[:10]
+        if sd < SCHEMA_COMPLETE_FROM:
+            continue
+        if (r.get("ticker"), sd) in KNOWN_INCOMPLETE:
+            continue
+        missing = [a for a in QUALITY_AXES if pd.isna(r.get(a)) or r.get(a) == ""]
+        if missing:
+            out.append((str(r.get("ticker")), sd, missing))
+    return out
+
+
+def _coverage_drops(df) -> list[tuple[str, int, int]]:
+    """[(axis, was, now)] for axes the rebuild would leave LESS complete than the committed table."""
+    if not OUT.exists() or df is None or not len(df):
+        return []
+    try:
+        prev = pd.read_csv(OUT)
+    except Exception:  # noqa: BLE001 -- an unreadable prior table cannot veto a rebuild
+        return []
+    out: list[tuple[str, int, int]] = []
+    for axis in (*QUALITY_AXES, "touch_depth_min_ext", "r_multiple"):
+        if axis not in prev.columns or axis not in df.columns:
+            continue
+        was, now = int(prev[axis].notna().sum()), int(df[axis].notna().sum())
+        if now < was:
+            out.append((axis, was, now))
+    return out
+
+
 # The four frozen axes' recorded fields + the identity/context columns. body_ratio and
 # signal_conviction are absent from the oldest snapshot schema -> null, filled from a later FRESH
 # snapshot of the same (ticker, signal_date) if one carries them.
@@ -189,6 +260,8 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--validate", action="store_true",
                     help="structural coverage only (row/field counts); reports NO axis->outcome relationship")
+    ap.add_argument("--allow-coverage-drop", action="store_true",
+                    help="write even though an axis lost coverage vs the committed table (understood loss)")
     args = ap.parse_args(argv)
 
     df = build()
@@ -198,18 +271,55 @@ def main(argv=None) -> int:
     cov = {c: int(df[c].notna().sum()) for c in
            ("body_ratio", "touch_depth_min_ext", "signal_conviction", "crs_rank", "r_multiple")} if n else {}
 
+    holes = axis_holes(df)
+
     if args.validate:
         # Deliberately prints coverage ONLY — no per-axis forward-R, preserving the forward seal.
         print(f"signal-quality collector VALIDATE: {n} signals ({n_fwd} forward / {n - n_fwd} seed) | "
               f"closed {n_closed}")
         print(f"  field coverage: {cov}")
+        print(f"  declared-incomplete: {len(KNOWN_INCOMPLETE)} "
+              f"(axes unrecoverable; see KNOWN_INCOMPLETE)")
         print("  (structural only — no axis->outcome relationship reported; the wall computes that)")
+        for tkr, sd, missing in holes:
+            print(f"::error::{tkr} {sd} is missing {', '.join(missing)} and is not declared. The "
+                  f"producer records the axes on FRESH cards only, so a signal first archived as "
+                  f"ACTIVE has lost them permanently — they cannot be backfilled without violating "
+                  f"prereg_signal_quality.md §1 (axes frozen AT SIGNAL). Fix the capture, or add it "
+                  f"to KNOWN_INCOMPLETE with the reason and accept the lost measurement.")
+        if holes:
+            print(f"signal-quality collector VALIDATE: {len(holes)} UNDECLARED axis hole(s)")
+            return 1
         return 0
+
+    # REGRESSION GUARD on the artifact itself. This collector is a deterministic full rebuild, but
+    # only with respect to its INPUTS — and touch_depth_min_ext (Q2) is recomputed from the OHLCV
+    # cache, not read from an archive. Run it against a stale cache and the pre-signal window is
+    # missing for most names, so the axis comes back null and the rebuild quietly REPLACES a
+    # complete table with a worse one. Measured: a cache two months behind produced 4 of 37
+    # touch-depths where the committed table had 37.
+    #
+    # Nothing about that run looks wrong. It prints a success line, the file is well-formed, and the
+    # coverage counts are only visibly lower if someone remembers the old ones. So compare, and
+    # refuse: a rebuild may add coverage or hold it level, never drop it, without an explicit
+    # decision. Same standard as the wall's staleness guard — a rebuild that stops is one you fix.
+    drops = _coverage_drops(df)
+    if drops and not args.allow_coverage_drop:
+        for axis, was, now in drops:
+            print(f"::error::{axis} coverage would DROP {was} -> {now}. Refusing to overwrite "
+                  f"{OUT.name} with a less complete table.")
+        print("The usual cause is a stale OHLCV cache: touch_depth_min_ext is recomputed from bars, "
+              "so a cache that does not reach the pre-signal window nulls it. Refresh the cache and "
+              "re-run. --allow-coverage-drop forces the write when the loss is understood.")
+        return 1
 
     OUT.write_text(df.to_csv(index=False), encoding="utf-8")
     print(f"signal-quality forward collector: {n} signals ({n_fwd} forward / {n - n_fwd} seed), "
           f"{n_closed} closed -> {OUT}")
     print(f"  field coverage: {cov}")
+    for tkr, sd, missing in holes:
+        print(f"::warning::{tkr} {sd} missing {', '.join(missing)} — undeclared axis hole "
+              f"(run --validate for the full message)")
     return 0
 
 
