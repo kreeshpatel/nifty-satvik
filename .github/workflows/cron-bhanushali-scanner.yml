@@ -196,3 +196,15 @@ jobs:
           else
             echo "no state change"
           fi
+      # AFTER the commit on purpose. The signal-quality axes are recorded on FRESH cards only, and
+      # this archive is written weekly, so a signal that goes FRESH -> ACTIVE between two Saturdays
+      # loses them permanently (PHOENIXLTD 2026-08-24 was the first). Raw coverage counts could not
+      # show it: `body_ratio: 15/37` reads the same whether the nulls are the documented pre-schema
+      # rows or a hole that opened this week.
+      #
+      # Placed after the publish so a research-collector defect never withholds the LIVE book, and
+      # run as its own step so it goes RED rather than joining the collector's non-fatal warning —
+      # which is the treatment that let this sit unnoticed. Declared losses in KNOWN_INCOMPLETE stay
+      # green; only a NEW one fires.
+      - name: Signal-quality axes must not go missing undeclared
+        run: python scripts/collect_signal_quality_forward.py --validate
