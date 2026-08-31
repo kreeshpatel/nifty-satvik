@@ -117,9 +117,26 @@ def test_no_optional_step_can_exhaust_the_job_budget():
         assert spent < budget, f"optional steps may consume {spent} of a {budget}-minute job"
 
 
-def test_the_commit_step_is_still_last():
-    """Ordering is load-bearing: everything before the commit is a step that can lose the week."""
+def test_nothing_after_the_commit_step_can_touch_the_repo():
+    """Ordering is load-bearing: everything before the commit is a step that can lose the week.
+
+    This used to assert the commit was the LAST step, which is stricter than the reason requires and
+    forbade the one thing the reason permits — a check that runs AFTER publication and therefore
+    cannot cost the week anything. The signal-quality axis validator is exactly that: a research
+    collector's data-quality hole should report red, and should never withhold the live book.
+
+    So the invariant is stated directly instead. The commit step must be the last step that WRITES:
+    anything after it may read, compute and fail, but may not add, commit, push, or otherwise change
+    what was just published. A step that cannot alter the repo cannot lose the week.
+    """
     wf = ROOT / ".github" / "workflows" / "cron-bhanushali-scanner.yml"
+    writes = re.compile(r"git\s+(add|commit|push|reset|checkout|rebase|restore|rm)\b")
     for _, steps in _job_and_steps(wf):
         names = [str(s.get("name", "")) for s in steps]
-        assert "Commit weekly paper state" in names[-1], f"commit is not last: {names[-1]!r}"
+        idx = [i for i, n in enumerate(names) if "Commit weekly paper state" in n]
+        assert idx, "the commit step vanished; this guard is now pointing at nothing"
+        for s in steps[idx[0] + 1:]:
+            body = str(s.get("run", "")) + str(s.get("uses", ""))
+            assert not writes.search(body), (
+                f"step {s.get('name')!r} runs after the commit and writes to the repo — it can "
+                f"undo or race the publish. Move it before the commit, or make it read-only.")
