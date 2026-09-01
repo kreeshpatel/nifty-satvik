@@ -1,12 +1,7 @@
 {
-  "cash": 724.6812322244223,
-  "peak": 1000000.0,
-  "pending": [
-    "LAURUSLABS",
-    "BHARATFORG",
-    "CHENNPETRO",
-    "AEGISLOG"
-  ],
+  "cash": 319.9099913471873,
+  "peak": 1014430.4841595595,
+  "pending": [],
   "positions": {
     "VEDL": {
       "ticker": "VEDL",
@@ -15,25 +10,11 @@
       "qty": 531,
       "stop": 239.55494975851138,
       "target": 344.14688745,
-      "peak": 283.6499938964844,
+      "peak": 287.95001220703125,
       "atr_pct": 4.00977023470704,
       "adv": 7843204206.451306,
-      "days_held": 37,
-      "last_mark": 279.0,
-      "absent_run": 0
-    },
-    "HINDCOPPER": {
-      "ticker": "HINDCOPPER",
-      "entry_date": "2026-07-01 00:00:00",
-      "entry": 501.35055610656735,
-      "qty": 297,
-      "stop": 430.36623522002117,
-      "target": 614.2547013417663,
-      "peak": 572.7000122070312,
-      "atr_pct": 3.8579346472714215,
-      "adv": 1784083774.3056443,
-      "days_held": 37,
-      "last_mark": 572.7000122070312,
+      "days_held": 44,
+      "last_mark": 274.0,
       "absent_run": 0
     },
     "ADANIPOWER": {
@@ -46,8 +27,8 @@
       "peak": 226.1699981689453,
       "atr_pct": 3.311638729252035,
       "adv": 6897609307.745554,
-      "days_held": 37,
-      "last_mark": 205.5,
+      "days_held": 44,
+      "last_mark": 204.36000061035156,
       "absent_run": 0
     },
     "MCX": {
@@ -57,11 +38,11 @@
       "qty": 38,
       "stop": 2493.142506614686,
       "target": 3503.9853171,
-      "peak": 3185.0,
+      "peak": 3400.0,
       "atr_pct": 3.494558193374999,
       "adv": 9835581952.2,
-      "days_held": 37,
-      "last_mark": 3185.0,
+      "days_held": 44,
+      "last_mark": 3303.0,
       "absent_run": 0
     },
     "KIRLOSENG": {
@@ -74,9 +55,9 @@
       "peak": 2278.283203125,
       "atr_pct": 4.665504822250521,
       "adv": 3546216280.3383546,
-      "days_held": 24,
-      "last_mark": 2150.10009765625,
-      "absent_run": 1
+      "days_held": 31,
+      "last_mark": 2138.300048828125,
+      "absent_run": 0
     },
     "RRKABEL": {
       "ticker": "RRKABEL",
@@ -85,53 +66,11 @@
       "qty": 1,
       "stop": 2193.300793371712,
       "target": 3136.7317424317384,
-      "peak": 2919.300048828125,
+      "peak": 2928.39990234375,
       "atr_pct": 3.9046838534468735,
       "adv": 1927087207.895288,
-      "days_held": 16,
-      "last_mark": 2919.300048828125,
-      "absent_run": 0
-    },
-    "BHEL": {
-      "ticker": "BHEL",
-      "entry_date": "2026-07-30 00:00:00",
-      "entry": 406.203,
-      "qty": 3,
-      "stop": 355.5539107655623,
-      "target": 497.6799156,
-      "peak": 430.95001220703125,
-      "atr_pct": 3.397523345039985,
-      "adv": 6584336330.650001,
-      "days_held": 16,
-      "last_mark": 413.0,
-      "absent_run": 0
-    },
-    "HFCL": {
-      "ticker": "HFCL",
-      "entry_date": "2026-08-04 00:00:00",
-      "entry": 202.5011938934326,
-      "qty": 686,
-      "stop": 166.338188915977,
-      "target": 248.10446275823364,
-      "peak": 230.02999877929688,
-      "atr_pct": 4.86598604231189,
-      "adv": 5235208154.722885,
-      "days_held": 13,
-      "last_mark": 228.00999450683594,
-      "absent_run": 0
-    },
-    "WELCORP": {
-      "ticker": "WELCORP",
-      "entry_date": "2026-08-13 00:00:00",
-      "entry": 1870.5347755737303,
-      "qty": 4,
-      "stop": 1686.5236082193655,
-      "target": 2291.779207032934,
-      "peak": 2311.89990234375,
-      "atr_pct": 2.6804785087455185,
-      "adv": 1388407566.6128175,
-      "days_held": 6,
-      "last_mark": 2311.89990234375,
+      "days_held": 23,
+      "last_mark": 2869.800048828125,
       "absent_run": 0
     },
     "NATIONALUM": {
@@ -144,8 +83,8 @@
       "peak": 410.70525,
       "atr_pct": 3.1840701685847557,
       "adv": 3314469754.7999997,
-      "days_held": 6,
-      "last_mark": 394.45001220703125,
+      "days_held": 13,
+      "last_mark": 372.0,
       "absent_run": 0
     },
     "SYRMA": {
@@ -158,8 +97,120 @@
       "peak": 1508.6539744262695,
       "atr_pct": 3.541597146257521,
       "adv": 2573311438.298047,
+      "days_held": 9,
+      "last_mark": 1447.9000244140625,
+      "absent_run": 0
+    },
+    "BHEL": {
+      "ticker": "BHEL",
+      "entry_date": "2026-08-25 00:00:00",
+      "entry": 411.0053877868652,
+      "qty": 4,
+      "stop": 366.81212547391914,
+      "target": 503.56380111646723,
+      "peak": 442.6499938964844,
+      "atr_pct": 2.92983041245646,
+      "adv": 3142897516.5,
+      "days_held": 5,
+      "last_mark": 426.54998779296875,
+      "absent_run": 0
+    },
+    "APARINDS": {
+      "ticker": "APARINDS",
+      "entry_date": "2026-08-26 00:00:00",
+      "entry": 17129.5605,
+      "qty": 8,
+      "stop": 14638.41672100049,
+      "target": 20987.1375246,
+      "peak": 17900.0,
+      "atr_pct": 3.962657248821724,
+      "adv": 3080836412.6499996,
+      "days_held": 4,
+      "last_mark": 17400.0,
+      "absent_run": 0
+    },
+    "BHARATFORG": {
+      "ticker": "BHARATFORG",
+      "entry_date": "2026-08-26 00:00:00",
+      "entry": 2053.52625,
+      "qty": 10,
+      "stop": 1846.4275019671857,
+      "target": 2515.9803615,
+      "peak": 2104.89990234375,
+      "atr_pct": 2.7479647058662486,
+      "adv": 2485016448.5,
+      "days_held": 4,
+      "last_mark": 2052.199951171875,
+      "absent_run": 0
+    },
+    "WELCORP": {
+      "ticker": "WELCORP",
+      "entry_date": "2026-08-28 00:00:00",
+      "entry": 2431.2149999999997,
+      "qty": 3,
+      "stop": 2167.6600733390355,
+      "target": 2978.7246179999997,
+      "peak": 2553.60009765625,
+      "atr_pct": 2.9538042301996787,
+      "adv": 5968636078.912476,
       "days_held": 2,
-      "last_mark": 1439.300048828125,
+      "last_mark": 2553.60009765625,
+      "absent_run": 0
+    },
+    "AEGISLOG": {
+      "ticker": "AEGISLOG",
+      "entry_date": "2026-08-28 00:00:00",
+      "entry": 1304.6519999999998,
+      "qty": 1,
+      "stop": 1066.7284375270756,
+      "target": 1598.4596304,
+      "peak": 1304.6519999999998,
+      "atr_pct": 4.969088199437758,
+      "adv": 1421339042.3722532,
+      "days_held": 2,
+      "last_mark": 1219.300048828125,
+      "absent_run": 0
+    },
+    "HONASA": {
+      "ticker": "HONASA",
+      "entry_date": "2026-08-28 00:00:00",
+      "entry": 484.04188778686523,
+      "qty": 2,
+      "stop": 426.8792254205831,
+      "target": 593.0481209164673,
+      "peak": 484.04188778686523,
+      "atr_pct": 3.217832529272994,
+      "adv": 992445757.9546967,
+      "days_held": 2,
+      "last_mark": 473.5,
+      "absent_run": 0
+    },
+    "HFCL": {
+      "ticker": "HFCL",
+      "entry_date": "2026-08-31 00:00:00",
+      "entry": 254.3270969467163,
+      "qty": 454,
+      "stop": 218.2017396902565,
+      "target": 311.6015591791168,
+      "peak": 254.3270969467163,
+      "atr_pct": 3.870378624196655,
+      "adv": 4861579429.833288,
+      "days_held": 1,
+      "last_mark": 236.63999938964844,
+      "absent_run": 0
+    },
+    "CHENNPETRO": {
+      "ticker": "CHENNPETRO",
+      "entry_date": "2026-08-31 00:00:00",
+      "entry": 1347.6734999999999,
+      "qty": 40,
+      "stop": 1133.5894676897142,
+      "target": 1651.1695722,
+      "peak": 1387.0,
+      "atr_pct": 4.328461143612943,
+      "adv": 3416695503.2229366,
+      "days_held": 1,
+      "last_mark": 1387.0,
       "absent_run": 0
     }
   },
@@ -247,6 +298,54 @@
       "reason": "trailing",
       "return_pct": 1.96,
       "pnl": 1952.43
+    },
+    {
+      "ticker": "BHEL",
+      "entry_date": "2026-07-30",
+      "exit_date": "2026-08-24",
+      "entry": 406.2,
+      "exit": 411.19,
+      "qty": 3,
+      "days_held": 17,
+      "reason": "trailing",
+      "return_pct": 1.23,
+      "pnl": 11.79
+    },
+    {
+      "ticker": "HINDCOPPER",
+      "entry_date": "2026-07-01",
+      "exit_date": "2026-08-25",
+      "entry": 501.35,
+      "exit": 532.38,
+      "qty": 297,
+      "days_held": 39,
+      "reason": "trailing",
+      "return_pct": 6.19,
+      "pnl": 8817.72
+    },
+    {
+      "ticker": "WELCORP",
+      "entry_date": "2026-08-13",
+      "exit_date": "2026-08-27",
+      "entry": 1870.53,
+      "exit": 2290.63,
+      "qty": 4,
+      "days_held": 10,
+      "reason": "target",
+      "return_pct": 22.46,
+      "pnl": 1658.76
+    },
+    {
+      "ticker": "HFCL",
+      "entry_date": "2026-08-04",
+      "exit_date": "2026-08-28",
+      "entry": 202.5,
+      "exit": 247.98,
+      "qty": 686,
+      "days_held": 18,
+      "reason": "target",
+      "return_pct": 22.46,
+      "pnl": 30797.0
     }
   ],
   "equity_curve": [
@@ -483,6 +582,48 @@
       "equity": 992328.7,
       "cash": 724.68,
       "n_positions": 11
+    },
+    {
+      "date": "2026-08-24",
+      "equity": 997273.7,
+      "cash": 1956.66,
+      "n_positions": 10
+    },
+    {
+      "date": "2026-08-25",
+      "equity": 982610.85,
+      "cash": 158222.91,
+      "n_positions": 10
+    },
+    {
+      "date": "2026-08-26",
+      "equity": 990810.6,
+      "cash": 446.32,
+      "n_positions": 12
+    },
+    {
+      "date": "2026-08-27",
+      "equity": 1009606.47,
+      "cash": 9596.94,
+      "n_positions": 11
+    },
+    {
+      "date": "2026-08-28",
+      "equity": 1014430.48,
+      "cash": 169911.53,
+      "n_positions": 13
+    },
+    {
+      "date": "2026-08-31",
+      "equity": 995961.07,
+      "cash": 319.91,
+      "n_positions": 15
+    },
+    {
+      "date": "2026-09-01",
+      "equity": 990022.73,
+      "cash": 319.91,
+      "n_positions": 15
     }
   ],
   "config": {
