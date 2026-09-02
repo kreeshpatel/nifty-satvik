@@ -1,7 +1,9 @@
 {
-  "cash": 319.9099913471873,
+  "cash": 2945.5768836266557,
   "peak": 1014430.4841595595,
-  "pending": [],
+  "pending": [
+    "RRKABEL"
+  ],
   "positions": {
     "VEDL": {
       "ticker": "VEDL",
@@ -13,8 +15,8 @@
       "peak": 287.95001220703125,
       "atr_pct": 4.00977023470704,
       "adv": 7843204206.451306,
-      "days_held": 44,
-      "last_mark": 274.0,
+      "days_held": 45,
+      "last_mark": 270.70001220703125,
       "absent_run": 0
     },
     "ADANIPOWER": {
@@ -27,8 +29,8 @@
       "peak": 226.1699981689453,
       "atr_pct": 3.311638729252035,
       "adv": 6897609307.745554,
-      "days_held": 44,
-      "last_mark": 204.36000061035156,
+      "days_held": 45,
+      "last_mark": 207.6999969482422,
       "absent_run": 0
     },
     "MCX": {
@@ -41,8 +43,8 @@
       "peak": 3400.0,
       "atr_pct": 3.494558193374999,
       "adv": 9835581952.2,
-      "days_held": 44,
-      "last_mark": 3303.0,
+      "days_held": 45,
+      "last_mark": 3286.0,
       "absent_run": 0
     },
     "KIRLOSENG": {
@@ -55,22 +57,8 @@
       "peak": 2278.283203125,
       "atr_pct": 4.665504822250521,
       "adv": 3546216280.3383546,
-      "days_held": 31,
-      "last_mark": 2138.300048828125,
-      "absent_run": 0
-    },
-    "RRKABEL": {
-      "ticker": "RRKABEL",
-      "entry_date": "2026-07-30 00:00:00",
-      "entry": 2560.179352294922,
-      "qty": 1,
-      "stop": 2193.300793371712,
-      "target": 3136.7317424317384,
-      "peak": 2928.39990234375,
-      "atr_pct": 3.9046838534468735,
-      "adv": 1927087207.895288,
-      "days_held": 23,
-      "last_mark": 2869.800048828125,
+      "days_held": 32,
+      "last_mark": 2160.89990234375,
       "absent_run": 0
     },
     "NATIONALUM": {
@@ -83,8 +71,8 @@
       "peak": 410.70525,
       "atr_pct": 3.1840701685847557,
       "adv": 3314469754.7999997,
-      "days_held": 13,
-      "last_mark": 372.0,
+      "days_held": 14,
+      "last_mark": 370.0,
       "absent_run": 0
     },
     "SYRMA": {
@@ -97,8 +85,8 @@
       "peak": 1508.6539744262695,
       "atr_pct": 3.541597146257521,
       "adv": 2573311438.298047,
-      "days_held": 9,
-      "last_mark": 1447.9000244140625,
+      "days_held": 10,
+      "last_mark": 1434.0,
       "absent_run": 0
     },
     "BHEL": {
@@ -111,8 +99,8 @@
       "peak": 442.6499938964844,
       "atr_pct": 2.92983041245646,
       "adv": 3142897516.5,
-      "days_held": 5,
-      "last_mark": 426.54998779296875,
+      "days_held": 6,
+      "last_mark": 427.5,
       "absent_run": 0
     },
     "APARINDS": {
@@ -125,8 +113,8 @@
       "peak": 17900.0,
       "atr_pct": 3.962657248821724,
       "adv": 3080836412.6499996,
-      "days_held": 4,
-      "last_mark": 17400.0,
+      "days_held": 5,
+      "last_mark": 16813.0,
       "absent_run": 0
     },
     "BHARATFORG": {
@@ -139,8 +127,8 @@
       "peak": 2104.89990234375,
       "atr_pct": 2.7479647058662486,
       "adv": 2485016448.5,
-      "days_held": 4,
-      "last_mark": 2052.199951171875,
+      "days_held": 5,
+      "last_mark": 2031.800048828125,
       "absent_run": 0
     },
     "WELCORP": {
@@ -153,8 +141,8 @@
       "peak": 2553.60009765625,
       "atr_pct": 2.9538042301996787,
       "adv": 5968636078.912476,
-      "days_held": 2,
-      "last_mark": 2553.60009765625,
+      "days_held": 3,
+      "last_mark": 2523.5,
       "absent_run": 0
     },
     "AEGISLOG": {
@@ -167,8 +155,8 @@
       "peak": 1304.6519999999998,
       "atr_pct": 4.969088199437758,
       "adv": 1421339042.3722532,
-      "days_held": 2,
-      "last_mark": 1219.300048828125,
+      "days_held": 3,
+      "last_mark": 1241.800048828125,
       "absent_run": 0
     },
     "HONASA": {
@@ -181,8 +169,8 @@
       "peak": 484.04188778686523,
       "atr_pct": 3.217832529272994,
       "adv": 992445757.9546967,
-      "days_held": 2,
-      "last_mark": 473.5,
+      "days_held": 3,
+      "last_mark": 469.95001220703125,
       "absent_run": 0
     },
     "HFCL": {
@@ -195,8 +183,8 @@
       "peak": 254.3270969467163,
       "atr_pct": 3.870378624196655,
       "adv": 4861579429.833288,
-      "days_held": 1,
-      "last_mark": 236.63999938964844,
+      "days_held": 2,
+      "last_mark": 226.27000427246094,
       "absent_run": 0
     },
     "CHENNPETRO": {
@@ -206,11 +194,11 @@
       "qty": 40,
       "stop": 1133.5894676897142,
       "target": 1651.1695722,
-      "peak": 1387.0,
+      "peak": 1414.0,
       "atr_pct": 4.328461143612943,
       "adv": 3416695503.2229366,
-      "days_held": 1,
-      "last_mark": 1387.0,
+      "days_held": 2,
+      "last_mark": 1414.0,
       "absent_run": 0
     }
   },
@@ -346,6 +334,18 @@
       "reason": "target",
       "return_pct": 22.46,
       "pnl": 30797.0
+    },
+    {
+      "ticker": "RRKABEL",
+      "entry_date": "2026-07-30",
+      "exit_date": "2026-09-02",
+      "entry": 2560.18,
+      "exit": 2629.08,
+      "qty": 1,
+      "days_held": 24,
+      "reason": "trailing",
+      "return_pct": 2.69,
+      "pnl": 62.16
     }
   ],
   "equity_curve": [
@@ -624,6 +624,12 @@
       "equity": 990022.73,
       "cash": 319.91,
       "n_positions": 15
+    },
+    {
+      "date": "2026-09-02",
+      "equity": 981340.46,
+      "cash": 2945.58,
+      "n_positions": 14
     }
   ],
   "config": {
