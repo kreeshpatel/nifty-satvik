@@ -178,5 +178,20 @@
     "net_pct": 2.69,
     "net_pnl": 62.16,
     "hold_days": 24
+  },
+  {
+    "ticker": "MCX",
+    "entry_date": "2026-07-01",
+    "exit_date": "2026-09-03",
+    "entry": 2859.93,
+    "exit": 3168.61,
+    "qty": 38,
+    "days_held": 46,
+    "reason": "trailing",
+    "return_pct": 10.79,
+    "pnl": 11432.24,
+    "net_pct": 10.79,
+    "net_pnl": 11432.24,
+    "hold_days": 46
   }
 ]

@@ -1,8 +1,8 @@
 {
-  "cash": 2945.5768836266557,
+  "cash": 120541.63993293655,
   "peak": 1014430.4841595595,
   "pending": [
-    "RRKABEL"
+    "LAURUSLABS"
   ],
   "positions": {
     "VEDL": {
@@ -15,8 +15,8 @@
       "peak": 287.95001220703125,
       "atr_pct": 4.00977023470704,
       "adv": 7843204206.451306,
-      "days_held": 45,
-      "last_mark": 270.70001220703125,
+      "days_held": 46,
+      "last_mark": 270.5,
       "absent_run": 0
     },
     "ADANIPOWER": {
@@ -29,22 +29,8 @@
       "peak": 226.1699981689453,
       "atr_pct": 3.311638729252035,
       "adv": 6897609307.745554,
-      "days_held": 45,
-      "last_mark": 207.6999969482422,
-      "absent_run": 0
-    },
-    "MCX": {
-      "ticker": "MCX",
-      "entry_date": "2026-07-01 00:00:00",
-      "entry": 2859.9292499999997,
-      "qty": 38,
-      "stop": 2493.142506614686,
-      "target": 3503.9853171,
-      "peak": 3400.0,
-      "atr_pct": 3.494558193374999,
-      "adv": 9835581952.2,
-      "days_held": 45,
-      "last_mark": 3286.0,
+      "days_held": 46,
+      "last_mark": 208.2899932861328,
       "absent_run": 0
     },
     "KIRLOSENG": {
@@ -57,8 +43,8 @@
       "peak": 2278.283203125,
       "atr_pct": 4.665504822250521,
       "adv": 3546216280.3383546,
-      "days_held": 32,
-      "last_mark": 2160.89990234375,
+      "days_held": 33,
+      "last_mark": 2267.60009765625,
       "absent_run": 0
     },
     "NATIONALUM": {
@@ -71,8 +57,8 @@
       "peak": 410.70525,
       "atr_pct": 3.1840701685847557,
       "adv": 3314469754.7999997,
-      "days_held": 14,
-      "last_mark": 370.0,
+      "days_held": 15,
+      "last_mark": 374.0,
       "absent_run": 0
     },
     "SYRMA": {
@@ -85,8 +71,8 @@
       "peak": 1508.6539744262695,
       "atr_pct": 3.541597146257521,
       "adv": 2573311438.298047,
-      "days_held": 10,
-      "last_mark": 1434.0,
+      "days_held": 11,
+      "last_mark": 1452.800048828125,
       "absent_run": 0
     },
     "BHEL": {
@@ -99,8 +85,8 @@
       "peak": 442.6499938964844,
       "atr_pct": 2.92983041245646,
       "adv": 3142897516.5,
-      "days_held": 6,
-      "last_mark": 427.5,
+      "days_held": 7,
+      "last_mark": 431.79998779296875,
       "absent_run": 0
     },
     "APARINDS": {
@@ -113,8 +99,8 @@
       "peak": 17900.0,
       "atr_pct": 3.962657248821724,
       "adv": 3080836412.6499996,
-      "days_held": 5,
-      "last_mark": 16813.0,
+      "days_held": 6,
+      "last_mark": 17704.0,
       "absent_run": 0
     },
     "BHARATFORG": {
@@ -127,8 +113,8 @@
       "peak": 2104.89990234375,
       "atr_pct": 2.7479647058662486,
       "adv": 2485016448.5,
-      "days_held": 5,
-      "last_mark": 2031.800048828125,
+      "days_held": 6,
+      "last_mark": 1981.0,
       "absent_run": 0
     },
     "WELCORP": {
@@ -138,11 +124,11 @@
       "qty": 3,
       "stop": 2167.6600733390355,
       "target": 2978.7246179999997,
-      "peak": 2553.60009765625,
+      "peak": 2641.60009765625,
       "atr_pct": 2.9538042301996787,
       "adv": 5968636078.912476,
-      "days_held": 3,
-      "last_mark": 2523.5,
+      "days_held": 4,
+      "last_mark": 2641.60009765625,
       "absent_run": 0
     },
     "AEGISLOG": {
@@ -155,8 +141,8 @@
       "peak": 1304.6519999999998,
       "atr_pct": 4.969088199437758,
       "adv": 1421339042.3722532,
-      "days_held": 3,
-      "last_mark": 1241.800048828125,
+      "days_held": 4,
+      "last_mark": 1287.199951171875,
       "absent_run": 0
     },
     "HONASA": {
@@ -169,8 +155,8 @@
       "peak": 484.04188778686523,
       "atr_pct": 3.217832529272994,
       "adv": 992445757.9546967,
-      "days_held": 3,
-      "last_mark": 469.95001220703125,
+      "days_held": 4,
+      "last_mark": 477.04998779296875,
       "absent_run": 0
     },
     "HFCL": {
@@ -183,8 +169,8 @@
       "peak": 254.3270969467163,
       "atr_pct": 3.870378624196655,
       "adv": 4861579429.833288,
-      "days_held": 2,
-      "last_mark": 226.27000427246094,
+      "days_held": 3,
+      "last_mark": 220.4199981689453,
       "absent_run": 0
     },
     "CHENNPETRO": {
@@ -194,11 +180,25 @@
       "qty": 40,
       "stop": 1133.5894676897142,
       "target": 1651.1695722,
-      "peak": 1414.0,
+      "peak": 1440.0,
       "atr_pct": 4.328461143612943,
       "adv": 3416695503.2229366,
-      "days_held": 2,
-      "last_mark": 1414.0,
+      "days_held": 3,
+      "last_mark": 1440.0,
+      "absent_run": 0
+    },
+    "RRKABEL": {
+      "ticker": "RRKABEL",
+      "entry_date": "2026-09-03 00:00:00",
+      "entry": 2651.325,
+      "qty": 1,
+      "stop": 2272.868443964278,
+      "target": 3248.40339,
+      "peak": 2651.325,
+      "atr_pct": 3.8894393329346544,
+      "adv": 1160522850.5976927,
+      "days_held": 0,
+      "last_mark": 2651.325,
       "absent_run": 0
     }
   },
@@ -346,6 +346,18 @@
       "reason": "trailing",
       "return_pct": 2.69,
       "pnl": 62.16
+    },
+    {
+      "ticker": "MCX",
+      "entry_date": "2026-07-01",
+      "exit_date": "2026-09-03",
+      "entry": 2859.93,
+      "exit": 3168.61,
+      "qty": 38,
+      "days_held": 46,
+      "reason": "trailing",
+      "return_pct": 10.79,
+      "pnl": 11432.24
     }
   ],
   "equity_curve": [
@@ -629,6 +641,12 @@
       "date": "2026-09-02",
       "equity": 981340.46,
       "cash": 2945.58,
+      "n_positions": 14
+    },
+    {
+      "date": "2026-09-03",
+      "equity": 990578.91,
+      "cash": 120541.64,
       "n_positions": 14
     }
   ],
