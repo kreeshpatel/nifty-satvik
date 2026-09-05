@@ -1,0 +1,66 @@
+{
+  "prev_snapshot": "2026-08-28",
+  "cur_snapshot": "2026-09-04",
+  "closed_prev": 9,
+  "closed_cur": 9,
+  "closed_delta": 0,
+  "nav_prev": 1059202.64,
+  "nav_cur": 1053235.81,
+  "nav_delta": -5966.83,
+  "n_restated": 3,
+  "restated": [
+    {
+      "trade": "CCL|2026-08-17",
+      "changed": {
+        "entry": [
+          1144.4,
+          1141.22
+        ],
+        "close_price": [
+          1083.0,
+          1079.99
+        ]
+      }
+    },
+    {
+      "trade": "GLENMARK|2026-07-13",
+      "changed": {
+        "entry": [
+          2285.9,
+          2283.63
+        ],
+        "close_price": [
+          2218.0,
+          2215.8
+        ]
+      }
+    },
+    {
+      "trade": "NATCOPHARM|2026-07-13",
+      "changed": {
+        "entry": [
+          984.05,
+          982.39
+        ],
+        "close_price": [
+          923.15,
+          921.59
+        ]
+      }
+    }
+  ],
+  "n_vanished": 0,
+  "vanished": [],
+  "n_appeared": 0,
+  "appeared": [],
+  "inputs_changed": [
+    "nifty50_csv_sha256",
+    "ohlcv_cache_sha256",
+    "ohlcv_last_bar",
+    "ohlcv_n_rows"
+  ],
+  "clean": false,
+  "as_of": "2026-09-04",
+  "logged_utc": "2026-09-05T15:26:14.794059+00:00",
+  "is_baseline": false
+}
