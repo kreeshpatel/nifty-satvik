@@ -1,22 +1,22 @@
 {
-  "generated_at": "2026-09-04",
+  "generated_at": "2026-09-07",
   "signals": [
     {
-      "ticker": "LAURUSLABS",
-      "entry": 1840.92,
-      "stop": 1683.91,
-      "target": 2255.5,
+      "ticker": "BHEL",
+      "entry": 421.66,
+      "stop": 375.69,
+      "target": 516.62,
       "target_pct": 22.52,
-      "current_price": 1840.0,
-      "close": 1840.0,
-      "signal_date": "2026-09-04",
+      "current_price": 421.45,
+      "close": 421.45,
+      "signal_date": "2026-09-07",
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
       "status": "FRESH",
       "buy_window": "T+1..T+3 at open",
-      "indicative_close": 1840.0,
-      "indicative_entry": 1840.92
+      "indicative_close": 421.45,
+      "indicative_entry": 421.66
     }
   ],
   "regime": {
@@ -26,11 +26,11 @@
     "breadth": 0
   },
   "n_positions": 14,
-  "cash": 24938.27,
+  "cash": 1395.89,
   "kill_state": {
-    "wr_last20": 64.3,
+    "wr_last20": 60.0,
     "wr_breach": false,
-    "sharpe_30d": 4.209,
+    "sharpe_30d": 4.047,
     "sharpe_30d_breach": false,
     "mode": "observe"
   }
