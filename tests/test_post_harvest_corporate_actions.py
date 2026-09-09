@@ -34,6 +34,24 @@ sys.modules["build_demerger_register"] = _B
 _spec.loader.exec_module(_B)
 
 
+# The producer reads artifacts that are deliberately NOT committed: the 64 MB OHLCV pin and the
+# research substrate. So `main()` cannot run on a clean clone or on CI, and the two tests that
+# invoke it are skipped there rather than failing. Stated out loud because a skip that nobody
+# notices is how a guard quietly stops guarding — the hermetic properties (a post-harvest row is
+# appended, sourced, de-duplicated against the audit) are covered by the `_with_post_harvest` tests
+# below, which run everywhere.
+PRODUCER_INPUTS = (
+    ROOT / "diagnostics" / "research" / "foundation_audit_2026Q3" / "layer2_passA.parquet",
+    ROOT / "diagnostics" / "research" / "foundation_audit_2026Q3" / "corpactions_raw.parquet",
+    ROOT / "research" / "substrate" / "trades.parquet",
+    ROOT / "data" / "ohlcv.pkl",
+)
+needs_producer = pytest.mark.skipif(
+    not all(p.exists() for p in PRODUCER_INPUTS),
+    reason="register producer needs uncommitted artifacts (OHLCV pin, research substrate); "
+           "the append/source/de-dup properties are covered hermetically below")
+
+
 def _addendum() -> pd.DataFrame:
     return pd.read_csv(ADDENDUM, comment="#")
 
@@ -52,6 +70,7 @@ def test_hegs_demerger_is_registered():
     assert heg.iloc[0]["convention"] == "UNDECIDED"
 
 
+@needs_producer
 def test_the_addendum_survives_a_rebuild():
     """The whole point. A hand-added row in the generated CSV would not."""
     before = _register()
@@ -61,6 +80,7 @@ def test_the_addendum_survives_a_rebuild():
     assert "HEG" in set(after.ticker), "HEG did not survive the rebuild"
 
 
+@needs_producer
 def test_the_rebuild_is_deterministic():
     """Re-running must produce byte-identical output, or the register is not a reproducible artifact."""
     _B.main()
