@@ -31,8 +31,16 @@ by hand. The model's realized R is fictional for that user; only their execution
 **Yes — but by the USER state machine, not the model one, and that distinction is the whole ballgame.**
 
 - The **model** already "remembers" the 40% sale by recomputation: next Saturday it re-derives
-  `t1_done=True` because the price crossed 2R. That is why Phase A's `exit_stage` shows
-  `target_40_booked`. But that is the *model's* memory — it assumes you executed exactly as modeled.
+  `t1_done=True` because the price crossed 2R, sells the tranche at the following open, and
+  `frac_left` drops to 0.6 — which is what makes `exit_stage.target_booked` true. But that is the
+  *model's* memory, and it assumes you executed exactly as modeled.
+  - Corrected 2026-09-09. This bullet used to say the flag followed from `t1_done`, which was both
+    the old behaviour and the bug: `t1_done` is set when the exit is *decided* at Friday's close,
+    while the shares leave at Monday's open. A card could therefore report a tranche sold while it
+    was still held — BAJAJ-AUTO showed `target_40_booked: true, pattern_40_booked: true` next to
+    `fraction_remaining: 0.6`. Booking flags now derive from `frac_left`, the decided-but-unfilled
+    tranche surfaces as `exit_stage.pending_exit`, and the keys dropped their hardcoded `_40_`
+    (sizes come from cfg). See `tests/test_exit_stage_semantics.py`.
 - The **user's** memory must be a **durable, append-only per-user record** of what actually happened,
   because it is *not derivable from price*:
   - Did the user place the 2R limit? (maybe not.)
