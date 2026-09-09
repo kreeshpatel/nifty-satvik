@@ -1138,7 +1138,7 @@ function OperationCard({ icon, title, description, ctaLabel, onClick, disabled, 
 
 function TabStrip({ tabs, active, onChange }) {
   return (
-    <div role="tablist" className="flex items-center" style={{ borderBottom: '1px solid var(--edge-1)' }}>
+    <div role="tablist" className="flex items-center nq-tabstrip scrollbar-hide" style={{ borderBottom: '1px solid var(--edge-1)' }}>
       {tabs.map((t) => {
         const isActive = t.value === active;
         const Icon = t.icon;

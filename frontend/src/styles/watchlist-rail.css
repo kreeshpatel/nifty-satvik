@@ -8,6 +8,7 @@
   position: sticky;
   top: 64px;                         /* below the 64px TopBar */
   height: calc(100vh - 64px);
+  height: calc(100dvh - 64px);
   overflow-y: auto;
   border-right: 1px solid var(--edge-1);
   background: rgba(255, 255, 255, 0.012);

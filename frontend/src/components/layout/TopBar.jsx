@@ -482,7 +482,7 @@ export function TopBar() {
       {/* Live index ticker — inline right after the brand (prototype layout).
           min-width:0 lets the marquee shrink into the flexible column instead
           of blowing out the grid. */}
-      <div style={{ minWidth: 0, overflow: 'hidden' }}>
+      <div className="nq-topbar-ticker" style={{ minWidth: 0, overflow: 'hidden' }}>
         <HeaderTicker />
       </div>
 
@@ -581,6 +581,8 @@ export function TopBar() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
+            className="nq-topbar-user"
+            aria-label="Account menu"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -608,7 +610,7 @@ export function TopBar() {
             >
               <User size={14} />
             </span>
-            <div style={{ textAlign: 'left' }}>
+            <div className="nq-topbar-user-meta" style={{ textAlign: 'left' }}>
               <div style={{ fontSize: 13, color: 'var(--text-1)', fontWeight: 500, lineHeight: 1.1 }}>
                 {user?.name?.split(' ')[0] || 'You'}
               </div>
