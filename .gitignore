@@ -35,6 +35,15 @@ dashboard/backend/.env
 # file above, which nq.data.ohlcv reads to decide cleaning. Producer:
 # scripts/build_demerger_register.py — prerequisite for the binder section-10 decision.
 !data/corporate_actions_demerger_register.csv
+# Corporate actions confirmed AFTER the 2026Q3 audit's NSE harvest (which ends 2026-06-24), each
+# with its own measurement and source. The register above is regenerated in full from the audit
+# parquets, so an event past the harvest lives ONLY here — ignored-and-untracked, it would vanish
+# on a fresh clone and the rebuild would silently drop the event while printing success. That is
+# the SEVENTH instance of the `data/*`+`results/*` ignore trap (judge_log, output_contracts,
+# base_swing_forward, intraday_scan, weekly_monitor, the D2 archive were the first six). Found
+# 2026-09-09 while registering HEG's 2026-09-07 demerger, before the first commit rather than
+# after a month of silent loss. Watcher: tests/test_post_harvest_corporate_actions.py.
+!data/corporate_actions_post_harvest.csv
 # Raw exchange closes on the guard's probe grid. Small, exchange-sourced, and committed on
 # purpose: nq.data.adjustment_guard must be able to run without the network, or it gets skipped
 # on the day the network is flaky. Producer: scripts/build_raw_close_reference.py
@@ -153,6 +162,10 @@ build/
 # added to that directory would have been silently dropped, including its `__init__.py`.
 !pipelines/build/
 !pipelines/build/**
+# ...but not its bytecode. The negation above is broad enough to un-ignore __pycache__, so a
+# `git add -A` after running any builder stages a .pyc. Caught 2026-09-09 staging the demerger
+# register build.
+pipelines/**/__pycache__/
 # Models — models/long_horizon/config.json is the tracked source of truth (not ignored).
 # Regenerable candidate/baseline model binaries (Stage C+) are not committed (see below).
 

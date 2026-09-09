@@ -648,3 +648,53 @@ Producer `scripts/build_demerger_register.py`; tests `tests/test_demerger_regist
 
 **Neither reading is weighed here, and no verdict on the record moves.** The 22/15 split is reported
 so October decides a convention, not so a number changes today.
+
+### ADDENDUM (2026-09-09) — the convention now has a LIVE HELD position riding on it
+
+Everything in §10 above is measured on backtest substrate, where the convention distorts *statistics*.
+On 2026-09-07 it acquired an operational consequence for the first time.
+
+**The event.** HEG Limited, ex-date **2026-09-07**, NSE subject line **"Demerger"**, ISIN
+INE545A01016, face value ₹2 unchanged (so not a sub-division — the 2024-10-18 face-value split is a
+separate record). Source: NSE corporate-actions API, symbol=HEG, retrieved 2026-09-09. The vendor
+**left the cliff**: `implied_factor` measured at **0.994380** over 8 pre-ex probes in
+`data/raw_close_reference.parquet` — that residual is the 2026-07-22 ₹3.40 dividend adjustment, not
+the demerger. `series_return_at_ex` = **−0.626227** (728.25 → 272.20).
+
+Registered descriptively in `data/corporate_actions_demerger_register.csv` (event 38), carried
+through `data/corporate_actions_post_harvest.csv` because the 2026Q3 harvest ends 2026-06-24.
+`convention` is **UNDECIDED**, and `data/corporate_actions_demergers.csv` is **unchanged**.
+
+**Why this one is different from the other 37.** HEG is an **open position in the live weekly-swing
+book** — entry ₹650.00, stop ₹585.00, opened 2026-07-31. The two conventions do not merely disagree
+about a historical statistic; they disagree about what the book owns right now:
+
+| convention | effect on the series | consequence for the live position |
+|---|---|---|
+| **back-adjust** (current behaviour, by omission) | history ÷2.675; the 44w line falls **567.64 → 215.85** | entry/stop re-base to ≈243 / ≈219 on the Saturday recompute; price 258.60 clears; position carries |
+| **leave the cliff** (this repo's stated convention, and what listing HEG would apply) | history untouched | 258.60 against a ₹585.00 stop → exit books ≈ **−6.02R** |
+
+The gap between the two readings is roughly **6R on one position**, against a realised book of
+−14.37R over 9 closed trades. It would also enter `signals_history_weekly.json`, which is what the
+Oct-1 closed-trade count reads.
+
+**Neither reading is correct as things stand,** and that is the point worth carrying into the
+decision. Back-adjusting asserts the holder kept the spun-off value; leaving the cliff asserts the
+value simply vanished. The book models neither — it holds HEG and has no representation for shares
+received in the demerged entity. Choosing a convention picks which error to make until that gap is
+closed.
+
+**Not decided here.** §10's own rule stands: populating `convention` is the decision, not a
+data-entry step.
+
+**Two operational facts for whoever takes it:**
+
+1. **The monitor is currently emitting a false alarm.** `results/weekly_monitor.json` carries
+   `STOP_BREACH`, severity **high**: *"HEG closed 258.60 at/under its stop 585.00 — the weekly close
+   will confirm the exit"*. That compares post-event rupees to a pre-event stop.
+2. **No existing guard covers this class.** `nq.data.adjustment_guard` detects *retroactive
+   re-adjustment of history* against a probe reference that ends **2026-06-24**; HEG's history was
+   never re-adjusted, so there is nothing for it to see. The CA-aware cleaner classified the event
+   as a **split** (`splits_adjusted: 1`, `demergers_detected: 0`) purely because it is absent from
+   the prescriptive file. A held name gapping past `BENIGN_FACTOR_MAX` (1.1) with no registered
+   action currently produces a stop flag rather than a halt.

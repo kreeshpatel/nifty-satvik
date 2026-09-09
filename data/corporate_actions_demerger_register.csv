@@ -1,4 +1,9 @@
-# NiftyQuant — COMPLETE demerger register, 2019-01-01..2026-07-01.
+# NiftyQuant — COMPLETE demerger register, 2019-01-01 onward.
+#
+# Rows with ex_date <= 2026-06-24 come from the 2026Q3 foundation audit. Later events come
+# from data/corporate_actions_post_harvest.csv, each carrying its own measurement and the
+# exchange record it was read from — the audit parquets are a frozen snapshot and cannot
+# see them. Each row's `source` says which of the two it is.
 #
 # DESCRIPTIVE, NOT PRESCRIPTIVE. Nothing reads this file to decide how to clean a series.
 # The prescriptive file is data/corporate_actions_demergers.csv (4 rows, read by
@@ -51,3 +56,4 @@ TMPV,2025-10-14,Demerger,INE155A01022,LEFT_AS_CLIFF,1.0,-0.401513,True,0,0.0,UND
 SKFINDIA,2025-10-15,Demerger,INE640A01023,LEFT_AS_CLIFF,1.0,-0.54754,True,10,10.132,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
 HINDUNILVR,2025-12-05,Demerger,INE030A01027,LEFT_AS_CLIFF,1.0,-0.050199,True,10,4.012,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
 VEDL,2026-04-30,Demerger,INE205A01025,LEFT_AS_CLIFF,1.0,-0.648979,True,16,14.756,UNDECIDED,NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)
+HEG,2026-09-07,Demerger,INE545A01016,LEFT_AS_CLIFF,0.99438,-0.626227,True,15,0.462,UNDECIDED,"NSE corporate-actions API (symbol=HEG) retrieved 2026-09-09: exDate 07-Sep-2026 recDate 07-Sep-2026 subject ""Demerger"" isin INE545A01016 faceVal 2 unchanged; implied_factor measured over 8 pre-ex probes in data/raw_close_reference.parquet (0.9944 = the 2026-07-22 Rs 3.40 dividend adjustment only - the demerger itself was left as a cliff); series_return measured 728.25 -> 272.20 across the ex-date"
