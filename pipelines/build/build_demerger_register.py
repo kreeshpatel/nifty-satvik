@@ -53,9 +53,48 @@ TREATMENT = {
 }
 
 
+POST_HARVEST = ROOT / "data" / "corporate_actions_post_harvest.csv"
+
+
+def _with_post_harvest(dem: pd.DataFrame) -> pd.DataFrame:
+    """Append events confirmed after the audit's NSE harvest window (ends 2026-06-24).
+
+    The audit parquet is a frozen snapshot, so an event after its harvest is invisible here and a
+    row hand-added to the generated CSV is wiped by the next build. `data/corporate_actions_post_
+    harvest.csv` carries such events with their own measurement and source, so a rebuild reproduces
+    the register instead of silently losing the event.
+
+    De-duplicates on (symbol, ex_date) keeping the AUDIT row: once the harvest is extended past an
+    ex_date, the audit's own measurement is the authority and the addendum row is redundant. It
+    should then be deleted from the CSV — this only stops it double-counting in the meantime.
+    """
+    if not POST_HARVEST.is_file():
+        return dem
+    add = pd.read_csv(POST_HARVEST, comment="#")
+    if add.empty:
+        return dem
+    add = add[add["kind"].astype(str).str.contains("demerger")]
+    missing = [c for c in ("symbol", "ex_date", "resolution", "source") if c not in add.columns]
+    if missing:
+        raise ValueError(f"{POST_HARVEST.name} is missing required column(s): {missing}")
+    if add["source"].isna().any() or (add["source"].astype(str).str.strip() == "").any():
+        raise ValueError(f"{POST_HARVEST.name}: every row must name the exchange record it came "
+                         f"from — an unsourced corporate action is a guess with a date on it")
+    add["ex_date"] = pd.to_datetime(add["ex_date"]).dt.strftime("%Y-%m-%d")
+    out = pd.concat([dem, add], ignore_index=True)
+    n = len(out)
+    out = out.drop_duplicates(subset=["symbol", "ex_date"], keep="first")
+    if len(out) < n:
+        print(f"post-harvest: {n - len(out)} row(s) already covered by the audit — audit wins; "
+              f"delete them from {POST_HARVEST.name}", flush=True)
+    print(f"post-harvest: +{len(add)} event(s) from {POST_HARVEST.name}", flush=True)
+    return out
+
+
 def main() -> int:
     A = pd.read_parquet(AUDIT / "layer2_passA.parquet")
     dem = A[A["kind"].astype(str).str.contains("demerger")].copy()
+    dem = _with_post_harvest(dem)
 
     ca = pd.read_parquet(AUDIT / "corpactions_raw.parquet")
     ca["ex_date"] = pd.to_datetime(ca["exDate"]).dt.strftime("%Y-%m-%d")
@@ -88,12 +127,22 @@ def main() -> int:
             # NEVER auto-filled. Binder §10 is the only thing that may change this column, and it is
             # an owner decision. A build that populated it would be the decision taken by a script.
             "convention": "UNDECIDED",
-            "source": "NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)",
+            # An addendum row carries its OWN source (which exchange record, retrieved when). Using
+            # the audit's blanket string for it would attribute a 2026-09 API lookup to a frozen
+            # 2026Q3 harvest that never saw the event — a false citation in a governance artifact.
+            "source": (str(e["source"]).strip()
+                       if not pd.isna(e.get("source")) and str(e.get("source")).strip()
+                       else "NSE corporate-action record + layer-2 measurement (2026Q3 foundation audit)"),
         })
 
     df = pd.DataFrame(rows)
     header = (
-        "# NiftyQuant — COMPLETE demerger register, 2019-01-01..2026-07-01.\n"
+        "# NiftyQuant — COMPLETE demerger register, 2019-01-01 onward.\n"
+        "#\n"
+        "# Rows with ex_date <= 2026-06-24 come from the 2026Q3 foundation audit. Later events come\n"
+        "# from data/corporate_actions_post_harvest.csv, each carrying its own measurement and the\n"
+        "# exchange record it was read from — the audit parquets are a frozen snapshot and cannot\n"
+        "# see them. Each row's `source` says which of the two it is.\n"
         "#\n"
         "# DESCRIPTIVE, NOT PRESCRIPTIVE. Nothing reads this file to decide how to clean a series.\n"
         "# The prescriptive file is data/corporate_actions_demergers.csv (4 rows, read by\n"

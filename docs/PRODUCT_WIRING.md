@@ -20,43 +20,43 @@ Written by the weekly scanner (Saturday).
 
 | field | on cards | api | api-exec | recon | cards lib | This week | Research | Dashboard | Portfolio | History | read by |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| `actionability` | HIT_STOP | ✓ | · | ✓ | · | ✓ | ✓ | · | · | · | **4** |
+| `actionability` | HIT_STOP,HIT_TARGET | ✓ | · | ✓ | · | ✓ | ✓ | · | · | · | **4** |
 | `band_is_wide` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `band_width_pct` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `body_ratio` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
-| `bought_date` | ACTIVE,HIT_STOP | ✓ | · | ✓ | ✓ | ✓ | ✓ | · | · | · | **5** |
+| `bought_date` | ACTIVE,HIT_STOP,HIT_TARGET | ✓ | · | ✓ | ✓ | ✓ | ✓ | · | · | · | **5** |
 | `buy_window` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `buy_window_until` | FRESH | · | · | · | ✓ | · | ✓ | · | · | · | **2** |
 | `buy_zone_high` | FRESH | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
 | `buy_zone_low` | FRESH | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
-| `close` | ACTIVE,FRESH,HIT_STOP | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | **7** |
+| `close` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | **7** |
 | `crs_rank` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
-| `current_price` | ACTIVE,FRESH,HIT_STOP | ✓ | · | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | **6** |
-| `entry` | ACTIVE,FRESH,HIT_STOP | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
+| `current_price` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | **6** |
+| `entry` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
 | `entry_high` | FRESH | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
 | `entry_low` | FRESH | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
 | `entry_week_open` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
-| `exit_plan` | ACTIVE,FRESH,HIT_STOP | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
-| `exit_stage` | ACTIVE,HIT_STOP | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `exit_plan` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
+| `exit_stage` | ACTIVE,HIT_STOP,HIT_TARGET | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `ext_cap_pct` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `ext_pct_over_sma44` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
-| `fill_price` | ACTIVE,HIT_STOP | · | · | · | · | · | ✓ | · | · | · | **1** |
-| `grade` | ACTIVE,FRESH,HIT_STOP | · | · | · | · | · | ✓ | ✓ | · | ✓ | **3** |
-| `hold_days` | ACTIVE,FRESH,HIT_STOP | · | · | · | · | · | ✓ | · | ✓ | ✓ | **3** |
+| `fill_price` | ACTIVE,HIT_STOP,HIT_TARGET | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `grade` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | · | · | · | · | · | ✓ | ✓ | · | ✓ | **3** |
+| `hold_days` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | · | · | · | · | · | ✓ | · | ✓ | ✓ | **3** |
 | `no_chase_above` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
-| `nq_position_id` | ACTIVE,HIT_STOP | · | · | ✓ | · | · | ✓ | · | · | · | **2** |
-| `pattern` | ACTIVE,FRESH,HIT_STOP | · | ✓ | · | · | · | ✓ | · | · | · | **2** |
-| `qty` | ACTIVE,HIT_STOP | ✓ | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | · | **6** |
+| `nq_position_id` | ACTIVE,HIT_STOP,HIT_TARGET | · | · | ✓ | · | · | ✓ | · | · | · | **2** |
+| `pattern` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | · | ✓ | · | · | · | ✓ | · | · | · | **2** |
+| `qty` | ACTIVE,HIT_STOP,HIT_TARGET | ✓ | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | · | **6** |
 | `record_would_skip_as_extended` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `signal_conviction` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
-| `signal_date` | ACTIVE,FRESH,HIT_STOP | · | · | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | **5** |
-| `status` | ACTIVE,FRESH,HIT_STOP | ✓ | · | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | **7** |
-| `stop` | ACTIVE,FRESH,HIT_STOP | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **9** |
+| `signal_date` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | · | · | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | **5** |
+| `status` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | **7** |
+| `stop` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **9** |
 | `stop_week_low` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
-| `target` | ACTIVE,FRESH,HIT_STOP | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **9** |
-| `ticker` | ACTIVE,FRESH,HIT_STOP | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
-| `tier` | ACTIVE,FRESH,HIT_STOP | ✓ | · | · | · | ✓ | ✓ | · | · | · | **3** |
-| `why` | HIT_STOP | ✓ | · | · | · | · | ✓ | · | · | ✓ | **3** |
+| `target` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **9** |
+| `ticker` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
+| `tier` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | · | · | ✓ | ✓ | · | · | · | **3** |
+| `why` | HIT_STOP,HIT_TARGET | ✓ | · | · | · | · | ✓ | · | · | ✓ | **3** |
 
 ## `results/weekly_monitor.json`
 

@@ -29,13 +29,43 @@ def _rows() -> list[dict]:
     return list(csv.DictReader(lines))
 
 
-def test_register_is_complete_and_shaped():
-    rows = _rows()
-    assert len(rows) == 37, f"the audit found 37 demergers; the register has {len(rows)}"
-    assert len({r["ticker"] for r in rows}) == 35
-    for r in rows:
+AUDIT_SOURCE = "2026Q3 foundation audit"
+AUDIT_EVENTS, AUDIT_NAMES = 37, 35          # what the frozen harvest (to 2026-06-24) measured
+
+
+def _audit_rows() -> list[dict]:
+    """Rows measured by the frozen audit, as distinct from post-harvest additions.
+
+    The counts below are pinned against the AUDIT, not against the file. The register legitimately
+    grows when a corporate action lands after the harvest window (the first was HEG's 2026-09-07
+    demerger, carried in data/corporate_actions_post_harvest.csv). Pinning the file total made the
+    audit's guarantee and a real new event indistinguishable — one is drift, the other is the file
+    doing its job, and a test that cannot tell them apart gets edited until it stops complaining.
+    """
+    return [r for r in _rows() if AUDIT_SOURCE in r["source"]]
+
+
+def test_the_audit_rows_are_complete_and_shaped():
+    rows = _audit_rows()
+    assert len(rows) == AUDIT_EVENTS, (
+        f"the audit measured {AUDIT_EVENTS} demergers; {len(rows)} audit-sourced rows are in the "
+        f"register. Post-harvest additions carry their own source and are not counted here.")
+    assert len({r["ticker"] for r in rows}) == AUDIT_NAMES
+    for r in _rows():
         assert r["ticker"] and r["ex_date"]
         assert r["vendor_treatment"] in VALID_TREATMENTS, r
+
+
+def test_post_harvest_rows_are_sourced_and_dated_after_the_harvest():
+    """Anything not from the audit must say where it came from and must genuinely be outside the
+    harvest window — otherwise it is a duplicate of a row the audit already measured."""
+    for r in _rows():
+        if AUDIT_SOURCE in r["source"]:
+            continue
+        assert len(r["source"].strip()) > 60, f"{r['ticker']}: post-harvest row lacks a real source"
+        assert r["ex_date"] > "2026-06-24", (
+            f"{r['ticker']} {r['ex_date']} is inside the audit window — it should come from the "
+            f"audit, not from the addendum")
 
 
 def test_convention_is_undecided_everywhere():
@@ -50,8 +80,7 @@ def test_convention_is_undecided_everywhere():
 
 def test_both_conventions_are_present_which_is_the_finding():
     """If this ever passes with one treatment, the data changed and the binder item is stale."""
-    rows = _rows()
-    treatments = [r["vendor_treatment"] for r in rows]
+    treatments = [r["vendor_treatment"] for r in _audit_rows()]
     assert treatments.count("BACK_ADJUSTED") == 22
     assert treatments.count("LEFT_AS_CLIFF") == 15
 

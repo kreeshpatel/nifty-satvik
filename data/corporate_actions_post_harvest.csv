@@ -1,0 +1,26 @@
+# NiftyQuant — POST-HARVEST corporate-action addendum.
+#
+# WHY THIS FILE EXISTS. The demerger register is regenerated in full by
+# pipelines/build/build_demerger_register.py from the 2026Q3 foundation audit
+# (diagnostics/research/foundation_audit_2026Q3/), whose NSE harvest ends 2026-06-24. An event
+# after that date is invisible to the producer, and a row hand-added to the generated CSV is wiped
+# by the next build. This file is the supported way to carry one: the producer appends these rows,
+# so a rebuild reproduces the register byte-identically instead of losing the event.
+#
+# STILL DESCRIPTIVE, NOT PRESCRIPTIVE. Nothing here changes how a series is cleaned. The
+# prescriptive file is data/corporate_actions_demergers.csv and it is deliberately UNCHANGED —
+# listing a (ticker,date) there instructs the cleaner to keep the discontinuity, which is the
+# binder §10 convention decision and belongs to the 2026-10-01 review, not to a data-entry step.
+#
+# EVERY ROW NEEDS A MEASUREMENT AND A SOURCE. `implied_factor` and `series_return` are measured
+# against data/raw_close_reference.parquet and the vendor series, never assumed; `source` names the
+# exchange record the event came from and the date it was retrieved. `resolution` uses the same
+# vocabulary as layer2_passA.parquet so the producer's TREATMENT map applies unchanged.
+#
+# RETIREMENT. When the foundation-audit harvest is extended past a row's ex_date, that row is
+# already in layer2_passA and must be deleted from here — the producer de-duplicates on
+# (symbol, ex_date) keeping the audit's measurement, but a stale row is still a second source of
+# truth and should not be left behind.
+#
+symbol,ex_date,kind,subject,implied_factor,series_return,resolution,source
+HEG,2026-09-07,demerger,Demerger,0.994380,-0.626227,LEFT_UNADJUSTED_AS_INTENDED,NSE corporate-actions API (symbol=HEG) retrieved 2026-09-09: exDate 07-Sep-2026 recDate 07-Sep-2026 subject "Demerger" isin INE545A01016 faceVal 2 unchanged; implied_factor measured over 8 pre-ex probes in data/raw_close_reference.parquet (0.9944 = the 2026-07-22 Rs 3.40 dividend adjustment only - the demerger itself was left as a cliff); series_return measured 728.25 -> 272.20 across the ex-date
