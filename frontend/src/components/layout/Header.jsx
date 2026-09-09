@@ -382,7 +382,7 @@ export const Header = () => {
             </button>
           </div>
           {/* Results */}
-          <div className="px-4 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 80px)' }}>
+          <div className="px-4 overflow-y-auto" style={{ maxHeight: 'calc(100dvh - 80px)' }}>
             {results.map((stock, i) => (
               <button
                 key={stock.symbol}

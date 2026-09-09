@@ -224,7 +224,7 @@ function DesktopEquityCurve() {
       <div
         ref={stickyRef}
         className="sticky top-0 flex flex-col justify-center"
-        style={{ minHeight: "100vh", paddingInline: "clamp(24px, 5vw, 80px)" }}
+        style={{ minHeight: "100dvh", paddingInline: "clamp(24px, 5vw, 80px)" }}
       >
         <div style={{ maxWidth: 1280, marginInline: "auto", width: "100%" }}>
           <div className="mb-8 flex items-end justify-between flex-wrap gap-6">

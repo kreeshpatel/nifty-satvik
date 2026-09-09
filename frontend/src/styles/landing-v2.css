@@ -87,6 +87,7 @@
   overflow-x: hidden;
   scroll-behavior: smooth;
   min-height: 100vh;
+  min-height: 100dvh;
   /* Render the landing as if the browser were at 80% zoom (real reflow, not a
      visual scale). Reset to 100% on phones so text doesn't get tiny. */
   zoom: 0.8;
@@ -141,6 +142,7 @@
 [data-page-ctx="landing"] .alm-btn {
   display: inline-flex;
   align-items: center;
+  white-space: nowrap;
   gap: 9px;
   height: 46px;
   padding: 0 24px;
@@ -1235,6 +1237,11 @@
 [data-page-ctx="landing"] .mock-top-divider { width: 1px; height: 14px; background: rgba(255,255,255,0.12); margin: 0 4px; }
 [data-page-ctx="landing"] .mock-top-section { color: var(--text-3); font-size: 11px; }
 [data-page-ctx="landing"] .mock-top-nav { display: flex; gap: 18px; color: var(--text-3); font-size: 12px; }
+/* The mockup's fake top nav has six links; on a phone it overflows its frame. */
+@media (max-width: 767px) {
+  [data-page-ctx="landing"] .mock-top-nav { display: none; }
+  [data-page-ctx="landing"] .mock-top { padding: 10px 12px; }
+}
 [data-page-ctx="landing"] .mock-top-user { display: flex; align-items: center; gap: 8px; }
 [data-page-ctx="landing"] .mock-top-pill {
   padding: 3px 8px; border-radius: 4px; background: var(--bull-soft); color: var(--bull);

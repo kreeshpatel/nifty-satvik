@@ -140,3 +140,77 @@ label {
     background-color: inherit;
   }
 }
+
+/* TopBar pill tabs: never wrap a label onto two lines (bites at ~768px). */
+.nq-tab { white-space: nowrap; }
+
+/* ========== MOBILE BOTTOM NAV ========== */
+/* Hidden on desktop; the TopBar pill tabs carry navigation there. */
+.mnav { display: none; }
+
+@media (max-width: 767px) {
+  .mnav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 60;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    height: calc(64px + var(--safe-bottom));
+    padding-bottom: var(--safe-bottom);
+    background: rgba(10, 14, 34, 0.82);
+    backdrop-filter: blur(28px) saturate(160%);
+    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    border-top: 1px solid var(--edge-1);
+  }
+  .mnav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 44px;
+    color: var(--text-3);
+    text-decoration: none;
+    font-family: var(--font-sans);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    transition: color 150ms;
+  }
+  .mnav-item.on { color: var(--text-1); }
+  .mnav-item.on svg { color: #4f8cff; }
+
+  /* TopBar on phone: logo + bell + avatar only. Ticker strip and pill tabs
+     are replaced by the bottom nav. */
+  .nq-topbar {
+    grid-template-columns: auto 1fr auto auto !important;
+    padding: 0 12px !important;
+    gap: 8px !important;
+    height: 56px !important;
+  }
+  .nq-topbar > nav,
+  .nq-topbar .nq-topbar-ticker { display: none !important; }
+  .nq-topbar-user-meta { display: none !important; }
+  .nq-topbar-user { padding: 4px !important; }
+
+  /* Underline tab strips (Backtest, Admin): scroll sideways, never wrap a
+     label onto three lines; drop the mono "since X" notes. */
+  .nq-tabstrip {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .nq-tabstrip > [role="tab"] {
+    white-space: nowrap;
+    flex: 0 0 auto;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  .nq-tab-note { display: none !important; }
+
+  /* Watchlist rail is desktop-only (see watchlist-rail.css); the sticky
+     offset below must follow the shorter mobile TopBar. */
+  .wlr { display: none !important; }
+}

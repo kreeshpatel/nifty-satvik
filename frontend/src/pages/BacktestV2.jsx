@@ -766,7 +766,7 @@ function TabStrip({ tabs, active, onChange }) {
   return (
     <div
       role="tablist"
-      className="flex items-center"
+      className="flex items-center nq-tabstrip scrollbar-hide"
       style={{ borderBottom: '1px solid var(--edge-1)', gap: 0 }}
     >
       {tabs.map((t) => {
@@ -812,7 +812,7 @@ function TabStrip({ tabs, active, onChange }) {
             {t.label}
             {t.note && (
               <span
-                className="t-num-small"
+                className="t-num-small nq-tab-note"
                 style={{
                   color: isActive ? 'var(--text-3)' : 'var(--text-4)',
                   fontFamily: 'var(--font-mono)',
