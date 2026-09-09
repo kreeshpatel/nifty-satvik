@@ -193,6 +193,15 @@
 }
 .rs-plan-row--done { opacity: 0.5; }
 .rs-plan-row--done .rs-plan-pct { color: var(--bull); background: var(--bull-soft); }
+/* DECIDED at Friday's close, fills at the next open — neither done nor open. It used to render as
+   done, which told the reader to hold a runner while a sell order was pending. Full opacity because
+   this is the only row on the card with a deadline. */
+.rs-plan-row--pending .rs-plan-pct {
+  color: var(--warn, #b45309);
+  background: var(--warn-soft, rgba(180, 83, 9, 0.12));
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
 
 /* Fact list: label left, value right, on one baseline grid so the values form a column. */
 .rs-facts { display: flex; flex-direction: column; gap: 5px; }

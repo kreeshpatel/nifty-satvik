@@ -121,6 +121,58 @@ _STATUS = {"target3": "HIT_TARGET", "targets": "HIT_TARGET", "trail": "HIT_STOP"
            "time": "EXPIRED", "eos": "EXPIRED"}
 
 
+def _exit_stage(plan: dict, p: dict) -> dict:
+    """Which tranches have actually LEFT the book, plus the one queued to leave next session.
+
+    THE BUG THIS REPLACES. The flags were read straight off the engine's trigger state —
+    `t1_done` / `pt_done` — which is set when the exit is DECIDED at the weekly close. The shares do
+    not leave until Monday's open, and `frac_left` only decrements then. So a card could say
+    `target_40_booked: true, pattern_40_booked: true` next to `fraction_remaining: 0.6`: two of three
+    tranches reported sold while 60% was still held. BAJAJ-AUTO printed exactly that on 2026-09-04,
+    and `SignalsV3`'s `trancheDone` reads these flags to decide the next action, so the card told the
+    reader to hold the runner when a 40% sell order was pending.
+
+    Derived from `frac_left` instead — the fraction still held is the only thing that knows what was
+    actually sold — so the flags and `fraction_remaining` cannot disagree. They are computed against
+    the SAME `plan` the card renders, so the tranche sizes have one source: the old key names baked
+    in "40" while the sizes come from cfg (`tp1_frac` / `pattern_frac`), which would have quietly
+    become a second lie the first time config-P was retuned.
+
+    The queued tranche is not dropped — it moves to `pending_exit`, which says what it is and that it
+    fills at the next open. That is the thing a holder needs on Saturday, and it was previously
+    recoverable only from `actionability`.
+    """
+    frac = round(float(p.get("frac_left", 1.0)), 2)
+    sold = round(1.0 - frac, 4)
+    tol = 0.01                       # frac_left is rounded to 2dp before it gets here
+    booked: dict[str, bool] = {}
+    cum = 0.0
+    for t in plan.get("tranches", []):
+        cum += float(t.get("pct", 0)) / 100.0
+        if t.get("type") in ("target", "pattern"):
+            # A type can appear twice (tp1 + tp2 are both "target"); booked means the LAST one of
+            # that type has cleared, which is what `cum` holds on the final pass.
+            booked[t["type"]] = sold >= cum - tol
+    pend = p.get("pending")
+    pending = None
+    if pend is not None:
+        kind, reason = pend[0], pend[1]
+        pending = {
+            "kind": kind,                                    # "part" | "full"
+            "reason": reason,                                # pattern | stop | target | trail | ...
+            "fraction": (round(float(p.get("pending_frac", frac)), 2) if kind == "part" else frac),
+            "fills": "next session's open",
+        }
+    return {
+        "target_booked": bool(booked.get("target", False)),
+        "pattern_booked": bool(booked.get("pattern", False)),
+        "runner_open": frac > 0.01,
+        "fraction_remaining": frac,
+        "fraction_sold": round(sold, 2),
+        "pending_exit": pending,
+    }
+
+
 def _exit_plan(entry, stop, sma44, exit_cfg=None):
     """The card exit plan — the stable, config-AGNOSTIC interface the UI renders. Tranches are
     DERIVED from `exit_cfg` (defaults to LIVE_EXIT), so swapping the live config changes the card
@@ -485,13 +537,10 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
             "tier": "signal", "status": "ACTIVE",
             # config-P surfacing: the exit plan + which tranches have already booked (exit_stage).
             "pattern": "44-week SMA pullback",
-            "exit_plan": _exit_plan(entry, float(p["stop"]), _sma44_now(P, t)),
-            "exit_stage": {
-                "target_40_booked": bool(p.get("t1_done")),   # 40% @ +2R
-                "pattern_40_booked": bool(p.get("pt_done")),  # 40% on the blow-off pattern
-                "runner_20_open": round(float(p.get("frac_left", 1.0)), 2) > 0.01,
-                "fraction_remaining": round(float(p.get("frac_left", 1.0)), 2),
-            },
+            "exit_plan": (_plan := _exit_plan(entry, float(p["stop"]), _sma44_now(P, t))),
+            # Derived from frac_left against `_plan`, so the booking flags and fraction_remaining
+            # cannot disagree, and a queued-but-unfilled tranche reads as pending rather than booked.
+            "exit_stage": _exit_stage(_plan, p),
         }
         if p["pending"] is not None:                          # Friday close said EXIT -> act Monday open
             act, reason = p["pending"]

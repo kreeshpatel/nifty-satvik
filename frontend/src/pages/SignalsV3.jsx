@@ -245,12 +245,33 @@ function enrichSignal(raw, quotes, posBySignal) {
 
   // The next tranche the plan expects, read off exit_stage rather than inferred from price:
   // the record's own booking flags are the authority on what has already been taken.
+  //
+  // Those flags used to come from the engine's TRIGGER state, set at Friday's close, while the
+  // shares only leave at Monday's open. So a card could report two tranches sold next to
+  // `fraction_remaining: 0.6` — BAJAJ-AUTO did on 2026-09-04 — and this very function then told the
+  // reader to hold the runner while a 40% sell order was pending. The producer now derives them
+  // from the fraction still held, and puts the queued tranche in `pending_exit`, which is the thing
+  // a holder actually needs to see on a Saturday.
   const stage = raw.exit_stage || {};
   const tranches = raw.exit_plan?.tranches ?? [];
-  const trancheDone = (t) => (t.type === 'target' ? !!stage.target_40_booked
-    : t.type === 'pattern' ? !!stage.pattern_40_booked
-    : t.type === 'runner' ? stage.runner_20_open === false : false);
+  const trancheDone = (t) => (t.type === 'target' ? !!stage.target_booked
+    : t.type === 'pattern' ? !!stage.pattern_booked
+    : t.type === 'runner' ? stage.runner_open === false : false);
+  // A pending tranche is NOT done — it is the next action, and it is the one with a deadline.
+  const pendingExit = stage.pending_exit || null;
+  // TRANSITION, removable after the first Saturday scan on/after 2026-09-12: an envelope written
+  // before this change carries the old keys, so these read undefined and every tranche renders as
+  // its percentage rather than ✓ or DUE. That is deliberate — "no claim" is the safe direction, and
+  // falling back to the old flags would reinstate the very wrong answer this change removes.
   const nextTranche = tranches.find((t) => !trancheDone(t)) || null;
+  // Tri-state, because 'done' and 'not done' cannot express the case that caused the defect: a
+  // tranche DECIDED at Friday's close and filling at the next open is neither.
+  const trancheState = (t) => {
+    if (trancheDone(t)) return 'done';
+    if (pendingExit && (pendingExit.kind === 'full' || pendingExit.reason === t.type
+        || (pendingExit.reason === 'pattern' && t.type === 'pattern'))) return 'pending';
+    return 'open';
+  };
 
   return {
     ...raw,
@@ -258,6 +279,8 @@ function enrichSignal(raw, quotes, posBySignal) {
     _riskPct: riskPct,
     _ext: ext, _extCap: extCap, _extTone: extTone,
     _tranches: tranches, _trancheDone: trancheDone, _nextTranche: nextTranche,
+    _trancheState: trancheState, _pendingExit: pendingExit,
+    _fracSold: typeof stage.fraction_sold === 'number' ? stage.fraction_sold : null,
     _fracLeft: typeof stage.fraction_remaining === 'number' ? stage.fraction_remaining : null,
     name: raw.name || ticker,
     sector: raw.sector || '—',
@@ -492,7 +515,13 @@ function CasePanel({ s, onAction, extraAction }) {
     typeof s.crs_rank === 'number' && ['Relative-strength score', s.crs_rank.toFixed(4)],
     typeof s.no_chase_above === 'number' && ['Do not chase above', fmtNum(s.no_chase_above)],
     s.hold_days ? ['Horizon', `${s.hold_days} days`] : null,
-    s._fracLeft != null && ['Position remaining', `${Math.round(s._fracLeft * 100)}%`],
+    s._fracLeft != null && ['Position remaining', `${Math.round(s._fracLeft * 100)}%`
+      + (s._fracSold ? ` · ${Math.round(s._fracSold * 100)}% already sold` : '')],
+    // The one line with a deadline on it. Previously recoverable only from `actionability`, while
+    // the tranche list rendered the same tranche as already booked.
+    s._pendingExit && ['Pending exit',
+      `${s._pendingExit.kind === 'full' ? 'ALL' : `${Math.round(s._pendingExit.fraction * 100)}%`}`
+      + ` on ${s._pendingExit.reason} · fills at ${s._pendingExit.fills}`],
   ].filter(Boolean);
   return (
     <div className="rs-case">
@@ -502,10 +531,13 @@ function CasePanel({ s, onAction, extraAction }) {
           <div className="rs-plan">
             {(s._tranches || []).length === 0 && <div className="rs-why">No staged plan on this card.</div>}
             {(s._tranches || []).map((t, i) => {
-              const done = s._trancheDone ? s._trancheDone(t) : false;
+              const st = s._trancheState ? s._trancheState(t) : (s._trancheDone?.(t) ? 'done' : 'open');
               return (
-                <div className={`rs-plan-row${done ? ' rs-plan-row--done' : ''}`} key={i}>
-                  <span className="rs-plan-pct">{done ? '✓' : `${t.pct}%`}</span>
+                <div className={`rs-plan-row${st === 'done' ? ' rs-plan-row--done' : ''}`
+                     + `${st === 'pending' ? ' rs-plan-row--pending' : ''}`} key={i}>
+                  <span className="rs-plan-pct">
+                    {st === 'done' ? '✓' : st === 'pending' ? 'DUE' : `${t.pct}%`}
+                  </span>
                   {/* The record's own instruction, verbatim. A paraphrase of an instruction is a
                       second instruction, and only one of the two was ever backtested. */}
                   <span>{t.do}</span>
