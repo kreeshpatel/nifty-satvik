@@ -259,8 +259,16 @@
 [data-page-ctx="landing"] .alm-mast-cta { display: inline-flex; gap: 8px; align-items: center; }
 @media (max-width: 900px) { [data-page-ctx="landing"] .alm-mast-links { display: none; } }
 @media (max-width: 767px) {
-  [data-page-ctx="landing"] .alm-mast-inner { padding: 11px 20px; }
-  [data-page-ctx="landing"] .alm-mast-cta .alm-btn-ghost { display: none; }
+  /* Phone masthead: brand mark + name, then BOTH actions. Sign in used to be hidden here, which
+     left a returning user with no way in until they rotated to landscape (>=768px). */
+  [data-page-ctx="landing"] .alm-mast-inner { padding: 8px 12px; gap: 8px; }
+  [data-page-ctx="landing"] .alm-brand { gap: 7px; min-width: 0; }
+  [data-page-ctx="landing"] .alm-brand-mark { width: 28px; height: 28px; }
+  [data-page-ctx="landing"] .alm-brand-name { font-size: 16px; }
+  [data-page-ctx="landing"] .alm-brand-name span { display: none; }
+  [data-page-ctx="landing"] .alm-mast-cta { gap: 6px; flex-shrink: 0; }
+  [data-page-ctx="landing"] .alm-mast-cta .alm-btn { height: 34px; padding: 0 10px; font-size: 11px; letter-spacing: 0.04em; }
+  [data-page-ctx="landing"] .alm-mast-cta .alm-btn-arrow { display: none; }
 }
 
 /* the dateline / ticker strip under the masthead */
@@ -1612,4 +1620,86 @@
   [data-page-ctx="landing"] .alm-section { padding: 46px 0; }
   [data-page-ctx="landing"] .alm-hero { padding: 34px 0 24px; }
   [data-page-ctx="landing"] .tp-hero { padding: 34px 0 24px; }
+}
+
+/* ═════════════════ PHONE — compact ═════════════════
+   Desktop spacing on a 375px screen made the landing page ~11,900px tall (14.6 screens): 46px
+   section gutters, 24px card padding, single-column stat cards, a 72px-padded closing card. This
+   block tightens every gutter, drops the four stat cards to a 2x2 grid and shrinks the display
+   type so each section reads as one compact unit. Last in the file so it wins the cascade. */
+@media (max-width: 767px) {
+  [data-page-ctx="landing"] .alm-brand-name { white-space: nowrap; }
+
+  /* section rhythm */
+  [data-page-ctx="landing"] .alm-section { padding: 26px 0; }
+  [data-page-ctx="landing"] .alm-section.tight { padding-top: 0; }
+  [data-page-ctx="landing"] .tp-head { margin-bottom: 18px; }
+  [data-page-ctx="landing"] .tp-title { font-size: 24px; }
+  [data-page-ctx="landing"] .tp-sub { font-size: 13.5px; line-height: 1.5; margin-top: 8px; }
+  [data-page-ctx="landing"] .alm-subhead { margin: 20px 0 10px; padding-top: 16px; }
+  [data-page-ctx="landing"] .bento-fine { margin-top: 10px; }
+
+  /* hero */
+  [data-page-ctx="landing"] .tp-hero { padding: 20px 0 6px; }
+  [data-page-ctx="landing"] .tp-badge { font-size: 11px; padding: 5px 12px 5px 10px; }
+  [data-page-ctx="landing"] .tp-hero-title { font-size: clamp(30px, 9.6vw, 38px); margin-top: 14px; letter-spacing: -0.03em; }
+  [data-page-ctx="landing"] .tp-hero-sub { font-size: 14.5px; line-height: 1.5; margin-top: 12px; }
+  [data-page-ctx="landing"] .tp-hero-cta { display: flex; margin-top: 16px; gap: 8px; }
+  [data-page-ctx="landing"] .tp-hero-cta .tp-btn { flex: 1 1 0; justify-content: center; height: 44px; padding: 0 14px; font-size: 13.5px; }
+  [data-page-ctx="landing"] .tp-shot { margin-top: 22px; }
+  [data-page-ctx="landing"] .tp-trust { margin-top: 18px; gap: 8px 18px; }
+
+  /* cards */
+  [data-page-ctx="landing"] .tp-card { padding: 16px; }
+  [data-page-ctx="landing"] .tp-card:hover { transform: none; }
+  [data-page-ctx="landing"] .tp-stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  [data-page-ctx="landing"] .tp-stat-l { font-size: 10px; }
+  [data-page-ctx="landing"] .tp-stat-v { font-size: 26px; margin-top: 8px; }
+  [data-page-ctx="landing"] .tp-stat-v span { font-size: 13px; }
+  [data-page-ctx="landing"] .tp-stat .alm-hero-spark { height: 34px; }
+  [data-page-ctx="landing"] .alm-chart-duo { gap: 10px; }
+  [data-page-ctx="landing"] .tp-steps, [data-page-ctx="landing"] .tp-feats { gap: 10px; }
+  [data-page-ctx="landing"] .tp-step, [data-page-ctx="landing"] .tp-feat { gap: 8px; }
+
+  /* the big multiple */
+  [data-page-ctx="landing"] .tp-bigstat { padding: 20px 18px; gap: 10px; }
+  [data-page-ctx="landing"] .tp-bigstat-num { font-size: 56px; }
+  [data-page-ctx="landing"] .tp-bigstat-body h3 { font-size: 19px; }
+  [data-page-ctx="landing"] .tp-bigstat-body p { font-size: 13.5px; margin-top: 8px; }
+  [data-page-ctx="landing"] .tp-scan-card { gap: 14px; }
+  [data-page-ctx="landing"] .tp-scan-big { font-size: 44px; }
+
+  /* panels */
+  [data-page-ctx="landing"] .alm-moat { padding: 14px 16px; gap: 12px; margin-top: 10px; }
+  [data-page-ctx="landing"] .alm-moat-ic { width: 32px; height: 32px; }
+  [data-page-ctx="landing"] .alm-moat-body h3 { font-size: 16px; }
+  [data-page-ctx="landing"] .alm-moat-body p { font-size: 13px; }
+  [data-page-ctx="landing"] .alm-ledger-main { padding: 16px; gap: 10px; }
+  [data-page-ctx="landing"] .alm-honest-col { padding: 12px 16px; }
+  [data-page-ctx="landing"] .alm-honest-item { padding: 10px 0; gap: 10px; }
+  [data-page-ctx="landing"] .alm-note { padding: 14px 16px; gap: 5px; }
+  [data-page-ctx="landing"] .alm-note-ic { width: 32px; height: 32px; margin-bottom: 2px; }
+  [data-page-ctx="landing"] .alm-access-item { padding: 14px 16px; }
+  [data-page-ctx="landing"] .alm-access-ic { width: 30px; height: 30px; margin-bottom: 8px; }
+  [data-page-ctx="landing"] .alm-access-foot { padding: 18px 16px; }
+
+  /* faq */
+  [data-page-ctx="landing"] .alm-faq-q { padding: 14px 16px; font-size: 15px; gap: 12px; }
+  [data-page-ctx="landing"] .alm-faq-a { padding: 0 16px; font-size: 14px; }
+  [data-page-ctx="landing"] .alm-faq-item.open .alm-faq-a { padding: 0 16px 16px; }
+
+  /* closing cta + footer */
+  [data-page-ctx="landing"] .alm-cta { padding: 16px 0 36px; }
+  [data-page-ctx="landing"] .alm-cta-card { padding: 34px 20px; }
+  [data-page-ctx="landing"] .alm-cta-rule { margin-bottom: 18px; }
+  [data-page-ctx="landing"] .alm-cta-title { font-size: 28px; margin-bottom: 10px; }
+  [data-page-ctx="landing"] .alm-cta-sub { font-size: 15px; margin-bottom: 20px; }
+  [data-page-ctx="landing"] .alm-cta-btns { display: flex; gap: 8px; }
+  [data-page-ctx="landing"] .alm-cta-btns .alm-btn { flex: 1 1 0; justify-content: center; }
+  [data-page-ctx="landing"] .alm-cta-note { margin-top: 16px; }
+  [data-page-ctx="landing"] .alm-foot { padding: 26px 0 22px; }
+  [data-page-ctx="landing"] .alm-foot-grid { gap: 18px 20px; }
+  [data-page-ctx="landing"] .alm-foot-tag { margin-top: 8px; }
+  [data-page-ctx="landing"] .alm-foot-col h4 { margin-bottom: 8px; }
+  [data-page-ctx="landing"] .alm-foot-rule { margin-top: 22px; padding-top: 14px; }
 }
