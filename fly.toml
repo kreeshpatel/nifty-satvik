@@ -23,7 +23,7 @@ primary_region = "sin"   # Singapore — lowest latency to NSE + India users
   # (enforces required secrets + secure cookies), but set this explicitly too.
   IS_PRODUCTION = "1"
   # CORS: main.py already allows *.vercel.app via regex; this covers a custom domain.
-  ALLOWED_ORIGIN = "https://niftyquant.vercel.app"
+  ALLOWED_ORIGIN = "https://nifty-satvik.vercel.app"
 
 [http_service]
   internal_port = 8080
