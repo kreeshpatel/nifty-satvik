@@ -583,7 +583,7 @@ async def ws_ticket(user: User = Depends(get_current_user)):
 # ── Password reset (self-service) ─────────────────────
 
 PASSWORD_RESET_TTL_MINUTES = 30
-FRONTEND_URL = os.getenv("FRONTEND_URL", "https://niftyquant.vercel.app")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "https://nifty-satvik.vercel.app")
 
 
 # ── MFA (TOTP) helpers ────────────────────────────────
