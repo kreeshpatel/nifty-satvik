@@ -72,6 +72,19 @@ without the token every results endpoint returns empty (boot still succeeds; the
 DB password: Supabase → Connect → **Session pooler** (port 5432, NOT 6543). *(A Fly deploy token lets me
 run `fly deploy`; auth + secrets stay yours. No Fly MCP is connected to my session — CLI/token only.)*
 
+**If every `fly` command fails with `Post "https://api.machines.dev/...": EOF`** (seen 2026-09-09 on the
+owner's laptop, from cmd and from Claude's shell alike): the machine's IPv6 route to `api.machines.dev`
+completes TCP but fails TLS, and flyctl's Go client does not fall back to IPv4 after a TLS failure.
+Diagnose with `curl -4 https://api.machines.dev/` (301 = fine) vs `curl -6 ...` (exit 35 = this bug).
+Workaround that changes nothing on the system — run [`deploy/v4proxy.py`](../deploy/v4proxy.py), an
+IPv4-only CONNECT proxy on 127.0.0.1:18080, in one terminal and point flyctl at it in another:
+```
+python deploy/v4proxy.py                       # terminal 1, leave running
+set HTTPS_PROXY=http://127.0.0.1:18080         # terminal 2 (cmd); PowerShell: $env:HTTPS_PROXY="http://127.0.0.1:18080"
+fly deploy
+```
+`fly secrets set`, `fly status` etc. go through the same proxy. Ctrl+C the proxy when done.
+
 Pre-deploy smoke (optional, catches the boot-crash class): `docker build -f deploy/Dockerfile -t nqapi .`
 then `docker run --rm -e ... nqapi python -c "import main"` — must import with no ModuleNotFoundError.
 
