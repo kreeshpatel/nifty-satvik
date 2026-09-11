@@ -1,18 +1,36 @@
 {
-  "generated_at": "2026-09-10",
-  "signals": [],
+  "generated_at": "2026-09-11",
+  "signals": [
+    {
+      "ticker": "SONACOMS",
+      "entry": 788.39,
+      "stop": 713.26,
+      "target": 965.94,
+      "target_pct": 22.52,
+      "current_price": 788.0,
+      "close": 788.0,
+      "signal_date": "2026-09-11",
+      "hold_days": 63,
+      "grade": "B",
+      "tier": "signal",
+      "status": "FRESH",
+      "buy_window": "T+1..T+3 at open",
+      "indicative_close": 788.0,
+      "indicative_entry": 788.39
+    }
+  ],
   "regime": {
     "status": "UNKNOWN",
     "strength": 0,
     "vix": 0,
     "breadth": 0
   },
-  "n_positions": 15,
-  "cash": 126.11,
+  "n_positions": 14,
+  "cash": 1207.16,
   "kill_state": {
-    "wr_last20": 60.0,
+    "wr_last20": 56.2,
     "wr_breach": false,
-    "sharpe_30d": 5.675,
+    "sharpe_30d": 4.699,
     "sharpe_30d_breach": false,
     "mode": "observe"
   }

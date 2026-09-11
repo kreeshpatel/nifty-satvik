@@ -208,5 +208,20 @@
     "net_pct": 2.66,
     "net_pnl": 39.4,
     "hold_days": 10
+  },
+  {
+    "ticker": "NATIONALUM",
+    "entry_date": "2026-08-13",
+    "exit_date": "2026-09-11",
+    "entry": 410.71,
+    "exit": 360.82,
+    "qty": 1,
+    "days_held": 21,
+    "reason": "stop",
+    "return_pct": -12.15,
+    "pnl": -50.89,
+    "net_pct": -12.15,
+    "net_pnl": -50.89,
+    "hold_days": 21
   }
 ]

@@ -1,7 +1,9 @@
 {
-  "cash": 410.24620974654135,
+  "cash": 770.5966443965414,
   "peak": 1026655.7556091606,
-  "pending": [],
+  "pending": [
+    "SONACOMS"
+  ],
   "positions": {
     "VEDL": {
       "ticker": "VEDL",
@@ -13,8 +15,8 @@
       "peak": 287.95001220703125,
       "atr_pct": 4.00977023470704,
       "adv": 7843204206.451306,
-      "days_held": 51,
-      "last_mark": 269.04998779296875,
+      "days_held": 52,
+      "last_mark": 263.70001220703125,
       "absent_run": 0
     },
     "ADANIPOWER": {
@@ -27,8 +29,8 @@
       "peak": 226.1699981689453,
       "atr_pct": 3.311638729252035,
       "adv": 6897609307.745554,
-      "days_held": 51,
-      "last_mark": 213.5,
+      "days_held": 52,
+      "last_mark": 209.97000122070312,
       "absent_run": 0
     },
     "KIRLOSENG": {
@@ -41,22 +43,8 @@
       "peak": 2278.283203125,
       "atr_pct": 4.665504822250521,
       "adv": 3546216280.3383546,
-      "days_held": 38,
-      "last_mark": 2209.0,
-      "absent_run": 0
-    },
-    "NATIONALUM": {
-      "ticker": "NATIONALUM",
-      "entry_date": "2026-08-13 00:00:00",
-      "entry": 410.70525,
-      "qty": 1,
-      "stop": 362.7121339199545,
-      "target": 503.1960723,
-      "peak": 410.70525,
-      "atr_pct": 3.1840701685847557,
-      "adv": 3314469754.7999997,
-      "days_held": 20,
-      "last_mark": 373.3500061035156,
+      "days_held": 39,
+      "last_mark": 2168.60009765625,
       "absent_run": 0
     },
     "SYRMA": {
@@ -69,8 +57,8 @@
       "peak": 1639.199951171875,
       "atr_pct": 3.541597146257521,
       "adv": 2573311438.298047,
-      "days_held": 16,
-      "last_mark": 1598.800048828125,
+      "days_held": 17,
+      "last_mark": 1589.300048828125,
       "absent_run": 0
     },
     "APARINDS": {
@@ -83,8 +71,8 @@
       "peak": 17900.0,
       "atr_pct": 3.962657248821724,
       "adv": 3080836412.6499996,
-      "days_held": 11,
-      "last_mark": 17342.0,
+      "days_held": 12,
+      "last_mark": 17500.0,
       "absent_run": 0
     },
     "BHARATFORG": {
@@ -97,8 +85,8 @@
       "peak": 2104.89990234375,
       "atr_pct": 2.7479647058662486,
       "adv": 2485016448.5,
-      "days_held": 11,
-      "last_mark": 1954.9000244140625,
+      "days_held": 12,
+      "last_mark": 1944.9000244140625,
       "absent_run": 0
     },
     "WELCORP": {
@@ -111,8 +99,8 @@
       "peak": 2776.89990234375,
       "atr_pct": 2.9538042301996787,
       "adv": 5968636078.912476,
-      "days_held": 9,
-      "last_mark": 2776.89990234375,
+      "days_held": 10,
+      "last_mark": 2676.60009765625,
       "absent_run": 0
     },
     "AEGISLOG": {
@@ -122,11 +110,11 @@
       "qty": 1,
       "stop": 1066.7284375270756,
       "target": 1598.4596304,
-      "peak": 1343.4000244140625,
+      "peak": 1353.5999755859375,
       "atr_pct": 4.969088199437758,
       "adv": 1421339042.3722532,
-      "days_held": 9,
-      "last_mark": 1307.5999755859375,
+      "days_held": 10,
+      "last_mark": 1353.5999755859375,
       "absent_run": 0
     },
     "HONASA": {
@@ -139,8 +127,8 @@
       "peak": 484.04188778686523,
       "atr_pct": 3.217832529272994,
       "adv": 992445757.9546967,
-      "days_held": 9,
-      "last_mark": 475.6499938964844,
+      "days_held": 10,
+      "last_mark": 471.1499938964844,
       "absent_run": 0
     },
     "HFCL": {
@@ -153,8 +141,8 @@
       "peak": 254.3270969467163,
       "atr_pct": 3.870378624196655,
       "adv": 4861579429.833288,
-      "days_held": 8,
-      "last_mark": 233.32000732421875,
+      "days_held": 9,
+      "last_mark": 233.69000244140625,
       "absent_run": 0
     },
     "CHENNPETRO": {
@@ -167,8 +155,8 @@
       "peak": 1626.4000244140625,
       "atr_pct": 4.328461143612943,
       "adv": 3416695503.2229366,
-      "days_held": 8,
-      "last_mark": 1626.4000244140625,
+      "days_held": 9,
+      "last_mark": 1572.9000244140625,
       "absent_run": 0
     },
     "RRKABEL": {
@@ -181,8 +169,8 @@
       "peak": 2651.325,
       "atr_pct": 3.8894393329346544,
       "adv": 1160522850.5976927,
-      "days_held": 5,
-      "last_mark": 2437.0,
+      "days_held": 6,
+      "last_mark": 2424.39990234375,
       "absent_run": 0
     },
     "LAURUSLABS": {
@@ -192,11 +180,11 @@
       "qty": 61,
       "stop": 1697.6337052518882,
       "target": 2273.882373,
-      "peak": 1946.9000244140625,
+      "peak": 1969.0,
       "atr_pct": 2.3240037222384395,
       "adv": 6404766944.0,
-      "days_held": 4,
-      "last_mark": 1945.0,
+      "days_held": 5,
+      "last_mark": 1969.0,
       "absent_run": 0
     },
     "BHEL": {
@@ -206,11 +194,11 @@
       "qty": 20,
       "stop": 378.02303823923404,
       "target": 517.4767816082336,
-      "peak": 429.5,
+      "peak": 431.0,
       "atr_pct": 2.860397927862206,
       "adv": 3297758980.0645657,
-      "days_held": 1,
-      "last_mark": 429.5,
+      "days_held": 2,
+      "last_mark": 431.0,
       "absent_run": 0
     }
   },
@@ -382,6 +370,18 @@
       "reason": "trailing",
       "return_pct": 2.66,
       "pnl": 39.4
+    },
+    {
+      "ticker": "NATIONALUM",
+      "entry_date": "2026-08-13",
+      "exit_date": "2026-09-11",
+      "entry": 410.71,
+      "exit": 360.82,
+      "qty": 1,
+      "days_held": 21,
+      "reason": "stop",
+      "return_pct": -12.15,
+      "pnl": -50.89
     }
   ],
   "equity_curve": [
@@ -702,6 +702,12 @@
       "equity": 1016577.13,
       "cash": 410.25,
       "n_positions": 15
+    },
+    {
+      "date": "2026-09-11",
+      "equity": 1008522.75,
+      "cash": 770.6,
+      "n_positions": 14
     }
   ],
   "config": {
