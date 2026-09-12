@@ -1,18 +1,32 @@
-# Weekly Decision Memos — 2026-09-04 | regime BEAR | 28 signals
+# Weekly Decision Memos — 2026-09-11 | regime BEAR | 31 signals
 
-### DECISION MEMO — IDFCFIRSTB  (IDFCFIRSTB__2026-09-04)
+### DECISION MEMO — CHOLAFIN  (CHOLAFIN__2026-09-11)
 1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
-2. **Signal strength** — ****.  (grade A, CRS rank 0.155)
-3. **Risk** — MODERATE · stop width 5.1% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 86.71 (band [82.5, 88.1]) · SL 82.5 · TP 95.13
-5. **Status** — [OK] **APPROVED** — Execute — buy in the band [82.5, 88.1]; fund strongest CRS rank first.
+2. **Signal strength** — ****.  (grade A, CRS rank 0.149)
+3. **Risk** — MODERATE · stop width 2.8% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 1845.9 (band [1795.1, 1868.2]) · SL 1795.1 · TP 1947.5
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [1795.1, 1868.2]; fund strongest CRS rank first.
 
-### DECISION MEMO — ASTERDM  (ASTERDM__2026-09-04)
+### DECISION MEMO — ANGELONE  (ANGELONE__2026-09-11)
 1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
-2. **Signal strength** — ****.  (grade A, CRS rank 0.1441)
+2. **Signal strength** — ****.  (grade A, CRS rank 0.1125)
 3. **Risk** — MODERATE · stop width 5.5% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 785.75 (band [745.05, 792.05]) · SL 745.05 · TP 867.15
-5. **Status** — [OK] **APPROVED** — Execute — buy in the band [745.05, 792.05]; fund strongest CRS rank first.
+4. **Trade plan** — entry 305.0 (band [289.05, 307.4]) · SL 289.05 · TP 336.9
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [289.05, 307.4]; fund strongest CRS rank first.
+
+### DECISION MEMO — GESHIP  (GESHIP__2026-09-11)
+1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
+2. **Signal strength** — ****.  (grade A, CRS rank 0.099)
+3. **Risk** — MODERATE · stop width 4.5% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 1412.2 (band [1352.0, 1426.9]) · SL 1352.0 · TP 1532.6
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [1352.0, 1426.9]; fund strongest CRS rank first.
+
+### DECISION MEMO — BANDHANBNK  (BANDHANBNK__2026-09-11)
+1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
+2. **Signal strength** — ****.  (grade A, CRS rank 0.055)
+3. **Risk** — MODERATE-HIGH · stop width 9.2% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 176.52 (band [161.67, 178.54]) · SL 161.67 · TP 206.22
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [161.67, 178.54]; fund strongest CRS rank first.
 
 ### DECISION MEMO — INDUSINDBK  (INDUSINDBK__2026-07-06)
 1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
@@ -33,7 +47,7 @@
 2. **Signal strength** — ****.  (grade A, CRS rank None)
 3. **Risk** — MODERATE · stop width 6.4% · R:R 1:2.0 · max-loss-in-plan YES
 4. **Trade plan** — entry 210.03 (band [None, None]) · SL 197.35 · TP 235.39
-5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
+5. **Status** — [WATCH] **WATCHLIST** — Monitor — below the A-grade / actionable bar; do not fund yet.
 
 ### DECISION MEMO — LTF  (LTF__2026-07-09)
 1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
@@ -47,14 +61,7 @@
 2. **Signal strength** — ****.  (grade A, CRS rank None)
 3. **Risk** — MODERATE · stop width 3.0% · R:R 1:2.0 · max-loss-in-plan YES
 4. **Trade plan** — entry 10080.0 (band [None, None]) · SL 9785.5 · TP 10669.0
-5. **Status** — [WATCH] **WATCHLIST** — Monitor — below the A-grade / actionable bar; do not fund yet.
-
-### DECISION MEMO — BIOCON  (BIOCON__2026-07-20)
-1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
-2. **Signal strength** — ****.  (grade A, CRS rank None)
-3. **Risk** — MODERATE-HIGH · stop width 9.4% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 440.4 (band [None, None]) · SL 402.7 · TP 515.8
-5. **Status** — [WATCH] **WATCHLIST** — Monitor — below the A-grade / actionable bar; do not fund yet.
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
 
 ### DECISION MEMO — SIEMENS  (SIEMENS__2026-07-20)
 1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
@@ -75,7 +82,7 @@
 2. **Signal strength** — ****.  (grade A, CRS rank None)
 3. **Risk** — MODERATE-HIGH · stop width 11.1% · R:R 1:2.0 · max-loss-in-plan YES
 4. **Trade plan** — entry 650.0 (band [None, None]) · SL 585.0 · TP 780.0
-5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
+5. **Status** — [WATCH] **WATCHLIST** — Monitor — below the A-grade / actionable bar; do not fund yet.
 
 ### DECISION MEMO — M&MFIN  (M&MFIN__2026-07-27)
 1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
@@ -164,8 +171,8 @@
 ### DECISION MEMO — PHOENIXLTD  (PHOENIXLTD__2026-08-24)
 1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
 2. **Signal strength** — ****.  (grade A, CRS rank None)
-3. **Risk** — MODERATE · stop width 2.1% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 1916.1 (band [None, None]) · SL 1876.0 · TP 1996.3
+3. **Risk** — MODERATE · stop width 2.0% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 1913.57 (band [None, None]) · SL 1876.0 · TP 1988.7
 5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
 
 ### DECISION MEMO — JSWSTEEL  (JSWSTEEL__2026-08-24)
@@ -194,4 +201,18 @@
 2. **Signal strength** — ****.  (grade A, CRS rank None)
 3. **Risk** — MODERATE · stop width 2.7% · R:R 1:2.0 · max-loss-in-plan YES
 4. **Trade plan** — entry 602.9 (band [None, None]) · SL 586.85 · TP 635.0
+5. **Status** — [WATCH] **WATCHLIST** — Monitor — below the A-grade / actionable bar; do not fund yet.
+
+### DECISION MEMO — IDFCFIRSTB  (IDFCFIRSTB__2026-09-07)
+1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
+2. **Signal strength** — ****.  (grade A, CRS rank None)
+3. **Risk** — MODERATE · stop width 4.6% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 86.29 (band [None, None]) · SL 82.5 · TP 93.87
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
+
+### DECISION MEMO — ASTERDM  (ASTERDM__2026-09-07)
+1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
+2. **Signal strength** — ****.  (grade A, CRS rank None)
+3. **Risk** — MODERATE · stop width 5.5% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 786.0 (band [None, None]) · SL 745.05 · TP 867.9
 5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.

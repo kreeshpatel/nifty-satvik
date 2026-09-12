@@ -1,0 +1,28 @@
+{
+  "prev_snapshot": "2026-09-04",
+  "cur_snapshot": "2026-09-11",
+  "closed_prev": 9,
+  "closed_cur": 10,
+  "closed_delta": 1,
+  "nav_prev": 1053235.81,
+  "nav_cur": 888072.14,
+  "nav_delta": -165163.67,
+  "n_restated": 0,
+  "restated": [],
+  "n_vanished": 0,
+  "vanished": [],
+  "n_appeared": 1,
+  "appeared": [
+    "BIOCON|2026-07-20"
+  ],
+  "inputs_changed": [
+    "nifty50_csv_sha256",
+    "ohlcv_cache_sha256",
+    "ohlcv_last_bar",
+    "ohlcv_n_rows"
+  ],
+  "clean": true,
+  "as_of": "2026-09-11",
+  "logged_utc": "2026-09-12T12:40:09.197813+00:00",
+  "is_baseline": false
+}
