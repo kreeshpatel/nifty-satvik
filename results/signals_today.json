@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-11",
+  "generated_at": "2026-09-14",
   "signals": [
     {
       "ticker": "SONACOMS",
@@ -13,7 +13,7 @@
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
-      "status": "FRESH",
+      "status": "ACTIVE",
       "buy_window": "T+1..T+3 at open",
       "indicative_close": 788.0,
       "indicative_entry": 788.39
@@ -26,11 +26,11 @@
     "breadth": 0
   },
   "n_positions": 14,
-  "cash": 1207.16,
+  "cash": 1144.09,
   "kill_state": {
     "wr_last20": 56.2,
     "wr_breach": false,
-    "sharpe_30d": 4.699,
+    "sharpe_30d": 4.712,
     "sharpe_30d_breach": false,
     "mode": "observe"
   }
