@@ -136,12 +136,78 @@ def _decision(tool: str, file_path: str, env_extra: dict | None = None) -> dict 
     return json.loads(out) if out.strip() else None
 
 
+SEALED_LOG = "results/judge_log.jsonl"
+
+
+def _shell_decision(tool: str, command: str, env_extra: dict | None = None) -> dict | None:
+    out = _run(
+        GUARD,
+        {"hook_event_name": "PreToolUse", "tool_name": tool, "tool_input": {"command": command}},
+        env_extra,
+    )
+    return json.loads(out) if out.strip() else None
+
+
+def test_the_guard_seals_the_path_the_writer_actually_uses():
+    """The seal must name the file the judge writes, not a path someone remembers.
+
+    Until 2026-09-15 the guard sealed `diagnostics/research/judge_log.jsonl`, which has never existed,
+    and the test beside it asserted that same literal — so both passed while the real 710 KB log in
+    `results/` was unprotected. Asserting a literal proves only that the literal is what was typed.
+    This ties the guard to the writer's own constant, so moving the log moves the seal or goes red.
+    """
+    sys.path.insert(0, str(ROOT))
+    sys.path.insert(0, str(ROOT / "scripts"))
+    from nq.paper.judge_log import DEFAULT_LOG
+    import guard_protected_paths as G
+    writer = Path(DEFAULT_LOG).resolve().relative_to(ROOT).as_posix()
+    assert G.JUDGE_LOG == writer, (
+        f"guard seals {G.JUDGE_LOG!r} but nq/paper/judge_log.py writes {writer!r}")
+
+
 @pytest.mark.parametrize("tool", ["Read", "Edit", "Write"])
 def test_sealed_judge_log_is_denied_for_reads_and_writes(tool: str):
-    verdict = _decision(tool, "diagnostics/research/judge_log.jsonl")
+    verdict = _decision(tool, SEALED_LOG)
     assert verdict is not None, f"{tool} on the sealed judge log was allowed"
     assert verdict["hookSpecificOutput"]["permissionDecision"] == "deny"
     assert "SEALED" in verdict["hookSpecificOutput"]["permissionDecisionReason"]
+
+
+@pytest.mark.parametrize("tool", ["Bash", "PowerShell"])
+@pytest.mark.parametrize("command", [
+    "cat results/judge_log.jsonl",
+    r"Get-Content results\judge_log.jsonl",
+    "python -c \"print(open('results/judge_log.jsonl').read())\"",
+    "tail -5 judge_log.jsonl",
+])
+def test_the_shell_cannot_read_the_sealed_log_either(tool: str, command: str):
+    """The file-tool seal was the only one. A session told to prefer the shell for reads would have
+    walked straight past it with `cat`."""
+    verdict = _shell_decision(tool, command)
+    assert verdict is not None, f"{tool} `{command}` read the sealed judge log"
+    assert verdict["hookSpecificOutput"]["permissionDecision"] == "deny"
+    assert "SEALED" in verdict["hookSpecificOutput"]["permissionDecisionReason"]
+
+
+@pytest.mark.parametrize("command", [
+    'grep -rn "judge_log.jsonl" docs/',        # finding where the name is MENTIONED reads no verdict
+    "pytest tests/test_judge_log.py -q",        # count + hash-chain verification is the sanctioned path
+    "git status --short",
+    "cat results/signals_today_weekly.json",
+])
+def test_ordinary_shell_work_is_untouched(command: str):
+    assert _shell_decision("Bash", command) is None, f"`{command}` was blocked"
+
+
+def test_the_hook_is_actually_wired_to_the_shell():
+    """Shell rules are dead code unless settings.json routes Bash and PowerShell through the guard."""
+    cfg = json.loads(SETTINGS.read_text(encoding="utf-8"))
+    matchers = [g.get("matcher", "") for g in cfg["hooks"]["PreToolUse"]
+                if any("guard_protected_paths" in a for h in g["hooks"] for a in h.get("args", []))]
+    assert matchers, "guard_protected_paths is not wired as a PreToolUse hook"
+    tools = {t for m in matchers for t in m.split("|")}
+    for needed in ("Read", "Bash", "PowerShell"):
+        assert needed in tools, f"the seal hook does not match {needed}"
 
 
 @pytest.mark.parametrize(
@@ -173,4 +239,5 @@ def test_ordinary_files_are_untouched():
 
 
 def test_the_override_is_a_single_deliberate_step():
-    assert _decision("Read", "diagnostics/research/judge_log.jsonl", {"NQ_GOVERNANCE_OVERRIDE": "1"}) is None
+    assert _decision("Read", SEALED_LOG, {"NQ_GOVERNANCE_OVERRIDE": "1"}) is None
+    assert _shell_decision("Bash", f"cat {SEALED_LOG}", {"NQ_GOVERNANCE_OVERRIDE": "1"}) is None

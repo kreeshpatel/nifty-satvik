@@ -8,10 +8,27 @@ the time. A hook cannot be talked round.
 
 Rules (each cites the law it enforces):
 
-  1. `diagnostics/research/judge_log.jsonl` — no read, no write. The judge verdicts are SEALED until
-     the first review read (>= 2 quarters from 2026-08-01); reading them early destroys the only
-     blind evidence the programme has. Verify by counts and hash-chain instead
-     (`tests/test_judge_log.py`).
+  1. `results/judge_log.jsonl` — no read, no write, from the file tools AND from the shell. The judge
+     verdicts are SEALED until the first review read (>= 2 quarters from 2026-08-01); reading them
+     early destroys the only blind evidence the programme has. Verify by counts and hash-chain
+     instead (`tests/test_judge_log.py`).
+
+     Until 2026-09-15 this rule named `diagnostics/research/judge_log.jsonl`, a path that has never
+     existed — the writer (`nq/paper/judge_log.py::DEFAULT_LOG`) puts the log in `results/`. The
+     guard's own test asserted the same wrong literal, so both were green while the real 710 KB
+     sealed log sat unprotected. `tests/test_agent_harness.py` now ties this constant to the writer's
+     path, so the two cannot drift apart silently again.
+
+     Shell coverage is a tripwire, not a vault: it refuses any command naming the log by its
+     `results/` path, and a plain reader (`cat`, `head`, `tail`, `Get-Content`, …) given the bare
+     file name. A search that merely mentions the name is allowed, and a command that reaches the
+     file without naming it (`cd results && …`, a Python script) is not caught. The seal rests on
+     intent; this makes stepping over it deliberate rather than accidental.
+
+     Known false positive: the whole command string is scanned, so a commit message or PR body typed
+     inline that *mentions* the path is refused too. Write the text to a file and pass it by
+     reference (`git commit -F msg.txt`, `gh pr create --body-file body.md`). Found on the commit
+     that introduced this rule.
   2. A pre-registration whose run has already produced a result — no write. The pre-reg is the
      record of what was committed to *before* seeing the outcome; editing it afterwards is not a
      correction, it is the loss of the thing that made the result worth anything. Amend with a new
@@ -48,7 +65,25 @@ ROOT = Path(__file__).resolve().parent.parent
 WRITE_TOOLS = {"Edit", "Write", "NotebookEdit", "MultiEdit"}
 READ_TOOLS = {"Read"}
 
-JUDGE_LOG = "diagnostics/research/judge_log.jsonl"
+JUDGE_LOG = "results/judge_log.jsonl"   # == nq/paper/judge_log.py::DEFAULT_LOG (held by a test)
+SHELL_TOOLS = {"Bash", "PowerShell"}
+
+import re  # noqa: E402  (kept beside the only rule that needs it)
+
+# Any command naming the sealed log through its results/ path, with either separator.
+_SEALED_PATH = re.compile(r"results[\\/]+judge_log\.jsonl", re.IGNORECASE)
+# The bare file name handed to a plain reader. Searches (grep/rg/Select-String) are deliberately NOT
+# listed: looking for where the name is *mentioned* is ordinary work and reads no verdict.
+_READER_ON_BARE_NAME = re.compile(
+    r"\b(cat|head|tail|less|more|type|gc|Get-Content|jq)\b[^|;&]*\bjudge_log\.jsonl\b",
+    re.IGNORECASE)
+
+
+def shell_reads_sealed_log(command: str) -> bool:
+    """True when a shell command names the sealed log in a way that reads or rewrites it."""
+    if not command:
+        return False
+    return bool(_SEALED_PATH.search(command) or _READER_ON_BARE_NAME.search(command))
 
 FROZEN = {
     "models/long_horizon/config.json": (
@@ -142,6 +177,17 @@ def decide(tool: str, rel: str | None) -> dict | None:
     return None
 
 
+def decide_shell(command: str) -> dict | None:
+    if shell_reads_sealed_log(command):
+        return deny(
+            f"`{JUDGE_LOG}` is SEALED until the first review read (>= 2 quarters from 2026-08-01), "
+            "and this shell command names it. The seal covers the shell as well as the file tools — "
+            "reading the verdicts early is what makes them worthless. Verify by count and hash-chain "
+            "instead (`tests/test_judge_log.py`)."
+        )
+    return None
+
+
 def main() -> int:
     if os.environ.get("NQ_GOVERNANCE_OVERRIDE") == "1":
         return 0
@@ -155,7 +201,10 @@ def main() -> int:
     if not isinstance(tool_input, dict):
         return 0
 
-    verdict = decide(tool, relpath(str(tool_input.get("file_path", ""))))
+    if tool in SHELL_TOOLS:
+        verdict = decide_shell(str(tool_input.get("command", "")))
+    else:
+        verdict = decide(tool, relpath(str(tool_input.get("file_path", ""))))
     if verdict:
         sys.stdout.write(json.dumps(verdict))
     return 0
