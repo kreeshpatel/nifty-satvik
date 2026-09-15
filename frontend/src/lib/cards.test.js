@@ -108,6 +108,7 @@ describe('demergerNotes', () => {
     expect(n.retainedPct).toBeCloseTo(37.3773, 4);
     expect(n.spinPerShare).toBe(456.05);
     expect(n.originalEntry).toBeCloseTo(650.0, 1);
+    expect(n.scale).toBeCloseTo(0.373773, 6);
   });
 
   it('compounds across events: the earlier note divides out every later re-base too', () => {
@@ -117,6 +118,7 @@ describe('demergerNotes', () => {
     expect(first.exDate).toBe('2026-09-01');
     expect(first.originalEntry).toBeCloseTo(100, 6);
     expect(second.originalEntry).toBeCloseTo(80, 6);
+    expect(first.scale).toBeCloseTo(0.4, 6);    // the whole re-base lives on the first note
   });
 
   it('drops malformed notes rather than printing a division by zero', () => {

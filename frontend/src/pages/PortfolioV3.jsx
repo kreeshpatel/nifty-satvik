@@ -38,6 +38,7 @@ import {
   drawdownStatus, drawdownLabel, DRAWDOWN_HALT_PCT,
 } from '@/lib/guardrails';
 import { monthlySeries } from '@/lib/monthly';
+import { demergerNotes, parseCalendarDate } from '@/lib/cards';
 import PaperRefRecord from '@/components/portfolio/PaperRefRecord';
 import '@/styles/portfolio-v3.css';
 
@@ -51,6 +52,7 @@ function ledgerHoldingToRow(pos, quotes) {
   const ltp = q?.last_price != null ? Number(q.last_price) : avg;   // fall back to cost if no quote yet
   return {
     tradingsymbol: pos.ticker,
+    signal_id: pos.signal_id,
     sector: pos.sector || 'Other',
     quantity: Number(pos.remaining_qty) || 0,
     average_price: avg,
@@ -846,7 +848,40 @@ const HOLDING_STATUS_LABELS = {
   'sell-time':   ['EXIT · TIME', 'pv3-sp-hold'],
 };
 
-function HoldingsTable({ holdings, isPaper, totalEquity, isLoading }) {
+// ── Demerger note for a held row (B′, PR #98) ──
+// A demerger re-bases the model's levels by the retained ratio, so a reader's broker fill (HEG 653.00)
+// and the model's entry (244.07) disagree with nothing on this page explaining the gap. Neither positions
+// payload carries `corporate_actions`; the page joins them from the signals feed it already loads.
+// Rendered INSIDE the Company cell: an extra grid cell would shift every nth-child rule these tables
+// use to hide columns on narrow screens.
+function fmtExDate(v) {
+  const d = parseCalendarDate(v);
+  return d ? d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—';
+}
+
+function DemergerLines({ notes, basis, basisIsRebased }) {
+  if (!notes || notes.length === 0) return null;
+  const whole = notes[0].scale;
+  // The paper book's entry ALREADY carries the re-base, so it is divided out. The ledger's average is
+  // the reader's own fill, which the re-base never touched — and the ledger does not say whether it
+  // was bought before the ex-date, so that line is stated as a conditional, never as a fact.
+  const rebase = !(basis > 0) ? null : basisIsRebased
+    ? `orig. entry = entry ÷ retained = ${fmtNum(basis / whole)}`
+    : `pre-ex avg × retained = ${fmtNum(basis * whole)}`;
+  return (
+    <>
+      {notes.map((n) => (
+        <div className="pv3-td-name-full tabular-nums" key={n.exDate}>
+          Demerger ex {fmtExDate(n.exDate)} · {n.retainedPct.toFixed(1)}% retained
+          {n.spinPerShare != null && <> · ₹{fmtNum(n.spinPerShare)}/sh credited</>}
+        </div>
+      ))}
+      {rebase && <div className="pv3-td-name-full tabular-nums">{rebase}</div>}
+    </>
+  );
+}
+
+function HoldingsTable({ holdings, isPaper, totalEquity, isLoading, caIndex }) {
   const [activeTab, setActiveTab] = useState('all');
 
   const rows = useMemo(() => {
@@ -877,6 +912,7 @@ function HoldingsTable({ holdings, isPaper, totalEquity, isLoading }) {
           pnl,
           pnlPct,
           _status: derivePaperStatus(h),
+          _demergers: demergerNotes(caIndex?.byTicker.get(String(h.ticker || '').toUpperCase())),
         };
       });
     }
@@ -903,9 +939,10 @@ function HoldingsTable({ holdings, isPaper, totalEquity, isLoading }) {
         pnl,
         pnlPct,
         _status: 'hold',
+        _demergers: demergerNotes(caIndex?.bySignal.get(h.signal_id)),
       };
     });
-  }, [holdings, isPaper]);
+  }, [holdings, isPaper, caIndex]);
 
   const totalValue = totalEquity || rows.reduce((s, r) => s + r.value, 0);
 
@@ -972,6 +1009,7 @@ function HoldingsTable({ holdings, isPaper, totalEquity, isLoading }) {
                   <div>
                     <div className="pv3-td-name-sym">{r.sym}</div>
                     <div className="pv3-td-name-full">{r.sector}{r.product === 'MTF' ? ' · MTF' : ''}</div>
+                    <DemergerLines notes={r._demergers} basis={r.avg} basisIsRebased={isPaper} />
                   </div>
                 </div>
                 <div className="pv3-td pv3-td-r tabular-nums">{Math.round(r.qty)}</div>
@@ -1271,7 +1309,7 @@ function RealizedStrip({ trades }) {
   );
 }
 
-function PositionsTable({ holdings, isLoading }) {
+function PositionsTable({ holdings, isLoading, caIndex }) {
   const rows = useMemo(() => (holdings || []).map((h, i) => {
     const qty = Number(h.shares) || 0;
     const entry = Number(h.entry_price) || 0;
@@ -1282,8 +1320,9 @@ function PositionsTable({ holdings, isLoading }) {
     const stop = Number(h.atr_stop) || 0;
     const target = Number(h.target) || 0;
     const rr = (entry > 0 && entry !== stop && target > 0) ? (target - entry) / (entry - stop) : null;
-    return { id: h.ticker || i, sym: h.ticker || '—', sector: h.sector || 'Other', qty, entry, ltp, value, pnl, pnlPct, stop, target, rr, days: h.hold_days };
-  }), [holdings]);
+    const _demergers = demergerNotes(caIndex?.byTicker.get(String(h.ticker || '').toUpperCase()));
+    return { id: h.ticker || i, sym: h.ticker || '—', sector: h.sector || 'Other', qty, entry, ltp, value, pnl, pnlPct, stop, target, rr, days: h.hold_days, _demergers };
+  }), [holdings, caIndex]);
   return (
     <div className="pv3-stocks-table">
       <div className="pv3-stocks-table-head">
@@ -1314,6 +1353,7 @@ function PositionsTable({ holdings, isLoading }) {
               <div>
                 <div className="pv3-td-name-sym">{r.sym}</div>
                 <div className="pv3-td-name-full">{r.sector}</div>
+                <DemergerLines notes={r._demergers} basis={r.entry} basisIsRebased />
               </div>
             </div>
             <div className="pv3-td pv3-td-r tabular-nums">{Math.round(r.qty)}</div>
@@ -1490,6 +1530,21 @@ export default function PortfolioV3() {
     return { holdings: yoursHoldings, portfolio: yoursPortfolio, cash: null, totalEquity: mktValue || null };
   }, [isPaper, paperPos, paperPortfolio, yoursHoldings, closedExec]);
 
+  // Demerger notes by signal (the ledger's key) and by ticker (the paper book's — the positions API
+  // joins model state by ticker too). Only cards a demerger touched carry the key.
+  const caIndex = useMemo(() => {
+    const bySignal = new Map();
+    const byTicker = new Map();
+    for (const s of signalsQuery.data?.signals ?? []) {
+      if (!Array.isArray(s?.corporate_actions) || s.corporate_actions.length === 0) continue;
+      const t = String(s.ticker || '').toUpperCase();
+      if (!t) continue;
+      bySignal.set(s.signal_id || `${t}__${s.signal_date}`, s.corporate_actions);
+      byTicker.set(t, s.corporate_actions);
+    }
+    return { bySignal, byTicker };
+  }, [signalsQuery.data]);
+
   const activeHoldings = view.holdings;
   const cash           = view.cash;
   const totalEquity    = view.totalEquity;
@@ -1614,8 +1669,8 @@ export default function PortfolioV3() {
           <section className="pv3-row"><UnrealizedStrip holdings={activeHoldings} isPaper={isPaper} /></section>
           <section className="pv3-row">
             {isPaper
-              ? <PositionsTable holdings={paperPos} isLoading={isHoldingsLoading} />
-              : <HoldingsTable holdings={activeHoldings} isPaper={isPaper} totalEquity={totalEquity} isLoading={isHoldingsLoading} />}
+              ? <PositionsTable holdings={paperPos} isLoading={isHoldingsLoading} caIndex={caIndex} />
+              : <HoldingsTable holdings={activeHoldings} isPaper={isPaper} totalEquity={totalEquity} isLoading={isHoldingsLoading} caIndex={caIndex} />}
           </section>
           <section className="pv3-row"><AllocCard holdings={activeHoldings} cash={cash} totalEquity={totalEquity} isPaper={isPaper} isLoading={isHoldingsLoading} /></section>
         </>

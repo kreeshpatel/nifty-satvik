@@ -30,7 +30,7 @@ Written by the weekly scanner (Saturday).
 | `buy_zone_high` | FRESH | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
 | `buy_zone_low` | FRESH | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
 | `close` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | **7** |
-| `corporate_actions` | ACTIVE | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `corporate_actions` | ACTIVE | · | · | · | · | · | ✓ | · | ✓ | · | **2** |
 | `crs_rank` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `current_price` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | **6** |
 | `entry` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
@@ -50,7 +50,7 @@ Written by the weekly scanner (Saturday).
 | `qty` | ACTIVE,HIT_STOP,HIT_TARGET | ✓ | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | · | **6** |
 | `record_would_skip_as_extended` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `signal_conviction` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
-| `signal_date` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | · | · | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | **5** |
+| `signal_date` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | · | · | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | **6** |
 | `status` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | **7** |
 | `stop` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **9** |
 | `stop_week_low` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
@@ -94,7 +94,7 @@ Written by the daily monitor (weekdays 16:15 IST).
 | `r_now` | missed_exits | · | · | ✓ | · | · | · | · | · | · | **1** |
 | `reason` | missed_exits | ✓ | · | ✓ | · | · | ✓ | · | ✓ | · | **4** |
 | `severity` | missed_exits | · | · | ✓ | · | ✓ | · | · | ✓ | · | **3** |
-| `signal_date` | missed_exits | · | · | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | **5** |
+| `signal_date` | missed_exits | · | · | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | **6** |
 | `signal_id` | missed_exits | ✓ | ✓ | ✓ | · | ✓ | ✓ | · | ✓ | · | **6** |
 | `sma20` | buy,hold | · | · | · | · | · | · | · | · | · | **0** |
 | `source` | missed_exits | ✓ | ✓ | · | · | · | ✓ | · | ✓ | · | **4** |
@@ -139,7 +139,7 @@ Parse them as LOCAL dates (`parseCalendarDate` in SignalsV3.jsx), never with a b
 | `buy_window_until` | cards lib, Research |
 | `due_date` | recon, This week |
 | `filled_on` | Research |
-| `signal_date` | recon, cards lib, This week, Research, History |
+| `signal_date` | recon, cards lib, This week, Research, Portfolio, History |
 
 ## How to use this
 

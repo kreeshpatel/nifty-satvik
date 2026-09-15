@@ -109,6 +109,9 @@ export function demergerNotes(corporateActions, entry) {
       exDate: a.ex_date ?? null,
       retainedPct: a.retained * 100,
       spinPerShare: typeof a.spin_value_per_share === 'number' ? a.spin_value_per_share : null,
+      // The factor this event and every later one applied. On the first note it is the whole
+      // re-base, which is what a caller holding an UN-rebased price (a broker fill) multiplies by.
+      scale,
       originalEntry: entry > 0 ? entry / scale : null,
     };
   });
