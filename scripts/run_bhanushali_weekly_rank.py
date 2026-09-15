@@ -45,6 +45,105 @@ CERTIFIED_N_TRIALS = 114
 SLOPE_MIN, SLOPE_LOOKBACK, TOUCH_BAND, CRS_LEN = 0.03, 13, 0.07, 40   # the live 0093-N50 params (frozen)
 
 
+# ── CORPORATE ACTIONS: demerger on a HELD position (owner decision 2026-09-15, "B′", standing rule) ──
+#
+# The book prices positions on RAW closes. A demerger re-bases the listed share DOWN by the value of the
+# business carved out (HEG, ex 2026-09-07: 728.25 -> 272.20), and a holder receives shares of the new
+# entity for that value. The raw series alone cannot tell that from a crash, so before this the book
+# compared the post-demerger price with a pre-demerger stop and booked the spun-off value as a loss
+# (HEG: -6.55R, -Rs 1,30,831 on the paper book, into the archive the Oct-1 review reads).
+#
+# B′ splits the position at the ex-date, using only what was known that day:
+#   * the carved-out slice (1 - r of the value, r = ex close / prior close as registered) is REALISED at
+#     its market-implied value, prior_close x (1 - r) per share, as a cash credit — no trade, no cost;
+#   * the remaining shares carry on, with every price level (entry, stop, risk, targets, trail, peaks)
+#     scaled by r, so R keeps its meaning;
+#   * from the ex-date that position's backward-looking references (20d SMA, 44w SMA, weekly HLC) are read
+#     from a demerger-adjusted view, or the 44w runner line — still full of pre-demerger prices — would
+#     fire an immediate `sma_break` and silently undo the credit;
+#   * later tranches weigh `_f x ca_scale`: they sell sh0 x _f SHARES (unchanged by a demerger), but those
+#     shares now carry only r of the original value.
+# Net effect, exactly: the original trade, with (1 - r) of its remaining exposure closed at the prior close.
+#
+# NOT decided here: how the price SERIES used for new signals should treat a demerger. That is binder §10
+# (`data/corporate_actions_demerger_register.csv`, convention UNDECIDED) for the 2026-10-01 review.
+#
+# Integrity: a registered cliff must actually be in the series. If the vendor has since back-adjusted the
+# history (ratio ~ 1), applying B′ would double-count, so it is skipped. A ratio that matches neither is
+# refused loudly — an unexplained re-base on a held name is not something to guess about.
+CA_CLIFF_ABSENT_TOL = 0.05     # |ex/prior - 1| below this => vendor already continuous => skip B′
+CA_CLIFF_MATCH_TOL = 0.02      # |observed/registered - 1| above this => refuse
+_CA_SCALED_KEYS = ("en", "stop", "risk0", "tp2", "trail", "pk", "pk_wh", "peak_h", "floor0", "last_mark")
+
+
+class DemergerCliffMismatch(RuntimeError):
+    """A registered demerger's retained ratio does not match what the price series shows."""
+
+
+def build_demerger_events(ohlcv: dict, rows, **prep_kwargs) -> dict:
+    """{ticker: {"ex_date", "retained", "view"}} for registered demergers present in `ohlcv`.
+
+    `rows` are (ticker, ex_date, retained_ratio). The `view` is `prep_weekly_rank` on a copy of that
+    ticker with every PRE-ex bar scaled by the retained ratio, built with the same prep kwargs as the book
+    it will serve. Post-ex bars are untouched, so the view agrees with raw prices from the ex-date on.
+    """
+    out: dict = {}
+    for ticker, ex_date, retained in rows:
+        if ticker not in ohlcv:
+            continue
+        ex = pd.Timestamp(ex_date).normalize()
+        r = float(retained)
+        if not 0.0 < r < 1.0:
+            raise ValueError(f"{ticker} {ex.date()}: retained ratio {r} must lie in (0, 1)")
+        adj = ohlcv[ticker].copy()
+        pre = adj.index < ex
+        for col in ("Open", "High", "Low", "Close"):
+            if col in adj.columns:
+                adj.loc[pre, col] = adj.loc[pre, col] * r
+        view = prep_weekly_rank({ticker: adj}, **prep_kwargs).get(ticker)
+        if view is None:
+            continue
+        out[ticker] = {"ex_date": ex, "retained": r, "view": view}
+    return out
+
+
+def _apply_demerger(p: dict, s: dict, i: int, d, ev: dict) -> float:
+    """Apply B′ to a position held into the ex-date bar `i`. Returns the cash credit (0 if skipped)."""
+    r = float(ev["retained"])
+    pre, exc = float(s["c"][i - 1]), float(s["c"][i])
+    observed = exc / pre if pre > 0 else float("nan")
+    if abs(observed - 1.0) < CA_CLIFF_ABSENT_TOL:
+        p["ca_skipped"] = {"ex_date": str(pd.Timestamp(d).date()), "observed_ratio": round(observed, 6),
+                           "why": "no cliff in the series — the vendor already back-adjusted; B′ would double-count"}
+        return 0.0
+    if not abs(observed / r - 1.0) <= CA_CLIFF_MATCH_TOL:
+        raise DemergerCliffMismatch(
+            f"demerger on {pd.Timestamp(d).date()}: registered retained ratio {r:.6f} but the series moved "
+            f"{pre:.2f} -> {exc:.2f} (ratio {observed:.6f}). Neither the registered cliff nor a back-adjusted "
+            f"series; refusing to re-base a held position on a guess. Check the event's ex-date and ratio.")
+    view = ev["view"]
+    if len(view["dates"]) != len(s["dates"]):
+        raise DemergerCliffMismatch("demerger view is not aligned bar-for-bar with the raw series")
+    spin = pre * (1.0 - r)
+    credit = float(p["sh"]) * spin
+    r_credit = p["frac_left"] * (1.0 - r) * (pre - p["en"]) / p["risk0"]
+    p["realized_r"] += r_credit
+    p["frac_left"] *= r
+    p["ca_scale"] = p.get("ca_scale", 1.0) * r
+    for k in _CA_SCALED_KEYS:
+        if k in p:
+            p[k] = p[k] * r
+    p["proceeds"] += credit
+    p["ca_view"] = view
+    note = {"kind": "demerger", "ex_date": str(pd.Timestamp(d).date()), "retained": round(r, 6),
+            "prior_close": round(pre, 2), "spin_value_per_share": round(spin, 2),
+            "credit": round(credit, 2), "r_credited": round(r_credit, 4), "shares": round(float(p["sh"]), 4)}
+    p.setdefault("ca_notes", []).append(note)
+    if "rec" in p:
+        p["rec"].setdefault("corporate_actions", []).append(note)
+    return credit
+
+
 def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, drop_rs: bool = False,
                      first_touch: bool = False, base_min: int = 0, base_lookback: int = 8,
                      base_band: float = 0.12, decouple_touch_green: bool = False, green_wait: int = 3,
@@ -389,7 +488,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              stop_atr_mult: float | None = None, buystop_buffer: float = 0.0,
              scaled_exit: dict | None = None, hard_stop: bool = False,
              max_risk_pct: float | None = None, max_notional_pct: float | None = None,
-             stale_absent_days: int = 0):
+             stale_absent_days: int = 0, demerger_events: dict | None = None):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
@@ -407,7 +506,12 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
     engine's ``nq.engine.portfolio.STALE_ABSENT_DAYS`` (10) rather than inventing a new parameter.
     When ON, an absent holding is also marked to its last traded close in the NAV sum instead of its
     ENTRY price. 0 (default) => OFF => byte-identical to the 0094 run of record, which freezes such
-    a position forever and carries it at cost (the B-1 bug, captured in tests/test_r94_golden.py)."""
+    a position forever and carries it at cost (the B-1 bug, captured in tests/test_r94_golden.py).
+
+    demerger_events (owner decision 2026-09-15, "B′", standing rule): {ticker: event} from
+    `build_demerger_events`. A position held INTO a registered ex-date realises the carved-out value as a
+    cash credit and carries on re-based — see `_apply_demerger` and the block comment above it. None
+    (default) => no event can fire => byte-identical to the 0094 run of record and the live golden cells."""
     vt_ann, vt_win, vt_floor = vol_target if vol_target else (0.0, 42, 1.0)
     _EQ0 = EQ0 if eq0 is None else float(eq0)
     dts = pd.DatetimeIndex(sorted(set().union(*[set(s["dates"]) for s in P.values()])))
@@ -417,6 +521,9 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
     op: dict[str, dict] = {}
     orders: dict[str, dict] = {}
     curve = []; T = []; skipped_cash = 0; activations = 0
+    # B′: entry day of each position on a ticker with a registered demerger, keyed by the position
+    # object's id so no field is added to positions that no event touches (keeps golden state identical).
+    _ca_entry: dict[int, pd.Timestamp] = {}
     # B-1 NAV-mark selector, bound once (gate OFF => the frozen entry-price mark, byte-identical).
     _absent_mark = ((lambda p_: p_.get("last_mark", p_["en"])) if stale_absent_days
                     else (lambda p_: p_["en"]))
@@ -455,6 +562,15 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                         del op[t]
                 continue
             s = P[t]
+            # B′: on the first bar on/after a registered ex-date, re-base a position that was held INTO it
+            # (entered strictly before the ex-date). From then on it reads the demerger-adjusted view.
+            if demerger_events and t in demerger_events:
+                _ev = demerger_events[t]
+                if ("ca_view" not in p and "ca_skipped" not in p and i > 0 and d >= _ev["ex_date"]
+                        and _ca_entry.get(id(p), d) < _ev["ex_date"]):
+                    cash += _apply_demerger(p, s, i, d, _ev)
+                if "ca_view" in p:
+                    s = p["ca_view"]
             p["absent_run"] = 0
             p["last_mark"] = float(s["c"][i])      # last TRADED close (the B-1 stale-exit price)
             if p["pending"] is not None:
@@ -480,8 +596,9 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                         _got = _xp * (1 - _cost_leg(p["adv"], _xp, cost_off))
                         cash += _got; p["proceeds"] += _got; p["stt"] += _xp * STT_PCT
                         p["sh"] -= _shx
-                        p["realized_r"] += _pf * (px - p["en"]) / p["risk0"]
-                        p["frac_left"] = max(p["frac_left"] - _pf, 0.0)
+                        _w = _pf * p.get("ca_scale", 1.0)       # B′: shares now carry r of the value
+                        p["realized_r"] += _w * (px - p["en"]) / p["risk0"]
+                        p["frac_left"] = max(p["frac_left"] - _w, 0.0)
                         p["half_done"] = True
                     p["pending"] = None
                 else:
@@ -614,8 +731,9 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     _got = _xp * (1 - _cost_leg(p["adv"], _xp, cost_off))
                     cash += _got; p["proceeds"] += _got; p["stt"] += _xp * STT_PCT
                     p["sh"] -= _shx
-                    p["realized_r"] += _f * scaled_exit[_rk]
-                    p["frac_left"] = max(p["frac_left"] - _f, 0.0)
+                    _w = _f * p.get("ca_scale", 1.0)            # B′: shares now carry r of the value
+                    p["realized_r"] += _w * scaled_exit[_rk]
+                    p["frac_left"] = max(p["frac_left"] - _w, 0.0)
                     p[_tag] = True
                     p["half_done"] = True                       # informational (cards/ledger)
                     if "rec" in p and _tag == "t1_done":
@@ -886,6 +1004,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                                  origin=int(o_.get("origin", 0)),   # CONTEXT-ROUTER: per-branch exit lookup
                                  frac_left=1.0, realized_r=0.0, t1_done=False, t2_done=False,
                                  absent_run=0, last_mark=en)        # B-1 staleness bookkeeping
+                    if demerger_events and t in demerger_events:
+                        _ca_entry[id(op[t])] = d                     # B′: held INTO an ex-date only if d < ex
                     rp = sh * (en - st) / sizing_eq * 100      # risk as % of SIZING equity
                     # The notional cap legitimately UNDER-sizes (that is what a cap does), so the strict
                     # sizing invariant only applies when uncapped. Capped, risk may only be REDUCED —

@@ -94,6 +94,39 @@ LIVE_DISCIPLINE = dict(ext_cap=0.20, max_risk_pct=0.10, max_notional_pct=0.20)
 # lands with a provably zero diff on the book to date. backtest() DEFAULTS stay OFF so the frozen
 # 0094 research run is byte-identical (golden cell `frozen_defaults`).
 LIVE_STALENESS = dict(stale_absent_days=STALE_ABSENT_DAYS)
+# LIVE CORPORATE ACTIONS — B′ (2026-09-15 owner decision, standing rule; see the dated block
+# `live_corporate_actions_change` in models/bhanushali_weekly/config.json). The engine prices held
+# positions on RAW closes, so a demerger reads as a crash through the stop: HEG (ex 2026-09-07,
+# 728.25 -> 272.20) queued a full stop exit at −6.55R for value that had in fact been handed to the
+# holder as new shares. For every registered demerger on a position held INTO the ex-date, the book
+# now realises the spun-off slice at the prior close and carries the remaining shares re-based
+# (R94._apply_demerger). The events come from the post-harvest addendum — the file new events are
+# registered in — and only rows the cleaner deliberately LEFT as a cliff: a series the vendor already
+# back-adjusted has nothing to re-base (and the engine also checks the prices themselves).
+CORPORATE_ACTIONS_ADDENDUM = ROOT / "data" / "corporate_actions_post_harvest.csv"
+_CA_CLIFF_RESOLUTION = "LEFT_UNADJUSTED_AS_INTENDED"
+
+
+def load_demerger_rows(path: Path = CORPORATE_ACTIONS_ADDENDUM) -> list[tuple[str, str, float]]:
+    """(ticker, ex_date, retained) for every registered demerger left as a price cliff.
+
+    retained = 1 + series_return: the fraction of the pre-ex value the listed share kept, as MEASURED
+    across the ex-date (never assumed). A missing file is an empty register, not an error — the book
+    then runs exactly as it did before B′ existed.
+    """
+    if not Path(path).exists():
+        return []
+    df = pd.read_csv(path, comment="#")
+    rows = []
+    for _, r in df.iterrows():
+        if str(r["kind"]).strip().lower() != "demerger" or str(r["resolution"]).strip() != _CA_CLIFF_RESOLUTION:
+            continue
+        retained = 1.0 + float(r["series_return"])
+        if not 0.0 < retained < 1.0:
+            raise ValueError(f"{r['symbol']} {r['ex_date']}: series_return {r['series_return']} does not describe "
+                             f"a demerger (retained {retained:.4f} outside (0, 1)) — fix the register row")
+        rows.append((str(r["symbol"]).strip(), str(r["ex_date"]).strip(), retained))
+    return rows
 # LIVE EXIT = config P (2026-07-16 owner decision — see docs/decisions/0010 + config_CHANGELOG +
 # research/substrate/FINDING_pattern_exit.md). A THREE-TRANCHE scaled exit that REPLACES the P2 trend exit:
 #   40% booked at +2R (resting limit, intraweek)
@@ -142,7 +175,10 @@ def _exit_stage(plan: dict, p: dict) -> dict:
     fills at the next open. That is the thing a holder needs on Saturday, and it was previously
     recoverable only from `actionability`.
     """
-    frac = round(float(p.get("frac_left", 1.0)), 2)
+    # B′: a demerger multiplies frac_left by the retained ratio (the book's VALUE shrank) without
+    # selling a share. Tranches are sized in shares, so progress is read in shares: frac_left / ca_scale.
+    # Without this HEG's 0.37 read as 63% sold — "target booked" on a position that never sold a share.
+    frac = round(float(p.get("frac_left", 1.0)) / float(p.get("ca_scale", 1.0)), 2)
     sold = round(1.0 - frac, 4)
     tol = 0.01                       # frac_left is rounded to 2dp before it gets here
     booked: dict[str, bool] = {}
@@ -341,9 +377,13 @@ def _ext_flags(entry: float, sma44: float) -> dict:
             "record_would_skip_as_extended": bool(entry > sma44 * (1.0 + float(cap)))}
 
 
-def _sma44_now(P, t):
-    """The most recent 44-week SMA for ticker t (the runner's exit reference)."""
-    wa = P[t].get("wsma_at") or {}
+def _sma44_now(P, t, p=None):
+    """The most recent 44-week SMA for ticker t (the runner's exit reference).
+
+    Pass the open position `p` when there is one: after a demerger (B′) the position's runner is
+    judged on its demerger-adjusted series (`ca_view`), and the raw series' SMA — dragged down by
+    43 pre-cliff weeks — would print a runner level the engine is not using."""
+    wa = ((p or {}).get("ca_view") or P[t]).get("wsma_at") or {}
     vals = [v for v in wa.values() if v == v]
     return vals[-1] if vals else float("nan")
 
@@ -537,11 +577,15 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
             "tier": "signal", "status": "ACTIVE",
             # config-P surfacing: the exit plan + which tranches have already booked (exit_stage).
             "pattern": "44-week SMA pullback",
-            "exit_plan": (_plan := _exit_plan(entry, float(p["stop"]), _sma44_now(P, t))),
+            "exit_plan": (_plan := _exit_plan(entry, float(p["stop"]), _sma44_now(P, t, p))),
             # Derived from frac_left against `_plan`, so the booking flags and fraction_remaining
             # cannot disagree, and a queued-but-unfilled tranche reads as pending rather than booked.
             "exit_stage": _exit_stage(_plan, p),
         }
+        if p.get("ca_notes"):
+            # B′ — additive, and OMITTED when there is none, so every other card is byte-identical.
+            # The entry/stop/target above are already re-based; this says why they moved.
+            rec["corporate_actions"] = p["ca_notes"]
         if p["pending"] is not None:                          # Friday close said EXIT -> act Monday open
             act, reason = p["pending"]
             rec["actionability"] = "EXIT_REQUIRED"
@@ -629,6 +673,9 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
             "current_value": round(shares * cur, 2), "unrealised_pnl": round(shares * (cur - entry), 2),
             "unrealised_pnl_pct": pct, "days_held": int(p["weeks"] * 5),
         }
+        if p.get("ca_notes"):
+            # entry_price is re-based and the spun-off value is already in cash — say so on the row.
+            paper_positions[t]["corporate_actions"] = p["ca_notes"]
     curve = out_paper["curve"]
     nav = float(out_paper["equity"])
     peak = float(curve.cummax().iloc[-1]) if len(curve) else nav
@@ -954,15 +1001,20 @@ def main(argv=None) -> int:
     # Grade-A only: trade the TOP-5-by-CRS signals of each week. Owner rule — never surface or buy
     # Grade B; there are always enough strong A names.
     a_set = R94.grade_a_entries(P)
+    # B′ (LIVE CORPORATE ACTIONS above): the same events reach all three books, so the paper book, the
+    # signal ledger and the watched arm cannot disagree about a demerged holding. A registered ratio the
+    # prices contradict raises DemergerCliffMismatch and the run publishes nothing — fail closed.
+    ca_events = R94.build_demerger_events(ohlcv, load_demerger_rows())
     # ── ₹10L paper book — realistic capital sim (A-only), kept for the NAV/equity portfolio.
     led_paper: list = []
     out_paper = R94.backtest(P, mem, ledger=led_paper, start=args.start, return_state=True, a_grade=a_set,
-                             **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS)
+                             **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS, demerger_events=ca_events)
     # ── UNCAPPED signal ledger — every A signal tracked (cash never runs out), so a name is followed
     #    week to week regardless of what ₹10L could afford. This drives the SIGNALS page.
     led_all: list = []
     out_all = R94.backtest(P, mem, ledger=led_all, start=args.start, return_state=True, uncapped=True,
-                           a_grade=a_set, **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS)
+                           a_grade=a_set, **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS,
+                           demerger_events=ca_events)
     # ── base-swing WATCHED arm (forward/prereg_swing.md §2) — ALL grades (no a_grade filter), same
     #    ₹10L cash gate and the same LIVE_* discipline as the traded book. Logged, NEVER traded and
     #    NEVER surfaced: the owner rule above forbids showing Grade B, so this result is deliberately
@@ -978,7 +1030,7 @@ def main(argv=None) -> int:
     #    so every week unlogged is a week of the comparison permanently lost.
     led_base: list = []
     out_base = R94.backtest(P, mem, ledger=led_base, start=args.start, return_state=True,
-                            **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS)
+                            **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS, demerger_events=ca_events)
     # data's last date = the "as of" the book is current to
     last = max((pd.Timestamp(s["dates"][-1]) for s in P.values()), default=pd.Timestamp(args.start))
     generated_at = str(last.date())
