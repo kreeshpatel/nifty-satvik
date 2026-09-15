@@ -1,4 +1,4 @@
-import { nseToday, parseCalendarDate, positionR, toTargetPct, holdWeek } from './cards';
+import { nseToday, parseCalendarDate, positionR, toTargetPct, holdWeek, demergerNotes, ledgerCostBasis } from './cards';
 
 // The real JSWSTEEL card of 2026-08-21 and its real Monday fill, which is what exposed three of
 // these four defects on the live board.
@@ -88,5 +88,90 @@ describe('holdWeek', () => {
 
   it('is null for a start date in the future rather than a negative week', () => {
     expect(holdWeek({ filledOn: '2026-09-30', now: at('2026-08-30') })).toBeNull();
+  });
+});
+
+describe('demergerNotes', () => {
+  // The live HEG card of 2026-09-15: re-based on the 2026-09-07 demerger.
+  const HEG_CA = [{ kind: 'demerger', ex_date: '2026-09-07', retained: 0.373773, prior_close: 728.25,
+                    spin_value_per_share: 456.05, credit: 140323.02, r_credited: 0.7539, shares: 307.6923 }];
+
+  it('is empty when the card carries no event — the key is omitted, not emptied', () => {
+    expect(demergerNotes(undefined, 242.95)).toEqual([]);
+    expect(demergerNotes(null, 242.95)).toEqual([]);
+    expect(demergerNotes([], 242.95)).toEqual([]);
+  });
+
+  it('undoes the re-base, so the card reconciles with a pre-demerger broker fill', () => {
+    const [n] = demergerNotes(HEG_CA, 242.95);
+    expect(n.exDate).toBe('2026-09-07');
+    expect(n.retainedPct).toBeCloseTo(37.3773, 4);
+    expect(n.spinPerShare).toBe(456.05);
+    expect(n.originalEntry).toBeCloseTo(650.0, 1);
+    expect(n.scale).toBeCloseTo(0.373773, 6);
+  });
+
+  it('compounds across events: the earlier note divides out every later re-base too', () => {
+    const two = [{ kind: 'demerger', ex_date: '2026-10-01', retained: 0.5 },
+                 { kind: 'demerger', ex_date: '2026-09-01', retained: 0.8 }];
+    const [first, second] = demergerNotes(two, 40);
+    expect(first.exDate).toBe('2026-09-01');
+    expect(first.originalEntry).toBeCloseTo(100, 6);
+    expect(second.originalEntry).toBeCloseTo(80, 6);
+    expect(first.scale).toBeCloseTo(0.4, 6);    // the whole re-base lives on the first note
+  });
+
+  it('drops malformed notes rather than printing a division by zero', () => {
+    expect(demergerNotes([{ kind: 'demerger', retained: 0 }, { kind: 'split', retained: 0.5 }, null], 10)).toEqual([]);
+  });
+});
+
+describe('ledgerCostBasis', () => {
+  const HEG_CA = [{ kind: 'demerger', ex_date: '2026-09-07', retained: 0.373773, prior_close: 728.25,
+                    spin_value_per_share: 456.05 }];
+  const buy = (price, qty, created_at, extra = {}) => ({ side: 'BUY', price, qty, created_at, ...extra });
+
+  it('leaves a holding no demerger touched exactly as the ledger says', () => {
+    expect(ledgerCostBasis({ avgBuy: 653, events: [buy(653, 10, '2026-07-28T05:00:00')] }))
+      .toEqual({ avg: 653, rawAvg: 653, basis: 'none' });
+  });
+
+  it('re-bases a buy recorded before the ex-date by the retained ratio', () => {
+    const r = ledgerCostBasis({ avgBuy: 653, corporateActions: HEG_CA,
+                                events: [buy(653, 10, '2026-07-28T05:00:00')] });
+    expect(r.basis).toBe('events');
+    expect(r.avg).toBeCloseTo(244.07, 2);   // = the paper book's re-based entry
+    expect(r.rawAvg).toBe(653);
+  });
+
+  it('leaves a genuine post-ex buy alone', () => {
+    const r = ledgerCostBasis({ avgBuy: 230, corporateActions: HEG_CA,
+                                events: [buy(230, 10, '2026-09-09T05:00:00')] });
+    expect(r).toEqual({ avg: 230, rawAvg: 230, basis: 'events' });
+  });
+
+  it('reads a pre-ex fill RECORDED after the ex-date from its price', () => {
+    // No executed_at is ever sent, so a late record carries the recording date. 653 sits far above
+    // the cliff midpoint (728.25 × √0.3738 ≈ 445); 230 sits below it.
+    const r = ledgerCostBasis({ avgBuy: 653, corporateActions: HEG_CA,
+                                events: [buy(653, 10, '2026-09-12T05:00:00')] });
+    expect(r.basis).toBe('events+price');
+    expect(r.avg).toBeCloseTo(244.07, 2);
+  });
+
+  it('weights a position built across the ex-date, and ignores corrected and sell events', () => {
+    const r = ledgerCostBasis({ avgBuy: 441.5, corporateActions: HEG_CA, events: [
+      buy(653, 10, '2026-07-28T05:00:00'),
+      buy(999, 10, '2026-07-28T06:00:00', { superseded: true }),
+      buy(230, 10, '2026-09-09T05:00:00'),
+      { side: 'SELL', price: 260, qty: 5, created_at: '2026-09-10T05:00:00' },
+    ] });
+    expect(r.avg).toBeCloseTo((653 * 0.373773 * 10 + 230 * 10) / 20, 4);
+  });
+
+  it('assumes every buy was pre-ex until the event trail arrives', () => {
+    const r = ledgerCostBasis({ avgBuy: 653, corporateActions: HEG_CA, events: undefined });
+    expect(r.basis).toBe('assumed');
+    expect(r.avg).toBeCloseTo(244.07, 2);
   });
 });

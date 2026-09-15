@@ -25,7 +25,7 @@ import { useSignals } from '@/hooks/queries/useSignals';
 import { useOverview } from '@/hooks/queries/useOverview';
 import { useIndexSparklines } from '@/hooks/queries/useIndexSparklines';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
-import { useExecutionPositions, useOutstandingActions } from '@/hooks/queries/useExecution';
+import { useExecutionPositions, useLedgerCostBases, useOutstandingActions } from '@/hooks/queries/useExecution';
 import { DISCLAIMER } from '@/lib/signalCopy';
 import TradeCardModal from '@/components/shared/TradeCardModal';
 import '@/styles/dashboard-proto.css';
@@ -253,10 +253,11 @@ function HoldingsPanel({ holdings, quoteData, isLoading }) {
       const ltp = h.last_price ?? 0;
       const qty = h.quantity ?? 0;
       const avgP = h.average_price ?? 0;
+      const rebased = !!h.rebased;
       const dayChg = h.day_change ?? null;
       const gainPct = ltp > 0 && dayChg != null ? (dayChg / ltp) * 100 : h.day_change_percentage ?? null;
       const pnl = (ltp > 0 && avgP > 0 && qty > 0) ? (ltp - avgP) * qty : null;
-      return { sym, sector: quoteData?.[sym]?.sector || 'NSE', ltp, qty, avgP, gainPct, pnl };
+      return { sym, sector: quoteData?.[sym]?.sector || 'NSE', ltp, qty, avgP, gainPct, pnl, rebased };
     });
   }, [holdings, quoteData]);
 
@@ -285,7 +286,7 @@ function HoldingsPanel({ holdings, quoteData, isLoading }) {
         </div>
       ) : filtered.map((r) => (
         <div className="trow" key={r.sym}>
-          <div className="co"><ProtoLogo sym={r.sym} /><div><div className="nm">{r.sym}</div><div className="ex">NSE · {r.sector}</div></div></div>
+          <div className="co"><ProtoLogo sym={r.sym} /><div><div className="nm">{r.sym}</div><div className="ex">NSE · {r.sector}{r.rebased ? ' · avg re-based for demerger' : ''}</div></div></div>
           <div className="td tnum">{r.qty || '—'}</div>
           <div className="td tnum">{r.avgP ? fmtINR(r.avgP) : '—'}</div>
           <div className="td tnum">{r.ltp ? fmtINR(r.ltp) : '—'}</div>
@@ -628,20 +629,24 @@ export default function DashboardV3() {
     () => [...new Set(openPositions.map((p) => (p.ticker || '').toUpperCase()).filter(Boolean))].slice(0, 8),
     [openPositions]);
   const quotesQuery = useQuoteBatch(heldSymbols, { enabled: heldSymbols.length > 0 });
+  // Same re-based basis as /portfolio and Research, or a demerged holding reads a different P&L on each.
+  const costBySignal = useLedgerCostBases(openPositions, signalsQuery.data?.signals);
   const holdingsQuery = useMemo(() => ({
     isLoading: execQuery.isLoading,
     data: openPositions.slice(0, 8).map((p) => {
       const q = quotesQuery.data?.[(p.ticker || '').toUpperCase()] || null;
-      const avg = Number(p.avg_buy_price) || 0;
+      const cost = costBySignal.get(p.signal_id);
+      const avg = Number(cost?.avg ?? p.avg_buy_price) || 0;
       return {
         tradingsymbol: p.ticker,
+        rebased: !!cost && cost.basis !== 'none' && Math.abs(cost.avg - cost.rawAvg) >= 0.005,
         quantity: Number(p.remaining_qty) || 0,
         average_price: avg,
         last_price: q?.last_price != null ? Number(q.last_price) : avg,  // fall back to cost, never 0
         day_change_percentage: q?.change_pct ?? null,
       };
     }),
-  }), [openPositions, quotesQuery.data, execQuery.isLoading]);
+  }), [openPositions, quotesQuery.data, execQuery.isLoading, costBySignal]);
 
   const signals    = useMemo(() => signalsQuery.data?.signals ?? [], [signalsQuery.data]);
   const regime     = useMemo(() => signalsQuery.data?.regime ?? {}, [signalsQuery.data]);

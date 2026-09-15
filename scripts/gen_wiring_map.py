@@ -101,11 +101,6 @@ INTENTIONALLY_UNREAD: dict[str, str] = {
     "today_open":
         "Engine input to window_filled. The reader-facing fact it supports — 'Filled Mon, 24 Aug "
         "at 1,298.00' — is already on the row, priced and dated.",
-    "corporate_actions":
-        "B′ audit note (PR #98): why a demerged holding's entry/stop/target moved and what cash was "
-        "credited. The levels the card prints are already re-based, so no instruction depends on "
-        "it. NOT a permanent decision — rendering it on the HOLD card, so a holder can reconcile "
-        "their broker fill (HEG 653.00) with the card (244.07), is an open follow-up.",
 }
 
 # Fields that carry a calendar DATE with no time and no zone. `new Date('YYYY-MM-DD')` is UTC

@@ -11,6 +11,7 @@ Covers the spec contract (docs/EXECUTION_CAPTURE_SPEC.md):
 """
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any
 
 from fastapi.testclient import TestClient
@@ -165,3 +166,71 @@ def test_execution_ledger_is_tenant_isolated(client: TestClient, make_user: Any,
     assert client.get("/api/execution/reconciliation", cookies=ck_b).json()["n_positions"] == 0
     # and A's own view is intact
     assert client.get("/api/execution/positions", cookies=ck_a).json()["positions"][0]["remaining_qty"] == 100
+
+
+# ── B′ demergers: the reader's cost basis after a share was split in two ─────────
+#
+# The live case: HEG, bought at 653.00, demerged 2026-09-07 keeping 37.3773% of its value. Priced
+# against the post-ex quote (~225) on the un-adjusted average the position reported about −65%, and a
+# SELL after the ex-date would have BOOKED that phantom loss. The model's own card, re-based, read
+# entry 244.07. See the B′ note in scripts/run_bhanushali_weekly_rank.py::_apply_demerger.
+
+HEG_CA = [{"kind": "demerger", "ex_date": "2026-09-07", "retained": 0.373773,
+           "prior_close": 728.25, "spin_value_per_share": 456.05}]
+
+
+def _dated_ev(side, qty, price, day, eid=0):
+    """An event whose created_at is `day` — i.e. the day the fill was REPORTED, which is all the
+    ledger ever knows (the capture popup sends no executed_at)."""
+    e = _ev(side, qty, price, eid=eid)
+    e.created_at = datetime.fromisoformat(f"{day}T10:00:00")
+    return e
+
+
+def test_demerger_rebases_the_average_a_position_is_priced_on() -> None:
+    st = ledger.position_state([_dated_ev("BUY", 100, 653.0, "2026-07-28", eid=1)],
+                               corporate_actions=HEG_CA)
+    assert st["avg_buy_price"] == 244.07          # what the model's re-based card shows
+    assert st["raw_avg_buy_price"] == 653.0       # what the reader's broker still shows
+    assert st["cost_basis"] == "events"
+
+
+def test_demerger_does_not_book_a_phantom_loss_on_a_post_ex_sell() -> None:
+    """The bug this fixes: selling after the ex-date realised the spun-off value as a loss."""
+    events = [_dated_ev("BUY", 100, 653.0, "2026-07-28", eid=1),
+              _dated_ev("SELL", 100, 260.0, "2026-09-10", eid=2)]
+    st = ledger.position_state(events, stop=585.0, corporate_actions=HEG_CA)
+    # 100 × (260 − 244.07…) = +1592.62, not 100 × (260 − 653) = −39,300.
+    assert st["realized_pnl"] == 1592.62
+    assert st["realized_pnl_pct"] == 6.53
+    # risk/share = 244.07… − 585 × 0.373773 = 244.07… − 218.66… ≈ 25.41 → +0.627R
+    assert st["realized_r"] == 0.627
+
+
+def test_a_fill_reported_after_the_ex_date_is_dated_by_its_price() -> None:
+    """A pre-ex fill reported late is still a pre-ex fill: 653 sits far above the cliff midpoint
+    (728.25 × √0.3738 ≈ 445), where a genuine post-ex fill would sit below it."""
+    late = ledger.position_state([_dated_ev("BUY", 100, 653.0, "2026-09-12", eid=1)],
+                                 corporate_actions=HEG_CA)
+    assert late["avg_buy_price"] == 244.07 and late["cost_basis"] == "events+price"
+
+    genuine = ledger.position_state([_dated_ev("BUY", 100, 230.0, "2026-09-09", eid=1)],
+                                    corporate_actions=HEG_CA)
+    assert genuine["avg_buy_price"] == 230.0 and genuine["cost_basis"] == "none"
+
+
+def test_a_position_closed_before_the_ex_date_is_never_rebased() -> None:
+    """Those shares were sold whole; scaling their basis would invent a gain on a closed trade."""
+    events = [_dated_ev("BUY", 100, 653.0, "2026-07-28", eid=1),
+              _dated_ev("SELL", 100, 700.0, "2026-08-20", eid=2)]
+    st = ledger.position_state(events, corporate_actions=HEG_CA)
+    assert st["avg_buy_price"] == 653.0 and st["realized_pnl"] == 4700.0
+    assert st["cost_basis"] == "none"
+
+
+def test_no_corporate_action_leaves_every_figure_exactly_as_before() -> None:
+    plain = [_ev("BUY", 100, 100.0, eid=1), _ev("SELL", 40, 120.0, "target", eid=2)]
+    before = ledger.position_state(plain, stop=90.0)
+    assert before == ledger.position_state(plain, stop=90.0, corporate_actions=[])
+    assert before == ledger.position_state(plain, stop=90.0, corporate_actions=None)
+    assert before["cost_basis"] == "none" and before["raw_avg_buy_price"] == 100.0

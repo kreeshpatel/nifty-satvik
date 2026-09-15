@@ -30,7 +30,7 @@ Written by the weekly scanner (Saturday).
 | `buy_zone_high` | FRESH | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
 | `buy_zone_low` | FRESH | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
 | `close` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | **7** |
-| `corporate_actions` | ACTIVE | · | · | · | · | · | · | · | · | · | **0** |
+| `corporate_actions` | ACTIVE | · | ✓ | · | · | · | ✓ | · | ✓ | · | **3** |
 | `crs_rank` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `current_price` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | **6** |
 | `entry` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
@@ -47,10 +47,10 @@ Written by the weekly scanner (Saturday).
 | `no_chase_above` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `nq_position_id` | ACTIVE,HIT_STOP,HIT_TARGET | · | · | ✓ | · | · | ✓ | · | · | · | **2** |
 | `pattern` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | · | ✓ | · | · | · | ✓ | · | · | · | **2** |
-| `qty` | ACTIVE,HIT_STOP,HIT_TARGET | ✓ | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | · | **6** |
+| `qty` | ACTIVE,HIT_STOP,HIT_TARGET | ✓ | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | · | **7** |
 | `record_would_skip_as_extended` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `signal_conviction` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
-| `signal_date` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | · | · | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | **5** |
+| `signal_date` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | · | · | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | **6** |
 | `status` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | **7** |
 | `stop` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **9** |
 | `stop_week_low` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
@@ -58,10 +58,6 @@ Written by the weekly scanner (Saturday).
 | `ticker` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
 | `tier` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | · | · | ✓ | ✓ | · | · | · | **3** |
 | `why` | HIT_STOP,HIT_TARGET | ✓ | · | · | · | · | ✓ | · | · | ✓ | **3** |
-
-**Unread by decision (1)**
-
-- `corporate_actions` — B′ audit note (PR #98): why a demerged holding's entry/stop/target moved and what cash was credited. The levels the card prints are already re-based, so no instruction depends on it. NOT a permanent decision — rendering it on the HOLD card, so a holder can reconcile their broker fill (HEG 653.00) with the card (244.07), is an open follow-up.
 
 ## `results/weekly_monitor.json`
 
@@ -89,7 +85,7 @@ Written by the daily monitor (weekdays 16:15 IST).
 | `filled_today` | buy | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `frozen_price` | buy,hold | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `implied_trail_sma20` | hold | · | · | · | · | · | · | · | · | · | **0** |
-| `kind` | buy,hold | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `kind` | buy,hold | · | · | · | ✓ | · | ✓ | · | · | · | **2** |
 | `last_close` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | **2** |
 | `plan_tags` | hold | · | · | · | · | · | · | · | · | · | **0** |
 | `pnl_pct` | hold | · | · | · | · | · | ✓ | · | · | · | **1** |
@@ -98,8 +94,8 @@ Written by the daily monitor (weekdays 16:15 IST).
 | `r_now` | missed_exits | · | · | ✓ | · | · | · | · | · | · | **1** |
 | `reason` | missed_exits | ✓ | · | ✓ | · | · | ✓ | · | ✓ | · | **4** |
 | `severity` | missed_exits | · | · | ✓ | · | ✓ | · | · | ✓ | · | **3** |
-| `signal_date` | missed_exits | · | · | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | **5** |
-| `signal_id` | missed_exits | ✓ | ✓ | ✓ | · | ✓ | ✓ | · | ✓ | · | **6** |
+| `signal_date` | missed_exits | · | · | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | **6** |
+| `signal_id` | missed_exits | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | ✓ | · | **7** |
 | `sma20` | buy,hold | · | · | · | · | · | · | · | · | · | **0** |
 | `source` | missed_exits | ✓ | ✓ | · | · | · | ✓ | · | ✓ | · | **4** |
 | `stop` | hold,missed_exits | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **9** |
@@ -143,7 +139,7 @@ Parse them as LOCAL dates (`parseCalendarDate` in SignalsV3.jsx), never with a b
 | `buy_window_until` | cards lib, Research |
 | `due_date` | recon, This week |
 | `filled_on` | Research |
-| `signal_date` | recon, cards lib, This week, Research, History |
+| `signal_date` | recon, cards lib, This week, Research, Portfolio, History |
 
 ## How to use this
 

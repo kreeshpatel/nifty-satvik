@@ -10,7 +10,8 @@
  * Backing endpoints: GET /api/execution/positions, GET /api/execution/position/{id},
  * POST /api/execution/{buy,sell,correct}. signal_id = "{TICKER}__{YYYY-MM-DD}".
  */
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMemo } from 'react';
+import { useQuery, useQueries, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import {
   fetchExecutionPositions,
@@ -20,6 +21,7 @@ import {
   recordBuy,
   recordSell,
 } from '@/services/api';
+import { ledgerCostBasis } from '@/lib/cards';
 
 export const EXECUTION_KEY = ['user', 'execution', 'positions'];
 export const RECONCILIATION_KEY = ['user', 'execution', 'reconciliation'];
@@ -103,6 +105,65 @@ export function useExecutionPosition(signalId, options = {}) {
     staleTime: 15 * 1000,
     ...options,
   });
+}
+
+// Module-level so its identity is stable across renders; combine results are structurally shared.
+const trailEvents = (results) => results.map((r) => (Array.isArray(r.data?.events) ? r.data.events : null));
+
+/**
+ * The event trails of several positions → Map(signal_id → events | null while loading).
+ *
+ * Shares executionPositionKey with useExecutionPosition, so a recorded fill invalidates it too.
+ * Callers pass only the handful of positions a demerger touched (see ledgerCostBasis in lib/cards),
+ * and must memoise `signalIds`.
+ */
+export function useExecutionTrails(signalIds) {
+  const events = useQueries({
+    queries: signalIds.map((sid) => ({
+      queryKey: executionPositionKey(sid),
+      queryFn: () => fetchExecutionPosition(sid),
+      staleTime: 15 * 1000,
+    })),
+    combine: trailEvents,
+  });
+  return useMemo(() => new Map(signalIds.map((sid, i) => [sid, events[i]])), [signalIds, events]);
+}
+
+/**
+ * The cost basis of every given ledger position → Map(signal_id → ledgerCostBasis result).
+ *
+ * ONE implementation for Research, Portfolio and Dashboard, because all three price the reader's
+ * P&L off `avg_buy_price` and a demerged holding must read the same on each. Joins the demerger
+ * notes from the signals feed (the ledger does not carry them) and fetches event trails only for
+ * the positions a demerger touched. `positions` and `signals` must be memoised.
+ */
+// The ledger re-bases a demerged holding server-side now (position_state + corporate_actions), so a
+// position that carries `cost_basis` is already answered and needs no event trail. The local
+// computation stays as the fallback for a frontend deployed ahead of that backend; it can go once
+// the API has shipped.
+const fromLedger = (p) => (typeof p?.cost_basis === 'string' ? {
+  avg: Number(p.avg_buy_price) || null,
+  rawAvg: Number(p.raw_avg_buy_price ?? p.avg_buy_price) || null,
+  basis: p.cost_basis,
+} : null);
+
+export function useLedgerCostBases(positions, signals) {
+  const caBySignal = useMemo(() => {
+    const m = new Map();
+    for (const s of signals ?? []) {
+      if (!Array.isArray(s?.corporate_actions) || s.corporate_actions.length === 0) continue;
+      const t = String(s.ticker || '').toUpperCase();
+      if (t) m.set(s.signal_id || `${t}__${s.signal_date}`, s.corporate_actions);
+    }
+    return m;
+  }, [signals]);
+  const sids = useMemo(
+    () => (positions ?? []).filter((p) => !fromLedger(p) && caBySignal.has(p.signal_id)).map((p) => p.signal_id),
+    [positions, caBySignal]);
+  const trails = useExecutionTrails(sids);
+  return useMemo(() => new Map((positions ?? []).map((p) => [p.signal_id, fromLedger(p) ?? ledgerCostBasis({
+    avgBuy: p.avg_buy_price, events: trails.get(p.signal_id), corporateActions: caBySignal.get(p.signal_id),
+  })])), [positions, trails, caBySignal]);
 }
 
 function useRecordEvent(mutationFn, verb) {
