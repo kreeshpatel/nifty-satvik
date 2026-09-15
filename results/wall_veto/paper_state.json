@@ -1,8 +1,12 @@
 {
-  "cash": 770.5966443965414,
+  "cash": 314809.31084034755,
   "peak": 1026655.7556091606,
   "pending": [
-    "SONACOMS"
+    "APARINDS",
+    "SYRMA",
+    "SONACOMS",
+    "CHENNPETRO",
+    "FEDERALBNK"
   ],
   "positions": {
     "VEDL": {
@@ -15,8 +19,8 @@
       "peak": 287.95001220703125,
       "atr_pct": 4.00977023470704,
       "adv": 7843204206.451306,
-      "days_held": 52,
-      "last_mark": 263.70001220703125,
+      "days_held": 53,
+      "last_mark": 257.0,
       "absent_run": 0
     },
     "ADANIPOWER": {
@@ -29,8 +33,8 @@
       "peak": 226.1699981689453,
       "atr_pct": 3.311638729252035,
       "adv": 6897609307.745554,
-      "days_held": 52,
-      "last_mark": 209.97000122070312,
+      "days_held": 53,
+      "last_mark": 202.0,
       "absent_run": 0
     },
     "KIRLOSENG": {
@@ -43,36 +47,8 @@
       "peak": 2278.283203125,
       "atr_pct": 4.665504822250521,
       "adv": 3546216280.3383546,
-      "days_held": 39,
-      "last_mark": 2168.60009765625,
-      "absent_run": 0
-    },
-    "SYRMA": {
-      "ticker": "SYRMA",
-      "entry_date": "2026-08-19 00:00:00",
-      "entry": 1508.6539744262695,
-      "qty": 77,
-      "stop": 1312.5642372202537,
-      "target": 1848.4028494670656,
-      "peak": 1639.199951171875,
-      "atr_pct": 3.541597146257521,
-      "adv": 2573311438.298047,
-      "days_held": 17,
-      "last_mark": 1589.300048828125,
-      "absent_run": 0
-    },
-    "APARINDS": {
-      "ticker": "APARINDS",
-      "entry_date": "2026-08-26 00:00:00",
-      "entry": 17129.5605,
-      "qty": 8,
-      "stop": 14638.41672100049,
-      "target": 20987.1375246,
-      "peak": 17900.0,
-      "atr_pct": 3.962657248821724,
-      "adv": 3080836412.6499996,
-      "days_held": 12,
-      "last_mark": 17500.0,
+      "days_held": 40,
+      "last_mark": 2041.5999755859375,
       "absent_run": 0
     },
     "BHARATFORG": {
@@ -85,22 +61,8 @@
       "peak": 2104.89990234375,
       "atr_pct": 2.7479647058662486,
       "adv": 2485016448.5,
-      "days_held": 12,
-      "last_mark": 1944.9000244140625,
-      "absent_run": 0
-    },
-    "WELCORP": {
-      "ticker": "WELCORP",
-      "entry_date": "2026-08-28 00:00:00",
-      "entry": 2431.2149999999997,
-      "qty": 3,
-      "stop": 2167.6600733390355,
-      "target": 2978.7246179999997,
-      "peak": 2776.89990234375,
-      "atr_pct": 2.9538042301996787,
-      "adv": 5968636078.912476,
-      "days_held": 10,
-      "last_mark": 2676.60009765625,
+      "days_held": 13,
+      "last_mark": 1877.199951171875,
       "absent_run": 0
     },
     "AEGISLOG": {
@@ -113,8 +75,8 @@
       "peak": 1353.5999755859375,
       "atr_pct": 4.969088199437758,
       "adv": 1421339042.3722532,
-      "days_held": 10,
-      "last_mark": 1353.5999755859375,
+      "days_held": 11,
+      "last_mark": 1323.5,
       "absent_run": 0
     },
     "HONASA": {
@@ -127,8 +89,8 @@
       "peak": 484.04188778686523,
       "atr_pct": 3.217832529272994,
       "adv": 992445757.9546967,
-      "days_held": 10,
-      "last_mark": 471.1499938964844,
+      "days_held": 11,
+      "last_mark": 457.25,
       "absent_run": 0
     },
     "HFCL": {
@@ -141,22 +103,8 @@
       "peak": 254.3270969467163,
       "atr_pct": 3.870378624196655,
       "adv": 4861579429.833288,
-      "days_held": 9,
-      "last_mark": 233.69000244140625,
-      "absent_run": 0
-    },
-    "CHENNPETRO": {
-      "ticker": "CHENNPETRO",
-      "entry_date": "2026-08-31 00:00:00",
-      "entry": 1347.6734999999999,
-      "qty": 40,
-      "stop": 1133.5894676897142,
-      "target": 1651.1695722,
-      "peak": 1626.4000244140625,
-      "atr_pct": 4.328461143612943,
-      "adv": 3416695503.2229366,
-      "days_held": 9,
-      "last_mark": 1572.9000244140625,
+      "days_held": 10,
+      "last_mark": 222.00999450683594,
       "absent_run": 0
     },
     "RRKABEL": {
@@ -169,8 +117,8 @@
       "peak": 2651.325,
       "atr_pct": 3.8894393329346544,
       "adv": 1160522850.5976927,
-      "days_held": 6,
-      "last_mark": 2424.39990234375,
+      "days_held": 7,
+      "last_mark": 2381.300048828125,
       "absent_run": 0
     },
     "LAURUSLABS": {
@@ -183,8 +131,8 @@
       "peak": 1969.0,
       "atr_pct": 2.3240037222384395,
       "adv": 6404766944.0,
-      "days_held": 5,
-      "last_mark": 1969.0,
+      "days_held": 6,
+      "last_mark": 1926.9000244140625,
       "absent_run": 0
     },
     "BHEL": {
@@ -197,8 +145,8 @@
       "peak": 431.0,
       "atr_pct": 2.860397927862206,
       "adv": 3297758980.0645657,
-      "days_held": 2,
-      "last_mark": 431.0,
+      "days_held": 3,
+      "last_mark": 412.8500061035156,
       "absent_run": 0
     }
   },
@@ -382,6 +330,54 @@
       "reason": "stop",
       "return_pct": -12.15,
       "pnl": -50.89
+    },
+    {
+      "ticker": "SYRMA",
+      "entry_date": "2026-08-19",
+      "exit_date": "2026-09-15",
+      "entry": 1508.65,
+      "exit": 1506.95,
+      "qty": 77,
+      "days_held": 18,
+      "reason": "trailing",
+      "return_pct": -0.11,
+      "pnl": -433.37
+    },
+    {
+      "ticker": "APARINDS",
+      "entry_date": "2026-08-26",
+      "exit_date": "2026-09-15",
+      "entry": 17129.56,
+      "exit": 16541.73,
+      "qty": 8,
+      "days_held": 13,
+      "reason": "trailing",
+      "return_pct": -3.43,
+      "pnl": -5052.87
+    },
+    {
+      "ticker": "WELCORP",
+      "entry_date": "2026-08-28",
+      "exit_date": "2026-09-15",
+      "entry": 2431.21,
+      "exit": 2412.09,
+      "qty": 3,
+      "days_held": 11,
+      "reason": "trailing",
+      "return_pct": -0.79,
+      "pnl": -76.25
+    },
+    {
+      "ticker": "CHENNPETRO",
+      "entry_date": "2026-08-31",
+      "exit_date": "2026-09-15",
+      "entry": 1347.67,
+      "exit": 1471.06,
+      "qty": 40,
+      "days_held": 10,
+      "reason": "trailing",
+      "return_pct": 9.16,
+      "pnl": 4789.05
     }
   ],
   "equity_curve": [
@@ -708,6 +704,12 @@
       "equity": 1008522.75,
       "cash": 770.6,
       "n_positions": 14
+    },
+    {
+      "date": "2026-09-15",
+      "equity": 963400.85,
+      "cash": 314809.31,
+      "n_positions": 10
     }
   ],
   "config": {

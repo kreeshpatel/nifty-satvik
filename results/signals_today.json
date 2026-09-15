@@ -1,22 +1,56 @@
 {
-  "generated_at": "2026-09-14",
+  "generated_at": "2026-09-15",
   "signals": [
     {
-      "ticker": "SONACOMS",
-      "entry": 788.39,
-      "stop": 713.26,
-      "target": 965.94,
+      "ticker": "WELCORP",
+      "entry": 2414.51,
+      "stop": 2077.89,
+      "target": 2958.26,
       "target_pct": 22.52,
-      "current_price": 788.0,
-      "close": 788.0,
-      "signal_date": "2026-09-11",
+      "current_price": 2413.3,
+      "close": 2413.3,
+      "signal_date": "2026-09-15",
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
-      "status": "ACTIVE",
+      "status": "FRESH",
       "buy_window": "T+1..T+3 at open",
-      "indicative_close": 788.0,
-      "indicative_entry": 788.39
+      "indicative_close": 2413.3,
+      "indicative_entry": 2414.51
+    },
+    {
+      "ticker": "SYRMA",
+      "entry": 1508.45,
+      "stop": 1304.58,
+      "target": 1848.15,
+      "target_pct": 22.52,
+      "current_price": 1507.7,
+      "close": 1507.7,
+      "signal_date": "2026-09-15",
+      "hold_days": 63,
+      "grade": "B",
+      "tier": "signal",
+      "status": "FRESH",
+      "buy_window": "T+1..T+3 at open",
+      "indicative_close": 1507.7,
+      "indicative_entry": 1508.45
+    },
+    {
+      "ticker": "CHENNPETRO",
+      "entry": 1472.54,
+      "stop": 1232.27,
+      "target": 1804.16,
+      "target_pct": 22.52,
+      "current_price": 1471.8,
+      "close": 1471.8,
+      "signal_date": "2026-09-15",
+      "hold_days": 63,
+      "grade": "B",
+      "tier": "signal",
+      "status": "FRESH",
+      "buy_window": "T+1..T+3 at open",
+      "indicative_close": 1471.8,
+      "indicative_entry": 1472.54
     }
   ],
   "regime": {
@@ -25,12 +59,12 @@
     "vix": 0,
     "breadth": 0
   },
-  "n_positions": 14,
-  "cash": 1144.09,
+  "n_positions": 12,
+  "cash": 111731.9,
   "kill_state": {
-    "wr_last20": 56.2,
+    "wr_last20": 57.9,
     "wr_breach": false,
-    "sharpe_30d": 4.712,
+    "sharpe_30d": 1.555,
     "sharpe_30d_breach": false,
     "mode": "observe"
   }
