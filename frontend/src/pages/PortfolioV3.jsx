@@ -28,7 +28,7 @@ import { useOverview } from '@/hooks/queries/useOverview';
 import { useNavHistory } from '@/hooks/queries/useNavHistory';
 import { usePaperHistory } from '@/hooks/queries/usePaperHistory';
 import { usePaperPositions } from '@/hooks/queries/usePaperPositions';
-import { useExecutionPositions, useReconciliation } from '@/hooks/queries/useExecution';
+import { useExecutionPositions, useLedgerCostBases, useReconciliation } from '@/hooks/queries/useExecution';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import { useTrades, flattenTrades } from '@/hooks/queries/useTrades';
 import { useSignals } from '@/hooks/queries/useSignals';
@@ -46,9 +46,11 @@ import '@/styles/portfolio-v3.css';
 // page's "your holdings" sections read. Cost basis + realized P&L are the ledger's truth; the current
 // price is the owner's live quote. No cash / total-NAV is fabricated (ADR 0011 — we don't hold the
 // user's broker balance), so value = Σ(remaining × quote) only.
-function ledgerHoldingToRow(pos, quotes) {
+function ledgerHoldingToRow(pos, quotes, cost) {
   const q = quotes?.[(pos.ticker || '').toUpperCase()] || null;
-  const avg = Number(pos.avg_buy_price) || 0;
+  // On a demerged holding the ledger's average bought a share that has since been split in two, so
+  // every P&L downstream (row, strip, hero) reads the re-based basis instead. See lib/cards.js.
+  const avg = Number(cost?.avg ?? pos.avg_buy_price) || 0;
   const ltp = q?.last_price != null ? Number(q.last_price) : avg;   // fall back to cost if no quote yet
   return {
     tradingsymbol: pos.ticker,
@@ -56,6 +58,8 @@ function ledgerHoldingToRow(pos, quotes) {
     sector: pos.sector || 'Other',
     quantity: Number(pos.remaining_qty) || 0,
     average_price: avg,
+    fill_avg: Number(pos.avg_buy_price) || 0,
+    cost_basis: cost?.basis ?? 'none',
     last_price: ltp,
     day_change_percentage: q?.change_pct ?? null,
     product: 'SELF',
@@ -859,15 +863,25 @@ function fmtExDate(v) {
   return d ? d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—';
 }
 
-function DemergerLines({ notes, basis, basisIsRebased }) {
+const COST_BASIS_QUALIFIER = {
+  assumed: ' · assumes bought pre-ex',
+  'events+price': ' · pre-ex by fill price',
+};
+
+function DemergerLines({ notes, paperEntry, fillAvg, avg, costBasis }) {
   if (!notes || notes.length === 0) return null;
-  const whole = notes[0].scale;
   // The paper book's entry ALREADY carries the re-base, so it is divided out. The ledger's average is
-  // the reader's own fill, which the re-base never touched — and the ledger does not say whether it
-  // was bought before the ex-date, so that line is stated as a conditional, never as a fact.
-  const rebase = !(basis > 0) ? null : basisIsRebased
-    ? `orig. entry = entry ÷ retained = ${fmtNum(basis / whole)}`
-    : `pre-ex avg × retained = ${fmtNum(basis * whole)}`;
+  // the reader's own fill, which the re-base never touched; the row now prices the re-based one, and
+  // this line shows both so the reader's broker figure stays on screen.
+  let rebase = null;
+  if (paperEntry > 0) {
+    rebase = `orig. entry = entry ÷ retained = ${fmtNum(paperEntry / notes[0].scale)}`;
+  } else if (fillAvg > 0 && costBasis && costBasis !== 'none') {
+    rebase = Math.abs(avg - fillAvg) < 0.005
+      ? 'bought after ex · avg not re-based'
+      : `your avg ${fmtNum(fillAvg)} re-based to ${fmtNum(avg)} · P&L ex spun-off shares`
+        + (COST_BASIS_QUALIFIER[costBasis] || '');
+  }
   return (
     <>
       {notes.map((n) => (
@@ -940,6 +954,8 @@ function HoldingsTable({ holdings, isPaper, totalEquity, isLoading, caIndex }) {
         pnlPct,
         _status: 'hold',
         _demergers: demergerNotes(caIndex?.bySignal.get(h.signal_id)),
+        fillAvg: h.fill_avg,
+        costBasis: h.cost_basis,
       };
     });
   }, [holdings, isPaper, caIndex]);
@@ -1009,7 +1025,8 @@ function HoldingsTable({ holdings, isPaper, totalEquity, isLoading, caIndex }) {
                   <div>
                     <div className="pv3-td-name-sym">{r.sym}</div>
                     <div className="pv3-td-name-full">{r.sector}{r.product === 'MTF' ? ' · MTF' : ''}</div>
-                    <DemergerLines notes={r._demergers} basis={r.avg} basisIsRebased={isPaper} />
+                    <DemergerLines notes={r._demergers} paperEntry={isPaper ? r.avg : null}
+                                   fillAvg={r.fillAvg} avg={r.avg} costBasis={r.costBasis} />
                   </div>
                 </div>
                 <div className="pv3-td pv3-td-r tabular-nums">{Math.round(r.qty)}</div>
@@ -1353,7 +1370,7 @@ function PositionsTable({ holdings, isLoading, caIndex }) {
               <div>
                 <div className="pv3-td-name-sym">{r.sym}</div>
                 <div className="pv3-td-name-full">{r.sector}</div>
-                <DemergerLines notes={r._demergers} basis={r.entry} basisIsRebased />
+                <DemergerLines notes={r._demergers} paperEntry={r.entry} />
               </div>
             </div>
             <div className="pv3-td pv3-td-r tabular-nums">{Math.round(r.qty)}</div>
@@ -1501,7 +1518,27 @@ export default function PortfolioV3() {
   const quotesQuery = useQuoteBatch(heldTickers, { enabled: !isPaper && heldTickers.length > 0 });
   const quotes = quotesQuery.data ?? null;
 
-  const yoursHoldings = useMemo(() => openExec.map((p) => ledgerHoldingToRow(p, quotes)), [openExec, quotes]);
+  // Demerger notes by signal (the ledger's key) and by ticker (the paper book's — the positions API
+  // joins model state by ticker too). Only cards a demerger touched carry the key.
+  const caIndex = useMemo(() => {
+    const bySignal = new Map();
+    const byTicker = new Map();
+    for (const s of signalsQuery.data?.signals ?? []) {
+      if (!Array.isArray(s?.corporate_actions) || s.corporate_actions.length === 0) continue;
+      const t = String(s.ticker || '').toUpperCase();
+      if (!t) continue;
+      bySignal.set(s.signal_id || `${t}__${s.signal_date}`, s.corporate_actions);
+      byTicker.set(t, s.corporate_actions);
+    }
+    return { bySignal, byTicker };
+  }, [signalsQuery.data]);
+
+  // The reader's cost basis, re-based on a demerged holding — shared with Research and Dashboard.
+  const costBySignal = useLedgerCostBases(openExec, signalsQuery.data?.signals);
+
+  const yoursHoldings = useMemo(
+    () => openExec.map((p) => ledgerHoldingToRow(p, quotes, costBySignal.get(p.signal_id))),
+    [openExec, quotes, costBySignal]);
 
   // Synthesize a single view-model so every section reads uniform fields, whichever mode is active.
   const view = useMemo(() => {
@@ -1529,21 +1566,6 @@ export default function PortfolioV3() {
     };
     return { holdings: yoursHoldings, portfolio: yoursPortfolio, cash: null, totalEquity: mktValue || null };
   }, [isPaper, paperPos, paperPortfolio, yoursHoldings, closedExec]);
-
-  // Demerger notes by signal (the ledger's key) and by ticker (the paper book's — the positions API
-  // joins model state by ticker too). Only cards a demerger touched carry the key.
-  const caIndex = useMemo(() => {
-    const bySignal = new Map();
-    const byTicker = new Map();
-    for (const s of signalsQuery.data?.signals ?? []) {
-      if (!Array.isArray(s?.corporate_actions) || s.corporate_actions.length === 0) continue;
-      const t = String(s.ticker || '').toUpperCase();
-      if (!t) continue;
-      bySignal.set(s.signal_id || `${t}__${s.signal_date}`, s.corporate_actions);
-      byTicker.set(t, s.corporate_actions);
-    }
-    return { bySignal, byTicker };
-  }, [signalsQuery.data]);
 
   const activeHoldings = view.holdings;
   const cash           = view.cash;

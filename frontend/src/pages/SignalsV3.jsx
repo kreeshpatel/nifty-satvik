@@ -37,7 +37,7 @@ import ExecutionCaptureModal from '@/components/shared/ExecutionCaptureModal';
 import DisciplineCard from '@/components/shared/DisciplineCard';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { useExecutionPositions } from '@/hooks/queries/useExecution';
+import { useExecutionPositions, useLedgerCostBases } from '@/hooks/queries/useExecution';
 import { useJourney } from '@/hooks/queries/useJourney';
 import { nseToday, parseCalendarDate, positionR, toTargetPct, holdWeek, demergerNotes } from '@/lib/cards';
 import '@/styles/signals-v3.css';
@@ -154,7 +154,7 @@ function deriveAction(sig) {
 }
 
 // ── Signal enrichment — maps real API fields to UI fields ─────────────
-function enrichSignal(raw, quotes, posBySignal) {
+function enrichSignal(raw, quotes, posBySignal, costBySignal) {
   const { action, sellReason } = deriveAction(raw);
   const ticker = raw.ticker || raw.sym || '';
   const q = quotes?.[ticker.toUpperCase()] || null;
@@ -209,7 +209,11 @@ function enrichSignal(raw, quotes, posBySignal) {
   // NOT the model's signal entry — so a held row shows the owner's real, daily-updated gain/loss.
   const sid = signalIdOf({ sym: ticker, signal_date: raw.signal_date, signal_id: raw.signal_id });
   const pos = posBySignal?.get(sid) || null;
-  const recordedBuy = pos && pos.avg_buy_price ? Number(pos.avg_buy_price) : null;
+  // A demerger split the share the reader bought, so their average is re-based onto the parent share
+  // before any P&L or R is taken from it — the same basis the card's re-based stop is on. Without
+  // this HEG read −65% and −1R against the reader's own 653.00. See ledgerCostBasis in lib/cards.js.
+  const myCost = pos && pos.avg_buy_price ? (costBySignal?.get(sid) ?? null) : null;
+  const recordedBuy = myCost?.avg ?? (pos && pos.avg_buy_price ? Number(pos.avg_buy_price) : null);
   const myQty = pos ? Number(pos.remaining_qty || 0) : 0;
   // The reference buy price: the user's real recorded fill if they marked one, otherwise the MODELLED
   // fill — the Monday open of the entry week — so every recommendation shows a tracked P&L from that
@@ -297,7 +301,7 @@ function enrichSignal(raw, quotes, posBySignal) {
     _dayChangePct: dayChangePct,
     _upside: upside,
     _signalId: sid,
-    _myBuy: myBuy, _myQty: myQty, _myPnl: myPnl, _myPnlPct: myPnlPct, _pnlIsModeled: pnlIsModeled,
+    _myBuy: myBuy, _myCost: myCost, _myQty: myQty, _myPnl: myPnl, _myPnlPct: myPnlPct, _pnlIsModeled: pnlIsModeled,
     buyByStr, daysLeft, weekOf, isFilledUnbooked,
     hold: raw.hold_days || 10,
     isFreshToday: raw.signal_date === todayISO(),
@@ -528,6 +532,10 @@ function CasePanel({ s, onAction, extraAction }) {
     // 653.00) and the card's entry (242.95) disagree with nothing on screen saying why.
     ...(s._demergers || []).map((n) => [`Demerger ex ${fmtDayMon(n.exDate)}`,
       `${n.retainedPct.toFixed(1)}% value retained · ₹${fmtNum(n.spinPerShare)}/share credited`]),
+    s._myCost && s._myCost.basis !== 'none' && Math.abs(s._myCost.avg - s._myCost.rawAvg) >= 0.005
+      && ['Your fill, re-based', `${fmtNum(s._myCost.rawAvg)} \u2192 ${fmtNum(s._myCost.avg)}`
+        + (s._myCost.basis === 'assumed' ? ' · assumes bought pre-ex'
+          : s._myCost.basis === 'events+price' ? ' · pre-ex by fill price' : '')],
   ].filter(Boolean);
   return (
     <div className="rs-case">
@@ -619,7 +627,8 @@ function OpenRow({ s, open, onToggle, onAction, onToggleBought, held }) {
                note={exiting ? (s.why || 'Close the position at the next open.')
                  : s.isFilledUnbooked ? 'Filled — the Saturday scan books it' : null} />
         <Cell v={fmtNum(s._myBuy ?? s.entry)}
-              c={s.isFilledUnbooked ? 'window fill' : s._pnlIsModeled ? 'model fill' : 'your fill'} />
+              c={s.isFilledUnbooked ? 'window fill' : s._pnlIsModeled ? 'model fill'
+                : s._myCost && Math.abs(s._myCost.avg - s._myCost.rawAvg) >= 0.005 ? 'your fill, re-based' : 'your fill'} />
         <Cell v={fmtNum(s._ltp)} c={s._dayChangePct != null ? fmtPct1(s._dayChangePct) : 'now'}
               tone={s._dayChangePct == null ? null : s._dayChangePct >= 0 ? 'bull' : 'bear'} />
         <Cell v={unreal == null ? '—' : fmtPct1(unreal)}
@@ -701,6 +710,9 @@ export default function SignalsV3() {
 
   const rawSignals = useMemo(() => signalsQuery.data?.signals ?? [], [signalsQuery.data]);
 
+  // The reader's cost basis, re-based on a demerged holding — shared with Portfolio and Dashboard.
+  const costBySignal = useLedgerCostBases(execQuery.data, rawSignals);
+
   const quoteSymbols = useMemo(
     () => [...new Set(rawSignals.map((s) => (s.ticker || '').toUpperCase()).filter(Boolean))],
     [rawSignals]
@@ -730,10 +742,10 @@ export default function SignalsV3() {
     // file and `_MODELS["bhanushali"]["watchlist"]` was None -- so the merge could only ever add
     // nothing. It is gone; `deriveAction` still understands a 'brewing' card, so a future watchlist
     // tier only needs its producer back.
-    const enriched = rawSignals.map((s) => enrichSignal(s, quotes, posBySignal));
+    const enriched = rawSignals.map((s) => enrichSignal(s, quotes, posBySignal, costBySignal));
     const seen = new Set();
     return enriched.filter((s) => { if (seen.has(s.sym)) return false; seen.add(s.sym); return true; });
-  }, [rawSignals, quotes, posBySignal]);
+  }, [rawSignals, quotes, posBySignal, costBySignal]);
 
   // §1 — buyable this week, ranked the way the envelope's own buy_window instructs:
   // "fund strongest CRS rank first". That instruction has been in the payload all along and was

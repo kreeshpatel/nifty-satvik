@@ -87,6 +87,14 @@ export function holdWeek({ filledOn, boughtDate, signalDate, now = Date.now(), c
   return Math.min(capWeeks, Math.max(1, Math.ceil((days + 1) / 7)));
 }
 
+/** Well-formed demerger notes, oldest ex-date first. Shared so both readers agree on what counts. */
+function validDemergers(corporateActions) {
+  if (!Array.isArray(corporateActions)) return [];
+  return corporateActions
+    .filter((a) => a && a.kind === 'demerger' && a.retained > 0 && a.retained <= 1)
+    .sort((a, b) => String(a.ex_date ?? '').localeCompare(String(b.ex_date ?? '')));
+}
+
 /**
  * The demerger audit notes on a held card, each with the entry the position had BEFORE it.
  *
@@ -99,10 +107,7 @@ export function holdWeek({ filledOn, boughtDate, signalDate, now = Date.now(), c
  * Absent key, a non-array, or a malformed note → no notes. Nothing else on the card depends on it.
  */
 export function demergerNotes(corporateActions, entry) {
-  if (!Array.isArray(corporateActions)) return [];
-  const events = corporateActions
-    .filter((a) => a && a.kind === 'demerger' && a.retained > 0 && a.retained <= 1)
-    .sort((a, b) => String(a.ex_date ?? '').localeCompare(String(b.ex_date ?? '')));
+  const events = validDemergers(corporateActions);
   return events.map((a, i) => {
     const scale = events.slice(i).reduce((acc, e) => acc * e.retained, 1);
     return {
@@ -115,4 +120,56 @@ export function demergerNotes(corporateActions, entry) {
       originalEntry: entry > 0 ? entry / scale : null,
     };
   });
+}
+
+/**
+ * The reader's average buy price on a demerged holding, re-based the way B′ re-bases the model's.
+ *
+ * The ledger's `avg_buy_price` is what the reader paid for a share that has since been split in two.
+ * Priced against today's post-ex quote it reports the spun-off value as a loss: HEG read about −65%
+ * (653.00 against ~225) while the model, re-based, read about −8%. A buy made BEFORE an ex-date
+ * carries `retained` of its cost into the parent share and the rest into the spun-off shares, which
+ * sit at the reader's broker and not in this ledger. So each pre-ex buy is scaled by the retained
+ * ratio of every ex-date it predates, and a post-ex buy is left alone. The result prices the parent
+ * shares only, which is also the basis the card's re-based stop and target are on.
+ *
+ * WHEN a buy happened is the hard part: the capture modal sends no `executed_at`, so an event's
+ * date is when it was RECORDED, which is on or after the fill. Hence:
+ *   - recorded before an ex-date → the fill was pre-ex. Certain.
+ *   - recorded on/after it → decided by price. The ex-date moves the quote from `prior_close` to
+ *     `prior_close × retained`, and a fill above the geometric midpoint of the two is a pre-ex fill
+ *     recorded late. `basis: 'events+price'` says that evidence was used.
+ *   - no event trail yet (still loading, or the request failed) → every buy is assumed pre-ex,
+ *     which is the normal case for a position held into its demerger. `basis: 'assumed'`.
+ *
+ * Returns { avg, rawAvg, basis }; basis is 'none' when there is no demerger to apply.
+ */
+export function ledgerCostBasis({ avgBuy, events, corporateActions }) {
+  const rawAvg = avgBuy > 0 ? Number(avgBuy) : null;
+  const dem = validDemergers(corporateActions);
+  if (dem.length === 0 || rawAvg == null) return { avg: rawAvg, rawAvg, basis: 'none' };
+  const scaleFrom = (phase) => dem.slice(phase).reduce((acc, d) => acc * d.retained, 1);
+
+  const buys = Array.isArray(events)
+    ? events.filter((e) => e && !e.superseded && String(e.side).toUpperCase() === 'BUY'
+                      && Number(e.qty) > 0 && Number(e.price) > 0)
+    : [];
+  if (buys.length === 0) return { avg: rawAvg * scaleFrom(0), rawAvg, basis: 'assumed' };
+
+  let qty = 0, cost = 0, byPrice = false;
+  for (const e of buys) {
+    const q = Number(e.qty), px = Number(e.price);
+    const day = String(e.executed_at || e.created_at || '').slice(0, 10);
+    // How many ex-dates the RECORD falls on or after; with no date at all, price decides every one.
+    let phase = day ? dem.filter((d) => String(d.ex_date ?? '') <= day).length : dem.length;
+    while (phase > 0) {
+      const d = dem[phase - 1];
+      if (!(d.prior_close > 0 && px > d.prior_close * Math.sqrt(d.retained))) break;
+      phase -= 1;
+      byPrice = true;
+    }
+    qty += q;
+    cost += q * px * scaleFrom(phase);
+  }
+  return { avg: cost / qty, rawAvg, basis: byPrice ? 'events+price' : 'events' };
 }

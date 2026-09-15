@@ -47,7 +47,7 @@ Written by the weekly scanner (Saturday).
 | `no_chase_above` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `nq_position_id` | ACTIVE,HIT_STOP,HIT_TARGET | · | · | ✓ | · | · | ✓ | · | · | · | **2** |
 | `pattern` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | · | ✓ | · | · | · | ✓ | · | · | · | **2** |
-| `qty` | ACTIVE,HIT_STOP,HIT_TARGET | ✓ | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | · | **6** |
+| `qty` | ACTIVE,HIT_STOP,HIT_TARGET | ✓ | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | · | **7** |
 | `record_would_skip_as_extended` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `signal_conviction` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `signal_date` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | · | · | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | **6** |
@@ -95,7 +95,7 @@ Written by the daily monitor (weekdays 16:15 IST).
 | `reason` | missed_exits | ✓ | · | ✓ | · | · | ✓ | · | ✓ | · | **4** |
 | `severity` | missed_exits | · | · | ✓ | · | ✓ | · | · | ✓ | · | **3** |
 | `signal_date` | missed_exits | · | · | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | **6** |
-| `signal_id` | missed_exits | ✓ | ✓ | ✓ | · | ✓ | ✓ | · | ✓ | · | **6** |
+| `signal_id` | missed_exits | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | ✓ | · | **7** |
 | `sma20` | buy,hold | · | · | · | · | · | · | · | · | · | **0** |
 | `source` | missed_exits | ✓ | ✓ | · | · | · | ✓ | · | ✓ | · | **4** |
 | `stop` | hold,missed_exits | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **9** |
