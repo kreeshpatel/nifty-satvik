@@ -9,6 +9,7 @@ regenerate with: `python scripts/gen_depgraph.py`
 ```mermaid
 flowchart LR
     config["config"]
+    nq_brain_io["nq/brain/io"]
     nq_data["nq/data"]
     nq_data_delivery["nq/data/delivery"]
     nq_data_earnings["nq/data/earnings"]
@@ -47,6 +48,7 @@ flowchart LR
     nq_validation_dsr["nq/validation/dsr"]
     nq_validation_metrics["nq/validation/metrics"]
     nq_validation_pbo["nq/validation/pbo"]
+    nq_brain_io --> nq_paper_judge_log
     nq_data --> nq_data_eligibility
     nq_data --> nq_data_features
     nq_data --> nq_data_fundamentals

@@ -1,0 +1,98 @@
+{
+  "as_of": "2026-09-04",
+  "snapshot": "results/archive/2026-09-04",
+  "stop_decomposition": {
+    "n": 9,
+    "realised_r": -14.37,
+    "designed_r": -9.0,
+    "beyond_stop_r": -5.369999999999999,
+    "n_filled_beyond_stop": 6,
+    "share_beyond_stop": 0.3736951983298538
+  },
+  "max_stop_disagreement": 0.002755426703770633,
+  "trades": [
+    {
+      "ticker": "CANFINHOME",
+      "r": -2.94,
+      "exit": "stop",
+      "stop_source": "recorded",
+      "beyond_stop_r": -1.94
+    },
+    {
+      "ticker": "GLENMARK",
+      "r": -0.93,
+      "exit": "stop",
+      "stop_source": "recorded",
+      "beyond_stop_r": 0.07
+    },
+    {
+      "ticker": "LINDEINDIA",
+      "r": -2.32,
+      "exit": "stop",
+      "stop_source": "recorded",
+      "beyond_stop_r": -1.32
+    },
+    {
+      "ticker": "NATCOPHARM",
+      "r": -0.95,
+      "exit": "sma_break",
+      "stop_source": "recorded",
+      "beyond_stop_r": 0.05
+    },
+    {
+      "ticker": "3MINDIA",
+      "r": -0.57,
+      "exit": "stop",
+      "stop_source": "recorded",
+      "beyond_stop_r": 0.43
+    },
+    {
+      "ticker": "DELHIVERY",
+      "r": -1.05,
+      "exit": "stop",
+      "stop_source": "recorded",
+      "beyond_stop_r": -0.05
+    },
+    {
+      "ticker": "GESHIP",
+      "r": -1.46,
+      "exit": "stop",
+      "stop_source": "recorded",
+      "beyond_stop_r": -0.46
+    },
+    {
+      "ticker": "NLCINDIA",
+      "r": -1.97,
+      "exit": "stop",
+      "stop_source": "recorded",
+      "beyond_stop_r": -0.97
+    },
+    {
+      "ticker": "CCL",
+      "r": -2.18,
+      "exit": "stop",
+      "stop_source": "recorded",
+      "beyond_stop_r": -1.18
+    }
+  ],
+  "market_control": {
+    "STOPPED": {
+      "n": 9,
+      "median_excess_pct": -4.05,
+      "median_percentile": 11.0,
+      "n_underperformed_universe": 8
+    },
+    "OPEN": {
+      "n": 24,
+      "median_excess_pct": 3.82,
+      "median_percentile": 68.2,
+      "n_underperformed_universe": 7
+    }
+  },
+  "prices": {
+    "pulled_on": "2026-09-15",
+    "start": "2026-06-15",
+    "end": "2026-09-08",
+    "universe_series": 493
+  }
+}
