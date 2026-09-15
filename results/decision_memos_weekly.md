@@ -40,7 +40,7 @@
 2. **Signal strength** — ****.  (grade A, CRS rank None)
 3. **Risk** — MODERATE · stop width 5.5% · R:R 1:2.0 · max-loss-in-plan YES
 4. **Trade plan** — entry 1450.13 (band [None, None]) · SL 1374.89 · TP 1600.61
-5. **Status** — [WATCH] **WATCHLIST** — Monitor — below the A-grade / actionable bar; do not fund yet.
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
 
 ### DECISION MEMO — CUB  (CUB__2026-07-06)
 1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
@@ -54,7 +54,7 @@
 2. **Signal strength** — ****.  (grade A, CRS rank None)
 3. **Risk** — MODERATE · stop width 5.8% · R:R 1:2.0 · max-loss-in-plan YES
 4. **Trade plan** — entry 314.75 (band [None, None]) · SL 297.5 · TP 349.25
-5. **Status** — [WATCH] **WATCHLIST** — Monitor — below the A-grade / actionable bar; do not fund yet.
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
 
 ### DECISION MEMO — BAJAJ-AUTO  (BAJAJ-AUTO__2026-07-13)
 1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
@@ -138,7 +138,7 @@
 2. **Signal strength** — ****.  (grade A, CRS rank None)
 3. **Risk** — MODERATE · stop width 7.3% · R:R 1:2.0 · max-loss-in-plan YES
 4. **Trade plan** — entry 1053.4 (band [None, None]) · SL 981.35 · TP 1197.5
-5. **Status** — [WATCH] **WATCHLIST** — Monitor — below the A-grade / actionable bar; do not fund yet.
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
 
 ### DECISION MEMO — MCX  (MCX__2026-08-17)
 1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
@@ -173,14 +173,14 @@
 2. **Signal strength** — ****.  (grade A, CRS rank None)
 3. **Risk** — MODERATE · stop width 2.0% · R:R 1:2.0 · max-loss-in-plan YES
 4. **Trade plan** — entry 1913.57 (band [None, None]) · SL 1876.0 · TP 1988.7
-5. **Status** — [WATCH] **WATCHLIST** — Monitor — below the A-grade / actionable bar; do not fund yet.
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
 
 ### DECISION MEMO — JSWSTEEL  (JSWSTEEL__2026-08-24)
 1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
 2. **Signal strength** — ****.  (grade A, CRS rank None)
 3. **Risk** — MODERATE · stop width 3.8% · R:R 1:2.0 · max-loss-in-plan YES
 4. **Trade plan** — entry 1298.0 (band [None, None]) · SL 1250.4 · TP 1393.2
-5. **Status** — [WATCH] **WATCHLIST** — Monitor — below the A-grade / actionable bar; do not fund yet.
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
 
 ### DECISION MEMO — SAIL  (SAIL__2026-08-24)
 1. **Setup** — LONG · 44-week SMA pullback · trend BEAR · weekly (44w SMA)
@@ -208,4 +208,4 @@
 2. **Signal strength** — ****.  (grade A, CRS rank None)
 3. **Risk** — MODERATE · stop width 5.5% · R:R 1:2.0 · max-loss-in-plan YES
 4. **Trade plan** — entry 786.0 (band [None, None]) · SL 745.05 · TP 867.9
-5. **Status** — [WATCH] **WATCHLIST** — Monitor — below the A-grade / actionable bar; do not fund yet.
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
