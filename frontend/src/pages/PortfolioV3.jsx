@@ -28,7 +28,7 @@ import { useOverview } from '@/hooks/queries/useOverview';
 import { useNavHistory } from '@/hooks/queries/useNavHistory';
 import { usePaperHistory } from '@/hooks/queries/usePaperHistory';
 import { usePaperPositions } from '@/hooks/queries/usePaperPositions';
-import { useExecutionPositions, useLedgerCostBases, useReconciliation } from '@/hooks/queries/useExecution';
+import { useExecutionPositions, useReconciliation } from '@/hooks/queries/useExecution';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import { useTrades, flattenTrades } from '@/hooks/queries/useTrades';
 import { useSignals } from '@/hooks/queries/useSignals';
@@ -38,7 +38,7 @@ import {
   drawdownStatus, drawdownLabel, DRAWDOWN_HALT_PCT,
 } from '@/lib/guardrails';
 import { monthlySeries } from '@/lib/monthly';
-import { demergerNotes, parseCalendarDate } from '@/lib/cards';
+import { costBasisOf, demergerNotes, isRebased, parseCalendarDate } from '@/lib/cards';
 import PaperRefRecord from '@/components/portfolio/PaperRefRecord';
 import '@/styles/portfolio-v3.css';
 
@@ -46,11 +46,12 @@ import '@/styles/portfolio-v3.css';
 // page's "your holdings" sections read. Cost basis + realized P&L are the ledger's truth; the current
 // price is the owner's live quote. No cash / total-NAV is fabricated (ADR 0011 — we don't hold the
 // user's broker balance), so value = Σ(remaining × quote) only.
-function ledgerHoldingToRow(pos, quotes, cost) {
+function ledgerHoldingToRow(pos, quotes) {
   const q = quotes?.[(pos.ticker || '').toUpperCase()] || null;
-  // On a demerged holding the ledger's average bought a share that has since been split in two, so
-  // every P&L downstream (row, strip, hero) reads the re-based basis instead. See lib/cards.js.
-  const avg = Number(cost?.avg ?? pos.avg_buy_price) || 0;
+  // On a demerged holding the ledger's average is already re-based onto the parent share, so every
+  // P&L downstream (row, strip, hero) is priced on that. See costBasisOf in lib/cards.js.
+  const cost = costBasisOf(pos);
+  const avg = Number(cost?.avg) || 0;
   const ltp = q?.last_price != null ? Number(q.last_price) : avg;   // fall back to cost if no quote yet
   return {
     tradingsymbol: pos.ticker,
@@ -58,7 +59,7 @@ function ledgerHoldingToRow(pos, quotes, cost) {
     sector: pos.sector || 'Other',
     quantity: Number(pos.remaining_qty) || 0,
     average_price: avg,
-    fill_avg: Number(pos.avg_buy_price) || 0,
+    fill_avg: cost?.rawAvg ?? 0,
     cost_basis: cost?.basis ?? 'none',
     last_price: ltp,
     day_change_percentage: q?.change_pct ?? null,
@@ -877,10 +878,10 @@ function DemergerLines({ notes, paperEntry, fillAvg, avg, costBasis }) {
   if (paperEntry > 0) {
     rebase = `orig. entry = entry ÷ retained = ${fmtNum(paperEntry / notes[0].scale)}`;
   } else if (fillAvg > 0 && costBasis && costBasis !== 'none') {
-    rebase = Math.abs(avg - fillAvg) < 0.005
-      ? 'bought after ex · avg not re-based'
-      : `your avg ${fmtNum(fillAvg)} re-based to ${fmtNum(avg)} · P&L ex spun-off shares`
-        + (COST_BASIS_QUALIFIER[costBasis] || '');
+    rebase = isRebased({ avg, rawAvg: fillAvg, basis: costBasis })
+      ? `your avg ${fmtNum(fillAvg)} re-based to ${fmtNum(avg)} · P&L ex spun-off shares`
+        + (COST_BASIS_QUALIFIER[costBasis] || '')
+      : 'bought after ex · avg not re-based';
   }
   return (
     <>
@@ -1533,12 +1534,8 @@ export default function PortfolioV3() {
     return { bySignal, byTicker };
   }, [signalsQuery.data]);
 
-  // The reader's cost basis, re-based on a demerged holding — shared with Research and Dashboard.
-  const costBySignal = useLedgerCostBases(openExec, signalsQuery.data?.signals);
-
   const yoursHoldings = useMemo(
-    () => openExec.map((p) => ledgerHoldingToRow(p, quotes, costBySignal.get(p.signal_id))),
-    [openExec, quotes, costBySignal]);
+    () => openExec.map((p) => ledgerHoldingToRow(p, quotes)), [openExec, quotes]);
 
   // Synthesize a single view-model so every section reads uniform fields, whichever mode is active.
   const view = useMemo(() => {

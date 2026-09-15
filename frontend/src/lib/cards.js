@@ -123,53 +123,27 @@ export function demergerNotes(corporateActions, entry) {
 }
 
 /**
- * The reader's average buy price on a demerged holding, re-based the way B′ re-bases the model's.
+ * The reader's cost basis for a position, as the ledger reports it.
  *
- * The ledger's `avg_buy_price` is what the reader paid for a share that has since been split in two.
- * Priced against today's post-ex quote it reports the spun-off value as a loss: HEG read about −65%
- * (653.00 against ~225) while the model, re-based, read about −8%. A buy made BEFORE an ex-date
- * carries `retained` of its cost into the parent share and the rest into the spun-off shares, which
- * sit at the reader's broker and not in this ledger. So each pre-ex buy is scaled by the retained
- * ratio of every ex-date it predates, and a post-ex buy is left alone. The result prices the parent
- * shares only, which is also the basis the card's re-based stop and target are on.
+ * On a demerged holding `avg_buy_price` is RE-BASED: the ledger scales the cost carried across each
+ * ex-date by the retained ratio (position_state + corporate_actions), because the share that was
+ * bought has since been split in two and the spun-off half sits at the reader's broker, not here.
+ * `raw_avg_buy_price` is what they actually paid, and `cost_basis` says which evidence dated their
+ * fills — 'events' (the record predates the ex-date), 'events+price' (a fill reported late, placed
+ * by its price against the ex-date cliff) or 'none' (nothing was re-based).
  *
- * WHEN a buy happened is the hard part: the capture modal sends no `executed_at`, so an event's
- * date is when it was RECORDED, which is on or after the fill. Hence:
- *   - recorded before an ex-date → the fill was pre-ex. Certain.
- *   - recorded on/after it → decided by price. The ex-date moves the quote from `prior_close` to
- *     `prior_close × retained`, and a fill above the geometric midpoint of the two is a pre-ex fill
- *     recorded late. `basis: 'events+price'` says that evidence was used.
- *   - no event trail yet (still loading, or the request failed) → every buy is assumed pre-ex,
- *     which is the normal case for a position held into its demerger. `basis: 'assumed'`.
- *
- * Returns { avg, rawAvg, basis }; basis is 'none' when there is no demerger to apply.
+ * The frontend used to derive all of this from the event trail, because the API did not yet carry
+ * it. It does now, so this only reads. A payload from before that shipped has no `cost_basis`, and
+ * reads back as an un-rebased basis rather than throwing.
  */
-export function ledgerCostBasis({ avgBuy, events, corporateActions }) {
-  const rawAvg = avgBuy > 0 ? Number(avgBuy) : null;
-  const dem = validDemergers(corporateActions);
-  if (dem.length === 0 || rawAvg == null) return { avg: rawAvg, rawAvg, basis: 'none' };
-  const scaleFrom = (phase) => dem.slice(phase).reduce((acc, d) => acc * d.retained, 1);
+export function costBasisOf(pos) {
+  const avg = Number(pos?.avg_buy_price) > 0 ? Number(pos.avg_buy_price) : null;
+  if (avg == null) return null;
+  const raw = Number(pos.raw_avg_buy_price) > 0 ? Number(pos.raw_avg_buy_price) : avg;
+  return { avg, rawAvg: raw, basis: typeof pos.cost_basis === 'string' ? pos.cost_basis : 'none' };
+}
 
-  const buys = Array.isArray(events)
-    ? events.filter((e) => e && !e.superseded && String(e.side).toUpperCase() === 'BUY'
-                      && Number(e.qty) > 0 && Number(e.price) > 0)
-    : [];
-  if (buys.length === 0) return { avg: rawAvg * scaleFrom(0), rawAvg, basis: 'assumed' };
-
-  let qty = 0, cost = 0, byPrice = false;
-  for (const e of buys) {
-    const q = Number(e.qty), px = Number(e.price);
-    const day = String(e.executed_at || e.created_at || '').slice(0, 10);
-    // How many ex-dates the RECORD falls on or after; with no date at all, price decides every one.
-    let phase = day ? dem.filter((d) => String(d.ex_date ?? '') <= day).length : dem.length;
-    while (phase > 0) {
-      const d = dem[phase - 1];
-      if (!(d.prior_close > 0 && px > d.prior_close * Math.sqrt(d.retained))) break;
-      phase -= 1;
-      byPrice = true;
-    }
-    qty += q;
-    cost += q * px * scaleFrom(phase);
-  }
-  return { avg: cost / qty, rawAvg, basis: byPrice ? 'events+price' : 'events' };
+/** Did a demerger actually move this basis? The surfaces that print "re-based" ask this. */
+export function isRebased(cost) {
+  return !!cost && cost.basis !== 'none' && Math.abs(cost.avg - cost.rawAvg) >= 0.005;
 }
