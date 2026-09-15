@@ -14,7 +14,7 @@ Two invariants shape the math:
 
 Public API:
     record_event(db, user_id, signal_id, ticker, side, qty, price, ...) -> dict     # append one fill
-    position_state(events, stop=None) -> dict                                        # derive one position
+    position_state(events, stop=None, corporate_actions=None) -> dict                # derive one position
     get_positions(db, user_id) -> list[dict]                                         # all durable positions
     get_events(db, user_id, signal_id) -> list[dict]                                 # raw audit trail
     validate(side, qty, price, remaining, day_range=None) -> list[str]               # warnings, never blocks
@@ -22,6 +22,7 @@ Public API:
 from __future__ import annotations
 
 import logging
+import math
 
 from database import ExecutionEvent
 
@@ -90,14 +91,61 @@ def _sort_key(e: ExecutionEvent):
     return (e.executed_at or e.created_at, e.id)
 
 
-def position_state(events: list[ExecutionEvent], stop: float | None = None) -> dict:
+def _demergers(corporate_actions) -> list[dict]:
+    """Well-formed demerger notes, oldest ex-date first. Mirrors validDemergers in frontend cards.js."""
+    if not corporate_actions:
+        return []
+    ok = [a for a in corporate_actions
+          if isinstance(a, dict) and a.get("kind") == "demerger"
+          and isinstance(a.get("retained"), (int, float)) and 0.0 < float(a["retained"]) <= 1.0]
+    return sorted(ok, key=lambda a: str(a.get("ex_date") or ""))
+
+
+def _phase(e: ExecutionEvent, dem: list[dict]) -> tuple[int, bool]:
+    """How many of `dem`'s ex-dates this fill happened AFTER — i.e. how much re-basing it escapes.
+    Returns (phase, decided_by_price).
+
+    WHEN a fill happened is not recorded reliably: the capture popup sends no `executed_at`, so the
+    timestamp is usually `created_at`, which is when the user got round to REPORTING the fill — on or
+    after it. So a record dated before an ex-date is pre-ex for certain, and one dated on/after it is
+    decided by its price: the ex-date moves the quote from `prior_close` to `prior_close × retained`,
+    a factor of 2.7 on HEG, so a fill above the geometric midpoint of the two is a pre-ex fill
+    reported late. `cost_basis` on the returned state says which evidence was used.
+    """
+    when = e.executed_at or e.created_at
+    day = when.date().isoformat() if when else None
+    phase = len([d for d in dem if str(d.get("ex_date") or "") <= day]) if day else len(dem)
+    by_price = False
+    while phase > 0:
+        d = dem[phase - 1]
+        prior, r = d.get("prior_close"), float(d["retained"])
+        if not (isinstance(prior, (int, float)) and prior > 0
+                and float(e.price) > float(prior) * math.sqrt(r)):
+            break
+        phase -= 1
+        by_price = True
+    return phase, by_price
+
+
+def position_state(events: list[ExecutionEvent], stop: float | None = None,
+                   corporate_actions: list[dict] | None = None) -> dict:
     """Derive one position from its events (average-cost basis). Pure — no DB, no mutation.
 
     Returns remaining qty, average buy price, realized P&L (Rs and %), realized R (if a stop is given),
     cost basis of the remaining shares, and a status (OPEN | CLOSED | EMPTY). Oversell (selling more
     than held, a self-report error) is tolerated: realized P&L still uses the last known average cost
-    and remaining is floored at 0 — validate() warns at capture time so it rarely reaches here."""
-    eff = sorted(_effective_events(events), key=_sort_key)
+    and remaining is floored at 0 — validate() warns at capture time so it rarely reaches here.
+
+    `corporate_actions` are the B′ demerger notes the weekly book recorded for this signal (PR #98).
+    A demerger splits the share that was bought, so on the ex-date the cost of the shares still held
+    is scaled by the retained ratio: the rest of it left with the spun-off shares, which are at the
+    reader's broker and not in this ledger. Without it every figure below prices a post-ex quote
+    against a pre-ex cost — HEG showed −65% against a 653.00 fill where the model, re-based, showed
+    −8% — and a SELL after the ex-date books that phantom loss as REALIZED. `raw_avg_buy_price` keeps
+    the reader's own un-adjusted average, which is still what their broker shows."""
+    dem = _demergers(corporate_actions)
+    # Phase first, so a pre-ex fill REPORTED after the ex-date is still scaled by it.
+    eff = sorted(_effective_events(events), key=lambda e: (_phase(e, dem)[0], *_sort_key(e)))
     shares = 0            # current share count (for average-cost tracking)
     cost = 0.0            # total cost of the CURRENT shares
     total_buy_qty = 0
@@ -105,13 +153,36 @@ def position_state(events: list[ExecutionEvent], stop: float | None = None) -> d
     total_sold_qty = 0
     realized = 0.0        # Rs realized across all sells
     sold_basis = 0.0      # cost basis of the sold shares (for realized %)
+    raw_buy_cost = 0.0    # what the reader actually paid, before any demerger re-base
+    phase = 0             # how many ex-dates have been crossed so far
+    applied = 1.0         # product of the ratios actually applied (none, if nothing was held)
+    by_price = False      # was any fill dated by its price rather than its record date?
+
+    def cross(upto: int) -> None:
+        """Re-base the cost carried into the next phase, for each ex-date crossed.
+
+        Only while shares are actually held: a position sold out BEFORE an ex-date was never
+        demerged, and scaling a basis it never had would report a phantom gain on a closed trade.
+        """
+        nonlocal phase, cost, total_buy_cost, applied
+        while phase < upto:
+            r = float(dem[phase]["retained"])
+            if shares > 0:
+                cost *= r
+                total_buy_cost *= r
+                applied *= r
+            phase += 1
 
     for e in eff:
+        e_phase, dated_by_price = _phase(e, dem)
+        by_price = by_price or dated_by_price
+        cross(e_phase)
         if e.side == BUY:
             shares += e.qty
             cost += e.qty * e.price
             total_buy_qty += e.qty
             total_buy_cost += e.qty * e.price
+            raw_buy_cost += e.qty * e.price
         else:  # SELL
             avg = (cost / shares) if shares > 0 else (total_buy_cost / total_buy_qty if total_buy_qty else 0.0)
             realized += e.qty * (e.price - avg)
@@ -121,14 +192,20 @@ def position_state(events: list[ExecutionEvent], stop: float | None = None) -> d
             cost -= avg * reduce
             shares = max(0, shares - reduce)
 
+    cross(len(dem))                                  # ex-dates after the last recorded fill
+
     remaining = total_buy_qty - total_sold_qty
     avg_buy = (total_buy_cost / total_buy_qty) if total_buy_qty else None
+    raw_avg_buy = (raw_buy_cost / total_buy_qty) if total_buy_qty else None
     status = "EMPTY" if total_buy_qty == 0 else ("OPEN" if remaining > 0 else "CLOSED")
     realized_pct = round(realized / sold_basis * 100, 2) if sold_basis > 0 else None
 
     realized_r = None
     if stop is not None and avg_buy is not None and total_sold_qty > 0:
-        risk_per_share = avg_buy - float(stop)
+        # The frozen stop was snapshotted at the signal, so it predates the demerger the same way the
+        # fill does; re-base it by the ratios actually applied, or the risk unit is a pre-ex price
+        # under a post-ex cost and realized R comes back negative-denominator (i.e. dropped).
+        risk_per_share = avg_buy - float(stop) * applied
         if risk_per_share > 0:
             realized_r = round(realized / (risk_per_share * total_sold_qty), 3)
 
@@ -136,6 +213,11 @@ def position_state(events: list[ExecutionEvent], stop: float | None = None) -> d
         "remaining_qty": max(0, remaining),
         "raw_remaining_qty": remaining,                 # can be negative if oversold (data error)
         "avg_buy_price": round(avg_buy, 2) if avg_buy is not None else None,
+        # What the reader paid, un-adjusted — the figure their broker and their own notes still show.
+        "raw_avg_buy_price": round(raw_avg_buy, 2) if raw_avg_buy is not None else None,
+        # Which evidence re-based this position, for the surface that has to explain the number:
+        # 'none' when nothing was (no demerger, or nothing held through one).
+        "cost_basis": "none" if applied == 1.0 else ("events+price" if by_price else "events"),
         "total_bought_qty": total_buy_qty,
         "total_sold_qty": total_sold_qty,
         "realized_pnl": round(realized, 2),
@@ -147,10 +229,12 @@ def position_state(events: list[ExecutionEvent], stop: float | None = None) -> d
     }
 
 
-def get_positions(db, user_id: int, stops: dict | None = None) -> list[dict]:
+def get_positions(db, user_id: int, stops: dict | None = None,
+                  corporate_actions: dict | None = None) -> list[dict]:
     """Every durable position for a user (one per signal_id), derived from the append-only events.
 
-    `stops` optionally maps signal_id -> frozen model stop so realized R can be computed. Positions are
+    `stops` optionally maps signal_id -> frozen model stop so realized R can be computed, and
+    `corporate_actions` maps signal_id -> the B′ demerger notes for that signal. Positions are
     returned newest-first by their most recent event; CLOSED positions are kept (durable track record)."""
     rows = (
         db.query(ExecutionEvent)
@@ -165,7 +249,7 @@ def get_positions(db, user_id: int, stops: dict | None = None) -> list[dict]:
     out = []
     for sig, evs in by_sig.items():
         stop = (stops or {}).get(sig)
-        st = position_state(evs, stop=stop)
+        st = position_state(evs, stop=stop, corporate_actions=(corporate_actions or {}).get(sig))
         last = max(evs, key=_sort_key)
         out.append({
             "signal_id": sig,

@@ -137,6 +137,16 @@ export function useExecutionTrails(signalIds) {
  * notes from the signals feed (the ledger does not carry them) and fetches event trails only for
  * the positions a demerger touched. `positions` and `signals` must be memoised.
  */
+// The ledger re-bases a demerged holding server-side now (position_state + corporate_actions), so a
+// position that carries `cost_basis` is already answered and needs no event trail. The local
+// computation stays as the fallback for a frontend deployed ahead of that backend; it can go once
+// the API has shipped.
+const fromLedger = (p) => (typeof p?.cost_basis === 'string' ? {
+  avg: Number(p.avg_buy_price) || null,
+  rawAvg: Number(p.raw_avg_buy_price ?? p.avg_buy_price) || null,
+  basis: p.cost_basis,
+} : null);
+
 export function useLedgerCostBases(positions, signals) {
   const caBySignal = useMemo(() => {
     const m = new Map();
@@ -148,10 +158,10 @@ export function useLedgerCostBases(positions, signals) {
     return m;
   }, [signals]);
   const sids = useMemo(
-    () => (positions ?? []).map((p) => p.signal_id).filter((sid) => caBySignal.has(sid)),
+    () => (positions ?? []).filter((p) => !fromLedger(p) && caBySignal.has(p.signal_id)).map((p) => p.signal_id),
     [positions, caBySignal]);
   const trails = useExecutionTrails(sids);
-  return useMemo(() => new Map((positions ?? []).map((p) => [p.signal_id, ledgerCostBasis({
+  return useMemo(() => new Map((positions ?? []).map((p) => [p.signal_id, fromLedger(p) ?? ledgerCostBasis({
     avgBuy: p.avg_buy_price, events: trails.get(p.signal_id), corporateActions: caBySignal.get(p.signal_id),
   })])), [positions, trails, caBySignal]);
 }

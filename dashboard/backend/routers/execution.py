@@ -42,6 +42,26 @@ def _parse_signal_id(signal_id: str) -> tuple[str, str]:
     return m.group(1), (signal_id or "").strip()
 
 
+def _corporate_actions(signal_ids=None) -> dict[str, list]:
+    """signal_id -> the B′ demerger notes the weekly book recorded (PR #98), from the live envelope.
+
+    The ledger cannot derive these: it holds only what the reader reported. Read best-effort — a
+    missing envelope leaves every position on its raw cost, which is what it was before this existed.
+    """
+    try:
+        envelope, _monitor = _model_state()
+        out: dict[str, list] = {}
+        for sig in envelope.get("signals") or []:
+            notes = sig.get("corporate_actions") if isinstance(sig, dict) else None
+            sid = recon._signal_id(sig) if isinstance(sig, dict) else None
+            if notes and sid and (signal_ids is None or sid in signal_ids):
+                out[sid] = notes
+        return out
+    except Exception:  # noqa: BLE001 — never fail a capture or a listing over a corporate action
+        logger.exception("corporate-action lookup failed; positions stay on their raw cost basis")
+        return {}
+
+
 def _frozen_stop(signal_id: str, db) -> float | None:
     """The model's frozen stop for this signal (from the immutable snapshot), for realized-R maths."""
     try:
@@ -61,7 +81,8 @@ def _events_for(db, user_id: int, signal_id: str) -> list[ExecutionEvent]:
 
 def _position_payload(db, user_id: int, signal_id: str, ticker: str) -> dict:
     evs = _events_for(db, user_id, signal_id)
-    state = ledger.position_state(evs, stop=_frozen_stop(signal_id, db))
+    state = ledger.position_state(evs, stop=_frozen_stop(signal_id, db),
+                                  corporate_actions=_corporate_actions({signal_id}).get(signal_id))
     return {"signal_id": signal_id, "ticker": ticker, **state}
 
 
@@ -161,7 +182,8 @@ def list_positions(user: User = Depends(get_current_user), db: Session = Depends
     rows = db.query(ExecutionEvent).filter(ExecutionEvent.user_id == user.id).all()
     sigs = {r.signal_id for r in rows}
     stops = {s: _frozen_stop(s, db) for s in sigs}
-    return {"positions": ledger.get_positions(db, user.id, stops=stops)}
+    return {"positions": ledger.get_positions(db, user.id, stops=stops,
+                                              corporate_actions=_corporate_actions(sigs))}
 
 
 @router.get("/position/{signal_id}")
