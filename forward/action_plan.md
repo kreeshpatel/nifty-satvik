@@ -103,4 +103,5 @@ Edge decay: McLean-Pontiff; Jacobs-Müller (non-US persistence). Half-Kelly: Mac
 Sci 1992). Barbell: Taleb. Behavior gap: DALBAR QAIB 2024. Retail activity: Barber-Odean 2000; SEBI F&O
 2024. India tax: Budget 2024 (STCG 20.8%, LTCG 12.5%). Single-name: Yes Bank / DHFL / Adani-Hindenburg.
 Full sourced digests in the research-agent outputs; the OI/tail-hedge digest in
-`.claude/skills/_ingested/options_oi_tailhedge.md`.
+`skills/_ingested/options_oi_tailhedge.md` (moved from the gitignored mirror 2026-09-15 — it had
+never been committed).

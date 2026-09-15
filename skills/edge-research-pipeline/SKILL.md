@@ -24,7 +24,8 @@ that artifact existing.
 > ## ⚠ THIS PIPELINE IS THE TRUNK, NOT THE ROOT (2026-07-30)
 >
 > Everything below describes how to run **a trial** — the only thing that spends `n_trials`
-> (currently **138**). A candidate does not get here by having a good hypothesis. It gets here by
+> (read the live count from `diagnostics/research/n_trials.json`; this line stated a stale **138**
+> until 2026-09-15). A candidate does not get here by having a good hypothesis. It gets here by
 > surviving four cheaper gates first:
 >
 > 1. **[`skills/program-laws`](../program-laws/SKILL.md)** — the standing verdicts. Most ideas are
