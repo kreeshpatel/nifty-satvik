@@ -210,7 +210,7 @@
   font-size: var(--fs-xs);
   color: var(--text-3);
 }
-.rs-fact b { color: var(--text-1); font-weight: 600; font-variant-numeric: tabular-nums; }
+.rs-fact b, .rs-fact-note b { color: var(--text-1); font-weight: 600; font-variant-numeric: tabular-nums; }
 .rs-fact-note { margin-top: var(--space-3); font-size: var(--fs-micro); line-height: 1.5; color: var(--text-4); }
 
 /* Actions live inside the case panel, not the row: a button in every row of a scannable

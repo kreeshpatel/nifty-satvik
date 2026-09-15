@@ -39,7 +39,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { useExecutionPositions } from '@/hooks/queries/useExecution';
 import { useJourney } from '@/hooks/queries/useJourney';
-import { nseToday, parseCalendarDate, positionR, toTargetPct, holdWeek } from '@/lib/cards';
+import { nseToday, parseCalendarDate, positionR, toTargetPct, holdWeek, demergerNotes } from '@/lib/cards';
 import '@/styles/signals-v3.css';
 import '@/styles/research-insights.css';
 import '@/styles/research.css';
@@ -282,6 +282,8 @@ function enrichSignal(raw, quotes, posBySignal) {
     _trancheState: trancheState, _pendingExit: pendingExit,
     _fracSold: typeof stage.fraction_sold === 'number' ? stage.fraction_sold : null,
     _fracLeft: typeof stage.fraction_remaining === 'number' ? stage.fraction_remaining : null,
+    // B′ re-base notes (PR #98). The key exists only on a position a demerger touched; see lib/cards.js.
+    _demergers: demergerNotes(raw.corporate_actions, entry),
     name: raw.name || ticker,
     sector: raw.sector || '—',
     ex: raw.exchange || 'NSE',
@@ -522,6 +524,10 @@ function CasePanel({ s, onAction, extraAction }) {
     s._pendingExit && ['Pending exit',
       `${s._pendingExit.kind === 'full' ? 'ALL' : `${Math.round(s._pendingExit.fraction * 100)}%`}`
       + ` on ${s._pendingExit.reason} · fills at ${s._pendingExit.fills}`],
+    // A demerger re-bases every level on the card, so without this a holder's broker fill (HEG
+    // 653.00) and the card's entry (242.95) disagree with nothing on screen saying why.
+    ...(s._demergers || []).map((n) => [`Demerger ex ${fmtDayMon(n.exDate)}`,
+      `${n.retainedPct.toFixed(1)}% value retained · ₹${fmtNum(n.spinPerShare)}/share credited`]),
   ].filter(Boolean);
   return (
     <div className="rs-case">
@@ -551,6 +557,12 @@ function CasePanel({ s, onAction, extraAction }) {
           <div className="rs-facts">
             {facts.map(([k, v]) => <div className="rs-fact" key={k}><span>{k}</span><b>{v}</b></div>)}
           </div>
+          {(s._demergers || []).map((n) => (
+            <div className="rs-fact-note" key={n.exDate}>
+              Levels re-based at the {fmtDayMon(n.exDate)} demerger: original entry = entry ÷ retained
+              {n.originalEntry != null && <> = <b>{fmtNum(n.originalEntry)}</b></>}.
+            </div>
+          ))}
           {s.buy_window && <div className="rs-fact-note">{s.buy_window}</div>}
           <div className="rs-case-actions">
             <button type="button" className="ns-btn" onClick={() => onAction(s.sym)}>Levels &amp; chart →</button>
@@ -602,7 +614,8 @@ function OpenRow({ s, open, onToggle, onAction, onToggleBought, held }) {
   return (
     <>
       <div className={`rs-tr${exiting ? ' ns-row--alarm' : ''}`}>
-        <Scrip s={s} chips={[monitorChip(s), exiting ? { label: 'Exit now', cls: 'mon-bear' } : null]}
+        <Scrip s={s} chips={[monitorChip(s), exiting ? { label: 'Exit now', cls: 'mon-bear' } : null,
+                             s._demergers?.length ? { label: 'Demerger', cls: 'mon-info' } : null]}
                note={exiting ? (s.why || 'Close the position at the next open.')
                  : s.isFilledUnbooked ? 'Filled — the Saturday scan books it' : null} />
         <Cell v={fmtNum(s._myBuy ?? s.entry)}

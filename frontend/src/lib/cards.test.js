@@ -1,4 +1,4 @@
-import { nseToday, parseCalendarDate, positionR, toTargetPct, holdWeek } from './cards';
+import { nseToday, parseCalendarDate, positionR, toTargetPct, holdWeek, demergerNotes } from './cards';
 
 // The real JSWSTEEL card of 2026-08-21 and its real Monday fill, which is what exposed three of
 // these four defects on the live board.
@@ -88,5 +88,38 @@ describe('holdWeek', () => {
 
   it('is null for a start date in the future rather than a negative week', () => {
     expect(holdWeek({ filledOn: '2026-09-30', now: at('2026-08-30') })).toBeNull();
+  });
+});
+
+describe('demergerNotes', () => {
+  // The live HEG card of 2026-09-15: re-based on the 2026-09-07 demerger.
+  const HEG_CA = [{ kind: 'demerger', ex_date: '2026-09-07', retained: 0.373773, prior_close: 728.25,
+                    spin_value_per_share: 456.05, credit: 140323.02, r_credited: 0.7539, shares: 307.6923 }];
+
+  it('is empty when the card carries no event — the key is omitted, not emptied', () => {
+    expect(demergerNotes(undefined, 242.95)).toEqual([]);
+    expect(demergerNotes(null, 242.95)).toEqual([]);
+    expect(demergerNotes([], 242.95)).toEqual([]);
+  });
+
+  it('undoes the re-base, so the card reconciles with a pre-demerger broker fill', () => {
+    const [n] = demergerNotes(HEG_CA, 242.95);
+    expect(n.exDate).toBe('2026-09-07');
+    expect(n.retainedPct).toBeCloseTo(37.3773, 4);
+    expect(n.spinPerShare).toBe(456.05);
+    expect(n.originalEntry).toBeCloseTo(650.0, 1);
+  });
+
+  it('compounds across events: the earlier note divides out every later re-base too', () => {
+    const two = [{ kind: 'demerger', ex_date: '2026-10-01', retained: 0.5 },
+                 { kind: 'demerger', ex_date: '2026-09-01', retained: 0.8 }];
+    const [first, second] = demergerNotes(two, 40);
+    expect(first.exDate).toBe('2026-09-01');
+    expect(first.originalEntry).toBeCloseTo(100, 6);
+    expect(second.originalEntry).toBeCloseTo(80, 6);
+  });
+
+  it('drops malformed notes rather than printing a division by zero', () => {
+    expect(demergerNotes([{ kind: 'demerger', retained: 0 }, { kind: 'split', retained: 0.5 }, null], 10)).toEqual([]);
   });
 });

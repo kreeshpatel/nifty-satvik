@@ -86,3 +86,30 @@ export function holdWeek({ filledOn, boughtDate, signalDate, now = Date.now(), c
   if (days < 0) return null;
   return Math.min(capWeeks, Math.max(1, Math.ceil((days + 1) / 7)));
 }
+
+/**
+ * The demerger audit notes on a held card, each with the entry the position had BEFORE it.
+ *
+ * B′ (PR #98) multiplies a held position's entry/stop/target by the retained ratio on the ex-date
+ * and credits the spun-off value as cash. The card then prints only the re-based levels, so HEG
+ * reads entry 242.95 against a broker fill near 653 with nothing on screen explaining the gap.
+ * `entry / retained` undoes the re-base; with more than one event, each note's pre-event entry
+ * divides out that event AND every later one, because the scaling compounds.
+ *
+ * Absent key, a non-array, or a malformed note → no notes. Nothing else on the card depends on it.
+ */
+export function demergerNotes(corporateActions, entry) {
+  if (!Array.isArray(corporateActions)) return [];
+  const events = corporateActions
+    .filter((a) => a && a.kind === 'demerger' && a.retained > 0 && a.retained <= 1)
+    .sort((a, b) => String(a.ex_date ?? '').localeCompare(String(b.ex_date ?? '')));
+  return events.map((a, i) => {
+    const scale = events.slice(i).reduce((acc, e) => acc * e.retained, 1);
+    return {
+      exDate: a.ex_date ?? null,
+      retainedPct: a.retained * 100,
+      spinPerShare: typeof a.spin_value_per_share === 'number' ? a.spin_value_per_share : null,
+      originalEntry: entry > 0 ? entry / scale : null,
+    };
+  });
+}
