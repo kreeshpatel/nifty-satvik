@@ -69,6 +69,21 @@ _TRIALS_ASSERTED = re.compile(
 )
 
 
+def _unwrap(text: str) -> str:
+    """Join wrapped lines, including Markdown blockquote continuations, into one line.
+
+    A fourth stale 138 survived every pattern above: in skills/edge-research-pipeline the phrase was
+    wrapped across a blockquote line, "…spends `n_trials`" / "> (currently **138**)". Each pattern
+    stops at a newline, so the word and its number were never on the same line. Found 2026-09-15,
+    immediately after a mirror refresh had made that text what every session loads.
+
+    Applied to `_TRIALS_ASSERTED` only. That pattern needs a present-tense claim word within a few
+    characters, so joining lines cannot manufacture a match between unrelated lines; the looser
+    patterns could, which would make the suite cry wolf.
+    """
+    return re.sub(r"\n[ \t]*>?[ \t]*", " ", text)
+
+
 def authoritative_screens() -> int:
     """Numbered rows in the screen ledger — `| 17 | 2026-08-06 | ... |`."""
     rows = [m for m in re.finditer(r"^\|\s*(\d+)\s*\|", LEDGER.read_text(encoding="utf-8"), re.M)]
@@ -184,7 +199,7 @@ def test_no_asserted_trial_count_is_stale(path: Path):
     if not path.exists():
         pytest.skip(f"{path} absent")
     want = authoritative_trials()
-    for got in {int(m) for m in _TRIALS_ASSERTED.findall(path.read_text(encoding="utf-8"))}:
+    for got in {int(m) for m in _TRIALS_ASSERTED.findall(_unwrap(path.read_text(encoding="utf-8")))}:
         assert got == want, (
             f"{path.relative_to(ROOT)} asserts n_trials is {got}; the counter says {want}. "
             f"Prefer pointing at diagnostics/research/n_trials.json over restating the number.")
@@ -201,6 +216,16 @@ def test_the_assertion_scanner_catches_what_slipped_past_the_others():
     for text in escaped_past_earlier_patterns:
         assert _TRIALS_ASSERTED.findall(text) == ["138"], f"scanner missed: {text!r}"
         assert not _TRIALS.findall(text), "the strict pattern was supposed to miss this"
+
+
+def test_a_count_wrapped_across_a_blockquote_line_is_still_caught():
+    """Guard the guard, fourth escape: the phrase verbatim as it sat in skills/edge-research-pipeline
+    on 2026-09-15, split over two blockquote lines. Raw text must miss it (that is the bug), and the
+    unwrapped text must catch it (that is the fix)."""
+    wrapped = ("> Everything below describes how to run **a trial** — the only thing that spends `n_trials`\n"
+               "> (currently **138**). A candidate does not get here by having a good hypothesis.")
+    assert not _TRIALS_ASSERTED.findall(wrapped), "raw text was expected to evade the line-bound pattern"
+    assert _TRIALS_ASSERTED.findall(_unwrap(wrapped)) == ["138"], "unwrapping failed to expose the count"
 
 
 def test_the_assertion_scanner_ignores_hypotheticals():
