@@ -103,6 +103,13 @@ LIVE_STALENESS = dict(stale_absent_days=STALE_ABSENT_DAYS)
 # (R94._apply_demerger). The events come from the post-harvest addendum — the file new events are
 # registered in — and only rows the cleaner deliberately LEFT as a cliff: a series the vendor already
 # back-adjusted has nothing to re-base (and the engine also checks the prices themselves).
+# LIVE PREP — COMPLETED WEEKS ONLY (prod-fix 2026-09-15; see R94.week_closed_at). Before this, a run
+# made on any day but Friday/Saturday used that day's close as the weekly close, and every weekly exit
+# fired on it: the 2026-09-15 (Tuesday) manual scan published six false "SELL at Monday's open" stop
+# exits. The last bar of a still-open week now decides nothing, and a week that ends early because the
+# rest of it is NSE holidays still counts as closed. prep_weekly_rank's default stays OFF so the frozen
+# research run and the golden master are byte-identical.
+LIVE_PREP = dict(complete_weeks_only=True)
 CORPORATE_ACTIONS_ADDENDUM = ROOT / "data" / "corporate_actions_post_harvest.csv"
 _CA_CLIFF_RESOLUTION = "LEFT_UNADJUSTED_AS_INTENDED"
 
@@ -547,7 +554,9 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
     # (with its range), NOT a HOLD (fault 2026-07-13: a mid-week/Monday-data run showed every name as
     # HOLD with no buy range, because the uncapped tracking book had 'entered' the week's signals).
     gen = pd.Timestamp(generated_at)
-    cur_week_open = gen.weekday() < 4                          # data ends Mon-Thu => this week not yet closed
+    # data ends before the week's last session => this week not yet closed. Holiday-aware (the same test
+    # the engine's exits use), so a Thursday before a Friday holiday is a closed week, not an open one.
+    cur_week_open = not R94.week_closed_at(gen)
     cur_week_start = (gen - pd.Timedelta(days=int(gen.weekday()))).normalize()   # Monday of gen's week
 
     def _entered_this_week(p):
@@ -997,14 +1006,17 @@ def main(argv=None) -> int:
     _refresh_nifty50(not args.no_download)               # CRS denominator (finding 0037)
     mem = load_membership()
     # LIVE strategy = 0093 + Nifty-50 with CRS-ranked fills (finding 0038; supersedes arbitrary fill).
-    P = R94.prep_weekly_rank(ohlcv)
+    P = R94.prep_weekly_rank(ohlcv, **LIVE_PREP)
+    # The panel's own latest session, pinned for every one-ticker demerger view, so a view cannot
+    # disagree with the panel about which week is still open.
+    prep_kw = dict(LIVE_PREP, as_of=max((pd.Timestamp(s["dates"][-1]) for s in P.values()), default=None))
     # Grade-A only: trade the TOP-5-by-CRS signals of each week. Owner rule — never surface or buy
     # Grade B; there are always enough strong A names.
     a_set = R94.grade_a_entries(P)
     # B′ (LIVE CORPORATE ACTIONS above): the same events reach all three books, so the paper book, the
     # signal ledger and the watched arm cannot disagree about a demerged holding. A registered ratio the
     # prices contradict raises DemergerCliffMismatch and the run publishes nothing — fail closed.
-    ca_events = R94.build_demerger_events(ohlcv, load_demerger_rows())
+    ca_events = R94.build_demerger_events(ohlcv, load_demerger_rows(), **prep_kw)
     # ── ₹10L paper book — realistic capital sim (A-only), kept for the NAV/equity portfolio.
     led_paper: list = []
     out_paper = R94.backtest(P, mem, ledger=led_paper, start=args.start, return_state=True, a_grade=a_set,

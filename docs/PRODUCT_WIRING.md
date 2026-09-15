@@ -30,6 +30,7 @@ Written by the weekly scanner (Saturday).
 | `buy_zone_high` | FRESH | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
 | `buy_zone_low` | FRESH | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
 | `close` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | **7** |
+| `corporate_actions` | ACTIVE | · | · | · | · | · | · | · | · | · | **0** |
 | `crs_rank` | FRESH | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `current_price` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | **6** |
 | `entry` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
@@ -57,6 +58,10 @@ Written by the weekly scanner (Saturday).
 | `ticker` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
 | `tier` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | · | · | ✓ | ✓ | · | · | · | **3** |
 | `why` | HIT_STOP,HIT_TARGET | ✓ | · | · | · | · | ✓ | · | · | ✓ | **3** |
+
+**Unread by decision (1)**
+
+- `corporate_actions` — B′ audit note (PR #98): why a demerged holding's entry/stop/target moved and what cash was credited. The levels the card prints are already re-based, so no instruction depends on it. NOT a permanent decision — rendering it on the HOLD card, so a holder can reconcile their broker fill (HEG 653.00) with the card (244.07), is an open follow-up.
 
 ## `results/weekly_monitor.json`
 

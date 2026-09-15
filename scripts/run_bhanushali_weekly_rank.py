@@ -45,6 +45,39 @@ CERTIFIED_N_TRIALS = 114
 SLOPE_MIN, SLOPE_LOOKBACK, TOUCH_BAND, CRS_LEN = 0.03, 13, 0.07, 40   # the live 0093-N50 params (frozen)
 
 
+# ── COMPLETED WEEKS ONLY (prod-fix 2026-09-15) ──────────────────────────────────────────────────────
+# The engine groups bars by ISO week and treats each group's LAST bar as that week's close. For every
+# week in history that is right. For the week the data is still inside it is not: a run on Tuesday
+# makes Tuesday's close the "weekly close", and every weekly exit rule (hard stop, pattern tranche,
+# runner SMA break) fires on it. The 2026-09-15 manual scan queued SIX false stop exits that way —
+# ASTERDM closed 741.25 against a 745.05 stop on a Tuesday — and published them as "SELL at Monday's
+# open". Signals already refused a partial week (fault F7, `last_signal` below); exits never did.
+#
+# A week is closed when no NSE session remains in it. Friday (or a Saturday special session) closes it;
+# so does a Thursday — or earlier — when every remaining weekday is an exchange holiday. That HOLIDAY
+# GUARD matters: a plain weekday rule would read a Friday-holiday week as partial, and a stop the
+# Thursday close breached would not be acted on until the following week.
+#
+# Past the calendar's coverage (NSE publishes one year at a time — config.NSE_HOLIDAYS_COVERED_*) the
+# holidays cannot be known, so only Friday/Saturday closes a week: a known late exit beats a guess that
+# acts on a partial bar. The cron's weekly run lands on Saturday, where the question never arises.
+def week_closed_at(d) -> bool:
+    """True when no NSE trading session remains in `d`'s ISO week after `d`."""
+    from config import NSE_HOLIDAYS, NSE_HOLIDAYS_COVERED_FROM, NSE_HOLIDAYS_COVERED_THROUGH
+    d = pd.Timestamp(d).normalize()
+    if d.weekday() >= 4:
+        return True
+    rest = [d + pd.Timedelta(days=k) for k in range(1, 5 - d.weekday())]      # the weekdays up to Friday
+    if str(d.date()) < NSE_HOLIDAYS_COVERED_FROM or str(rest[-1].date()) > NSE_HOLIDAYS_COVERED_THROUGH:
+        return False
+    return all(str(x.date()) in NSE_HOLIDAYS for x in rest)
+
+
+def _iso_week(d) -> tuple[int, int]:
+    y, w, _ = pd.Timestamp(d).isocalendar()
+    return int(y), int(w)
+
+
 # ── CORPORATE ACTIONS: demerger on a HELD position (owner decision 2026-09-15, "B′", standing rule) ──
 #
 # The book prices positions on RAW closes. A demerger re-bases the listed share DOWN by the value of the
@@ -157,14 +190,27 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                      require_progress: bool = False, slope_min: float | None = None,
                      prior_above_n: int = 0, prior_above_lookback: int = 4,
                      max_ctl_pct: float | None = None, min_body_frac: float | None = None,
-                     open_progress: bool = False):
+                     open_progress: bool = False, complete_weeks_only: bool = False, as_of=None):
     """The live 0093+Nifty-50 prep, with each entry window carrying its CRS-distance rank.
 
     index_provider (pre-reg 0096): optional callable(ticker) -> pd.Series to override the CRS
     denominator per ticker (e.g. the stock's own sector index). Returning None for a ticker falls
-    back to Nifty-50. index_provider=None (default) => Nifty-50 for all => byte-identical 0094 run."""
+    back to Nifty-50. index_provider=None (default) => Nifty-50 for all => byte-identical 0094 run.
+
+    complete_weeks_only (live, prod-fix 2026-09-15; see `week_closed_at`): the last bar of the week
+    the panel is still inside is NOT a weekly close, so no weekly exit is decided on it, and the live
+    card signal steps back to the last closed week by the same holiday-aware test. `as_of` is the
+    panel's latest session (default: the latest bar across `ohlcv`); pass it explicitly when prepping
+    a subset, so a one-ticker view agrees with the panel about which week is open. A ticker whose bars
+    stopped in an earlier week is unaffected — the market has closed that week. Off => byte-identical."""
     n50 = pd.read_csv(CRS.NIFTY50_CSV, parse_dates=["date"]).set_index("date")["nifty50_close"].sort_index()
     P = prep(ohlcv, drop_erratum=drop_erratum)
+    _open_week = None                                  # the ISO week the panel is still inside, if any
+    if complete_weeks_only:
+        _as_of = (pd.Timestamp(as_of) if as_of is not None
+                  else max((pd.Timestamp(s["dates"][-1]) for s in P.values()), default=None))
+        if _as_of is not None and not week_closed_at(_as_of):
+            _open_week = _iso_week(_as_of)
     for t, s in P.items():
         c = s["c"]
         s["ema20"] = pd.Series(c).rolling(20).mean().to_numpy()
@@ -409,6 +455,9 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
                 wsig = np.nan_to_num(wsig, nan=False) | _znew
                 _origin[_znew] = _org
         s["weekend"] = {dd[-1] for dd in weeks}
+        _last_is_open = _open_week is not None and _iso_week(s["dates"][weeks[-1][-1]]) == _open_week
+        if _last_is_open:
+            s["weekend"].discard(weeks[-1][-1])        # a partial week's last bar is not a weekly close
         # WEEKLY ATR(10) in PRICE units — read only by the `stop_atr_mult` lever (owner spec 2026-07-16).
         # Measured: weekly ATR median = 7.83% of price, so 1.0x ~= today's 7.1% median stop width. (The
         # repo's "2.5x/4x ATR" results are DAILY-ATR multiples; daily ATR ~3.5%, so they do NOT transfer.)
@@ -440,9 +489,17 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
         s["last_signal"] = None
         _ws = np.nan_to_num(wsig, nan=False)
         li = len(weeks) - 1
-        if li >= 1 and pd.Timestamp(s["dates"][weeks[li][-1]]).weekday() < 4:
-            li -= 1                                            # current week partial -> last completed week
-        if li >= 0 and pd.Timestamp(s["dates"][weeks[li][-1]]).weekday() >= 4 and _ws[li]:
+        if complete_weeks_only:
+            # Same test as the exits: step back only from the OPEN week, and a closed week counts even
+            # when it ended on a Thursday before a Friday holiday (the weekday rule dropped those cards).
+            if li >= 1 and _last_is_open:
+                li -= 1
+            _li_closed = li >= 0 and not (li == len(weeks) - 1 and _last_is_open)
+        else:
+            if li >= 1 and pd.Timestamp(s["dates"][weeks[li][-1]]).weekday() < 4:
+                li -= 1                                        # current week partial -> last completed week
+            _li_closed = li >= 0 and pd.Timestamp(s["dates"][weeks[li][-1]]).weekday() >= 4
+        if _li_closed and _ws[li]:
             s["last_signal"] = {"fri_idx": int(weeks[li][-1]), "lo": float(wlow[li]),
                                 "hi": float(whigh[li]), "rank": float(crs_dist[li])}
     return P
