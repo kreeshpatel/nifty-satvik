@@ -25,7 +25,8 @@ import { useSignals } from '@/hooks/queries/useSignals';
 import { useOverview } from '@/hooks/queries/useOverview';
 import { useIndexSparklines } from '@/hooks/queries/useIndexSparklines';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
-import { useExecutionPositions, useLedgerCostBases, useOutstandingActions } from '@/hooks/queries/useExecution';
+import { useExecutionPositions, useOutstandingActions } from '@/hooks/queries/useExecution';
+import { costBasisOf, isRebased } from '@/lib/cards';
 import { DISCLAIMER } from '@/lib/signalCopy';
 import TradeCardModal from '@/components/shared/TradeCardModal';
 import '@/styles/dashboard-proto.css';
@@ -629,24 +630,24 @@ export default function DashboardV3() {
     () => [...new Set(openPositions.map((p) => (p.ticker || '').toUpperCase()).filter(Boolean))].slice(0, 8),
     [openPositions]);
   const quotesQuery = useQuoteBatch(heldSymbols, { enabled: heldSymbols.length > 0 });
-  // Same re-based basis as /portfolio and Research, or a demerged holding reads a different P&L on each.
-  const costBySignal = useLedgerCostBases(openPositions, signalsQuery.data?.signals);
   const holdingsQuery = useMemo(() => ({
     isLoading: execQuery.isLoading,
     data: openPositions.slice(0, 8).map((p) => {
       const q = quotesQuery.data?.[(p.ticker || '').toUpperCase()] || null;
-      const cost = costBySignal.get(p.signal_id);
-      const avg = Number(cost?.avg ?? p.avg_buy_price) || 0;
+      // The ledger re-bases a demerged holding's average, so this is the same basis /portfolio and
+      // Research price on — the three cannot disagree about one position's P&L.
+      const cost = costBasisOf(p);
+      const avg = Number(cost?.avg) || 0;
       return {
         tradingsymbol: p.ticker,
-        rebased: !!cost && cost.basis !== 'none' && Math.abs(cost.avg - cost.rawAvg) >= 0.005,
+        rebased: isRebased(cost),
         quantity: Number(p.remaining_qty) || 0,
         average_price: avg,
         last_price: q?.last_price != null ? Number(q.last_price) : avg,  // fall back to cost, never 0
         day_change_percentage: q?.change_pct ?? null,
       };
     }),
-  }), [openPositions, quotesQuery.data, execQuery.isLoading, costBySignal]);
+  }), [openPositions, quotesQuery.data, execQuery.isLoading]);
 
   const signals    = useMemo(() => signalsQuery.data?.signals ?? [], [signalsQuery.data]);
   const regime     = useMemo(() => signalsQuery.data?.regime ?? {}, [signalsQuery.data]);
