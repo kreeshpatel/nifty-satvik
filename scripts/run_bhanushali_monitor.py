@@ -486,7 +486,17 @@ def build_monitor(envelope: dict, ohlcv: dict, history: list | None = None) -> d
             rec["plan_tags"] = plan_tags
 
             # Stop is the risk line (not a profit tranche) — a weekly-close confirmation, flagged here for lead time.
-            if stop_breach:
+            if sig.get("ca_hold"):
+                # CORPORATE-ACTION HOLD (2026-09-16): the Saturday engine froze this holding after an
+                # unregistered >=15% drop. A stop "breach" measured on that price may be a demerger's
+                # re-basing, so the flag asks for the review instead of implying the stop will confirm.
+                h = sig["ca_hold"]
+                flags.append({"ticker": t, "event": "CORPORATE_ACTION_REVIEW", "severity": "high",
+                              "message": f"{t}: frozen for review — {h.get('leg')} {h.get('move_pct')}% on "
+                                         f"{h.get('date')} with no corporate action on record. Check the "
+                                         f"exchange's announcements before acting on the stop; no exit is "
+                                         f"issued until it is recorded."})
+            elif stop_breach:
                 flags.append({"ticker": t, "event": "STOP_BREACH", "severity": "high",
                               "message": f"{t} closed {last_close:.2f} at/under its stop {stop:.2f} — the weekly close will confirm the exit"})
             elif not tranches and target_hit:

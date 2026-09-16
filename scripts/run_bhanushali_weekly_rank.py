@@ -109,6 +109,39 @@ CA_CLIFF_MATCH_TOL = 0.02      # |observed/registered - 1| above this => refuse
 _CA_SCALED_KEYS = ("en", "stop", "risk0", "tp2", "trail", "pk", "pk_wh", "peak_h", "floor0", "last_mark")
 
 
+# ── CORPORATE-ACTION HOLD (owner decision 2026-09-16) ────────────────────────────────────────────────
+# B′ credits a demerger only once it is REGISTERED. An unregistered one still reads as a crash: the book
+# queues a stop on the re-based price and the carved-out value enters the permanent record as a loss.
+# Neither existing detector sees it — the adjustment-seam guard compares the cache with the exchange's
+# raw close, which an unadjusted demerger matches exactly, and the cleaner's 50% rule is not on the live
+# path and misses any spin-off that keeps more than half the value.
+#
+# So a HELD position is frozen, for a human, the first session it opens or closes >= CA_HOLD_DROP below
+# the prior close with nothing registered for that date. Measured 2026-09-16 on the cache (710 names,
+# 2019 on): of the 12 demergers the vendor left as a cliff of 15% or more, a 15% trigger catches all 12
+# (the 50% rule, 6); single-session drops that deep occur ~78 times a year across the WHOLE universe,
+# so on a book holding tens of names the expected alert rate is one to three a year. Most such drops are
+# genuine (March 2020, Adani 2023) — the cost of those is a review, which is the point: the card says so,
+# and the price is shown, so a genuine crash can still be sold the same day.
+CA_HOLD_DROP = 0.15
+
+
+def _ca_hold_check(p: dict, t: str, s: dict, i: int, d, leg: str, drop: float, reviewed, entry: dict) -> None:
+    if i <= 0 or not entry.get(id(p), d) < d:
+        return                                              # not held INTO this session
+    prev = float(s["c"][i - 1])
+    px = float(s["o"][i] if leg == "open" else s["c"][i])
+    if prev <= 0:
+        return
+    move = px / prev - 1.0
+    key = (t, str(pd.Timestamp(d).date()))
+    if move <= -drop and key not in reviewed:
+        p["ca_hold"] = {"date": key[1], "leg": leg, "prior_close": round(prev, 2), "price": round(px, 2),
+                        "move_pct": round(move * 100.0, 2),
+                        "why": (f"{leg} {move * 100:.1f}% vs the prior close with no registered corporate action "
+                                f"— frozen for review: register the event, or record the move as genuine")}
+
+
 class DemergerCliffMismatch(RuntimeError):
     """A registered demerger's retained ratio does not match what the price series shows."""
 
@@ -545,7 +578,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              stop_atr_mult: float | None = None, buystop_buffer: float = 0.0,
              scaled_exit: dict | None = None, hard_stop: bool = False,
              max_risk_pct: float | None = None, max_notional_pct: float | None = None,
-             stale_absent_days: int = 0, demerger_events: dict | None = None):
+             stale_absent_days: int = 0, demerger_events: dict | None = None,
+             ca_hold_drop: float = 0.0, ca_reviewed=None):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
@@ -568,7 +602,14 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
     demerger_events (owner decision 2026-09-15, "B′", standing rule): {ticker: event} from
     `build_demerger_events`. A position held INTO a registered ex-date realises the carved-out value as a
     cash credit and carries on re-based — see `_apply_demerger` and the block comment above it. None
-    (default) => no event can fire => byte-identical to the 0094 run of record and the live golden cells."""
+    (default) => no event can fire => byte-identical to the 0094 run of record and the live golden cells.
+
+    ca_hold_drop (owner decision 2026-09-16, the corporate-action HOLD): a position held into a session
+    that OPENS or CLOSES at least this far below the prior close, on a date with no registered demerger
+    and no owner review in `ca_reviewed` ({(ticker, 'YYYY-MM-DD')}), is FROZEN — no fill, no tranche, no
+    exit — and carries `ca_hold` until the owner resolves it: register the event (B′ then re-bases it)
+    or record the move as genuine (the rules then run as if the hold never existed). See CA_HOLD_DROP.
+    0.0 (default) => OFF => byte-identical."""
     vt_ann, vt_win, vt_floor = vol_target if vol_target else (0.0, 42, 1.0)
     _EQ0 = EQ0 if eq0 is None else float(eq0)
     dts = pd.DatetimeIndex(sorted(set().union(*[set(s["dates"]) for s in P.values()])))
@@ -581,6 +622,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
     # B′: entry day of each position on a ticker with a registered demerger, keyed by the position
     # object's id so no field is added to positions that no event touches (keeps golden state identical).
     _ca_entry: dict[int, pd.Timestamp] = {}
+    _ca_reviewed = frozenset(ca_reviewed or ())
     # B-1 NAV-mark selector, bound once (gate OFF => the frozen entry-price mark, byte-identical).
     _absent_mark = ((lambda p_: p_.get("last_mark", p_["en"])) if stale_absent_days
                     else (lambda p_: p_["en"]))
@@ -630,6 +672,13 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     s = p["ca_view"]
             p["absent_run"] = 0
             p["last_mark"] = float(s["c"][i])      # last TRADED close (the B-1 stale-exit price)
+            # CORPORATE-ACTION HOLD: the OPEN gap is checked before any pending fill (a demerger re-bases
+            # at the open, and a queued exit filling there would book the carved-out value as a loss);
+            # the CLOSE move is checked after the day's fills. Both use only prices known at that point.
+            if ca_hold_drop and "ca_view" not in p and "ca_hold" not in p:
+                _ca_hold_check(p, t, s, i, d, "open", ca_hold_drop, _ca_reviewed, _ca_entry)
+            if "ca_hold" in p:
+                continue
             if p["pending"] is not None:
                 act, rs = p["pending"]
                 px = s["o"][i]
@@ -819,6 +868,10 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                         ledger.append(p["rec"])
                     del op[t]; continue
 
+            if ca_hold_drop and "ca_view" not in p and "ca_hold" not in p:
+                _ca_hold_check(p, t, s, i, d, "close", ca_hold_drop, _ca_reviewed, _ca_entry)
+                if "ca_hold" in p:
+                    continue
             if i in s["weekend"]:
                 p["weeks"] += 1
                 wc = s["c"][i]
@@ -1061,8 +1114,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                                  origin=int(o_.get("origin", 0)),   # CONTEXT-ROUTER: per-branch exit lookup
                                  frac_left=1.0, realized_r=0.0, t1_done=False, t2_done=False,
                                  absent_run=0, last_mark=en)        # B-1 staleness bookkeeping
-                    if demerger_events and t in demerger_events:
-                        _ca_entry[id(op[t])] = d                     # B′: held INTO an ex-date only if d < ex
+                    if (demerger_events and t in demerger_events) or ca_hold_drop:
+                        _ca_entry[id(op[t])] = d                     # B′ / hold: held INTO a date only if entered before it
                     rp = sh * (en - st) / sizing_eq * 100      # risk as % of SIZING equity
                     # The notional cap legitimately UNDER-sizes (that is what a cap does), so the strict
                     # sizing invariant only applies when uncapped. Capped, risk may only be REDUCED —

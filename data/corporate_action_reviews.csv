@@ -1,0 +1,14 @@
+# NiftyQuant — owner reviews of CORPORATE-ACTION HOLDS on the live swing book.
+#
+# The live engine freezes a HELD position the first session it opens or closes >= 15% below the prior
+# close with no corporate action registered for that date (run_bhanushali_weekly_rank.CA_HOLD_DROP,
+# owner decision 2026-09-16). The card then reads REVIEW_CORPORATE_ACTION instead of issuing an exit.
+#
+# There are exactly two ways to release a hold, and each leaves a record:
+#   * it WAS a corporate action (demerger) -> register it in data/corporate_actions_post_harvest.csv
+#     with its measured series_return; B′ then re-bases the position and this file is not touched;
+#   * it was NOT (a genuine crash, a bad tick) -> add a row here with verdict GENUINE_MOVE; the engine
+#     then applies its normal rules to that session as if the hold had never existed.
+#
+# `date` is the session the hold names (the card's ca_hold.date). Rows are never deleted.
+symbol,date,verdict,reviewed_on,note

@@ -111,6 +111,30 @@ LIVE_STALENESS = dict(stale_absent_days=STALE_ABSENT_DAYS)
 # research run and the golden master are byte-identical.
 LIVE_PREP = dict(complete_weeks_only=True)
 CORPORATE_ACTIONS_ADDENDUM = ROOT / "data" / "corporate_actions_post_harvest.csv"
+# LIVE CORPORATE-ACTION HOLD (2026-09-16 owner decision; see R94.CA_HOLD_DROP and the dated block
+# `live_corporate_action_hold` in models/bhanushali_weekly/config.json). B′ only credits a demerger that
+# is registered; an unregistered one would still be stopped out on the re-based price. A held name that
+# opens or closes >= 15% below the prior close with nothing registered is frozen and its card asks for a
+# review. Released by registering the event, or by a GENUINE_MOVE row in the reviews file.
+CORPORATE_ACTION_REVIEWS = ROOT / "data" / "corporate_action_reviews.csv"
+LIVE_CA_HOLD = dict(ca_hold_drop=R94.CA_HOLD_DROP)
+_CA_REVIEW_VERDICTS = {"GENUINE_MOVE"}
+
+
+def load_ca_reviews(path: Path = CORPORATE_ACTION_REVIEWS) -> frozenset:
+    """{(symbol, 'YYYY-MM-DD')} the owner has reviewed as NOT a corporate action. Missing file => none."""
+    if not Path(path).exists():
+        return frozenset()
+    df = pd.read_csv(path, comment="#", dtype=str)
+    out = set()
+    for _, r in df.iterrows():
+        verdict = str(r["verdict"]).strip()
+        if verdict not in _CA_REVIEW_VERDICTS:
+            raise ValueError(f"{Path(path).name}: {r['symbol']} {r['date']} has verdict {verdict!r}; the only "
+                             f"release here is {sorted(_CA_REVIEW_VERDICTS)} — a real corporate action is "
+                             f"registered in {CORPORATE_ACTIONS_ADDENDUM.name} instead")
+        out.add((str(r["symbol"]).strip(), str(pd.Timestamp(str(r["date"]).strip()).date())))
+    return frozenset(out)
 _CA_CLIFF_RESOLUTION = "LEFT_UNADJUSTED_AS_INTENDED"
 
 
@@ -595,7 +619,18 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
             # B′ — additive, and OMITTED when there is none, so every other card is byte-identical.
             # The entry/stop/target above are already re-based; this says why they moved.
             rec["corporate_actions"] = p["ca_notes"]
-        if p["pending"] is not None:                          # Friday close said EXIT -> act Monday open
+        if p.get("ca_hold"):
+            # CORPORATE-ACTION HOLD: frozen by the engine; no exit is issued until the owner resolves it.
+            h = p["ca_hold"]
+            rec["actionability"] = "REVIEW_CORPORATE_ACTION"
+            rec["ca_hold"] = h
+            rec["why"] = (f"Price {'opened' if h['leg'] == 'open' else 'closed'} {abs(h['move_pct']):.1f}% below "
+                          f"the prior close on {h['date']} ({h['prior_close']:,.2f} -> {h['price']:,.2f}) with no "
+                          "corporate action on record. Check the exchange's corporate announcements: a demerger "
+                          "or spin-off means you hold new shares and should NOT sell on this price; a genuine "
+                          "fall means the normal stop applies. The book holds this position until it is "
+                          "recorded either way.")
+        elif p["pending"] is not None:                        # Friday close said EXIT -> act Monday open
             act, reason = p["pending"]
             rec["actionability"] = "EXIT_REQUIRED"
             if act == "part" and reason == "pattern":         # blow-off exhaustion -> book the 40% pattern tranche
@@ -1017,16 +1052,18 @@ def main(argv=None) -> int:
     # signal ledger and the watched arm cannot disagree about a demerged holding. A registered ratio the
     # prices contradict raises DemergerCliffMismatch and the run publishes nothing — fail closed.
     ca_events = R94.build_demerger_events(ohlcv, load_demerger_rows(), **prep_kw)
+    ca_hold = dict(LIVE_CA_HOLD, ca_reviewed=load_ca_reviews())
     # ── ₹10L paper book — realistic capital sim (A-only), kept for the NAV/equity portfolio.
     led_paper: list = []
     out_paper = R94.backtest(P, mem, ledger=led_paper, start=args.start, return_state=True, a_grade=a_set,
-                             **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS, demerger_events=ca_events)
+                             **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS, demerger_events=ca_events,
+                             **ca_hold)
     # ── UNCAPPED signal ledger — every A signal tracked (cash never runs out), so a name is followed
     #    week to week regardless of what ₹10L could afford. This drives the SIGNALS page.
     led_all: list = []
     out_all = R94.backtest(P, mem, ledger=led_all, start=args.start, return_state=True, uncapped=True,
                            a_grade=a_set, **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS,
-                           demerger_events=ca_events)
+                           demerger_events=ca_events, **ca_hold)
     # ── base-swing WATCHED arm (forward/prereg_swing.md §2) — ALL grades (no a_grade filter), same
     #    ₹10L cash gate and the same LIVE_* discipline as the traded book. Logged, NEVER traded and
     #    NEVER surfaced: the owner rule above forbids showing Grade B, so this result is deliberately
@@ -1042,7 +1079,8 @@ def main(argv=None) -> int:
     #    so every week unlogged is a week of the comparison permanently lost.
     led_base: list = []
     out_base = R94.backtest(P, mem, ledger=led_base, start=args.start, return_state=True,
-                            **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS, demerger_events=ca_events)
+                            **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS, demerger_events=ca_events,
+                            **ca_hold)
     # data's last date = the "as of" the book is current to
     last = max((pd.Timestamp(s["dates"][-1]) for s in P.values()), default=pd.Timestamp(args.start))
     generated_at = str(last.date())
@@ -1073,6 +1111,15 @@ def main(argv=None) -> int:
         f"# Weekly Decision Memos — {generated_at} | regime {_ctx['regime']} | {len(_memos)} signals\n\n"
         + "\n".join(render_md(m) for m in _memos), encoding="utf-8")
 
+    # A frozen holding must be LOUD in the Actions log, not only on a card someone may not open.
+    for _book, _out in (("paper", out_paper), ("uncapped", out_all), ("base-swing", out_base)):
+        for _t, _p in _out["open_positions"].items():
+            if _p.get("ca_hold"):
+                _h = _p["ca_hold"]
+                print(f"::warning::CORPORATE-ACTION HOLD [{_book}] {_t} {_h['date']}: {_h['leg']} "
+                      f"{_h['move_pct']}% ({_h['prior_close']} -> {_h['price']}) — register the event in "
+                      f"{CORPORATE_ACTIONS_ADDENDUM.name} or record GENUINE_MOVE in "
+                      f"{CORPORATE_ACTION_REVIEWS.name}", flush=True)
     print(f"weekly cron: inception {args.start} | as-of {generated_at} | "
           f"{sum(1 for s in envelope['signals'] if s.get('tier') == 'signal' and not s.get('bought_date')):>3} open | "
           f"tracked-held {len(out_all['open_positions']):>3} | completed {analytics['total_closed']:>3} | "
