@@ -30,9 +30,22 @@ def test_any_row_in_the_slice_is_refused(day):
         assert_unsealed(["2020-01-01", day])
 
 
-def test_the_holdout_split_label_is_not_a_safe_filter():
-    """The exact trap: the substrate's holdout split reaches into the slice."""
-    sub = pd.read_parquet(ROOT / "research" / "substrate" / "trades.parquet", columns=["entry_date", "split"])
+SUBSTRATE = ROOT / "research" / "substrate" / "trades.parquet"
+
+
+def test_a_holdout_label_starting_in_2023_is_not_a_safe_filter():
+    """The exact trap, hermetic: a split labelled 'holdout' from 2023 reaches into the slice."""
+    sub = pd.DataFrame({"entry_date": pd.to_datetime(["2022-06-01", "2023-02-01", "2024-06-28", "2024-07-08"]),
+                        "split": ["train", "holdout", "holdout", "holdout"]})
+    with pytest.raises(SealedArtifactError):
+        assert_unsealed(sub.loc[sub["split"] == "holdout", "entry_date"])
+    assert_unsealed(sub.loc[sub["entry_date"] <= "2024-06-30", "entry_date"])
+
+
+@pytest.mark.skipif(not SUBSTRATE.exists(), reason="research substrate is not committed (local data only)")
+def test_the_real_substrate_holdout_split_is_refused():
+    """The same trap on the real parquet, where it exists."""
+    sub = pd.read_parquet(SUBSTRATE, columns=["entry_date", "split"])
     with pytest.raises(SealedArtifactError):
         assert_unsealed(sub.loc[sub["split"] == "holdout", "entry_date"])
     assert_unsealed(sub.loc[sub["entry_date"] <= "2024-06-30", "entry_date"])
