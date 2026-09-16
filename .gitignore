@@ -44,6 +44,10 @@ dashboard/backend/.env
 # 2026-09-09 while registering HEG's 2026-09-07 demerger, before the first commit rather than
 # after a month of silent loss. Watcher: tests/test_post_harvest_corporate_actions.py.
 !data/corporate_actions_post_harvest.csv
+# Owner reviews that RELEASE a corporate-action hold on the live swing book (GENUINE_MOVE rows).
+# Ignored, the cron would read an empty file in CI and every released hold would freeze again.
+# Watcher: tests/test_ca_hold_guard.py::test_the_reviews_file_is_tracked_not_ignored.
+!data/corporate_action_reviews.csv
 # Raw exchange closes on the guard's probe grid. Small, exchange-sourced, and committed on
 # purpose: nq.data.adjustment_guard must be able to run without the network, or it gets skipped
 # on the day the network is flaky. Producer: scripts/build_raw_close_reference.py
