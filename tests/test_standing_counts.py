@@ -129,6 +129,22 @@ def test_recited_trial_count_matches_the_counter(path: Path):
             f"update the prose — never the other way round.")
 
 
+_SEALED = re.compile(r"sealed opens\s+\*{0,2}(\d+)\*{0,2}", re.I)
+
+
+@pytest.mark.parametrize("path", RECITERS, ids=lambda p: p.name if p.name != "SKILL.md" else p.parent.name)
+def test_recited_sealed_open_count_matches_the_ledger(path: Path):
+    """Added 2026-09-16 with S2. Sealed opens were the one standing count no test held to its ledger, so
+    the day an unplanned open was recorded nothing would have caught a recitation still reading 1."""
+    if not path.exists():
+        pytest.skip(f"{path} absent")
+    want = authoritative_sealed()
+    for got in {int(m) for m in _SEALED.findall(path.read_text(encoding="utf-8"))}:
+        assert got == want, (
+            f"{path.relative_to(ROOT)} states 'sealed opens {got}' but the ledger "
+            f"({LEDGER.relative_to(ROOT)}) records {want} S-rows. The ledger is the authority.")
+
+
 # --------------------------------------------------------------------- governance skill mirrors
 # CLAUDE.md calls these two "the laws in enforceable form", and until 2026-08-07 they were the only
 # two skills absent from `.claude/skills/` — so the loader could not see the most binding rules in

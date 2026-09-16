@@ -137,7 +137,7 @@ the standing instrument: `false_touch`, `noise_stop`, `exit_too_early`, `opp_qua
   decision on 2026-08-07 and stood at 2; the stale literal survived because it was punctuated in a
   way `tests/test_standing_counts.py` did not match. The fix is to state no literal here at all —
   a number that cannot drift is better than one a test happens to catch.)*
-- **Sealed opens are priced like any reuse.** Current standing: **sealed opens 1**. Opening the
+- **Sealed opens are priced like any reuse.** Current standing: **sealed opens 2** (S2 was an UNPLANNED open by a measurement, 2026-09-16 — read the ledger row). Opening the
   sealed set is a governance-class event: it requires a frozen rule *amended into the pre-reg
   before* the open, it may happen once per study, and the count is stated in the readout forever
   after. Thresholds may be tightened, never retroactively relaxed.

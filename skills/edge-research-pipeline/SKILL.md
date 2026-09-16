@@ -32,7 +32,7 @@ that artifact existing.
 >    already answered; the collision rule is **cite-and-narrow, not relitigate**.
 > 2. **[`skills/verdict-machine`](../verdict-machine/SKILL.md)** — registry confrontation →
 >    coverage/PIT audit → kill-shot screen (one **screen-ledger** row, currently **screens 19**;
->    sealed opens **1**) → **activation bound**.
+>    sealed opens **2**) → **activation bound**.
 > 3. **The activation-bound law is mandatory and is 3/3** (0117 rotation, 0119 tiebreak, 0121
 >    deferral): before any trial ask, compute the clairvoyant ceiling of the proposed rule and
 >    compare it to the **±10R/yr path-noise floor**. Below the floor or wrong-signed → **NO TRIAL**,

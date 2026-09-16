@@ -27,7 +27,7 @@ in `long_horizon/STRATEGY_FULL.md`).
 >    **cite and narrow, never relitigate.**
 > 2. **[`skills/verdict-machine`](../verdict-machine/SKILL.md)** — the screen → bound sequence that
 >    precedes any trial. Screens are ledgered separately (**screens 19**); the sealed set is priced
->    on every open (**sealed opens 1**).
+>    on every open (**sealed opens 2**).
 > 3. **The activation bound (mandatory, 3/3 kills).** Before proposing the overlay, compute its
 >    clairvoyant ceiling in R/yr and compare to the **±10R/yr path-noise floor** (0109/0117).
 >    Below the floor or wrong-signed → **NO TRIAL**. This gate killed the delivery tiebreak (0119,

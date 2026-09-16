@@ -111,3 +111,77 @@ and each would read as a false stop touch.
 **Whatever the result, nothing is adopted.** A change to `tp1_r` changes the live book and needs a
 pre-registration, a trial, and the quarterly review. These numbers describe outcomes; program-laws I
 says they are not features for choosing entries.
+
+---
+
+## Amendment A1 — 2026-09-16, after the first run: the sealed slice
+
+**What went wrong.** Population A read `split ∈ {train, holdout}`. The substrate's `holdout` split
+(2023-01-02 onward) **contains the sealed validation slice**: entries from 2024-07-01 to 2026-06-30
+(`verdict-machine`; `label_screen_ledger.md`). The first run therefore opened the seal with no rule
+frozen and no ledger row written first. `/skills-first`, run after the results existed, caught it.
+
+**Owner decision, the same day:** count it, disclose it, guard it.
+- It is recorded as **sealed open S2 (unplanned)**.
+- Its numbers are reported, but never as evidence.
+- `nq.brain.io.assert_unsealed` now refuses any substrate selection that reaches into the slice
+  without a ledger S-row.
+
+**Populations after A1:**
+- **Evidence** (all interpretation rules apply here, and only here):
+  - `train` = split `train`, entries 2019-01-14 .. 2022-12-26;
+  - `holdout_unsealed` = split `holdout` with entry_date ≤ 2024-06-30.
+
+  Both are reported separately, as before.
+- **`sealed_S2`**, disclosure only: entries 2024-07-01 .. 2026-06-30. It is read only through
+  `assert_unsealed(..., declared_open="S2")`, so every rerun reproduces the record rather than
+  opening the slice again. **No interpretation rule reads it.** It also can no longer validate any
+  future rule about target distance, R-multiple targets, or stop-width bands.
+- **Live book:** unchanged. It is forward-wall description.
+
+Nothing else in the SPEC changes: definitions, null, bands, bootstrap, and the interpretation rules.
+
+## Amendment A2 — 2026-09-16, after the red-team read: a matched-control null and three fixes
+
+**Why.** The `red-team` read of the first run found the arithmetic reproducible (0 of 3,781 outcomes
+mismatched), but the reading wrong:
+- The first-passage nulls omit the drift the universe actually had: equal-weight average ≈ 20%/yr in
+  both 2019–22 and 2023–26, against the SPEC's μ = 15%.
+- Against **stocks bought the same day with similar volatility and the same stop distance**, the
+  entries' "excess over chance" mostly disappears.
+
+That control is the right null for "is the selection better than the market", so it is added here.
+**It is post-hoc,** added after results were seen, and it is labelled as such everywhere it appears.
+
+**A2.1 — matched-control null (post-hoc), evidence populations only.** For each trade:
+- Draw up to **20 other tickers**, seed 20260916, that print a bar on the entry date with ≥ 64 prior
+  bars, a pre-entry σ within **±25%** of the trade's, and no split-size move or registered demerger in
+  their own window.
+- Put each at that session's **open**, with the trade's **risk fraction** r and the same +kR targets.
+- Take the control rate as the mean over the resolved controls.
+- **Excess = trade outcome − control rate**, cluster-bootstrapped on ticker.
+
+Caveat: controls come from the corrected universe, not point-in-time index membership.
+
+**A2.2 — the live stop rule (post-hoc, descriptive).** Alongside the SPEC's continuous stop, the same
+table with the book's actual stop: a **weekly close ≤ S** (the last bar of each ISO week in the data),
+target unchanged, same-week ties counted as the target touched first only when the target bar is
+earlier. Both the trade and its controls are measured this way.
+
+**A2.3 — fixes.**
+1. **Live prices:** they were dividend-adjusted (`download_ohlcv` uses `auto_adjust=True`) while the
+   archived entry and stop are raw, which pushes toward earlier stops. The live leg now downloads
+   unadjusted prices.
+2. **Band edge:** risk is rounded to 6 dp before banding, so a stop capped at exactly 10% lands in
+   `r>=10%` as the SPEC's `[10%, ∞)` says, not by float noise.
+3. **Live source:** the live entries and stops were read from the archived weekly snapshots
+   (`results/archive/*/signals_today_weekly.json`), not `cards_archive.jsonl`. Entry equals
+   `fill_price` in every snapshot, so this is harmless; the SPEC text is corrected by this note.
+
+**Reading after A2.**
+- The SPEC's rules are still reported against the first-passage null, as specified.
+- **Claims about selection ("better or worse than chance") are made only against the matched control.**
+  The first-passage null cannot separate selection from market drift.
+- Band-level results are descriptive. No band claim is made unless it holds against the matched
+  control in both evidence populations (about 160 cells were looked at; some land outside zero by
+  chance).
