@@ -33,7 +33,7 @@ from nq.data.fundamentals import load_fund_store  # noqa: E402
 from nq.data.membership import load_membership  # noqa: E402
 from nq.data.ohlcv import OHLCV_CACHE, load_ohlcv_cache  # noqa: E402
 from nq.engine.panel import compose_ranked_panel  # noqa: E402
-from nq.runner.research import _daily_returns, run_backtest  # noqa: E402
+from nq.runner.research import run_backtest  # noqa: E402
 
 OUT = RESULTS_DIR / "blend_hybrid_paper.json"
 INCEPTION = "2026-07-04"
@@ -53,6 +53,25 @@ def _lowvol_nav(start: str) -> pd.Series:
     return run_backtest(lv, cfg, start=start, end=str(pd.Timestamp.today().date()))["equity_curve"]
 
 
+def _curve_to_series(curve) -> pd.Series:
+    """`run_backtest`'s equity curve as a date-indexed float Series.
+
+    THE DEFECT THIS REPLACES (found 2026-09-16). `run_backtest` returns ``equity_curve`` as a LIST OF
+    RECORDS ``[{"date", "equity"}, ...]``, and ``main`` passed it straight to ``pd.Series(..., dtype=float)``,
+    which raises on the dicts. The step is non-fatal in the scanner workflow, so it printed a warning and
+    the watched swing x low-vol blend (0107, prereg_swing §7) logged ZERO points every Saturday from its
+    2026-07-04 inception — the file on main was last written 2026-07-26 with ``n_points: 0``.
+    """
+    if isinstance(curve, pd.Series):
+        s = curve.astype(float)
+        s.index = pd.to_datetime(s.index)
+        return s
+    if not curve:
+        return pd.Series(dtype=float)
+    return pd.Series([float(e["equity"]) for e in curve],
+                     index=pd.to_datetime([e["date"] for e in curve]), dtype=float)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(); ap.add_argument("--start", default=INCEPTION)
     # OWNER-FIXED barbell weight (prereg_swing.md §7 amendment 2026-08-14). The spec registered the
@@ -64,10 +83,8 @@ def main() -> int:
     sw_path = RESULTS_DIR / "portfolio_history_weekly.csv"
     swing = (pd.read_csv(sw_path, parse_dates=["date"]).set_index("date")["total_value"]
              if sw_path.exists() else pd.Series(dtype=float))
-    lvnav = _lowvol_nav(args.start)
-    lvnav = pd.Series(lvnav, dtype=float) if not isinstance(lvnav, pd.Series) else lvnav
+    lvnav = _curve_to_series(_lowvol_nav(args.start))
     if len(lvnav):
-        lvnav.index = pd.to_datetime(lvnav.index)
         lvnav = lvnav[lvnav.index >= pd.Timestamp(args.start)]
     swing.index = pd.to_datetime(swing.index)
 
@@ -76,7 +93,9 @@ def main() -> int:
     state = {"model": "swing x low-vol ERC blend (0107, WATCHED)", "inception": args.start,
              "observational": True, "n_points": int(len(idx))}
     if len(idx) >= 2:
-        sr = swing.reindex(idx).pct_change(); lr = _daily_returns(lvnav).reindex(idx)
+        # Both legs as returns over the SAME common sessions (the old `_daily_returns(lvnav)` also
+        # expected the list-of-records shape, so it could never have run on the Series built above).
+        sr = swing.reindex(idx).pct_change(); lr = lvnav.reindex(idx).pct_change()
         w = pd.Series(float(args.swing_weight), index=idx)   # owner-fixed barbell weight (not ERC)
         br = (w * sr + (1 - w) * lr).fillna(0.0)
         nav = 1_000_000.0 * (1 + br).cumprod()
