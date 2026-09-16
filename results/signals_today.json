@@ -1,56 +1,39 @@
 {
-  "generated_at": "2026-09-15",
+  "generated_at": "2026-09-16",
   "signals": [
     {
-      "ticker": "WELCORP",
-      "entry": 2414.51,
-      "stop": 2077.89,
-      "target": 2958.26,
+      "ticker": "HFCL",
+      "entry": 213.02,
+      "stop": 174.03,
+      "target": 260.99,
       "target_pct": 22.52,
-      "current_price": 2413.3,
-      "close": 2413.3,
-      "signal_date": "2026-09-15",
+      "current_price": 212.91,
+      "close": 212.91,
+      "signal_date": "2026-09-16",
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
       "status": "FRESH",
       "buy_window": "T+1..T+3 at open",
-      "indicative_close": 2413.3,
-      "indicative_entry": 2414.51
-    },
-    {
-      "ticker": "SYRMA",
-      "entry": 1508.45,
-      "stop": 1304.58,
-      "target": 1848.15,
-      "target_pct": 22.52,
-      "current_price": 1507.7,
-      "close": 1507.7,
-      "signal_date": "2026-09-15",
-      "hold_days": 63,
-      "grade": "B",
-      "tier": "signal",
-      "status": "FRESH",
-      "buy_window": "T+1..T+3 at open",
-      "indicative_close": 1507.7,
-      "indicative_entry": 1508.45
+      "indicative_close": 212.91,
+      "indicative_entry": 213.02
     },
     {
       "ticker": "CHENNPETRO",
-      "entry": 1472.54,
-      "stop": 1232.27,
-      "target": 1804.16,
+      "entry": 1456.73,
+      "stop": 1215.37,
+      "target": 1784.79,
       "target_pct": 22.52,
-      "current_price": 1471.8,
-      "close": 1471.8,
+      "current_price": 1456.0,
+      "close": 1456.0,
       "signal_date": "2026-09-15",
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
-      "status": "FRESH",
+      "status": "ACTIVE",
       "buy_window": "T+1..T+3 at open",
-      "indicative_close": 1471.8,
-      "indicative_entry": 1472.54
+      "indicative_close": 1456.0,
+      "indicative_entry": 1456.73
     }
   ],
   "regime": {
@@ -59,12 +42,12 @@
     "vix": 0,
     "breadth": 0
   },
-  "n_positions": 12,
-  "cash": 111731.9,
+  "n_positions": 13,
+  "cash": 91608.34,
   "kill_state": {
-    "wr_last20": 57.9,
+    "wr_last20": 55.0,
     "wr_breach": false,
-    "sharpe_30d": 1.555,
+    "sharpe_30d": 1.701,
     "sharpe_30d_breach": false,
     "mode": "observe"
   }
