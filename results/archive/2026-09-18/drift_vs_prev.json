@@ -1,0 +1,44 @@
+{
+  "prev_snapshot": "2026-09-15__rerun-20260915T221531Z",
+  "cur_snapshot": "2026-09-18",
+  "closed_prev": 11,
+  "closed_cur": 11,
+  "closed_delta": 0,
+  "nav_prev": 1003699.23,
+  "nav_cur": 1018440.17,
+  "nav_delta": 14740.94,
+  "n_restated": 1,
+  "restated": [
+    {
+      "trade": "HINDZINC|2026-08-31",
+      "changed": {
+        "close_price": [
+          574.95,
+          576.45
+        ],
+        "close_date": [
+          "2026-09-15",
+          "2026-09-14"
+        ],
+        "r_multiple": [
+          -1.74,
+          -1.65
+        ]
+      }
+    }
+  ],
+  "n_vanished": 0,
+  "vanished": [],
+  "n_appeared": 0,
+  "appeared": [],
+  "inputs_changed": [
+    "nifty50_csv_sha256",
+    "ohlcv_cache_sha256",
+    "ohlcv_last_bar",
+    "ohlcv_n_rows"
+  ],
+  "clean": false,
+  "as_of": "2026-09-18",
+  "logged_utc": "2026-09-19T12:41:12.685373+00:00",
+  "is_baseline": false
+}
