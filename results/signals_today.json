@@ -1,22 +1,22 @@
 {
-  "generated_at": "2026-09-18",
+  "generated_at": "2026-09-21",
   "signals": [
     {
       "ticker": "CHENNPETRO",
-      "entry": 1417.31,
-      "stop": 1172.33,
-      "target": 1736.49,
+      "entry": 1376.19,
+      "stop": 1131.4,
+      "target": 1686.11,
       "target_pct": 22.52,
-      "current_price": 1416.6,
-      "close": 1416.6,
-      "signal_date": "2026-09-15",
+      "current_price": 1375.5,
+      "close": 1375.5,
+      "signal_date": "2026-09-21",
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
-      "status": "ACTIVE",
+      "status": "FRESH",
       "buy_window": "T+1..T+3 at open",
-      "indicative_close": 1416.6,
-      "indicative_entry": 1417.31
+      "indicative_close": 1375.5,
+      "indicative_entry": 1376.19
     }
   ],
   "regime": {
@@ -26,11 +26,11 @@
     "breadth": 0
   },
   "n_positions": 14,
-  "cash": 154.66,
+  "cash": 25.21,
   "kill_state": {
     "wr_last20": 55.0,
     "wr_breach": false,
-    "sharpe_30d": 2.554,
+    "sharpe_30d": 2.879,
     "sharpe_30d_breach": false,
     "mode": "observe"
   }
