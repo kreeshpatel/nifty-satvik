@@ -99,3 +99,76 @@ a PIT map is built.
 
 **Whatever the result, nothing is adopted.** These numbers describe exposure and outcomes;
 program-laws I says they are not features for choosing entries.
+
+---
+
+## Amendment A1 — 2026-09-24, before the reported run: the corporate-action hold is live-only
+
+The first run of population A used the full live configuration, **including the corporate-action hold**
+(`LIVE_CA_HOLD`, the Phase-0 guard). That guard freezes a held position after an unregistered ≥15%
+single-session drop **until the owner resolves it**. Live, resolution takes a day. In a 5.5-year
+reconstruction there is no owner, so a frozen position never exits and its loss is never realised.
+
+Measured on 2019-01-01..2024-06-30:
+
+| live config | trades | CAGR | Sharpe | frozen at the end |
+|---|---|---|---|---|
+| with the hold | 52 | **52.8%** | 1.86 | 4 |
+| without the hold | 71 | **39.4%** | 1.67 | 0 |
+
+The four freezes are circuit-limit crash days, not corporate actions: VBL −20.0% and JSL −17.0%
+(March 2020), IIFL −20.0% and SWANENERGY −18.5% (March 2024).
+
+**Population A therefore runs WITHOUT the hold.** Registered demerger events (B′) stay on: those are
+historical facts, not an operational review. The hold is an operational mechanism for a book with a
+human attached, and it does not belong in any historical reconstruction.
+
+Two things this also records, outside this study's scope:
+- the guard's real-world firing rate on the live book is about **0.7 a year** on a 5-seat book (4 in
+  5.5 years), which matches the 1–3 a year estimated when it was built;
+- whether a live hold should **auto-release** after N sessions with no corporate action found is a live
+  rule change — pre-registration, trial, quarterly review. It is noted, not proposed here.
+
+Nothing else in the SPEC changes.
+
+## Amendment A2 — 2026-09-24, after the red-team read
+
+The read confirmed the pipeline (an independent re-run reproduced population A field for field, and
+three days of `rho_bar` / `div_ratio` were recomputed from raw closes and matched exactly), and
+rejected two readings and two statistics.
+
+**A2.1 — the regime claim was one episode.** 90 of the 171 index-drawdown sessions are the COVID crash
+(2020-03..2020-07). Excluding it, drawdown `rho_bar` is **0.160 against 0.148 in calm** — nothing. The
+fall in effective bets is then mostly *fewer names held* (6.5 vs 7.8), not more-correlated names, since
+`N_eff` scales with N. The stitched 171-session mask also breaks the 63-session block bootstrap
+(~2.7 blocks per replicate, blocks straddling episode boundaries), so that CI is not a CI.
+**Added:** every contiguous drawdown episode of ≥30 sessions is reported separately, plus a
+drawdown-excluding-the-largest-episode cell, plus `mean_n_held` per cell. **No regime claim is made
+unless it survives excluding the largest episode.**
+
+**A2.2 — `share_of_total_R` inverts when the book loses.** The live cell shipped
+`stop: sum_R −16.32, share +0.945` — a family that lost 16R reading as +94.5% of R. The share is now
+**undefined (None) whenever total R is not positive**, and `sum_R` in R units is the reported number.
+
+**A2.3 — trade cells now carry the CI the SPEC promised.** §Uncertainty specified a cluster bootstrap
+on ticker for trade statistics; the first implementation computed none.
+`nq.brain.portfolio.cluster_bootstrap_mean` is wired into every exit-reason cell.
+
+**A2.4 — the live window is labelled by its data.** The summary said `end: 2026-09-23` (the price
+fetch) while the NAV ends **2026-09-15**; the 50-session window is 2026-07-07..2026-09-15. Now reported
+as `nav_window_end` and `prices_fetched_to`.
+
+**A2.5 — A1's stated mechanism was wrong; its decision stands.** A1 said a frozen position's "loss is
+never realised". In fact all four frozen names ended far UP (VBL 647.97 against an entry of 47.04; JSL
+815.85 against 38.89; SWANENERGY 586.90 against 305.00; IIFL 513.80 against 332.72). The hold inflated
+the book by freezing **winners the runner exit could never sell**, not by hiding losses. Turning it off
+still moves the book down (52.8% → 39.4% CAGR), so the decision is not result-shopping — but the reason
+is corrected here rather than left to be cited again.
+
+**A2.6 — interpretation rule 5 binds harder than the first write-up did.** The stop cell (n=29) and the
+volatility-at-exit cell are **below the 30-trade bar**. They are reported and **not interpreted** — in
+particular, the study makes **no statement** about whether stops fire on volatility expansion.
+
+Also recorded, not claimed: the notional cap binds on every entry (risk 2% ÷ a stop distance capped at
+10% is always ≥ 20% of sizing equity), so equal-weight is a close approximation for population A —
+actual-weight DR 1.84 against 1.92 equal-weight, correlation 0.93.

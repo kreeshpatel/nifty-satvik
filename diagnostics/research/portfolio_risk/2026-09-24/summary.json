@@ -1,0 +1,587 @@
+{
+  "spec": "diagnostics/research/portfolio_risk/SPEC.md",
+  "class": "MEASUREMENT (zero trials)",
+  "n_trials_at_run": 2,
+  "run_date": "2026-09-24",
+  "constants": {
+    "corr_window": 63,
+    "dd_threshold": 0.1,
+    "block": 63,
+    "n_boot": 2000,
+    "seed": 20260924,
+    "min_sessions": 100,
+    "min_trades": 30
+  },
+  "book_stats_caveat": "The historical book's CAGR/Sharpe/DD are a FRESH-CAPITAL sub-window run (peak resets at 2019-01-01), NOT gate numbers. On this window frozen-0094 defaults give 30.3%/1.225; the live config's lift is the config-P runner exit (24.0%/1.153 -> 39.4%/1.666), the owner-adopted fat-tail exit.",
+  "reading": "Exposure description only. Nothing here authorises a de-gross, a hedge or a seat-count change: 0095 killed the one de-gross measured on this book (\u0394Sharpe \u22120.398) and FINDING_more_slots shows concentration is load-bearing.",
+  "historical": {
+    "window": "2019-01-01..2024-06-30",
+    "n_trades": 71,
+    "book": {
+      "start_equity": 1000000.0,
+      "final_equity": 6194021.32,
+      "years": 5.49,
+      "cagr_pct": 39.4,
+      "sharpe_gross_daily_ann": 1.666,
+      "max_drawdown_pct": -34.78
+    },
+    "market_exposure": {
+      "n": 1352.0,
+      "beta": 0.701548,
+      "alpha_daily": 0.00096,
+      "r2": 0.367284,
+      "mean_book_daily": 0.001422,
+      "mean_market_daily": 0.000658,
+      "market_part_daily": 0.000461,
+      "informative": true,
+      "beta_block_ci": [
+        0.5897,
+        0.7714
+      ]
+    },
+    "togetherness": {
+      "rho_bar": {
+        "n_sessions": 1286,
+        "informative": true,
+        "mean_rho_bar": 0.1631,
+        "ci": [
+          0.1343,
+          0.1949
+        ],
+        "median": 0.1537,
+        "p10": 0.0614,
+        "p90": 0.2666
+      },
+      "n_eff": {
+        "n_sessions": 1286,
+        "informative": true,
+        "mean_n_eff": 3.9509,
+        "ci": [
+          3.6219,
+          4.4003
+        ],
+        "median": 3.7441,
+        "p10": 2.6674,
+        "p90": 5.7431
+      },
+      "div_ratio": {
+        "n_sessions": 1286,
+        "informative": true,
+        "mean_div_ratio": 1.9209,
+        "ci": [
+          1.8416,
+          2.0253
+        ],
+        "median": 1.895,
+        "p10": 1.5881,
+        "p90": 2.2981
+      },
+      "pc1_share": {
+        "n_sessions": 1286,
+        "informative": true,
+        "mean_pc1_share": 0.3001,
+        "ci": [
+          0.2727,
+          0.3252
+        ],
+        "median": 0.288,
+        "p10": 0.2151,
+        "p90": 0.3864
+      }
+    },
+    "seats": {
+      "mean": 7.31,
+      "median": 8.0,
+      "max": 12
+    },
+    "regime_split": {
+      "index_drawdown_ge_10pct": {
+        "rho_bar": {
+          "n_sessions": 171,
+          "informative": true,
+          "mean_rho_bar": 0.2587,
+          "ci": [
+            0.1748,
+            0.4004
+          ],
+          "median": 0.2385,
+          "p10": 0.0821,
+          "p90": 0.5103
+        },
+        "n_eff": {
+          "n_sessions": 171,
+          "informative": true,
+          "mean_n_eff": 3.0618,
+          "ci": [
+            2.2331,
+            3.6106
+          ],
+          "median": 2.8943,
+          "p10": 1.7233,
+          "p90": 4.4098
+        },
+        "div_ratio": {
+          "n_sessions": 171,
+          "informative": true,
+          "mean_div_ratio": 1.6931,
+          "ci": [
+            1.4771,
+            1.8374
+          ],
+          "median": 1.6539,
+          "p10": 1.3312,
+          "p90": 2.112
+        },
+        "mean_n_held": 7.06,
+        "market_exposure": {
+          "n": 171.0,
+          "beta": 0.703673,
+          "alpha_daily": 0.000648,
+          "r2": 0.675493,
+          "mean_book_daily": -8.3e-05,
+          "mean_market_daily": -0.001039,
+          "market_part_daily": -0.000731,
+          "informative": true,
+          "beta_block_ci": [
+            0.516,
+            0.8287
+          ]
+        },
+        "book_return_per_day_pct": -0.0083
+      },
+      "calm": {
+        "rho_bar": {
+          "n_sessions": 1115,
+          "informative": true,
+          "mean_rho_bar": 0.1484,
+          "ci": [
+            0.1228,
+            0.1715
+          ],
+          "median": 0.1505,
+          "p10": 0.0593,
+          "p90": 0.2329
+        },
+        "n_eff": {
+          "n_sessions": 1115,
+          "informative": true,
+          "mean_n_eff": 4.0873,
+          "ci": [
+            3.7379,
+            4.6247
+          ],
+          "median": 3.8267,
+          "p10": 2.8164,
+          "p90": 5.9618
+        },
+        "div_ratio": {
+          "n_sessions": 1115,
+          "informative": true,
+          "mean_div_ratio": 1.9559,
+          "ci": [
+            1.8732,
+            2.0795
+          ],
+          "median": 1.9129,
+          "p10": 1.6402,
+          "p90": 2.4074
+        },
+        "mean_n_held": 7.35,
+        "market_exposure": {
+          "n": 1181.0,
+          "beta": 0.698279,
+          "alpha_daily": 0.001009,
+          "r2": 0.248864,
+          "mean_book_daily": 0.00164,
+          "mean_market_daily": 0.000903,
+          "market_part_daily": 0.000631,
+          "informative": true,
+          "beta_block_ci": [
+            0.5502,
+            0.7896
+          ]
+        },
+        "book_return_per_day_pct": 0.166
+      },
+      "_episodes": {
+        "2020-03-06..2020-07-20": {
+          "rho_bar": {
+            "n_sessions": 90,
+            "informative": false,
+            "mean_rho_bar": 0.3476,
+            "ci": [
+              0.3578,
+              0.4542
+            ],
+            "median": 0.391,
+            "p10": 0.1116,
+            "p90": 0.5346
+          },
+          "n_eff": {
+            "n_sessions": 90,
+            "informative": false,
+            "mean_n_eff": 2.6532,
+            "ci": [
+              1.9233,
+              2.5313
+            ],
+            "median": 2.092,
+            "p10": 1.6597,
+            "p90": 4.5434
+          },
+          "div_ratio": {
+            "n_sessions": 90,
+            "informative": false,
+            "mean_div_ratio": 1.5868,
+            "ci": [
+              1.3827,
+              1.5575
+            ],
+            "median": 1.4495,
+            "p10": 1.286,
+            "p90": 2.1364
+          },
+          "mean_n_held": 7.54,
+          "market_exposure": {
+            "n": 90.0,
+            "beta": 0.682499,
+            "alpha_daily": 0.001039,
+            "r2": 0.706825,
+            "mean_book_daily": 0.001184,
+            "mean_market_daily": 0.000213,
+            "market_part_daily": 0.000145,
+            "informative": false,
+            "beta_block_ci": [
+              0.3723,
+              0.714
+            ]
+          },
+          "book_return_per_day_pct": 0.1184
+        },
+        "2022-05-31..2022-07-21": {
+          "rho_bar": {
+            "n_sessions": 38,
+            "informative": false,
+            "mean_rho_bar": 0.1203,
+            "ci": [
+              NaN,
+              NaN
+            ],
+            "median": 0.1309,
+            "p10": 0.0789,
+            "p90": 0.1485
+          },
+          "n_eff": {
+            "n_sessions": 38,
+            "informative": false,
+            "mean_n_eff": 3.594,
+            "ci": [
+              NaN,
+              NaN
+            ],
+            "median": 3.4556,
+            "p10": 3.2305,
+            "p90": 4.2455
+          },
+          "div_ratio": {
+            "n_sessions": 38,
+            "informative": false,
+            "mean_div_ratio": 1.8239,
+            "ci": [
+              NaN,
+              NaN
+            ],
+            "median": 1.8134,
+            "p10": 1.7283,
+            "p90": 1.9595
+          },
+          "mean_n_held": 5.53,
+          "market_exposure": {
+            "n": 38.0,
+            "beta": 0.647793,
+            "alpha_daily": -1.9e-05,
+            "r2": 0.407041,
+            "mean_book_daily": -4.8e-05,
+            "mean_market_daily": -4.5e-05,
+            "market_part_daily": -2.9e-05,
+            "informative": false
+          },
+          "book_return_per_day_pct": -0.0048
+        }
+      },
+      "index_drawdown_ex_largest_episode": {
+        "rho_bar": {
+          "n_sessions": 81,
+          "informative": false,
+          "mean_rho_bar": 0.16,
+          "ci": [
+            0.158,
+            0.1933
+          ],
+          "median": 0.1366,
+          "p10": 0.0808,
+          "p90": 0.2767
+        },
+        "n_eff": {
+          "n_sessions": 81,
+          "informative": false,
+          "mean_n_eff": 3.5157,
+          "ci": [
+            3.1896,
+            3.6873
+          ],
+          "median": 3.3654,
+          "p10": 2.7241,
+          "p90": 4.3194
+        },
+        "div_ratio": {
+          "n_sessions": 81,
+          "informative": false,
+          "mean_div_ratio": 1.8112,
+          "ci": [
+            1.7225,
+            1.859
+          ],
+          "median": 1.7922,
+          "p10": 1.6076,
+          "p90": 2.0758
+        },
+        "mean_n_held": 6.52,
+        "market_exposure": {
+          "n": 81.0,
+          "beta": 0.816858,
+          "alpha_daily": 0.000494,
+          "r2": 0.582715,
+          "mean_book_daily": -0.001491,
+          "mean_market_daily": -0.00243,
+          "market_part_daily": -0.001985,
+          "informative": false,
+          "beta_block_ci": [
+            0.8378,
+            0.9262
+          ]
+        },
+        "book_return_per_day_pct": -0.1491
+      },
+      "_largest_episode": "2020-03-06..2020-07-20"
+    },
+    "exit_reasons": {
+      "sma_break": {
+        "n": 37,
+        "mean_R": 4.815,
+        "mean_R_ci": [
+          2.407,
+          7.984
+        ],
+        "median_R": 2.278,
+        "skew_R": 2.62,
+        "sum_R": 178.17,
+        "informative": true,
+        "share_of_total_R": 1.3472
+      },
+      "stale": {
+        "n": 1,
+        "mean_R": 2.035,
+        "mean_R_ci": [
+          NaN,
+          NaN
+        ],
+        "median_R": 2.035,
+        "skew_R": NaN,
+        "sum_R": 2.04,
+        "informative": false,
+        "share_of_total_R": 0.0154
+      },
+      "stop": {
+        "n": 29,
+        "mean_R": -1.621,
+        "mean_R_ci": [
+          -2.112,
+          -1.272
+        ],
+        "median_R": -1.285,
+        "skew_R": -3.018,
+        "sum_R": -47.01,
+        "informative": false,
+        "share_of_total_R": -0.3555
+      },
+      "stop_part": {
+        "n": 4,
+        "mean_R": -0.236,
+        "mean_R_ci": [
+          -1.619,
+          0.993
+        ],
+        "median_R": -0.081,
+        "skew_R": -0.363,
+        "sum_R": -0.94,
+        "informative": false,
+        "share_of_total_R": -0.0071
+      },
+      "_note": "share_of_total_R is None when the book's total R is not positive \u2014 the ratio inverts sign and a losing family reads as a contribution. Read sum_R in R units."
+    },
+    "vol_at_exit_over_entry": {
+      "sma_break": {
+        "n": 37,
+        "median": 0.8388,
+        "mean": 0.9591,
+        "informative": true
+      },
+      "stale": {
+        "n": 1,
+        "median": 1.3433,
+        "mean": 1.3433,
+        "informative": false
+      },
+      "stop": {
+        "n": 29,
+        "median": 0.9749,
+        "mean": 0.9682,
+        "informative": false
+      },
+      "stop_part": {
+        "n": 4,
+        "median": 0.9582,
+        "mean": 0.9513,
+        "informative": false
+      }
+    }
+  },
+  "live": {
+    "inception": "2026-07-04",
+    "nav_window_end": "2026-09-15",
+    "prices_fetched_to": "2026-09-23",
+    "n_snapshots": 11,
+    "_status": "forward-wall description; n is small by construction",
+    "market_source": "^NSEI via yfinance (the committed CSV ends before inception)",
+    "market_exposure": {
+      "n": 50.0,
+      "beta": 0.708019,
+      "alpha_daily": 0.000404,
+      "r2": 0.176786,
+      "mean_book_daily": -0.000363,
+      "mean_market_daily": -0.001084,
+      "market_part_daily": -0.000768,
+      "informative": false
+    },
+    "togetherness": {
+      "rho_bar": {
+        "n_sessions": 11,
+        "informative": false,
+        "mean_rho_bar": 0.1087,
+        "ci": [
+          NaN,
+          NaN
+        ],
+        "median": 0.1102,
+        "p10": 0.0369,
+        "p90": 0.1587
+      },
+      "n_eff": {
+        "n_sessions": 11,
+        "informative": false,
+        "mean_n_eff": 3.6425,
+        "ci": [
+          NaN,
+          NaN
+        ],
+        "median": 3.8683,
+        "p10": 3.0586,
+        "p90": 4.3565
+      },
+      "div_ratio": {
+        "n_sessions": 11,
+        "informative": false,
+        "mean_div_ratio": 1.8747,
+        "ci": [
+          NaN,
+          NaN
+        ],
+        "median": 1.9101,
+        "p10": 1.7312,
+        "p90": 2.0693
+      },
+      "pc1_share": {
+        "n_sessions": 11,
+        "informative": false,
+        "mean_pc1_share": 0.3361,
+        "ci": [
+          NaN,
+          NaN
+        ],
+        "median": 0.3318,
+        "p10": 0.2933,
+        "p90": 0.3611
+      }
+    },
+    "seats": {
+      "mean": 5.0,
+      "max": 6
+    },
+    "variance_shares_latest": {
+      "as_of": "2026-09-15",
+      "shares": {
+        "INDUSINDBK": {
+          "share": 0.2267,
+          "own": 0.1282,
+          "cov": 0.0985
+        },
+        "NESTLEIND": {
+          "share": 0.1426,
+          "own": 0.0777,
+          "cov": 0.0649
+        },
+        "CUB": {
+          "share": 0.0309,
+          "own": 0.0134,
+          "cov": 0.0176
+        },
+        "HEG": {
+          "share": 0.0691,
+          "own": 0.0386,
+          "cov": 0.0305
+        },
+        "MCX": {
+          "share": 0.3073,
+          "own": 0.328,
+          "cov": -0.0207
+        },
+        "CHOLAFIN": {
+          "share": 0.2234,
+          "own": 0.1508,
+          "cov": 0.0725
+        }
+      }
+    },
+    "exit_reasons": {
+      "sma_break": {
+        "n": 1,
+        "mean_R": -0.95,
+        "mean_R_ci": [
+          NaN,
+          NaN
+        ],
+        "median_R": -0.95,
+        "skew_R": NaN,
+        "sum_R": -0.95,
+        "informative": false,
+        "share_of_total_R": null
+      },
+      "stop": {
+        "n": 10,
+        "mean_R": -1.632,
+        "mean_R_ci": [
+          -2.08,
+          -1.188
+        ],
+        "median_R": -1.6,
+        "skew_R": -0.274,
+        "sum_R": -16.32,
+        "informative": false,
+        "share_of_total_R": null
+      },
+      "_note": "share_of_total_R is None when the book's total R is not positive \u2014 the ratio inverts sign and a losing family reads as a contribution. Read sum_R in R units."
+    },
+    "n_closed_trades": 11
+  }
+}
