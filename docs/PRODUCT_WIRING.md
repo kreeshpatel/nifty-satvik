@@ -91,6 +91,7 @@ Written by the daily monitor (weekdays 16:15 IST).
 | `pnl_pct` | hold | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `r_at_exit` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | **2** |
 | `r_multiple` | hold | · | · | · | · | · | · | · | · | ✓ | **1** |
+| `r_now` | missed_exits | · | · | ✓ | · | · | · | · | · | · | **1** |
 | `reason` | missed_exits | ✓ | · | ✓ | · | · | ✓ | · | ✓ | · | **4** |
 | `severity` | missed_exits | · | · | ✓ | · | ✓ | · | · | ✓ | · | **3** |
 | `signal_date` | missed_exits | · | · | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | **6** |
