@@ -2,6 +2,10 @@
   "model": "swing x low-vol ERC blend (0107, WATCHED)",
   "inception": "2026-07-04",
   "observational": true,
-  "n_points": 0,
-  "note": "awaiting fresh post-inception bars in BOTH sleeves (research OHLCV cache lags inception 2026-07-04; the real cron downloads) \u2014 empty is valid, not an error"
+  "n_points": 54,
+  "asof": "2026-09-18",
+  "blend_nav": 967021.8,
+  "swing_nav": 1018440.17,
+  "lowvol_nav": 926779.6,
+  "swing_weight": 0.6
 }

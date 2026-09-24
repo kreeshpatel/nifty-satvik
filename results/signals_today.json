@@ -1,39 +1,22 @@
 {
-  "generated_at": "2026-09-16",
+  "generated_at": "2026-09-24",
   "signals": [
     {
-      "ticker": "HFCL",
-      "entry": 213.02,
-      "stop": 174.03,
-      "target": 260.99,
+      "ticker": "BHEL",
+      "entry": 415.56,
+      "stop": 369.53,
+      "target": 509.14,
       "target_pct": 22.52,
-      "current_price": 212.91,
-      "close": 212.91,
-      "signal_date": "2026-09-16",
+      "current_price": 415.35,
+      "close": 415.35,
+      "signal_date": "2026-09-24",
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
       "status": "FRESH",
       "buy_window": "T+1..T+3 at open",
-      "indicative_close": 212.91,
-      "indicative_entry": 213.02
-    },
-    {
-      "ticker": "CHENNPETRO",
-      "entry": 1456.73,
-      "stop": 1215.37,
-      "target": 1784.79,
-      "target_pct": 22.52,
-      "current_price": 1456.0,
-      "close": 1456.0,
-      "signal_date": "2026-09-15",
-      "hold_days": 63,
-      "grade": "B",
-      "tier": "signal",
-      "status": "ACTIVE",
-      "buy_window": "T+1..T+3 at open",
-      "indicative_close": 1456.0,
-      "indicative_entry": 1456.73
+      "indicative_close": 415.35,
+      "indicative_entry": 415.56
     }
   ],
   "regime": {
@@ -42,12 +25,12 @@
     "vix": 0,
     "breadth": 0
   },
-  "n_positions": 13,
-  "cash": 91608.34,
+  "n_positions": 14,
+  "cash": 2335.45,
   "kill_state": {
-    "wr_last20": 55.0,
+    "wr_last20": 60.0,
     "wr_breach": false,
-    "sharpe_30d": 1.701,
+    "sharpe_30d": 1.4,
     "sharpe_30d_breach": false,
     "mode": "observe"
   }
