@@ -313,5 +313,20 @@
     "net_pct": 7.6,
     "net_pnl": 95.62,
     "hold_days": 17
+  },
+  {
+    "ticker": "BHEL",
+    "entry_date": "2026-09-09",
+    "exit_date": "2026-09-24",
+    "entry": 422.36,
+    "exit": 415.14,
+    "qty": 20,
+    "days_held": 10,
+    "reason": "trailing",
+    "return_pct": -1.71,
+    "pnl": -166.15,
+    "net_pct": -1.71,
+    "net_pnl": -166.15,
+    "hold_days": 10
   }
 ]

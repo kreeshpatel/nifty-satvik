@@ -1,56 +1,22 @@
 {
-  "generated_at": "2026-09-23",
+  "generated_at": "2026-09-24",
   "signals": [
     {
-      "ticker": "AEGISLOG",
-      "entry": 1405.2,
-      "stop": 1159.97,
-      "target": 1721.65,
+      "ticker": "BHEL",
+      "entry": 415.56,
+      "stop": 369.53,
+      "target": 509.14,
       "target_pct": 22.52,
-      "current_price": 1404.5,
-      "close": 1404.5,
-      "signal_date": "2026-09-23",
+      "current_price": 415.35,
+      "close": 415.35,
+      "signal_date": "2026-09-24",
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
       "status": "FRESH",
       "buy_window": "T+1..T+3 at open",
-      "indicative_close": 1404.5,
-      "indicative_entry": 1405.2
-    },
-    {
-      "ticker": "APARINDS",
-      "entry": 17884.94,
-      "stop": 15107.03,
-      "target": 21912.63,
-      "target_pct": 22.52,
-      "current_price": 17876.0,
-      "close": 17876.0,
-      "signal_date": "2026-09-23",
-      "hold_days": 63,
-      "grade": "B",
-      "tier": "signal",
-      "status": "FRESH",
-      "buy_window": "T+1..T+3 at open",
-      "indicative_close": 17876.0,
-      "indicative_entry": 17884.94
-    },
-    {
-      "ticker": "CHENNPETRO",
-      "entry": 1389.29,
-      "stop": 1149.94,
-      "target": 1702.16,
-      "target_pct": 22.52,
-      "current_price": 1388.6,
-      "close": 1388.6,
-      "signal_date": "2026-09-21",
-      "hold_days": 63,
-      "grade": "B",
-      "tier": "signal",
-      "status": "ACTIVE",
-      "buy_window": "T+1..T+3 at open",
-      "indicative_close": 1388.6,
-      "indicative_entry": 1389.29
+      "indicative_close": 415.35,
+      "indicative_entry": 415.56
     }
   ],
   "regime": {
@@ -59,12 +25,12 @@
     "vix": 0,
     "breadth": 0
   },
-  "n_positions": 12,
-  "cash": 271119.29,
+  "n_positions": 14,
+  "cash": 2335.45,
   "kill_state": {
     "wr_last20": 60.0,
     "wr_breach": false,
-    "sharpe_30d": 2.708,
+    "sharpe_30d": 1.4,
     "sharpe_30d_breach": false,
     "mode": "observe"
   }
