@@ -105,6 +105,10 @@ results/*
 # Forward per-signal quality->outcome table (4-axis family, prereg_signal_quality.md). Same D5
 # whitelist reasoning as the breadth-50 log so the scanner's opt() can stage it each week.
 !results/signal_quality_forward.csv
+# Per-trade attribution ledger (Satvik Brain Layer 5). Ignored, the weekly cron would write it and
+# git would drop it silently — the ninth instance of this trap. Watcher:
+# tests/test_workflow_output_paths.py + results/output_contracts.json.
+!results/attribution_ledger.csv
 !results/signals_today.json
 !results/signals_history.json
 !results/signal_analytics.json

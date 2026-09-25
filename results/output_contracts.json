@@ -18,7 +18,8 @@
    "must_update_if_produced": [
     "results/judge_log.jsonl",
     "results/cards_archive.jsonl",
-    "results/base_swing_forward.json"
+    "results/base_swing_forward.json",
+    "results/attribution_ledger.csv"
    ],
    "note": "judge_log is conditional: it only grows when the judge step logs rows (needs ANTHROPIC_API_KEY). Listed separately so a missing key reads as a WARN, not a contract breach. base_swing_forward.json is the forward/prereg_swing.md §4 comparator arm (all grades, WATCHED, never surfaced — it holds Grade-B names). Added 2026-08-08 and listed conditionally until the first successful persist, per the same rule as intraday-scan below; promote it to must_update once one run has written it, because from then on a week missing is a week of the §4 comparison permanently lost (§3 forbids backfilling reconstructed history)."
   },
