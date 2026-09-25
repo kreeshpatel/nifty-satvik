@@ -241,3 +241,72 @@ def test_ordinary_files_are_untouched():
 def test_the_override_is_a_single_deliberate_step():
     assert _decision("Read", SEALED_LOG, {"NQ_GOVERNANCE_OVERRIDE": "1"}) is None
     assert _shell_decision("Bash", f"cat {SEALED_LOG}", {"NQ_GOVERNANCE_OVERRIDE": "1"}) is None
+
+
+# ------------------------------------------------------------- the shell can write, too (2026-09-25)
+CLOSED_PREREG = "diagnostics/research/preregistry/0127-hegclass-activation-bound.md"
+
+
+@pytest.mark.parametrize("command", [
+    # the exact shape that walked through on 2026-09-25: a heredoc fed to an interpreter
+    "python - <<'EOF'\nfrom pathlib import Path\n"
+    f"p = Path('{CLOSED_PREREG}')\np.write_text(p.read_text() + 'amendment')\nEOF",
+    f"echo '## amendment' >> {CLOSED_PREREG}",
+    f"cat new.md > {CLOSED_PREREG}",
+    f"sed -i 's/20%/15%/' {CLOSED_PREREG}",
+    f"cp /tmp/edited.md {CLOSED_PREREG}",
+    f"""python -c "open('{CLOSED_PREREG}', 'a').write('x')" """,
+])
+def test_the_shell_cannot_rewrite_a_reported_pre_registration(command: str):
+    """The gap that commit 4229bce disclosed.
+
+    `decide` covered Edit/Write and `decide_shell` covered only READS of the sealed judge log, so a
+    `python - <<EOF ... write_text(...)` heredoc amended a pre-registration whose run had already
+    reported and the hook never saw it. That amendment was owner-authorised — the defect is that
+    CLAUDE.md documented a protection the hook did not deliver, which is the same shape as the
+    judge-log hole found ten days earlier. A guard that is documented and absent is worse than none,
+    because the documentation is what people rely on.
+    """
+    verdict = _shell_decision("Bash", command)
+    assert verdict is not None, f"`{command}` rewrote a reported pre-registration"
+    assert verdict["hookSpecificOutput"]["permissionDecision"] == "deny"
+    assert "amendment" in verdict["hookSpecificOutput"]["permissionDecisionReason"]
+
+
+@pytest.mark.parametrize("command", [
+    "echo '{}' > models/long_horizon/config.json",
+    "cp cand.json research/baseline_v1.json",
+    r"Set-Content -Path forward\prereg.md -Value 'x'",
+    "python - <<'EOF'\nfrom pathlib import Path\n"
+    "Path('research/baseline_v1.json').write_text('{}')\nEOF",
+    "rm forward/prereg.md",
+    "git checkout HEAD~5 -- research/baseline_v1.json",
+])
+def test_the_shell_cannot_rewrite_a_frozen_artifact(command: str):
+    verdict = _shell_decision("Bash", command)
+    assert verdict is not None, f"`{command}` rewrote a frozen artifact"
+    assert verdict["hookSpecificOutput"]["permissionDecision"] == "deny"
+
+
+@pytest.mark.parametrize("command", [
+    # reads stay reads: a guard that blocked `cat` on a pre-reg would be switched off within a week
+    f"cat {CLOSED_PREREG}",
+    f"grep -n 'dd63' {CLOSED_PREREG}",
+    "head -40 forward/prereg.md",
+    # a read whose OUTPUT is redirected elsewhere is not a write to the protected path
+    f"grep -c . {CLOSED_PREREG} > /tmp/lines.txt",
+    # an OPEN pre-registration is meant to be written — that is how a study gets registered
+    "echo '## 5. gate' >> forward/prereg_swing.md",
+    # a path that merely looks like a protected one is not one
+    "echo x > research/baseline_v1.json.bak",
+    # and a heredoc fed to `cat`/`tee` is TEXT: writing this very test file must not be refused
+    "cat >> tests/test_guard.py <<'EOF'\n"
+    "CASES = [\"echo x > models/long_horizon/config.json\"]\nEOF",
+])
+def test_reading_and_ordinary_writing_still_work(command: str):
+    assert _shell_decision("Bash", command) is None, f"`{command}` was blocked"
+
+
+def test_the_shell_write_guard_honours_the_single_override():
+    assert _shell_decision(
+        "Bash", f"echo x >> {CLOSED_PREREG}", {"NQ_GOVERNANCE_OVERRIDE": "1"}) is None
