@@ -106,5 +106,7 @@ them to the same bar.
 `.claude/settings.json` wires two hooks. `scripts/guard_protected_paths.py` refuses the edits that
 destroy evidence: the sealed judge log (no read, no write, until the first review read), a
 pre-registration whose run has already reported, the frozen cfg, the pinned anchor, and
-`forward/prereg.md`. Each denial states the law and the amendment route. Override with
+`forward/prereg.md`. Each denial states the law and the amendment route. It covers the **shell** as
+well as the file tools — reads stay allowed, writes do not — because until 2026-09-25 it inspected only
+Edit/Write, and a `python - <<EOF … write_text(…)` heredoc walked straight past it. Override with
 `NQ_GOVERNANCE_OVERRIDE=1` — one variable, deliberately, and say so in the commit message.
