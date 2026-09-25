@@ -1,36 +1,18 @@
 {
-  "generated_at": "2026-09-24",
-  "signals": [
-    {
-      "ticker": "BHEL",
-      "entry": 415.56,
-      "stop": 369.53,
-      "target": 509.14,
-      "target_pct": 22.52,
-      "current_price": 415.35,
-      "close": 415.35,
-      "signal_date": "2026-09-24",
-      "hold_days": 63,
-      "grade": "B",
-      "tier": "signal",
-      "status": "FRESH",
-      "buy_window": "T+1..T+3 at open",
-      "indicative_close": 415.35,
-      "indicative_entry": 415.56
-    }
-  ],
+  "generated_at": "2026-09-25",
+  "signals": [],
   "regime": {
     "status": "UNKNOWN",
     "strength": 0,
     "vix": 0,
     "breadth": 0
   },
-  "n_positions": 14,
-  "cash": 2335.45,
+  "n_positions": 15,
+  "cash": 242.94,
   "kill_state": {
     "wr_last20": 60.0,
     "wr_breach": false,
-    "sharpe_30d": 1.4,
+    "sharpe_30d": 1.552,
     "sharpe_30d_breach": false,
     "mode": "observe"
   }

@@ -1,9 +1,7 @@
 {
-  "cash": 9265.712467030504,
+  "cash": 58.663593205503275,
   "peak": 1026655.7556091606,
-  "pending": [
-    "BHEL"
-  ],
+  "pending": [],
   "positions": {
     "VEDL": {
       "ticker": "VEDL",
@@ -15,8 +13,8 @@
       "peak": 287.95001220703125,
       "atr_pct": 4.00977023470704,
       "adv": 7843204206.451306,
-      "days_held": 60,
-      "last_mark": 267.5,
+      "days_held": 61,
+      "last_mark": 266.3500061035156,
       "absent_run": 0
     },
     "ADANIPOWER": {
@@ -29,8 +27,8 @@
       "peak": 226.1699981689453,
       "atr_pct": 3.311638729252035,
       "adv": 6897609307.745554,
-      "days_held": 60,
-      "last_mark": 199.47999572753906,
+      "days_held": 61,
+      "last_mark": 202.75,
       "absent_run": 0
     },
     "KIRLOSENG": {
@@ -43,8 +41,8 @@
       "peak": 2278.283203125,
       "atr_pct": 4.665504822250521,
       "adv": 3546216280.3383546,
-      "days_held": 47,
-      "last_mark": 2164.5,
+      "days_held": 48,
+      "last_mark": 2137.199951171875,
       "absent_run": 0
     },
     "BHARATFORG": {
@@ -57,8 +55,8 @@
       "peak": 2104.89990234375,
       "atr_pct": 2.7479647058662486,
       "adv": 2485016448.5,
-      "days_held": 20,
-      "last_mark": 1998.9000244140625,
+      "days_held": 21,
+      "last_mark": 2008.0,
       "absent_run": 0
     },
     "HONASA": {
@@ -71,8 +69,8 @@
       "peak": 484.8999938964844,
       "atr_pct": 3.217832529272994,
       "adv": 992445757.9546967,
-      "days_held": 18,
-      "last_mark": 472.95001220703125,
+      "days_held": 19,
+      "last_mark": 465.5,
       "absent_run": 0
     },
     "RRKABEL": {
@@ -85,8 +83,8 @@
       "peak": 2651.325,
       "atr_pct": 3.8894393329346544,
       "adv": 1160522850.5976927,
-      "days_held": 14,
-      "last_mark": 2529.800048828125,
+      "days_held": 15,
+      "last_mark": 2528.300048828125,
       "absent_run": 0
     },
     "LAURUSLABS": {
@@ -99,8 +97,8 @@
       "peak": 2034.0,
       "atr_pct": 2.3240037222384395,
       "adv": 6404766944.0,
-      "days_held": 13,
-      "last_mark": 2026.199951171875,
+      "days_held": 14,
+      "last_mark": 2007.0,
       "absent_run": 0
     },
     "APARINDS": {
@@ -113,8 +111,8 @@
       "peak": 18945.0,
       "atr_pct": 4.137915475247165,
       "adv": 2038948801.25,
-      "days_held": 6,
-      "last_mark": 17804.0,
+      "days_held": 7,
+      "last_mark": 17776.0,
       "absent_run": 0
     },
     "SYRMA": {
@@ -127,8 +125,8 @@
       "peak": 1741.800048828125,
       "atr_pct": 3.7760180161364483,
       "adv": 2384860307.2631836,
-      "days_held": 6,
-      "last_mark": 1698.5999755859375,
+      "days_held": 7,
+      "last_mark": 1732.5999755859375,
       "absent_run": 0
     },
     "SONACOMS": {
@@ -141,8 +139,8 @@
       "peak": 833.0,
       "atr_pct": 2.6776006394407097,
       "adv": 1233363148.8000002,
-      "days_held": 6,
-      "last_mark": 816.2999877929688,
+      "days_held": 7,
+      "last_mark": 824.5,
       "absent_run": 0
     },
     "CHENNPETRO": {
@@ -155,8 +153,8 @@
       "peak": 1473.4363011474609,
       "atr_pct": 4.514689813101478,
       "adv": 2984663281.6,
-      "days_held": 6,
-      "last_mark": 1372.699951171875,
+      "days_held": 7,
+      "last_mark": 1376.4000244140625,
       "absent_run": 0
     },
     "FEDERALBNK": {
@@ -169,8 +167,8 @@
       "peak": 341.9708877868652,
       "atr_pct": 1.9940904524157377,
       "adv": 1716930689.9016054,
-      "days_held": 6,
-      "last_mark": 329.5,
+      "days_held": 7,
+      "last_mark": 322.0,
       "absent_run": 0
     },
     "SAILIFE": {
@@ -183,8 +181,8 @@
       "peak": 1609.5999755859375,
       "atr_pct": 3.1770257801543673,
       "adv": 1366767483.5592897,
-      "days_held": 5,
-      "last_mark": 1594.9000244140625,
+      "days_held": 6,
+      "last_mark": 1592.199951171875,
       "absent_run": 0
     },
     "AEGISLOG": {
@@ -197,8 +195,22 @@
       "peak": 1406.502948852539,
       "atr_pct": 4.8546062016398235,
       "adv": 1324423492.0109253,
+      "days_held": 1,
+      "last_mark": 1365.4000244140625,
+      "absent_run": 0
+    },
+    "BHEL": {
+      "ticker": "BHEL",
+      "entry_date": "2026-09-25 00:00:00",
+      "entry": 417.958875,
+      "qty": 22,
+      "stop": 372.2110679299275,
+      "target": 512.08321365,
+      "peak": 417.958875,
+      "atr_pct": 2.9824327874136682,
+      "adv": 2625043601.0339265,
       "days_held": 0,
-      "last_mark": 1406.502948852539,
+      "last_mark": 417.958875,
       "absent_run": 0
     }
   },
@@ -840,6 +852,12 @@
       "equity": 1000673.48,
       "cash": 9265.71,
       "n_positions": 14
+    },
+    {
+      "date": "2026-09-25",
+      "equity": 1002348.96,
+      "cash": 58.66,
+      "n_positions": 15
     }
   ],
   "config": {
