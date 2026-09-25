@@ -65,7 +65,7 @@ the ledger (continuous-slice fix, calendar annualisation, the v0→v1 re-anchor,
 the survivorship backfill), and only 7 of 108 closed verdicts were measured on the live book. Full
 reasoning and its limits: the amendment at the top of [`skills/program-laws`](skills/program-laws/SKILL.md).
 
-**Standing counts: screens 20 · sealed opens 2 · n_trials 2** — state them in every research
+**Standing counts: screens 20 · sealed opens 3 · n_trials 2** — state them in every research
 readout, and read them from `diagnostics/research/n_trials.json` and
 `diagnostics/research/label_screen_ledger.md`, never from memory or from this line.
 `tests/test_standing_counts.py` holds every copy of these numbers to those ledgers.

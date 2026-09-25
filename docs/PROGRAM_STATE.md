@@ -46,7 +46,7 @@ pre-entry walls incl. perception/0123, population-info-vs-margins, the closed ax
 rule: **cite and narrow, never relitigate**. [`skills/verdict-machine`](skills/verdict-machine/SKILL.md)
 = the method that spends nothing: registry confrontation → coverage/PIT audit → kill-shot screen
 (ledgered) → **activation bound vs the ±10R/yr floor** → only then a trial. Standing counts:
-**screens 20 · sealed opens 2 · n_trials 2** — state them in every readout.
+**screens 20 · sealed opens 3 · n_trials 2** — state them in every readout.
 *(Corrected 2026-08-07 — both counts had gone stale: the trial counter was reset by owner decision
 and has since been incremented twice, and seven further screens were ledgered. Because this is the
 line sessions are told to recite verbatim, a stale value here does not sit quietly in a document —
