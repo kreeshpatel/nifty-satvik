@@ -60,6 +60,7 @@ worth historically, vs the ±10R/yr path-noise floor (0109). Below the floor (or
 underpowered BY CONSTRUCTION, no trial, record the bound. Precedents: the rotation bound (0117,
 ~11R/yr clairvoyant → closed) and the tiebreak bound (0118 addendum, −1.29R/yr → no trial).
 Population gradient ≠ decision-point value is an ENFORCED CHECK, not a remembered lesson.
+| 20 | 2026-09-25 | **0144 daily-resolution descent activation bound** (pre-registered; appended BEFORE the run) | daily `dd63` (drawdown from the trailing 63-session high at the decision bar), `days_below_50dma`, `daily_velocity` -> (a) exclusion R/yr, (b) conditional management over 0127's FROZEN set {as-is, TP@2R, TP@3R, stop@-0.5R}, (c) **the new leg: does the daily view SPLIT 0127's weekly HEG-class cohort?** | train only (`entry_date <= 2024-06-30`), uncapped touch44 substrate; sealed slice not read | *(pending — appended before the run)* |
 
 ## Sealed-set opens (2024H2+ validation slice — every open is priced like any other reuse)
 

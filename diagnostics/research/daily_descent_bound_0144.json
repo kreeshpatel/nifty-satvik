@@ -1,0 +1,532 @@
+{
+  "_doc": "0144 daily-resolution descent activation bound (ledger #20; 0 trials; train only).",
+  "prereg": "diagnostics/research/preregistry/0144-daily-descent-bound.md",
+  "population": "uncapped substrate, setup=touch44, entry_date in [2019-01-01, 2024-06-30]",
+  "n_trades": 918,
+  "span_years": 5.44,
+  "total_R": 677.0,
+  "total_R_per_yr": 124.4,
+  "floor_R_per_yr": 10.0,
+  "daily_quartiles": {
+    "dd63": [
+      4.49,
+      9.38,
+      16.03
+    ],
+    "sessions_since_peak63": [
+      13.0,
+      32.0,
+      49.0
+    ],
+    "days_below_50dma": [
+      19.0,
+      28.0,
+      39.0
+    ],
+    "daily_velocity": [
+      0.23,
+      0.4,
+      0.78
+    ]
+  },
+  "daily_primary": {
+    "definition": "dd63 >= 20%",
+    "N": 123,
+    "share_of_trades_pct": 13.4,
+    "cohort_meanR": 0.861,
+    "rest_meanR": 0.718,
+    "cohort_win_pct": 59.3,
+    "rest_win_pct": 53.5,
+    "cohort_total_R": 105.9,
+    "share_of_book_R_pct": 15.6,
+    "gap_vs_rest": {
+      "cohort_minus_rest_R": 0.143,
+      "ci": [
+        -0.247,
+        0.54
+      ],
+      "excludes_zero": false
+    },
+    "bound_a_exclusion": {
+      "R_per_yr_refused": 19.46,
+      "interpretation": "refusing the cohort COSTS this much R/yr (positive-EV cohort)",
+      "clairvoyant_refuse_only_losers_R_per_yr": 11.88,
+      "note": "the clairvoyant leg is an unreachable ceiling (perfect foresight on which lose) and ignores redeployment, which 0121 measured as the dominant term",
+      "clears_floor": false,
+      "per_year": {
+        "by_year": {
+          "2019": 0.21,
+          "2020": 54.77,
+          "2021": 21.4,
+          "2022": -2.29,
+          "2023": 24.21,
+          "2024": 7.65
+        },
+        "n_years": 6,
+        "n_positive": 5,
+        "majority_sign": "+",
+        "majority_share": "5/6"
+      }
+    },
+    "bound_b_conditional_management": {
+      "management_totals_R": {
+        "as-is": 677.0,
+        "TP@2R": 500.4,
+        "TP@3R": 728.5,
+        "stop@-0.5R": 241.6
+      },
+      "cohort_totals_R": {
+        "as-is": 105.9,
+        "TP@2R": 77.5,
+        "TP@3R": 118.2,
+        "stop@-0.5R": 44.2
+      },
+      "best_single_for_all": "TP@3R",
+      "best_for_cohort": "TP@3R",
+      "best_for_rest": "TP@3R",
+      "clairvoyant_conditional_gain_R": 0.0,
+      "clairvoyant_conditional_gain_R_per_yr": 0.0,
+      "clears_floor": false
+    }
+  },
+  "daily_robustness": {
+    "dd63>=15%": {
+      "definition": "dd63 >= 15%",
+      "N": 251,
+      "share_of_trades_pct": 27.3,
+      "cohort_meanR": 0.972,
+      "rest_meanR": 0.649,
+      "cohort_win_pct": 59.4,
+      "rest_win_pct": 52.3,
+      "cohort_total_R": 244.0,
+      "share_of_book_R_pct": 36.0,
+      "gap_vs_rest": {
+        "cohort_minus_rest_R": 0.323,
+        "ci": [
+          -0.021,
+          0.668
+        ],
+        "excludes_zero": false
+      },
+      "bound_a_exclusion": {
+        "R_per_yr_refused": 44.82,
+        "interpretation": "refusing the cohort COSTS this much R/yr (positive-EV cohort)",
+        "clairvoyant_refuse_only_losers_R_per_yr": 25.99,
+        "note": "the clairvoyant leg is an unreachable ceiling (perfect foresight on which lose) and ignores redeployment, which 0121 measured as the dominant term",
+        "clears_floor": false,
+        "per_year": {
+          "by_year": {
+            "2019": 13.42,
+            "2020": 73.77,
+            "2021": 38.3,
+            "2022": 33.72,
+            "2023": 73.19,
+            "2024": 11.55
+          },
+          "n_years": 6,
+          "n_positive": 6,
+          "majority_sign": "+",
+          "majority_share": "6/6"
+        }
+      },
+      "bound_b_conditional_management": {
+        "management_totals_R": {
+          "as-is": 677.0,
+          "TP@2R": 500.4,
+          "TP@3R": 728.5,
+          "stop@-0.5R": 241.6
+        },
+        "cohort_totals_R": {
+          "as-is": 244.0,
+          "TP@2R": 174.1,
+          "TP@3R": 259.9,
+          "stop@-0.5R": 67.2
+        },
+        "best_single_for_all": "TP@3R",
+        "best_for_cohort": "TP@3R",
+        "best_for_rest": "TP@3R",
+        "clairvoyant_conditional_gain_R": -0.0,
+        "clairvoyant_conditional_gain_R_per_yr": -0.0,
+        "clears_floor": false
+      }
+    },
+    "dd63>=25%": {
+      "definition": "dd63 >= 25%",
+      "N": 64,
+      "share_of_trades_pct": 7.0,
+      "cohort_meanR": 0.872,
+      "rest_meanR": 0.727,
+      "cohort_win_pct": 60.9,
+      "rest_win_pct": 53.7,
+      "cohort_total_R": 55.8,
+      "share_of_book_R_pct": 8.2,
+      "gap_vs_rest": {
+        "cohort_minus_rest_R": 0.145,
+        "ci": [
+          -0.337,
+          0.672
+        ],
+        "excludes_zero": false
+      },
+      "bound_a_exclusion": {
+        "R_per_yr_refused": 10.25,
+        "interpretation": "refusing the cohort COSTS this much R/yr (positive-EV cohort)",
+        "clairvoyant_refuse_only_losers_R_per_yr": 5.41,
+        "note": "the clairvoyant leg is an unreachable ceiling (perfect foresight on which lose) and ignores redeployment, which 0121 measured as the dominant term",
+        "clears_floor": false,
+        "per_year": {
+          "by_year": {
+            "2019": -0.37,
+            "2020": 32.26,
+            "2021": 11.42,
+            "2022": 0.86,
+            "2023": 12.12,
+            "2024": -0.48
+          },
+          "n_years": 6,
+          "n_positive": 4,
+          "majority_sign": "+",
+          "majority_share": "4/6"
+        }
+      },
+      "bound_b_conditional_management": {
+        "management_totals_R": {
+          "as-is": 677.0,
+          "TP@2R": 500.4,
+          "TP@3R": 728.5,
+          "stop@-0.5R": 241.6
+        },
+        "cohort_totals_R": {
+          "as-is": 55.8,
+          "TP@2R": 49.3,
+          "TP@3R": 66.7,
+          "stop@-0.5R": 27.2
+        },
+        "best_single_for_all": "TP@3R",
+        "best_for_cohort": "TP@3R",
+        "best_for_rest": "TP@3R",
+        "clairvoyant_conditional_gain_R": -0.0,
+        "clairvoyant_conditional_gain_R_per_yr": -0.0,
+        "clears_floor": false
+      }
+    },
+    "dd63>=20% & below50dma>=32": {
+      "definition": "combo",
+      "N": 46,
+      "share_of_trades_pct": 5.0,
+      "cohort_meanR": 0.752,
+      "rest_meanR": 0.737,
+      "cohort_win_pct": 56.5,
+      "rest_win_pct": 54.1,
+      "cohort_total_R": 34.6,
+      "share_of_book_R_pct": 5.1,
+      "gap_vs_rest": {
+        "cohort_minus_rest_R": 0.016,
+        "ci": [
+          -0.595,
+          0.615
+        ],
+        "excludes_zero": false
+      },
+      "bound_a_exclusion": {
+        "R_per_yr_refused": 6.36,
+        "interpretation": "refusing the cohort COSTS this much R/yr (positive-EV cohort)",
+        "clairvoyant_refuse_only_losers_R_per_yr": 4.84,
+        "note": "the clairvoyant leg is an unreachable ceiling (perfect foresight on which lose) and ignores redeployment, which 0121 measured as the dominant term",
+        "clears_floor": false,
+        "per_year": {
+          "by_year": {
+            "2019": -4.27,
+            "2020": 5.36,
+            "2021": 7.72,
+            "2022": 2.85,
+            "2023": 23.9,
+            "2024": -0.96
+          },
+          "n_years": 6,
+          "n_positive": 4,
+          "majority_sign": "+",
+          "majority_share": "4/6"
+        }
+      },
+      "bound_b_conditional_management": {
+        "management_totals_R": {
+          "as-is": 677.0,
+          "TP@2R": 500.4,
+          "TP@3R": 728.5,
+          "stop@-0.5R": 241.6
+        },
+        "cohort_totals_R": {
+          "as-is": 34.6,
+          "TP@2R": 24.2,
+          "TP@3R": 40.9,
+          "stop@-0.5R": 13.1
+        },
+        "best_single_for_all": "TP@3R",
+        "best_for_cohort": "TP@3R",
+        "best_for_rest": "TP@3R",
+        "clairvoyant_conditional_gain_R": 0.0,
+        "clairvoyant_conditional_gain_R_per_yr": 0.0,
+        "clears_floor": false
+      }
+    }
+  },
+  "weekly_cohort_PIT": {
+    "definition": ">=4wk AND >=20% depth to the LAST COMPLETED week",
+    "N": 118,
+    "share_of_trades_pct": 12.9,
+    "cohort_meanR": 0.783,
+    "rest_meanR": 0.731,
+    "cohort_win_pct": 57.6,
+    "rest_win_pct": 53.8,
+    "cohort_total_R": 92.4,
+    "share_of_book_R_pct": 13.7,
+    "gap_vs_rest": {
+      "cohort_minus_rest_R": 0.053,
+      "ci": [
+        -0.344,
+        0.448
+      ],
+      "excludes_zero": false
+    },
+    "bound_a_exclusion": {
+      "R_per_yr_refused": 16.98,
+      "interpretation": "refusing the cohort COSTS this much R/yr (positive-EV cohort)",
+      "clairvoyant_refuse_only_losers_R_per_yr": 11.88,
+      "note": "the clairvoyant leg is an unreachable ceiling (perfect foresight on which lose) and ignores redeployment, which 0121 measured as the dominant term",
+      "clears_floor": false,
+      "per_year": {
+        "by_year": {
+          "2019": 0.21,
+          "2020": 52.74,
+          "2021": 18.49,
+          "2022": -2.29,
+          "2023": 20.62,
+          "2024": 2.66
+        },
+        "n_years": 6,
+        "n_positive": 5,
+        "majority_sign": "+",
+        "majority_share": "5/6"
+      }
+    },
+    "bound_b_conditional_management": {
+      "management_totals_R": {
+        "as-is": 677.0,
+        "TP@2R": 500.4,
+        "TP@3R": 728.5,
+        "stop@-0.5R": 241.6
+      },
+      "cohort_totals_R": {
+        "as-is": 92.4,
+        "TP@2R": 67.5,
+        "TP@3R": 103.2,
+        "stop@-0.5R": 39.2
+      },
+      "best_single_for_all": "TP@3R",
+      "best_for_cohort": "TP@3R",
+      "best_for_rest": "TP@3R",
+      "clairvoyant_conditional_gain_R": 0.0,
+      "clairvoyant_conditional_gain_R_per_yr": 0.0,
+      "clears_floor": false
+    }
+  },
+  "weekly_cohort_0127_AS_SHIPPED_leaked": {
+    "definition": "0127's own definition \u2014 depth to the week CONTAINING the entry",
+    "N": 142,
+    "share_of_trades_pct": 15.5,
+    "cohort_meanR": 0.521,
+    "rest_meanR": 0.777,
+    "cohort_win_pct": 52.1,
+    "rest_win_pct": 54.6,
+    "cohort_total_R": 74.0,
+    "share_of_book_R_pct": 10.9,
+    "gap_vs_rest": {
+      "cohort_minus_rest_R": -0.256,
+      "ci": [
+        -0.622,
+        0.136
+      ],
+      "excludes_zero": false
+    },
+    "bound_a_exclusion": {
+      "R_per_yr_refused": 13.6,
+      "interpretation": "refusing the cohort COSTS this much R/yr (positive-EV cohort)",
+      "clairvoyant_refuse_only_losers_R_per_yr": 17.21,
+      "note": "the clairvoyant leg is an unreachable ceiling (perfect foresight on which lose) and ignores redeployment, which 0121 measured as the dominant term",
+      "clears_floor": false,
+      "per_year": {
+        "by_year": {
+          "2019": -2.6,
+          "2020": 58.21,
+          "2021": 8.18,
+          "2022": -10.95,
+          "2023": 15.4,
+          "2024": 5.78
+        },
+        "n_years": 6,
+        "n_positive": 4,
+        "majority_sign": "+",
+        "majority_share": "4/6"
+      }
+    },
+    "bound_b_conditional_management": {
+      "management_totals_R": {
+        "as-is": 677.0,
+        "TP@2R": 500.4,
+        "TP@3R": 728.5,
+        "stop@-0.5R": 241.6
+      },
+      "cohort_totals_R": {
+        "as-is": 74.0,
+        "TP@2R": 61.1,
+        "TP@3R": 95.9,
+        "stop@-0.5R": 1.6
+      },
+      "best_single_for_all": "TP@3R",
+      "best_for_cohort": "TP@3R",
+      "best_for_rest": "TP@3R",
+      "clairvoyant_conditional_gain_R": 0.0,
+      "clairvoyant_conditional_gain_R_per_yr": 0.0,
+      "clears_floor": false
+    },
+    "_defect": "LOOKAHEAD: the depth is measured a median 4 days after the fill, so a trade that falls in its first week is selected into the cohort by its own outcome",
+    "cohort_entry_week_return_pct": -8.208
+  },
+  "lookahead_evidence": {
+    "_what": "0127's descent_depth is measured to cl[k], the close of the week CONTAINING the entry; the fill is that day's OPEN, so the depth sees up to a full week of post-entry price",
+    "weekend_minus_entry_days": {
+      "median": 4.0,
+      "min": 0.0,
+      "share_non_negative": 1.0
+    },
+    "entry_week_return_pct": {
+      "leaked_cohort_mean": -2.383,
+      "rest_mean": 0.796,
+      "cell_weekly_hot_daily_cold_mean": -6.504,
+      "_reads": "a cohort selected partly by what price did AFTER the fill"
+    }
+  },
+  "dd63_correlations": {
+    "dist_52wh_pct": -0.851,
+    "ext_vs_sma": -0.213,
+    "risk_pct": 0.071,
+    "atr_pct": 0.623
+  },
+  "dd63_gap_within_ext_bands": {
+    "_what": "is dd63 just extension in disguise? ext is the known engine (EXT_IS_THE_ENGINE)",
+    "bands": [
+      {
+        "ext_band": "(-inf, 5.0]",
+        "n_hot": 45,
+        "gap": -0.159
+      },
+      {
+        "ext_band": "(5.0, 10.0]",
+        "n_hot": 30,
+        "gap": 0.057
+      },
+      {
+        "ext_band": "(10.0, 15.0]",
+        "n_hot": 31,
+        "gap": 0.334
+      },
+      {
+        "ext_band": "(15.0, 25.0]",
+        "n_hot": 15,
+        "gap": 0.021
+      }
+    ],
+    "weighted_mean_gap": 0.043
+  },
+  "population_0127_date_census": {
+    "_what": "0127 filters entry_date >= 2019 with NO upper bound. This is a census of DATES only (no outcome column is read), reported because it bears on a governance decision",
+    "n_rows_0127_filter": 1415,
+    "max_entry_date": "2026-06-29",
+    "n_rows_in_sealed_window": 495,
+    "share_sealed_pct": 35.0
+  },
+  "split_2x2": [
+    {
+      "weekly_hegclass": true,
+      "daily_cohort": true,
+      "N": 118,
+      "meanR": 0.783,
+      "win_pct": 57.6,
+      "total_R": 92.4
+    },
+    {
+      "weekly_hegclass": true,
+      "daily_cohort": false,
+      "N": 0,
+      "meanR": null,
+      "win_pct": null,
+      "total_R": null
+    },
+    {
+      "weekly_hegclass": false,
+      "daily_cohort": true,
+      "N": 5,
+      "meanR": 2.702,
+      "win_pct": 100.0,
+      "total_R": 13.5
+    },
+    {
+      "weekly_hegclass": false,
+      "daily_cohort": false,
+      "N": 795,
+      "meanR": 0.718,
+      "win_pct": 53.5,
+      "total_R": 571.1
+    }
+  ],
+  "split_2x2_leaked_for_comparison": [
+    {
+      "weekly_hegclass": true,
+      "daily_cohort": true,
+      "N": 104,
+      "meanR": 0.696
+    },
+    {
+      "weekly_hegclass": true,
+      "daily_cohort": false,
+      "N": 38,
+      "meanR": 0.044
+    },
+    {
+      "weekly_hegclass": false,
+      "daily_cohort": true,
+      "N": 19,
+      "meanR": 1.769
+    },
+    {
+      "weekly_hegclass": false,
+      "daily_cohort": false,
+      "N": 757,
+      "meanR": 0.752
+    }
+  ],
+  "does_daily_split_the_weekly_cohort": {
+    "definition": "dd63 >= 20% WITHIN the weekly HEG-class cohort",
+    "N": 118,
+    "share_of_trades_pct": 100.0
+  },
+  "worst_cell_exclusion_bound": {
+    "_withdrawn": "the cell this bounded (weekly HEG-class with no deep daily drawdown) contains 0 trades once the weekly depth is point-in-time; it was selected by the lookahead"
+  },
+  "primary_sensitivity_drop_biggest_year": {
+    "_selection": "POST HOC, and labelled: the year is chosen as the cohort's largest R contributor",
+    "year_dropped": 2020,
+    "share_of_cohort_R_from_that_year": 0.517,
+    "cohort_meanR_ex": 0.575,
+    "rest_meanR_ex": 0.774,
+    "gap_ex": {
+      "cohort_minus_rest_R": -0.199,
+      "ci": [
+        -0.63,
+        0.211
+      ],
+      "excludes_zero": false
+    }
+  }
+}

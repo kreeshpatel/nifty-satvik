@@ -129,7 +129,7 @@ the standing instrument: `false_touch`, `noise_stop`, `exit_too_early`, `opp_qua
 ### Screen-ledger accounting
 
 - Every screen — pass **or** fail — increments the running screen count and appends a row to
-  `research/overlay_registry.md`. Current standing: **screens 19**.
+  `research/overlay_registry.md`. Current standing: **screens 20**.
 - A screen does **not** touch `n_trials` — read the count from
   `diagnostics/research/n_trials.json`, which is the authority — because it makes no PROMOTE/KILL
   decision on the honest base. State both counts in every readout.
