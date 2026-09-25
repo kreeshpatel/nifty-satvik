@@ -163,12 +163,22 @@ def build() -> pd.DataFrame:
             "as_of_snapshot": ctx.get("as_of_snapshot"),
             "provenance": "forward" if str(ctx.get("as_of_snapshot") or "") >= FORWARD_FROM else "reconstructed",
             **{f: ctx.get(f) for f in CONTEXT_FIELDS if f not in ("bought_date",)},
-            "stop_width_pct": L.stop_width_pct(entry, stop),
+            "stop_width_pct_card": L.stop_width_pct(entry, stop),
             **{f: o.get(f) for f in OUTCOME_FIELDS},
             **L.decompose_r(o.get("r_multiple")),
             # Always present, so the schema does not depend on how fresh the price cache happens to be.
             "mae_r": None, "mfe_r": None, "capture_of_mfe": None, "nifty_same_window_pct": None,
         }
+        # The denominator R was measured against, and how far the card's stop is from it. The card and
+        # the engine are different sources; where they disagree, the ENGINE basis is the one that makes
+        # `r_multiple` mean what it says (red-team, 2026-09-25).
+        row["stop_width_pct_engine"] = L.engine_implied_width_pct(o.get("return_pct"), o.get("r_multiple"))
+        row["width_gap_pct"] = L.width_gap_pct(row["stop_width_pct_card"], row["stop_width_pct_engine"])
+        row["stop_width_pct"] = row["stop_width_pct_engine"] or row["stop_width_pct_card"]
+        row["stop_width_basis"] = "engine" if row["stop_width_pct_engine"] else "card"
+        # A card that was never bought is not a trade. Three states, so "no outcome" cannot read as a
+        # defect for a signal that simply never filled (5 of the 46 rows).
+        row["state"] = ("closed" if o.get("exit_reason") else ("open" if bought else "not_entered"))
         row["has_corporate_action"] = bool(ctx.get("corporate_actions"))
         row["corporate_actions"] = json.dumps(ctx.get("corporate_actions")) if ctx.get("corporate_actions") else None
         p = pos.get((tkr, bought or ""), {})
@@ -191,19 +201,45 @@ def build() -> pd.DataFrame:
 
 
 def holes(df: pd.DataFrame) -> list[str]:
-    """Structural problems a rebuild must not hide. Declared holes are not problems."""
+    """Defects only — things that mean a row cannot be read. `--validate` exits non-zero on these.
+
+    A card that never filled is NOT a defect (it has no outcome because it was never a trade), and a
+    card-vs-engine width disagreement is handled rather than unresolved: both bases are recorded and the
+    engine one is used. Those are notes, not holes — an alarm that is always on is not an alarm.
+    """
     out: list[str] = []
     if df is None or not len(df):
         return ["ledger is empty — no archived signal on or after the inception"]
+    entered = df[df["state"] != "not_entered"] if "state" in df else df
     closed = df[df["exit_reason"].notna()]
     for col in ("entry", "stop", "stop_width_pct"):
         n = int(df[col].isna().sum())
         if n:
             out.append(f"{n} row(s) missing {col} — a trade whose R denominator is unknown")
+    if len(entered):
+        n = int(entered["status"].isna().sum())
+        if n:
+            out.append(f"{n} entered trade(s) with no outcome in the history")
     if len(closed):
         n = int(closed["r_multiple"].isna().sum())
         if n:
             out.append(f"{n} closed trade(s) with no r_multiple")
+    return out
+
+
+def notes(df: pd.DataFrame) -> list[str]:
+    """Handled conditions worth stating on every run, which are not defects."""
+    out: list[str] = []
+    if df is None or not len(df):
+        return out
+    if "state" in df:
+        n = int((df["state"] == "not_entered").sum())
+        if n:
+            out.append(f"{n} card(s) never filled — issued, never bought, so they carry no outcome")
+    wide = df[df["width_gap_pct"].notna() & (df["width_gap_pct"] > 5.0)]
+    if len(wide):
+        out.append(f"{len(wide)} trade(s) where the card's stop width disagrees with the engine's by >5% "
+                   f"({', '.join(sorted(wide['ticker'].astype(str)))}) — R is measured on the engine basis")
     return out
 
 
@@ -215,11 +251,13 @@ def main(argv: list[str] | None = None) -> int:
 
     df = build()
     n_closed = int(df["exit_reason"].notna().sum()) if len(df) else 0
-    problems = holes(df)
+    problems, remarks = holes(df), notes(df)
     exc = int(df["mae_r"].notna().sum()) if len(df) else 0
     print(f"attribution ledger: {len(df)} trades ({n_closed} closed) | "
           f"reconstructed {int((df['provenance'] == 'reconstructed').sum()) if len(df) else 0} | "
           f"excursions {exc}/{len(df)} (price-cache depth) | declared holes {len(DECLARED_HOLES)}")
+    for r in remarks:
+        print(f"  note: {r}")
     for p in problems:
         print(f"  ::warning::{p}")
     if args.validate:

@@ -221,3 +221,47 @@ def test_cluster_bootstrap_mean_widens_when_trades_of_one_ticker_move_together()
 def test_cluster_bootstrap_mean_reports_no_interval_from_a_single_cluster():
     pt, lo, hi = P.cluster_bootstrap_mean([1.0, 2.0, 3.0], ["A", "A", "A"])
     assert pt == pytest.approx(2.0) and np.isnan(lo) and np.isnan(hi)
+
+
+def test_two_sample_bootstrap_finds_a_difference_that_overlapping_intervals_hide():
+    """Why it exists: comparing two separately-bootstrapped means by eye is not a test. Here each
+    population's own 95% interval contains the other's mean, yet the difference excludes zero."""
+    # Built, not drawn: the phenomenon only appears in a narrow band (about 2.8 to 3.9 standard errors
+    # apart), so a random draw would land in it only sometimes and the test would flap.
+    rng = np.random.default_rng(12)
+    n = 150
+    base = rng.normal(0.0, 1.0, n)
+    a = base - base.mean()
+    delta = 3.2 * a.std(ddof=1) / np.sqrt(n)
+    b = a + delta
+    ca, cb = [f"A{i}" for i in range(n)], [f"B{i}" for i in range(n)]
+    _, a_lo, a_hi = P.cluster_bootstrap_mean(a, ca, n_boot=800)
+    _, b_lo, b_hi = P.cluster_bootstrap_mean(b, cb, n_boot=800)
+    assert a_hi > b_lo, "set up so the two intervals OVERLAP — the eyeball test would say 'no difference'"
+    pt, lo, hi = P.cluster_bootstrap_two_sample(a, ca, b, cb, n_boot=800)
+    assert pt == pytest.approx(b.mean() - a.mean())
+    assert lo > 0, "the difference itself is established"
+
+
+def test_two_sample_bootstrap_reports_no_difference_when_there_is_none():
+    rng = np.random.default_rng(13)
+    a, b = rng.normal(0, 1, 200), rng.normal(0, 1, 200)
+    ca, cb = [f"A{i}" for i in range(200)], [f"B{i}" for i in range(200)]
+    _, lo, hi = P.cluster_bootstrap_two_sample(a, ca, b, cb, n_boot=800)
+    assert lo < 0 < hi
+
+
+def test_two_sample_bootstrap_widens_when_one_side_is_a_few_clusters():
+    rng = np.random.default_rng(14)
+    a = rng.normal(0, 1, 200)
+    offs = rng.normal(0, 1.5, 4)
+    b = np.array([offs[i // 25] + rng.normal(0, 0.2) for i in range(100)])
+    ca = [f"A{i}" for i in range(200)]
+    _, lo_c, hi_c = P.cluster_bootstrap_two_sample(a, ca, b, [f"B{i // 25}" for i in range(100)], n_boot=600)
+    _, lo_i, hi_i = P.cluster_bootstrap_two_sample(a, ca, b, [f"B{i}" for i in range(100)], n_boot=600)
+    assert (hi_c - lo_c) > 2 * (hi_i - lo_i), "4 real clusters must not read as 100 independent trades"
+
+
+def test_two_sample_bootstrap_handles_an_empty_side():
+    pt, lo, hi = P.cluster_bootstrap_two_sample([], [], [1.0, 2.0], ["B1", "B2"])
+    assert np.isnan(pt) and np.isnan(lo) and np.isnan(hi)
