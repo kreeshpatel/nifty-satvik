@@ -141,6 +141,12 @@ jobs:
         run: |
           gh release download dataset-pin-20260729 --pattern _delivery_raw.parquet --pattern _earnings_raw.parquet --dir data --clobber || echo "::warning::pinned delivery/earnings fetch failed - breadth-50 arms degrade this run"
           python scripts/run_breadth50_paper.py --start "${{ github.event.inputs.breadth50_inception || '2026-08-16' }}" || echo "::warning::breadth-50 forward log FAILED - book not updated"
+      - name: Build the per-trade attribution ledger (Satvik Brain Layer 5)
+        # Runs AFTER the snapshot + card archivers: it is a deterministic rebuild FROM those immutable
+        # archives, so it must see this week's before it runs. MEASUREMENT only — it reads the book and
+        # decides nothing. Non-fatal: a collector defect must never withhold the live book.
+        run: python scripts/collect_attribution_ledger.py
+          || echo "::warning::attribution ledger FAILED (exit $?) - results/attribution_ledger.csv not rebuilt"
       - name: Collect the forward signal-quality table (prereg_signal_quality.md, 4-axis family)
         # Runs AFTER the swing cron so it reads the freshly-committed signal snapshot + history and the
         # fresh OHLCV (so touch_depth Q2 covers the pullback window). BUILD-ONLY and forward-sealed:
@@ -178,6 +184,7 @@ jobs:
           opt results/blend_hybrid_paper.json
           opt results/breadth50_forward.json   # §4 watched book (EW/SW/SW-accum), observational, forward-only
           opt results/signal_quality_forward.csv  # 4-axis per-signal quality->outcome table (prereg_signal_quality.md)
+          opt results/attribution_ledger.csv  # per-trade attribution ledger (Satvik Brain Layer 5)
           # zoo shadow book STOOD DOWN 2026-08-06 (finding 0131, falsifier fired) — no
           # longer produced weekly. The opt() stays so a deliberate manual re-run of
           # scripts/run_zoo_shadow_book.py is still committable; opt() never fails.
