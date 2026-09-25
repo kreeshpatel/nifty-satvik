@@ -159,3 +159,62 @@ cheap, general instrument for that question and can be pointed at any future coh
 ## Reproduce
 
     python scripts/diag_hegclass_bound_0127.py
+
+
+---
+
+## RE-OPENED — 2026-09-25, owner decision
+
+**Status: RE-OPENED. The verdict below (no trial) is NOT overturned; its central DESCRIPTION is.**
+Nothing above this line has been edited — the record stands as it ran.
+
+Two defects were found by the `red-team` read of study **0144**, which imported this finding's
+instrument. Both are reproduced by the committed pipeline
+(`pipelines/diagnostics/diag_daily_descent_bound.py` → `daily_descent_bound_0144.json`,
+keys `lookahead_evidence` and `population_0127_date_census`).
+
+### 1. Lookahead in `descent_depth`
+
+`descent_features` takes `k = searchsorted(week_end, entry_date)` and measures the depth to `cl[k]` —
+the close of the week **containing** the entry. The fill is that day's **open**, and
+`week_end − entry_date` is a median **+4 days**, never negative. A trade that falls in its first week
+is therefore selected into the cohort **by its own outcome**: the cohort's mean entry-week return is
+**−2.38%** against **+0.80%** for the rest.
+
+Recomputed on 2019-01..2024-06 (train only), identical definition, depth taken to the last **completed**
+week before the fill:
+
+| | N | cohort meanR | rest meanR | gap [95% CI] |
+|---|---|---|---|---|
+| as published (depth to the entry's own week) | 142 | +0.521 | +0.777 | −0.26 [−0.62, +0.14] |
+| **point-in-time** | 118 | **+0.783** | +0.731 | **+0.05 [−0.34, +0.45]** |
+
+**What this changes:** the widely-cited claim that the HEG-class cohort is *"real and materially
+worse"* (+0.062 against +0.494, a 0.43R gap) does not survive a point-in-time depth on the train
+window. The cohort is not measurably different from the rest.
+
+**What this does not change:** the verdict. Removing the leak makes the cohort look *better*, so both
+bounds still fail and no trial is earned. 0144 re-ran both on daily features and reached the same
+place: exclusion inside the ±10 R/yr floor, conditional management 0.0 R/yr.
+
+### 2. The population included the sealed slice
+
+The script filters `entry_date >= 2019` with **no upper bound**. A census of dates only (no outcome
+column read) gives **1,415** touch44 rows under that filter, a maximum entry date of **2026-06-29**,
+and **495 rows — 35.0% — inside the sealed 2024-07-01..2026-06-30 validation slice**. The header above
+states *"The 0116/0117 sealed slice was never read"*, which was true of `context_windows.parquet` (the
+0116 feature set) and not of `trades.parquet`.
+
+This is recorded as **sealed open S3** in `label_screen_ledger.md`, retroactive and undeclared, by the
+same rule that recorded S2. **Standing counts move to sealed opens 3.**
+
+### Consequences, in force from today
+
+- **Do not cite 0127's cohort separation as a measured fact.** Cite this re-open beside it.
+- The sealed slice is further spent: it can no longer validate a rule about descent kinematics,
+  R-multiple targets, target distance or stop-width bands.
+- `descent_features` must not be imported for a new study without a point-in-time depth. The
+  diagnostic carries a fail-loud DEFECT NOTICE at the top.
+- Re-running 0127's bounds correctly is **not** scheduled here. Under the 2026-08-08 amendment a
+  negative verdict needs a pre-registered run under the current harness; 0144 already supplies that
+  for the same question, and its answer is a null.

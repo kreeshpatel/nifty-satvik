@@ -168,3 +168,24 @@ habit-ledger labels exist.**
 **Banked outcome-independently:** `descent_duration` / `descent_depth` / `descent_velocity` added to
 the habit-ledger schema §1.2 — not because they predict (this finding says they do not), but so the
 next kinematics question does not re-derive them from raw bars.
+
+
+---
+
+## RE-OPENED — 2026-09-25 (owner decision). Appended; the registered section above is untouched.
+
+The instrument this pre-registration froze contains a **lookahead**. §1's `descent_depth` is measured,
+in `descent_features`, to the close of the week **containing** the entry — a median **+4 days** after
+the fill, which happens at that day's open. The cohort was therefore partly selected by post-entry
+price (cohort mean entry-week return **−2.38%** against **+0.80%**). Point-in-time, on 2019-01..2024-06,
+the separation disappears: **+0.783 vs +0.731**, gap +0.05 [−0.34, +0.45].
+
+The registered **window** (§2, `entry_date >= 2019`) also carried no upper bound, so the run included
+**495 of 1,415 rows (35.0%)** of the sealed 2024H2+ slice — recorded as **sealed open S3**.
+
+The **verdict is not overturned**: removing the leak makes the cohort look better, both bounds still
+fail, and study 0144 re-ran the same question at daily resolution under the current harness and found a
+null. What is withdrawn is the *description* — that the cohort is "materially worse".
+
+Full reasoning: `research/findings/0127-hegclass-activation-bound.md` (RE-OPENED block) and
+`research/findings/0144-daily-descent-bound.md`.
