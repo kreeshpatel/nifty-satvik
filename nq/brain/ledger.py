@@ -97,6 +97,36 @@ def stop_width_pct(entry: float | None, stop: float | None) -> float | None:
     return round((e - s) / e * 100.0, 4)
 
 
+def engine_implied_width_pct(return_pct: float | None, r_multiple: float | None) -> float | None:
+    """The stop width R was ACTUALLY measured against: return% / R.
+
+    The card's stop and the engine's R are different objects, and the ledger joins them from different
+    sources (archived card vs `signals_history_weekly.json`). On the live book they disagree for 3 of 11
+    closed trades — CCL's card says a 1.52% stop while the engine measured its R against 2.46% — so a
+    width taken from the card is not the denominator of the R beside it. This one is, by construction,
+    and it is invariant to a re-dated entry or a moved card.
+    """
+    if return_pct is None or r_multiple is None:
+        return None
+    r = float(r_multiple)
+    if not np.isfinite(r) or abs(r) < 1e-9 or not np.isfinite(float(return_pct)):
+        return None
+    w = float(return_pct) / r
+    return round(w, 4) if w > 0 else None
+
+
+def width_gap_pct(card_width: float | None, engine_width: float | None) -> float | None:
+    """Relative disagreement between the card's stop width and the one R was measured against.
+
+    `nq.brain.attribution.stop_agreement` compares STOP PRICES, which is too blunt here: CCL's stop
+    prices agree to 0.97% while its widths differ by 38%, because a small price gap near the stop is a
+    large fraction of a small width. A width-basis check is the one that governs an R denominator.
+    """
+    if card_width is None or engine_width is None or not engine_width > 0:
+        return None
+    return round(abs(float(card_width) - float(engine_width)) / float(engine_width) * 100.0, 3)
+
+
 def decompose_r(r_multiple: float | None) -> dict[str, float | None]:
     """A loss splits into the stop working as designed (−1R) and the part filled beyond it.
 

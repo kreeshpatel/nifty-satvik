@@ -160,7 +160,8 @@ def test_validate_reports_holes_and_declares_the_unfillable_ones():
 
 def test_holes_flags_a_trade_with_no_denominator():
     df = pd.DataFrame([{"entry": 100.0, "stop": np.nan, "stop_width_pct": np.nan, "exit_reason": "stop",
-                        "r_multiple": -1.0}])
+                        "r_multiple": -1.0, "state": "closed", "status": "HIT_STOP",
+                        "width_gap_pct": np.nan}])
     assert any("stop_width_pct" in h for h in C.holes(df))
     assert C.holes(pd.DataFrame()) == ["ledger is empty — no archived signal on or after the inception"]
 
@@ -173,3 +174,52 @@ def test_the_collector_writes_only_under_results_and_is_not_in_the_engine():
                           "import nq.brain.ledger as m; print(m.__file__)"], cwd=ROOT,
                          capture_output=True, text=True)
     assert out.returncode == 0
+
+
+# --------------------------------------------------------------------------- the two-source defect
+def test_the_engine_basis_is_the_denominator_r_was_measured_against():
+    """Card stop and engine R are different objects. return%/R is the width R actually used."""
+    assert L.engine_implied_width_pct(-5.37, -2.18) == pytest.approx(2.4633, abs=1e-3)   # the real CCL
+    assert L.engine_implied_width_pct(-4.5, -2.32) == pytest.approx(1.9397, abs=1e-3)    # LINDEINDIA
+    assert L.engine_implied_width_pct(3.0, 0.0) is None and L.engine_implied_width_pct(None, -1.0) is None
+    assert L.engine_implied_width_pct(-5.0, 2.0) is None, "a negative implied width is not a width"
+
+
+def test_width_gap_flags_the_disagreement_a_price_check_would_miss():
+    """CCL's stop PRICES agree to ~1% while its denominator is off by 38% — stop_agreement is too blunt."""
+    assert L.width_gap_pct(1.518, 2.463) == pytest.approx(38.37, abs=0.1)
+    assert L.width_gap_pct(5.651, 2.661) == pytest.approx(112.4, abs=0.5)
+    assert L.width_gap_pct(2.0, 2.0) == 0.0
+    assert L.width_gap_pct(None, 2.0) is None and L.width_gap_pct(2.0, 0.0) is None
+
+
+def test_the_ledger_carries_both_bases_and_says_which_it_used(built):
+    for col in ("stop_width_pct_card", "stop_width_pct_engine", "width_gap_pct", "stop_width_basis"):
+        assert col in built.columns
+    closed = built[built["exit_reason"].notna()]
+    assert (closed["stop_width_basis"] == "engine").all(), "a closed trade has an R, so it has an engine basis"
+    assert closed["stop_width_pct"].equals(closed["stop_width_pct_engine"])
+
+
+def test_the_known_disagreements_are_surfaced_not_silent(built):
+    closed = built[built["exit_reason"].notna()]
+    wide = set(closed.loc[closed["width_gap_pct"] > 5.0, "ticker"])
+    assert wide == {"CCL", "HINDZINC", "3MINDIA"}, f"expected the three known disagreements, got {wide}"
+    assert any("disagrees with the engine" in n for n in C.notes(built)), (
+        "handled, but never silent: the ledger records both bases and says which one R used")
+
+
+def test_a_card_that_never_filled_is_a_note_not_a_defect(built):
+    """5 of the 46 rows are signals that were issued and never bought. They have no outcome because they
+    were never trades — an alarm that fires on them is an alarm nobody reads."""
+    never = built[built["state"] == "not_entered"]
+    assert len(never) and never["bought_date"].isna().all() and never["exit_reason"].isna().all()
+    assert any("never filled" in n for n in C.notes(built))
+    assert not any("never filled" in h for h in C.holes(built))
+    assert C.main(["--validate"]) == 0, "handled conditions must not keep --validate permanently red"
+
+
+def test_states_partition_the_ledger(built):
+    assert set(built["state"]) <= {"closed", "open", "not_entered"}
+    assert (built[built["state"] == "closed"]["exit_reason"].notna()).all()
+    assert (built[built["state"] == "open"]["bought_date"].notna()).all()

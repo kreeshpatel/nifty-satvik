@@ -73,3 +73,52 @@ A cell below **30 trades** is flagged *uninformative*; the live book is such a c
 
 **Whatever the result, nothing is adopted.** No stop change, no sizing change, no gate change: the gate
 is `forward/prereg.md` §10.2 and only the quarterly review may touch it.
+
+---
+
+## Amendment A1 — 2026-09-25, after the red-team read
+
+The read reproduced population A end to end from the committed pipeline (n=71, 37 losses, median width
+8.948% — exact match), re-derived every band cell by hand, and verified the golden master byte-identical.
+It then overturned two claims, corrected the motivating exhibit, and found a defect in the ledger this
+study reads. All of it is folded in here **before** the finding is written.
+
+**A1.1 — the live book's stop width must be taken on the ENGINE basis, not the card.** The attribution
+ledger joins `stop` from the archived card and `r_multiple` from the engine's history. They are
+different objects: for **3 of 11** closed trades the implied widths disagree by more than 5%
+(CCL card 1.52% against an engine basis of 2.46%; HINDZINC 5.65% against 2.66%; 3MINDIA 2.23% against
+3.04%), and the entries disagree for 6 of 11. `stop_agreement` compares stop PRICES and is too blunt
+here — CCL's prices agree to 0.97% while its denominator is off by 38%.
+**Consequence: the SPEC's motivating exhibit was wrong.** CCL's −2.18R was measured against 2.46%, not
+1.52%. The ledger now carries `stop_width_pct_card`, `stop_width_pct_engine`, `width_gap_pct` and
+`stop_width_basis`, flags any gap above 5%, and this study uses the engine basis for both populations.
+
+**A1.2 — the study must compute the DIFFERENCE, not compare two intervals by eye.** Overlapping
+intervals are not a null result. `nq.brain.portfolio.cluster_bootstrap_two_sample` is added and every
+between-population statement now carries its own difference interval.
+
+**A1.3 — the `≥10%` band is not a band.** 12 of A's 37 losses sit at 9.989–10.004%, pinned by
+`max_risk_pct = 0.10` and split across the 10% edge by float noise. The capped trades are now reported
+as their own cell (`at the 10% cap`) and the remaining bands cover genuinely uncapped widths.
+
+**A1.4 — WITHDRAWN: the Oct-1 consequence.** The `>+0.10R` expectancy bar is `forward/prereg.md` §10
+v1.5(2) and governs the **unactivated Path-B practitioner sleeve** (Engine B, 4×ATR chandelier stop).
+The live weekly-swing book's pre-committed rule is `forward/prereg_swing.md` §4 — forward **MaxDD and
+Calmar**, no R term — and 2026-10-01 is registered there as **a first read only**. The residual, true
+statement: *if* the Path-B sleeve is ever activated, its R-denominated gate must be read with its own
+stop geometry attached. This study touches neither book that gate compares.
+
+**A1.5 — WITHDRAWN: "gap-through rises as stops tighten."** A's gap-through rate by band runs
+0.33 / 0.78 / 0.65 / 1.00 — the tightest band is the *lowest* and the widest the *highest*, the opposite
+of the claim. The beyond-stop share gradient rests on one trade (RNAVAL, −6.0R at 2.60% width); without
+it A's `<3%` cell is n=2 and its share collapses to about zero. Interpretation rule 4 is struck: no
+statement is made about gap-through and stop width in either direction.
+
+**A1.6 — population B is a second reconstruction, not forward evidence.** All 46 ledger rows are
+`provenance = reconstructed` (the earliest archive is 2026-07-24, and 9 of the 11 closed trades were
+first seen there). The SPEC called B "the live forward book"; it is the live book's history rebuilt from
+archives. Forward accrual starts with the next scan.
+
+**A1.7 — the live cluster bootstrap is not a cluster correction.** 11 trades on 11 distinct tickers
+makes it an ordinary percentile bootstrap at n=11, which is anti-conservative. Stated wherever a live
+interval is quoted.

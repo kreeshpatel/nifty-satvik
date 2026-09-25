@@ -198,6 +198,39 @@ def cluster_bootstrap_mean(values: Sequence[float], clusters: Sequence[str], *, 
 
 
 # --------------------------------------------------------------------------- uncertainty
+def cluster_bootstrap_two_sample(a_vals: Sequence[float], a_clusters: Sequence[str],
+                                 b_vals: Sequence[float], b_clusters: Sequence[str], *,
+                                 n_boot: int = 2000, seed: int = 20260925) -> tuple[float, float, float]:
+    """(mean(b) − mean(a), lo95, hi95), resampling each population's clusters independently.
+
+    Comparing two separately-bootstrapped means by eye is not a test: overlapping intervals can still
+    hold a difference that excludes zero, and non-overlapping ones can be noise. A study that compares
+    two populations has to compute the DIFFERENCE with its own uncertainty, which is what this does.
+    """
+    a = np.asarray(list(a_vals), dtype=float)
+    b = np.asarray(list(b_vals), dtype=float)
+    ca, cb = np.asarray(list(a_clusters)), np.asarray(list(b_clusters))
+    ok_a, ok_b = np.isfinite(a), np.isfinite(b)
+    a, ca, b, cb = a[ok_a], ca[ok_a], b[ok_b], cb[ok_b]
+    if a.size == 0 or b.size == 0:
+        return float("nan"), float("nan"), float("nan")
+    point = float(b.mean() - a.mean())
+
+    def groups(c: npt.NDArray[np.str_]) -> list[Floats]:
+        keys, inv = np.unique(c, return_inverse=True)
+        return [np.flatnonzero(inv == g) for g in range(len(keys))]
+
+    ga, gb = groups(ca), groups(cb)
+    rng = np.random.default_rng(seed)
+    out = np.empty(n_boot)
+    for i in range(n_boot):
+        ia = np.concatenate([ga[g] for g in rng.integers(0, len(ga), len(ga))])
+        ib = np.concatenate([gb[g] for g in rng.integers(0, len(gb), len(gb))])
+        out[i] = b[ib].mean() - a[ia].mean()
+    lo, hi = np.percentile(out, [2.5, 97.5])
+    return point, float(lo), float(hi)
+
+
 def block_bootstrap_paired(x: Sequence[float], y: Sequence[float],
                            stat: Callable[[Floats, Floats], float], *, block: int = 63,
                            n_boot: int = 2000, seed: int = 20260924) -> tuple[float, float, float]:
