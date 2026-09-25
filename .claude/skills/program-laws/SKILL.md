@@ -55,7 +55,7 @@ model, or a different rubric is not new evidence; it is refused relitigation.
 > still not a KILL.** Report the deflated and the raw statistic side by side, and let the forward
 > wall certify.
 
-Standing counts as of 2026-09-16: **screens 19 · sealed opens 2 · n_trials 2.**
+Standing counts as of 2026-09-16: **screens 20 · sealed opens 2 · n_trials 2.**
 State them in every research readout. (The authority is
 `diagnostics/research/label_screen_ledger.md` — if this line disagrees with the ledger, the ledger
 is right and this line is stale. Screens moved 12 → 13 → 14 on 2026-07-31 (0126 line-hugger, 0127
