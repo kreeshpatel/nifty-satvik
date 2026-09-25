@@ -1,5 +1,23 @@
 """0127 — HEG-class activation bound. ACTIVATION BOUND (ledger row #14). No trial.
 
+!! DEFECT NOTICE, added 2026-09-25 — READ BEFORE REUSING THIS FILE. Nothing below is changed; the
+!! published finding is left exactly as it ran. Two problems were found by the red-team read of study
+!! 0144, which imported this module:
+!!
+!!   1. LOOKAHEAD in `descent_features`: `k = searchsorted(week_end, entry_date)` and the depth is taken
+!!      to `cl[k]` — the close of the week CONTAINING the entry, a median 4 days (up to 5 sessions)
+!!      AFTER the fill, which happens at that day's open. A trade that falls in its first week is
+!!      therefore selected into the cohort by its own outcome: the cohort's mean entry-week return is
+!!      −2.73% against +0.85% for the rest. With a point-in-time depth (`cl[k-1]`) on 2019..2024-06 the
+!!      cohort stops looking bad: +0.776 against +0.731, where the shipped version gives +0.519/+0.777.
+!!   2. POPULATION: the filter is `entry_date >= 2019` with NO upper bound, so the published run spans
+!!      2019-01..2026-06-29 and includes 495 rows (35%) of the SEALED 2024H2+ validation slice, while
+!!      the finding states the sealed slice was not read (it names `context_windows.parquet`).
+!!
+!! Whether finding 0127 is re-opened is an OWNER decision at a quarterly review, not a code change.
+!! Until then: do not cite 0127's cohort separation as a measured fact, and do not import
+!! `descent_features` for a new study without using a point-in-time depth.
+
 Pre-registration: `diagnostics/research/preregistry/0127-hegclass-activation-bound.md`. Every
 definition, the management set, the gate and both branches are frozen there and are not re-opened.
 
