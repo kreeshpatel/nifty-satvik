@@ -579,7 +579,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              scaled_exit: dict | None = None, hard_stop: bool = False,
              max_risk_pct: float | None = None, max_notional_pct: float | None = None,
              stale_absent_days: int = 0, demerger_events: dict | None = None,
-             ca_hold_drop: float = 0.0, ca_reviewed=None):
+             ca_hold_drop: float = 0.0, ca_reviewed=None, position_log: list | None = None):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
@@ -598,6 +598,14 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
     When ON, an absent holding is also marked to its last traded close in the NAV sum instead of its
     ENTRY price. 0 (default) => OFF => byte-identical to the 0094 run of record, which freezes such
     a position forever and carries it at cost (the B-1 bug, captured in tests/test_r94_golden.py).
+
+    position_log: an optional list the caller owns. When given, one row per held name per session is
+    APPENDED to it — date, ticker, shares, mark price, notional, whether the mark was an absent-bar
+    mark, entry/stop/risk0, and the book's cash and equity that session. Observation only: nothing
+    written here is ever read back, so the engine cannot behave differently for its presence, and
+    None (the default) is byte-identical by construction (tests/test_r94_position_log.py). It exists
+    because `curve` recorded what the book was worth each day and nothing recorded what it HELD, so
+    no weights/concentration/marginal-risk question was answerable from a committed artifact.
 
     demerger_events (owner decision 2026-09-15, "B′", standing rule): {ticker: event} from
     `build_demerger_events`. A position held INTO a registered ex-date realises the carved-out value as a
@@ -1139,11 +1147,28 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
         # NAV mark for a name with no bar today. B-1: the frozen behaviour marks it at ENTRY price
         # (carrying a suspended holding at cost, flattering NAV); with the stale gate ON it marks to
         # the LAST TRADED close. Gate OFF => `p["en"]` exactly => byte-identical.
-        mtm = sum(p["sh"] * (P[t]["c"][didx[t][d]] if d in didx[t] else _absent_mark(p))
-                  for t, p in op.items())
+        _marks = {t: (P[t]["c"][didx[t][d]] if d in didx[t] else _absent_mark(p))
+                  for t, p in op.items()}
+        mtm = sum(p["sh"] * _marks[t] for t, p in op.items())
         eq = cash + mtm
         assert uncapped or cash >= -1e-6   # uncapped mode lets cash go negative (NAV is ignored there)
         curve.append((d, eq))
+        # DAILY POSITION LEDGER (2026-09-25, owner-authorised). Observation only: rows are appended
+        # to a list the CALLER owns and nothing here is read back, so None (the default) is not
+        # merely "off" — the engine cannot behave differently for its presence. `curve` already
+        # records what the book was WORTH each day; nothing recorded what it was HOLDING, so no
+        # portfolio-level question (weights, concentration, marginal risk) could be answered from a
+        # committed artifact. Track P2 found that the hard way: the scaled exit sells in tranches (config P:
+        # 40% at +2R, 40% on the pattern trigger armed at +2.5R, 20% runner; tp2_frac is 0.0, so
+        # nothing sells at +3R) and the trade ledger carries at most one of them, so a position's share path after its first
+        # tranche was unrecoverable and the study's second and third legs could not run at all.
+        if position_log is not None:
+            for t, p in op.items():
+                px = _marks[t]
+                position_log.append({"date": d, "tkr": t, "shares": p["sh"], "mark_px": px,
+                                     "notional": p["sh"] * px, "marked_absent": d not in didx[t],
+                                     "entry": p["en"], "stop": p["stop"], "risk0": p["risk0"],
+                                     "cash": cash, "equity": eq})
         eq_hist.append(eq)
     if not return_state:                       # backtest convention: realize open positions at window end
         for t, p in op.items():
