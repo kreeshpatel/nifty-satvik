@@ -21,26 +21,32 @@ is a case where the honest number and the natural reading diverge. **Verdict** i
 
 ## Index
 
+**Six rows resolved 2026-09-27** (5, 6, 7, 8, 15, 18) by the four ratifications in
+[`forward/prereg_swing.md` §11](../../forward/prereg_swing.md) — a CLARIFICATION that moves no
+threshold, written before the 2026-10-01 read so no reading could be selected after seeing the data.
+§11.5 additionally records WHICH BOOK each gate reads (finding 0146), including the one gate whose two
+sides are different quantities. Rows 1, 11 and the presentation rows are untouched.
+
 | # | metric | convention in one line | verdict |
 |---|---|---|---|
 | 1 | **R** (R-multiple) | price outcome ÷ that trade's own stop width | **DOOR** (open, binder §6–8) + **standing caveat §1a**: understates money on the 34.3% of trades booking the half (2.0R credited vs 3.04R actual) |
 | 2 | **"R" the symbol** | means three different things in committed text | **PRESENTATION** |
 | 3 | **`risk_pct`** | means two different things in committed code | **PRESENTATION** |
 | 4 | **trade count** | `total_trades` = **closed only**; open positions excluded | **PRESENTATION** |
-| 5 | **win rate** | wins ÷ **closed** trades; open winners invisible | **DOOR** (young-book bias) |
-| 6 | **CAGR** | two committed year-denominators → 24.7 vs 25.21 same book | **DOOR** |
-| 7 | **MaxDD** | grid-dependent: −42.4% daily vs −33% monthly, same family | **DOOR** |
-| 8 | **Sharpe** | rf = **0**, daily × √252 (also √12 monthly in 0113) | **DOOR** (on `KILL_SHARPE`) |
+| 5 | **win rate** | wins ÷ **closed** trades; open winners invisible | **RESOLVED 2026-09-27** (prereg_swing §11.4): uninformative below 30 closed, in either direction, on either book |
+| 6 | **CAGR** | two committed year-denominators → 24.7 vs 25.21 same book | **RESOLVED 2026-09-27** (prereg_swing §11.2): **calendar** years is the publication standard — the lower print |
+| 7 | **MaxDD** | grid-dependent: −42.4% daily vs −33% monthly, same family | **RESOLVED 2026-09-27** (prereg_swing §11.3): **daily** grid, now named inside the §5 halt rule |
+| 8 | **Sharpe** | rf = **0**, daily × √252 (also √12 monthly in 0113) | **RESOLVED 2026-09-27** (prereg_swing §11.1): `KILL_SHARPE` is the **as-coded raw-return** Sharpe; the excess-return reading would tighten a live trigger mid-quarter and is a review decision |
 | 9 | **sleeve correlation** | Pearson on **daily** returns; frequency unstated in 0115 | **PARKED** |
 | 10 | **alpha** | vs Nifty-500 TRI, rf = 0, daily regression × 252 | **CLEAN** |
 | 11 | **±10R/yr floor** | a blended R unit, empirically derived in those units | **DOOR** (open, binder §8) |
 | 12 | **"screen"** | a pre-registered *study*, not a statistical comparison | **CLEAN** (self-disclosed) |
 | 13 | **DSR / n_trials** | deflates on **arm-level** cumulative 138 (family-level 77) | **CLEAN** |
 | 14 | **worst year / losing years** | calendar years; partial first/last count as whole | **PRESENTATION** |
-| 15 | **expectancy_R** | mean R over **closed** trades — inherits row 5 | **DOOR** (with row 5) |
+| 15 | **expectancy_R** | mean R over **closed** trades — inherits row 5 | **RESOLVED 2026-09-27** (prereg_swing §11.4, with row 5): uninformative below 30 closed |
 | 16 | **PBO** | 46.2% over 924 combos, 17 configs, **monthly** matrix | **CLEAN** |
 | 17 | **live rupee weight / recovery %** | defined in the R-denominator audit | **CLEAN** (cite) |
-| 18 | **Calmar** | CAGR ÷ \|MaxDD\| — inherits rows 6 **and** 7 | **DOOR** (with 6, 7) |
+| 18 | **Calmar** | CAGR ÷ \|MaxDD\| — inherits rows 6 **and** 7 | **RESOLVED 2026-09-27** (prereg_swing §11.2 + §11.3): calendar CAGR ÷ daily MaxDD; comparable only between figures on the SAME pair of conventions |
 
 ---
 
