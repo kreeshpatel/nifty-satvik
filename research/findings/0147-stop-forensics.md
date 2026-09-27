@@ -62,6 +62,8 @@ is gap-through fills"* — was built on this figure plus 0143's. The denominator
 stop widths on the live cards). The gap-through third **does not describe the funded book**, and the plan's
 Phase-2 note that a stop-geometry rule "needs its own pre-registration" should now read: on current
 evidence there is no funded-book quantity for such a rule to improve.
+**[CORRECTED 2026-09-27 — that last clause is an overstatement; see the corrections section below. The
+funded-book quantity is not yet *measurable*, which is not the same as being absent.]**
 
 ## Two committed artifacts decompose the same trades differently
 
@@ -144,3 +146,94 @@ a trial — and it would be starting from a funded-book quantity of −0.05R.
 The funded book accumulates closed trades — the quantity worth decomposing is the funded cohort, and it
 currently has one member. Re-running this diagnostic is cheap and is the right check after each quarter's
 closures, or after any change to `nq/brain/attribution.py` or `nq/brain/ledger.py`'s decomposition.
+
+
+---
+
+## CORRECTIONS — 2026-09-27, after publication (`red-team` read)
+
+The read was commissioned before merge, stalled, and completed after it. The owner elected to merge
+without waiting, with that stated in the merge message; these are the corrections, folded as promised.
+
+**The split itself survives, recomputed independently.** The reviewer re-derived the funded/never-funded
+cohorts from raw JSON without using `funded_split`, and reproduced n=1 / −1.05R / −0.05R against
+n=8 / −13.32R / −5.32R exactly, along with the headline −14.37R / −9.00R / −5.37R / 6-of-9. The half-open
+window was shown to be immaterial on this snapshot: the only close date carrying a snapshot is
+2026-08-17, where DELHIVERY is already funded via five earlier snapshots and NLCINDIA and GESHIP are
+absent anyway.
+
+### 1. The corroborator was a different book — the exact error 0146 exists to name
+
+The gap-closing argument above leaned on `base_swing_forward.n_closed = 1`. **That is the all-grades
+watched arm** (`run_bhanushali_cron.py:1080-1083`, no `a_grade` filter), not the capped **A-only** book
+whose `positions` dict defines "funded" (`:1057-1058` → `paper_portfolio_weekly.json`). The two funded
+sets do not nest — all-grades candidates compete for the same cash and can crowd out A names — so that
+count does not bound closures in the A-only book. Worse, the A-only book's own closed ledger
+(`led_paper`) **is never written to disk**, so no committed artifact states the number the argument
+needed. On that support the argument leaned on the same snapshot instrument it was trying to validate.
+
+**The replacement, which is independent of 0146 and of the positions dict, and is stronger.** It is
+cash arithmetic in `paper_portfolio_weekly.json`, verified here:
+
+- `cash` is **identical to the paisa** across four consecutive snapshots 2026-07-31 → 08-14
+  (₹87,924.20) and across 08-21 → 09-04 (₹62,943.77). A buy-and-sell round trip strictly inside a
+  flat-cash interval is impossible unless its net P&L were exactly zero. That alone kills the 3MINDIA
+  gap (closed 2026-08-03, inside the flat 07-31 → 08-07 interval).
+- The one cash step, 08-14 → 08-17 (₹87,924.20 → ₹62,782.32), is fully accounted for by DELHIVERY
+  leaving and MCX entering — no room for NLCINDIA or GESHIP proceeds, both of which also closed 08-17.
+- `cash + Σ current_value == total_value` at **every** snapshot (residuals ≤ ₹0.01), so there is no
+  hidden position and no unaccounted cash anywhere in the sequence.
+
+### 2. The conclusion was overstated
+
+*"On current evidence there is no funded-book quantity for such a rule to improve"* is stronger than
+n=1 licenses, and it contradicts this finding's own declared limitation that nothing inferential rests
+on that sample. Two reasons it must be weakened:
+
+- **Absence of measurement is not absence of effect.** One closure at −0.05R puts no useful bound on the
+  funded book's gap-through exposure.
+- **The split is partly a capacity artifact.** All five seats were filled at or near inception (entries
+  2026-07-06 and 07-28), so most tracker names went unfunded because there was **no seat**, not because
+  gap-prone names are filtered out of the funded book. Gap-through is a property of the name and the
+  fill, not of funding. The market control already carried this concession; the beyond-stop split is
+  owed the same one.
+
+**The claim, as it should read:** the funded book has too few closures for its beyond-stop quantity to be
+measurable; the −5.37R figure describes the **tracker** and must not be quoted as the book's.
+
+### 3. A test that did not discriminate
+
+`test_funded_split_uses_a_half_open_window` also held the name in an earlier snapshot, so it passed
+under a closed window too — mutating the boundary did not break it. Replaced by a case whose *only*
+in-window snapshot is the close date, where half-open must return `undetermined` and a closed window
+would wrongly return `never_funded`. Mutation-verified: red under the mutation, green when reverted.
+
+### 4. Incidental, and worth knowing before auditing this split
+
+`paper_portfolio_weekly.json` has **mixed provenance**: `positions` is the capped A-only book while
+`total_trades` is the **uncapped** ledger's closure count (`run_bhanushali_cron.py:696, 733`). It reads
+9 at the 2026-09-04 snapshot and 11 at 09-18, tracking the tracker exactly. An auditor reading that field
+beside the positions dict will conclude the capital book closed nine trades. It closed one.
+
+## UPDATE — the 2026-09-25 snapshot (rerun 2026-09-27)
+
+Record: `diagnostics/research/trade_forensics/2026-09-25/summary.json`.
+
+| | 2026-09-04 (as published) | **2026-09-25** |
+|---|---|---|
+| closed trades | 9 | **13** |
+| realised | −14.37R | **−18.67R** |
+| beyond the designed stop | −5.37R (37.4%) | **−5.67R (30.4%)** |
+| filled past the stop | 6 of 9 | **9 of 13** |
+| **funded cohort** | 1 · −1.05R · **−0.05R** | **2 · −2.25R · −0.25R** (DELHIVERY, NESTLEIND) |
+| never-funded cohort | 8 · −13.32R · −5.32R | **11 · −16.42R · −5.42R** |
+| convention spread | −5.37 vs −5.92 | **−5.67 vs −6.93** |
+| ledger cross-check | 6 agree · 3 convention · 0 unexplained | **9 agree · 4 convention · 0 unexplained** |
+
+**The conclusion holds and tightens: 96% of the beyond-stop loss (−5.42R of −5.67R) is still on trades
+the capital book never funded**, and the funded cohort's beyond-stop total is −0.25R across two closures.
+
+One thing moved that is worth watching rather than concluding from: the recorded-vs-implied stop
+disagreement rose from **0.28% to 1.96%**. `nq/brain/ledger.decompose_r`'s own docstring says the
+decomposition "is only evidence when the recorded stop agrees with the stop the engine measured R
+against", so if that gap keeps widening the identity weakens. No action; it is now on the record.

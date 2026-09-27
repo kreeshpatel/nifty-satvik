@@ -80,6 +80,24 @@ def test_funded_split_uses_a_half_open_window(tmp_path, monkeypatch):
     assert out["never_funded"]["n"] == 0
 
 
+def test_the_only_in_window_snapshot_being_the_close_date_is_undetermined(tmp_path, monkeypatch):
+    """THE discriminating case for the half-open window, and the one the first test missed.
+
+    The earlier `test_funded_split_uses_a_half_open_window` also held the name in an EARLIER snapshot,
+    so it read as funded under a closed window too — it passed under both implementations and did not
+    re-break when the boundary was mutated (red-team, 2026-09-27). Here the close-date snapshot is the
+    only one in range: half-open must return `undetermined` (no evidence either way), while a closed
+    window would see an absent name and wrongly call it `never_funded`, moving its R to the wrong
+    cohort.
+    """
+    monkeypatch.setattr(F, "ROOT", tmp_path)
+    _write_snapshot(tmp_path, "2026-08-17", [])            # the close date, and nothing earlier
+    out = F.funded_split([_Trade("ONLYCLOSE", -2.0, "2026-08-10", "2026-08-17")], "2026-09-04")
+    assert out["undetermined"]["n"] == 1, "a closed window would call this never_funded"
+    assert out["never_funded"]["n"] == 0
+    assert out["funded"]["n"] == 0
+
+
 def test_a_name_never_in_a_snapshot_is_never_funded(tmp_path, monkeypatch):
     monkeypatch.setattr(F, "ROOT", tmp_path)
     _write_snapshot(tmp_path, "2026-07-24", ["OTHER"])
