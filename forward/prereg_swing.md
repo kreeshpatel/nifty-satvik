@@ -98,8 +98,10 @@ All three thresholds are **tighten-only**. A relaxation voids this §4 and resta
 
 ## 5. Mechanical halt (no discretion)
 
-If the **live A-only book** draws down **−50%** from its logged peak NAV, halt new entries, manage open
-positions to exit, and freeze until the next quarterly review. This is the only between-review action.
+If the **live A-only book** draws down **−50%** from its logged peak NAV, **measured on the DAILY grid**
+(clarified 2026-09-27, §11.3 — the grid was always daily in code; it is now part of the rule), halt new
+entries, manage open positions to exit, and freeze until the next quarterly review. This is the only
+between-review action.
 
 ## 6. Integrity commitments
 
@@ -230,3 +232,91 @@ hybrid"), on fresh OHLCV, after the swing paper book writes `results/portfolio_h
 commits `results/blend_hybrid_paper.json`. The only real change here is the **weight**: the logger blended
 at dynamic ERC (~0.37–0.5); it now blends at the owner-fixed **0.60**. It stays observational (no paper
 capital); empty until fresh post-inception bars accrue in both sleeves — valid, not an error.
+
+---
+
+## 11. Clarification 2026-09-27 — the four ambiguous gate definitions, ratified BEFORE the Oct-1 read
+
+**Class: CLARIFICATION. No threshold moves.** §4's tighten-only rule is intact and its clock is not
+restarted: every number below is the reading the code already implements, written down so the 2026-10-01
+read cannot select a reading after seeing the data. Standing counts unchanged: **screens 20 · sealed
+opens 3 · n_trials 2.**
+
+Authority: `diagnostics/research/oct1_binder_decisions.md` §9.1–9.4, which states both readings for each
+and weighs neither. This block picks one per item, in the conservative direction, and gives the reason.
+
+**Why now, and why this is not self-serving.** As of the 2026-09-26 scan the book's net Sharpe reads
+**−0.7310**, which trips the kill leg under **either** reading of §11.1. The definition is therefore
+currently **non-binding on the outcome** — which is precisely the moment to fix it, because no choice
+available here can flatter the result.
+
+### 11.1 `KILL_SHARPE = 0.0` is the **as-coded, raw-return** Sharpe (rf = 0)
+
+`mean/std × √252`, no risk-free subtraction (`nq/validation/metrics.py`). Kill means *below cash at 0%*,
+not below the risk-free rate.
+
+**Why.** Every verdict on the record was decided on raw-return Sharpe, where rf cancels in a ΔSharpe
+comparison. Re-reading the one *absolute* gate as excess-return would move its threshold from 0.00 to
+≈0.25–0.30 — i.e. it would **tighten a live kill trigger in the middle of a quarter, on a book that is
+already tripping it**. Tightening a live risk control is a review decision with a stated rationale, never
+a definition cleanup. If the owner wants the excess-return reading it is adopted at a review, prospectively.
+
+### 11.2 CAGR is published on **calendar** years
+
+Two committed denominators exist — calendar (`run_bhanushali_sixstep.py`) and trading-bar
+(`run_corrected_anchor.py`) — and the same curve prints 24.7% and 25.21%. **Calendar years is the
+publication standard for this book**, being the longer denominator and therefore the lower, more
+conservative print.
+
+**The live exposure this closes** is cross-document comparison: a book-vs-benchmark CAGR gap is only
+valid when both sides use the same denominator. Any such gap quoted at a review states its convention.
+
+### 11.3 MaxDD is measured on the **daily** grid, and the grid is now part of the halt rule
+
+A coarser grid cannot see troughs between samples, so it can only **understate** a drawdown: the same
+family publishes −42.4% daily against −33% monthly. §5 above now names the daily grid explicitly, so a
+future change of series frequency cannot silently loosen a live risk control.
+
+**Consequence for Calmar** (register row 18, which inherits 11.2 and 11.3): a Calmar is comparable only
+between figures built on the **same** pair of conventions. A Calmar from a monthly DD and bar-year CAGR
+is not comparable to one from a daily DD and calendar-year CAGR, and §4's Calmar test uses the latter.
+
+### 11.4 The **≥30 closed** precondition is load-bearing, not advisory
+
+`expectancy_R` and `win_rate` are computed over **closed trades only**. On a trend book losers stop out
+fast while winners run for months, so both are **biased low by construction** in a young book and rise as
+winners mature.
+
+**Therefore: below 30 closed trades, expectancy and win rate are not informative quantities and are not
+to be read as evidence — in either direction, on either book.** They are still published, because
+suppressing them would be worse; they are published as uninformative. No re-computation on a
+mark-to-market basis is proposed or implied.
+
+### 11.5 WHICH BOOK each gate reads — added from finding 0146, and not in the binder
+
+0146 established that the weekly scan runs three books off one engine and that the readout mixes them.
+A gate cannot be ratified without naming its source book:
+
+| gate | input | book |
+|---|---|---|
+| readiness (`≥40 closed OR 4 quarters`) | `n_closed` | **uncapped** tracker |
+| `KILL_SHARPE < 0` (§11.1) | `sharpe` | **capped ₹10L** |
+| §5 mechanical halt (§11.3) | MaxDD, daily | **capped ₹10L** |
+| §4 decision (MaxDD shallower AND Calmar ≥ base − 0.05) | both NAV curves | **capped** A-only vs **capped** all-grades |
+| §4 floor (`≥20 closed per book`) | `a_only_closed` **vs** `base_swing_closed` | **uncapped** vs **capped** — *not the same quantity* |
+
+Two facts the review must carry, both measured in 0146 and neither resolved here:
+
+- **§4's floor compares an uncapped closure count against a capped one.** It is the one gate that mixes
+  books inside itself, and it short-circuits *before* the MaxDD/Calmar branches, so it is currently what
+  decides §4. Whether §4 needs a dated amendment for that is an **owner decision**; this clarification
+  only records that the two sides are different quantities.
+- **`paper_portfolio_weekly.json` has mixed provenance:** `positions` is the capped A-only book while
+  `total_trades` is the **uncapped** ledger's closure count. Anyone auditing the capital book from that
+  file will read its closure count as 13 when the capital book has closed 2.
+
+### What this block may never do
+
+It ratifies readings; it changes no threshold, no grading, no config, and no book. Adopting the
+excess-return Sharpe, repairing §4's floor, or altering the ≥30 precondition are all **live-rule changes**
+and belong to a quarterly review with a stated rationale.
