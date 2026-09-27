@@ -58,6 +58,117 @@ def _snapshot(as_of: str) -> tuple[list[A.ClosedTrade], list[dict], Path]:
     return trades, open_cards, snap
 
 
+def funded_split(trades: list, as_of: str) -> dict:
+    """Split the stopped cohort by whether the ₹10L CAPITAL book ever actually held the name.
+
+    Added 2026-09-26, after finding 0146. The closed-trade history is the UNCAPPED tracker's, so a
+    beyond-stop decomposition over it describes a book that holds no money. A funded name appears in
+    the capped snapshots strictly inside its [signal_date, close_date) window — half-open, because a
+    position is legitimately absent from the snapshot taken at its own close date (0146).
+    """
+    snaps = {}
+    for q in sorted(glob.glob(str(ROOT / "results" / "archive" / "*" / "paper_portfolio_weekly.json"))):
+        name = Path(q).parent.name
+        if "__rerun" in name or name > as_of:
+            continue                      # a rerun repeats its parent's as-of; it is not an observation
+        snaps[name] = set(brain_io.read_json(Path(q)).get("positions", {}))
+
+    groups: dict[str, list] = {"funded": [], "never_funded": [], "undetermined": []}
+    for tr in trades:
+        inside = [k for k in snaps if str(tr.signal_date)[:10] <= k < str(tr.close_date)[:10]]
+        if not inside:
+            groups["undetermined"].append(tr)
+        elif any(tr.ticker in snaps[k] for k in inside):
+            groups["funded"].append(tr)
+        else:
+            groups["never_funded"].append(tr)
+
+    def cell(rows: list) -> dict:
+        return {"n": len(rows), "tickers": [r.ticker for r in rows],
+                "realised_r": round(sum(r.r_multiple for r in rows), 3),
+                "beyond_stop_r": round(sum(r.beyond_stop_r for r in rows), 3)}
+
+    out = {k: cell(v) for k, v in groups.items()}
+    out["n_snapshots_used"] = len(snaps)
+    out["reading"] = ("beyond-stop slippage on the book that holds money is the `funded` row. The "
+                      "`never_funded` row belongs to the uncapped tracker and no rupee was exposed to "
+                      "it. Quoting the total without this split describes the wrong book (0146).")
+    return out
+
+
+def convention_divergence(trades: list) -> dict:
+    """Two committed decompositions of the same trades disagree, and neither says it is a convention.
+
+    `nq.brain.attribution.ClosedTrade.beyond_stop_r` is `r + 1` unconditionally, so a loss SHALLOWER
+    than the stop contributes a POSITIVE amount that nets against genuine overshoot, against a designed
+    loss of −1R per trade. `nq.brain.ledger.decompose_r` instead treats a shallower loss as simply a
+    shallower designed loss (`beyond_stop_r = 0`), so it counts adverse overshoot only.
+
+    Both are defensible and they answer slightly different questions. The point of reporting them side
+    by side is that a reader cannot currently tell which one a quoted figure used.
+    """
+    rs = [tr.r_multiple for tr in trades]
+    net = sum(r + 1.0 for r in rs)
+    adverse = sum(min(r + 1.0, 0.0) for r in rs)
+    return {
+        "attribution_nets_favourable_fills": {
+            "designed_r": round(-1.0 * len(rs), 3), "beyond_stop_r": round(net, 3),
+            "source": "nq/brain/attribution.py::ClosedTrade.beyond_stop_r"},
+        "ledger_counts_adverse_overshoot_only": {
+            "designed_r": round(sum(r if r >= -1 else -1.0 for r in rs), 3),
+            "beyond_stop_r": round(adverse, 3),
+            "source": "nq/brain/ledger.py::decompose_r"},
+        "difference_r": round(net - adverse, 3),
+        "what_the_difference_is": ("the favourable overshoots — trades that lost LESS than their stop "
+                                  "distance. One convention credits them against the overshoot; the "
+                                  "other does not treat them as overshoot at all."),
+    }
+
+
+def ledger_crosscheck(trades: list) -> dict:
+    """Per-trade agreement with `results/attribution_ledger.csv`, keyed on (ticker, signal_date).
+
+    Keying on ticker alone is wrong and it bit this study: GESHIP carries TWO ledger rows — a closed
+    trade and a later open re-entry — so a ticker-keyed lookup finds the blank open row and reports a
+    false MISSING.
+    """
+    path = ROOT / "results" / "attribution_ledger.csv"
+    if not path.is_file():
+        return {"available": False}
+    import csv as _csv
+    # Match on ticker among CLOSED rows. Keying on (ticker, signal_date) looks stricter and is in fact
+    # WRONG: signal dates are RESTATED between snapshots (results/archive/drift_log.jsonl), so an
+    # as-of-dated forensics row and the current ledger disagree about the date for the same trade —
+    # GESHIP reads 2026-07-27 here and 2026-07-24 there. Ticker alone was also wrong, because a name
+    # can re-enter and carry a second, still-open row. Closed-rows-by-ticker is the stable join, and
+    # the date disagreement is REPORTED rather than silently failing the match.
+    led: dict[str, list] = {}
+    with open(path, newline="", encoding="utf-8") as fh:
+        for row in _csv.DictReader(fh):
+            if str(row.get("state")) == "closed":
+                led.setdefault(row.get("ticker"), []).append(row)
+    rows, absent, restated = [], [], []
+    for tr in trades:
+        cands = led.get(tr.ticker, [])
+        if len(cands) != 1 or not cands[0].get("beyond_stop_r"):
+            absent.append({"ticker": tr.ticker, "closed_ledger_rows": len(cands)})
+            continue
+        r = cands[0]
+        if str(r.get("signal_date"))[:10] != str(tr.signal_date)[:10]:
+            restated.append({"ticker": tr.ticker, "forensics_signal_date": str(tr.signal_date)[:10],
+                             "ledger_signal_date": str(r.get("signal_date"))[:10]})
+        v = float(r["beyond_stop_r"])
+        rows.append({"ticker": tr.ticker, "forensics": round(tr.beyond_stop_r, 4), "ledger": v,
+                     "agrees": abs(v - tr.beyond_stop_r) < 0.02,
+                     "explained_by_convention": tr.beyond_stop_r > 0 and v == 0.0})
+    return {"available": True, "rows": rows, "absent": absent,
+            "signal_date_restated": restated,
+            "n_agree": sum(1 for r in rows if r["agrees"]),
+            "n_convention_only": sum(1 for r in rows if r["explained_by_convention"]),
+            "n_unexplained": sum(1 for r in rows if not r["agrees"]
+                                 and not r["explained_by_convention"])}
+
+
 def _closes(tickers: list[str], end: str) -> dict[str, pd.Series]:
     from nq.data.ohlcv import download_ohlcv
     from scripts.run_cpcv import build_universe
@@ -89,11 +200,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--as-of", required=True, help="archived snapshot date, e.g. 2026-09-04")
     ap.add_argument("--end", required=True, help="window end for still-open positions, YYYY-MM-DD")
     ap.add_argument("--offline", action="store_true", help="stop decomposition only; no price pull")
+    ap.add_argument("--out-date", help="write under this date instead of --as-of, so an earlier "
+                                       "run's committed record is not rewritten")
     args = ap.parse_args(argv)
     assert_completed_session(args.end)
 
     trades, open_cards, snap = _snapshot(args.as_of)
-    out = OUT_BASE / args.as_of
+    out = OUT_BASE / (args.out_date or args.as_of)
     out.mkdir(parents=True, exist_ok=True)
 
     decomp = A.stop_decomposition(trades)
@@ -103,7 +216,10 @@ def main(argv: list[str] | None = None) -> int:
                      "max_stop_disagreement": max(agreement.values()) if agreement else None,
                      "trades": [{"ticker": t.ticker, "r": t.r_multiple, "exit": t.exit_reason,
                                  "stop_source": t.stop_source, "beyond_stop_r": round(t.beyond_stop_r, 4)}
-                                for t in trades]}
+                                for t in trades],
+                     "funded_split": funded_split(trades, args.as_of),
+                     "convention_divergence": convention_divergence(trades),
+                     "ledger_crosscheck": ledger_crosscheck(trades)}
     print(f"stop decomposition: realised {decomp['realised_r']:+.2f}R = designed {decomp['designed_r']:+.2f}R "
           f"+ beyond-stop {decomp['beyond_stop_r']:+.2f}R  ({decomp['n_filled_beyond_stop']}/{decomp['n']} "
           f"filled past the stop; recorded-vs-implied stop max gap {summary['max_stop_disagreement']:.2%})")
