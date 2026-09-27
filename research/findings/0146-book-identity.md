@@ -250,3 +250,35 @@ The scan's book plumbing changes, or a gate's inputs change. Re-running this dia
 is the right check after any edit to `build_envelopes`, `_base_swing_record` or the scorecard's
 `_forward_metrics`. `tests/test_book_identity.py` pins the §4 two-book mismatch deliberately: when it is
 addressed, that assertion flips and someone has to acknowledge it in a diff.
+
+
+---
+
+## UPDATE — the 2026-09-26 scan (rerun 2026-09-27)
+
+Record: `diagnostics/research/book_identity/2026-09-27/summary.json`. **Nothing above this line has been
+edited** — it stands as measured on the 2026-09-18 artifacts. Every structural claim still holds: the two
+capped curves remain identical, `grading_bites` on the unsealed replay window remains true, every
+provenance mapping still agrees by value, and the §4 floor still reads two different books.
+
+What moved, and it matters four days before the review:
+
+| | as published (2026-09-18) | **2026-09-26 scan** |
+|---|---|---|
+| uncapped closed — the headline count | 11 | **13** |
+| capped closures (exact) | **1** | **2** |
+| realisation events | 5 | **6** |
+| NAV | ₹1,018,440 (**+1.84%**) | **₹993,531 (−0.65%)** |
+| implied realised (derived) | **+₹7,033** | **−₹6,102** |
+| Sharpe — the `KILL_SHARPE < 0` trigger | −0.1002 | **−0.7310** |
+| MaxDD | −6.7% | **−7.3%** |
+| capped positions | 6, incl. NESTLEIND | 6 — NESTLEIND out, APLAPOLLO in |
+
+**The book is now below water**, the capital book has a second closed trade (NESTLEIND), and the derived
+realised figure has crossed from positive to negative — so the reading "up in money" in this finding's
+own takeaway section is **no longer current**, though it was correct as dated.
+
+What does **not** change: the kill trigger's sign is still noise. SE(annualised Sharpe) on this sample is
+of order 2, against a programme resolution floor of ~0.6 Sharpe, so −0.73 is no more resolvable than
+−0.10 was. It reads worse; it is not more informative. And with 2 closed trades on the funded book, the
+≥30-closed precondition still makes expectancy and win rate uninformative on either book.

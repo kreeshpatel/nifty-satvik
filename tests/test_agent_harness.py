@@ -98,6 +98,24 @@ def _run(script: Path, event: dict, env_extra: dict | None = None) -> str:
         input=json.dumps(event), capture_output=True, text=True, timeout=60, env=env, check=False,
     )
     assert proc.returncode == 0, f"{script.name} exited {proc.returncode}: {proc.stderr}"
+    # A GOVERNANCE TEST MUST NOT BE AMBIGUOUS WHEN IT FAILS (2026-09-27).
+    # `test_sealed_judge_log_is_denied_for_reads_and_writes[Write]` failed once in a full-suite run
+    # that took 843s against a normal 343s, and passed in 8 consecutive isolated runs plus two earlier
+    # full suites. Under load on Windows a short-lived subprocess can fail to produce output, and an
+    # empty stdout is indistinguishable here from the guard deliberately ALLOWING the call — one is a
+    # flake, the other is a sealed-log breach, and they must never read the same.
+    #
+    # So: empty stdout with anything on stderr is reported as a spawn failure, by name. An empty
+    # stdout with a clean stderr still flows through as "allowed", because that is what the guard
+    # returns when it permits an action, and suppressing that would hide the breach this file exists
+    # to catch. The override is also echoed, since a leaked NQ_GOVERNANCE_OVERRIDE would allow
+    # everything and should be visible immediately rather than inferred.
+    if not proc.stdout.strip() and proc.stderr.strip():
+        override = env.get("NQ_GOVERNANCE_OVERRIDE")
+        raise AssertionError(
+            f"{script.name} produced no stdout but wrote to stderr — treat this as a SUBPROCESS "
+            f"failure, not as the guard allowing the action. "
+            f"NQ_GOVERNANCE_OVERRIDE={override!r}. stderr: {proc.stderr}")
     return proc.stdout
 
 

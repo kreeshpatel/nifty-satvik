@@ -1,0 +1,279 @@
+{
+  "as_of": "2026-09-25",
+  "snapshot": "results/archive/2026-09-25",
+  "stop_decomposition": {
+    "n": 13,
+    "realised_r": -18.669999999999998,
+    "designed_r": -13.0,
+    "beyond_stop_r": -5.669999999999998,
+    "n_filled_beyond_stop": 9,
+    "share_beyond_stop": 0.30369576861274766
+  },
+  "max_stop_disagreement": 0.019590568725255702,
+  "trades": [
+    {
+      "ticker": "CANFINHOME",
+      "r": -2.94,
+      "exit": "stop",
+      "stop_source": "recorded",
+      "beyond_stop_r": -1.94
+    },
+    {
+      "ticker": "GLENMARK",
+      "r": -0.93,
+      "exit": "stop",
+      "stop_source": "recorded",
+      "beyond_stop_r": 0.07
+    },
+    {
+      "ticker": "LINDEINDIA",
+      "r": -2.32,
+      "exit": "stop",
+      "stop_source": "recorded",
+      "beyond_stop_r": -1.32
+    },
+    {
+      "ticker": "NATCOPHARM",
+      "r": -0.95,
+      "exit": "sma_break",
+      "stop_source": "recorded",
+      "beyond_stop_r": 0.05
+    },
+    {
+      "ticker": "3MINDIA",
+      "r": -0.57,
+      "exit": "stop",
+      "stop_source": "recorded",
+      "beyond_stop_r": 0.43
+    },
+    {
+      "ticker": "DELHIVERY",
+      "r": -1.05,
+      "exit": "stop",
+      "stop_source": "recorded",
+      "beyond_stop_r": -0.05
+    },
+    {
+      "ticker": "GESHIP",
+      "r": -1.46,
+      "exit": "stop",
+      "stop_source": "recorded",
+      "beyond_stop_r": -0.46
+    },
+    {
+      "ticker": "NLCINDIA",
+      "r": -1.97,
+      "exit": "stop",
+      "stop_source": "recorded",
+      "beyond_stop_r": -0.97
+    },
+    {
+      "ticker": "CCL",
+      "r": -2.18,
+      "exit": "stop",
+      "stop_source": "recorded",
+      "beyond_stop_r": -1.18
+    },
+    {
+      "ticker": "BIOCON",
+      "r": -1.16,
+      "exit": "stop",
+      "stop_source": "recorded",
+      "beyond_stop_r": -0.16
+    },
+    {
+      "ticker": "HINDZINC",
+      "r": -1.65,
+      "exit": "stop",
+      "stop_source": "recorded",
+      "beyond_stop_r": -0.65
+    },
+    {
+      "ticker": "MRPL",
+      "r": -0.29,
+      "exit": "sma_break",
+      "stop_source": "recorded",
+      "beyond_stop_r": 0.71
+    },
+    {
+      "ticker": "NESTLEIND",
+      "r": -1.2,
+      "exit": "stop",
+      "stop_source": "recorded",
+      "beyond_stop_r": -0.2
+    }
+  ],
+  "funded_split": {
+    "funded": {
+      "n": 2,
+      "tickers": [
+        "DELHIVERY",
+        "NESTLEIND"
+      ],
+      "realised_r": -2.25,
+      "beyond_stop_r": -0.25
+    },
+    "never_funded": {
+      "n": 11,
+      "tickers": [
+        "CANFINHOME",
+        "GLENMARK",
+        "LINDEINDIA",
+        "NATCOPHARM",
+        "3MINDIA",
+        "GESHIP",
+        "NLCINDIA",
+        "CCL",
+        "BIOCON",
+        "HINDZINC",
+        "MRPL"
+      ],
+      "realised_r": -16.42,
+      "beyond_stop_r": -5.42
+    },
+    "undetermined": {
+      "n": 0,
+      "tickers": [],
+      "realised_r": 0,
+      "beyond_stop_r": 0
+    },
+    "n_snapshots_used": 13,
+    "reading": "beyond-stop slippage on the book that holds money is the `funded` row. The `never_funded` row belongs to the uncapped tracker and no rupee was exposed to it. Quoting the total without this split describes the wrong book (0146)."
+  },
+  "convention_divergence": {
+    "attribution_nets_favourable_fills": {
+      "designed_r": -13.0,
+      "beyond_stop_r": -5.67,
+      "source": "nq/brain/attribution.py::ClosedTrade.beyond_stop_r"
+    },
+    "ledger_counts_adverse_overshoot_only": {
+      "designed_r": -11.74,
+      "beyond_stop_r": -6.93,
+      "source": "nq/brain/ledger.py::decompose_r"
+    },
+    "difference_r": 1.26,
+    "what_the_difference_is": "the favourable overshoots \u2014 trades that lost LESS than their stop distance. One convention credits them against the overshoot; the other does not treat them as overshoot at all."
+  },
+  "ledger_crosscheck": {
+    "available": true,
+    "rows": [
+      {
+        "ticker": "CANFINHOME",
+        "forensics": -1.94,
+        "ledger": -1.94,
+        "agrees": true,
+        "explained_by_convention": false
+      },
+      {
+        "ticker": "GLENMARK",
+        "forensics": 0.07,
+        "ledger": 0.0,
+        "agrees": false,
+        "explained_by_convention": true
+      },
+      {
+        "ticker": "LINDEINDIA",
+        "forensics": -1.32,
+        "ledger": -1.32,
+        "agrees": true,
+        "explained_by_convention": false
+      },
+      {
+        "ticker": "NATCOPHARM",
+        "forensics": 0.05,
+        "ledger": 0.0,
+        "agrees": false,
+        "explained_by_convention": true
+      },
+      {
+        "ticker": "3MINDIA",
+        "forensics": 0.43,
+        "ledger": 0.0,
+        "agrees": false,
+        "explained_by_convention": true
+      },
+      {
+        "ticker": "DELHIVERY",
+        "forensics": -0.05,
+        "ledger": -0.05,
+        "agrees": true,
+        "explained_by_convention": false
+      },
+      {
+        "ticker": "GESHIP",
+        "forensics": -0.46,
+        "ledger": -0.46,
+        "agrees": true,
+        "explained_by_convention": false
+      },
+      {
+        "ticker": "NLCINDIA",
+        "forensics": -0.97,
+        "ledger": -0.97,
+        "agrees": true,
+        "explained_by_convention": false
+      },
+      {
+        "ticker": "CCL",
+        "forensics": -1.18,
+        "ledger": -1.18,
+        "agrees": true,
+        "explained_by_convention": false
+      },
+      {
+        "ticker": "BIOCON",
+        "forensics": -0.16,
+        "ledger": -0.16,
+        "agrees": true,
+        "explained_by_convention": false
+      },
+      {
+        "ticker": "HINDZINC",
+        "forensics": -0.65,
+        "ledger": -0.65,
+        "agrees": true,
+        "explained_by_convention": false
+      },
+      {
+        "ticker": "MRPL",
+        "forensics": 0.71,
+        "ledger": 0.0,
+        "agrees": false,
+        "explained_by_convention": true
+      },
+      {
+        "ticker": "NESTLEIND",
+        "forensics": -0.2,
+        "ledger": -0.2,
+        "agrees": true,
+        "explained_by_convention": false
+      }
+    ],
+    "absent": [],
+    "signal_date_restated": [
+      {
+        "ticker": "3MINDIA",
+        "forensics_signal_date": "2026-07-27",
+        "ledger_signal_date": "2026-07-24"
+      },
+      {
+        "ticker": "GESHIP",
+        "forensics_signal_date": "2026-07-27",
+        "ledger_signal_date": "2026-07-24"
+      },
+      {
+        "ticker": "CCL",
+        "forensics_signal_date": "2026-08-17",
+        "ledger_signal_date": "2026-08-14"
+      },
+      {
+        "ticker": "HINDZINC",
+        "forensics_signal_date": "2026-08-31",
+        "ledger_signal_date": "2026-08-28"
+      }
+    ],
+    "n_agree": 9,
+    "n_convention_only": 4,
+    "n_unexplained": 0
+  }
+}
