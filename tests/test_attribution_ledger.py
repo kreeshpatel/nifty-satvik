@@ -223,3 +223,86 @@ def test_states_partition_the_ledger(built):
     assert set(built["state"]) <= {"closed", "open", "not_entered"}
     assert (built[built["state"] == "closed"]["exit_reason"].notna()).all()
     assert (built[built["state"] == "open"]["bought_date"].notna()).all()
+
+
+# ---------------------------------------------------------- the excursion fallback (A3, 2026-09-27)
+def test_the_weekly_mark_fallback_reproduces_a_known_path():
+    """A fixture path with hand-computable answers, so the fallback is pinned to arithmetic.
+
+    entry 100, stop 90 -> risk 10. Path dips to 94 and peaks at 130, exits at 120:
+    MAE = (94-100)/10 = -0.6, MFE = (130-100)/10 = +3.0, capture = r/MFE.
+    """
+    path = [100.0, 94.0, 130.0, 120.0]
+    out = L.excursions_r(path, path, entry=100.0, stop=90.0)
+    assert out["mae_r"] == pytest.approx(-0.6)
+    assert out["mfe_r"] == pytest.approx(3.0)
+    # capture_of_mfe rounds to 4dp, so compare at that precision rather than to full float
+    assert L.capture_of_mfe(2.0, out["mfe_r"]) == pytest.approx(2.0 / 3.0, abs=5e-5)
+
+
+def test_the_entry_belongs_in_the_path():
+    """Without the entry print, a trade that only ever went up reports no MAE at all — and 0.0 is the
+    truthful MAE there, not a missing measurement."""
+    without = L.excursions_r([110.0, 130.0], [110.0, 130.0], entry=100.0, stop=90.0)
+    with_entry = L.excursions_r([100.0, 110.0, 130.0], [100.0, 110.0, 130.0], entry=100.0, stop=90.0)
+    assert without["mae_r"] == pytest.approx(1.0)      # wrong: implies it never traded at entry
+    assert with_entry["mae_r"] == pytest.approx(0.0)   # right
+
+
+def test_weekly_marks_understate_the_true_excursion():
+    """The declared direction of the fallback's error: bounded by the truth, never beyond it."""
+    daily_hl_low, daily_hl_high = 80.0, 150.0        # intra-week extremes
+    marks = [100.0, 95.0, 140.0, 120.0]              # weekly closes miss both
+    coarse = L.excursions_r(marks, marks, entry=100.0, stop=90.0)
+    fine = L.excursions_r([daily_hl_high], [daily_hl_low], entry=100.0, stop=90.0)
+    assert coarse["mae_r"] > fine["mae_r"], "a weekly MAE must be no worse than the daily truth"
+    assert coarse["mfe_r"] < fine["mfe_r"], "a weekly MFE must be no better than the daily truth"
+
+
+def test_snapshot_marks_skip_reruns_and_carry_one_print_per_as_of(tmp_path, monkeypatch):
+    import json as _json
+    monkeypatch.setattr(C, "ROOT", tmp_path)
+    for name, px in (("2026-07-24", 100.0), ("2026-07-24__rerun-20260804T215840Z", 100.0),
+                     ("2026-07-31", 110.0)):
+        d = tmp_path / "results" / "archive" / name
+        d.mkdir(parents=True, exist_ok=True)
+        (d / "paper_portfolio_weekly.json").write_text(
+            _json.dumps({"positions": {"AAA": {"current_price": px}}}), encoding="utf-8")
+    marks = C._snapshot_marks()
+    assert list(marks["AAA"].to_numpy()) == [100.0, 110.0], "a rerun is not an additional print"
+
+
+def test_a_closed_trade_the_book_held_without_excursions_is_a_DEFECT(built):
+    """The whole point of A3: this may never be silently null again.
+
+    A closed row with committed marks (`mark_prints > 0`) and no `mae_r` fails --validate. A closed row
+    the capital book never funded has no committed basis and is a NOTE, not a defect (0146: the closed
+    history is the uncapped tracker's).
+    """
+    df = built.copy()
+    closed = df[df["exit_reason"].notna()]
+    held = closed[closed["mark_prints"].fillna(0) > 0]
+    assert len(held), "fixture has no funded closure — this test would be vacuous"
+    assert held["mae_r"].notna().all(), "a held closure is missing its excursion"
+    assert not C.holes(df), C.holes(df)
+
+    broken = df.copy()
+    broken.loc[held.index[0], "mae_r"] = np.nan
+    problems = C.holes(broken)
+    assert any("no excursion measurement" in p for p in problems), problems
+
+
+def test_an_unfunded_closure_is_a_note_not_a_hole(built):
+    df = built.copy()
+    closed = df[df["exit_reason"].notna()]
+    unheld = closed[closed["mark_prints"].fillna(0) == 0]
+    if not len(unheld):
+        pytest.skip("every closed trade was funded in this snapshot")
+    assert unheld["mae_r"].isna().all()
+    assert any("no committed price basis" in n for n in C.notes(df))
+    assert not any("excursion" in p for p in C.holes(df))
+
+
+def test_the_index_column_is_a_declared_hole_not_a_silent_null():
+    assert "nifty_same_window_pct" in C.DECLARED_HOLES
+    assert "2026-07-03" in C.DECLARED_HOLES["nifty_same_window_pct"]

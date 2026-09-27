@@ -12,8 +12,13 @@ Sources — all immutable or append-only, nothing re-derived from a mutable work
   * context at signal   <- results/archive/YYYY-MM-DD/signals_today_weekly.json (first appearance)
   * fills / shares      <- results/archive/YYYY-MM-DD/paper_portfolio_weekly.json
   * outcome             <- results/signals_history_weekly.json
-  * excursions          <- the OHLCV cache (best effort; null when bars do not cover the window)
-  * index control       <- the Nifty-50 CSV the book itself uses
+  * excursions          <- the OHLCV cache's daily High/Low when it covers the window, else the
+                           archived weekly marks. `excursion_basis` says which, because a weekly mark
+                           cannot see the intra-week extreme and so UNDERSTATES MAE and MFE. A closed
+                           trade the book HELD and still cannot measure is a defect, not a coverage
+                           limit (it has committed marks) — see holes().
+  * index control       <- the Nifty-50 CSV the book itself uses, which the cron refreshes at runtime;
+                           the committed copy ends before inception, so this is a declared hole here
 
 Deterministic: the whole table is rebuilt from the archives every run, so it holds no editable state
 and a rerun is a no-op. Rows are labelled `provenance = reconstructed` when they were rebuilt from
@@ -73,6 +78,11 @@ DECLARED_HOLES: dict[str, str] = {
                          "engine to emit them (06_habit_ledger_spec.md §1.3).",
     "cash_at_signal / slots_free": "The envelope carries book-level cash, not the cash and free seats at "
                                    "the moment each card was funded.",
+    "nifty_same_window_pct": "No COMMITTED index series covers the live book: the index CSV ends "
+                             "2026-07-03 against a first trade on 2026-07-06, and window_pct correctly "
+                             "refuses an uncovered window rather than returning a confident 0.0%. The "
+                             "weekly cron refreshes the CSV at runtime, so this populates in CI when the "
+                             "refresh lands before the collector; it cannot be filled from the repo.",
 }
 
 
@@ -134,6 +144,36 @@ def _prices() -> dict[str, pd.DataFrame]:
         return {}
 
 
+def _snapshot_marks() -> dict[str, pd.Series]:
+    """Per-ticker weekly mark series from the archived snapshots — a COMMITTED price fallback.
+
+    Why this exists (2026-09-27). All four excursion columns were null on every row, and the cause was
+    not a swallowed exception: both price sources end before the book's inception. The local OHLCV cache
+    stops at 2026-06-29 and the committed index CSV at 2026-07-03, against a first trade on 2026-07-06,
+    so the daily-bar window selected zero rows and MAE/MFE stayed None while reading as "best effort".
+
+    These marks are `positions[ticker].current_price`, one print per weekly snapshot. They are a WEAKER
+    instrument than daily bars and the rows built from them say so in `excursion_basis`: a weekly mark
+    cannot see the intra-week extreme, so MAE and MFE computed this way are **understatements** —
+    bounded by the true excursion, never beyond it. That direction is the safe one for a drawdown
+    statistic, and it is stated rather than assumed.
+    """
+    marks: dict[str, dict] = {}
+    for q in sorted(glob.glob(str(ROOT / "results" / "archive" / "*" / "paper_portfolio_weekly.json"))):
+        name = Path(q).parent.name
+        if "__rerun" in name:
+            continue                      # a rerun repeats its parent's as-of; it is not a new print
+        try:
+            pos = json.loads(Path(q).read_text(encoding="utf-8")).get("positions", {})
+        except Exception:                 # noqa: BLE001 — a malformed snapshot must not kill the ledger
+            continue
+        for tkr, v in pos.items():
+            px_ = v.get("current_price")
+            if px_ is not None:
+                marks.setdefault(tkr, {})[pd.Timestamp(name)] = float(px_)
+    return {tkr: pd.Series(d).sort_index() for tkr, d in marks.items() if d}
+
+
 def _index() -> pd.Series:
     try:
         import run_bhanushali_weekly_crs as CRS
@@ -149,6 +189,7 @@ def build() -> pd.DataFrame:
     seen = L.first_seen(snaps, CONTEXT_FIELDS)
     episodes = L.collapse_episodes(seen, CONTEXT_FIELDS)
     outs, pos, px, idx = _outcomes(), _positions(), _prices(), _index()
+    marks = _snapshot_marks()
 
     rows = []
     for (tkr, sig), ctx in sorted(episodes.items()):
@@ -168,6 +209,7 @@ def build() -> pd.DataFrame:
             **L.decompose_r(o.get("r_multiple")),
             # Always present, so the schema does not depend on how fresh the price cache happens to be.
             "mae_r": None, "mfe_r": None, "capture_of_mfe": None, "nifty_same_window_pct": None,
+            "excursion_basis": None, "mark_prints": 0,
         }
         # The denominator R was measured against, and how far the card's stop is from it. The card and
         # the engine are different sources; where they disagree, the ENGINE basis is the one that makes
@@ -191,6 +233,22 @@ def build() -> pd.DataFrame:
                    & (pd.DatetimeIndex(df.index) <= pd.Timestamp(end))]
             if len(w):
                 row.update(L.excursions_r(w["High"], w["Low"], entry=float(entry), stop=float(stop)))
+                row["excursion_basis"] = "daily_hl"
+        # Fallback: the archived weekly marks, which are committed and therefore always available for a
+        # trade the book actually held. Only when the daily bars did not cover the window.
+        if row["mae_r"] is None and entry and stop and end:
+            m = marks.get(tkr)
+            if m is not None and len(m):
+                w = m[(m.index >= pd.Timestamp(start)) & (m.index <= pd.Timestamp(end))]
+                # the entry and the exit are known realised prices and belong in the path; without the
+                # entry a trade that only ever went favourable would report no MAE at all
+                path = [float(entry)] + [float(v) for v in w.to_numpy()]
+                if o.get("close_price") is not None:
+                    path.append(float(o["close_price"]))
+                row["mark_prints"] = int(len(w))
+                if len(path) > 1:
+                    row.update(L.excursions_r(path, path, entry=float(entry), stop=float(stop)))
+                    row["excursion_basis"] = "weekly_marks"
         row["capture_of_mfe"] = L.capture_of_mfe(o.get("r_multiple"), row.get("mfe_r"))
         if len(idx) and end:
             row["nifty_same_window_pct"] = L.window_pct(idx, start, end)
@@ -224,6 +282,19 @@ def holes(df: pd.DataFrame) -> list[str]:
         n = int(closed["r_multiple"].isna().sum())
         if n:
             out.append(f"{n} closed trade(s) with no r_multiple")
+        # EXCURSIONS ARE NO LONGER ALLOWED TO BE SILENTLY NULL (2026-09-27).
+        # Every one of these columns read null on every row for weeks while the run printed
+        # "excursions 0/46 (price-cache depth)" as if that were a property of the cache rather than a
+        # missing measurement. A closed trade the book actually HELD has committed weekly marks, so a
+        # null there is a defect and fails --validate. A closed trade the book never funded has no
+        # committed price basis at all (0146: the closed history is the uncapped tracker's), which is a
+        # stated condition, not a defect — see notes().
+        if "mark_prints" in closed:
+            held = closed[closed["mark_prints"].fillna(0) > 0]
+            n = int(held["mae_r"].isna().sum()) if len(held) else 0
+            if n:
+                out.append(f"{n} closed trade(s) the book HELD but with no excursion measurement — "
+                           f"weekly marks exist for them, so this is a defect, not a coverage limit")
     return out
 
 
@@ -236,6 +307,17 @@ def notes(df: pd.DataFrame) -> list[str]:
         n = int((df["state"] == "not_entered").sum())
         if n:
             out.append(f"{n} card(s) never filled — issued, never bought, so they carry no outcome")
+    if "mark_prints" in df and "exit_reason" in df:
+        closed = df[df["exit_reason"].notna()]
+        unheld = closed[closed["mark_prints"].fillna(0) == 0]
+        if len(unheld):
+            out.append(f"{len(unheld)} closed trade(s) with no committed price basis for excursions — "
+                       f"the capital book never funded them, so no archived mark exists "
+                       f"({', '.join(sorted(unheld['ticker'].astype(str)))})")
+        by_basis = df["excursion_basis"].value_counts(dropna=True).to_dict() if "excursion_basis" in df else {}
+        if by_basis:
+            out.append("excursion basis: " + ", ".join(f"{k}={v}" for k, v in sorted(by_basis.items()))
+                       + " — weekly marks cannot see the intra-week extreme and UNDERSTATE MAE/MFE")
     wide = df[df["width_gap_pct"].notna() & (df["width_gap_pct"] > 5.0)]
     if len(wide):
         out.append(f"{len(wide)} trade(s) where the card's stop width disagrees with the engine's by >5% "
@@ -255,7 +337,7 @@ def main(argv: list[str] | None = None) -> int:
     exc = int(df["mae_r"].notna().sum()) if len(df) else 0
     print(f"attribution ledger: {len(df)} trades ({n_closed} closed) | "
           f"reconstructed {int((df['provenance'] == 'reconstructed').sum()) if len(df) else 0} | "
-          f"excursions {exc}/{len(df)} (price-cache depth) | declared holes {len(DECLARED_HOLES)}")
+          f"excursions {exc}/{n_closed} closed | declared holes {len(DECLARED_HOLES)}")
     for r in remarks:
         print(f"  note: {r}")
     for p in problems:
