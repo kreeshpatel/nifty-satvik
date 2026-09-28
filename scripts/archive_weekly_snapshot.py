@@ -169,6 +169,22 @@ def latest_snapshot(exclude: str | None = None) -> Path | None:
     return dirs[-1] if dirs else None
 
 
+# D8: a Saturday that did not run is healed on the next run with modeled fills the owner never saw, and
+# nothing distinguished that week from one they could actually have traded. The cadence is 7 days; 8 gives
+# a day of slack for a late run without admitting a skipped week (oct1_binder_decisions.md §4, D8).
+BACKFILL_GAP_DAYS = 8
+
+
+def _gap_days(prev_as_of: str | None, as_of: str) -> int | None:
+    """Calendar days between a snapshot and its predecessor, or None when either date is unreadable."""
+    try:
+        a = datetime.fromisoformat(str(prev_as_of)[:10])
+        b = datetime.fromisoformat(str(as_of)[:10])
+    except (TypeError, ValueError):
+        return None
+    return (b - a).days
+
+
 def archive(results_dir: Path = RESULTS_DIR, *, baseline: bool = False) -> dict:
     env = _read_json(results_dir / "signals_today_weekly.json", {})
     as_of = env.get("generated_at") or datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -191,10 +207,23 @@ def archive(results_dir: Path = RESULTS_DIR, *, baseline: bool = False) -> dict:
     (dest / "input_fingerprint.json").write_text(
         json.dumps(input_fingerprint(results_dir), indent=2, sort_keys=True, default=str) + "\n",
         encoding="utf-8")
+    # D8: the predecessor's own as-of, taken from its directory name (a rerun suffix is stripped, since
+    # a rerun is the same week and must not read as a 0-day gap).
+    _prev_as_of = prev.name.split("__rerun-")[0] if prev else None
+    _gap = _gap_days(_prev_as_of, as_of)
+    _backfilled = bool(_gap is not None and _gap > BACKFILL_GAP_DAYS)
     (dest / "snapshot_meta.json").write_text(json.dumps({
         "as_of": as_of, "archived_utc": datetime.now(timezone.utc).isoformat(),
         "files": copied, "is_rerun_of_existing_as_of": rerun,
         "is_baseline": bool(baseline),
+        # D8 — was this week reachable by the owner, or healed after a missed Saturday?
+        "prev_as_of": _prev_as_of, "gap_days": _gap,
+        "backfilled": _backfilled, "backfill_gap_days": BACKFILL_GAP_DAYS,
+        "backfilled_note": ("a gap wider than the cadence means the previous Saturday did not land, so "
+                            "this snapshot contains fills the owner could not have taken. A gate that "
+                            "reads the forward record should be able to EXCLUDE such a week; nothing "
+                            "here excludes it, the flag only makes it visible."
+                            if _backfilled else None),
         "note": ("Immutable snapshot of the weekly-swing forward record (constitution D2). The "
                  "working copy in results/ is recomputed from inception every Saturday and is "
                  "therefore mutable; THIS is the artifact the Oct-1 gates should read."),
@@ -205,6 +234,9 @@ def archive(results_dir: Path = RESULTS_DIR, *, baseline: bool = False) -> dict:
         "note": "first snapshot — no predecessor to diff against",
     }
     d["as_of"] = as_of
+    d["prev_as_of"] = _prev_as_of
+    d["gap_days"] = _gap
+    d["backfilled"] = _backfilled
     d["logged_utc"] = datetime.now(timezone.utc).isoformat()
     d["is_baseline"] = bool(baseline)
     with open(DRIFT_LOG, "a", encoding="utf-8") as f:
