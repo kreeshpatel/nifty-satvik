@@ -105,14 +105,16 @@ Written by the daily monitor (weekdays 16:15 IST).
 | `ticker` | buy,hold,missed_exits | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
 | `today_open` | buy | · | · | · | · | · | · | · | · | · | **0** |
 | `tranches` | hold | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
+| `window_basis` | buy | · | · | · | · | · | · | · | · | · | **0** |
 | `window_filled` | buy | · | · | · | · | · | ✓ | · | · | · | **1** |
 
-**Unread by decision (4)**
+**Unread by decision (5)**
 
 - `implied_trail_sma20` — The producer marks it NOT an active level — the ratchet trail only moves at the weekly close. Showing a level the engine will not act on until Saturday invites acting on it.
 - `plan_tags` — A second, LOSSIER phrasing of `exit_plan.tranches[].do`, which CasePanel already prints verbatim. The tag reads 'Hold 20% runner to the 44w-SMA 897.65'; the `do` reads 'Exit only on a weekly CLOSE below the 44-week SMA'. Dropping the weekly-close condition changes the rule from a close to a touch. Two phrasings of one instruction, and only one of them was backtested.
 - `sma20` — Raw input to implied_trail_sma20 above; carries no instruction of its own.
 - `today_open` — Engine input to window_filled. The reader-facing fact it supports — 'Filled Mon, 24 Aug at 1,298.00' — is already on the row, priced and dated.
+- `window_basis` — Provenance for `buy_window_open`, added with B-4 (2026-09-28): the date the window was compared against, the feed's own as-of, and whether the feed is behind. Deliberately not a surface field — a reader does not act on it, and printing a second date beside the window invites reading the FEED's date as the window's. It exists so that a window reading 'open' against today while the data is days stale is diagnosable from the artifact rather than from the operator's memory, which is the failure B-4 fixed.
 
 ## Alias hazards
 

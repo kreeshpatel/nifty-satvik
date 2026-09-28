@@ -101,6 +101,13 @@ INTENTIONALLY_UNREAD: dict[str, str] = {
     "today_open":
         "Engine input to window_filled. The reader-facing fact it supports — 'Filled Mon, 24 Aug "
         "at 1,298.00' — is already on the row, priced and dated.",
+    "window_basis":
+        "Provenance for `buy_window_open`, added with B-4 (2026-09-28): the date the window was "
+        "compared against, the feed's own as-of, and whether the feed is behind. Deliberately not a "
+        "surface field — a reader does not act on it, and printing a second date beside the window "
+        "invites reading the FEED's date as the window's. It exists so that a window reading 'open' "
+        "against today while the data is days stale is diagnosable from the artifact rather than "
+        "from the operator's memory, which is the failure B-4 fixed.",
 }
 
 # Fields that carry a calendar DATE with no time and no zone. `new Date('YYYY-MM-DD')` is UTC
