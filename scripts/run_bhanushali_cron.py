@@ -974,6 +974,45 @@ def _base_swing_record(out: dict, ledger: list, inception: str, generated_at: st
     }
 
 
+def _write_brain_logs(plog: list, elog: list, generated_at: str, sd: Path) -> None:
+    """Persist what the capital book HELD each session, and what was DONE to it.
+
+    The engine gained `position_log` (881a5ec) and `event_log` (c361272) and NOTHING PASSED EITHER, so
+    both were capability with no data: the hooks existed, the weekly scan never used them, and every
+    Saturday that passed was a week of holdings and management history permanently lost. That is the
+    same argument that put the SMA panel's accumulation ahead of the review, and it applies harder here
+    — a weekly position snapshot cannot be differentiated back into events, because by the next Saturday
+    the fraction and the fill price are gone.
+
+    Both are DETERMINISTIC FULL REBUILDS, not append-only logs: the cron recomputes the book from
+    inception every run, so the correct shape is a file that is rewritten and must be byte-reproducible,
+    like `curve` and the attribution ledger. A hash chain would be wrong here — chains are for things
+    that cannot be re-derived.
+
+    Written even when EMPTY, with the header, so "no events this week" is visible as a fact rather than
+    inferred from a missing file.
+    """
+    out = sd / "brain"
+    out.mkdir(parents=True, exist_ok=True)
+
+    pos = pd.DataFrame(plog, columns=["date", "tkr", "shares", "mark_px", "notional", "marked_absent",
+                                      "entry", "stop", "risk0", "cash", "equity"])
+    if len(pos):
+        pos.insert(0, "as_of", generated_at)
+    pos.to_csv(out / "position_log.csv.gz", index=False, compression="gzip")
+
+    ev_path = out / "management_events.jsonl"
+    with open(ev_path, "w", encoding="utf-8", newline="\n") as fh:
+        for row in elog:
+            fh.write(json.dumps({"as_of": generated_at, **row}, sort_keys=True, default=str) + "\n")
+
+    kinds: dict[str, int] = {}
+    for row in elog:
+        kinds[row.get("event_type", "?")] = kinds.get(row.get("event_type", "?"), 0) + 1
+    print(f"brain logs: {len(pos)} position-day rows, {len(elog)} management event(s) "
+          f"({', '.join(f'{k}={v}' for k, v in sorted(kinds.items())) or 'none'}) -> {out}", flush=True)
+
+
 def _write_sma_panel(P: dict, a_set, generated_at: str, sd: Path) -> None:
     """Per-stock 44-week-SMA AUDIT PANEL for the latest completed week (transparency, not an input).
 
@@ -1076,9 +1115,15 @@ def main(argv=None) -> int:
     ca_hold = dict(LIVE_CA_HOLD, ca_reviewed=load_ca_reviews())
     # ── ₹10L paper book — realistic capital sim (A-only), kept for the NAV/equity portfolio.
     led_paper: list = []
+    # The CAPITAL book is the one whose holdings and management events are worth recording: it is the
+    # book that would hold real positions (0146). Both logs are OBSERVATION ONLY — the engine appends to
+    # these lists and never reads them back — and both are rebuilt from inception every run, exactly like
+    # the curve, so they are deterministic rather than append-only.
+    plog: list = []
+    elog: list = []
     out_paper = R94.backtest(P, mem, ledger=led_paper, start=args.start, return_state=True, a_grade=a_set,
                              **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS, demerger_events=ca_events,
-                             **ca_hold)
+                             **ca_hold, position_log=plog, event_log=elog)
     # ── UNCAPPED signal ledger — every A signal tracked (cash never runs out), so a name is followed
     #    week to week regardless of what ₹10L could afford. This drives the SIGNALS page.
     led_all: list = []
@@ -1119,6 +1164,7 @@ def main(argv=None) -> int:
         json.dumps(_base_swing_record(out_base, led_base, args.start, generated_at),
                    indent=2, default=str), encoding="utf-8")
     _write_sma_panel(P, a_set, generated_at, sd)
+    _write_brain_logs(plog, elog, generated_at, sd)
 
     # DECISION MEMOS (operating layer, forward_plan Tier-3): one auditable setup/strength/risk/plan/status
     # memo per signal with an APPROVED/WATCHLIST/REJECTED stamp, so the owner's manual call is logged against

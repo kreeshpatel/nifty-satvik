@@ -46,6 +46,14 @@ def _results(tmp_path: Path, as_of: str, blend: str | None, breadth: str | None,
     if breadth is not None:
         (r / "breadth50_forward.json").write_text(
             json.dumps({"asof": breadth, "n_points": 5}), encoding="utf-8")
+    # The capital book's two streams, added to the checker on 2026-09-28. A fixture that omits them
+    # reports them MISSING and drowns the assertion each test is actually making.
+    import gzip
+    (r / "brain").mkdir(parents=True, exist_ok=True)
+    with gzip.open(r / "brain" / "position_log.csv.gz", "wt", encoding="utf-8", newline="\n") as fh:
+        fh.write(f"as_of,tkr\n{as_of},AAA\n")
+    (r / "brain" / "management_events.jsonl").write_text(
+        json.dumps({"as_of": as_of}) + "\n", encoding="utf-8")
     header = "ticker,signal_date\n"
     body = "".join(f"T{i},2026-09-25\n" for i in range(rows))
     (r / "signal_quality_forward.csv").write_text(header + body, encoding="utf-8")

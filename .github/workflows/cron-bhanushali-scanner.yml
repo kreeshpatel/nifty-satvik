@@ -187,6 +187,8 @@ jobs:
           need results/base_swing_forward.json   # prereg_swing §4 comparator; §3 forbids backfilling a missed week
           opt results/judge_log.jsonl
           opt results/cards_archive.jsonl
+          need results/brain/position_log.csv.gz        # the capital book's holdings; unrecoverable if missed
+          need results/brain/management_events.jsonl    # tranches/ratchets/halts; a snapshot cannot rebuild them
           opt results/brain                      # the Saturday post-mortem page (B4); reporting only
           opt results/signal_analytics_weekly.json
           opt results/decision_memos_weekly.json
