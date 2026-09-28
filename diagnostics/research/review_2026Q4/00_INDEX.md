@@ -7,6 +7,7 @@ Sections (criteria are VERBATIM transcriptions from the source docs; evidence sl
 4. 04_breadth50_proposal.md — the watched-pair amendment ask (feasibility memo §3)
 5. 05_capstone_carryforward.md — external-data campaign synthesis (capstone memo)
 6. 06_habit_ledger_spec.md — forward memory layer, DESIGN SPEC ONLY (owner approve/decline; build is a separate cfg-gated session)
+8. 08_heg_demerger_decision.md — HEG's demerger `convention` (§10 + its 2026-09-09 addendum), ASSEMBLED NOT DECIDED (2026-09-27). Three columns, not two: back-adjust / leave-the-cliff / **represent the spun shares (B′, which is what the book already does)**. The addendum's framing is stale in three places — the book DOES now represent the spun value, no ≈6R exit was booked (+0.7216R credited, HEG still open), and the false STOP_BREACH is resolved. What still stands: `adjustment_guard`'s probe reference ends 2026-06-24, so it is blind to this class. Zero trials, zero screens.
 9. 09_category_a_reexamination.md — the closed-verdict re-examination campaign (Find-Its-Home): ALL 13 Category-A signals placed (campaign complete) — 3 homes (delivery→breadth-50; low-vol→live at 0.60; residual-momentum→live wall veto) and 10 closed. Conclusion: the current book is fully optimized; the only remaining home is the breadth-50 second book, so §4 is the lever that unlocks it. Feeds §4 — the homes converge on the second book shape. Zero trials, zero new screens spent.
 
 Standing counts at binder creation: screens 11 · sealed opens 1 · n_trials 138.
