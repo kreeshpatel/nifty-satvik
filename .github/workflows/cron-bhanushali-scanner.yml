@@ -156,6 +156,15 @@ jobs:
         # rebuild from the immutable archives; non-fatal (a miss just skips this week's table refresh).
         run: python scripts/collect_signal_quality_forward.py
           || echo "::warning::signal-quality collector FAILED (exit $?) - forward table not refreshed this week"
+      - name: Render the Saturday post-mortem (B4)
+        # Runs LAST among the readers: it consumes the artifacts every earlier step wrote (scorecard,
+        # attribution ledger, the book-identity and stop-forensics summaries) and computes nothing of
+        # its own. Deterministic and offline — no model call, so it cannot cost anything or drift.
+        # Non-fatal ON PURPOSE and unusually so: a REPORTING page must never fail the scan that
+        # produced the numbers it reports. Its absence is caught by the output contract instead, where
+        # it is conditional for the same reason.
+        run: python scripts/render_weekly_postmortem.py
+          || echo "::warning::post-mortem render FAILED (exit $?) - this week's page not written"
       - name: Commit weekly paper state
         run: |
           # Author with the owner's GitHub-matched email so Vercel (auto-deploys main) doesn't
@@ -178,6 +187,7 @@ jobs:
           need results/base_swing_forward.json   # prereg_swing §4 comparator; §3 forbids backfilling a missed week
           opt results/judge_log.jsonl
           opt results/cards_archive.jsonl
+          opt results/brain                      # the Saturday post-mortem page (B4); reporting only
           opt results/signal_analytics_weekly.json
           opt results/decision_memos_weekly.json
           opt results/decision_memos_weekly.md

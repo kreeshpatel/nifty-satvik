@@ -142,6 +142,10 @@ results/*
 # has already been bitten by seven times.
 !results/sma_panel
 !results/sma_panel/*.csv
+# The Saturday post-mortem pages (B4). results/brain/ is new, so it needs the same whitelist the
+# ignore trap has cost this repo eight times — the last one caught by a test two commits ago.
+!results/brain
+!results/brain/*.md
 !results/decision_memos_weekly.json
 !results/decision_memos_weekly.md
 !results/blend_hybrid_paper.json
