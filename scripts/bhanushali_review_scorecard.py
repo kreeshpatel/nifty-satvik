@@ -32,6 +32,11 @@ from config import (  # noqa: E402
 
 INCEPTION = date(2026, 7, 4)                 # forward-watch paper inception (forward/prereg.md)
 BOOK = "weekly-swing-0094-rank"
+# Which book a number comes from, named once (finding 0146; prereg_swing.md §11.5). The weekly scan
+# runs three books off one engine and the readout mixes them, so a gate has to say which one it read.
+BOOK_UNCAPPED = "uncapped A-only signal tracker (cash never runs out)"
+BOOK_CAPPED = "capped Rs.10L A-only paper book (the one that would hold positions)"
+
 # Pre-committed gates (forward/prereg.md — DO NOT edit here; the doc is the authority)
 READY_CLOSED, READY_QUARTERS = 40, 4         # §10.2 whichever first
 PROMOTE_EXPECTANCY_R, PROMOTE_MAXDD = 0.10, -0.25   # §10.2 promote (both required)
@@ -157,6 +162,16 @@ def _grading_panel(a_nav: list[tuple[str, float]], a_closed: int) -> dict:
         "authority": "forward/prereg_swing.md §4 (frozen 2026-07-13, tighten-only)",
         "decided_at": "2027-07-01 primary; 2026-10-01 is a first read only",
         "a_only_closed": a_closed, "floor_per_book": GRADING_FLOOR_CLOSED,
+        # THE ONE GATE WHOSE TWO SIDES ARE DIFFERENT QUANTITIES (finding 0146, prereg_swing §11.5).
+        # `a_only_closed` is the UNCAPPED tracker's closure count; `base_swing_closed` is a CAPPED
+        # book's. A per-book floor is applied to both, and it short-circuits before the MaxDD/Calmar
+        # branches, so today it is this mismatch that decides §4. Surfaced, not repaired: repairing it
+        # is a live-rule change and belongs to a review.
+        "convention": {"a_only_closed_book": BOOK_UNCAPPED, "base_swing_closed_book": BOOK_CAPPED,
+                       "same_quantity": False,
+                       "decision_curves_book": "both capped (A-only vs all-grades)",
+                       "maxdd_grid": "daily", "cagr_years": "calendar",
+                       "authority": "prereg_swing.md §11.5 + finding 0146"},
         # Disclosed rather than implied: §4's insufficient-evidence clause has a SECOND limb — "CIs
         # overlapping on both DD and Calmar" — and this panel does not compute bootstrap CIs. So a
         # KEEP or REVERT here is provisional on that check, which must be run before the verdict is
@@ -289,8 +304,15 @@ def main() -> int:
         "review_cadence": "first trading day of Jan/Apr/Jul/Oct (forward/prereg.md §8)",
         "forward": m,
         "gates": {
+            # Each gate now states the CONVENTION its inputs are measured under and WHICH BOOK they
+            # come from. Both were ambiguous until 2026-09-27: prereg_swing.md §11 ratified the four
+            # readings (binder §9.1-9.4) and §11.5 named the source books (finding 0146). A gate that
+            # does not say which reading and which book it used cannot be audited from its own output,
+            # and the review reads this file.
             "readiness": {"rule": ">=40 closed OR 4 quarters (§10.2)",
-                          "n_closed": m["n_closed"], "quarters_elapsed": quarters_elapsed, "ready": ready},
+                          "n_closed": m["n_closed"], "quarters_elapsed": quarters_elapsed, "ready": ready,
+                          "convention": {"book": BOOK_UNCAPPED, "closed_count": "closed trades only",
+                                         "authority": "prereg_swing.md §11.4, §11.5"}},
             "promote": {"rule": "expectancy > +0.10R AND MaxDD shallower than -25% (§10.2)",
                         "expectancy_R": exp, "maxdd_pct": dd, "pass": promote_pass,
                         # Stated, not silently reconciled: this gate mixes units. `expectancy_R`
@@ -303,9 +325,25 @@ def main() -> int:
                         "_units": ("expectancy_R is GROSS (raw-price R); maxdd_pct and sharpe are "
                                    "NET (off the NAV curve). The two limbs of this gate are not in "
                                    "the same unit — see forward/prereg.md §10.2 and "
-                                   "DEFINITIONS_REGISTER §8.")},
-            "kill": {"rule": "net Sharpe < 0 (§10.2)", "sharpe": sh, "triggered": kill_trig},
-            "halt": {"rule": "live MaxDD <= -50% (§4, mechanical)", "maxdd_pct": dd, "triggered": halt_trig},
+                                   "DEFINITIONS_REGISTER §8."),
+                        "convention": {"expectancy_book": BOOK_UNCAPPED, "maxdd_book": BOOK_CAPPED,
+                                       "maxdd_grid": "daily", "cagr_years": "calendar",
+                                       "expectancy_informative": f">=30 closed (now {m['n_closed']})",
+                                       "authority": "prereg_swing.md §11.2, §11.3, §11.4, §11.5"}},
+            "kill": {"rule": "net Sharpe < 0 (§10.2)", "sharpe": sh, "triggered": kill_trig,
+                     "convention": {"book": BOOK_CAPPED,
+                                    "sharpe": "raw-return, rf = 0, daily x sqrt(252)",
+                                    "means": "below cash at 0%, NOT below the risk-free rate",
+                                    "excess_return_reading_would_be": "threshold ~0.25-0.30; adopting it "
+                                                                      "is a review decision because it "
+                                                                      "TIGHTENS a live trigger",
+                                    "authority": "prereg_swing.md §11.1, §11.5"}},
+            "halt": {"rule": "live MaxDD <= -50% (§4, mechanical)", "maxdd_pct": dd, "triggered": halt_trig,
+                     "convention": {"book": BOOK_CAPPED, "grid": "daily",
+                                    "why_the_grid_matters": "a coarser grid can only UNDERSTATE a "
+                                                            "drawdown, so it could silently loosen this "
+                                                            "control",
+                                    "authority": "prereg_swing.md §5 (grid named 2026-09-27), §11.3"}},
         },
         # The OTHER pre-committed decision on this book. Kept separate from `gates` above because
         # those encode forward/prereg.md §10.2 (the momentum wall's doc) while this encodes
