@@ -579,7 +579,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              scaled_exit: dict | None = None, hard_stop: bool = False,
              max_risk_pct: float | None = None, max_notional_pct: float | None = None,
              stale_absent_days: int = 0, demerger_events: dict | None = None,
-             ca_hold_drop: float = 0.0, ca_reviewed=None, position_log: list | None = None):
+             ca_hold_drop: float = 0.0, ca_reviewed=None, position_log: list | None = None,
+             event_log: list | None = None):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
@@ -607,6 +608,20 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
     because `curve` recorded what the book was worth each day and nothing recorded what it HELD, so
     no weights/concentration/marginal-risk question was answerable from a committed artifact.
 
+    event_log: an optional list the caller owns. When given, one row is APPENDED per management event —
+    `partial_book` (a tp1/tp2 tranche, the pattern tranche, or the runner cap), `stop_ratchet` (lock-in
+    or chandelier), `trail_update` (the 20-SMA trail moving) and `halt` (a corporate-action freeze) —
+    each carrying event_seq, trade_id, event_date, price, fraction, stop_before/stop_after,
+    frac_left_after, shares_after and a reason_code (06_habit_ledger_spec.md §1.3). Observation only:
+    nothing written is read back, so None (the default) is byte-identical by construction
+    (tests/test_r94_management_events.py).
+
+    It exists because `curve` says what the book was WORTH, `position_log` says what it HELD, and
+    neither says what was DONE to a position between entry and exit. A weekly snapshot cannot be
+    differentiated back into events — the fraction and the fill price are gone by the next Saturday.
+    `manual_override` from the spec is deliberately ABSENT: the engine cannot know about an owner's
+    discretionary deviation, and that remains a declared hole rather than an empty column.
+
     demerger_events (owner decision 2026-09-15, "B′", standing rule): {ticker: event} from
     `build_demerger_events`. A position held INTO a registered ex-date realises the carved-out value as a
     cash credit and carries on re-based — see `_apply_demerger` and the block comment above it. None
@@ -630,6 +645,42 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
     # B′: entry day of each position on a ticker with a registered demerger, keyed by the position
     # object's id so no field is added to positions that no event touches (keeps golden state identical).
     _ca_entry: dict[int, pd.Timestamp] = {}
+    # MANAGEMENT EVENT STREAM (2026-09-27, owner-authorised; 06_habit_ledger_spec.md §1.3).
+    # Observation only, exactly like `position_log`: rows are appended to a list the CALLER owns and
+    # nothing here is ever read back, so None (the default) is not merely "off" — the engine cannot
+    # behave differently for its presence. Entry dates live in a side table keyed by the position
+    # object's id, mirroring `_ca_entry`, so no field is added to positions that no event touches.
+    #
+    # Why it exists. `curve` says what the book was worth and `position_log` says what it HELD, but
+    # neither says what was DONE to a position between entry and exit. Partial bookings and stop
+    # ratchets were nowhere: the downstream ledger declares them as a hole, 0146 found the
+    # capital book had realised money five times while closing once, and 0109 and 0117 both needed
+    # event-level reconstruction that did not exist. A weekly position snapshot cannot be
+    # differentiated back into events — the fraction and the fill price are gone.
+    _ev_entry: dict[int, str] = {}
+    _ev_seq = [0]
+
+    def _emit(tkr: str, p_: dict, kind: str, *, date, price=None, fraction=None,
+              stop_before=None, stop_after=None, reason: str | None = None) -> None:
+        if event_log is None:
+            return
+        _ev_seq[0] += 1
+        entry_d = _ev_entry.get(id(p_))
+        event_log.append({
+            "event_seq": _ev_seq[0],
+            "trade_id": f"{tkr}:{entry_d}" if entry_d else None,
+            "ticker": tkr,
+            "entry_date": entry_d,
+            "event_date": str(pd.Timestamp(date).date()),
+            "event_type": kind,
+            "price": None if price is None else round(float(price), 4),
+            "fraction": None if fraction is None else round(float(fraction), 6),
+            "stop_before": None if stop_before is None else round(float(stop_before), 4),
+            "stop_after": None if stop_after is None else round(float(stop_after), 4),
+            "frac_left_after": round(float(p_.get("frac_left", float("nan"))), 6),
+            "shares_after": round(float(p_.get("sh", float("nan"))), 4),
+            "reason_code": reason,
+        })
     _ca_reviewed = frozenset(ca_reviewed or ())
     # B-1 NAV-mark selector, bound once (gate OFF => the frozen entry-price mark, byte-identical).
     _absent_mark = ((lambda p_: p_.get("last_mark", p_["en"])) if stale_absent_days
@@ -684,7 +735,11 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
             # at the open, and a queued exit filling there would book the carved-out value as a loss);
             # the CLOSE move is checked after the day's fills. Both use only prices known at that point.
             if ca_hold_drop and "ca_view" not in p and "ca_hold" not in p:
+                _had_hold = "ca_hold" in p
                 _ca_hold_check(p, t, s, i, d, "open", ca_hold_drop, _ca_reviewed, _ca_entry)
+                if event_log is not None and not _had_hold and "ca_hold" in p:
+                    _emit(t, p, "halt", date=d, price=p["ca_hold"]["price"],
+                          reason=f'ca_hold_open_{p["ca_hold"]["move_pct"]}pct')
             if "ca_hold" in p:
                 continue
             if p["pending"] is not None:
@@ -714,6 +769,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                         p["realized_r"] += _w * (px - p["en"]) / p["risk0"]
                         p["frac_left"] = max(p["frac_left"] - _w, 0.0)
                         p["half_done"] = True
+                        _emit(t, p, "partial_book", date=d, price=px, fraction=_w,
+                              reason="pattern_frac")
                     p["pending"] = None
                 else:
                     xp = p["sh"] * px
@@ -852,6 +909,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     p["half_done"] = True                       # informational (cards/ledger)
                     if "rec" in p and _tag == "t1_done":
                         p["rec"].update(half_date=d, half_px=round(float(_lvl), 2))
+                    _emit(t, p, "partial_book", date=d, price=_lvl, fraction=_w, reason=_tag)
                 # OWNER 2026-07-16: runner_cap_r — a profit cap on the remaining runner. Once the
                 # intraweek high reaches runner_cap_r x R (e.g. 6R), book ALL remaining shares at that
                 # level (resting limit). Caps the lottery-ticket runner so a monster is banked, not given
@@ -864,8 +922,11 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                         _xp = p["sh"] * _clvl
                         _got = _xp * (1 - _cost_leg(p["adv"], _xp, cost_off))
                         cash += _got; p["proceeds"] += _got; p["stt"] += _xp * STT_PCT
+                        _capfrac = p["frac_left"]
                         p["realized_r"] += p["frac_left"] * _cap_r
                         p["frac_left"] = 0.0; p["sh"] = 0.0
+                        _emit(t, p, "partial_book", date=d, price=_clvl, fraction=_capfrac,
+                              reason="runner_cap_r")
                 if p["frac_left"] <= 1e-9 or p["sh"] <= 0:      # fully out on targets alone
                     T.append(dict(R=p["realized_r"], reason="targets", held=p["weeks"], half=True))
                     if "rec" in p:
@@ -877,7 +938,11 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     del op[t]; continue
 
             if ca_hold_drop and "ca_view" not in p and "ca_hold" not in p:
+                _had_hold = "ca_hold" in p
                 _ca_hold_check(p, t, s, i, d, "close", ca_hold_drop, _ca_reviewed, _ca_entry)
+                if event_log is not None and not _had_hold and "ca_hold" in p:
+                    _emit(t, p, "halt", date=d, price=p["ca_hold"]["price"],
+                          reason=f'ca_hold_close_{p["ca_hold"]["move_pct"]}pct')
                 if "ca_hold" in p:
                     continue
             if i in s["weekend"]:
@@ -927,7 +992,11 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                 if lockin_mfe and p["weeks"] >= 1:
                     _mfe_r = (s["h"][i] - p["en"]) / p["risk0"] if p["risk0"] > 0 else 0.0
                     if _mfe_r >= lockin_mfe:
+                        _sb = p["stop"]
                         p["stop"] = max(p["stop"], p["en"] + lockin_at * p["risk0"])
+                        if p["stop"] != _sb:
+                            _emit(t, p, "stop_ratchet", date=d, stop_before=_sb,
+                                  stop_after=p["stop"], reason="lockin_at")
                 # PHASE-2 exit lever: CHANDELIER — a peak-based trailing stop (highest high since entry ×
                 # (1-chand_pct)), engaged once MFE ≥ chand_after_r R. Trails the PEAK (not an MA), so it protects
                 # the giveback from the high-water mark. off (chand_pct=0) => byte-identical.
@@ -935,7 +1004,11 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     p["peak_h"] = max(p.get("peak_h", p["en"]), s["h"][i])
                     _mfe_r = (p["peak_h"] - p["en"]) / p["risk0"] if p["risk0"] > 0 else 0.0
                     if _mfe_r >= chand_after_r:
+                        _sb = p["stop"]
                         p["stop"] = max(p["stop"], p["peak_h"] * (1 - chand_pct))
+                        if p["stop"] != _sb:
+                            _emit(t, p, "stop_ratchet", date=d, stop_before=_sb,
+                                  stop_after=p["stop"], reason="chandelier")
                 if wc <= p["stop"]:
                     p["pending"] = ("full", "stop" + ("_half" if p["half_done"] else ""))
                 # PHASE-2 exit lever: SOFT STOP — cut on a trend break (weekly close < 20d-SMA×(1-soft_stop_pct))
@@ -948,7 +1021,11 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                 # books (after trail_after weeks) — the base engine has NO trail until 2R, so a trade that runs
                 # to ~1.8R MFE but never hits 2R rides the 13wk cap and gives it all back. off => byte-identical.
                 elif p["half_done"] or (trail_always and p["weeks"] >= trail_after):
+                    _tb = p["trail"]
                     p["trail"] = max(p["trail"], s["ema20"][i] * (1 - TRAIL_PCT))
+                    if p["trail"] != _tb:
+                        _emit(t, p, "trail_update", date=d, stop_before=_tb,
+                              stop_after=p["trail"], reason="sma20_trail")
                     if wc < p["trail"]:
                         p["pending"] = ("full", "trail")
                 # PHASE-2 AI-derived exit (exit forensic): the giveback tell is a blow-off then LOWER weekly
@@ -1124,6 +1201,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                                  absent_run=0, last_mark=en)        # B-1 staleness bookkeeping
                     if (demerger_events and t in demerger_events) or ca_hold_drop:
                         _ca_entry[id(op[t])] = d                     # B′ / hold: held INTO a date only if entered before it
+                    if event_log is not None:
+                        _ev_entry[id(op[t])] = str(pd.Timestamp(d).date())
                     rp = sh * (en - st) / sizing_eq * 100      # risk as % of SIZING equity
                     # The notional cap legitimately UNDER-sizes (that is what a cap does), so the strict
                     # sizing invariant only applies when uncapped. Capped, risk may only be REDUCED —
