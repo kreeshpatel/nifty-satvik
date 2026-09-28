@@ -979,9 +979,22 @@ def _write_sma_panel(P: dict, a_set, generated_at: str, sd: Path) -> None:
 
     One row per universe name: the exact 44w SMA the cards use (`_sma44_now`), the week's OHLC, and the
     setup gates evaluated on the SAME numbers, so the owner (or an inner-circle reviewer) can verify why
-    ANY name is or isn't a setup without re-running the engine. Overwrites weekly — a single snapshot,
-    not an append log. It is NEVER read back by the cron; the engine always recomputes from raw OHLCV.
-    The line is a 44-week SMA (never EMA) — see the R94 engine + docs/decisions/0010.
+    ANY name is or isn't a setup without re-running the engine. It is NEVER read back by the cron; the
+    engine always recomputes from raw OHLCV. The line is a 44-week SMA (never EMA) — see the R94 engine
+    + docs/decisions/0010.
+
+    TWO DESTINATIONS since 2026-09-27, and the second one is the point:
+
+      * `results/weekly_sma_panel.csv` — the flat latest-week snapshot, OVERWRITTEN weekly. The
+        dashboard and the output contract read this, so it keeps its name and its behaviour.
+      * `results/sma_panel/<as_of>.csv` — the same rows under a dated name, APPEND-ONLY.
+
+    Why the second exists. The panel is the only artifact that records the names that did NOT fire — the
+    rejection and near-miss population, and the one counterfactual set the programme cannot reconstruct
+    after the fact, because it depends on the 44w SMA and the CRS ranking as they stood in that week on
+    that price vintage. Overwriting it weekly meant that population never accumulated: the file held one
+    `as_of` and 494 rows, and every week that passed was a week of it permanently lost. A dated write
+    costs one file a week and cannot be done retroactively.
     """
     # grade_a_entries returns (ticker, entry_day_idx) tuples, so a name is Grade-A NOW iff its LATEST
     # entry window is in the top-N set. Reduce to bare tickers keyed on that latest window.
@@ -1019,8 +1032,16 @@ def _write_sma_panel(P: dict, a_set, generated_at: str, sd: Path) -> None:
     df = pd.DataFrame(rows).sort_values(["is_grade_a", "is_signal", "ticker"], ascending=[False, False, True])
     df.insert(0, "as_of", generated_at)
     df.to_csv(sd / "weekly_sma_panel.csv", index=False)
+    # The dated copy is append-only: a re-run of the SAME as_of legitimately restates that week (the
+    # price vintage may have been corrected), but it can never remove an earlier week.
+    dated_dir = sd / "sma_panel"
+    dated_dir.mkdir(parents=True, exist_ok=True)
+    dated = dated_dir / f"{generated_at}.csv"
+    df.to_csv(dated, index=False)
+    weeks = len(list(dated_dir.glob("*.csv")))
     print(f"sma panel: {len(df)} names | {int(df['is_signal'].sum())} signals | "
-          f"{int(df['is_grade_a'].sum())} grade-A -> {sd / 'weekly_sma_panel.csv'}", flush=True)
+          f"{int(df['is_grade_a'].sum())} grade-A -> {sd / 'weekly_sma_panel.csv'} "
+          f"+ {dated} ({weeks} week(s) accumulated)", flush=True)
 
 
 def main(argv=None) -> int:

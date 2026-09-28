@@ -137,6 +137,11 @@ results/*
 !results/weekly_monitor.json
 # Per-stock 44w-SMA audit panel (transparency snapshot; committed each weekly run).
 !results/weekly_sma_panel.csv
+# ...and its APPEND-ONLY dated accumulation (2026-09-27). Without this whitelist `git add` no-ops
+# silently and the rejection/near-miss population never reaches the repo — the ignore trap this file
+# has already been bitten by seven times.
+!results/sma_panel
+!results/sma_panel/*.csv
 !results/decision_memos_weekly.json
 !results/decision_memos_weekly.md
 !results/blend_hybrid_paper.json

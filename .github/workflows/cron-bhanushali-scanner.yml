@@ -173,7 +173,7 @@ jobs:
           opt()  { if [ -e "$1" ]; then git add "$1"; else echo "::warning::optional artifact not produced: $1"; fi; }
           git add results/signals_today_weekly.json results/signals_history_weekly.json \
                   results/paper_portfolio_weekly.json results/weekly_review_scorecard.json \
-                  results/weekly_sma_panel.csv results/archive
+                  results/weekly_sma_panel.csv results/archive results/sma_panel
           need results/portfolio_history_weekly.csv
           need results/base_swing_forward.json   # prereg_swing §4 comparator; §3 forbids backfilling a missed week
           opt results/judge_log.jsonl
