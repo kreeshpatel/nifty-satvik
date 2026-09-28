@@ -50,6 +50,16 @@ CAP_WEEKS = 13            # ~3-month time cap; flag when a held position nears i
 IST = timezone(timedelta(hours=5, minutes=30))
 
 
+def _today_ist() -> date:
+    """Today in IST — the clock the buy window is written against.
+
+    B-4: the window closes on an NSE calendar date, so it must be compared to the market's own day, not
+    to UTC (which is behind IST and would keep a window open past its close for five and a half hours)
+    and not to the data's as-of (which a stale feed makes arbitrarily old).
+    """
+    return datetime.now(IST).date()
+
+
 class _Bar:
     """The last daily bar of a ticker, with the fields the tranche mapper needs."""
     __slots__ = ("close", "open", "high", "low", "sma20", "date")
@@ -216,7 +226,11 @@ def _window_fill(df, *, signal_date, buy_window_until, lo: float, hi: float) -> 
         if end is not None and d > end:
             break                                      # window closed
         o = float(df["Open"].iloc[i])
-        if lo <= o <= hi:
+        # D9: STRICT, to match the engine. `run_bhanushali_weekly_rank` fills on `lo < open < hi`, so an
+        # inclusive test here reports a boundary tick as a fill the book never took — a card/book split
+        # on exactly the ticks where it is most confusing. One character; it was worth a quarter of
+        # divergence (oct1_binder_decisions.md §4, D9).
+        if lo < o < hi:
             return {"date": str(d.date()), "open": round(o, 2)}
     return None
 
@@ -514,15 +528,25 @@ def build_monitor(envelope: dict, ohlcv: dict, history: list | None = None) -> d
             lo = float(sig.get("buy_zone_low") or sig.get("entry_low") or 0.0)
             hi = float(sig.get("buy_zone_high") or sig.get("entry_high") or 0.0)
             bw = sig.get("buy_window_until")
-            in_range = bool(lo and hi and lo <= last_open <= hi)
-            window_open = bool(bw and str(as_of.date()) <= bw) if as_of else None
-            expired = bool(bw and str(as_of.date()) > bw) if as_of else False
+            in_range = bool(lo and hi and lo < last_open < hi)          # D9: strict, as the engine fills
+            # B-4: the buy window closes on a CALENDAR date, so it must be compared against TODAY, not
+            # against the as-of of the data we happen to hold. With a stale feed the old comparison
+            # showed an expired window as still open — precisely when the operator most needs to know
+            # the feed is stale (oct1_binder_decisions.md §4, B-4).
+            _today = str(_today_ist())
+            window_open = bool(bw and _today <= bw)
+            expired = bool(bw and _today > bw)
+            # The feed's own date is kept beside it, because a window that reads open against today
+            # while the data is days behind is a STALENESS signal, not a buy signal.
+            _feed_behind = bool(as_of is not None and str(as_of.date()) < _today)
             # Did the window EVER fill? `in_range` above only knows about today.
             fill = _window_fill(ohlcv.get(t), signal_date=sig.get("signal_date"),
                                 buy_window_until=bw, lo=lo, hi=hi)
             rec.update({
                 "entry_low": round(lo, 2), "entry_high": round(hi, 2),
                 "buy_window_until": bw, "buy_window_open": window_open,
+                "window_basis": {"compared_against": _today, "data_as_of": (
+                    str(as_of.date()) if as_of is not None else None), "feed_behind": _feed_behind},
                 "filled_today": in_range, "expired": expired,
                 "today_open": round(last_open, 2),
                 # The window's memory. `filled_on`/`filled_price` are what the card should say

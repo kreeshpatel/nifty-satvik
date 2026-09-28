@@ -538,16 +538,39 @@ def prep_weekly_rank(ohlcv, drop_erratum: bool = False, index_provider=None, dro
     return P
 
 
-def grade_a_entries(P, top_n: int = 5) -> set:
+def grade_a_entries(P, top_n: int = 5, *, mem=None, filter_before_rank: bool = False) -> set:
     """The set of (ticker, entry_day_idx) whose signal is TOP-N by CRS distance in its setup week —
     'Grade A'. Passed to backtest(a_grade=...) to trade only A, and used to filter the OPEN cards.
     Entry windows that start the same ISO week came from the same setup Friday, so ranking them by
-    CRS distance and keeping the top-N is exactly the weekly A/B split shown on the cards."""
+    CRS distance and keeping the top-N is exactly the weekly A/B split shown on the cards.
+
+    D6 / B-3 (oct1_binder_decisions.md §4) — `filter_before_rank`, DEFAULT OFF.
+
+    The divergence: this function ranks ALL signals, while the card pipeline drops non-members and
+    degenerate bands FIRST. So a name the book can never hold can occupy a top-5 slot, be refused at
+    fill (`backtest` gates membership at the fill, AFTER the a_grade test), and waste the slot — while
+    the card promotes a name the book will never take.
+
+    Why it is gated rather than simply fixed. Filtering before ranking PROMOTES a different name into
+    the top-5, which changes which trades the book takes — not only for this week but for every
+    historical week. That is a change to the record, not a defect fix, so it cannot ride in as one.
+    OFF is byte-identical to the 0094 run of record; turning it ON is an owner decision at a review,
+    and it would require re-anchoring anything measured on the old A-set.
+
+    Pass `mem` to apply the membership test; a degenerate band (`hi <= lo`, which is what the card's
+    `entry <= stop` collapses to before a stop is computed) is dropped whenever the gate is on.
+    """
     from collections import defaultdict
     by_week = defaultdict(list)
     for t, s in P.items():
         dates = s["dates"]
         for e0, win in s["entry_win"].items():
+            if filter_before_rank:
+                _lo, _hi = float(win[1]), float(win[2])
+                if not _hi > _lo:
+                    continue                                  # no band to buy inside
+                if mem is not None and not ticker_in_index_on(t, pd.Timestamp(dates[e0]).date(), mem):
+                    continue                                  # the book could never hold it
             iso = pd.Timestamp(dates[e0]).isocalendar()
             by_week[(int(iso.year), int(iso.week))].append((float(win[3]), t, e0))
     a = set()
