@@ -225,3 +225,11 @@ jobs:
       # green; only a NEW one fires.
       - name: Signal-quality axes must not go missing undeclared
         run: python scripts/collect_signal_quality_forward.py --validate
+      # AFTER the commit for the same reason as the step above, and it exists for a failure that is
+      # already on the record: run_blend_paper.py crashed every Saturday from inception while its step
+      # was non-fatal, so the cron stayed green and blend_hybrid_paper.json sat at n_points 0 for about
+      # seven weeks. The producers keep their warnings — making one fatal would abort BEFORE the commit
+      # and withhold the live book over a side-book defect. This proves the watched books actually
+      # advanced to this scan's as-of, and goes RED when one did not.
+      - name: Watched-book loggers must have logged this week
+        run: python scripts/check_weekly_loggers.py

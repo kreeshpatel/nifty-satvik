@@ -37,6 +37,7 @@ def main() -> int:
         return 0
     envelope = json.loads(ENVELOPE.read_text(encoding="utf-8"))
     signals = envelope.get("signals") or []
+    as_of = envelope.get("generated_at")
 
     seen: set[tuple[str, str]] = set()
     if ARCHIVE.exists():
@@ -58,7 +59,13 @@ def main() -> int:
             key = (str(sig.get("ticker")), str(sig.get("signal_date")))
             if key[0] in ("None", "") or key in seen:
                 continue
-            fh.write(json.dumps({k: sig.get(k) for k in KEEP}, default=str) + "\n")
+            # D-series: stamp the run that recorded the card. Rows written before 2026-09-28 carry no
+            # `as_of` and CANNOT be given one — the envelope that produced them is gone, and inventing
+            # a date would be exactly the reconstructed history §3 forbids. So the field is added going
+            # FORWARD only, and its absence on an old row means "undatable", not "today".
+            row = {k: sig.get(k) for k in KEEP}
+            row["as_of"] = as_of
+            fh.write(json.dumps(row, default=str) + "\n")
             seen.add(key)
             added += 1
 
