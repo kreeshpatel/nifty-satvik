@@ -51,6 +51,13 @@ JSON_LOGGERS = {
     "breadth50_forward.json": "the breadth-50 watched book (§4's second-book question)",
 }
 CSV_LOGGER = "signal_quality_forward.csv"
+# The capital book's own streams, rebuilt from inception every run (wired 2026-09-28). Their `as_of`
+# column must carry THIS scan, for the same reason as the JSON loggers: a file that is rewritten with a
+# stale payload still "updates", so the contract alone cannot see the miss.
+AS_OF_COLUMN_LOGGERS = {
+    "brain/position_log.csv.gz": "the capital book's daily holdings",
+    "brain/management_events.jsonl": "what was DONE to each position — tranches, ratchets, halts",
+}
 
 
 def scan_as_of() -> str | None:
@@ -82,6 +89,28 @@ def check(as_of: str | None = None) -> list[str]:
             problems.append(
                 f"{name} last logged {logged or 'never'} but the scan is {as_of} — this week is missing "
                 f"from {why}. n_points={payload.get('n_points')}")
+
+    for name, why in AS_OF_COLUMN_LOGGERS.items():
+        q = RESULTS / name
+        if not q.is_file():
+            problems.append(f"{name} is MISSING — {why}")
+            continue
+        try:
+            if name.endswith(".jsonl"):
+                lines = [ln for ln in q.read_text(encoding="utf-8").splitlines() if ln.strip()]
+                stamps = {json.loads(ln).get("as_of") for ln in lines}
+            else:
+                import gzip
+                with gzip.open(q, "rt", encoding="utf-8") as fh:
+                    stamps = {r.get("as_of") for r in csv.DictReader(fh)}
+        except Exception as exc:                        # noqa: BLE001
+            problems.append(f"{name} is unreadable ({exc}) — {why}")
+            continue
+        stamps.discard(None)
+        # EMPTY IS LEGITIMATE and must not be a failure: a week with no management event is a real
+        # week. What is not legitimate is a file whose newest stamp is older than this scan.
+        if stamps and max(stamps) < str(as_of):
+            problems.append(f"{name} last stamped {max(stamps)} but the scan is {as_of} — {why}")
 
     p = RESULTS / CSV_LOGGER
     if not p.is_file():

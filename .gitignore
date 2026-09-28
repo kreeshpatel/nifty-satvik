@@ -146,6 +146,10 @@ results/*
 # ignore trap has cost this repo eight times — the last one caught by a test two commits ago.
 !results/brain
 !results/brain/*.md
+# ...and the capital book's holdings + management-event stream (wired 2026-09-28). Same trap:
+# unwhitelisted, the weekly `git add` no-ops and the stream never reaches the repo.
+!results/brain/*.jsonl
+!results/brain/*.csv.gz
 !results/decision_memos_weekly.json
 !results/decision_memos_weekly.md
 !results/blend_hybrid_paper.json
