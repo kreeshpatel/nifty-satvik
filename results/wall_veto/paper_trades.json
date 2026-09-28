@@ -328,5 +328,20 @@
     "net_pct": -1.71,
     "net_pnl": -166.15,
     "hold_days": 10
+  },
+  {
+    "ticker": "ADANIPOWER",
+    "entry_date": "2026-07-01",
+    "exit_date": "2026-09-28",
+    "entry": 223.88,
+    "exit": 196.04,
+    "qty": 661,
+    "days_held": 62,
+    "reason": "stop",
+    "return_pct": -12.44,
+    "pnl": -18763.05,
+    "net_pct": -12.44,
+    "net_pnl": -18763.05,
+    "hold_days": 62
   }
 ]
