@@ -1,22 +1,22 @@
 {
-  "generated_at": "2026-09-28",
+  "generated_at": "2026-09-29",
   "signals": [
     {
-      "ticker": "SAILIFE",
-      "entry": 1583.59,
-      "stop": 1407.36,
-      "target": 1940.21,
+      "ticker": "MCX",
+      "entry": 3233.62,
+      "stop": 2846.85,
+      "target": 3961.83,
       "target_pct": 22.52,
-      "current_price": 1582.8,
-      "close": 1582.8,
-      "signal_date": "2026-09-28",
+      "current_price": 3232.0,
+      "close": 3232.0,
+      "signal_date": "2026-09-29",
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
       "status": "FRESH",
       "buy_window": "T+1..T+3 at open",
-      "indicative_close": 1582.8,
-      "indicative_entry": 1583.59
+      "indicative_close": 3232.0,
+      "indicative_entry": 3233.62
     }
   ],
   "regime": {
@@ -26,11 +26,11 @@
     "breadth": 0
   },
   "n_positions": 14,
-  "cash": 95003.88,
+  "cash": 137825.66,
   "kill_state": {
     "wr_last20": 60.0,
     "wr_breach": false,
-    "sharpe_30d": 1.199,
+    "sharpe_30d": 1.538,
     "sharpe_30d_breach": false,
     "mode": "observe"
   }

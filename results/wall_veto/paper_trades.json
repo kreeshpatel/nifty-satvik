@@ -343,5 +343,20 @@
     "net_pct": -12.44,
     "net_pnl": -18763.05,
     "hold_days": 62
+  },
+  {
+    "ticker": "VEDL",
+    "entry_date": "2026-07-01",
+    "exit_date": "2026-09-29",
+    "entry": 280.89,
+    "exit": 259.87,
+    "qty": 531,
+    "days_held": 63,
+    "reason": "time",
+    "return_pct": -7.48,
+    "pnl": -11535.11,
+    "net_pct": -7.48,
+    "net_pnl": -11535.11,
+    "hold_days": 63
   }
 ]
