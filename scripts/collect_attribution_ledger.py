@@ -73,7 +73,11 @@ DECLARED_HOLES: dict[str, str] = {
     "owner_action / owner_note": "No source exists yet — owner overrides are not recorded anywhere the "
                                  "cron can read. The decision-memo file records a rubric stamp, not the "
                                  "owner's own call.",
-    "management events": "Partial bookings and stop ratchets are not archived per event; only the "
+    "management events": "CLOSING (2026-09-29): the engine now emits them and the cron persists "
+                         "results/brain/management_events.jsonl; this ledger joins them as n_partial_books, "
+                         "n_stop_ratchets, n_trail_updates, fraction_booked and halted. The hole stays listed "
+                         "until the first scan has written the stream, and closes only forward. "
+                         "Partial bookings and stop ratchets were not archived per event; only the "
                          "position's current state is snapshotted weekly. A child-row stream needs the "
                          "engine to emit them (06_habit_ledger_spec.md §1.3).",
     "cash_at_signal / slots_free": "The envelope carries book-level cash, not the cash and free seats at "
@@ -174,6 +178,26 @@ def _snapshot_marks() -> dict[str, pd.Series]:
     return {tkr: pd.Series(d).sort_index() for tkr, d in marks.items() if d}
 
 
+EVENTS = ROOT / "results" / "brain" / "management_events.jsonl"
+
+
+def _events() -> dict[tuple[str, str], list[dict]] | None:
+    """Management events keyed by (ticker, entry date), or None when the stream does not exist yet.
+
+    The engine keys events as `ticker:<fill date>`; this ledger keys trades as `ticker:<signal date>`.
+    The join is therefore on (ticker, bought_date), and a trade that finds no events is counted rather
+    than silently given zeros — "no events" and "did not join" must not read the same.
+    """
+    if not EVENTS.is_file():
+        return None
+    out: dict[tuple[str, str], list[dict]] = {}
+    for ln in EVENTS.read_text(encoding="utf-8").splitlines():
+        if ln.strip():
+            e = json.loads(ln)
+            out.setdefault((str(e.get("ticker")), str(e.get("entry_date"))[:10]), []).append(e)
+    return out
+
+
 def _index() -> pd.Series:
     try:
         import run_bhanushali_weekly_crs as CRS
@@ -189,6 +213,7 @@ def build() -> pd.DataFrame:
     seen = L.first_seen(snaps, CONTEXT_FIELDS)
     episodes = L.collapse_episodes(seen, CONTEXT_FIELDS)
     outs, pos, px, idx = _outcomes(), _positions(), _prices(), _index()
+    evs = _events()
     marks = _snapshot_marks()
 
     rows = []
@@ -222,6 +247,20 @@ def build() -> pd.DataFrame:
         # defect for a signal that simply never filled (5 of the 46 rows).
         row["state"] = ("closed" if o.get("exit_reason") else ("open" if bought else "not_entered"))
         row["has_corporate_action"] = bool(ctx.get("corporate_actions"))
+        # Management events (the capital book's stream). None = no stream yet, which is different
+        # from 0 = the stream exists and this trade had no event.
+        if evs is None or not bought:
+            row.update(n_partial_books=None, n_stop_ratchets=None, n_trail_updates=None,
+                       fraction_booked=None, halted=None)
+        else:
+            es = evs.get((tkr, bought), [])
+            books = [e for e in es if e.get("event_type") == "partial_book"]
+            row.update(
+                n_partial_books=len(books),
+                n_stop_ratchets=sum(e.get("event_type") == "stop_ratchet" for e in es),
+                n_trail_updates=sum(e.get("event_type") == "trail_update" for e in es),
+                fraction_booked=round(sum(float(e.get("fraction") or 0) for e in books), 6),
+                halted=any(e.get("event_type") == "halt" for e in es))
         row["corporate_actions"] = json.dumps(ctx.get("corporate_actions")) if ctx.get("corporate_actions") else None
         p = pos.get((tkr, bought or ""), {})
         row.update({k: p.get(k) for k in ("shares", "position_size", "entry_price_filled")})
@@ -303,6 +342,13 @@ def notes(df: pd.DataFrame) -> list[str]:
     out: list[str] = []
     if df is None or not len(df):
         return out
+    if "n_partial_books" in df:
+        if df["n_partial_books"].isna().all():
+            out.append("management events: stream absent (results/brain/management_events.jsonl) — "
+                       "the hole stays declared until the first scan that writes it")
+        else:
+            out.append(f"management events joined: {int(df['n_partial_books'].fillna(0).sum())} partial "
+                       f"booking(s) across {int((df['n_partial_books'].fillna(0) > 0).sum())} trade(s)")
     if "state" in df:
         n = int((df["state"] == "not_entered").sum())
         if n:

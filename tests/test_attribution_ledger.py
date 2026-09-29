@@ -306,3 +306,21 @@ def test_an_unfunded_closure_is_a_note_not_a_hole(built):
 def test_the_index_column_is_a_declared_hole_not_a_silent_null():
     assert "nifty_same_window_pct" in C.DECLARED_HOLES
     assert "2026-07-03" in C.DECLARED_HOLES["nifty_same_window_pct"]
+
+
+# ---------------------------------------------------- management events joined (2026-09-29)
+def test_events_join_on_fill_date_and_absent_stream_is_none_not_zero(tmp_path, monkeypatch):
+    import json as _j
+    monkeypatch.setattr(C, "EVENTS", tmp_path / "missing.jsonl")
+    assert C._events() is None, "no stream must read as None, never as 'zero events'"
+
+    ev = tmp_path / "management_events.jsonl"
+    ev.write_text("\n".join(_j.dumps(r) for r in [
+        {"ticker": "CUB", "entry_date": "2026-07-06", "event_type": "partial_book", "fraction": 0.4},
+        {"ticker": "CUB", "entry_date": "2026-07-06", "event_type": "partial_book", "fraction": 0.4},
+        {"ticker": "CUB", "entry_date": "2026-07-06", "event_type": "trail_update"},
+    ]) + "\n", encoding="utf-8")
+    monkeypatch.setattr(C, "EVENTS", ev)
+    got = C._events()
+    assert len(got[("CUB", "2026-07-06")]) == 3
+    assert ("CUB", "2026-07-03") not in got, "keyed on the FILL date, not the signal date"
