@@ -358,5 +358,20 @@
     "net_pct": -7.48,
     "net_pnl": -11535.11,
     "hold_days": 63
+  },
+  {
+    "ticker": "APARINDS",
+    "entry_date": "2026-09-16",
+    "exit_date": "2026-09-30",
+    "entry": 16618.31,
+    "exit": 17375.31,
+    "qty": 5,
+    "days_held": 10,
+    "reason": "trailing",
+    "return_pct": 4.56,
+    "pnl": 3564.06,
+    "net_pct": 4.56,
+    "net_pnl": 3564.06,
+    "hold_days": 10
   }
 ]

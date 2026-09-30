@@ -1,22 +1,22 @@
 {
-  "generated_at": "2026-09-29",
+  "generated_at": "2026-09-30",
   "signals": [
     {
-      "ticker": "MCX",
-      "entry": 3233.62,
-      "stop": 2846.85,
-      "target": 3961.83,
+      "ticker": "WELCORP",
+      "entry": 2718.36,
+      "stop": 2316.73,
+      "target": 3330.53,
       "target_pct": 22.52,
-      "current_price": 3232.0,
-      "close": 3232.0,
-      "signal_date": "2026-09-29",
+      "current_price": 2717.0,
+      "close": 2717.0,
+      "signal_date": "2026-09-30",
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
       "status": "FRESH",
       "buy_window": "T+1..T+3 at open",
-      "indicative_close": 3232.0,
-      "indicative_entry": 3233.62
+      "indicative_close": 2717.0,
+      "indicative_entry": 2718.36
     }
   ],
   "regime": {
@@ -26,11 +26,11 @@
     "breadth": 0
   },
   "n_positions": 14,
-  "cash": 137825.66,
+  "cash": 145591.7,
   "kill_state": {
     "wr_last20": 60.0,
     "wr_breach": false,
-    "sharpe_30d": 1.538,
+    "sharpe_30d": 1.186,
     "sharpe_30d_breach": false,
     "mode": "observe"
   }
