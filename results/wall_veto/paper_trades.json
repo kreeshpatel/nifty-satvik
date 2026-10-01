@@ -373,5 +373,20 @@
     "net_pct": 4.56,
     "net_pnl": 3564.06,
     "hold_days": 10
+  },
+  {
+    "ticker": "KIRLOSENG",
+    "entry_date": "2026-07-20",
+    "exit_date": "2026-10-01",
+    "entry": 2252.07,
+    "exit": 2241.58,
+    "qty": 63,
+    "days_held": 52,
+    "reason": "trailing",
+    "return_pct": -0.47,
+    "pnl": -1028.75,
+    "net_pct": -0.47,
+    "net_pnl": -1028.75,
+    "hold_days": 52
   }
 ]

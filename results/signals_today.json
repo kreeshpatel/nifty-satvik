@@ -1,22 +1,22 @@
 {
-  "generated_at": "2026-09-30",
+  "generated_at": "2026-10-01",
   "signals": [
     {
-      "ticker": "WELCORP",
-      "entry": 2718.36,
-      "stop": 2316.73,
-      "target": 3330.53,
+      "ticker": "KIRLOSENG",
+      "entry": 2243.82,
+      "stop": 1865.2,
+      "target": 2749.13,
       "target_pct": 22.52,
-      "current_price": 2717.0,
-      "close": 2717.0,
-      "signal_date": "2026-09-30",
+      "current_price": 2242.7,
+      "close": 2242.7,
+      "signal_date": "2026-10-01",
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
       "status": "FRESH",
       "buy_window": "T+1..T+3 at open",
-      "indicative_close": 2717.0,
-      "indicative_entry": 2718.36
+      "indicative_close": 2242.7,
+      "indicative_entry": 2243.82
     }
   ],
   "regime": {
@@ -26,11 +26,11 @@
     "breadth": 0
   },
   "n_positions": 14,
-  "cash": 145591.7,
+  "cash": 188590.88,
   "kill_state": {
-    "wr_last20": 60.0,
+    "wr_last20": 45.0,
     "wr_breach": false,
-    "sharpe_30d": 1.186,
+    "sharpe_30d": 1.67,
     "sharpe_30d_breach": false,
     "mode": "observe"
   }
