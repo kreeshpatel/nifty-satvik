@@ -1,6 +1,6 @@
 {
-  "generated_utc": "2026-10-01T10:50:35.472084+00:00",
-  "generated_ist": "2026-10-01 16:20",
+  "generated_utc": "2026-10-02T10:49:51.303879+00:00",
+  "generated_ist": "2026-10-02 16:19",
   "as_of": "2026-10-01",
   "model": "weekly-swing-0094-rank-P",
   "source": "signals_today_weekly.json",
@@ -21,9 +21,9 @@
       "buy_window_until": "2026-10-02",
       "buy_window_open": true,
       "window_basis": {
-        "compared_against": "2026-10-01",
+        "compared_against": "2026-10-02",
         "data_as_of": "2026-10-01",
-        "feed_behind": false
+        "feed_behind": true
       },
       "filled_today": false,
       "expired": false,
@@ -44,9 +44,9 @@
       "buy_window_until": "2026-10-02",
       "buy_window_open": true,
       "window_basis": {
-        "compared_against": "2026-10-01",
+        "compared_against": "2026-10-02",
         "data_as_of": "2026-10-01",
-        "feed_behind": false
+        "feed_behind": true
       },
       "filled_today": false,
       "expired": false,
@@ -67,9 +67,9 @@
       "buy_window_until": "2026-10-02",
       "buy_window_open": true,
       "window_basis": {
-        "compared_against": "2026-10-01",
+        "compared_against": "2026-10-02",
         "data_as_of": "2026-10-01",
-        "feed_behind": false
+        "feed_behind": true
       },
       "filled_today": false,
       "expired": false,
@@ -356,29 +356,29 @@
     {
       "ticker": "HEG",
       "kind": "hold",
-      "current_price": 237.65,
+      "current_price": 239.28,
       "frozen_price": 244.35,
-      "sma20": 288.54,
-      "as_of": "2026-09-30",
+      "sma20": 265.13,
+      "as_of": "2026-10-01",
       "entry": 242.95,
       "stop": 218.66,
       "target": 291.54,
-      "pnl_pct": -2.18,
-      "dist_to_stop_pct": 8.68,
-      "dist_to_target_pct": 22.68,
-      "r_multiple": -0.22,
+      "pnl_pct": -1.51,
+      "dist_to_stop_pct": 9.43,
+      "dist_to_target_pct": 21.84,
+      "r_multiple": -0.15,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 277.0,
+      "implied_trail_sma20": 254.52,
       "tranches": [
         {
           "type": "target",
           "pct": 40,
           "level": 291.54,
           "actionable": false,
-          "status": "22.7% away",
+          "status": "21.8% away",
           "hit": false,
-          "dist_pct": 22.68
+          "dist_pct": 21.84
         },
         {
           "type": "pattern",
@@ -388,18 +388,18 @@
           "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
           "hit": false,
           "armed": false,
-          "r_multiple": -0.22,
-          "weak_close_today": true
+          "r_multiple": -0.15,
+          "weak_close_today": false
         },
         {
           "type": "runner",
           "pct": 20,
           "level": 217.69,
           "actionable": false,
-          "status": "+9.2% vs the 44w-SMA 217.69; hold the last 20% runner",
+          "status": "+9.9% vs the 44w-SMA 217.69; hold the last 20% runner",
           "hit": false,
           "below_sma": false,
-          "dist_pct": 9.17
+          "dist_pct": 9.92
         }
       ],
       "plan_tags": [
@@ -2331,7 +2331,7 @@
   "n_missed_unpriceable": 0,
   "missed_unpriceable": [],
   "scheduler_health": {
-    "checked_utc": "2026-10-01T10:50:35.474292+00:00",
+    "checked_utc": "2026-10-02T10:49:51.306219+00:00",
     "overall": "CONTRACT_BREACH",
     "source_of_truth": "actions-run-log",
     "jobs": [
@@ -2345,7 +2345,7 @@
         "last_fired_utc": "2026-09-26T12:40:56+00:00",
         "artifact_last_utc": "2026-09-25T00:00:00+00:00",
         "artifact_corroborates": true,
-        "age_days": 4.92,
+        "age_days": 5.92,
         "overdue_after_days": 9,
         "status": "OK"
       },
@@ -2355,9 +2355,9 @@
         "cadence": "weekday",
         "proof": "forward_accum_health.json",
         "source": "run-log",
-        "run_id": 36704846744,
-        "last_fired_utc": "2026-09-30T10:50:22+00:00",
-        "artifact_last_utc": "2026-09-30T10:51:09+00:00",
+        "run_id": 36851555607,
+        "last_fired_utc": "2026-10-01T10:49:48+00:00",
+        "artifact_last_utc": "2026-10-01T10:50:38+00:00",
         "artifact_corroborates": true,
         "age_days": 1.0,
         "overdue_after_days": 5,
@@ -2371,9 +2371,9 @@
         "source": "run-log",
         "run_id": 36242688857,
         "last_fired_utc": "2026-09-26T12:40:56+00:00",
-        "artifact_last_utc": "2026-10-01T10:49:57.889557+00:00",
+        "artifact_last_utc": "2026-10-02T10:49:18.516088+00:00",
         "artifact_corroborates": false,
-        "age_days": 4.92,
+        "age_days": 5.92,
         "overdue_after_days": 9,
         "status": "OK"
       },
@@ -2385,9 +2385,9 @@
         "source": "run-log",
         "run_id": 36242688857,
         "last_fired_utc": "2026-09-26T12:40:56+00:00",
-        "artifact_last_utc": "2026-10-01T10:49:57.880737+00:00",
+        "artifact_last_utc": "2026-10-02T10:49:18.507222+00:00",
         "artifact_corroborates": false,
-        "age_days": 4.92,
+        "age_days": 5.92,
         "overdue_after_days": 9,
         "status": "OK"
       },
@@ -2397,9 +2397,9 @@
         "cadence": "weekday",
         "proof": "intraday_scan",
         "source": "run-log",
-        "run_id": 36707444114,
-        "last_fired_utc": "2026-09-30T11:15:43+00:00",
-        "artifact_last_utc": "2026-10-01T10:49:57.884159+00:00",
+        "run_id": 36854324887,
+        "last_fired_utc": "2026-10-01T11:16:23+00:00",
+        "artifact_last_utc": "2026-10-02T10:49:18.510661+00:00",
         "artifact_corroborates": false,
         "age_days": 0.98,
         "overdue_after_days": 5,
@@ -2411,11 +2411,11 @@
         "cadence": "weekday",
         "proof": "paper_portfolio.json",
         "source": "run-log",
-        "run_id": 36719500954,
-        "last_fired_utc": "2026-09-30T13:08:25+00:00",
-        "artifact_last_utc": "2026-10-01T10:49:57.888084+00:00",
+        "run_id": 36866319099,
+        "last_fired_utc": "2026-10-01T13:06:34+00:00",
+        "artifact_last_utc": "2026-10-02T10:49:18.514103+00:00",
         "artifact_corroborates": false,
-        "age_days": 0.9,
+        "age_days": 0.91,
         "overdue_after_days": 5,
         "status": "OK"
       }
@@ -2424,11 +2424,11 @@
     "note": "Dead-man reconstruction produced by the daily monitor (the proven weekday heartbeat). Firing truth is the Actions run log; committed artifacts corroborate only. If THIS block's checked_utc is itself stale, the monitor has stopped and every downstream freshness claim is suspect.",
     "output_contracts": {
       "overall": "RED",
-      "checked_at": "2026-10-01T10:50:37.871706+00:00",
+      "checked_at": "2026-10-02T10:49:53.216664+00:00",
       "history": {
         "adequate": true,
         "shallow": false,
-        "n_commits": 880,
+        "n_commits": 883,
         "oldest_commit": "2026-06-29T03:34:14+05:30",
         "reaches_back_past_cadence": true
       },
@@ -2438,7 +2438,7 @@
           "status": "CONTRACT_BREACH",
           "last_commit": "8ac09cff",
           "committed_at": "2026-09-26T12:49:06Z",
-          "age_days": 4.92,
+          "age_days": 5.92,
           "missing_required": [
             "results/sma_panel",
             "results/brain/position_log.csv.gz",
@@ -2452,8 +2452,8 @@
         {
           "job": "forward-accumulators",
           "status": "OK",
-          "last_commit": "2019aa7f",
-          "committed_at": "2026-09-30T10:51:13Z",
+          "last_commit": "af1aaf16",
+          "committed_at": "2026-10-01T10:50:41Z",
           "age_days": 1.0,
           "missing_required": [],
           "missing_conditional": [],
@@ -2462,8 +2462,8 @@
         {
           "job": "intraday-scan",
           "status": "OK",
-          "last_commit": "8b135389",
-          "committed_at": "2026-09-30T11:16:48Z",
+          "last_commit": "f40156d9",
+          "committed_at": "2026-10-01T11:17:31Z",
           "age_days": 0.98,
           "missing_required": [],
           "missing_conditional": [],
@@ -2472,8 +2472,8 @@
         {
           "job": "forward-wall-log",
           "status": "OK_WITH_WARN",
-          "last_commit": "83cdaf8f",
-          "committed_at": "2026-09-30T13:10:31Z",
+          "last_commit": "d9e21514",
+          "committed_at": "2026-10-01T13:11:56Z",
           "age_days": 0.9,
           "missing_required": [],
           "missing_conditional": [
