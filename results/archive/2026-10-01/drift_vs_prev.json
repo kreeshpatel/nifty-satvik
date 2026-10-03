@@ -1,0 +1,64 @@
+{
+  "prev_snapshot": "2026-09-25",
+  "cur_snapshot": "2026-10-01",
+  "closed_prev": 13,
+  "closed_cur": 19,
+  "closed_delta": 6,
+  "nav_prev": 993530.65,
+  "nav_cur": 973685.12,
+  "nav_delta": -19845.53,
+  "n_restated": 2,
+  "restated": [
+    {
+      "trade": "NATCOPHARM|2026-07-13",
+      "changed": {
+        "entry": [
+          982.39,
+          982.4
+        ],
+        "close_price": [
+          921.59,
+          921.6
+        ]
+      }
+    },
+    {
+      "trade": "NLCINDIA|2026-07-13",
+      "changed": {
+        "entry": [
+          310.0,
+          309.71
+        ],
+        "close_price": [
+          276.0,
+          275.74
+        ]
+      }
+    }
+  ],
+  "n_vanished": 0,
+  "vanished": [],
+  "n_appeared": 6,
+  "appeared": [
+    "ANGELONE|2026-09-14",
+    "CHOLAFIN|2026-09-14",
+    "HINDALCO|2026-08-11",
+    "INDUSINDBK|2026-07-06",
+    "LTF|2026-07-09",
+    "M&MFIN|2026-07-27"
+  ],
+  "inputs_changed": [
+    "nifty50_csv_sha256",
+    "ohlcv_cache_sha256",
+    "ohlcv_last_bar",
+    "ohlcv_n_names",
+    "ohlcv_n_rows"
+  ],
+  "clean": false,
+  "as_of": "2026-10-01",
+  "prev_as_of": "2026-09-25",
+  "gap_days": 6,
+  "backfilled": false,
+  "logged_utc": "2026-10-03T14:16:29.853768+00:00",
+  "is_baseline": false
+}

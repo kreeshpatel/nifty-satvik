@@ -4,16 +4,18 @@
   "status": "WATCHED \u2014 logged, never traded, never surfaced (contains Grade-B names)",
   "authority": "forward/prereg_swing.md \u00a74 (A-only vs base-swing, decided 2027-07-01)",
   "inception": "2026-07-04",
-  "as_of": "2026-09-25",
-  "n_closed": 2,
-  "sharpe": -0.731,
-  "cagr_pct": -13.061,
-  "maxdd_pct": -7.301,
-  "calmar": -1.7889,
+  "as_of": "2026-10-01",
+  "n_closed": 4,
+  "sharpe": -1.2679,
+  "cagr_pct": -19.347,
+  "maxdd_pct": -7.934,
+  "calmar": -2.4386,
   "win_rate_pct": 0.0,
-  "expectancy_R_gross": -1.122,
+  "expectancy_R_gross": -0.8606,
   "exit_reasons": {
-    "stop": 2
+    "stop": 2,
+    "stop_part": 1,
+    "sma_break": 1
   },
   "nav": [
     {
@@ -82,179 +84,195 @@
     },
     {
       "date": "2026-07-28",
-      "equity": 1017426.78
+      "equity": 1015079.6
     },
     {
       "date": "2026-07-29",
-      "equity": 1023711.61
+      "equity": 1013798.79
     },
     {
       "date": "2026-07-30",
-      "equity": 1013597.21
+      "equity": 1007869.68
     },
     {
       "date": "2026-07-31",
-      "equity": 1013016.1
+      "equity": 1004913.8
     },
     {
       "date": "2026-08-03",
-      "equity": 1015941.33
+      "equity": 1012250.8
     },
     {
       "date": "2026-08-04",
-      "equity": 1021034.55
+      "equity": 1022734.2
     },
     {
       "date": "2026-08-05",
-      "equity": 1018972.46
+      "equity": 1015864.71
     },
     {
       "date": "2026-08-06",
-      "equity": 1019711.43
+      "equity": 1012498.87
     },
     {
       "date": "2026-08-07",
-      "equity": 1024062.89
+      "equity": 1020532.19
     },
     {
       "date": "2026-08-10",
-      "equity": 1031024.67
+      "equity": 1023499.71
     },
     {
       "date": "2026-08-11",
-      "equity": 1017226.19
+      "equity": 1008131.45
     },
     {
       "date": "2026-08-12",
-      "equity": 1019694.7
+      "equity": 1010865.82
     },
     {
       "date": "2026-08-13",
-      "equity": 1020721.2
+      "equity": 1009486.84
     },
     {
       "date": "2026-08-14",
-      "equity": 1019191.19
+      "equity": 1002434.47
     },
     {
       "date": "2026-08-17",
-      "equity": 1016310.22
+      "equity": 998386.45
     },
     {
       "date": "2026-08-18",
-      "equity": 1040180.99
+      "equity": 1012834.3
     },
     {
       "date": "2026-08-19",
-      "equity": 1025986.65
+      "equity": 1008913.57
     },
     {
       "date": "2026-08-20",
-      "equity": 1034162.85
+      "equity": 1017463.97
     },
     {
       "date": "2026-08-21",
-      "equity": 1038891.27
+      "equity": 1022395.85
     },
     {
       "date": "2026-08-24",
-      "equity": 1047301.11
+      "equity": 1027613.71
     },
     {
       "date": "2026-08-25",
-      "equity": 1053503.76
+      "equity": 1033623.69
     },
     {
       "date": "2026-08-26",
-      "equity": 1052859.86
+      "equity": 1037233.78
     },
     {
       "date": "2026-08-27",
-      "equity": 1047401.28
+      "equity": 1035666.54
     },
     {
       "date": "2026-08-28",
-      "equity": 1055208.98
+      "equity": 1042524.12
     },
     {
       "date": "2026-08-31",
-      "equity": 1071782.09
+      "equity": 1057592.22
     },
     {
       "date": "2026-09-01",
-      "equity": 1055629.05
+      "equity": 1042229.88
     },
     {
       "date": "2026-09-02",
-      "equity": 1039907.62
+      "equity": 1031418.58
     },
     {
       "date": "2026-09-03",
-      "equity": 1038544.57
+      "equity": 1025020.9
     },
     {
       "date": "2026-09-04",
-      "equity": 1053235.81
+      "equity": 1041905.9
     },
     {
       "date": "2026-09-07",
-      "equity": 1054597.48
+      "equity": 1039851.8
     },
     {
       "date": "2026-09-08",
-      "equity": 1048399.21
+      "equity": 1035733.23
     },
     {
       "date": "2026-09-09",
-      "equity": 1049754.5
+      "equity": 1034174.98
     },
     {
       "date": "2026-09-10",
-      "equity": 1036108.54
+      "equity": 1027171.47
     },
     {
       "date": "2026-09-11",
-      "equity": 1027593.48
+      "equity": 1018521.63
     },
     {
       "date": "2026-09-14",
-      "equity": 1027067.7
+      "equity": 1018365.78
     },
     {
       "date": "2026-09-15",
-      "equity": 1002492.48
+      "equity": 1000291.14
     },
     {
       "date": "2026-09-16",
-      "equity": 1000406.12
+      "equity": 1004274.52
     },
     {
       "date": "2026-09-17",
-      "equity": 1008732.77
+      "equity": 1012113.08
     },
     {
       "date": "2026-09-18",
-      "equity": 1018440.17
+      "equity": 1026125.07
     },
     {
       "date": "2026-09-21",
-      "equity": 1005706.15
+      "equity": 1005486.94
     },
     {
       "date": "2026-09-22",
-      "equity": 1003741.92
+      "equity": 1005967.78
     },
     {
       "date": "2026-09-23",
-      "equity": 1015093.34
+      "equity": 1012511.28
     },
     {
       "date": "2026-09-24",
-      "equity": 997881.25
+      "equity": 1003345.65
     },
     {
       "date": "2026-09-25",
-      "equity": 993530.65
+      "equity": 1000603.89
+    },
+    {
+      "date": "2026-09-28",
+      "equity": 984558.66
+    },
+    {
+      "date": "2026-09-29",
+      "equity": 977134.06
+    },
+    {
+      "date": "2026-09-30",
+      "equity": 983757.5
+    },
+    {
+      "date": "2026-10-01",
+      "equity": 973685.12
     }
   ],
   "_units": "cagr/maxdd/calmar/sharpe are NET of costs, off the NAV curve. expectancy_R is GROSS \u2014 R is computed on raw prices (run_bhanushali_weekly_rank), so it is NOT comparable to the net NAV metrics. \u00a74 decides on MaxDD and Calmar only.",
