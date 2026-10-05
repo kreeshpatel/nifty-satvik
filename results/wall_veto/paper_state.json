@@ -1,24 +1,13 @@
 {
-  "cash": 201203.34588179397,
+  "cash": 416253.1213946963,
   "peak": 1026655.7556091606,
   "pending": [
-    "HFCL"
+    "KIRLOSENG",
+    "SONACOMS",
+    "SAILIFE",
+    "MCX"
   ],
   "positions": {
-    "BHARATFORG": {
-      "ticker": "BHARATFORG",
-      "entry_date": "2026-08-26 00:00:00",
-      "entry": 2053.52625,
-      "qty": 10,
-      "stop": 1846.4275019671857,
-      "target": 2515.9803615,
-      "peak": 2104.89990234375,
-      "atr_pct": 2.7479647058662486,
-      "adv": 2485016448.5,
-      "days_held": 25,
-      "last_mark": 1875.0,
-      "absent_run": 0
-    },
     "HONASA": {
       "ticker": "HONASA",
       "entry_date": "2026-08-28 00:00:00",
@@ -29,8 +18,8 @@
       "peak": 484.8999938964844,
       "atr_pct": 3.217832529272994,
       "adv": 992445757.9546967,
-      "days_held": 23,
-      "last_mark": 427.8999938964844,
+      "days_held": 24,
+      "last_mark": 442.1000061035156,
       "absent_run": 0
     },
     "RRKABEL": {
@@ -43,8 +32,8 @@
       "peak": 2651.325,
       "atr_pct": 3.8894393329346544,
       "adv": 1160522850.5976927,
-      "days_held": 19,
-      "last_mark": 2518.199951171875,
+      "days_held": 20,
+      "last_mark": 2648.0,
       "absent_run": 0
     },
     "LAURUSLABS": {
@@ -57,36 +46,8 @@
       "peak": 2034.0,
       "atr_pct": 2.3240037222384395,
       "adv": 6404766944.0,
-      "days_held": 18,
-      "last_mark": 1984.0,
-      "absent_run": 0
-    },
-    "SYRMA": {
-      "ticker": "SYRMA",
-      "entry_date": "2026-09-16 00:00:00",
-      "entry": 1509.6544744262694,
-      "qty": 63,
-      "stop": 1300.4467669120818,
-      "target": 1849.6286620670653,
-      "peak": 1782.9000244140625,
-      "atr_pct": 3.7760180161364483,
-      "adv": 2384860307.2631836,
-      "days_held": 11,
-      "last_mark": 1717.9000244140625,
-      "absent_run": 0
-    },
-    "SONACOMS": {
-      "ticker": "SONACOMS",
-      "entry_date": "2026-09-16 00:00:00",
-      "entry": 780.9902755737304,
-      "qty": 123,
-      "stop": 704.2439673250041,
-      "target": 956.8692856329345,
-      "peak": 833.0,
-      "atr_pct": 2.6776006394407097,
-      "adv": 1233363148.8000002,
-      "days_held": 11,
-      "last_mark": 805.0,
+      "days_held": 19,
+      "last_mark": 1971.4000244140625,
       "absent_run": 0
     },
     "CHENNPETRO": {
@@ -99,8 +60,8 @@
       "peak": 1473.4363011474609,
       "atr_pct": 4.514689813101478,
       "adv": 2984663281.6,
-      "days_held": 11,
-      "last_mark": 1346.4000244140625,
+      "days_held": 12,
+      "last_mark": 1401.0,
       "absent_run": 0
     },
     "FEDERALBNK": {
@@ -113,22 +74,8 @@
       "peak": 341.9708877868652,
       "atr_pct": 1.9940904524157377,
       "adv": 1716930689.9016054,
-      "days_held": 11,
-      "last_mark": 318.20001220703125,
-      "absent_run": 0
-    },
-    "SAILIFE": {
-      "ticker": "SAILIFE",
-      "entry_date": "2026-09-17 00:00:00",
-      "entry": 1538.6689744262694,
-      "qty": 62,
-      "stop": 1359.2650247675224,
-      "target": 1885.1772274670654,
-      "peak": 1609.5999755859375,
-      "atr_pct": 3.1770257801543673,
-      "adv": 1366767483.5592897,
-      "days_held": 10,
-      "last_mark": 1541.199951171875,
+      "days_held": 12,
+      "last_mark": 327.3500061035156,
       "absent_run": 0
     },
     "AEGISLOG": {
@@ -141,8 +88,8 @@
       "peak": 1406.502948852539,
       "atr_pct": 4.8546062016398235,
       "adv": 1324423492.0109253,
-      "days_held": 5,
-      "last_mark": 1401.0999755859375,
+      "days_held": 6,
+      "last_mark": 1359.5,
       "absent_run": 0
     },
     "BHEL": {
@@ -152,11 +99,11 @@
       "qty": 22,
       "stop": 372.2110679299275,
       "target": 512.08321365,
-      "peak": 421.0,
+      "peak": 429.0,
       "atr_pct": 2.9824327874136682,
       "adv": 2625043601.0339265,
-      "days_held": 4,
-      "last_mark": 421.0,
+      "days_held": 5,
+      "last_mark": 429.0,
       "absent_run": 0
     },
     "GRANULES": {
@@ -169,8 +116,8 @@
       "peak": 850.425,
       "atr_pct": 3.040402578645517,
       "adv": 1306881966.3125,
-      "days_held": 2,
-      "last_mark": 821.75,
+      "days_held": 3,
+      "last_mark": 817.25,
       "absent_run": 0
     },
     "HSCL": {
@@ -183,8 +130,8 @@
       "peak": 667.4335255737304,
       "atr_pct": 3.4717778169205795,
       "adv": 1894386269.8725126,
-      "days_held": 1,
-      "last_mark": 665.1500244140625,
+      "days_held": 2,
+      "last_mark": 659.8499755859375,
       "absent_run": 0
     },
     "APARINDS": {
@@ -194,11 +141,25 @@
       "qty": 5,
       "stop": 14702.544309004052,
       "target": 21309.5262384,
-      "peak": 17392.692,
+      "peak": 18102.0,
       "atr_pct": 4.214472779867222,
       "adv": 2436264044.8,
+      "days_held": 1,
+      "last_mark": 18102.0,
+      "absent_run": 0
+    },
+    "HFCL": {
+      "ticker": "HFCL",
+      "entry_date": "2026-10-05 00:00:00",
+      "entry": 238.10900049591064,
+      "qty": 426,
+      "stop": 200.62934746969634,
+      "target": 291.73114740758973,
+      "peak": 238.10900049591064,
+      "atr_pct": 4.288976685219858,
+      "adv": 1801593114.675228,
       "days_held": 0,
-      "last_mark": 17392.692,
+      "last_mark": 238.10900049591064,
       "absent_run": 0
     }
   },
@@ -514,6 +475,54 @@
       "reason": "trailing",
       "return_pct": -0.47,
       "pnl": -1028.75
+    },
+    {
+      "ticker": "BHARATFORG",
+      "entry_date": "2026-08-26",
+      "exit_date": "2026-10-05",
+      "entry": 2053.53,
+      "exit": 1832.08,
+      "qty": 10,
+      "days_held": 26,
+      "reason": "stop",
+      "return_pct": -10.78,
+      "pnl": -2264.94
+    },
+    {
+      "ticker": "SYRMA",
+      "entry_date": "2026-09-16",
+      "exit_date": "2026-10-05",
+      "entry": 1509.65,
+      "exit": 1699.55,
+      "qty": 63,
+      "days_held": 12,
+      "reason": "trailing",
+      "return_pct": 12.58,
+      "pnl": 11700.57
+    },
+    {
+      "ticker": "SONACOMS",
+      "entry_date": "2026-09-16",
+      "exit_date": "2026-10-05",
+      "entry": 780.99,
+      "exit": 796.6,
+      "qty": 123,
+      "days_held": 12,
+      "reason": "trailing",
+      "return_pct": 2.0,
+      "pnl": 1667.92
+    },
+    {
+      "ticker": "SAILIFE",
+      "entry_date": "2026-09-17",
+      "exit_date": "2026-10-05",
+      "entry": 1538.67,
+      "exit": 1510.54,
+      "qty": 62,
+      "days_held": 11,
+      "reason": "trailing",
+      "return_pct": -1.83,
+      "pnl": -1989.49
     }
   ],
   "equity_curve": [
@@ -918,6 +927,12 @@
       "equity": 985409.15,
       "cash": 201203.35,
       "n_positions": 14
+    },
+    {
+      "date": "2026-10-05",
+      "equity": 987438.99,
+      "cash": 416253.12,
+      "n_positions": 11
     }
   ],
   "config": {
