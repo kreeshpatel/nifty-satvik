@@ -1,56 +1,39 @@
 {
-  "generated_at": "2026-10-05",
+  "generated_at": "2026-10-06",
   "signals": [
     {
-      "ticker": "SYRMA",
-      "entry": 1701.25,
-      "stop": 1459.05,
-      "target": 2084.37,
+      "ticker": "HFCL",
+      "entry": 262.91,
+      "stop": 223.29,
+      "target": 322.12,
       "target_pct": 22.52,
-      "current_price": 1700.4,
-      "close": 1700.4,
-      "signal_date": "2026-10-05",
+      "current_price": 262.78,
+      "close": 262.78,
+      "signal_date": "2026-10-06",
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
       "status": "FRESH",
       "buy_window": "T+1..T+3 at open",
-      "indicative_close": 1700.4,
-      "indicative_entry": 1701.25
-    },
-    {
-      "ticker": "SONACOMS",
-      "entry": 797.4,
-      "stop": 715.17,
-      "target": 976.97,
-      "target_pct": 22.52,
-      "current_price": 797.0,
-      "close": 797.0,
-      "signal_date": "2026-10-05",
-      "hold_days": 63,
-      "grade": "B",
-      "tier": "signal",
-      "status": "FRESH",
-      "buy_window": "T+1..T+3 at open",
-      "indicative_close": 797.0,
-      "indicative_entry": 797.4
+      "indicative_close": 262.78,
+      "indicative_entry": 262.91
     },
     {
       "ticker": "GRANULES",
-      "entry": 817.66,
-      "stop": 718.66,
-      "target": 1001.8,
+      "entry": 836.82,
+      "stop": 738.13,
+      "target": 1025.27,
       "target_pct": 22.52,
-      "current_price": 817.25,
-      "close": 817.25,
+      "current_price": 836.4,
+      "close": 836.4,
       "signal_date": "2026-10-05",
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
-      "status": "FRESH",
+      "status": "ACTIVE",
       "buy_window": "T+1..T+3 at open",
-      "indicative_close": 817.25,
-      "indicative_entry": 817.66
+      "indicative_close": 836.4,
+      "indicative_entry": 836.82
     }
   ],
   "regime": {
@@ -59,12 +42,12 @@
     "vix": 0,
     "breadth": 0
   },
-  "n_positions": 12,
-  "cash": 197887.63,
+  "n_positions": 13,
+  "cash": 118590.37,
   "kill_state": {
     "wr_last20": 40.0,
     "wr_breach": true,
-    "sharpe_30d": 1.512,
+    "sharpe_30d": 1.178,
     "sharpe_30d_breach": false,
     "mode": "observe"
   }
