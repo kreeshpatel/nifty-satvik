@@ -1,53 +1,18 @@
 {
-  "generated_at": "2026-10-06",
-  "signals": [
-    {
-      "ticker": "HFCL",
-      "entry": 262.91,
-      "stop": 223.29,
-      "target": 322.12,
-      "target_pct": 22.52,
-      "current_price": 262.78,
-      "close": 262.78,
-      "signal_date": "2026-10-06",
-      "hold_days": 63,
-      "grade": "B",
-      "tier": "signal",
-      "status": "FRESH",
-      "buy_window": "T+1..T+3 at open",
-      "indicative_close": 262.78,
-      "indicative_entry": 262.91
-    },
-    {
-      "ticker": "GRANULES",
-      "entry": 836.82,
-      "stop": 738.13,
-      "target": 1025.27,
-      "target_pct": 22.52,
-      "current_price": 836.4,
-      "close": 836.4,
-      "signal_date": "2026-10-05",
-      "hold_days": 63,
-      "grade": "B",
-      "tier": "signal",
-      "status": "ACTIVE",
-      "buy_window": "T+1..T+3 at open",
-      "indicative_close": 836.4,
-      "indicative_entry": 836.82
-    }
-  ],
+  "generated_at": "2026-10-07",
+  "signals": [],
   "regime": {
     "status": "UNKNOWN",
     "strength": 0,
     "vix": 0,
     "breadth": 0
   },
-  "n_positions": 13,
-  "cash": 118590.37,
+  "n_positions": 15,
+  "cash": 618.93,
   "kill_state": {
     "wr_last20": 40.0,
     "wr_breach": true,
-    "sharpe_30d": 1.178,
+    "sharpe_30d": 1.341,
     "sharpe_30d_breach": false,
     "mode": "observe"
   }
