@@ -1,7 +1,9 @@
 {
-  "cash": 5106.817711186697,
+  "cash": 46369.4379802367,
   "peak": 1026655.7556091606,
-  "pending": [],
+  "pending": [
+    "CHENNPETRO"
+  ],
   "positions": {
     "HONASA": {
       "ticker": "HONASA",
@@ -13,8 +15,8 @@
       "peak": 484.8999938964844,
       "atr_pct": 3.217832529272994,
       "adv": 992445757.9546967,
-      "days_held": 26,
-      "last_mark": 477.04998779296875,
+      "days_held": 27,
+      "last_mark": 467.5,
       "absent_run": 0
     },
     "RRKABEL": {
@@ -27,8 +29,8 @@
       "peak": 2789.699951171875,
       "atr_pct": 3.8894393329346544,
       "adv": 1160522850.5976927,
-      "days_held": 22,
-      "last_mark": 2722.5,
+      "days_held": 23,
+      "last_mark": 2696.39990234375,
       "absent_run": 0
     },
     "LAURUSLABS": {
@@ -41,22 +43,8 @@
       "peak": 2052.800048828125,
       "atr_pct": 2.3240037222384395,
       "adv": 6404766944.0,
-      "days_held": 21,
-      "last_mark": 2052.800048828125,
-      "absent_run": 0
-    },
-    "CHENNPETRO": {
-      "ticker": "CHENNPETRO",
-      "entry_date": "2026-09-16 00:00:00",
-      "entry": 1473.4363011474609,
-      "qty": 27,
-      "stop": 1229.3039427205326,
-      "target": 1805.254156165869,
-      "peak": 1612.300048828125,
-      "atr_pct": 4.514689813101478,
-      "adv": 2984663281.6,
-      "days_held": 14,
-      "last_mark": 1612.300048828125,
+      "days_held": 22,
+      "last_mark": 1997.9000244140625,
       "absent_run": 0
     },
     "FEDERALBNK": {
@@ -69,8 +57,8 @@
       "peak": 341.9708877868652,
       "atr_pct": 1.9940904524157377,
       "adv": 1716930689.9016054,
-      "days_held": 14,
-      "last_mark": 323.5,
+      "days_held": 15,
+      "last_mark": 321.0,
       "absent_run": 0
     },
     "AEGISLOG": {
@@ -83,8 +71,8 @@
       "peak": 1460.199951171875,
       "atr_pct": 4.8546062016398235,
       "adv": 1324423492.0109253,
-      "days_held": 8,
-      "last_mark": 1460.199951171875,
+      "days_held": 9,
+      "last_mark": 1382.300048828125,
       "absent_run": 0
     },
     "BHEL": {
@@ -97,8 +85,8 @@
       "peak": 452.0,
       "atr_pct": 2.9824327874136682,
       "adv": 2625043601.0339265,
-      "days_held": 7,
-      "last_mark": 448.5,
+      "days_held": 8,
+      "last_mark": 429.6000061035156,
       "absent_run": 0
     },
     "GRANULES": {
@@ -111,8 +99,8 @@
       "peak": 850.425,
       "atr_pct": 3.040402578645517,
       "adv": 1306881966.3125,
-      "days_held": 5,
-      "last_mark": 845.2999877929688,
+      "days_held": 6,
+      "last_mark": 815.0499877929688,
       "absent_run": 0
     },
     "HSCL": {
@@ -125,8 +113,8 @@
       "peak": 672.9500122070312,
       "atr_pct": 3.4717778169205795,
       "adv": 1894386269.8725126,
-      "days_held": 4,
-      "last_mark": 672.9500122070312,
+      "days_held": 5,
+      "last_mark": 660.0499877929688,
       "absent_run": 0
     },
     "APARINDS": {
@@ -139,8 +127,8 @@
       "peak": 18160.0,
       "atr_pct": 4.214472779867222,
       "adv": 2436264044.8,
-      "days_held": 3,
-      "last_mark": 18160.0,
+      "days_held": 4,
+      "last_mark": 17816.0,
       "absent_run": 0
     },
     "HFCL": {
@@ -153,8 +141,8 @@
       "peak": 271.8999938964844,
       "atr_pct": 4.288976685219858,
       "adv": 1801593114.675228,
-      "days_held": 2,
-      "last_mark": 271.8999938964844,
+      "days_held": 3,
+      "last_mark": 258.30999755859375,
       "absent_run": 0
     },
     "KIRLOSENG": {
@@ -167,8 +155,8 @@
       "peak": 2259.929448852539,
       "atr_pct": 4.489888318469929,
       "adv": 1655388840.6580076,
-      "days_held": 1,
-      "last_mark": 2230.800048828125,
+      "days_held": 2,
+      "last_mark": 2163.0,
       "absent_run": 0
     },
     "SONACOMS": {
@@ -181,8 +169,8 @@
       "peak": 810.5,
       "atr_pct": 2.7539655010388153,
       "adv": 1932486455.9999998,
-      "days_held": 1,
-      "last_mark": 810.5,
+      "days_held": 2,
+      "last_mark": 793.0,
       "absent_run": 0
     },
     "SAILIFE": {
@@ -195,8 +183,8 @@
       "peak": 1561.800048828125,
       "atr_pct": 3.19796404807869,
       "adv": 946030393.601532,
-      "days_held": 1,
-      "last_mark": 1561.800048828125,
+      "days_held": 2,
+      "last_mark": 1505.5999755859375,
       "absent_run": 0
     },
     "MCX": {
@@ -209,8 +197,8 @@
       "peak": 3362.60009765625,
       "atr_pct": 3.2545676669524632,
       "adv": 6157977291.0,
-      "days_held": 1,
-      "last_mark": 3362.60009765625,
+      "days_held": 2,
+      "last_mark": 3255.60009765625,
       "absent_run": 0
     }
   },
@@ -574,6 +562,18 @@
       "reason": "trailing",
       "return_pct": -1.83,
       "pnl": -1989.49
+    },
+    {
+      "ticker": "CHENNPETRO",
+      "entry_date": "2026-09-16",
+      "exit_date": "2026-10-08",
+      "entry": 1473.44,
+      "exit": 1530.23,
+      "qty": 27,
+      "days_held": 15,
+      "reason": "trailing",
+      "return_pct": 3.85,
+      "pnl": 1428.12
     }
   ],
   "equity_curve": [
@@ -996,6 +996,12 @@
       "equity": 1021323.43,
       "cash": 5106.82,
       "n_positions": 15
+    },
+    {
+      "date": "2026-10-08",
+      "equity": 989423.1,
+      "cash": 46369.44,
+      "n_positions": 14
     }
   ],
   "config": {

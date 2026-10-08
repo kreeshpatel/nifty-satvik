@@ -448,5 +448,20 @@
     "net_pct": -1.83,
     "net_pnl": -1989.49,
     "hold_days": 11
+  },
+  {
+    "ticker": "CHENNPETRO",
+    "entry_date": "2026-09-16",
+    "exit_date": "2026-10-08",
+    "entry": 1473.44,
+    "exit": 1530.23,
+    "qty": 27,
+    "days_held": 15,
+    "reason": "trailing",
+    "return_pct": 3.85,
+    "pnl": 1428.12,
+    "net_pct": 3.85,
+    "net_pnl": 1428.12,
+    "hold_days": 15
   }
 ]
