@@ -215,6 +215,27 @@ genesis cohort. Thresholds may be tightened, never retroactively relaxed; this i
 **calling clock**, visible without opening a single verdict. Deciding its treatment after seeing the
 data would be exactly the degree of freedom the pre-registration exists to remove.
 
+**2026-10-13 — DECLARED OUTAGE: two Saturday weeks carry no clean verdicts.**
+
+Established from the scanner's run logs and cron history only; the sealed log was not opened.
+
+- **2026-10-03 scan (cards `as_of` 2026-10-01): every judge call failed.** The Actions log shows
+  each card's call returning HTTP 400 *"Your credit balance is too low to access the Anthropic API"*
+  (run 37128957384). §6 worked as designed: the failures were logged, the scanner succeeded, nothing
+  was invented, and no other model was substituted.
+- **2026-10-10 scan: never ran.** The scanner halted on the ADR-0013 seam-expiry escalation (run
+  38053134326) before the judge step, so that week's cards were never issued to the judge.
+
+Credit was restored by the owner on 2026-10-13, and ADR-0016 re-opened the scan path; the next
+scheduled call is Saturday 2026-10-17.
+
+**Treatment, fixed now and before any read:** the two weeks are a **declared gap**, not missing
+data to be filled. Their cards are **not** to be called late: a call made days after `as_of` hands
+the judge the news drift the 2026-08-05 entry already classified as LATE-CALLED, and calling them
+now would manufacture a second late cohort. The §7 accrual counts (`≥100 resolved verdicts`) simply
+do not advance for these weeks. The first review read must report the gap by date beside the
+verdict count, so a thinner cohort is never read as a quieter market.
+
 ## OUTCOME
 
 *(appended after the first review read — never above the immutable sections)*
