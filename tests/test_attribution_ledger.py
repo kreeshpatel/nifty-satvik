@@ -324,3 +324,20 @@ def test_events_join_on_fill_date_and_absent_stream_is_none_not_zero(tmp_path, m
     got = C._events()
     assert len(got[("CUB", "2026-07-06")]) == 3
     assert ("CUB", "2026-07-03") not in got, "keyed on the FILL date, not the signal date"
+
+
+def test_an_erased_trade_is_declared_by_name_and_only_it_is_excused():
+    """Owner option (c), 2026-10-13: HEG's erased trade is a named hole, not a silent pass. The excuse
+    is per trade_id — any OTHER entered trade with no outcome must still fail --validate."""
+    import pandas as pd
+    df = pd.DataFrame([
+        {"trade_id": "HEG:2026-07-24", "state": "open", "status": None, "exit_reason": None,
+         "entry": 1.0, "stop": 0.9, "stop_width_pct": 10.0},
+        {"trade_id": "ZZZ:2026-07-24", "state": "open", "status": None, "exit_reason": None,
+         "entry": 1.0, "stop": 0.9, "stop_width_pct": 10.0},
+    ])
+    assert any("1 entered trade(s) with no outcome" in h for h in C.holes(df)), "ZZZ must still fail"
+    assert not any("no outcome" in h for h in C.holes(df.iloc[:1])), "HEG alone is declared"
+
+def test_the_live_ledger_names_the_erased_trade(built):
+    assert any("HEG:2026-07-24" in n and "ERASED" in n for n in C.notes(built))

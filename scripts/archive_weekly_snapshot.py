@@ -119,6 +119,18 @@ def _closed_index(history: list) -> dict:
     return out
 
 
+def _all_keys(history: list) -> set:
+    """Every trade in the history, open or closed, keyed as in `_closed_index`."""
+    return {f"{h.get('ticker')}|{h.get('signal_date')}"
+            for h in (history if isinstance(history, list) else []) if isinstance(h, dict)}
+
+
+def _open_keys(history: list) -> set:
+    return {f"{h.get('ticker')}|{h.get('signal_date')}"
+            for h in (history if isinstance(history, list) else [])
+            if isinstance(h, dict) and h.get("status") == "ACTIVE"}
+
+
 def diff_snapshots(prev_dir: Path, cur_dir: Path) -> dict:
     """What moved between two snapshots — including RETROACTIVE restatements of closed trades."""
     pv_hist = _read_json(prev_dir / "signals_history_weekly.json", [])
@@ -132,6 +144,10 @@ def diff_snapshots(prev_dir: Path, cur_dir: Path) -> dict:
             restated.append({"trade": k, "changed": moved})
     vanished = sorted(set(pv) - set(cu))
     appeared = sorted(set(cu) - set(pv))
+    # An OPEN position that is neither open nor closed next week was erased, not exited. Closed-only
+    # tracking missed exactly this on 2026-10-03: the vendor truncated HEG's history to 2026-07-17,
+    # the 44w SMA could not be built, and the from-inception rebuild deleted the open HEG trade.
+    vanished_open = sorted(_open_keys(pv_hist) - _all_keys(cu_hist))
 
     pv_pf = _read_json(prev_dir / "paper_portfolio_weekly.json", {})
     cu_pf = _read_json(cur_dir / "paper_portfolio_weekly.json", {})
@@ -155,8 +171,9 @@ def diff_snapshots(prev_dir: Path, cur_dir: Path) -> dict:
         "n_restated": len(restated), "restated": restated,
         "n_vanished": len(vanished), "vanished": vanished,
         "n_appeared": len(appeared), "appeared": appeared,
+        "n_vanished_open": len(vanished_open), "vanished_open": vanished_open,
         "inputs_changed": inputs_moved,
-        "clean": not restated and not vanished,
+        "clean": not restated and not vanished and not vanished_open,
     }
 
 
@@ -259,7 +276,10 @@ def main(argv=None) -> int:
     if d.get("prev_snapshot"):
         print(f"  vs {d['prev_snapshot']}: closed {d['closed_prev']} -> {d['closed_cur']} "
               f"({d['closed_delta']:+d}) | NAV delta {d['nav_delta']}")
-        print(f"  restated {d['n_restated']} | vanished {d['n_vanished']} | appeared {d['n_appeared']}")
+        print(f"  restated {d['n_restated']} | vanished {d['n_vanished']} | appeared {d['n_appeared']}"
+              f" | vanished open {d.get('n_vanished_open', 0)}")
+        for k in d.get("vanished_open", []):
+            print(f"    VANISHED OPEN {k}: held last week, neither open nor closed now")
         if d["inputs_changed"]:
             print(f"  inputs changed: {', '.join(d['inputs_changed'])}")
         for r in d["restated"][:10]:
