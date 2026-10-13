@@ -29,8 +29,7 @@ row. The log shows it working:
 
 - `results/forward_wall.csv`: **43 rows, 2026-08-12 → 2026-10-13**, all three books populated.
 - **37 `ok` rows; on every one the veto arm differs from base**, so the arm is genuinely live, not a copy.
-- **6 `gap` rows, 2026-08-24 → 2026-08-31**, written as gaps rather than skipped. The chain records them
-  honestly; their cause is not diagnosed on this page.
+- **6 `gap` rows, 2026-08-24 → 2026-08-31**, written as gaps rather than skipped. Diagnosed 2026-10-13 (below).
 
 ## Why the restoration does not need to wait for the veto-arm decision
 
@@ -55,8 +54,14 @@ fix to the logger, not a change to any book, threshold or decision rule.
 
 ## Caveats the owner should carry, not resolve here
 
-1. **The six gap sessions (2026-08-24 → 08-31)** are undiagnosed. If they came from the factor build,
-   option A would have turned them red, which is the behaviour wanted, but the cause is worth one look.
+1. **The six gap sessions (2026-08-24 → 08-31) — diagnosed 2026-10-13, already fixed.** The runs on
+   08-24..28 concluded green while the wall gained no row: a cache defect stalled it, and nothing checked
+   that a row was actually written. Two controls landed on 2026-08-30 (`2fbf30b`, `2f7cbdc`):
+   `scripts/assert_wall_advanced.py` turns a run red when the wall does not advance (it fired correctly on
+   08-31), and a multi-session catch-up is written as hash-chained `gap` markers instead of reconstructed
+   `ok` rows, per the wall pre-registration's section 3 rule 4. The 09-01 run did exactly that, which is
+   where the six gaps come from. Every session since has logged `ok` (37 rows to 2026-10-13). With the
+   contract restored, a recurrence now trips two independent reds.
 2. **HML staleness.** The factor builder carries each name's last available book value forward against
    the live price, so the value factor, and therefore the veto arm's residual ranks, ages as the
    fundamentals scrape ages. The arm logs a real, different book, but its quality as a measurement
