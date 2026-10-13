@@ -28,6 +28,7 @@ from __future__ import annotations
 import argparse
 import glob
 import json
+import sys
 from datetime import date
 from pathlib import Path
 
@@ -85,7 +86,9 @@ def _book_short(label: str | None) -> str:
 
 
 def render(scorecard: dict, book_identity: dict | None, forensics: dict | None,
-           ledger: pd.DataFrame | None, portfolio: dict | None) -> str:
+           ledger: pd.DataFrame | None, portfolio: dict | None, *,
+           events: list[dict] | None = None, drift: dict | None = None,
+           erased: dict[str, str] | None = None) -> str:
     """The page. Pure: no I/O, no clock, no network — so a golden file can pin it."""
     L: list[str] = []
     as_of = scorecard.get("generated_ist") or scorecard.get("generated_utc") or "?"
@@ -210,8 +213,62 @@ def render(scorecard: dict, book_identity: dict | None, forensics: dict | None,
                       "UNDERSTATEMENTS — bounded by the true excursion, never beyond it. A capture near "
                       "-1 means the trade gave back its whole favourable move and then the risk."]
 
+    # ── 5. management events (B3 stream) ───────────────────────────────────────────────────────────
+    # Rendered only when the stream is passed, so a page built before the stream existed is unchanged.
+    if events is not None:
+        since = (drift or {}).get("prev_as_of")
+        L += ["", "## 5. How the capital book managed its positions", "",
+              "From `results/brain/management_events.jsonl` (the engine's `event_log`, rebuilt from "
+              "inception each scan). Partial bookings, stop ratchets, trail updates and halts — the "
+              "decisions an exit row alone cannot show."]
+        if not events:
+            L += ["", "No management event since inception. An empty stream is a fact, not a gap."]
+        else:
+            evs = sorted(events, key=lambda e: (str(e.get("event_date")), int(e.get("event_seq") or 0)))
+            n_new = sum(1 for e in evs if since and str(e.get("event_date")) > since)
+            L += ["", f"{len(evs)} event(s) since inception"
+                  + (f"; {n_new} dated after the previous snapshot ({since})." if since else "."), "",
+                  "| date | trade | event | fraction | price | stop before -> after | reason |",
+                  "|---|---|---|---|---|---|---|"]
+            for e in evs:
+                stop = ("-" if e.get("stop_before") is None and e.get("stop_after") is None else
+                        f"{_num(e.get('stop_before'))} -> {_num(e.get('stop_after'))}")
+                new_mark = " **new**" if since and str(e.get("event_date")) > since else ""
+                L.append(f"| {e.get('event_date')}{new_mark} | {e.get('trade_id')} | {e.get('event_type')} | "
+                         f"{_num(e.get('fraction'), 2)} | {_num(e.get('price'))} | {stop} | "
+                         f"{e.get('reason_code', '')} |")
+            L += ["", "Manual overrides are not in this stream (declared hole): the engine cannot see them."]
+
+    # ── 6. record integrity ────────────────────────────────────────────────────────────────────────
+    if drift is not None or erased:
+        L += ["", "## 6. Did the past change this week?", "",
+              "The history is rebuilt from inception every scan, so a vendor rewrite can restate or erase "
+              "a past trade. From the latest `results/archive/drift_log.jsonl` entry."]
+        if drift is not None:
+            def _k(xs):                       # drift keys are TICKER|date — a pipe would split the cell
+                return ", ".join(str(x).replace("|", ":") for x in xs) or "-"
+            vo = drift.get("vanished_open")
+            L += ["", "| check | count | trades |", "|---|---|---|",
+                  f"| closed trades restated | {drift.get('n_restated', 0)} | "
+                  f"{_k(r.get('trade', '?') for r in drift.get('restated', []))} |",
+                  f"| closed trades vanished | {drift.get('n_vanished', 0)} | "
+                  f"{_k(drift.get('vanished', []))} |",
+                  f"| open trades vanished | "
+                  f"{'not checked' if vo is None else len(vo)} | "
+                  f"{'entry predates the check (2026-10-13)' if vo is None else _k(vo)} |",
+                  f"| new closures | {drift.get('n_appeared', 0)} | {_k(drift.get('appeared', []))} |",
+                  "",
+                  f"Snapshot {drift.get('as_of')} vs {drift.get('prev_as_of')} "
+                  f"({drift.get('gap_days')} days{', BACKFILLED' if drift.get('backfilled') else ''}): "
+                  f"**{'clean' if drift.get('clean') else 'NOT clean'}**. Inputs changed: "
+                  f"{', '.join(drift.get('inputs_changed', [])) or 'none'}."]
+        if erased:
+            L += ["", "**Erased trades, declared not reconstructed** (owner option (c)):"]
+            L += [f"* `{k}` — {v}" for k, v in sorted(erased.items())]
+
     # ── 5. what is deliberately absent ──────────────────────────────────────────────────────────────
-    L += ["", "## 5. What this page does not contain", "",
+    L += ["", f"## {7 if (events is not None or drift is not None or erased) else 5}. "
+              "What this page does not contain", "",
           f"* **The AI judge stream.** `results/{SEALED}` is sealed until the first review read "
           f"(>= 2 quarters from 2026-08-01 AND >= 100 resolved verdicts). This renderer never opens it.",
           "* **Owner overrides.** No source exists — the engine cannot see a discretionary deviation, "
@@ -237,7 +294,17 @@ def main(argv: list[str] | None = None) -> int:
     pf_path = RESULTS / "paper_portfolio_weekly.json"
     portfolio = json.loads(pf_path.read_text(encoding="utf-8")) if pf_path.is_file() else None
 
-    page = render(scorecard, book_identity, forensics, ledger, portfolio)
+    ev_path = OUT_DIR / "management_events.jsonl"
+    events = ([json.loads(x) for x in ev_path.read_text(encoding="utf-8").splitlines() if x.strip()]
+              if ev_path.is_file() else None)
+    dl = RESULTS / "archive" / "drift_log.jsonl"
+    drift_rows = [json.loads(x) for x in dl.read_text(encoding="utf-8").splitlines() if x.strip()]         if dl.is_file() else []
+    drift = drift_rows[-1] if drift_rows else None
+    sys.path.insert(0, str(ROOT / "scripts"))
+    from collect_attribution_ledger import ERASED_TRADES
+
+    page = render(scorecard, book_identity, forensics, ledger, portfolio,
+                  events=events, drift=drift, erased=ERASED_TRADES)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     out = OUT_DIR / f"postmortem_{args.out_date}.md"
     out.write_text(page + "\n", encoding="utf-8")
