@@ -773,7 +773,10 @@ def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
     from datetime import date, timedelta
     from nq.data.ohlcv import download_ohlcv, merge_ohlcv, save_ohlcv_cache
     from run_cpcv import build_universe
-    universe = build_universe("current")
+    # LIVE UNIVERSE (owner 2026-10-13, ADR-0017, config `live_universe_change`): the carried snapshot UNION
+    # current PIT members. The snapshot alone had gone ~10% stale and never scanned successors (TMPV, LTM, ...).
+    # Membership still gates eligibility, so an ex-member downloaded here cannot signal.
+    universe = build_universe("union")
     hist_start = (pd.to_datetime(start) - pd.Timedelta(days=history_days)).date().isoformat()
     today = date.today().isoformat()
     inc_start = (date.today() - timedelta(days=25)).isoformat()   # 25d overlaps a weekly gap comfortably

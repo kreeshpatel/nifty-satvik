@@ -129,3 +129,16 @@ Format: date — model — what changed — why — evidence — reversal.
   44-week window after as_of 2026-11-05. Without the extension, three more forward weeks would be lost.
 - **Guards kept:** both escalation triggers stay armed. The 2026-10-10 week is recorded as lost.
 - **Reasoning:** `docs/decisions/0016-extend-trent-seam-acceptance.md`.
+
+## 2026-10-13 — Live scan downloads current index members (ADR-0017)
+
+- **What:** `_refresh_ohlcv` in `scripts/run_bhanushali_cron.py` downloads `build_universe("union")` (the
+  carried snapshot union current PIT members) instead of `build_universe("current")`. Dated config block
+  `live_universe_change`.
+- **Why:** the snapshot was ~10% stale. 48 current members were never scanned, including the successors
+  of dead symbols (TMPV, TMCV, LTM, PIRAMALFIN, SWANCORP). Membership already blocked ex-members from
+  signalling.
+- **Mid-quarter, by owner decision:** recorded against the forward-wall pre-registration's section 9
+  (no config changes between review dates). From the 2026-10-17 scan, cards can include previously
+  unscanned names; cross-date forward comparisons must note it.
+- **Unchanged:** the record path, every backtest number, both golden masters.
