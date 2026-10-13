@@ -204,9 +204,12 @@ def test_the_ledger_carries_both_bases_and_says_which_it_used(built):
 def test_the_known_disagreements_are_surfaced_not_silent(built):
     closed = built[built["exit_reason"].notna()]
     wide = set(closed.loc[closed["width_gap_pct"] > 5.0, "ticker"])
-    assert wide == {"CCL", "HINDZINC", "3MINDIA"}, f"expected the three known disagreements, got {wide}"
-    assert any("disagrees with the engine" in n for n in C.notes(built)), (
-        "handled, but never silent: the ledger records both bases and says which one R used")
+    # The ledger rebuilds from live archives, so new closures add rows here (M&MFIN and HINDALCO on
+    # 2026-10-03). Pin the three found at build time as a floor, and that EVERY one is named in the note.
+    assert {"CCL", "HINDZINC", "3MINDIA"} <= wide, f"a known disagreement went silent: {wide}"
+    note = next((n for n in C.notes(built) if "disagrees with the engine" in n), None)
+    assert note, "handled, but never silent: the ledger records both bases and says which one R used"
+    assert all(t in note for t in wide), f"a disagreement is not named in the note: {wide}"
 
 
 def test_a_card_that_never_filled_is_a_note_not_a_defect(built):
