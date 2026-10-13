@@ -988,6 +988,18 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     p["pk"] = max(p.get("pk", p["en"]), s["h"][i])
                     _mfe_r = (p["pk"] - p["en"]) / p["risk0"] if p["risk0"] > 0 else 0.0
                     _wk = s.get("wk_hlc", {}).get(i)
+                    # 0148 (2026-10-13): the GIVEBACK RATCHET on the scaled book. The global `lockin_mfe`
+                    # lever below never reaches this branch (the `continue` ends it), so the ratchet had
+                    # never been measured on the live exit. Once MFE (peak high, initial risk) reaches
+                    # lockin_mfe R, the stop rises to entry + lockin_at R and fires on the SAME weekly-close
+                    # convention as the base stop. Absent key => 0.0 => byte-identical. Research lever only.
+                    _lk = scaled_exit.get("lockin_mfe", 0.0)
+                    if _lk and _mfe_r >= _lk:
+                        _sb = p["stop"]
+                        p["stop"] = max(p["stop"], p["en"] + scaled_exit.get("lockin_at", 1.5) * p["risk0"])
+                        if p["stop"] != _sb:
+                            _emit(t, p, "stop_ratchet", date=d, stop_before=_sb,
+                                  stop_after=p["stop"], reason="lockin_at")
                     if wc <= p["stop"]:
                         p["pending"] = ("full", "stop" + ("_part" if p["t1_done"] or p.get("pt_done") else ""))
                     elif (_pf and not p.get("pt_done") and _wk is not None and _mfe_r >= _parm
