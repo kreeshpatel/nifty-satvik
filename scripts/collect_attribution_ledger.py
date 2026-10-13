@@ -67,6 +67,15 @@ OUTCOME_FIELDS = ("status", "r_multiple", "return_pct", "exit_reason", "hold_day
 
 # Fields this ledger CANNOT fill, each with the reason. Declaring a hole is an admission that
 # something is permanently unmeasurable here, so it costs a sentence. It is not a way to be quiet.
+# Trades the from-inception rebuild ERASED: entered, then gone from the history with no exit row.
+# Owner decision 2026-10-13, option (c): declared, never reconstructed. Not a recorded exit, not an
+# override price — the outcome is unknown to the record and the ledger says so by name.
+ERASED_TRADES: dict[str, str] = {
+    "HEG:2026-07-24": "Vendor truncated HEG.NS history to start 2026-07-17 after the 2026-09-07 demerger; "
+                      "with < 44 weeks of bars the 2026-10-03 rebuild could not form the SMA and deleted "
+                      "the open trade. Last archived as ACTIVE in the 2026-09-25 snapshot.",
+}
+
 DECLARED_HOLES: dict[str, str] = {
     "judge_*": "The 0125 informed-judge verdicts are SEALED until the first review read (>= 2 quarters "
                "from 2026-08-01). nq.brain.io refuses the log; the columns are added when the seal lifts.",
@@ -314,6 +323,7 @@ def holes(df: pd.DataFrame) -> list[str]:
         if n:
             out.append(f"{n} row(s) missing {col} — a trade whose R denominator is unknown")
     if len(entered):
+        entered = entered[~entered["trade_id"].isin(ERASED_TRADES)] if "trade_id" in entered else entered
         n = int(entered["status"].isna().sum())
         if n:
             out.append(f"{n} entered trade(s) with no outcome in the history")
@@ -342,6 +352,10 @@ def notes(df: pd.DataFrame) -> list[str]:
     out: list[str] = []
     if df is None or not len(df):
         return out
+    erased = sorted(set(df.get("trade_id", pd.Series(dtype=str))) & set(ERASED_TRADES))
+    if erased:
+        out.append(f"{len(erased)} trade(s) ERASED by the rebuild, declared not reconstructed "
+                   f"({', '.join(erased)}) — outcome unknown to the record; see ERASED_TRADES")
     if "n_partial_books" in df:
         if df["n_partial_books"].isna().all():
             out.append("management events: stream absent (results/brain/management_events.jsonl) — "
