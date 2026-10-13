@@ -165,6 +165,13 @@ jobs:
         # it is conditional for the same reason.
         run: python scripts/render_weekly_postmortem.py
           || echo "::warning::post-mortem render FAILED (exit $?) - this week's page not written"
+      - name: Prediction ledger - forecast fresh cards, resolve decided paths
+        # B5 producer. One forecast per FRESH card (P(+2R before stop) from the first-passage null),
+        # stamped at the card's as-of, plus resolutions for any forecast whose path has decided. Refuses
+        # a stale envelope rather than backdating. Non-fatal: a reporting stream must not fail the scan;
+        # the hash-chained ledger itself refuses any corrupt append.
+        run: python scripts/run_prediction_producer.py
+          || echo "::warning::prediction producer FAILED (exit $?) - no forecasts this week"
       - name: Commit weekly paper state
         run: |
           # Author with the owner's GitHub-matched email so Vercel (auto-deploys main) doesn't
@@ -190,6 +197,7 @@ jobs:
           need results/brain/position_log.csv.gz        # the capital book's holdings; unrecoverable if missed
           need results/brain/management_events.jsonl    # tranches/ratchets/halts; a snapshot cannot rebuild them
           opt results/brain                      # the Saturday post-mortem page (B4); reporting only
+          opt results/brain/prediction_ledger.jsonl   # B5 forecasts + resolutions; append-only, hash-chained
           opt results/signal_analytics_weekly.json
           opt results/decision_memos_weekly.json
           opt results/decision_memos_weekly.md
