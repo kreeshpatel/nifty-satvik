@@ -60,15 +60,16 @@
       "workflow": "cron-forward-wall",
       "commit_prefix": "chore(wall): forward-wall daily log",
       "cadence_days": 5,
-      "must_update": [],
-      "must_update_if_produced": [
-        "results/forward_wall_start.json",
+      "must_update": [
         "results/forward_wall.csv",
-        "results/paper_portfolio.json",
+        "results/forward_wall_start.json",
+        "results/paper_portfolio.json"
+      ],
+      "must_update_if_produced": [
         "results/signals_today.json",
         "results/scheduler_health.json"
       ],
-      "note": "S-F1, closed 2026-08-06: forward/prereg.md calls the 3-book wall 'the only certifier' and specifies a DAILY log, and until this workflow existed it had no scheduled producer at all. forward_wall_start.json is the wall's registered start — written once by the first run and never rewritten — so it is contracted alongside the log itself: without it a cold start would backfill recomputed history into the wall as forward evidence. The commit subject carries the Actions run id, which is the S2-F3 firing-evidence cross-check that S2-F4 (owner-authored cron commits) otherwise weakens. || DOWNGRADED TO CONDITIONAL 2026-08-08, with a date to restore it. nq/paper/wall_cron._assert_veto_arm_live now refuses to append any row whose session post-dates the veto arm's factor coverage — data/ff_india_factors.parquet ends 2026-06-29, before the wall's own 2026-07-02 start floor, and no cron rebuilds it. Before that guard the arm was silently inert and the wall would have written base==veto agreement it never measured into a hash-chained log. So the wall correctly produces nothing, and a hard contract would read that correctness as a daily breach. The veto arm's fate is a §7 demotion decision and §8 confines it to a quarterly review: 2026-10-01. RESTORE these three to must_update at that review, whichever way it goes — retire the arm and the wall logs two books, or extend the factors and it logs three."
+      "note": "S-F1, closed 2026-08-06: forward/prereg.md calls the 3-book wall 'the only certifier' and specifies a DAILY log, and until this workflow existed it had no scheduled producer at all. forward_wall_start.json is the wall's registered start — written once by the first run and never rewritten — so it is contracted alongside the log itself: without it a cold start would backfill recomputed history into the wall as forward evidence. The commit subject carries the Actions run id, which is the S2-F3 firing-evidence cross-check that S2-F4 (owner-authored cron commits) otherwise weakens. || DOWNGRADED TO CONDITIONAL 2026-08-08, with a date to restore it. nq/paper/wall_cron._assert_veto_arm_live now refuses to append any row whose session post-dates the veto arm's factor coverage — data/ff_india_factors.parquet ends 2026-06-29, before the wall's own 2026-07-02 start floor, and no cron rebuilds it. Before that guard the arm was silently inert and the wall would have written base==veto agreement it never measured into a hash-chained log. So the wall correctly produces nothing, and a hard contract would read that correctness as a daily breach. The veto arm's fate is a §7 demotion decision and §8 confines it to a quarterly review: 2026-10-01. RESTORE these three to must_update at that review, whichever way it goes — retire the arm and the wall logs two books, or extend the factors and it logs three. || RESTORED TO must_update 2026-10-13 (owner, decision page diagnostics/research/review_2026Q4/10_wall_restoration.md). The veto arm was funded, not retired: cron-forward-wall.yml builds the FF-India factor panel before appending the row, and the log has carried all three books since 2026-08-12. A section 7 demotion needs a trailing >=12-month forward window, so it cannot be decided before ~2027-08; the contract no longer waits on it."
     }
   ]
 }

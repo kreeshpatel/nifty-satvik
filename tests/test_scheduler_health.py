@@ -108,3 +108,13 @@ def test_probe_never_raises_on_garbage(tmp_path):
     by = {j["job"]: j for j in h["jobs"]}
     # unparseable envelope falls back to mtime (just written) => OK, but crucially no exception
     assert by["weekly-scanner"]["status"] in ("OK", "OVERDUE", "MISSING")
+
+
+def test_the_forward_wall_log_is_hard_contracted_again():
+    """Restored 2026-10-13 (review_2026Q4/10): the veto arm is funded and the wall logs daily, so a missed
+    wall day must go RED, not warn. The 2026-08-08 downgrade existed only while the arm could not log."""
+    d = json.loads((ROOT / "results" / "output_contracts.json").read_text(encoding="utf-8"))
+    c = next(c for c in d["contracts"] if c["job"] == "forward-wall-log")
+    for path in ("results/forward_wall.csv", "results/forward_wall_start.json", "results/paper_portfolio.json"):
+        assert path in c["must_update"], f"{path} is the certifier's log and must be hard-contracted"
+        assert path not in c["must_update_if_produced"]
