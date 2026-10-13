@@ -463,5 +463,20 @@
     "net_pct": 3.85,
     "net_pnl": 1428.12,
     "hold_days": 15
+  },
+  {
+    "ticker": "RRKABEL",
+    "entry_date": "2026-09-03",
+    "exit_date": "2026-10-13",
+    "entry": 2651.32,
+    "exit": 2612.89,
+    "qty": 1,
+    "days_held": 26,
+    "reason": "trailing",
+    "return_pct": -1.45,
+    "pnl": -45.28,
+    "net_pct": -1.45,
+    "net_pnl": -45.28,
+    "hold_days": 26
   }
 ]

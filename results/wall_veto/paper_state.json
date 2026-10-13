@@ -1,7 +1,9 @@
 {
-  "cash": 356.73412573670066,
+  "cash": 2966.2302162264345,
   "peak": 1026655.7556091606,
-  "pending": [],
+  "pending": [
+    "RRKABEL"
+  ],
   "positions": {
     "HONASA": {
       "ticker": "HONASA",
@@ -13,22 +15,8 @@
       "peak": 484.8999938964844,
       "atr_pct": 3.217832529272994,
       "adv": 992445757.9546967,
-      "days_held": 29,
-      "last_mark": 472.3999938964844,
-      "absent_run": 0
-    },
-    "RRKABEL": {
-      "ticker": "RRKABEL",
-      "entry_date": "2026-09-03 00:00:00",
-      "entry": 2651.325,
-      "qty": 1,
-      "stop": 2272.868443964278,
-      "target": 3248.40339,
-      "peak": 2789.699951171875,
-      "atr_pct": 3.8894393329346544,
-      "adv": 1160522850.5976927,
-      "days_held": 25,
-      "last_mark": 2721.5,
+      "days_held": 30,
+      "last_mark": 466.8999938964844,
       "absent_run": 0
     },
     "LAURUSLABS": {
@@ -41,8 +29,8 @@
       "peak": 2069.199951171875,
       "atr_pct": 2.3240037222384395,
       "adv": 6404766944.0,
-      "days_held": 24,
-      "last_mark": 2069.199951171875,
+      "days_held": 25,
+      "last_mark": 2059.39990234375,
       "absent_run": 0
     },
     "FEDERALBNK": {
@@ -55,8 +43,8 @@
       "peak": 341.9708877868652,
       "atr_pct": 1.9940904524157377,
       "adv": 1716930689.9016054,
-      "days_held": 17,
-      "last_mark": 328.20001220703125,
+      "days_held": 18,
+      "last_mark": 329.5,
       "absent_run": 0
     },
     "AEGISLOG": {
@@ -69,8 +57,8 @@
       "peak": 1460.199951171875,
       "atr_pct": 4.8546062016398235,
       "adv": 1324423492.0109253,
-      "days_held": 11,
-      "last_mark": 1450.0,
+      "days_held": 12,
+      "last_mark": 1392.0,
       "absent_run": 0
     },
     "BHEL": {
@@ -83,8 +71,8 @@
       "peak": 452.0,
       "atr_pct": 2.9824327874136682,
       "adv": 2625043601.0339265,
-      "days_held": 10,
-      "last_mark": 439.8999938964844,
+      "days_held": 11,
+      "last_mark": 442.3500061035156,
       "absent_run": 0
     },
     "GRANULES": {
@@ -97,8 +85,8 @@
       "peak": 850.425,
       "atr_pct": 3.040402578645517,
       "adv": 1306881966.3125,
-      "days_held": 8,
-      "last_mark": 803.3499755859375,
+      "days_held": 9,
+      "last_mark": 814.5,
       "absent_run": 0
     },
     "HSCL": {
@@ -111,8 +99,8 @@
       "peak": 672.9500122070312,
       "atr_pct": 3.4717778169205795,
       "adv": 1894386269.8725126,
-      "days_held": 7,
-      "last_mark": 661.4000244140625,
+      "days_held": 8,
+      "last_mark": 660.0,
       "absent_run": 0
     },
     "APARINDS": {
@@ -125,8 +113,8 @@
       "peak": 18160.0,
       "atr_pct": 4.214472779867222,
       "adv": 2436264044.8,
-      "days_held": 6,
-      "last_mark": 18100.0,
+      "days_held": 7,
+      "last_mark": 18005.0,
       "absent_run": 0
     },
     "HFCL": {
@@ -139,8 +127,8 @@
       "peak": 271.8999938964844,
       "atr_pct": 4.288976685219858,
       "adv": 1801593114.675228,
-      "days_held": 5,
-      "last_mark": 265.4800109863281,
+      "days_held": 6,
+      "last_mark": 262.0,
       "absent_run": 0
     },
     "KIRLOSENG": {
@@ -153,8 +141,8 @@
       "peak": 2259.929448852539,
       "atr_pct": 4.489888318469929,
       "adv": 1655388840.6580076,
-      "days_held": 4,
-      "last_mark": 2193.0,
+      "days_held": 5,
+      "last_mark": 2180.800048828125,
       "absent_run": 0
     },
     "SONACOMS": {
@@ -167,8 +155,8 @@
       "peak": 810.5,
       "atr_pct": 2.7539655010388153,
       "adv": 1932486455.9999998,
-      "days_held": 4,
-      "last_mark": 798.0,
+      "days_held": 5,
+      "last_mark": 802.9500122070312,
       "absent_run": 0
     },
     "SAILIFE": {
@@ -181,8 +169,8 @@
       "peak": 1561.800048828125,
       "atr_pct": 3.19796404807869,
       "adv": 946030393.601532,
-      "days_held": 4,
-      "last_mark": 1471.300048828125,
+      "days_held": 5,
+      "last_mark": 1462.300048828125,
       "absent_run": 0
     },
     "MCX": {
@@ -195,8 +183,8 @@
       "peak": 3390.0,
       "atr_pct": 3.2545676669524632,
       "adv": 6157977291.0,
-      "days_held": 4,
-      "last_mark": 3390.0,
+      "days_held": 5,
+      "last_mark": 3308.0,
       "absent_run": 0
     },
     "CHENNPETRO": {
@@ -209,8 +197,8 @@
       "peak": 1531.7655,
       "atr_pct": 4.847775862912046,
       "adv": 4341995424.23042,
-      "days_held": 1,
-      "last_mark": 1466.5999755859375,
+      "days_held": 2,
+      "last_mark": 1459.9000244140625,
       "absent_run": 0
     }
   },
@@ -586,6 +574,18 @@
       "reason": "trailing",
       "return_pct": 3.85,
       "pnl": 1428.12
+    },
+    {
+      "ticker": "RRKABEL",
+      "entry_date": "2026-09-03",
+      "exit_date": "2026-10-13",
+      "entry": 2651.32,
+      "exit": 2612.89,
+      "qty": 1,
+      "days_held": 26,
+      "reason": "trailing",
+      "return_pct": -1.45,
+      "pnl": -45.28
     }
   ],
   "equity_curve": [
@@ -1026,6 +1026,12 @@
       "equity": 999312.42,
       "cash": 356.73,
       "n_positions": 15
+    },
+    {
+      "date": "2026-10-13",
+      "equity": 994428.58,
+      "cash": 2966.23,
+      "n_positions": 14
     }
   ],
   "config": {
