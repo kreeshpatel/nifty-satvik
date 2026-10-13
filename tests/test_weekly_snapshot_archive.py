@@ -142,3 +142,20 @@ def test_active_positions_are_not_treated_as_closed_trades(sandbox):
                   nav=1_030_000.0)
     d = A.archive(res)
     assert d["n_restated"] == 0 and d["clean"] is True
+
+
+def test_an_open_position_that_vanishes_is_flagged_not_clean(sandbox):
+    """2026-10-03: HEG was ACTIVE, then gone from history with no exit row, and the drift log said
+    clean-of-vanishings. An erased open trade must make the snapshot NOT clean."""
+    res = sandbox / "results"
+    _write_record(res, as_of="2026-09-25",
+                  trades=[_trade("HEG", "2026-07-24", 600.0, 237.0, -1.0, status="ACTIVE"),
+                          _trade("AAA", "2026-07-24", 100.0, 110.0, 0.5, status="ACTIVE")],
+                  nav=1_000_000.0)
+    A.archive(res)
+    _write_record(res, as_of="2026-10-01",
+                  trades=[_trade("AAA", "2026-07-24", 100.0, 90.0, -1.0, status="HIT_STOP")],
+                  nav=990_000.0)
+    d = A.archive(res)
+    assert d["vanished_open"] == ["HEG|2026-07-24"], "AAA exited (closed row) — only HEG was erased"
+    assert d["clean"] is False
