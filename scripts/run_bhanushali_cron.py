@@ -768,6 +768,8 @@ def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
     ohlcv = load_ohlcv_cache(OHLCV_CACHE) or {}
     if not do_download:
         return ohlcv
+    from nq.data.history_guard import assert_open_history_intact, history_starts, open_tickers
+    prev_starts = history_starts(ohlcv)      # what each series looked like BEFORE the vendor touched it
     from datetime import date, timedelta
     from nq.data.ohlcv import download_ohlcv, merge_ohlcv, save_ohlcv_cache
     from run_cpcv import build_universe
@@ -834,6 +836,16 @@ def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
     print(f"  live exposure: {len(ex['in_window'])} seam(s) inside the 44w window "
           f"({[s['symbol'] for s in ex['in_window']]}), "
           f"{len(ex['accepted_live'])} owner-accepted, 0 on open positions", flush=True)
+
+    # HISTORY-TRUNCATION GUARD (2026-10-13). The vendor shortened HEG.NS to start 2026-07-17; with
+    # < 44 weekly bars the from-inception rebuild deleted the open HEG trade and reported success. The
+    # adjustment guard above looks for price steps and cannot see a series that got shorter. Outside
+    # the download try for the same reason as that guard: a raise must halt, not read as a hiccup.
+    hg = assert_open_history_intact(prev_starts, ohlcv, open_tickers(ROOT / "results"))
+    print(f"history guard: {len(hg['truncated'])} truncated series | "
+          f"{len(hg['open_problems'])} on open trades ({len(hg['acknowledged'])} acknowledged)", flush=True)
+    for d in hg["truncated"]:
+        print(f"  truncated {d['symbol']}: start {d['was']} -> {d['now']}", flush=True)
     return ohlcv
 
 
