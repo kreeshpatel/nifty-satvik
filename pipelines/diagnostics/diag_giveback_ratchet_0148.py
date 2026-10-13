@@ -41,7 +41,11 @@ def _curve_stats(curve: pd.Series, lo: str, hi: str) -> dict:
 def run_arm(P, events, R94, live: dict, extra: dict, *, uncapped: bool) -> tuple[dict, pd.DataFrame, int]:
     led, ev = [], []
     exit_cfg = {**live["LIVE_EXIT"], "scaled_exit": {**live["LIVE_EXIT"]["scaled_exit"], **extra}}
-    out = R94.backtest(P, None, ledger=led, start=START, uncapped=uncapped, a_grade=R94.grade_a_entries(P),
+    # CORRECTED 2026-10-13: the first run passed mem=None, so its book could buy names outside the
+    # Nifty-500 on the date; the live cron gates every fill on PIT membership, and this pre-registration
+    # says "the live configuration exactly". `live["mem"]` is that gate. RESULT_MEMBERSHIP_OFF keeps the
+    # original run's file for comparison.
+    out = R94.backtest(P, live["mem"], ledger=led, start=START, uncapped=uncapped, a_grade=R94.grade_a_entries(P),
                        **live["LIVE_DISCIPLINE"], **exit_cfg, **live["LIVE_STALENESS"],
                        demerger_events=events, event_log=ev)
     fired = sum(1 for e in ev if e.get("event_type") == "stop_ratchet" and e.get("reason_code") == "lockin_at")
@@ -61,7 +65,9 @@ def main() -> int:
     assert last <= pd.Timestamp(CUT), f"sealed data reached the engine: {last}"
     P = R94.prep_weekly_rank(cut, **LIVE_PREP)
     events = R94.build_demerger_events(cut, load_demerger_rows(), **LIVE_PREP)
-    live = dict(LIVE_DISCIPLINE=LIVE_DISCIPLINE, LIVE_EXIT=LIVE_EXIT, LIVE_STALENESS=LIVE_STALENESS)
+    from nq.data.membership import load_membership
+    live = dict(LIVE_DISCIPLINE=LIVE_DISCIPLINE, LIVE_EXIT=LIVE_EXIT, LIVE_STALENESS=LIVE_STALENESS,
+                mem=load_membership())
 
     res: dict = {"window": [START, CUT], "last_bar_seen": str(last.date()), "arms": {}}
     led_by: dict = {}
