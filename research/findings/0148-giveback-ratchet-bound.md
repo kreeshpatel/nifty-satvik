@@ -73,3 +73,39 @@ its own pre-registration, and it would run into the regime findings (program-law
 - The breakeven-at-+1R idea was deliberately **not** run: it is a blunter member of the family the
   forensic already priced, and this result gives no reason to expect a blunter version to do better.
 - The engine lever stays in, off by default (`a0242a9`), so the measurement is reproducible.
+
+
+---
+
+## CORRECTION 2026-10-13 — the run above measured the wrong book
+
+**Nothing above this line is edited; it stands as measured, and it is superseded here.**
+
+The pre-registration specifies "the live configuration exactly". The run above passed no index membership
+to the engine, so its book could buy names outside the Nifty-500 on the date. The live cron gates every
+fill on point-in-time membership. Found while building the Strategy Lab (#142): on the same window the
+ungated book reads Sharpe 1.666 / CAGR 39.4%, the live, gated book **1.025 / 20.5% / MaxDD −40.1%**. The
+original result is kept as `diagnostics/research/giveback_ratchet/result_membership_off.json`; the
+diagnostic now passes `load_membership()` and `result.json` is the corrected run.
+
+### Corrected result (live book, train 2019 to 2024H1)
+
+| book | arm | Δ R/yr (open marked) | Δ Sharpe | Δ CAGR | Δ MaxDD |
+|---|---|---|---|---|---|
+| capped | 2.75 → 1.5 | −0.50 | +0.16 | +3.1pp | 5.7pp shallower |
+| capped | 2.50 → 1.5 | +7.26 | +0.47 | +11.9pp | 5.8pp shallower |
+| uncapped | 2.75 → 1.5 | −14.36 | — | — | — |
+| uncapped | 2.50 → 1.5 | −15.05 | — | — | — |
+
+**Reading, as pre-committed: still BOUND RECORDED, no trial.** Neither arm reaches +10 R/yr with a positive
+sign in both sub-periods (the robust arm's 2019–21 is −0.62).
+
+**What changed in the interpretation.** On the live capped book the ratchet now improves the equity
+measures, which the ungated run did not show. The uncapped book, the clean per-signal effect, says the
+ratchet **cuts runners**: open-at-mark R falls from 260 to 181. The capped gain comes from the equity path
+(more trades recycling cash, 90/88 against 77, and a shallower drawdown), not from better trades, and
++0.16 / +0.47 Sharpe sits inside the ≈ 0.59 half-width. A second red-team pass confirmed the reading and
+found runner truncation a better explanation than pure capital recycling.
+
+**What it closes, restated:** the giveback ratchet as a per-trade edge on the live exit. Its effect on the
+capped book's equity path is not separable from noise on this window, and is not a licence to adopt it.
