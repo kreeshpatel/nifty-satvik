@@ -98,9 +98,12 @@ KNOWN_SEAMS: dict[tuple[str, str], dict] = {
     # the ONE seam knowingly accepted as live-affecting until then. Its acceptance is what makes the
     # escalation trigger below meaningful — "any ADDITIONAL live-affecting seam" is defined against
     # exactly this entry, and the acceptance expires on the review date rather than silently.
+    # OWNER DECISION 2026-10-13 (ADR-0016): the 2026-10-01 expiry halted the 2026-10-10 scan as
+    # designed. Re-accepted on the SAME one-name scope until the seam ages out of the 44-week window
+    # (last in-window as_of 2026-11-05). Both escalation triggers stay armed; no bar is changed.
     ("TRENT", "2026-01-01"): {"factor": 1.50, "cause": "bonus 1:2 ex 2026-06-04",
                               "found": "2026-08-06", "provenance": "foundation-audit-F-1",
-                              "owner_status": "ACCEPTED_UNTIL_2026-10-01 (ADR-0013)"},
+                              "owner_status": "ACCEPTED_UNTIL_2026-11-05 (ADR-0016, extends ADR-0013)"},
 
     # Pre-declared bad bars: the Diwali Muhurat sessions where the cache carries a doubled bar that
     # reverts two days later. `drop_erratum` is gated OFF by default, so they are in the record.

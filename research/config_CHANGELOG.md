@@ -119,3 +119,13 @@ Format: date — model — what changed — why — evidence — reversal.
 - **Reversal:** to repair before the review, an ADR superseding 0013 is required. Editing
   `owner_status`, widening `LIVE_WINDOW_WEEKS`, or bypassing the guard would be the decision
   reversed without a record — explicitly out of bounds.
+
+## 2026-10-13 — TRENT seam acceptance extended to 2026-11-05 (ADR-0016)
+
+- **What:** `KNOWN_SEAMS[("TRENT", "2026-01-01")].owner_status` now reads
+  `ACCEPTED_UNTIL_2026-11-05 (ADR-0016, extends ADR-0013)`. No bar, threshold or config value moved.
+- **Why:** ADR-0013's dated acceptance expired on 2026-10-01 and halted the 2026-10-10 Saturday scan,
+  as designed. The scope (one non-held suppressed candidate) still holds, and the seam leaves the
+  44-week window after as_of 2026-11-05. Without the extension, three more forward weeks would be lost.
+- **Guards kept:** both escalation triggers stay armed. The 2026-10-10 week is recorded as lost.
+- **Reasoning:** `docs/decisions/0016-extend-trent-seam-acceptance.md`.

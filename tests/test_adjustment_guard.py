@@ -304,36 +304,29 @@ class TestADR0013ExpiryGap:
         from nq.data.adjustment_guard import KNOWN_SEAMS
         return KNOWN_SEAMS[self.SEAM]
 
-    def test_the_acceptance_expires_before_the_seam_leaves_the_window(self):
+    # ADR-0016 (2026-10-13) retired the ADR-0013 expiry-gap pins: the gap they measured (2026-10-02 ->
+    # 2026-11-05, five halted scans) is what halted 2026-10-10. The replacements pin NO gap and NO overhang.
+    def test_the_acceptance_ends_exactly_when_the_seam_leaves_the_window(self):
         from nq.data.adjustment_guard import ACCEPTED_PREFIX, LIVE_WINDOW_WEEKS
 
         status = self._entry()["owner_status"]
-        assert status.startswith(ACCEPTED_PREFIX)
+        assert status.startswith(ACCEPTED_PREFIX) and "ADR-0016" in status
         until = pd.Timestamp(status[len(ACCEPTED_PREFIX):].split()[0])
         leaves = pd.Timestamp(self.SEAM[1]) + pd.Timedelta(weeks=LIVE_WINDOW_WEEKS)
-        assert until < leaves, (
-            "the acceptance now outlives the seam -- if this was a deliberate extension, retire this "
-            "test with the ADR that made it")
-        # 2026-10-01 -> 2026-11-05 inclusive: 35 days, five Saturday scans.
-        assert (leaves - until).days == 35, "the halt gap changed; re-read binder item 07"
+        assert until == leaves, "acceptance must neither lapse early (halt) nor outlive the seam"
 
-    def test_the_scan_halts_the_day_after_the_acceptance_lapses(self):
+    def test_no_halt_through_the_window_and_held_still_escalates(self):
         from nq.data.adjustment_guard import assert_no_live_escalation, live_exposure
 
         oh = {"TRENT": pd.DataFrame(
             {"Open": [1.0], "High": [1.0], "Low": [1.0], "Close": [1.0], "Volume": [1]},
             index=pd.to_datetime(["2026-01-01"]))}
         known = {self.SEAM: self._entry()}
-
-        ok = live_exposure(oh, (), as_of="2026-10-01", known=known)
-        assert ok["escalate"] is False, "the acceptance still holds on the review date itself"
-
-        for day in ("2026-10-02", "2026-11-05"):
+        for day in ("2026-10-02", "2026-10-09", "2026-11-05"):
+            assert live_exposure(oh, (), as_of=day, known=known)["escalate"] is False
             with pytest.raises(ValueError, match="ESCALATION TRIGGER FIRED"):
-                assert_no_live_escalation(oh, (), as_of=day, known=known)
-
-        after = live_exposure(oh, (), as_of="2026-11-06", known=known)
-        assert after["escalate"] is False, "seam has left the 44-week window; it self-resolves"
+                assert_no_live_escalation(oh, ("TRENT",), as_of=day, known=known)
+        assert live_exposure(oh, (), as_of="2026-11-06", known=known)["escalate"] is False
 
     def test_only_the_saturday_scanner_is_halted(self):
         """Bounds the blast radius: the weekday monitor does not run the guarded script, so daily
@@ -345,3 +338,4 @@ class TestADR0013ExpiryGap:
         assert callers == ["cron-bhanushali-scanner.yml"], f"blast radius changed: {callers}"
         sats = pd.date_range("2026-10-02", "2026-11-05", freq="D")
         assert sum(d.weekday() == 5 for d in sats) == 5
+
