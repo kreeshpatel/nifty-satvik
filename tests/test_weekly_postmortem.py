@@ -180,3 +180,40 @@ def test_a_missing_diagnostics_directory_renders_a_shorter_page_rather_than_cras
     page = P.render(SCORECARD, None, None, None, None)
     assert "Saturday post-mortem" in page
     assert "Which book each headline number is about" in page
+
+
+# ------------------------------------------------------------------ events + record integrity (2026-10-13)
+EVENTS = [{"event_date": "2026-09-14", "event_seq": 3, "trade_id": "CUB:2026-07-06",
+           "event_type": "partial_book", "fraction": 0.4, "price": 227.32, "reason_code": "pattern_frac",
+           "stop_before": None, "stop_after": None},
+          {"event_date": "2026-09-30", "event_seq": 4, "trade_id": "MCX:2026-09-01",
+           "event_type": "stop_ratchet", "fraction": None, "price": None, "reason_code": "be",
+           "stop_before": 90.0, "stop_after": 100.0}]
+DRIFT = {"as_of": "2026-10-01", "prev_as_of": "2026-09-25", "gap_days": 6, "backfilled": False,
+         "n_restated": 1, "restated": [{"trade": "NLC|2026-07-13", "changed": {}}],
+         "n_vanished": 0, "vanished": [], "n_appeared": 0, "appeared": [],
+         "vanished_open": ["HEG|2026-07-24"], "inputs_changed": ["ohlcv_n_names"], "clean": False}
+
+
+def test_the_new_sections_are_absent_unless_passed():
+    """Back-compatible: a caller that passes neither stream gets the page it always got."""
+    page = P.render(SCORECARD, BOOK_IDENTITY, FORENSICS, LEDGER, PORTFOLIO)
+    assert "## 5. What this page does not contain" in page and "managed its positions" not in page
+
+
+def test_events_and_integrity_render_and_flag_what_is_new():
+    page = P.render(SCORECARD, None, None, None, None, events=EVENTS, drift=DRIFT,
+                    erased={"HEG:2026-07-24": "vendor truncation"})
+    assert "2 event(s) since inception; 1 dated after the previous snapshot (2026-09-25)" in page
+    assert "2026-09-30 **new** | MCX:2026-09-01 | stop_ratchet" in page
+    assert "90.00 -> 100.00" in page
+    assert "| open trades vanished | 1 | HEG:2026-07-24 |" in page, "a pipe in a key must not split the cell"
+    assert "**NOT clean**" in page and "`HEG:2026-07-24` — vendor truncation" in page
+    assert "## 7. What this page does not contain" in page
+
+
+def test_an_empty_event_stream_is_stated_and_an_old_drift_entry_is_not_read_as_clean():
+    old = {k: v for k, v in DRIFT.items() if k != "vanished_open"}
+    page = P.render(SCORECARD, None, None, None, None, events=[], drift=old)
+    assert "An empty stream is a fact, not a gap." in page
+    assert "| open trades vanished | not checked |" in page
