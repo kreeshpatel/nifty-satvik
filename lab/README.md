@@ -32,8 +32,9 @@ The first run of a new config takes about half a minute to a few minutes; repeat
 `ext_cap` (skip fills too far above the signal-week SMA; empty = off), `grade_gate` (Grade-A only),
 `uncapped` (fill every signal, NAV meaningless), `max_notional_pct`, `max_risk_pct`, `exit`
 (`live` = config P scaled exit, `base` = engine default exit), `start` (>= 2019-01-01), `pit_membership`
-(off reproduces the committed diagnostics' anchor; on is what the live cron applies - measured 1.03 vs 1.67
-Sharpe on the same window, so choose deliberately).
+(**on by default = the live book**: a name is buyable only while it is a Nifty-500 member, as the live cron
+applies it. Off lets the book buy names outside the index, as some older diagnostics did; it reads Sharpe 1.67
+/ CAGR 39.4% against the live 1.03 / 20.5% on the same window, so it is a labelled comparison, never the book).
 
 ## What each stat means
 

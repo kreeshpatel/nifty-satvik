@@ -43,7 +43,7 @@ TRADING_DAYS, WINDOW = 252, 63
 DEFAULT_CONFIG: dict[str, Any] = {
     "ext_cap": 0.20, "grade_gate": True, "uncapped": False,
     "max_notional_pct": 0.20, "max_risk_pct": 0.10, "exit": "live", "start": MIN_START,
-    "pit_membership": False,
+    "pit_membership": True,
 }
 
 
@@ -188,10 +188,12 @@ def replay(config: Mapping[str, Any] | None = None, *, use_cache: bool = True,
     """Run the engine under ``config`` (train window only) and return nav / ledger / logs.
 
     Mirrors `diag_giveback_ratchet_0148.py`: cut -> `prep_weekly_rank` -> demerger events -> `backtest`
-    with the LIVE_* blocks, overriding only the lab's keys. ``pit_membership`` False (default) passes
-    ``mem=None``, exactly as the committed diagnostics do — that is the call that reproduces their
-    anchor (39.4% CAGR / 1.666 Sharpe, fresh capital from 2019-01-01); True applies
-    `load_membership()` as the live cron does (measured 20.5% / 1.025 on the same window). The
+    with the LIVE_* blocks, overriding only the lab's keys. ``pit_membership`` True (DEFAULT) applies
+    `load_membership()` exactly as the live cron does: a name is buyable only while it is a Nifty-500
+    member (measured 20.5% CAGR / 1.025 Sharpe / -40.1% MaxDD, 2019-01-01..2024-06-28). False passes
+    ``mem=None``, which is what several older diagnostics did (0148, diag_stop_width,
+    diag_portfolio_risk): that book can buy names outside the index and reads 39.4% / 1.666. It is
+    NOT the live book, so it is available only as an explicit, labelled comparison. The
     corporate-action HOLD stays OFF (a 5.5-year reconstruction has no owner to resolve a freeze;
     `diag_portfolio_risk` SPEC A1).
 

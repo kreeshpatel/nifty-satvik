@@ -100,7 +100,7 @@ with st.sidebar:
     exit_mode = st.selectbox("exit", ["live", "base"], help="live = config P scaled exit; base = engine default exit")
     start = st.date_input("start", value=pd.Timestamp(L.MIN_START).date(),
                           min_value=pd.Timestamp(L.MIN_START).date(), max_value=pd.Timestamp("2023-12-31").date())
-    pit = st.checkbox("Point-in-time membership filter", value=False,
+    pit = st.checkbox("Point-in-time membership filter (live)", value=True,
                       help="Off reproduces the committed diagnostics' anchor; on is what the live cron applies.")
     run = st.button("Run", type="primary", use_container_width=True)
 
