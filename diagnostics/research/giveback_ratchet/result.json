@@ -1,0 +1,238 @@
+{
+  "window": [
+    "2019-01-01",
+    "2024-06-30"
+  ],
+  "last_bar_seen": "2024-06-28",
+  "arms": {
+    "capped": {
+      "base": {
+        "n_trades": 81,
+        "n_open_at_cut": 10,
+        "ratchet_fired": 0,
+        "mean_R": 1.8627183098591544,
+        "sum_R": 132.25299999999996,
+        "win_pct": 47.88732394366197,
+        "sum_R_incl_open_at_mark": 182.236,
+        "R_by_year": {
+          "2019": 29.01,
+          "2020": 103.56,
+          "2021": 0.67,
+          "2022": 1.77,
+          "2023": -1.47,
+          "2024": -1.29
+        },
+        "cagr_pct": 39.40338847490239,
+        "full": {
+          "sharpe": 1.6664859544136152,
+          "maxdd_pct": -34.77916157446583
+        },
+        "sub": {
+          "2019-21": {
+            "sharpe": 2.1023591721494994,
+            "maxdd_pct": -34.77916157446583
+          },
+          "2022-24H1": {
+            "sharpe": 1.02088387505402,
+            "maxdd_pct": -29.85884534538763
+          }
+        }
+      },
+      "primary_2.75_1.5": {
+        "n_trades": 85,
+        "n_open_at_cut": 11,
+        "ratchet_fired": 44,
+        "mean_R": 1.8101891891891893,
+        "sum_R": 133.954,
+        "win_pct": 56.75675675675676,
+        "sum_R_incl_open_at_mark": 182.684,
+        "R_by_year": {
+          "2019": 35.72,
+          "2020": 95.01,
+          "2021": -4.15,
+          "2022": 10.03,
+          "2023": -2.66
+        },
+        "cagr_pct": 38.318197559348086,
+        "full": {
+          "sharpe": 1.655304265516063,
+          "maxdd_pct": -33.532459278524264
+        },
+        "sub": {
+          "2019-21": {
+            "sharpe": 1.6035824477145266,
+            "maxdd_pct": -33.532459278524264
+          },
+          "2022-24H1": {
+            "sharpe": 1.6992956759381308,
+            "maxdd_pct": -16.921567883809786
+          }
+        }
+      },
+      "robust_2.50_1.5": {
+        "n_trades": 85,
+        "n_open_at_cut": 11,
+        "ratchet_fired": 49,
+        "mean_R": 1.4415810810810812,
+        "sum_R": 106.677,
+        "win_pct": 59.45945945945946,
+        "sum_R_incl_open_at_mark": 166.92599999999996,
+        "R_by_year": {
+          "2019": 35.72,
+          "2020": 51.66,
+          "2021": -6.6,
+          "2022": 22.58,
+          "2023": 3.32
+        },
+        "cagr_pct": 38.101589496311284,
+        "full": {
+          "sharpe": 1.6313211246051942,
+          "maxdd_pct": -33.532459278524264
+        },
+        "sub": {
+          "2019-21": {
+            "sharpe": 1.3016419172435716,
+            "maxdd_pct": -33.532459278524264
+          },
+          "2022-24H1": {
+            "sharpe": 2.0250690493511514,
+            "maxdd_pct": -16.12456927551452
+          }
+        }
+      }
+    },
+    "uncapped": {
+      "base": {
+        "n_trades": 701,
+        "n_open_at_cut": 109,
+        "ratchet_fired": 0,
+        "mean_R": 0.5138817567567568,
+        "sum_R": 304.2180000000001,
+        "win_pct": 43.24324324324324,
+        "sum_R_incl_open_at_mark": 922.5419999999999,
+        "R_by_year": {
+          "2019": -335.75,
+          "2020": 311.97,
+          "2021": 289.37,
+          "2022": 0.77,
+          "2023": 57.63,
+          "2024": -19.77
+        }
+      },
+      "primary_2.75_1.5": {
+        "n_trades": 725,
+        "n_open_at_cut": 102,
+        "ratchet_fired": 319,
+        "mean_R": 0.4904382022471913,
+        "sum_R": 305.5430000000002,
+        "win_pct": 46.06741573033708,
+        "sum_R_incl_open_at_mark": 889.5590000000002,
+        "R_by_year": {
+          "2019": -321.81,
+          "2020": 266.33,
+          "2021": 287.94,
+          "2022": 18.73,
+          "2023": 72.43,
+          "2024": -18.08
+        }
+      },
+      "robust_2.50_1.5": {
+        "n_trades": 730,
+        "n_open_at_cut": 101,
+        "ratchet_fired": 337,
+        "mean_R": 0.49199841017488094,
+        "sum_R": 309.4670000000001,
+        "win_pct": 46.10492845786963,
+        "sum_R_incl_open_at_mark": 840.2450000000001,
+        "R_by_year": {
+          "2019": -320.9,
+          "2020": 262.77,
+          "2021": 289.64,
+          "2022": 18.67,
+          "2023": 77.37,
+          "2024": -18.08
+        }
+      }
+    }
+  },
+  "bound": {
+    "capped:primary_2.75_1.5": {
+      "delta_R_per_yr": 0.08,
+      "delta_R_per_yr_closed_only_censored": 0.31,
+      "delta_mean_R": -0.0525,
+      "delta_R_by_year": {
+        "2019": 6.71,
+        "2020": -8.55,
+        "2021": -4.82,
+        "2022": 8.26,
+        "2023": -1.19,
+        "2024": 1.29
+      },
+      "delta_R_by_subperiod": {
+        "2019-21": -6.66,
+        "2022-24H1": 8.36
+      },
+      "reading": "BOUND RECORDED \u2014 below the floor or wrong-signed; no trial",
+      "delta_sharpe": -0.0112,
+      "delta_cagr_pp": -1.09,
+      "delta_maxdd_pp": 1.25
+    },
+    "capped:robust_2.50_1.5": {
+      "delta_R_per_yr": -2.79,
+      "delta_R_per_yr_closed_only_censored": -4.65,
+      "delta_mean_R": -0.4211,
+      "delta_R_by_year": {
+        "2019": 6.71,
+        "2020": -51.9,
+        "2021": -7.27,
+        "2022": 20.81,
+        "2023": 4.79,
+        "2024": 1.29
+      },
+      "delta_R_by_subperiod": {
+        "2019-21": -52.46,
+        "2022-24H1": 26.89
+      },
+      "reading": "BOUND RECORDED \u2014 below the floor or wrong-signed; no trial",
+      "delta_sharpe": -0.0352,
+      "delta_cagr_pp": -1.3,
+      "delta_maxdd_pp": 1.25
+    },
+    "uncapped:primary_2.75_1.5": {
+      "delta_R_per_yr": -6.0,
+      "delta_R_per_yr_closed_only_censored": 0.24,
+      "delta_mean_R": -0.0234,
+      "delta_R_by_year": {
+        "2019": 13.94,
+        "2020": -45.64,
+        "2021": -1.43,
+        "2022": 17.96,
+        "2023": 14.8,
+        "2024": 1.69
+      },
+      "delta_R_by_subperiod": {
+        "2019-21": -33.13,
+        "2022-24H1": 34.45
+      },
+      "reading": "BOUND RECORDED \u2014 below the floor or wrong-signed; no trial"
+    },
+    "uncapped:robust_2.50_1.5": {
+      "delta_R_per_yr": -14.98,
+      "delta_R_per_yr_closed_only_censored": 0.96,
+      "delta_mean_R": -0.0219,
+      "delta_R_by_year": {
+        "2019": 14.85,
+        "2020": -49.2,
+        "2021": 0.27,
+        "2022": 17.9,
+        "2023": 19.74,
+        "2024": 1.69
+      },
+      "delta_R_by_subperiod": {
+        "2019-21": -34.08,
+        "2022-24H1": 39.33
+      },
+      "reading": "BOUND RECORDED \u2014 below the floor or wrong-signed; no trial"
+    }
+  }
+}
