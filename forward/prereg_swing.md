@@ -320,3 +320,40 @@ Two facts the review must carry, both measured in 0146 and neither resolved here
 It ratifies readings; it changes no threshold, no grading, no config, and no book. Adopting the
 excess-return Sharpe, repairing §4's floor, or altering the ≥30 precondition are all **live-rule changes**
 and belong to a quarterly review with a stated rationale.
+
+## 12. Clarification 2026-10-13 — §4 cannot currently separate the two books (owner request; plan item B2)
+
+**Recorded fact, no rule change.** Requested by the owner on 2026-10-13 as plan item B2, after finding
+0146's A1 diff was in hand.
+
+**What holds today.** The two books §4 compares, capped A-only and capped all-grades, have held
+**identical positions on every session since inception**. Their NAV curves were identical to the paisa
+on the 2026-09-18 and 2026-09-26 reads (0146) and still are on the 2026-10-01 scan (both ₹9,73,685.12).
+§4's MaxDD and Calmar tests read those two curves, so **while the identity holds they return a tie by
+construction**. No forward quantity of any length can separate two identical curves.
+
+**Why.** The candidate pools differ (on 2026-09-18, 23 signals: 14 Grade A, 9 not), but the funding stage
+erases the difference. Under `max_notional_pct = 0.20` about five seats are affordable, they are filled
+strongest-CRS-first, and Grade A is the top-5-by-CRS rule, so the non-A names sit below the funding margin.
+This mechanism is 0146's reading and was not confirmed by a holdings replay.
+
+**What is NOT claimed.** This is **not** a structural impossibility. 0146 replayed both books over a
+longer historical window and found them different on all 365 common sessions, by up to ₹6,09,448.71.
+They can diverge, and will once turnover frees cash while a non-A name ranks inside the funding margin.
+The words "cannot separate" in this section's title mean *under the current funding cap, so far*, not *ever*.
+
+**Consequences, stated so no review has to rediscover them:**
+
+1. Until the curves diverge, §4 can only ever reach its *insufficient evidence* branch, whose default is
+   base-swing. **While the books hold the same names, that default changes nothing that is held:** both
+   gradings fund the same positions. The default's practical effect begins only when the books diverge,
+   which is also when §4 becomes decidable.
+2. §4's ≥20-closed floor still compares an uncapped count with a capped one (§11.5). That mismatch and the
+   identity are independent defects; this section records the second, §11.5 recorded the first.
+3. The cron's `base_swing_forward.json` should be read together with this section: an identical curve is
+   evidence that the funded sets coincide, not that the grading was tested.
+
+**What this section may never do.** Like §11, it changes no threshold, no grading, no config and no book.
+Changing §4's decision rule so that it can decide, for example by comparing uncapped per-trade
+outcomes or by changing the funding cap, is a **live-rule change** for a quarterly review. Stating that
+§4 is undecidable under the current funding cap is a clarification; making it decidable is not.
