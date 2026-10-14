@@ -1,36 +1,18 @@
 {
-  "generated_at": "2026-10-13",
-  "signals": [
-    {
-      "ticker": "RRKABEL",
-      "entry": 2615.51,
-      "stop": 2257.45,
-      "target": 3204.52,
-      "target_pct": 22.52,
-      "current_price": 2614.2,
-      "close": 2614.2,
-      "signal_date": "2026-10-13",
-      "hold_days": 63,
-      "grade": "B",
-      "tier": "signal",
-      "status": "FRESH",
-      "buy_window": "T+1..T+3 at open",
-      "indicative_close": 2614.2,
-      "indicative_entry": 2615.51
-    }
-  ],
+  "generated_at": "2026-10-14",
+  "signals": [],
   "regime": {
     "status": "UNKNOWN",
     "strength": 0,
     "vix": 0,
     "breadth": 0
   },
-  "n_positions": 14,
-  "cash": 5959.73,
+  "n_positions": 15,
+  "cash": 1325.4,
   "kill_state": {
     "wr_last20": 40.0,
     "wr_breach": true,
-    "sharpe_30d": 0.274,
+    "sharpe_30d": 0.892,
     "sharpe_30d_breach": false,
     "mode": "observe"
   }
