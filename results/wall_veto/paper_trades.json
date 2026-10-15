@@ -478,5 +478,35 @@
     "net_pct": -1.45,
     "net_pnl": -45.28,
     "hold_days": 26
+  },
+  {
+    "ticker": "AEGISLOG",
+    "entry_date": "2026-09-24",
+    "exit_date": "2026-10-15",
+    "entry": 1406.5,
+    "exit": 1409.89,
+    "qty": 1,
+    "days_held": 14,
+    "reason": "trailing",
+    "return_pct": 0.24,
+    "pnl": -0.27,
+    "net_pct": 0.24,
+    "net_pnl": -0.27,
+    "hold_days": 14
+  },
+  {
+    "ticker": "BHEL",
+    "entry_date": "2026-09-25",
+    "exit_date": "2026-10-15",
+    "entry": 417.96,
+    "exit": 434.03,
+    "qty": 22,
+    "days_held": 13,
+    "reason": "trailing",
+    "return_pct": 3.85,
+    "pnl": 329.26,
+    "net_pct": 3.85,
+    "net_pnl": 329.26,
+    "hold_days": 13
   }
 ]
