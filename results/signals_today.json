@@ -1,56 +1,22 @@
 {
-  "generated_at": "2026-10-15",
+  "generated_at": "2026-10-16",
   "signals": [
     {
-      "ticker": "AEGISLOG",
-      "entry": 1411.31,
-      "stop": 1149.72,
-      "target": 1729.14,
+      "ticker": "APARINDS",
+      "entry": 16041.02,
+      "stop": 13401.93,
+      "target": 19653.46,
       "target_pct": 22.52,
-      "current_price": 1410.6,
-      "close": 1410.6,
-      "signal_date": "2026-10-15",
+      "current_price": 16033.0,
+      "close": 16033.0,
+      "signal_date": "2026-10-16",
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
       "status": "FRESH",
       "buy_window": "T+1..T+3 at open",
-      "indicative_close": 1410.6,
-      "indicative_entry": 1411.31
-    },
-    {
-      "ticker": "SAILIFE",
-      "entry": 1395.4,
-      "stop": 1212.51,
-      "target": 1709.64,
-      "target_pct": 22.52,
-      "current_price": 1394.7,
-      "close": 1394.7,
-      "signal_date": "2026-10-15",
-      "hold_days": 63,
-      "grade": "B",
-      "tier": "signal",
-      "status": "FRESH",
-      "buy_window": "T+1..T+3 at open",
-      "indicative_close": 1394.7,
-      "indicative_entry": 1395.4
-    },
-    {
-      "ticker": "FINCABLES",
-      "entry": 1394.6,
-      "stop": 1186.0,
-      "target": 1708.66,
-      "target_pct": 22.52,
-      "current_price": 1393.9,
-      "close": 1393.9,
-      "signal_date": "2026-10-15",
-      "hold_days": 63,
-      "grade": "B",
-      "tier": "signal",
-      "status": "FRESH",
-      "buy_window": "T+1..T+3 at open",
-      "indicative_close": 1393.9,
-      "indicative_entry": 1394.6
+      "indicative_close": 16033.0,
+      "indicative_entry": 16041.02
     }
   ],
   "regime": {
@@ -59,12 +25,12 @@
     "vix": 0,
     "breadth": 0
   },
-  "n_positions": 12,
-  "cash": 248659.6,
+  "n_positions": 14,
+  "cash": 80448.98,
   "kill_state": {
     "wr_last20": 50.0,
     "wr_breach": false,
-    "sharpe_30d": -0.256,
+    "sharpe_30d": -0.38,
     "sharpe_30d_breach": true,
     "mode": "observe"
   }

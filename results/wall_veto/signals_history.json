@@ -476,18 +476,32 @@
     "exit_reason": "trailing"
   },
   {
+    "ticker": "APARINDS",
+    "signal_date": "2026-10-01",
+    "status": "HIT_STOP",
+    "entry": 17392.69,
+    "close_price": 16024.98,
+    "close_date": "2026-10-16",
+    "return_pct": -7.86,
+    "pnl_pct": -7.86,
+    "close_pnl_pct": -7.86,
+    "days_since": 10,
+    "hold_days": 10,
+    "exit_reason": "trailing"
+  },
+  {
     "ticker": "HONASA",
     "signal_date": "2026-08-28",
     "status": "ACTIVE",
     "entry": 484.04,
     "stop": 426.88,
     "target": 593.05,
-    "current_price": 447.9,
-    "close_price": 447.9,
-    "pnl_pct": -7.47,
-    "return_pct": -7.47,
-    "days_since": 32,
-    "hold_days": 32
+    "current_price": 452.25,
+    "close_price": 452.25,
+    "pnl_pct": -6.57,
+    "return_pct": -6.57,
+    "days_since": 33,
+    "hold_days": 33
   },
   {
     "ticker": "LAURUSLABS",
@@ -496,12 +510,12 @@
     "entry": 1855.93,
     "stop": 1697.63,
     "target": 2273.88,
-    "current_price": 2018.5,
-    "close_price": 2018.5,
-    "pnl_pct": 8.76,
-    "return_pct": 8.76,
-    "days_since": 27,
-    "hold_days": 27
+    "current_price": 2060.1,
+    "close_price": 2060.1,
+    "pnl_pct": 11.0,
+    "return_pct": 11.0,
+    "days_since": 28,
+    "hold_days": 28
   },
   {
     "ticker": "FEDERALBNK",
@@ -510,12 +524,12 @@
     "entry": 341.97,
     "stop": 316.94,
     "target": 418.98,
-    "current_price": 335.0,
-    "close_price": 335.0,
-    "pnl_pct": -2.04,
-    "return_pct": -2.04,
-    "days_since": 20,
-    "hold_days": 20
+    "current_price": 338.0,
+    "close_price": 338.0,
+    "pnl_pct": -1.16,
+    "return_pct": -1.16,
+    "days_since": 21,
+    "hold_days": 21
   },
   {
     "ticker": "GRANULES",
@@ -524,12 +538,12 @@
     "entry": 850.42,
     "stop": 755.53,
     "target": 1041.94,
-    "current_price": 811.95,
-    "close_price": 811.95,
-    "pnl_pct": -4.52,
-    "return_pct": -4.52,
-    "days_since": 11,
-    "hold_days": 11
+    "current_price": 825.35,
+    "close_price": 825.35,
+    "pnl_pct": -2.95,
+    "return_pct": -2.95,
+    "days_since": 12,
+    "hold_days": 12
   },
   {
     "ticker": "HSCL",
@@ -538,26 +552,12 @@
     "entry": 667.43,
     "stop": 582.39,
     "target": 817.74,
-    "current_price": 662.85,
-    "close_price": 662.85,
-    "pnl_pct": -0.69,
-    "return_pct": -0.69,
-    "days_since": 10,
-    "hold_days": 10
-  },
-  {
-    "ticker": "APARINDS",
-    "signal_date": "2026-10-01",
-    "status": "ACTIVE",
-    "entry": 17392.69,
-    "stop": 14702.54,
-    "target": 21309.53,
-    "current_price": 16914.0,
-    "close_price": 16914.0,
-    "pnl_pct": -2.75,
-    "return_pct": -2.75,
-    "days_since": 9,
-    "hold_days": 9
+    "current_price": 660.7,
+    "close_price": 660.7,
+    "pnl_pct": -1.01,
+    "return_pct": -1.01,
+    "days_since": 11,
+    "hold_days": 11
   },
   {
     "ticker": "HFCL",
@@ -566,12 +566,12 @@
     "entry": 238.11,
     "stop": 200.63,
     "target": 291.73,
-    "current_price": 243.82,
-    "close_price": 243.82,
-    "pnl_pct": 2.4,
-    "return_pct": 2.4,
-    "days_since": 8,
-    "hold_days": 8
+    "current_price": 256.01,
+    "close_price": 256.01,
+    "pnl_pct": 7.52,
+    "return_pct": 7.52,
+    "days_since": 9,
+    "hold_days": 9
   },
   {
     "ticker": "KIRLOSENG",
@@ -580,12 +580,12 @@
     "entry": 2259.93,
     "stop": 1887.54,
     "target": 2768.87,
-    "current_price": 2066.3,
-    "close_price": 2066.3,
-    "pnl_pct": -8.57,
-    "return_pct": -8.57,
-    "days_since": 7,
-    "hold_days": 7
+    "current_price": 2025.6,
+    "close_price": 2025.6,
+    "pnl_pct": -10.37,
+    "return_pct": -10.37,
+    "days_since": 8,
+    "hold_days": 8
   },
   {
     "ticker": "SONACOMS",
@@ -594,12 +594,12 @@
     "entry": 800.1,
     "stop": 719.23,
     "target": 980.28,
-    "current_price": 801.0,
-    "close_price": 801.0,
-    "pnl_pct": 0.11,
-    "return_pct": 0.11,
-    "days_since": 7,
-    "hold_days": 7
+    "current_price": 800.0,
+    "close_price": 800.0,
+    "pnl_pct": -0.01,
+    "return_pct": -0.01,
+    "days_since": 8,
+    "hold_days": 8
   },
   {
     "ticker": "SAILIFE",
@@ -608,12 +608,12 @@
     "entry": 1520.76,
     "stop": 1342.28,
     "target": 1863.24,
-    "current_price": 1394.7,
-    "close_price": 1394.7,
-    "pnl_pct": -8.29,
-    "return_pct": -8.29,
-    "days_since": 7,
-    "hold_days": 7
+    "current_price": 1389.4,
+    "close_price": 1389.4,
+    "pnl_pct": -8.64,
+    "return_pct": -8.64,
+    "days_since": 8,
+    "hold_days": 8
   },
   {
     "ticker": "MCX",
@@ -622,12 +622,12 @@
     "entry": 3196.6,
     "stop": 2814.79,
     "target": 3916.47,
-    "current_price": 3216.4,
-    "close_price": 3216.4,
-    "pnl_pct": 0.62,
-    "return_pct": 0.62,
-    "days_since": 7,
-    "hold_days": 7
+    "current_price": 3162.0,
+    "close_price": 3162.0,
+    "pnl_pct": -1.08,
+    "return_pct": -1.08,
+    "days_since": 8,
+    "hold_days": 8
   },
   {
     "ticker": "CHENNPETRO",
@@ -636,12 +636,12 @@
     "entry": 1531.77,
     "stop": 1259.24,
     "target": 1876.72,
-    "current_price": 1444.0,
-    "close_price": 1444.0,
-    "pnl_pct": -5.73,
-    "return_pct": -5.73,
-    "days_since": 4,
-    "hold_days": 4
+    "current_price": 1406.6,
+    "close_price": 1406.6,
+    "pnl_pct": -8.17,
+    "return_pct": -8.17,
+    "days_since": 5,
+    "hold_days": 5
   },
   {
     "ticker": "RRKABEL",
@@ -650,11 +650,39 @@
     "entry": 2635.32,
     "stop": 2280.92,
     "target": 3228.79,
-    "current_price": 2603.9,
-    "close_price": 2603.9,
-    "pnl_pct": -1.19,
-    "return_pct": -1.19,
-    "days_since": 1,
-    "hold_days": 1
+    "current_price": 2388.0,
+    "close_price": 2388.0,
+    "pnl_pct": -9.38,
+    "return_pct": -9.38,
+    "days_since": 2,
+    "hold_days": 2
+  },
+  {
+    "ticker": "AEGISLOG",
+    "signal_date": "2026-10-16",
+    "status": "ACTIVE",
+    "entry": 1425.61,
+    "stop": 1152.09,
+    "target": 1746.66,
+    "current_price": 1425.61,
+    "close_price": 1425.61,
+    "pnl_pct": 0.0,
+    "return_pct": 0.0,
+    "days_since": 0,
+    "hold_days": 0
+  },
+  {
+    "ticker": "BHEL",
+    "signal_date": "2026-10-16",
+    "status": "ACTIVE",
+    "entry": 436.17,
+    "stop": 384.86,
+    "target": 534.39,
+    "current_price": 436.17,
+    "close_price": 436.17,
+    "pnl_pct": 0.0,
+    "return_pct": 0.0,
+    "days_since": 0,
+    "hold_days": 0
   }
 ]
