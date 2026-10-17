@@ -1,0 +1,47 @@
+{
+  "prev_snapshot": "2026-10-01",
+  "cur_snapshot": "2026-10-16",
+  "closed_prev": 19,
+  "closed_cur": 28,
+  "closed_delta": 9,
+  "nav_prev": 973685.12,
+  "nav_cur": 955533.69,
+  "nav_delta": -18151.43,
+  "n_restated": 0,
+  "restated": [],
+  "n_vanished": 1,
+  "vanished": [
+    "HINDZINC|2026-08-31"
+  ],
+  "n_appeared": 10,
+  "appeared": [
+    "ABCAPITAL|2026-09-21",
+    "ASTERDM|2026-09-07",
+    "BAJAJ-AUTO|2026-07-13",
+    "IDFCFIRSTB|2026-09-07",
+    "IKS|2026-08-18",
+    "JSWSTEEL|2026-08-24",
+    "MANAPPURAM|2026-09-28",
+    "OBEROIRLTY|2026-09-28",
+    "PHOENIXLTD|2026-08-24",
+    "UNIONBANK|2026-08-10"
+  ],
+  "n_vanished_open": 1,
+  "vanished_open": [
+    "BANDHANBNK|2026-09-14"
+  ],
+  "inputs_changed": [
+    "nifty50_csv_sha256",
+    "ohlcv_cache_sha256",
+    "ohlcv_last_bar",
+    "ohlcv_n_names",
+    "ohlcv_n_rows"
+  ],
+  "clean": false,
+  "as_of": "2026-10-16",
+  "prev_as_of": "2026-10-01",
+  "gap_days": 15,
+  "backfilled": true,
+  "logged_utc": "2026-10-17T12:42:18.029107+00:00",
+  "is_baseline": false
+}

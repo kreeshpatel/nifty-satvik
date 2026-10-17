@@ -1,0 +1,20 @@
+{
+  "as_of": "2026-10-16",
+  "archived_utc": "2026-10-17T12:42:18.028140+00:00",
+  "files": [
+    "signals_today_weekly.json",
+    "signals_history_weekly.json",
+    "signal_analytics_weekly.json",
+    "paper_portfolio_weekly.json",
+    "portfolio_history_weekly.csv",
+    "weekly_review_scorecard.json"
+  ],
+  "is_rerun_of_existing_as_of": false,
+  "is_baseline": false,
+  "prev_as_of": "2026-10-01",
+  "gap_days": 15,
+  "backfilled": true,
+  "backfill_gap_days": 8,
+  "backfilled_note": "a gap wider than the cadence means the previous Saturday did not land, so this snapshot contains fills the owner could not have taken. A gate that reads the forward record should be able to EXCLUDE such a week; nothing here excludes it, the flag only makes it visible.",
+  "note": "Immutable snapshot of the weekly-swing forward record (constitution D2). The working copy in results/ is recomputed from inception every Saturday and is therefore mutable; THIS is the artifact the Oct-1 gates should read."
+}

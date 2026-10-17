@@ -1,0 +1,74 @@
+{
+  "cash": 106628.29,
+  "peak_value": 1057592.22,
+  "total_value": 955533.69,
+  "n_positions": 5,
+  "total_trades": 28,
+  "positions": {
+    "CUB": {
+      "entry_date": "2026-07-06",
+      "entry_price": 210.03,
+      "shares": 190.45,
+      "position_size": 40000.0,
+      "atr_stop": 197.35,
+      "target": 235.39,
+      "current_price": 227.38,
+      "current_value": 43303.82,
+      "unrealised_pnl": 3303.82,
+      "unrealised_pnl_pct": 8.26,
+      "days_held": 75
+    },
+    "MCX": {
+      "entry_date": "2026-08-17",
+      "entry_price": 2905.98,
+      "shares": 68.99,
+      "position_size": 200486.89,
+      "atr_stop": 2615.38,
+      "target": 3487.18,
+      "current_price": 3162.0,
+      "current_value": 218150.02,
+      "unrealised_pnl": 17663.13,
+      "unrealised_pnl_pct": 8.81,
+      "days_held": 45
+    },
+    "APLAPOLLO": {
+      "entry_date": "2026-08-17",
+      "entry_price": 2084.97,
+      "shares": 96.16,
+      "position_size": 200486.89,
+      "atr_stop": 1944.21,
+      "target": 2366.48,
+      "current_price": 2152.7,
+      "current_value": 206999.85,
+      "unrealised_pnl": 6512.96,
+      "unrealised_pnl_pct": 3.25,
+      "days_held": 45
+    },
+    "POWERINDIA": {
+      "entry_date": "2026-09-21",
+      "entry_price": 32480.0,
+      "shares": 6.32,
+      "position_size": 205225.01,
+      "atr_stop": 29645.0,
+      "target": 38150.0,
+      "current_price": 28990.0,
+      "current_value": 183173.43,
+      "unrealised_pnl": -22051.58,
+      "unrealised_pnl_pct": -10.75,
+      "days_held": 20
+    },
+    "IIFL": {
+      "entry_date": "2026-10-12",
+      "entry_price": 606.0,
+      "shares": 320.57,
+      "position_size": 194264.92,
+      "atr_stop": 566.3,
+      "target": 685.4,
+      "current_price": 615.4,
+      "current_value": 197278.27,
+      "unrealised_pnl": 3013.36,
+      "unrealised_pnl_pct": 1.55,
+      "days_held": 5
+    }
+  }
+}

@@ -4,16 +4,16 @@
   "status": "WATCHED \u2014 logged, never traded, never surfaced (contains Grade-B names)",
   "authority": "forward/prereg_swing.md \u00a74 (A-only vs base-swing, decided 2027-07-01)",
   "inception": "2026-07-04",
-  "as_of": "2026-10-01",
-  "n_closed": 4,
-  "sharpe": -1.2679,
-  "cagr_pct": -19.347,
-  "maxdd_pct": -7.934,
-  "calmar": -2.4386,
+  "as_of": "2026-10-16",
+  "n_closed": 5,
+  "sharpe": -1.3833,
+  "cagr_pct": -22.181,
+  "maxdd_pct": -10.136,
+  "calmar": -2.1883,
   "win_rate_pct": 0.0,
-  "expectancy_R_gross": -0.8606,
+  "expectancy_R_gross": -1.0004,
   "exit_reasons": {
-    "stop": 2,
+    "stop": 3,
     "stop_part": 1,
     "sma_break": 1
   },
@@ -273,6 +273,50 @@
     {
       "date": "2026-10-01",
       "equity": 973685.12
+    },
+    {
+      "date": "2026-10-02",
+      "equity": 973685.12
+    },
+    {
+      "date": "2026-10-05",
+      "equity": 971122.6
+    },
+    {
+      "date": "2026-10-06",
+      "equity": 985200.22
+    },
+    {
+      "date": "2026-10-07",
+      "equity": 984989.85
+    },
+    {
+      "date": "2026-10-08",
+      "equity": 955973.94
+    },
+    {
+      "date": "2026-10-09",
+      "equity": 971324.58
+    },
+    {
+      "date": "2026-10-12",
+      "equity": 984164.99
+    },
+    {
+      "date": "2026-10-13",
+      "equity": 977490.36
+    },
+    {
+      "date": "2026-10-14",
+      "equity": 964715.74
+    },
+    {
+      "date": "2026-10-15",
+      "equity": 950393.61
+    },
+    {
+      "date": "2026-10-16",
+      "equity": 955533.69
     }
   ],
   "_units": "cagr/maxdd/calmar/sharpe are NET of costs, off the NAV curve. expectancy_R is GROSS \u2014 R is computed on raw prices (run_bhanushali_weekly_rank), so it is NOT comparable to the net NAV metrics. \u00a74 decides on MaxDD and Calmar only.",
