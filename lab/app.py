@@ -121,6 +121,12 @@ if res is None:
     st.info("Pick a config in the sidebar and press Run. The first run of a new config takes a few minutes.")
     st.stop()
 
+_m = res.get("manifest") or {}
+if _m.get("is_live_book"):
+    st.success(_m["label"])
+else:
+    st.error(_m.get("label", "NOT LIVE BOOK: manifest missing (stale cache)"))
+
 nav: pd.Series = res["nav"]
 ledger: pd.DataFrame = res["ledger"]
 nifty = _nifty()

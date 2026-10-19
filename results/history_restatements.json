@@ -1,0 +1,6 @@
+{
+  "ABDL|2026-09-15": "2026-10-19: no-retroactive-entrants fix (PR #144) - ABDL's past signal no longer displaces the open BANDHANBNK in the week of 2026-09-14; vanishes from the rebuilt history by design.",
+  "BANDHANBNK|2026-09-14": "2026-10-19: no-retroactive-entrants fix (PR #144) - the open BANDHANBNK position, displaced by ABDL in the 2026-10-16 rebuild, reappears.",
+  "HINDZINC|2026-08-31": "2026-10-19: no-retroactive-entrants fix (PR #144) - the closed -1.65R HINDZINC trade, displaced by ZYDUSWELL in the 2026-10-16 rebuild, reappears.",
+  "ZYDUSWELL|2026-08-31": "2026-10-19: no-retroactive-entrants fix (PR #144) - ZYDUSWELL's past signal no longer displaces HINDZINC in the week of 2026-08-31; vanishes from the rebuilt history by design."
+}

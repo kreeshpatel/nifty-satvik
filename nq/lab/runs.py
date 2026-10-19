@@ -182,6 +182,29 @@ def load_cut_universe() -> dict[str, pd.DataFrame]:
     return cut_universe(_engine()[3]())
 
 
+def engine_kwargs(config: Mapping[str, Any] | None = None) -> dict[str, Any]:
+    """The pure-config kwargs `replay` hands ``R94.backtest`` (no data, no logs, no ``a_grade``).
+
+    = LIVE_DISCIPLINE with the lab's three overrides, LIVE_EXIT (or ``{}`` when ``exit == "base"``),
+    LIVE_STALENESS, plus ``start`` and ``uncapped``. Factored out so that the lab default can be held
+    key-by-key to the live cron's LIVE_* blocks (tests/test_replay_parity.py).
+    """
+    cfg = normalize_config(config)
+    live = _engine()[1]
+    discipline = {**live["LIVE_DISCIPLINE"], "ext_cap": cfg["ext_cap"],
+                  "max_notional_pct": cfg["max_notional_pct"], "max_risk_pct": cfg["max_risk_pct"]}
+    exit_cfg = live["LIVE_EXIT"] if cfg["exit"] == "live" else {}
+    return {**discipline, **exit_cfg, **live["LIVE_STALENESS"], "start": cfg["start"],
+            "uncapped": cfg["uncapped"]}
+
+
+def _manifest(cfg: Mapping[str, Any], last_bar: str | None) -> dict[str, Any]:
+    from nq.runner.manifest import build_manifest
+    return build_manifest({**engine_kwargs(cfg), "grade_gate": cfg["grade_gate"]},
+                          membership="pit" if cfg["pit_membership"] else "none",
+                          data_vintage=last_bar, window=(cfg["start"], CUT))
+
+
 def replay(config: Mapping[str, Any] | None = None, *, use_cache: bool = True,
            cache_dir: Path | None = None, runs_path: Path | None = None,
            ohlcv: Mapping[str, pd.DataFrame] | None = None) -> dict[str, Any]:
@@ -198,7 +221,7 @@ def replay(config: Mapping[str, Any] | None = None, *, use_cache: bool = True,
     `diag_portfolio_risk` SPEC A1).
 
     Returns ``{"config", "config_hash", "nav", "ledger", "position_log", "event_log", "sharpe", "maxdd",
-    "cagr", "n_trades", "last_bar", "seconds", "cached"}``. The result is pickled under ``lab_cache/``
+    "cagr", "n_trades", "last_bar", "seconds", "cached", "manifest"}``. The result is pickled under ``lab_cache/``
     keyed by the config hash, and the run is added to the multiplicity ledger once.
     """
     cfg = normalize_config(config)
@@ -208,6 +231,7 @@ def replay(config: Mapping[str, Any] | None = None, *, use_cache: bool = True,
     if use_cache and f.exists():
         res = pd.read_pickle(f)
         res["cached"] = True
+        res["manifest"] = _manifest(cfg, res.get("last_bar"))
         record_run(cfg, res["sharpe"], runs_path)       # no-op if already on the ledger
         return res
 
@@ -220,16 +244,12 @@ def replay(config: Mapping[str, Any] | None = None, *, use_cache: bool = True,
     events = R94.build_demerger_events(cut, load_demerger_rows(), **live["LIVE_PREP"])
     mem = load_membership() if cfg["pit_membership"] else None
 
-    discipline = {**live["LIVE_DISCIPLINE"], "ext_cap": cfg["ext_cap"],
-                  "max_notional_pct": cfg["max_notional_pct"], "max_risk_pct": cfg["max_risk_pct"]}
-    exit_cfg = live["LIVE_EXIT"] if cfg["exit"] == "live" else {}
+    kw = engine_kwargs(cfg)
     ledger: list = []
     plog: list = []
     elog: list = []
-    out = R94.backtest(P, mem, ledger=ledger, start=cfg["start"], uncapped=cfg["uncapped"],
-                       a_grade=R94.grade_a_entries(P) if cfg["grade_gate"] else None,
-                       **discipline, **exit_cfg, **live["LIVE_STALENESS"],
-                       demerger_events=events, position_log=plog, event_log=elog)
+    out = R94.backtest(P, mem, ledger=ledger, a_grade=R94.grade_a_entries(P) if cfg["grade_gate"] else None,
+                       **kw, demerger_events=events, position_log=plog, event_log=elog)
     nav = pd.Series(out["curve"], dtype=float)
     nav.index = pd.DatetimeIndex(nav.index).normalize()
     nav = nav[~nav.index.duplicated(keep="last")].sort_index()
@@ -240,7 +260,8 @@ def replay(config: Mapping[str, Any] | None = None, *, use_cache: bool = True,
            "position_log": pd.DataFrame(plog), "event_log": pd.DataFrame(elog),
            "sharpe": sharpe, "maxdd": float((nav / nav.cummax() - 1).min()), "cagr": float(out["cagr"]),
            "n_trades": int(len(ledger)), "last_bar": str(last.date()),
-           "seconds": round(time.time() - t0, 1), "cached": False}
+           "seconds": round(time.time() - t0, 1), "cached": False,
+           "manifest": _manifest(cfg, str(last.date()))}
     cdir.mkdir(parents=True, exist_ok=True)
     pd.to_pickle(res, f)
     record_run(cfg, sharpe, runs_path)
