@@ -29,6 +29,7 @@ engine change ends up uncertified.
   `diagnostics/research/n_trials.json` and `diagnostics/research/label_screen_ledger.md`. Never from
   a document, never from memory. State them in any research readout.
 - **`skills-first`**: check what already exists before building anything.
+- **Pick the tier first** ([`docs/PROCESS_TIERS.md`](../../docs/PROCESS_TIERS.md), owner 2026-10-19): EXPLORE and MEASURE/RE-RUN need no pre-registration or screen row; only work that would change live money pays the full method. Never answer "no" flatly: a prior verdict is a prior, so offer the cheapest test that would change it.
 - If the task touches strategy, signal, entry, exit, sizing, universe, regime, or "a new idea" —
   load **`program-laws`** before forming an opinion. The collision rule is **cite and narrow, never
   relitigate**.
