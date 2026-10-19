@@ -64,7 +64,10 @@ def build_population() -> dict:
     plog: list = []
     # The corporate-action HOLD is OFF, as in 0142 §A1 and for its stated reason: with no owner to
     # resolve a frozen position in a 5.5-year reconstruction it never resolves.
-    out = R94.backtest(P, None, ledger=led, start=HIST_START, return_state=True,
+    from nq.data.membership import load_membership
+    # CORRECTION 2026-10-19: was mem=None (no PIT membership gate); the live cron gates every fill on load_membership().
+    # Original output kept as *_membership_off; see the finding's CORRECTION section.
+    out = R94.backtest(P, load_membership(), ledger=led, start=HIST_START, return_state=True,
                        a_grade=R94.grade_a_entries(P), **LIVE_DISCIPLINE, **LIVE_EXIT,
                        **LIVE_STALENESS, demerger_events=events, position_log=plog)
     ledger = pd.DataFrame(led)

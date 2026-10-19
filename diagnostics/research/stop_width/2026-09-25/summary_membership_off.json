@@ -1,0 +1,269 @@
+{
+  "spec": "diagnostics/research/stop_width/SPEC.md",
+  "class": "MEASUREMENT (zero trials)",
+  "n_trials_at_run": 2,
+  "run_date": "2026-09-25",
+  "constants": {
+    "hist_window": "2019-01-01..2024-06-30",
+    "n_boot": 2000,
+    "seed": 20260925,
+    "min_trades": 30
+  },
+  "reading": "Nothing is adopted. The stop axis is closed in both directions (0105, 0106, 0109); measure 4 is a unit conversion, never a wider-stop simulation.",
+  "historical": {
+    "all": {
+      "label": "A all",
+      "n": 71,
+      "informative": true,
+      "stop_width_pct": {
+        "median": 8.948,
+        "iqr": [
+          6.277,
+          9.999
+        ],
+        "min": 1.878,
+        "max": 10.005
+      },
+      "mean_R": {
+        "pt": 1.863,
+        "ci": [
+          0.437,
+          3.736
+        ]
+      },
+      "median_R": -0.158,
+      "mean_return_pct": {
+        "pt": 50.466,
+        "ci": [
+          13.261,
+          101.329
+        ]
+      },
+      "median_return_pct": -4.387
+    },
+    "losses": {
+      "label": "A losses",
+      "n": 37,
+      "informative": true,
+      "stop_width_pct": {
+        "median": 8.851,
+        "iqr": [
+          5.704,
+          9.996
+        ],
+        "min": 2.016,
+        "max": 10.004
+      },
+      "mean_R": {
+        "pt": -1.425,
+        "ci": [
+          -1.827,
+          -1.109
+        ]
+      },
+      "median_R": -1.244,
+      "mean_return_pct": {
+        "pt": -10.75,
+        "ci": [
+          -12.966,
+          -8.817
+        ]
+      },
+      "median_return_pct": -9.524
+    },
+    "by_band": {
+      "3-6%": {
+        "n": 9,
+        "informative": false,
+        "median_stop_width_pct": 5.315,
+        "median_R": -1.185,
+        "median_return_pct": -6.244,
+        "sum_R": -14.3,
+        "sum_designed_R": -8.17,
+        "sum_beyond_stop_R": -6.13,
+        "share_beyond_stop": 0.4286,
+        "gap_through_rate": 0.7778
+      },
+      "6-10% (uncapped)": {
+        "n": 13,
+        "informative": false,
+        "median_stop_width_pct": 8.851,
+        "median_R": -1.285,
+        "median_return_pct": -9.424,
+        "sum_R": -16.56,
+        "sum_designed_R": -11.97,
+        "sum_beyond_stop_R": -4.59,
+        "share_beyond_stop": 0.2773,
+        "gap_through_rate": 0.6154
+      },
+      "<3%": {
+        "n": 3,
+        "informative": false,
+        "median_stop_width_pct": 2.597,
+        "median_R": -0.158,
+        "median_return_pct": -3.666,
+        "sum_R": -6.16,
+        "sum_designed_R": -1.16,
+        "sum_beyond_stop_R": -5.0,
+        "share_beyond_stop": 0.8116,
+        "gap_through_rate": 0.3333
+      },
+      "at the 10% cap": {
+        "n": 12,
+        "informative": false,
+        "median_stop_width_pct": 10.0,
+        "median_R": -1.267,
+        "median_return_pct": -12.67,
+        "sum_R": -15.71,
+        "sum_designed_R": -11.78,
+        "sum_beyond_stop_R": -3.93,
+        "share_beyond_stop": 0.2503,
+        "gap_through_rate": 0.8333
+      }
+    }
+  },
+  "live": {
+    "all": {
+      "label": "B all",
+      "n": 11,
+      "informative": false,
+      "stop_width_pct": {
+        "median": 3.755,
+        "iqr": [
+          2.848,
+          6.686
+        ],
+        "min": 1.94,
+        "max": 9.743
+      },
+      "mean_R": {
+        "pt": -1.562,
+        "ci": [
+          -1.98,
+          -1.165
+        ]
+      },
+      "median_R": -1.46,
+      "mean_return_pct": {
+        "pt": -7.034,
+        "ci": [
+          -9.005,
+          -5.094
+        ]
+      },
+      "median_return_pct": -6.19
+    },
+    "losses": {
+      "label": "B losses",
+      "n": 11,
+      "informative": false,
+      "stop_width_pct": {
+        "median": 3.755,
+        "iqr": [
+          2.848,
+          6.686
+        ],
+        "min": 1.94,
+        "max": 9.743
+      },
+      "mean_R": {
+        "pt": -1.562,
+        "ci": [
+          -1.98,
+          -1.165
+        ]
+      },
+      "median_R": -1.46,
+      "mean_return_pct": {
+        "pt": -7.034,
+        "ci": [
+          -9.005,
+          -5.094
+        ]
+      },
+      "median_return_pct": -6.19
+    },
+    "by_band": {
+      "3-6%": {
+        "n": 4,
+        "informative": false,
+        "median_stop_width_pct": 3.474,
+        "median_R": -1.45,
+        "median_return_pct": -6.97,
+        "sum_R": -6.41,
+        "sum_designed_R": -3.5,
+        "sum_beyond_stop_R": -2.91,
+        "share_beyond_stop": 0.454,
+        "gap_through_rate": 0.5
+      },
+      "6-10% (uncapped)": {
+        "n": 4,
+        "informative": false,
+        "median_stop_width_pct": 7.726,
+        "median_R": -1.105,
+        "median_return_pct": -9.99,
+        "sum_R": -4.62,
+        "sum_designed_R": -3.95,
+        "sum_beyond_stop_R": -0.67,
+        "share_beyond_stop": 0.145,
+        "gap_through_rate": 0.75
+      },
+      "<3%": {
+        "n": 3,
+        "informative": false,
+        "median_stop_width_pct": 2.463,
+        "median_R": -2.18,
+        "median_return_pct": -4.5,
+        "sum_R": -6.15,
+        "sum_designed_R": -3.0,
+        "sum_beyond_stop_R": -3.15,
+        "share_beyond_stop": 0.5122,
+        "gap_through_rate": 1.0
+      }
+    }
+  },
+  "differences_live_minus_historical (losses)": {
+    "stop_width_pct": {
+      "live_minus_historical": -2.575,
+      "ci": [
+        -4.241,
+        -0.825
+      ],
+      "excludes_zero": true
+    },
+    "return_pct": {
+      "live_minus_historical": 3.716,
+      "ci": [
+        0.954,
+        6.554
+      ],
+      "excludes_zero": true
+    },
+    "r_multiple": {
+      "live_minus_historical": -0.137,
+      "ci": [
+        -0.68,
+        0.404
+      ],
+      "excludes_zero": false
+    }
+  },
+  "live_width_basis": {
+    "n_card_vs_engine_gap_gt_5pct": 3,
+    "tickers": [
+      "3MINDIA",
+      "CCL",
+      "HINDZINC"
+    ],
+    "_note": "widths here are the ENGINE basis (return%/R); the card's stop is a different object"
+  },
+  "_live_bootstrap_caveat": "11 trades on 11 distinct tickers: the cluster bootstrap degenerates to an ordinary percentile bootstrap at n=11 and is anti-conservative",
+  "reexpression": {
+    "_what_this_is": "arithmetic re-expression of the SAME price moves at population A's median stop width; not a wider-stop simulation (0106 KILL) and not a proposal",
+    "hist_median_stop_width_pct": 8.851,
+    "live_sum_R_as_measured": -17.18,
+    "live_sum_R_at_hist_width": -8.74,
+    "live_median_R_as_measured": -1.46,
+    "live_median_R_at_hist_width": -0.699
+  }
+}

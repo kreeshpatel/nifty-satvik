@@ -282,3 +282,45 @@ What does **not** change: the kill trigger's sign is still noise. SE(annualised 
 of order 2, against a programme resolution floor of ~0.6 Sharpe, so −0.73 is no more resolvable than
 −0.10 was. It reads worse; it is not more informative. And with 2 closed trades on the funded book, the
 ≥30-closed precondition still makes expectancy and win rate uninformative on either book.
+
+
+---
+
+## CORRECTION 2026-10-19 — re-run with PIT membership
+
+**Nothing above this line is edited; it stands as measured, and it is superseded here.**
+
+**What changed.** Only one section of this study calls the engine: `grading_discriminates()`, the with/without
+`a_grade` replay over 2023-01-02..2024-06-28. It passed `mem=None`, so both replayed books could buy names
+outside the Nifty-500 on the date; the live cron gates every fill on `load_membership()`. The diagnostic now
+passes it. Every other section reads committed live artifacts and is unaffected by the gate. The original summary
+is kept as `diagnostics/research/book_identity/2026-09-27/summary_membership_off.json`; the re-run is
+`diagnostics/research/book_identity/2026-10-19/summary.json`. The whole diagnostic was re-run, so its
+live-artifact sections now describe the current live record (75 common NAV points, not 55 or 60); that drift is
+not part of this correction. Re-run of the registered question; no new screen; standing counts unchanged
+(screens 23 · sealed opens 3 · n_trials 2, read from `label_screen_ledger.md` and `n_trials.json`). The replay
+window ends 2024-06-28, before the sealed slice.
+
+### Corrected replay
+
+| | ungated (as written above) | PIT-gated |
+|---|---|---|
+| A-only final equity / closed | ₹1,683,022.23 / 13 | **₹1,771,440.52 / 9** |
+| all-grades final equity / closed | ₹2,279,012.97 / 9 | **₹1,988,149.86 / 13** |
+| gap in final equity (all-grades − A-only) | ₹595,990.74 | **₹216,709.34** |
+| sessions differing of 365 common | 365 | **365** |
+| maximum absolute delta | ₹6,09,448.71 | **₹2,30,280.68** |
+| `grading_bites` | true | **true** |
+
+### Does the reading survive? Yes.
+
+- **`a_grade` demonstrably changes the book: survives.** All 365 common sessions still differ; the maximum
+  delta falls 62%, from ₹609,448.71 to ₹230,280.68. So the wiring-defect hypothesis stays dead and the live
+  window's identical capped curves remain a property of that window, scoped to the sessions observed. The
+  re-run of the live-artifact sections still finds the two capped curves identical on every common session
+  (75 of 75, maximum delta 0.00).
+- **Two details change.** The closed counts swap (A-only 9, all-grades 13, previously 13 and 9), and the
+  all-grades book still ends ahead, by roughly a third of the earlier gap. Neither was claimed by this study,
+  which "proposes nothing" about grading, and nothing here is evidence for or against it.
+- The mechanism paragraph (about five affordable seats under `max_notional_pct = 0.20`) was a hypothesis and was
+  not re-tested.

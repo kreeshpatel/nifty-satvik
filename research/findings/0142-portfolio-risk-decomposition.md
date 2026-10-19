@@ -116,3 +116,79 @@ Found by the `red-team` read, all fixed before this finding:
   clustering is reported instead.
 - Two drawdown episodes, 11 live snapshots, 50 live sessions. Most cells here are descriptions with
   their n attached, not evidence.
+
+
+---
+
+## CORRECTION 2026-10-19 — re-run with PIT membership
+
+**Nothing above this line is edited; it stands as measured, and it is superseded here.**
+
+**What changed.** `scripts/diag_portfolio_risk.py` passed `mem=None` to `R94.backtest`, so Population A could
+buy names outside the Nifty-500 on the date. The live cron gates every fill on `load_membership()`; the SPEC
+says "the live configuration". On the same 2019-01-01..2024-06-30 window the ungated book read Sharpe 1.666 /
+CAGR 39.4% (the numbers quoted in this finding), the live gated book reads **1.025 / 20.5% / MaxDD −40.1%**.
+The script now passes `load_membership()`. The original run is kept as
+`diagnostics/research/portfolio_risk/2026-09-24/{summary_membership_off.json, daily_membership_off.csv.gz}`
+and the re-run is `{summary.json, daily.csv.gz}` in the same directory. This is a re-run of the registered
+question; no new screen; standing counts unchanged (screens 23 · sealed opens 3 · n_trials 2, read from
+`diagnostics/research/label_screen_ledger.md` and `diagnostics/research/n_trials.json`). The window still
+ends 2024-06-30; the sealed slice was not touched.
+
+### Corrected result (Population A, live gated book, 67 trades instead of 71)
+
+| | ungated (as written above) | PIT-gated |
+|---|---|---|
+| book CAGR / Sharpe / MaxDD (fresh-capital sub-window, not gate numbers) | 39.4% / 1.666 / −34.8% | **20.5% / 1.025 / −40.1%** |
+| mean / median / max seats | 7.31 / 8 / 12 | **5.50 / 6 / 11** |
+| whole-window beta [block CI] | 0.702 [0.590, 0.771] | **0.685 [0.606, 0.786]** |
+| whole-window R² | 0.367 | 0.390 |
+| avg pairwise corr / effective bets (whole) | 0.163 / 3.95 | 0.169 / 3.33 |
+| diversification ratio (whole) | 1.92 | 1.77 |
+
+| regime | sessions | mean seats | avg corr | eff. bets | beta | R² | book/day |
+|---|---|---|---|---|---|---|---|
+| calm | 1,115 → 1,095 | 7.35 → 5.51 | 0.148 → 0.151 | 4.09 → 3.45 | 0.698 → 0.677 | 0.249 → **0.279** | +0.166% → +0.098% |
+| index ≥10% off high (all) | 171 | 7.06 → 5.48 | 0.259 → 0.284 | 3.06 → 2.58 | 0.704 → 0.693 | 0.675 → **0.622** | −0.008% → −0.014% |
+| COVID 2020-03-06..07-20 | 90 | 7.54 → 6.39 | 0.348 → 0.348 | 2.65 → 2.53 | 0.682 → 0.634 | 0.707 → **0.661** | +0.118% → +0.066% |
+| 2022-05-31..07-21 | 38 | 5.53 → 3.29 | 0.120 → 0.178 | 3.59 → 2.31 | 0.648 → 0.860 | 0.407 → **0.534** | −0.005% → +0.045% |
+| drawdowns excluding COVID | 81 | 6.52 → 4.47 | 0.160 → **0.212** | 3.52 → 2.64 | 0.817 → **1.031** | 0.583 → **0.619** | −0.149% → −0.104% |
+
+Exit families (cluster-bootstrapped on ticker), ungated → gated:
+
+| exit | n | mean R | 95% CI | total R |
+|---|---|---|---|---|
+| 44-week-SMA runner | 37 → 35 | +4.82 → **+3.09** | [+2.41, +7.98] → [+1.28, +5.57] | +178.2R → **+108.0R** |
+| stop | 29 → 28 | −1.62 → −1.72 | [−2.11, −1.27] → [−2.14, −1.40] | −47.0R → −48.1R |
+| stop_part | 4 → 4 | −0.24 → −0.29 | [−1.62, +0.99] → [−1.65, +0.97] | −0.9R → −1.2R |
+| stale | 1 → 0 | +2.04 → none | none | +2.0R → none |
+
+### Does each reading survive?
+
+1. **Beta about 0.70, the index explains most of drawdown variance: survives, slightly weaker.** Beta is 0.685
+   (CI excludes 1). The drawdown R² cells are 53–66% (0.534, 0.619, 0.622, 0.661), not 58–68%; calm is 28%
+   rather than a quarter. **But the sub-claim "beta is significantly below 1, so not a closet index fund" no
+   longer holds in falling markets:** beta in the non-COVID drawdowns is **1.03** (2022 episode 0.86), against
+   0.82 before. The whole-window statement is intact; the drawdown-only statement is not.
+2. **"Diversification does NOT thin when it matters": weakened, and one half reversed.** Average correlation
+   in drawdowns excluding COVID is **0.212 against 0.151 in calm**, and the two block CIs ([0.209, 0.259] vs
+   [0.122, 0.182]) no longer overlap; the original said "indistinguishable" (0.160 vs 0.148). Seat count fell
+   alongside (5.51 to 4.47), so part of the drop in effective bets is still the book holding fewer names, but
+   the correlation itself now does rise in the non-COVID drawdowns. Still two episodes, so still no regime
+   claim; the original's "no rise" statement is withdrawn.
+3. **"About 7 seats behave like 4 bets": restated as about 5.5 seats behaving like 3.3 bets** (corr 0.169,
+   diversification ratio 1.77). The structural reading survives; the numbers do not. The `FINDING_more_slots`
+   conclusion (not an argument for more names) is untouched by this correction and was not re-run.
+4. **"R lives in one exit family": survives.** The SMA runner is still the only positive family and its CI
+   still clears zero, but it is **+108.0R across 35 exits, mean +3.09R, not +178.2R / +4.82R**. Total book R is
+   now about +58.8R, so the runner's share is 184%.
+5. **Stop family below the bar: survives** (n = 28 against the floor of 30, still not interpreted). The
+   RNAVAL / JSL attribution of the mean was not re-checked.
+6. **The live book:** Population B is a forward record and does not depend on the membership gate. The script
+   re-fetches it, so the regenerated `summary.json` carries a longer live window (15 snapshots to 2026-10-16
+   rather than 11 to 2026-09-15); that drift is not part of this correction and the live paragraph above
+   stands as dated.
+
+**Also superseded:** "On the same window frozen-0094 defaults give 30.3% / 1.225 … config-P runner exit 39.4 /
+1.666" are ungated figures and were not re-run here. Under the gate the reconstruction reads 1.025, which sits
+at the live gated anchor rather than above it.

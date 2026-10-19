@@ -107,3 +107,59 @@ wider-stop simulation — 0106 measured widening and killed it (ΔSharpe −0.34
 than the research book's typically did. What changed is the yardstick. The open question from 0141 and
 0142 — selection — is untouched by this, and the attribution ledger is now accruing the per-trade
 context it needs.
+
+
+---
+
+## CORRECTION 2026-10-19 — re-run with PIT membership
+
+**Nothing above this line is edited; it stands as measured, and it is superseded here.**
+
+**What changed.** `scripts/diag_stop_width.py` built Population A with `mem=None`, so the historical book could
+buy names outside the Nifty-500 on the date; the live cron gates every fill on `load_membership()` (ungated
+1.666 / 39.4% against gated 1.025 / 20.5% / −40.1% on this window). The script now passes
+`load_membership()`. The original outputs are kept as
+`diagnostics/research/stop_width/2026-09-25/{summary_membership_off.json, trades_membership_off.csv}`; the
+re-run is `{summary.json, trades.csv}` in the same directory. Re-run of the registered question; no new screen;
+standing counts unchanged (screens 23 · sealed opens 3 · n_trials 2, read from `label_screen_ledger.md` and
+`n_trials.json`). The historical window still ends 2024-06-30.
+
+**A second thing moved.** `results/attribution_ledger.csv` kept accruing after 0143: the re-run's Population B
+is **28 closed trades (27 losses), not 11**. To separate the two effects,
+`diagnostics/research/stop_width/2026-09-25/like_for_like.py` compares the gated Population A with the
+**original 11 live trades** (output `like_for_like.json`); only the membership gate differs from the finding
+above in that column.
+
+### Corrected result (losses)
+
+| | as written (A ungated, 37 losses; B 11) | gated A (39 losses) vs the original 11 B | gated A vs the current ledger (27 losses) |
+|---|---|---|---|
+| A median stop width | 8.85% | 8.95% | 8.95% |
+| B median stop width | 3.76% | 3.76% | 5.50% |
+| width difference (live − hist) [95% CI] | −2.58pp [−4.24, −0.83] | **−3.10pp [−4.68, −1.45]** | **−2.42pp [−3.45, −1.32]** |
+| price move difference | +3.72pp [+0.95, +6.55] | **+5.24pp [+2.34, +8.35]** | **+5.17pp [+2.83, +7.88]** |
+| median R difference | −0.14 [−0.68, +0.40] | −0.10 [−0.61, +0.43] | +0.05 [−0.36, +0.46] |
+| A losses pinned at the 10% cap | 12 of 37 | 15 of 39 | 15 of 39 |
+
+**Arithmetic re-expression** (same price moves divided by A's median loss stop width; a unit conversion, not a
+wider-stop simulation): the original **−17.18R became −8.74R** as written; with the gated denominator it
+becomes **−8.65R** (median −1.46R to −0.69R). On the current 27-loss ledger it is **−38.28R to −21.43R**
+(median −1.17R to −0.72R).
+
+Gap-through rate by A stop-width band, ungated to gated: `<3%` 0.33 to 0.00 (now n = 1), `3–6%` 0.78 to 0.86,
+`6–10%` 0.62 to 0.69, at the cap 0.83 to 0.60. Still no monotone pattern and every cell has n < 30; the
+withdrawal of the "gap-through rises as stops tighten" claim stands, and nothing is claimed in either direction.
+
+### Does the reading survive? Yes.
+
+- **Live stops are materially tighter than the research book's:** survives in all three columns, CI excludes 0.
+- **Losses are smaller in money:** survives and **strengthens** (+3.7pp to +5.2pp; CI lower bound 0.95 to 2.3).
+  The gated research book loses more per losing trade (median −9.45%, mean −12.3%) than the ungated one did.
+- **"Larger only in R" is still not established:** the R difference interval contains 0 in every column and
+  its sign flips between them (−0.10, +0.05). The title's "larger in R" was never a measured difference and
+  still is not.
+- **Roughly half the headline is the yardstick:** survives for the original 11 trades (−17.18R to −8.65R). On
+  the current ledger the restatement removes about 44% of the R (−38.28R to −21.43R).
+- Unchanged and not re-run: the stop-axis closure (0105, 0106, 0109) and `FINDING_hard_stop`. Population B is
+  still a reconstruction, now with 10 of 28 trades whose card and engine widths disagree by more than 5%
+  (was 3 of 11), which keeps the engine-basis choice in A1.1 load-bearing.

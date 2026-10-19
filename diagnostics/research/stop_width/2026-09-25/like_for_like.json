@@ -1,0 +1,45 @@
+{
+  "what": "PIT-gated population A vs the ORIGINAL 11 live trades (only the membership gate differs from 0143)",
+  "A_n": 67,
+  "A_losses": 39,
+  "A_loss_median_stop_width_pct": 8.948,
+  "A_loss_median_return_pct": -9.447,
+  "A_loss_median_R": -1.222,
+  "A_all_median_stop_width_pct": 8.951,
+  "B11_n": 11,
+  "B11_loss_median_stop_width_pct": 3.755,
+  "differences_live_minus_historical (losses)": {
+    "stop_width_pct": {
+      "live_minus_historical": -3.097,
+      "ci": [
+        -4.684,
+        -1.449
+      ],
+      "excludes_zero": true
+    },
+    "return_pct": {
+      "live_minus_historical": 5.236,
+      "ci": [
+        2.335,
+        8.349
+      ],
+      "excludes_zero": true
+    },
+    "r_multiple": {
+      "live_minus_historical": -0.095,
+      "ci": [
+        -0.605,
+        0.43
+      ],
+      "excludes_zero": false
+    }
+  },
+  "reexpression": {
+    "_what_this_is": "arithmetic re-expression of the SAME price moves at population A's median stop width; not a wider-stop simulation (0106 KILL) and not a proposal",
+    "hist_median_stop_width_pct": 8.948,
+    "live_sum_R_as_measured": -17.18,
+    "live_sum_R_at_hist_width": -8.65,
+    "live_median_R_as_measured": -1.46,
+    "live_median_R_at_hist_width": -0.692
+  }
+}

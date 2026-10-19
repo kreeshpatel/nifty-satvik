@@ -220,7 +220,10 @@ def historical(ohlcv: dict, demergers: dict, index_close: pd.Series) -> tuple[di
     # frozen position; with no owner in a 5.5-year reconstruction it never resolves, the loss is never
     # realised, and the book reads 52.8% CAGR instead of 39.4% (4 positions frozen on circuit-limit
     # crash days). Registered demerger events stay on — those are facts, not a review.
-    out = R94.backtest(P, None, ledger=led, start=HIST_START, return_state=True,
+    from nq.data.membership import load_membership
+    # CORRECTION 2026-10-19: was mem=None (no PIT membership gate); the live cron gates every fill on load_membership().
+    # Original output kept as *_membership_off; see the finding's CORRECTION section.
+    out = R94.backtest(P, load_membership(), ledger=led, start=HIST_START, return_state=True,
                        a_grade=R94.grade_a_entries(P), **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS,
                        demerger_events=events)
     ledger = pd.DataFrame(led)

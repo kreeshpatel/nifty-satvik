@@ -183,13 +183,17 @@ def grading_discriminates() -> dict:
 
     cut = {k: v[pd.DatetimeIndex(v.index) <= pd.Timestamp(REPLAY_END)] for k, v in corrected_universe().items()}
     cut = {k: v for k, v in cut.items() if len(v) > 60}
+    from nq.data.membership import load_membership
+    # CORRECTION 2026-10-19: was mem=None (no PIT membership gate); the live cron gates every fill on load_membership().
+    # Original output kept as *_membership_off; see the finding's CORRECTION section.
+    mem = load_membership()
     P = R94.prep_weekly_rank(cut, **LIVE_PREP)
     kw = dict(start=REPLAY_START, return_state=True, **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS)
 
     led_a: list = []
-    a_only = R94.backtest(P, None, ledger=led_a, a_grade=R94.grade_a_entries(P), **kw)
+    a_only = R94.backtest(P, mem, ledger=led_a, a_grade=R94.grade_a_entries(P), **kw)
     led_all: list = []
-    all_grades = R94.backtest(P, None, ledger=led_all, **kw)
+    all_grades = R94.backtest(P, mem, ledger=led_all, **kw)
 
     ca, cb = pd.Series(a_only["curve"], dtype=float), pd.Series(all_grades["curve"], dtype=float)
     ca.index, cb.index = pd.DatetimeIndex(ca.index).normalize(), pd.DatetimeIndex(cb.index).normalize()

@@ -71,7 +71,10 @@ def historical_trades() -> pd.DataFrame:
     P = R94.prep_weekly_rank(cut, **LIVE_PREP)
     events = R94.build_demerger_events(cut, load_demerger_rows(), **LIVE_PREP)
     led: list = []
-    R94.backtest(P, None, ledger=led, start=HIST_START, return_state=True,
+    from nq.data.membership import load_membership
+    # CORRECTION 2026-10-19: was mem=None (no PIT membership gate); the live cron gates every fill on load_membership().
+    # Original output kept as *_membership_off; see the finding's CORRECTION section.
+    R94.backtest(P, load_membership(), ledger=led, start=HIST_START, return_state=True,
                  a_grade=R94.grade_a_entries(P), **LIVE_DISCIPLINE, **LIVE_EXIT, **LIVE_STALENESS,
                  demerger_events=events)
     d = pd.DataFrame(led)

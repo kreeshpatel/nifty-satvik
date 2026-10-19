@@ -170,3 +170,59 @@ with plug-in ≤ 0, and plug-in ≥ +0.59). Nothing is read off that gap here.
 A different **book shape** with its own seat count and sizing (Law II's explicit carve-out), or the
 follow-up pre-registration described above. A different lookback, shrinkage target or optimiser on this
 same window is relitigation and is refused.
+
+
+---
+
+## CORRECTION 2026-10-19 — re-run with PIT membership
+
+**Nothing above this line is edited; it stands as measured, and it is superseded here.**
+
+**What changed.** `pipelines/diagnostics/diag_estimation_bound.py` built Population A with `mem=None` ("exactly as
+0142 built it"), so the book could buy names outside the Nifty-500 on the date; the live cron gates every fill
+on `load_membership()`. The engine's own Sharpe on this window was 1.6665 in the original record and is
+**1.0248** gated (the live gated anchor). The script now passes `load_membership()`. The original outputs are
+kept as `diagnostics/research/estimation_bound/2026-09-25/{summary_membership_off.json,
+nav_by_scheme_membership_off.csv.gz}`; the re-run is `{summary.json, nav_by_scheme.csv.gz}` in the same
+directory. Re-run of the registered question; no new screen; standing counts unchanged (screens 23 · sealed
+opens 3 · n_trials 2, read from `label_screen_ledger.md` and `n_trials.json`). Window still ends 2024-06-30.
+
+### Corrected result (67 closed trades, 85 measured rebalances, median 7 names, instead of 71 / 86 / 8)
+
+Medians per rebalance, ungated to gated; the control is 8 names drawn 20 times from the 30 most liquid names:
+
+| trailing window | δ\* book | noise share book | **above upper edge, book** (median; mean) | above upper edge, control |
+|---|---|---|---|---|
+| 63 | 0.984 → 1.000 | 0.857 → 0.800 | **0.111 → 0.125** (0.100 → 0.113) | 0.125 (sd 0.000) |
+| 126 | 0.821 → 0.912 | 0.778 → 0.714 | **0.125 → 0.143** (0.117 → 0.146) | 0.125 (sd 0.000) |
+| 252 | 0.659 → 0.752 | 0.667 → 0.600 | **0.125 → 0.143** (0.122 → 0.151) | 0.125 (sd 0.000) |
+
+Pair overlap: 564 to 436 pairs, median 48 to 44 sessions jointly held, share under the 63-session window
+62% to 64%, 10th percentile still 5.
+
+### Does the reading survive? Yes, with two caveats.
+
+- **Above-the-Marchenko–Pastur-edge share: survives, but "flat" is now "one mode throughout".** With a median
+  of 7 names, a single eigenvalue above the edge reads 1/7 = 0.143, with 8 names 1/8 = 0.125; the gap from the
+  control (0.143 vs 0.125) is that quantisation, not extra structure. The *mean* does drift up with the window
+  (0.113 to 0.151, against 0.100 to 0.122 before), a rise of about 0.04, i.e. a third of one eigenvalue. No
+  test was run on that drift, so the original's "lengthening the lookback buys no additional exploitable
+  structure" should be read as "buys at most a marginal amount".
+- **"There is no differential structure for MVO to exploit": survives.** δ\* is higher than the control's at
+  every window (1.000 / 0.912 / 0.752 against 0.642 / 0.477 / 0.356), as before; the iid-null table is
+  data-independent and unchanged.
+- **The activation bound is still WITHHELD.** The replay still fails its fidelity gate: median error **2.2% to
+  3.0%**, max **7.2% to 6.7%**, against a tolerance of 0.5% / 3.0%. With costs off the median improves (3.0% to
+  2.4%) while the max worsens (6.7% to 10.8%), so the original "costs-off gets worse, explanation falsified" is
+  now mixed; `explanation_holds` is still false. The withheld numbers moved (clairvoyant ceiling ΔSharpe
+  3.48 to 3.03, best plug-in 0.269 to **0.392**, control fidelity error 0.055 to 0.019) and remain
+  `NOT_A_RESULT`; the best plug-in is larger, which is a reason to keep it withheld, not to read it as a bound.
+- **The failed pre-registered sign prediction repeats:** equal-notional ΔSharpe +0.267 to **+0.201**, still
+  positive where the SPEC predicted a negative sign from 0130.
+- **Caveat on "a 34%-wrong reconstruction".** That figure, used in point 3 of "What the programme should take",
+  was the ungated ledger-only rebuild's median error. Gated it is **6.7%** (max 100.5% against 110.0%), the
+  share of error that is upward falls 92% to 73%, and the positions open at the window end are 10 different
+  names, 2,174 held name-days (was 1,350), a median 61.2% of daily notional from 2023 (was 47.8%). The argument
+  for `position_log` stands, but the size of the error that motivated it was overstated by the ungated book.
+- 0142's numbers quoted in "The question" (beta 0.702; 58–68%) are superseded by the 0142 correction
+  (beta 0.685; 53–66%).

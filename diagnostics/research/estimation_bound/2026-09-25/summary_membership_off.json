@@ -1,0 +1,532 @@
+{
+  "spec": "diagnostics/research/estimation_bound/SPEC.md",
+  "class": "MEASUREMENT \u2014 zero trials, no screen row, nothing adopted",
+  "run_date": "2026-09-25",
+  "window": "2019-01-01..2024-06-30",
+  "n_trials_at_run": 2,
+  "constants": {
+    "corr_window": 63,
+    "schemes": [
+      "actual",
+      "equal_notional",
+      "inverse_vol",
+      "min_variance",
+      "max_sharpe_plugin",
+      "max_sharpe_clairvoyant",
+      "max_return_clairvoyant"
+    ],
+    "dsharpe_half_width": 0.59,
+    "nav_tolerance": {
+      "median": 0.005,
+      "max": 0.03
+    }
+  },
+  "n_trades": 71,
+  "position_source": {
+    "source": "engine position_log (scripts/run_bhanushali_weekly_rank.py)",
+    "median_abs_rel_error": 0.0,
+    "max_abs_rel_error": 0.0,
+    "log_equity_vs_curve_max_abs_rel_error": 0.0,
+    "tolerance": {
+      "median": 0.005,
+      "max": 0.03
+    },
+    "n_sessions": 1357,
+    "passed": true
+  },
+  "ledger_only_rebuild_exhibit": {
+    "median_abs_rel_error": 0.338845,
+    "max_abs_rel_error": 1.100427,
+    "tolerance": {
+      "median": 0.005,
+      "max": 0.03
+    },
+    "n_sessions": 1357,
+    "holes": [],
+    "n_holes": 0,
+    "reconstructed_invested_fraction": {
+      "median": 1.1114,
+      "max": 1.8464
+    },
+    "passed": false,
+    "diagnosis": {
+      "cause": "the ledger records at most ONE half-exit per trade, and the live exit sells in more than one tranche. Config P (run_bhanushali_cron.P_EXIT, read not remembered): tp1_frac 0.40 at +2R, tp2_frac 0.0 at +3R (so nothing sells at +3R), pattern_frac 0.40 armed at +2.5R, and a 20% runner to the SMA break. The ledger's half_px/half_date cannot express which tranche fired, let alone two",
+      "exit_reason_mix": {
+        "sma_break": 37,
+        "stop": 29,
+        "stop_part": 4,
+        "stale": 1
+      },
+      "trades_with_a_tranche_reason": 4,
+      "trades_total": 71,
+      "first_recorded_half_exit": "2019-02-01",
+      "median_abs_error_before_first_tranche": 0.000336,
+      "median_abs_error_after": 0.343585,
+      "error_is_upward_share": 0.9168,
+      "second_cause_open_at_window_end": {
+        "names": [
+          "CAMS",
+          "IDEA",
+          "LEMONTREE",
+          "MAXHEALTH",
+          "MINDACORP",
+          "PARADEEP",
+          "SHILPAMED",
+          "SOLARINDS",
+          "TRITURBINE",
+          "WABAG"
+        ],
+        "n_names": 10,
+        "held_name_days": 1350,
+        "share_of_notional_overall_median": 0.0,
+        "share_of_notional_from_2023_median": 0.4783
+      },
+      "remedy": "the engine's own daily position ledger (added 2026-09-25, commit 881a5ec, off by default). Note the earlier wording 'unrecoverable without an engine change' was too strong: tranche SIZES are algebra on the committed config, and it is the tranche DATES that the ledger does not pin down."
+    }
+  },
+  "rebalances": 91,
+  "estimability": {
+    "window_sessions": 63,
+    "rebalances_measured": 86,
+    "n_names": {
+      "n": 86,
+      "median": 8.0,
+      "mean": 8.2907,
+      "p10": 7.0,
+      "p90": 10.0
+    },
+    "q_shape_ratio": {
+      "n": 86,
+      "median": 0.127,
+      "mean": 0.1318,
+      "p10": 0.1111,
+      "p90": 0.1587
+    },
+    "mp_noise_share": {
+      "n": 86,
+      "median": 0.8571,
+      "mean": 0.8147,
+      "p10": 0.7143,
+      "p90": 1.0
+    },
+    "eig_above_upper_edge": {
+      "n": 86,
+      "median": 0.1111,
+      "mean": 0.1001,
+      "p10": 0.0,
+      "p90": 0.1429
+    },
+    "eig_below_lower_edge": {
+      "n": 86,
+      "median": 0.0955,
+      "mean": 0.0852,
+      "p10": 0.0,
+      "p90": 0.1429
+    },
+    "lw_shrinkage_delta": {
+      "n": 86,
+      "median": 0.9843,
+      "mean": 0.9187,
+      "p10": 0.7442,
+      "p90": 1.0
+    },
+    "pair_joint_holding_sessions": {
+      "n": 564,
+      "median": 48.0,
+      "mean": 74.4876,
+      "p10": 5.0,
+      "p90": 164.0,
+      "corr_window": 63,
+      "share_under_window": 0.6188
+    }
+  },
+  "estimability_by_window": {
+    "63": {
+      "window_sessions": 63,
+      "rebalances_measured": 86,
+      "n_names": {
+        "n": 86,
+        "median": 8.0,
+        "mean": 8.2907,
+        "p10": 7.0,
+        "p90": 10.0
+      },
+      "q_shape_ratio": {
+        "n": 86,
+        "median": 0.127,
+        "mean": 0.1318,
+        "p10": 0.1111,
+        "p90": 0.1587
+      },
+      "mp_noise_share": {
+        "n": 86,
+        "median": 0.8571,
+        "mean": 0.8147,
+        "p10": 0.7143,
+        "p90": 1.0
+      },
+      "eig_above_upper_edge": {
+        "n": 86,
+        "median": 0.1111,
+        "mean": 0.1001,
+        "p10": 0.0,
+        "p90": 0.1429
+      },
+      "eig_below_lower_edge": {
+        "n": 86,
+        "median": 0.0955,
+        "mean": 0.0852,
+        "p10": 0.0,
+        "p90": 0.1429
+      },
+      "lw_shrinkage_delta": {
+        "n": 86,
+        "median": 0.9843,
+        "mean": 0.9187,
+        "p10": 0.7442,
+        "p90": 1.0
+      },
+      "pair_joint_holding_sessions": {
+        "n": 564,
+        "median": 48.0,
+        "mean": 74.4876,
+        "p10": 5.0,
+        "p90": 164.0,
+        "corr_window": 63,
+        "share_under_window": 0.6188
+      }
+    },
+    "126": {
+      "window_sessions": 126,
+      "rebalances_measured": 85,
+      "n_names": {
+        "n": 85,
+        "median": 8.0,
+        "mean": 8.3059,
+        "p10": 7.0,
+        "p90": 10.0
+      },
+      "q_shape_ratio": {
+        "n": 85,
+        "median": 0.0635,
+        "mean": 0.0665,
+        "p10": 0.0556,
+        "p90": 0.0794
+      },
+      "mp_noise_share": {
+        "n": 85,
+        "median": 0.7778,
+        "mean": 0.7448,
+        "p10": 0.5733,
+        "p90": 0.8956
+      },
+      "eig_above_upper_edge": {
+        "n": 85,
+        "median": 0.125,
+        "mean": 0.117,
+        "p10": 0.1,
+        "p90": 0.1429
+      },
+      "eig_below_lower_edge": {
+        "n": 85,
+        "median": 0.1111,
+        "mean": 0.1382,
+        "p10": 0.0,
+        "p90": 0.3
+      },
+      "lw_shrinkage_delta": {
+        "n": 85,
+        "median": 0.8212,
+        "mean": 0.8139,
+        "p10": 0.5763,
+        "p90": 1.0
+      },
+      "pair_joint_holding_sessions": {
+        "n": 564,
+        "median": 48.0,
+        "mean": 74.4876,
+        "p10": 5.0,
+        "p90": 164.0,
+        "corr_window": 63,
+        "share_under_window": 0.6188
+      }
+    },
+    "252": {
+      "window_sessions": 252,
+      "rebalances_measured": 83,
+      "n_names": {
+        "n": 83,
+        "median": 8.0,
+        "mean": 8.3373,
+        "p10": 7.0,
+        "p90": 10.0
+      },
+      "q_shape_ratio": {
+        "n": 83,
+        "median": 0.0357,
+        "mean": 0.0343,
+        "p10": 0.0278,
+        "p90": 0.0438
+      },
+      "mp_noise_share": {
+        "n": 83,
+        "median": 0.6667,
+        "mean": 0.6591,
+        "p10": 0.5,
+        "p90": 0.8
+      },
+      "eig_above_upper_edge": {
+        "n": 83,
+        "median": 0.125,
+        "mean": 0.1223,
+        "p10": 0.1,
+        "p90": 0.1429
+      },
+      "eig_below_lower_edge": {
+        "n": 83,
+        "median": 0.2222,
+        "mean": 0.2185,
+        "p10": 0.1,
+        "p90": 0.375
+      },
+      "lw_shrinkage_delta": {
+        "n": 83,
+        "median": 0.6586,
+        "mean": 0.6974,
+        "p10": 0.4489,
+        "p90": 1.0
+      },
+      "pair_joint_holding_sessions": {
+        "n": 564,
+        "median": 48.0,
+        "mean": 74.4876,
+        "p10": 5.0,
+        "p90": 164.0,
+        "corr_window": 63,
+        "share_under_window": 0.6188
+      }
+    }
+  },
+  "matched_liquid_control": {
+    "63": {
+      "n_liquid_names": 30,
+      "reps": 20,
+      "names_per_rep": 8,
+      "lw_shrinkage_delta": {
+        "mean_of_rep_medians": 0.632,
+        "sd": 0.228
+      },
+      "mp_noise_share": {
+        "mean_of_rep_medians": 0.6438,
+        "sd": 0.0734
+      },
+      "eig_above_upper_edge": {
+        "mean_of_rep_medians": 0.125,
+        "sd": 0.0
+      }
+    },
+    "126": {
+      "n_liquid_names": 30,
+      "reps": 20,
+      "names_per_rep": 8,
+      "lw_shrinkage_delta": {
+        "mean_of_rep_medians": 0.48,
+        "sd": 0.2191
+      },
+      "mp_noise_share": {
+        "mean_of_rep_medians": 0.5125,
+        "sd": 0.0691
+      },
+      "eig_above_upper_edge": {
+        "mean_of_rep_medians": 0.125,
+        "sd": 0.0
+      }
+    },
+    "252": {
+      "n_liquid_names": 30,
+      "reps": 20,
+      "names_per_rep": 8,
+      "lw_shrinkage_delta": {
+        "mean_of_rep_medians": 0.3609,
+        "sd": 0.1921
+      },
+      "mp_noise_share": {
+        "mean_of_rep_medians": 0.3688,
+        "sd": 0.0638
+      },
+      "eig_above_upper_edge": {
+        "mean_of_rep_medians": 0.125,
+        "sd": 0.0
+      }
+    }
+  },
+  "shrinkage_null": {
+    "iid_noise_N8_T63": 0.9665,
+    "iid_noise_N8_T252": 1.0,
+    "iid_noise_N8_T2000": 0.9906
+  },
+  "replay_check": {
+    "what": "the control must reproduce the engine's book; the NAV gap must be explained, not tolerated. Costs off is the test of the explanation.",
+    "with_costs": {
+      "median_abs_rel_error": 0.021569,
+      "max_abs_rel_error": 0.071512
+    },
+    "costs_off": {
+      "median_abs_rel_error": 0.031868,
+      "max_abs_rel_error": 0.107018
+    },
+    "tolerance": {
+      "median": 0.005,
+      "max": 0.03
+    },
+    "engine_sharpe": 1.6665,
+    "control_replay_sharpe": 1.6111,
+    "control_minus_engine_sharpe": -0.0554,
+    "disclosed": "the control replay sits below the engine by the double-charged cost stack. That bias is COMMON to every scheme and cancels in \u0394Sharpe, which is what is reported; no scheme is compared to the engine curve directly.",
+    "explanation_holds": false,
+    "instrument_floor_sharpe": 0.0554,
+    "interpretation": "A \u0394Sharpe smaller than the control's own deviation from the engine (0.055) is invisible to this replay, and a \u0394Sharpe smaller than 0.59 is invisible to this DATA. Both thresholds are reported so a reader can see which one binds."
+  },
+  "schemes": {
+    "actual": {
+      "sharpe": 1.6111,
+      "cagr_pct": 39.47,
+      "max_dd_pct": -35.6,
+      "turnover_x_book": 30.2,
+      "mean_lw_delta": null,
+      "per_year_sharpe": {
+        "2019": 1.593,
+        "2020": 2.353,
+        "2021": 1.963,
+        "2022": -0.668,
+        "2023": 2.507,
+        "2024": 2.258
+      },
+      "delta_sharpe_vs_actual": 0.0,
+      "resolvable": false
+    },
+    "equal_notional": {
+      "sharpe": 1.878,
+      "cagr_pct": 44.76,
+      "max_dd_pct": -34.8,
+      "turnover_x_book": 22.1,
+      "mean_lw_delta": null,
+      "per_year_sharpe": {
+        "2019": 1.731,
+        "2020": 2.345,
+        "2021": 2.813,
+        "2022": -0.237,
+        "2023": 2.818,
+        "2024": 2.253
+      },
+      "delta_sharpe_vs_actual": 0.2669,
+      "resolvable": false
+    },
+    "inverse_vol": {
+      "sharpe": 1.8644,
+      "cagr_pct": 41.8,
+      "max_dd_pct": -33.97,
+      "turnover_x_book": 26.1,
+      "mean_lw_delta": null,
+      "per_year_sharpe": {
+        "2019": 1.8,
+        "2020": 2.373,
+        "2021": 2.513,
+        "2022": -0.108,
+        "2023": 2.941,
+        "2024": 2.179
+      },
+      "delta_sharpe_vs_actual": 0.2533,
+      "resolvable": false
+    },
+    "min_variance": {
+      "sharpe": 1.7563,
+      "cagr_pct": 38.22,
+      "max_dd_pct": -31.44,
+      "turnover_x_book": 32.9,
+      "mean_lw_delta": 0.9215,
+      "per_year_sharpe": {
+        "2019": 1.872,
+        "2020": 2.37,
+        "2021": 1.738,
+        "2022": 0.034,
+        "2023": 2.954,
+        "2024": 1.96
+      },
+      "delta_sharpe_vs_actual": 0.1452,
+      "resolvable": false
+    },
+    "max_sharpe_plugin": {
+      "sharpe": 1.8796,
+      "cagr_pct": 50.68,
+      "max_dd_pct": -30.68,
+      "turnover_x_book": 45.5,
+      "mean_lw_delta": 0.9215,
+      "per_year_sharpe": {
+        "2019": 0.948,
+        "2020": 3.105,
+        "2021": 2.346,
+        "2022": 0.146,
+        "2023": 2.518,
+        "2024": 1.539
+      },
+      "delta_sharpe_vs_actual": 0.2685,
+      "resolvable": false
+    },
+    "max_sharpe_clairvoyant": {
+      "sharpe": 5.095,
+      "cagr_pct": 448.84,
+      "max_dd_pct": -27.38,
+      "turnover_x_book": 127.8,
+      "mean_lw_delta": 0.9215,
+      "per_year_sharpe": {
+        "2019": 3.838,
+        "2020": 5.946,
+        "2021": 6.007,
+        "2022": 3.886,
+        "2023": 6.33,
+        "2024": 5.509
+      },
+      "delta_sharpe_vs_actual": 3.4839,
+      "resolvable": true
+    },
+    "max_return_clairvoyant": {
+      "sharpe": 4.5885,
+      "cagr_pct": 637.85,
+      "max_dd_pct": -32.64,
+      "turnover_x_book": 137.3,
+      "mean_lw_delta": 0.9215,
+      "per_year_sharpe": {
+        "2019": 3.775,
+        "2020": 5.779,
+        "2021": 5.208,
+        "2022": 3.285,
+        "2023": 4.934,
+        "2024": 4.761
+      },
+      "delta_sharpe_vs_actual": 2.9774,
+      "resolvable": true
+    }
+  },
+  "bound": {
+    "status": "WITHHELD \u2014 no ceiling and no plug-in \u0394Sharpe is established by this study",
+    "why": "the scheme replay does not reproduce the engine's own book within the pre-registered tolerance, and the shortfall is unexplained: with costs switched off it gets WORSE (3.2% vs 2.2% median), so the cost-double-charge explanation is falsified. What remains is that the engine fills at entry and exit PRICES while the replay trades at session marks. That is a design flaw in the replay, not a limit of the data.",
+    "what_it_would_take": "a new pre-registration whose replay fills at the engine's own trade prices, with the fidelity tolerance fixed before the run and a stated rule for a positive-but-unresolvable plug-in, which this SPEC's reading table does not cover.",
+    "half_width_for_reference": 0.59,
+    "withheld_numbers": {
+      "clairvoyant_ceiling_delta_sharpe": 3.4839,
+      "best_plugin_delta_sharpe": 0.2685,
+      "control_replay_fidelity_sharpe_error": 0.0554,
+      "NOT_A_RESULT": "recorded for reproducibility and for whoever writes the follow-up pre-registration. These may not be cited as a measured bound."
+    },
+    "pre_registered_sign_prediction_that_FAILED": "the SPEC predicted the sign of equal-notional from 0130 (notional sizing, \u221210.83% of equity per year). In this replay it is +0.267 \u0394Sharpe, i.e. the opposite sign. Since the replay itself fails its fidelity check the disagreement resolves nothing either way \u2014 but a failed pre-registered prediction is recorded, not quietly dropped."
+  },
+  "spec_deviations": [
+    "The 126- and 252-session windows are not in the SPEC, and its 'do not re-test unless' clause refuses 'a different lookback'. They are descriptive sensitivity of an estimator, nothing is selected on an outcome, and the direction is unflattering \u2014 but it is a deviation and it is recorded here rather than annotated in a code comment.",
+    "Leg 1's NaN handling was changed from zero-fill to complete-case AFTER a first set of numbers existed. Zero-fill pulls correlations toward zero, which makes the constant-correlation target more adequate and INFLATES \u03b4*, so the change moved toward the less flattering option; it is disclosed because the ordering, not the direction, is what matters.",
+    "`max_return_clairvoyant` is not in the SPEC's frozen six-scheme set. It is reported for contrast and is excluded from setting the ceiling.",
+    "'Rebalance weekly on the engine's own decision day' is implemented as 'every session the held set changes' \u2014 about 20 events a year, far less than weekly, hence conservative on turnover.",
+    "The SPEC's reading table has no row for a positive-but-unresolvable plug-in \u0394Sharpe. Nothing is read off that gap: legs 2-3 are withheld on the fidelity gate instead.",
+    "Leg 1's window count is overlapping (consecutive windows share ~60 of 63 sessions) and the programme's floor is n_eff = 37 independent 63-day windows. The medians are descriptives; nothing inferential is hung on the count."
+  ]
+}
