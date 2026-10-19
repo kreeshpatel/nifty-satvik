@@ -1,0 +1,683 @@
+{
+  "spec": "diagnostics/research/book_identity/SPEC.md",
+  "class": "MEASUREMENT \u2014 no trial, no screen row, no sealed open, nothing adopted",
+  "run_date": "2026-10-19",
+  "n_trials_at_run": 2,
+  "books": {
+    "capped_a_only": "capped A-only (out_paper) \u2014 the book that would hold real positions",
+    "uncapped_a_only": "uncapped A-only (out_all) \u2014 every A signal tracked, cash never runs out",
+    "capped_all_grades": "capped all-grades (out_base) \u2014 prereg_swing.md \u00a74's comparator"
+  },
+  "provenance": {
+    "rows": [
+      {
+        "metric": "scorecard forward.n_closed / the '11/40 closed' headline",
+        "value": 28,
+        "artifact": "results/signal_analytics_weekly.json -> total_closed",
+        "book": "uncapped A-only (out_all) \u2014 every A signal tracked, cash never runs out",
+        "verified_by": "equals analytics.total_closed",
+        "agrees": true
+      },
+      {
+        "metric": "expectancy_R (gross)",
+        "value": -1.25,
+        "artifact": "results/signal_analytics_weekly.json -> avg_r",
+        "book": "uncapped A-only (out_all) \u2014 every A signal tracked, cash never runs out",
+        "verified_by": "equals analytics.avg_r",
+        "agrees": true
+      },
+      {
+        "metric": "win_rate_pct",
+        "value": 3.6,
+        "artifact": "results/signal_analytics_weekly.json -> win_rate",
+        "book": "uncapped A-only (out_all) \u2014 every A signal tracked, cash never runs out",
+        "verified_by": "equals analytics.win_rate",
+        "agrees": true
+      },
+      {
+        "metric": "maxdd_pct (the \u00a75 halt reads this)",
+        "value": -10.1,
+        "artifact": "results/portfolio_history_weekly.csv -> total_value",
+        "book": "capped A-only (out_paper) \u2014 the book that would hold real positions",
+        "verified_by": "reproduced from the NAV curve on the daily grid",
+        "agrees": true
+      },
+      {
+        "metric": "sharpe (the KILL_SHARPE < 0 trigger)",
+        "value": -1.383325415230566,
+        "artifact": "results/portfolio_history_weekly.csv -> total_value",
+        "book": "capped A-only (out_paper) \u2014 the book that would hold real positions",
+        "verified_by": "recomputed as mean/sd * sqrt(252) on the capped NAV's daily returns",
+        "agrees": true
+      },
+      {
+        "metric": "nav",
+        "value": 955533.69,
+        "artifact": "results/paper_portfolio_weekly.json -> total_value",
+        "book": "capped A-only (out_paper) \u2014 the book that would hold real positions",
+        "verified_by": "equals portfolio.total_value",
+        "agrees": true
+      },
+      {
+        "metric": "swing_grading.a_only_closed (\u00a74 floor, 20/book)",
+        "value": 28,
+        "artifact": "results/signal_analytics_weekly.json -> total_closed",
+        "book": "uncapped A-only (out_all) \u2014 every A signal tracked, cash never runs out",
+        "verified_by": "equals analytics.total_closed",
+        "agrees": true
+      },
+      {
+        "metric": "swing_grading.base_swing_closed (\u00a74 floor, 20/book)",
+        "value": 5,
+        "artifact": "results/base_swing_forward.json -> n_closed",
+        "book": "capped all-grades (out_base) \u2014 prereg_swing.md \u00a74's comparator",
+        "verified_by": "equals base_swing_forward.n_closed",
+        "agrees": true
+      },
+      {
+        "metric": "paper_portfolio.total_trades",
+        "value": 28,
+        "artifact": "results/paper_portfolio_weekly.json",
+        "book": "uncapped A-only (out_all) \u2014 every A signal tracked, cash never runs out",
+        "verified_by": "its docstring calls it the CAPPED book's closed count, but it equals the uncapped analytics.total_closed",
+        "agrees": true
+      }
+    ],
+    "all_value_checks_agree": true,
+    "maxdd_recomputed_pct": -10.136
+  },
+  "curve_identity": {
+    "n_points_capped_a_only": 75,
+    "n_points_capped_all_grades": 75,
+    "n_common": 75,
+    "n_differing": 0,
+    "differing": [],
+    "max_abs_delta": 0.0,
+    "identical": true,
+    "what_it_means": "If identical: under the \u20b910L cash gate with a 20% notional cap, grading does not change what gets FUNDED \u2014 the strongest-CRS names fill the few affordable seats either way. \u00a74 decides on forward MaxDD and Calmar, both read off these curves, so its test cannot separate arms whose curves agree on every session. Its insufficient-evidence default then fires mechanically, which is the outcome the cron's own comment block says the comparator was added to prevent."
+  },
+  "grading_discriminates": {
+    "window": "2023-01-02..2024-06-28",
+    "sealed_slice_touched": false,
+    "n_common_sessions": 365,
+    "n_sessions_differing": 365,
+    "max_abs_delta": 230280.68,
+    "a_only": {
+      "final_equity": 1771440.52,
+      "n_closed": 9
+    },
+    "all_grades": {
+      "final_equity": 1988149.86,
+      "n_closed": 13
+    },
+    "grading_bites": true,
+    "reading": "If grading_bites is true, the a_grade filter demonstrably changes the book, so the live window's identical curves are a fact about that window \u2014 roughly five funded seats, ~92% invested, one closure freeing cash \u2014 and NOT a wiring defect."
+  },
+  "capped_closures": {
+    "n_distinct_snapshots": 15,
+    "uncapped_closures": 28,
+    "capped_closures": 5,
+    "never_funded": 23,
+    "funded": [
+      {
+        "ticker": "DELHIVERY",
+        "window": "2026-07-06..2026-08-17",
+        "snapshots_in_window": 5,
+        "snapshots_holding_it": 5
+      },
+      {
+        "ticker": "NESTLEIND",
+        "window": "2026-07-06..2026-09-21",
+        "snapshots_in_window": 12,
+        "snapshots_holding_it": 12
+      },
+      {
+        "ticker": "INDUSINDBK",
+        "window": "2026-07-06..2026-09-28",
+        "snapshots_in_window": 13,
+        "snapshots_holding_it": 13
+      },
+      {
+        "ticker": "CHOLAFIN",
+        "window": "2026-09-14..2026-09-28",
+        "snapshots_in_window": 3,
+        "snapshots_holding_it": 3
+      },
+      {
+        "ticker": "OBEROIRLTY",
+        "window": "2026-09-28..2026-10-12",
+        "snapshots_in_window": 1,
+        "snapshots_holding_it": 1
+      }
+    ],
+    "never_funded_rows": [
+      {
+        "ticker": "GLENMARK",
+        "window": "2026-07-13..2026-07-27",
+        "snapshots_in_window": 1,
+        "snapshots_holding_it": 0
+      },
+      {
+        "ticker": "CANFINHOME",
+        "window": "2026-07-13..2026-07-27",
+        "snapshots_in_window": 1,
+        "snapshots_holding_it": 0
+      },
+      {
+        "ticker": "NATCOPHARM",
+        "window": "2026-07-13..2026-07-27",
+        "snapshots_in_window": 1,
+        "snapshots_holding_it": 0
+      },
+      {
+        "ticker": "LINDEINDIA",
+        "window": "2026-07-20..2026-07-27",
+        "snapshots_in_window": 1,
+        "snapshots_holding_it": 0
+      },
+      {
+        "ticker": "3MINDIA",
+        "window": "2026-07-27..2026-08-03",
+        "snapshots_in_window": 1,
+        "snapshots_holding_it": 0
+      },
+      {
+        "ticker": "NLCINDIA",
+        "window": "2026-07-13..2026-08-17",
+        "snapshots_in_window": 5,
+        "snapshots_holding_it": 0
+      },
+      {
+        "ticker": "GESHIP",
+        "window": "2026-07-27..2026-08-17",
+        "snapshots_in_window": 4,
+        "snapshots_holding_it": 0
+      },
+      {
+        "ticker": "CCL",
+        "window": "2026-08-17..2026-08-24",
+        "snapshots_in_window": 2,
+        "snapshots_holding_it": 0
+      },
+      {
+        "ticker": "BIOCON",
+        "window": "2026-07-20..2026-09-07",
+        "snapshots_in_window": 9,
+        "snapshots_holding_it": 0
+      },
+      {
+        "ticker": "MRPL",
+        "window": "2026-07-20..2026-09-21",
+        "snapshots_in_window": 12,
+        "snapshots_holding_it": 0
+      },
+      {
+        "ticker": "LTF",
+        "window": "2026-07-09..2026-09-28",
+        "snapshots_in_window": 13,
+        "snapshots_holding_it": 0
+      },
+      {
+        "ticker": "M&MFIN",
+        "window": "2026-07-27..2026-09-28",
+        "snapshots_in_window": 12,
+        "snapshots_holding_it": 0
+      },
+      {
+        "ticker": "HINDALCO",
+        "window": "2026-08-11..2026-09-28",
+        "snapshots_in_window": 10,
+        "snapshots_holding_it": 0
+      },
+      {
+        "ticker": "ANGELONE",
+        "window": "2026-09-14..2026-09-28",
+        "snapshots_in_window": 3,
+        "snapshots_holding_it": 0
+      },
+      {
+        "ticker": "BAJAJ-AUTO",
+        "window": "2026-07-13..2026-10-05",
+        "snapshots_in_window": 14,
+        "snapshots_holding_it": 0
+      },
+      {
+        "ticker": "UNIONBANK",
+        "window": "2026-08-10..2026-10-05",
+        "snapshots_in_window": 11,
+        "snapshots_holding_it": 0
+      },
+      {
+        "ticker": "JSWSTEEL",
+        "window": "2026-08-24..2026-10-05",
+        "snapshots_in_window": 7,
+        "snapshots_holding_it": 0
+      },
+      {
+        "ticker": "IDFCFIRSTB",
+        "window": "2026-09-07..2026-10-05",
+        "snapshots_in_window": 5,
+        "snapshots_holding_it": 0
+      },
+      {
+        "ticker": "ASTERDM",
+        "window": "2026-09-07..2026-10-05",
+        "snapshots_in_window": 5,
+        "snapshots_holding_it": 0
+      },
+      {
+        "ticker": "ABCAPITAL",
+        "window": "2026-09-21..2026-10-05",
+        "snapshots_in_window": 2,
+        "snapshots_holding_it": 0
+      },
+      {
+        "ticker": "MANAPPURAM",
+        "window": "2026-09-28..2026-10-05",
+        "snapshots_in_window": 1,
+        "snapshots_holding_it": 0
+      },
+      {
+        "ticker": "IKS",
+        "window": "2026-08-18..2026-10-12",
+        "snapshots_in_window": 8,
+        "snapshots_holding_it": 0
+      },
+      {
+        "ticker": "PHOENIXLTD",
+        "window": "2026-08-24..2026-10-12",
+        "snapshots_in_window": 7,
+        "snapshots_holding_it": 0
+      }
+    ],
+    "closures_with_no_snapshot_in_window": [],
+    "exact": true,
+    "why_exact": "every uncapped closure has at least one snapshot strictly inside its holding window, so no position could have opened and closed unobserved. The count is EXACT, not a lower bound. The pre-archive gap (inception 2026-07-04 to the first snapshot 2026-07-24) is closed by the uncapped book reporting 0 closures at 2026-07-24."
+  },
+  "realisation_events": {
+    "n_events": 11,
+    "events": [
+      {
+        "snapshot": "2026-07-31",
+        "ticker": "CUB",
+        "kind": "partial_booking",
+        "shares_from": 943.4,
+        "shares_to": 571.34,
+        "shares_sold": 372.06,
+        "approx_proceeds": 76830.39,
+        "priced_at": 206.5
+      },
+      {
+        "snapshot": "2026-08-17",
+        "ticker": "DELHIVERY",
+        "kind": "closed",
+        "shares_from": 391.43,
+        "shares_to": 0.0
+      },
+      {
+        "snapshot": "2026-08-21",
+        "ticker": "MCX",
+        "kind": "partial_booking",
+        "shares_from": 70.03,
+        "shares_to": 69.97,
+        "shares_sold": 0.06,
+        "approx_proceeds": 191.1,
+        "priced_at": 3185.0
+      },
+      {
+        "snapshot": "2026-09-15",
+        "ticker": "CUB",
+        "kind": "partial_booking",
+        "shares_from": 571.34,
+        "shares_to": 190.45,
+        "shares_sold": 380.89,
+        "approx_proceeds": 85997.34,
+        "priced_at": 225.78
+      },
+      {
+        "snapshot": "2026-09-18",
+        "ticker": "CHOLAFIN",
+        "kind": "partial_booking",
+        "shares_from": 112.01,
+        "shares_to": 111.34,
+        "shares_sold": 0.67,
+        "approx_proceeds": 1206.0,
+        "priced_at": 1800.0
+      },
+      {
+        "snapshot": "2026-09-25",
+        "ticker": "NESTLEIND",
+        "kind": "closed",
+        "shares_from": 137.92,
+        "shares_to": 0.0
+      },
+      {
+        "snapshot": "2026-10-01",
+        "ticker": "INDUSINDBK",
+        "kind": "closed",
+        "shares_from": 206.61,
+        "shares_to": 0.0
+      },
+      {
+        "snapshot": "2026-10-01",
+        "ticker": "HEG",
+        "kind": "closed",
+        "shares_from": 305.93,
+        "shares_to": 0.0
+      },
+      {
+        "snapshot": "2026-10-01",
+        "ticker": "MCX",
+        "kind": "partial_booking",
+        "shares_from": 70.14,
+        "shares_to": 68.99,
+        "shares_sold": 1.15,
+        "approx_proceeds": 3684.6,
+        "priced_at": 3204.0
+      },
+      {
+        "snapshot": "2026-10-01",
+        "ticker": "CHOLAFIN",
+        "kind": "closed",
+        "shares_from": 111.34,
+        "shares_to": 0.0
+      },
+      {
+        "snapshot": "2026-10-16",
+        "ticker": "OBEROIRLTY",
+        "kind": "closed",
+        "shares_from": 107.89,
+        "shares_to": 0.0
+      }
+    ],
+    "n_closed_positions": 6,
+    "n_partial_bookings": 5,
+    "APPROXIMATE": "proceeds are the share delta priced at the snapshot mark, not the engine's fill. Exact per-event proceeds are published nowhere \u2014 that is the hole."
+  },
+  "heg_artifact_disagreement": {
+    "comparable": false,
+    "note": "one side carries no corporate-action row"
+  },
+  "capped_position_history": {
+    "n_snapshots": 19,
+    "sequence": [
+      {
+        "snapshot": "2026-07-24",
+        "n_positions": 4,
+        "published_total_trades": 0,
+        "nav": 991807.38,
+        "entered": [
+          "CUB",
+          "DELHIVERY",
+          "INDUSINDBK",
+          "NESTLEIND"
+        ],
+        "exited": []
+      },
+      {
+        "snapshot": "2026-07-31",
+        "n_positions": 5,
+        "published_total_trades": 4,
+        "nav": 1013421.36,
+        "entered": [
+          "HEG"
+        ],
+        "exited": []
+      },
+      {
+        "snapshot": "2026-07-31__rerun-20260804T215840Z",
+        "n_positions": 5,
+        "published_total_trades": 4,
+        "nav": 1013421.36,
+        "entered": [],
+        "exited": []
+      },
+      {
+        "snapshot": "2026-07-31__rerun-20260810T101618Z",
+        "n_positions": 5,
+        "published_total_trades": 4,
+        "nav": 1013421.36,
+        "entered": [],
+        "exited": []
+      },
+      {
+        "snapshot": "2026-08-07",
+        "n_positions": 5,
+        "published_total_trades": 5,
+        "nav": 1024062.89,
+        "entered": [],
+        "exited": []
+      },
+      {
+        "snapshot": "2026-08-12",
+        "n_positions": 5,
+        "published_total_trades": 5,
+        "nav": 1019694.7,
+        "entered": [],
+        "exited": []
+      },
+      {
+        "snapshot": "2026-08-14",
+        "n_positions": 5,
+        "published_total_trades": 5,
+        "nav": 1019996.97,
+        "entered": [],
+        "exited": []
+      },
+      {
+        "snapshot": "2026-08-14__rerun-20260816T004818Z",
+        "n_positions": 5,
+        "published_total_trades": 5,
+        "nav": 1019996.97,
+        "entered": [],
+        "exited": []
+      },
+      {
+        "snapshot": "2026-08-17",
+        "n_positions": 5,
+        "published_total_trades": 8,
+        "nav": 1019488.85,
+        "entered": [
+          "MCX"
+        ],
+        "exited": [
+          "DELHIVERY"
+        ]
+      },
+      {
+        "snapshot": "2026-08-21",
+        "n_positions": 5,
+        "published_total_trades": 8,
+        "nav": 1040062.52,
+        "entered": [],
+        "exited": []
+      },
+      {
+        "snapshot": "2026-08-28",
+        "n_positions": 5,
+        "published_total_trades": 9,
+        "nav": 1059202.64,
+        "entered": [],
+        "exited": []
+      },
+      {
+        "snapshot": "2026-09-04",
+        "n_positions": 5,
+        "published_total_trades": 9,
+        "nav": 1053235.81,
+        "entered": [],
+        "exited": []
+      },
+      {
+        "snapshot": "2026-09-11",
+        "n_positions": 5,
+        "published_total_trades": 10,
+        "nav": 888072.14,
+        "entered": [],
+        "exited": []
+      },
+      {
+        "snapshot": "2026-09-15",
+        "n_positions": 6,
+        "published_total_trades": 11,
+        "nav": 1003699.23,
+        "entered": [
+          "CHOLAFIN"
+        ],
+        "exited": []
+      },
+      {
+        "snapshot": "2026-09-15__rerun-20260915T221531Z",
+        "n_positions": 6,
+        "published_total_trades": 11,
+        "nav": 1003699.23,
+        "entered": [],
+        "exited": []
+      },
+      {
+        "snapshot": "2026-09-18",
+        "n_positions": 6,
+        "published_total_trades": 11,
+        "nav": 1018440.17,
+        "entered": [],
+        "exited": []
+      },
+      {
+        "snapshot": "2026-09-25",
+        "n_positions": 6,
+        "published_total_trades": 13,
+        "nav": 993530.65,
+        "entered": [
+          "APLAPOLLO"
+        ],
+        "exited": [
+          "NESTLEIND"
+        ]
+      },
+      {
+        "snapshot": "2026-10-01",
+        "n_positions": 5,
+        "published_total_trades": 19,
+        "nav": 973685.12,
+        "entered": [
+          "OBEROIRLTY",
+          "POWERINDIA"
+        ],
+        "exited": [
+          "CHOLAFIN",
+          "HEG",
+          "INDUSINDBK"
+        ]
+      },
+      {
+        "snapshot": "2026-10-16",
+        "n_positions": 5,
+        "published_total_trades": 28,
+        "nav": 955533.69,
+        "entered": [
+          "IIFL"
+        ],
+        "exited": [
+          "OBEROIRLTY"
+        ]
+      }
+    ],
+    "names_ever_held": [
+      "APLAPOLLO",
+      "CHOLAFIN",
+      "CUB",
+      "DELHIVERY",
+      "HEG",
+      "IIFL",
+      "INDUSINDBK",
+      "MCX",
+      "NESTLEIND",
+      "OBEROIRLTY",
+      "POWERINDIA"
+    ],
+    "n_names_ever_held": 11,
+    "positions_that_left": [
+      {
+        "ticker": "DELHIVERY",
+        "gone_by_snapshot": "2026-08-17"
+      },
+      {
+        "ticker": "NESTLEIND",
+        "gone_by_snapshot": "2026-09-25"
+      },
+      {
+        "ticker": "CHOLAFIN",
+        "gone_by_snapshot": "2026-10-01"
+      },
+      {
+        "ticker": "HEG",
+        "gone_by_snapshot": "2026-10-01"
+      },
+      {
+        "ticker": "INDUSINDBK",
+        "gone_by_snapshot": "2026-10-01"
+      },
+      {
+        "ticker": "OBEROIRLTY",
+        "gone_by_snapshot": "2026-10-16"
+      }
+    ],
+    "n_positions_that_left": 6,
+    "LOWER_BOUND": "snapshots are weekly, so a position opened AND closed between two of them is invisible here. This is a lower bound on closures, and it is reported as one. `base_swing_forward.n_closed` is an independent corroborating source for the all-grades capped book."
+  },
+  "nav_reconciliation": {
+    "n_open_positions": 5,
+    "cash": 106628.29,
+    "sum_current_value": 848905.39,
+    "total_value": 955533.69,
+    "identity_residual": -0.01,
+    "identity_holds": true,
+    "sum_unrealised_pnl": 8441.69,
+    "implied_realised_pnl": -52908.0,
+    "DERIVED_NOT_SOURCED": "implied_realised_pnl is SOLVED FOR, not read from an artifact: the capped book's per-position realised P&L is published nowhere. It is NAV \u2212 opening capital \u2212 unrealised, and it carries every rounding and any corporate-action cash credit (HEG's spun-off value) with it."
+  },
+  "gate_book_mismatch": {
+    "gates": [
+      {
+        "gate": "readiness (>=40 closed OR 4 quarters)",
+        "inputs": {
+          "n_closed": "uncapped A-only (out_all) \u2014 every A signal tracked, cash never runs out"
+        },
+        "single_book": true,
+        "note": "the count is uncapped closures; the book it gates \u2014 and whose Sharpe/MaxDD sit beside it in the same readout \u2014 is the capped one"
+      },
+      {
+        "gate": "KILL_SHARPE < 0",
+        "inputs": {
+          "sharpe": "capped A-only (out_paper) \u2014 the book that would hold real positions"
+        },
+        "single_book": true,
+        "note": "reads the capped NAV curve only. 55 daily points at the time of writing."
+      },
+      {
+        "gate": "prereg_swing.md \u00a74 floor (>=20 closed PER BOOK)",
+        "inputs": {
+          "a_only_closed": "uncapped A-only (out_all) \u2014 every A signal tracked, cash never runs out",
+          "base_swing_closed": "capped all-grades (out_base) \u2014 prereg_swing.md \u00a74's comparator"
+        },
+        "single_book": false,
+        "note": "THE MISMATCH: one arm's count is uncapped, the other's is capped. The two numbers are not the same kind of quantity, and a per-book floor is applied to both."
+      },
+      {
+        "gate": "\u00a74 decision (MaxDD shallower AND Calmar >= base - 0.05)",
+        "inputs": {
+          "a_only_curve": "capped A-only (out_paper) \u2014 the book that would hold real positions",
+          "base_curve": "capped all-grades (out_base) \u2014 prereg_swing.md \u00a74's comparator"
+        },
+        "single_book": true,
+        "note": "both capped \u2014 but see curve_identity: they may be the same curve."
+      }
+    ],
+    "n_gates_reading_two_books": 1,
+    "status_at_run": {
+      "kill_triggered": true,
+      "headline": "28/40 closed, 1/4 quarters -> not yet evaluable; 76 days to the 2027-01-01 review [UNVERIFIED DATE - calendar coverage ends 2026-12-31]"
+    }
+  },
+  "reading": "Description only. No rule is proposed and no gate is re-specified. One closed position is not evidence that the strategy works, and nothing here restates the book's performance as better or worse \u2014 it states which book each number is ABOUT. The >=30-closed precondition applies: expectancy and win rate are not informative."
+}

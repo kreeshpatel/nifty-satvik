@@ -13,257 +13,264 @@
   "historical": {
     "all": {
       "label": "A all",
-      "n": 71,
+      "n": 67,
+      "informative": true,
+      "stop_width_pct": {
+        "median": 8.951,
+        "iqr": [
+          7.046,
+          10.0
+        ],
+        "min": 1.801,
+        "max": 10.003
+      },
+      "mean_R": {
+        "pt": 0.877,
+        "ci": [
+          -0.266,
+          2.351
+        ]
+      },
+      "median_R": -0.823,
+      "mean_return_pct": {
+        "pt": 19.582,
+        "ci": [
+          -1.426,
+          49.391
+        ]
+      },
+      "median_return_pct": -7.242
+    },
+    "losses": {
+      "label": "A losses",
+      "n": 39,
       "informative": true,
       "stop_width_pct": {
         "median": 8.948,
         "iqr": [
-          6.277,
+          6.75,
           9.999
         ],
-        "min": 1.878,
-        "max": 10.005
+        "min": 1.801,
+        "max": 10.002
       },
       "mean_R": {
-        "pt": 1.863,
+        "pt": -1.467,
         "ci": [
-          0.437,
-          3.736
+          -1.78,
+          -1.188
         ]
       },
-      "median_R": -0.158,
+      "median_R": -1.222,
       "mean_return_pct": {
-        "pt": 50.466,
+        "pt": -12.27,
         "ci": [
-          13.261,
-          101.329
+          -14.83,
+          -10.157
         ]
       },
-      "median_return_pct": -4.387
-    },
-    "losses": {
-      "label": "A losses",
-      "n": 37,
-      "informative": true,
-      "stop_width_pct": {
-        "median": 8.851,
-        "iqr": [
-          5.704,
-          9.996
-        ],
-        "min": 2.016,
-        "max": 10.004
-      },
-      "mean_R": {
-        "pt": -1.425,
-        "ci": [
-          -1.827,
-          -1.109
-        ]
-      },
-      "median_R": -1.244,
-      "mean_return_pct": {
-        "pt": -10.75,
-        "ci": [
-          -12.966,
-          -8.817
-        ]
-      },
-      "median_return_pct": -9.524
+      "median_return_pct": -9.447
     },
     "by_band": {
       "3-6%": {
-        "n": 9,
+        "n": 7,
         "informative": false,
-        "median_stop_width_pct": 5.315,
-        "median_R": -1.185,
-        "median_return_pct": -6.244,
-        "sum_R": -14.3,
-        "sum_designed_R": -8.17,
-        "sum_beyond_stop_R": -6.13,
-        "share_beyond_stop": 0.4286,
-        "gap_through_rate": 0.7778
+        "median_stop_width_pct": 4.413,
+        "median_R": -1.402,
+        "median_return_pct": -6.972,
+        "sum_R": -14.27,
+        "sum_designed_R": -6.25,
+        "sum_beyond_stop_R": -8.02,
+        "share_beyond_stop": 0.5619,
+        "gap_through_rate": 0.8571
       },
       "6-10% (uncapped)": {
-        "n": 13,
+        "n": 16,
         "informative": false,
-        "median_stop_width_pct": 8.851,
-        "median_R": -1.285,
-        "median_return_pct": -9.424,
-        "sum_R": -16.56,
-        "sum_designed_R": -11.97,
-        "sum_beyond_stop_R": -4.59,
-        "share_beyond_stop": 0.2773,
-        "gap_through_rate": 0.6154
+        "median_stop_width_pct": 8.377,
+        "median_R": -1.117,
+        "median_return_pct": -9.173,
+        "sum_R": -21.54,
+        "sum_designed_R": -15.56,
+        "sum_beyond_stop_R": -5.98,
+        "share_beyond_stop": 0.2776,
+        "gap_through_rate": 0.6875
       },
       "<3%": {
-        "n": 3,
+        "n": 1,
         "informative": false,
-        "median_stop_width_pct": 2.597,
-        "median_R": -0.158,
-        "median_return_pct": -3.666,
-        "sum_R": -6.16,
-        "sum_designed_R": -1.16,
-        "sum_beyond_stop_R": -5.0,
-        "share_beyond_stop": 0.8116,
-        "gap_through_rate": 0.3333
+        "median_stop_width_pct": 1.801,
+        "median_R": -0.137,
+        "median_return_pct": -2.811,
+        "sum_R": -0.14,
+        "sum_designed_R": -0.14,
+        "sum_beyond_stop_R": 0.0,
+        "share_beyond_stop": -0.0,
+        "gap_through_rate": 0.0
       },
       "at the 10% cap": {
-        "n": 12,
+        "n": 15,
         "informative": false,
         "median_stop_width_pct": 10.0,
-        "median_R": -1.267,
-        "median_return_pct": -12.67,
-        "sum_R": -15.71,
-        "sum_designed_R": -11.78,
-        "sum_beyond_stop_R": -3.93,
-        "share_beyond_stop": 0.2503,
-        "gap_through_rate": 0.8333
+        "median_R": -1.287,
+        "median_return_pct": -12.867,
+        "sum_R": -21.25,
+        "sum_designed_R": -13.8,
+        "sum_beyond_stop_R": -7.45,
+        "share_beyond_stop": 0.3505,
+        "gap_through_rate": 0.6
       }
     }
   },
   "live": {
     "all": {
       "label": "B all",
-      "n": 11,
+      "n": 28,
       "informative": false,
       "stop_width_pct": {
-        "median": 3.755,
+        "median": 5.46,
         "iqr": [
-          2.848,
-          6.686
+          3.731,
+          6.71
         ],
         "min": 1.94,
-        "max": 9.743
+        "max": 9.949
       },
       "mean_R": {
-        "pt": -1.562,
+        "pt": -1.256,
         "ci": [
-          -1.98,
-          -1.165
+          -1.622,
+          -0.813
         ]
       },
-      "median_R": -1.46,
+      "median_R": -1.165,
       "mean_return_pct": {
-        "pt": -7.034,
+        "pt": -6.865,
         "ci": [
-          -9.005,
-          -5.094
+          -7.839,
+          -5.779
         ]
       },
-      "median_return_pct": -6.19
+      "median_return_pct": -6.315
     },
     "losses": {
       "label": "B losses",
-      "n": 11,
+      "n": 27,
       "informative": false,
       "stop_width_pct": {
-        "median": 3.755,
+        "median": 5.497,
         "iqr": [
-          2.848,
-          6.686
+          4.073,
+          6.754
         ],
         "min": 1.94,
-        "max": 9.743
+        "max": 9.949
       },
       "mean_R": {
-        "pt": -1.562,
+        "pt": -1.418,
         "ci": [
-          -1.98,
-          -1.165
+          -1.696,
+          -1.181
         ]
       },
-      "median_R": -1.46,
+      "median_R": -1.17,
       "mean_return_pct": {
-        "pt": -7.034,
+        "pt": -7.103,
         "ci": [
-          -9.005,
-          -5.094
+          -8.016,
+          -6.129
         ]
       },
-      "median_return_pct": -6.19
+      "median_return_pct": -6.41
     },
     "by_band": {
       "3-6%": {
-        "n": 4,
+        "n": 13,
         "informative": false,
-        "median_stop_width_pct": 3.474,
-        "median_R": -1.45,
-        "median_return_pct": -6.97,
-        "sum_R": -6.41,
-        "sum_designed_R": -3.5,
-        "sum_beyond_stop_R": -2.91,
-        "share_beyond_stop": 0.454,
-        "gap_through_rate": 0.5
+        "median_stop_width_pct": 5.183,
+        "median_R": -1.37,
+        "median_return_pct": -6.22,
+        "sum_R": -19.16,
+        "sum_designed_R": -12.5,
+        "sum_beyond_stop_R": -6.66,
+        "share_beyond_stop": 0.3476,
+        "gap_through_rate": 0.8462
       },
       "6-10% (uncapped)": {
-        "n": 4,
+        "n": 11,
         "informative": false,
-        "median_stop_width_pct": 7.726,
-        "median_R": -1.105,
-        "median_return_pct": -9.99,
-        "sum_R": -4.62,
-        "sum_designed_R": -3.95,
-        "sum_beyond_stop_R": -0.67,
-        "share_beyond_stop": 0.145,
-        "gap_through_rate": 0.75
+        "median_stop_width_pct": 6.843,
+        "median_R": -1.05,
+        "median_return_pct": -7.73,
+        "sum_R": -10.86,
+        "sum_designed_R": -9.78,
+        "sum_beyond_stop_R": -1.08,
+        "share_beyond_stop": 0.0994,
+        "gap_through_rate": 0.5455
       },
       "<3%": {
         "n": 3,
         "informative": false,
         "median_stop_width_pct": 2.463,
-        "median_R": -2.18,
-        "median_return_pct": -4.5,
-        "sum_R": -6.15,
+        "median_R": -2.32,
+        "median_return_pct": -5.37,
+        "sum_R": -8.26,
         "sum_designed_R": -3.0,
-        "sum_beyond_stop_R": -3.15,
-        "share_beyond_stop": 0.5122,
+        "sum_beyond_stop_R": -5.26,
+        "share_beyond_stop": 0.6368,
         "gap_through_rate": 1.0
       }
     }
   },
   "differences_live_minus_historical (losses)": {
     "stop_width_pct": {
-      "live_minus_historical": -2.575,
+      "live_minus_historical": -2.424,
       "ci": [
-        -4.241,
-        -0.825
+        -3.453,
+        -1.321
       ],
       "excludes_zero": true
     },
     "return_pct": {
-      "live_minus_historical": 3.716,
+      "live_minus_historical": 5.167,
       "ci": [
-        0.954,
-        6.554
+        2.832,
+        7.878
       ],
       "excludes_zero": true
     },
     "r_multiple": {
-      "live_minus_historical": -0.137,
+      "live_minus_historical": 0.049,
       "ci": [
-        -0.68,
-        0.404
+        -0.361,
+        0.462
       ],
       "excludes_zero": false
     }
   },
   "live_width_basis": {
-    "n_card_vs_engine_gap_gt_5pct": 3,
+    "n_card_vs_engine_gap_gt_5pct": 10,
     "tickers": [
       "3MINDIA",
+      "ABCAPITAL",
       "CCL",
-      "HINDZINC"
+      "HINDALCO",
+      "IDFCFIRSTB",
+      "IKS",
+      "JSWSTEEL",
+      "M&MFIN",
+      "MANAPPURAM",
+      "PHOENIXLTD"
     ],
     "_note": "widths here are the ENGINE basis (return%/R); the card's stop is a different object"
   },
   "_live_bootstrap_caveat": "11 trades on 11 distinct tickers: the cluster bootstrap degenerates to an ordinary percentile bootstrap at n=11 and is anti-conservative",
   "reexpression": {
     "_what_this_is": "arithmetic re-expression of the SAME price moves at population A's median stop width; not a wider-stop simulation (0106 KILL) and not a proposal",
-    "hist_median_stop_width_pct": 8.851,
-    "live_sum_R_as_measured": -17.18,
-    "live_sum_R_at_hist_width": -8.74,
-    "live_median_R_as_measured": -1.46,
-    "live_median_R_at_hist_width": -0.699
+    "hist_median_stop_width_pct": 8.948,
+    "live_sum_R_as_measured": -38.28,
+    "live_sum_R_at_hist_width": -21.43,
+    "live_median_R_as_measured": -1.17,
+    "live_median_R_at_hist_width": -0.716
   }
 }
