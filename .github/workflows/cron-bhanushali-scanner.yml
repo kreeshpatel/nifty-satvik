@@ -203,3 +203,10 @@ jobs:
       # advanced to this scan's as-of, and goes RED when one did not.
       - name: Watched-book loggers must have logged this week
         run: python scripts/check_weekly_loggers.py
+      # AFTER the commit, read-only. The weekly history is rebuilt from inception every scan, so a
+      # universe or logic change can rewrite the past (2026-10-16: ZYDUSWELL displaced HINDZINC, ABDL
+      # displaced BANDHANBNK) and the drift log recorded it with nobody reading it. This fails RED on any
+      # restated / vanished trade in the latest drift entry that results/history_restatements.json does
+      # not declare. Newly closed trades ("appeared") are normal and never fail it.
+      - name: History must not change undeclared
+        run: python scripts/check_history_drift.py

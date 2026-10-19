@@ -26,6 +26,7 @@ flowchart LR
     nq_engine --> nq_data
     nq_lab --> nq_brain
     nq_lab --> nq_data
+    nq_lab --> nq_runner
     nq_lab --> nq_validation
     nq_paper --> config
     nq_paper --> nq_engine
