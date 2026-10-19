@@ -43,3 +43,20 @@ and rules are unchanged.
 - The history-truncation guard (#132) covers any new name the moment it becomes an open trade.
 - Dead symbols with no successor in the membership file (GUJGASLTD, GSPL, JBCHEPHARM) remain a known
   gap; GSPL and JBCHEPHARM are still listed as members while the vendor serves one bar.
+
+## Addendum 2026-10-19 — the first union scan rewrote two past weeks; fixed
+
+The 2026-10-16 scan (run 39033462208) was the first on the union universe. Because the weekly history
+is rebuilt from inception and Grade A ranks every signal in a setup week, two newly scanned names entered
+past weeks' top-5: **ZYDUSWELL displaced HINDZINC** (a closed −1.65R trade) in the week of 2026-08-31, and
+**ABDL displaced the open BANDHANBNK** in the week of 2026-09-14. The snapshot drift log caught both
+(`vanished` and `vanished_open`). This ADR's "Mid-quarter" section said cards could include previously
+unscanned names "from the 2026-10-17 scan"; it did not foresee that past weeks would change too.
+
+**Fix (prod-fix, 2026-10-19):** `_mask_late_entrants` in `scripts/run_bhanushali_cron.py` drops the entry
+windows of any name outside the carried snapshot that precede the later of `LIVE_UNIVERSE_EFFECTIVE`
+(2026-10-16) and the start of its current membership period. The next rebuild restores HINDZINC and
+BANDHANBNK and removes the two retroactive trades; the drift log will show that as a restatement, which
+is expected and is this correction. The 2026-10-16 archive is immutable and keeps the rewritten state as
+recorded. The two retroactive signals' missing quality axes are declared in
+`scripts/collect_signal_quality_forward.py::KNOWN_INCOMPLETE`.

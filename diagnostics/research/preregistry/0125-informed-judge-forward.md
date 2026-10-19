@@ -236,6 +236,19 @@ now would manufacture a second late cohort. The §7 accrual counts (`≥100 reso
 do not advance for these weeks. The first review read must report the gap by date beside the
 verdict count, so a thinner cohort is never read as a quieter market.
 
+**2026-10-19 — PARTIAL WEEK: the 2026-10-17 scan's judge step timed out after 6 of 23 cards.**
+
+Established from the scanner's run log (run 39033462208) and the commit's line count only (`fd97244`
+appends 6 rows to `results/judge_log.jsonl`); no verdict was read. Credit was available. The step hit its
+own 10-minute `timeout-minutes` budget, which was sized for about 17 cards; this week issued 23, at roughly
+100 seconds per call. `continue-on-error` held, so the scan and its commit were unaffected.
+
+**Treatment, fixed now:** the 6 rows stand as written. The 17 unjudged cards are a **declared gap** for
+this week, never called late, exactly as the 2026-10-13 entry rules for whole missed weeks. The step's
+time budget is an operational setting outside this pre-registration's frozen terms (model, effort,
+prompt, schema), but raising it interacts with the job's 45-minute budget and the commit step that runs
+after the judge, so the change is an owner decision, not made here.
+
 ## OUTCOME
 
 *(appended after the first review read — never above the immutable sections)*
