@@ -1,36 +1,18 @@
 {
-  "generated_at": "2026-10-16",
-  "signals": [
-    {
-      "ticker": "APARINDS",
-      "entry": 16041.02,
-      "stop": 13401.93,
-      "target": 19653.46,
-      "target_pct": 22.52,
-      "current_price": 16033.0,
-      "close": 16033.0,
-      "signal_date": "2026-10-16",
-      "hold_days": 63,
-      "grade": "B",
-      "tier": "signal",
-      "status": "FRESH",
-      "buy_window": "T+1..T+3 at open",
-      "indicative_close": 16033.0,
-      "indicative_entry": 16041.02
-    }
-  ],
+  "generated_at": "2026-10-19",
+  "signals": [],
   "regime": {
     "status": "UNKNOWN",
     "strength": 0,
     "vix": 0,
     "breadth": 0
   },
-  "n_positions": 14,
-  "cash": 80448.98,
+  "n_positions": 15,
+  "cash": 104.57,
   "kill_state": {
     "wr_last20": 50.0,
     "wr_breach": false,
-    "sharpe_30d": -0.38,
+    "sharpe_30d": -1.257,
     "sharpe_30d_breach": true,
     "mode": "observe"
   }
