@@ -52,6 +52,11 @@ pipeline, never from a chat transcript. Two hard-won corollaries:
 (`tests/test_stage2_golden.py`) stays byte-identical when off. After editing `nq/**` or `config.py`:
 regenerate the depgraph (above) **and** run the full suite before pushing.
 
+**Pick the process tier before the method** ([`docs/PROCESS_TIERS.md`](docs/PROCESS_TIERS.md), owner
+2026-10-19). Exploration in the Strategy Lab and re-runs/measurements need no pre-registration or screen
+row; only a result that would change live money pays the full method below. Our own findings can be
+wrong: never answer "no" flatly, offer the cheapest test that would change the answer.
+
 **Ordering that cannot be recovered once broken.** Pre-registration written and committed → counter
 incremented → *then* the run. Thresholds are fixed in the pre-reg and are not revisited afterwards.
 **UNDERPOWERED and KILL are first-class outcomes; never retune toward a pass.** `/pre-register` and
