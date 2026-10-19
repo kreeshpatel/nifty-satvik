@@ -78,8 +78,8 @@ jobs:
         # record is the D2 artifact; its absence from the commit is caught by the output contract.
         run: python scripts/archive_weekly_cards.py
           || echo "::warning::card archiver FAILED (exit $?) — results/cards_archive.jsonl not appended this week"
-      # The informed-judge step (pre-reg 0125) runs LAST, after the weekly state is committed and pushed —
-      # see the end of this job. Moved 2026-10-19 (owner option b).
+      # The informed-judge stream (pre-reg 0125) is its own workflow since 2026-10-19 (owner option b):
+      # .github/workflows/cron-judge.yml, triggered when this one completes, after the week is pushed.
       - name: Log the swing x low-vol blend hybrid (observational WATCHED book, finding 0107)
         # Runs AFTER the swing cron so it uses the freshly-downloaded OHLCV + the just-written swing NAV.
         # Observational only — writes its own results/blend_hybrid_paper.json; never touches the certified
@@ -153,7 +153,6 @@ jobs:
                   results/weekly_sma_panel.csv results/archive results/sma_panel
           need results/portfolio_history_weekly.csv
           need results/base_swing_forward.json   # prereg_swing §4 comparator; §3 forbids backfilling a missed week
-          opt results/judge_log.jsonl
           opt results/cards_archive.jsonl
           need results/brain/position_log.csv.gz        # the capital book's holdings; unrecoverable if missed
           need results/brain/management_events.jsonl    # tranches/ratchets/halts; a snapshot cannot rebuild them
@@ -204,39 +203,3 @@ jobs:
       # advanced to this scan's as-of, and goes RED when one did not.
       - name: Watched-book loggers must have logged this week
         run: python scripts/check_weekly_loggers.py
-      - name: Informed-judge forward stream (pre-reg 0125 — observational, SEALED)
-        # MOVED AFTER THE COMMIT, 2026-10-19 (owner option b). This step destroyed a computed week twice
-        # in August while it ran before the commit (2026-08-08 a bash syntax error; 2026-08-10 a 43m35s
-        # hang that hit the job's 45-minute timeout and cancelled the commit). Its 10-minute budget then
-        # stopped it after 6 of 23 cards on 2026-10-17 (~100 s per call), and raising that budget in place
-        # would have reopened the August failure. Running last, `if: always()`, after the week is pushed,
-        # it can neither withhold nor cancel the weekly state, so it gets a budget that fits the cards.
-        # One structured verdict per issued card, appended to the hash-chained judge log. FORWARD ONLY
-        # (pre-reg 0125 §1). Logged, never acted on: nothing in the engine, book or card reads a verdict.
-        if: always()
-        timeout-minutes: 25
-        continue-on-error: true
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: |
-          if [ -z "${ANTHROPIC_API_KEY}" ]; then
-            echo "::warning::ANTHROPIC_API_KEY secret not set on this runner — judge stream is NOT running."
-          fi
-          pip install -e ".[judge]"
-          # A LITERAL scalar keeps newlines, so the fallback needs the `\` continuation (2026-08-08).
-          python scripts/run_judge_cron.py \
-            || echo "::warning::judge cron exited non-zero ($?) — no verdicts appended this week"
-      - name: Commit judge verdicts (separate from the weekly state, so the judge can never withhold it)
-        if: always()
-        continue-on-error: true
-        run: |
-          git config user.name "kreeshpatel"
-          git config user.email "kreeshvasistha@gmail.com"
-          if [ -e results/judge_log.jsonl ]; then git add results/judge_log.jsonl; fi
-          if git diff --cached --quiet; then echo "no new judge verdicts this week"; exit 0; fi
-          git commit -m "chore(judge): informed-judge verdicts $(date -u +%F) (pre-reg 0125, sealed)"
-          for i in 1 2 3; do
-            git pull --rebase --autostash origin main && git push origin main && { echo "pushed judge verdicts"; exit 0; }
-            echo "push attempt $i failed; retrying in 5s..."; sleep 5
-          done
-          echo "::warning::judge verdicts committed locally but could not be pushed"; exit 0

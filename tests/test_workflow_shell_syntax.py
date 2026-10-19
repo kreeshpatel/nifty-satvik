@@ -95,15 +95,25 @@ def _job_and_steps(path: Path):
         yield job, job.get("steps") or []
 
 
-def test_the_judge_step_is_bounded_and_non_fatal():
-    wf = ROOT / ".github" / "workflows" / "cron-bhanushali-scanner.yml"
-    for job, steps in _job_and_steps(wf):
-        judge = [s for s in steps if "Informed-judge" in str(s.get("name", ""))]
-        assert judge, "the judge step vanished; this guard is now pointing at nothing"
-        s = judge[0]
-        assert s.get("timeout-minutes"), "unbounded: it can eat the job budget again"
-        assert s["timeout-minutes"] < job["timeout-minutes"], "its budget must be strictly smaller"
-        assert s.get("continue-on-error") is True, "a non-zero exit must not fail the scanner"
+def test_the_judge_cannot_touch_the_weekly_scan():
+    """Since 2026-10-19 the judge is its own workflow (owner option b). Inside the scanner it destroyed a
+    computed week twice in August and was cut off after 6 of 23 cards on 2026-10-17. The guard now has
+    two halves: the scanner holds NO judge step, and the judge workflow runs only after the scanner
+    completes, with a bounded call step inside a bounded job."""
+    scanner = ROOT / ".github" / "workflows" / "cron-bhanushali-scanner.yml"
+    for _, steps in _job_and_steps(scanner):
+        assert not [s for s in steps if "judge" in str(s.get("run", "")).lower()], (
+            "a judge step is back inside the scanner, ahead of or after the weekly commit")
+    judge_wf = ROOT / ".github" / "workflows" / "cron-judge.yml"
+    raw = yaml.safe_load(judge_wf.read_text(encoding="utf-8"))
+    on = raw.get("on") or raw.get(True)
+    assert on["workflow_run"]["workflows"] == ["cron-bhanushali-scanner"], "must follow the scanner"
+    assert on["workflow_run"]["types"] == ["completed"]
+    for job, steps in _job_and_steps(judge_wf):
+        call = [s for s in steps if "run_judge_cron.py" in str(s.get("run", ""))]
+        assert call, "the judge call vanished; this guard is now pointing at nothing"
+        assert call[0].get("timeout-minutes"), "unbounded judge call"
+        assert call[0]["timeout-minutes"] < job["timeout-minutes"], "its budget must be strictly smaller"
 
 
 def test_no_optional_step_can_exhaust_the_job_budget():

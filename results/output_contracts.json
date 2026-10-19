@@ -4,6 +4,17 @@
   "_enforcement": "scripts/output_contracts.py -> check_output_contracts(); surfaced in results/weekly_monitor.json under scheduler_health.output_contracts and annotated ::error on the next monitor run.",
   "contracts": [
     {
+      "job": "informed-judge",
+      "workflow": "cron-judge",
+      "commit_prefix": "chore(judge): informed-judge verdicts",
+      "cadence_days": 9,
+      "must_update": [],
+      "must_update_if_produced": [
+        "results/judge_log.jsonl"
+      ],
+      "note": "Split out of cron-bhanushali-scanner on 2026-10-19 (owner option b): the judge runs after the scanner completes and pushes, so it can neither withhold nor cancel the weekly state. Conditional, as before: it only grows when the judge logs rows (needs ANTHROPIC_API_KEY), so a missing key reads as a WARN, not a contract breach. Pre-reg 0125; sealed, verified by count and hash chain only."
+    },
+    {
       "job": "weekly-scanner",
       "workflow": "cron-bhanushali-scanner",
       "commit_prefix": "chore(weekly): Saturday weekly-swing paper state",
@@ -22,13 +33,12 @@
         "results/brain/management_events.jsonl"
       ],
       "must_update_if_produced": [
-        "results/judge_log.jsonl",
         "results/cards_archive.jsonl",
         "results/base_swing_forward.json",
         "results/attribution_ledger.csv",
         "results/brain"
       ],
-      "note": "judge_log is conditional: it only grows when the judge step logs rows (needs ANTHROPIC_API_KEY). Listed separately so a missing key reads as a WARN, not a contract breach. base_swing_forward.json is the forward/prereg_swing.md §4 comparator arm (all grades, WATCHED, never surfaced — it holds Grade-B names). Added 2026-08-08 and listed conditionally until the first successful persist, per the same rule as intraday-scan below; promote it to must_update once one run has written it, because from then on a week missing is a week of the §4 comparison permanently lost (§3 forbids backfilling reconstructed history). | results/sma_panel is the append-only dated accumulation of the SMA panel (added 2026-09-27): the rejection/near-miss population, which cannot be reconstructed after the fact because it depends on the 44w SMA and the CRS ranking as they stood that week on that price vintage. It is must_update, not conditional — a week that does not land is lost. | blend_hybrid_paper.json, breadth50_forward.json and signal_quality_forward.csv were in NO contract at all until 2026-09-28: all three could fail every week while the cron stayed green, and the blend one did exactly that, sitting at n_points 0 for ~7 weeks. They are must_update rather than conditional because each is forward evidence for a watched book and §3 forbids backfilling a missed week. scripts/check_weekly_loggers.py additionally proves they advanced to THIS scan's as-of, and runs after the commit so a logger defect cannot withhold the live book's own record. | results/brain/position_log.csv.gz and management_events.jsonl are the capital book's holdings and management-event streams (wired 2026-09-28). The engine hooks existed from 881a5ec and c361272 and NOTHING PASSED THEM, so both were capability with no data. must_update, not conditional: a weekly snapshot cannot be differentiated back into events, so a missed week is unrecoverable."
+      "note": "judge_log moved to its own contract (job informed-judge) on 2026-10-19, when the judge became its own workflow. base_swing_forward.json is the forward/prereg_swing.md §4 comparator arm (all grades, WATCHED, never surfaced — it holds Grade-B names). Added 2026-08-08 and listed conditionally until the first successful persist, per the same rule as intraday-scan below; promote it to must_update once one run has written it, because from then on a week missing is a week of the §4 comparison permanently lost (§3 forbids backfilling reconstructed history). | results/sma_panel is the append-only dated accumulation of the SMA panel (added 2026-09-27): the rejection/near-miss population, which cannot be reconstructed after the fact because it depends on the 44w SMA and the CRS ranking as they stood that week on that price vintage. It is must_update, not conditional — a week that does not land is lost. | blend_hybrid_paper.json, breadth50_forward.json and signal_quality_forward.csv were in NO contract at all until 2026-09-28: all three could fail every week while the cron stayed green, and the blend one did exactly that, sitting at n_points 0 for ~7 weeks. They are must_update rather than conditional because each is forward evidence for a watched book and §3 forbids backfilling a missed week. scripts/check_weekly_loggers.py additionally proves they advanced to THIS scan's as-of, and runs after the commit so a logger defect cannot withhold the live book's own record. | results/brain/position_log.csv.gz and management_events.jsonl are the capital book's holdings and management-event streams (wired 2026-09-28). The engine hooks existed from 881a5ec and c361272 and NOTHING PASSED THEM, so both were capability with no data. must_update, not conditional: a weekly snapshot cannot be differentiated back into events, so a missed week is unrecoverable."
     },
     {
       "job": "forward-accumulators",

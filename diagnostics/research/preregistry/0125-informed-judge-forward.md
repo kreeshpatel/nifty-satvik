@@ -247,7 +247,10 @@ own 10-minute `timeout-minutes` budget, which was sized for about 17 cards; this
 this week, never called late, exactly as the 2026-10-13 entry rules for whole missed weeks. The step's
 time budget is an operational setting outside this pre-registration's frozen terms (model, effort,
 prompt, schema), but raising it interacts with the job's 45-minute budget and the commit step that runs
-after the judge, so the change is an owner decision, not made here.
+after the judge, so the change is an owner decision, not made here. **Decided the same day (owner
+option b):** the judge became its own workflow, `.github/workflows/cron-judge.yml`, triggered when the
+scanner completes, with a 30-minute call budget. Instrument unchanged (same script, model, effort, prompt,
+schema, cards, price cache and earnings file); only where and when the step runs moved.
 
 ## OUTCOME
 
