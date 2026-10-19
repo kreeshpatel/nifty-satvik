@@ -1,283 +1,86 @@
 {
-  "generated_utc": "2026-10-16T10:49:23.977279+00:00",
-  "generated_ist": "2026-10-16 16:19",
-  "as_of": "2026-10-16",
+  "generated_utc": "2026-10-19T10:50:03.116585+00:00",
+  "generated_ist": "2026-10-19 16:20",
+  "as_of": "2026-10-19",
   "model": "weekly-swing-0094-rank-P",
   "source": "signals_today_weekly.json",
   "note": "OBSERVATIONAL re-pricing of the frozen Saturday weekly signals \u2014 live current_price + intra-week event flags mapped to the frozen exit tranches. Does NOT recompute signals or move any frozen level; the paper record is untouched and the weekly decision cadence is unchanged. ONLY the +2R target tranche (a resting broker limit) is actionable intra-week; the blow-off pattern and the 44w-SMA runner are decided ONLY at the Saturday weekly recompute and are flagged here as WATCH-only, never actionable.",
-  "n_monitored": 27,
-  "n_flags": 43,
-  "n_actionable": 2,
+  "n_monitored": 23,
+  "n_flags": 37,
+  "n_actionable": 3,
   "monitors": [
     {
-      "ticker": "NUVAMA",
+      "ticker": "TECHM",
       "kind": "buy",
-      "current_price": 1706.1,
-      "frozen_price": 1701.4,
-      "sma20": 1731.1,
-      "as_of": "2026-10-16",
-      "entry_low": 1701.4,
-      "entry_high": 1738.6,
-      "buy_window_until": "2026-10-08",
-      "buy_window_open": false,
+      "current_price": 1779.1,
+      "frozen_price": 1790.0,
+      "sma20": 1560.92,
+      "as_of": "2026-10-19",
+      "entry_low": 1790.0,
+      "entry_high": 1797.0,
+      "buy_window_until": "2026-10-23",
+      "buy_window_open": true,
       "window_basis": {
-        "compared_against": "2026-10-16",
-        "data_as_of": "2026-10-16",
+        "compared_against": "2026-10-19",
+        "data_as_of": "2026-10-19",
         "feed_behind": false
       },
-      "filled_today": true,
-      "expired": true,
-      "today_open": 1730.0,
-      "window_filled": true,
-      "filled_on": "2026-10-05",
-      "filled_price": 1709.4
+      "filled_today": false,
+      "expired": false,
+      "today_open": 1760.0,
+      "window_filled": false,
+      "filled_on": null,
+      "filled_price": null
+    },
+    {
+      "ticker": "AARTIIND",
+      "kind": "buy",
+      "current_price": 479.0,
+      "frozen_price": 503.0,
+      "sma20": 484.06,
+      "as_of": "2026-10-19",
+      "entry_low": 503.0,
+      "entry_high": 508.35,
+      "buy_window_until": "2026-10-23",
+      "buy_window_open": true,
+      "window_basis": {
+        "compared_against": "2026-10-19",
+        "data_as_of": "2026-10-19",
+        "feed_behind": false
+      },
+      "filled_today": false,
+      "expired": false,
+      "today_open": 495.0,
+      "window_filled": false,
+      "filled_on": null,
+      "filled_price": null
     },
     {
       "ticker": "CUB",
       "kind": "hold",
-      "current_price": 227.38,
-      "frozen_price": 230.04,
-      "sma20": 226.32,
-      "as_of": "2026-10-16",
+      "current_price": 230.95,
+      "frozen_price": 227.38,
+      "sma20": 226.08,
+      "as_of": "2026-10-19",
       "entry": 210.03,
       "stop": 197.35,
       "target": 235.39,
-      "pnl_pct": 8.26,
-      "dist_to_stop_pct": 15.22,
-      "dist_to_target_pct": 3.52,
-      "r_multiple": 1.37,
+      "pnl_pct": 9.96,
+      "dist_to_stop_pct": 17.03,
+      "dist_to_target_pct": 1.92,
+      "r_multiple": 1.65,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 217.27,
+      "implied_trail_sma20": 217.04,
       "tranches": [
         {
           "type": "target",
           "pct": 40,
           "level": 235.39,
           "actionable": false,
-          "status": "3.5% away",
+          "status": "1.9% away",
           "hit": false,
-          "dist_pct": 3.52
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": 1.37,
-          "weak_close_today": false
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 205.77,
-          "actionable": false,
-          "status": "+10.5% vs the 44w-SMA 205.77; hold the last 20% runner",
-          "hit": false,
-          "below_sma": false,
-          "dist_pct": 10.5
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 235.39 (+2R) \u2014 resting limit",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 205.77"
-      ]
-    },
-    {
-      "ticker": "BAJAJ-AUTO",
-      "kind": "hold",
-      "current_price": 10405.0,
-      "frozen_price": 10045.0,
-      "sma20": 10580.6,
-      "as_of": "2026-10-16",
-      "entry": 10080.0,
-      "stop": 9785.5,
-      "target": 10669.0,
-      "pnl_pct": 3.22,
-      "dist_to_stop_pct": 6.33,
-      "dist_to_target_pct": 2.54,
-      "r_multiple": 1.1,
-      "stop_breached": false,
-      "target_reached": false,
-      "implied_trail_sma20": 10157.38,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 10669.0,
-          "actionable": false,
-          "status": "2.5% away",
-          "hit": false,
-          "dist_pct": 2.54
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": 1.1,
-          "weak_close_today": false
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 10063.9,
-          "actionable": false,
-          "status": "+3.4% vs the 44w-SMA 10063.9; hold the last 20% runner",
-          "hit": false,
-          "below_sma": false,
-          "dist_pct": 3.39
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 10669.0 (+2R) \u2014 resting limit",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 10063.9"
-      ]
-    },
-    {
-      "ticker": "SIEMENS",
-      "kind": "hold",
-      "current_price": 3624.0,
-      "frozen_price": 3804.0,
-      "sma20": 3766.19,
-      "as_of": "2026-10-16",
-      "entry": 3633.15,
-      "stop": 3420.19,
-      "target": 4059.05,
-      "pnl_pct": -0.25,
-      "dist_to_stop_pct": 5.96,
-      "dist_to_target_pct": 12.0,
-      "r_multiple": -0.04,
-      "stop_breached": false,
-      "target_reached": false,
-      "implied_trail_sma20": 3615.54,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 4059.05,
-          "actionable": false,
-          "status": "12.0% away",
-          "hit": false,
-          "dist_pct": 12.0
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": -0.04,
-          "weak_close_today": true
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 3494.96,
-          "actionable": false,
-          "status": "+3.7% vs the 44w-SMA 3494.96; hold the last 20% runner",
-          "hit": false,
-          "below_sma": false,
-          "dist_pct": 3.69
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 4059.05 (+2R) \u2014 resting limit",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 3494.96"
-      ]
-    },
-    {
-      "ticker": "TVSMOTOR",
-      "kind": "hold",
-      "current_price": 4095.1,
-      "frozen_price": 4021.0,
-      "sma20": 4042.17,
-      "as_of": "2026-10-16",
-      "entry": 3905.0,
-      "stop": 3550.1,
-      "target": 4614.8,
-      "pnl_pct": 4.87,
-      "dist_to_stop_pct": 15.35,
-      "dist_to_target_pct": 12.69,
-      "r_multiple": 0.54,
-      "stop_breached": false,
-      "target_reached": false,
-      "implied_trail_sma20": 3880.49,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 4614.8,
-          "actionable": false,
-          "status": "12.7% away",
-          "hit": false,
-          "dist_pct": 12.69
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": 0.54,
-          "weak_close_today": false
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 3748.29,
-          "actionable": false,
-          "status": "+9.2% vs the 44w-SMA 3748.29; hold the last 20% runner",
-          "hit": false,
-          "below_sma": false,
-          "dist_pct": 9.25
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 4614.8 (+2R) \u2014 resting limit",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 3748.29"
-      ]
-    },
-    {
-      "ticker": "GRAPHITE",
-      "kind": "hold",
-      "current_price": 770.25,
-      "frozen_price": 786.15,
-      "sma20": 806.88,
-      "as_of": "2026-10-16",
-      "entry": 675.8,
-      "stop": 618.6,
-      "target": 790.2,
-      "pnl_pct": 13.98,
-      "dist_to_stop_pct": 24.52,
-      "dist_to_target_pct": 2.59,
-      "r_multiple": 1.65,
-      "stop_breached": false,
-      "target_reached": false,
-      "implied_trail_sma20": 774.6,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 790.2,
-          "actionable": false,
-          "status": "2.6% away",
-          "hit": false,
-          "dist_pct": 2.59
+          "dist_pct": 1.92
         },
         {
           "type": "pattern",
@@ -293,1091 +96,46 @@
         {
           "type": "runner",
           "pct": 20,
-          "level": 667.43,
+          "level": 206.99,
           "actionable": false,
-          "status": "+15.4% vs the 44w-SMA 667.43; hold the last 20% runner",
+          "status": "+11.6% vs the 44w-SMA 206.99; hold the last 20% runner",
           "hit": false,
           "below_sma": false,
-          "dist_pct": 15.41
+          "dist_pct": 11.58
         }
       ],
       "plan_tags": [
-        "Sell 40% at Rs 790.2 (+2R) \u2014 resting limit",
+        "Sell 40% at Rs 235.39 (+2R) \u2014 resting limit",
         "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 667.43"
+        "Hold 20% runner to the 44w-SMA 206.99"
       ]
     },
     {
-      "ticker": "GVT&D",
+      "ticker": "SIEMENS",
       "kind": "hold",
-      "current_price": 3959.1,
-      "frozen_price": 4253.2,
-      "sma20": 4230.82,
-      "as_of": "2026-10-16",
-      "entry": 4312.33,
-      "stop": 3952.42,
-      "target": 5032.14,
-      "pnl_pct": -8.19,
-      "dist_to_stop_pct": 0.17,
-      "dist_to_target_pct": 27.1,
-      "r_multiple": -0.98,
-      "stop_breached": false,
-      "target_reached": false,
-      "implied_trail_sma20": 4061.59,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 5032.14,
-          "actionable": false,
-          "status": "27.1% away",
-          "hit": false,
-          "dist_pct": 27.1
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": -0.98,
-          "weak_close_today": false
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 4022.59,
-          "actionable": false,
-          "status": "below the 44w-SMA 4022.59 intra-week (-1.6%) \u2014 only a Friday weekly close confirms the runner exit (Sat decides)",
-          "hit": false,
-          "below_sma": true,
-          "dist_pct": -1.58
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 5032.14 (+2R) \u2014 resting limit",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 4022.59"
-      ]
-    },
-    {
-      "ticker": "ENGINERSIN",
-      "kind": "hold",
-      "current_price": 273.45,
-      "frozen_price": 312.75,
-      "sma20": 297.33,
-      "as_of": "2026-10-16",
-      "entry": 238.64,
-      "stop": 220.56,
-      "target": 274.78,
-      "pnl_pct": 14.59,
-      "dist_to_stop_pct": 23.98,
-      "dist_to_target_pct": 0.49,
-      "r_multiple": 1.93,
-      "stop_breached": false,
-      "target_reached": false,
-      "implied_trail_sma20": 285.43,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 274.78,
-          "actionable": true,
-          "status": "reached \u2014 your resting limit to sell 40% should fill",
-          "hit": true,
-          "dist_pct": 0.49
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": 1.93,
-          "weak_close_today": true
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 224.37,
-          "actionable": false,
-          "status": "+21.9% vs the 44w-SMA 224.37; hold the last 20% runner",
-          "hit": false,
-          "below_sma": false,
-          "dist_pct": 21.87
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 274.78 (+2R) \u2014 resting limit (REACHED)",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 224.37"
-      ]
-    },
-    {
-      "ticker": "UNIONBANK",
-      "kind": "hold",
-      "current_price": 171.68,
-      "frozen_price": 167.59,
-      "sma20": 173.23,
-      "as_of": "2026-10-16",
-      "entry": 183.69,
-      "stop": 171.4,
-      "target": 208.27,
-      "pnl_pct": -6.54,
-      "dist_to_stop_pct": 0.16,
-      "dist_to_target_pct": 21.31,
-      "r_multiple": -0.98,
-      "stop_breached": false,
-      "target_reached": false,
-      "implied_trail_sma20": 166.3,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 208.27,
-          "actionable": false,
-          "status": "21.3% away",
-          "hit": false,
-          "dist_pct": 21.31
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": -0.98,
-          "weak_close_today": true
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 170.11,
-          "actionable": false,
-          "status": "+0.9% vs the 44w-SMA 170.11; hold the last 20% runner",
-          "hit": false,
-          "below_sma": false,
-          "dist_pct": 0.92
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 208.27 (+2R) \u2014 resting limit",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 170.11"
-      ]
-    },
-    {
-      "ticker": "PTCIL",
-      "kind": "hold",
-      "current_price": 24680.0,
-      "frozen_price": 22025.0,
-      "sma20": 23345.75,
-      "as_of": "2026-10-16",
-      "entry": 19299.0,
-      "stop": 17776.0,
-      "target": 22345.0,
-      "pnl_pct": 27.88,
-      "dist_to_stop_pct": 38.84,
-      "dist_to_target_pct": -9.46,
-      "r_multiple": 3.53,
-      "stop_breached": false,
-      "target_reached": true,
-      "implied_trail_sma20": 22411.92,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 22345.0,
-          "actionable": true,
-          "status": "reached \u2014 your resting limit to sell 40% should fill",
-          "hit": true,
-          "dist_pct": -9.46
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": 3.53,
-          "weak_close_today": true
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 18233.8,
-          "actionable": false,
-          "status": "+35.4% vs the 44w-SMA 18233.8; hold the last 20% runner",
-          "hit": false,
-          "below_sma": false,
-          "dist_pct": 35.35
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 22345.0 (+2R) \u2014 resting limit (REACHED)",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 18233.8"
-      ]
-    },
-    {
-      "ticker": "MCX",
-      "kind": "hold",
-      "current_price": 3162.0,
-      "frozen_price": 3204.0,
-      "sma20": 3280.65,
-      "as_of": "2026-10-16",
-      "entry": 2905.98,
-      "stop": 2615.38,
-      "target": 3487.18,
-      "pnl_pct": 8.81,
-      "dist_to_stop_pct": 20.9,
-      "dist_to_target_pct": 10.28,
-      "r_multiple": 0.88,
-      "stop_breached": false,
-      "target_reached": false,
-      "implied_trail_sma20": 3149.43,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 3487.18,
-          "actionable": false,
-          "status": "10.3% away",
-          "hit": false,
-          "dist_pct": 10.28
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": 0.88,
-          "weak_close_today": true
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 2705.83,
-          "actionable": false,
-          "status": "+16.9% vs the 44w-SMA 2705.83; hold the last 20% runner",
-          "hit": false,
-          "below_sma": false,
-          "dist_pct": 16.86
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 3487.18 (+2R) \u2014 resting limit",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 2705.83"
-      ]
-    },
-    {
-      "ticker": "APLAPOLLO",
-      "kind": "hold",
-      "current_price": 2152.7,
-      "frozen_price": 2115.7,
-      "sma20": 2163.36,
-      "as_of": "2026-10-16",
-      "entry": 2084.97,
-      "stop": 1944.21,
-      "target": 2366.48,
-      "pnl_pct": 3.25,
-      "dist_to_stop_pct": 10.72,
-      "dist_to_target_pct": 9.93,
-      "r_multiple": 0.48,
-      "stop_breached": false,
-      "target_reached": false,
-      "implied_trail_sma20": 2076.82,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 2366.48,
-          "actionable": false,
-          "status": "9.9% away",
-          "hit": false,
-          "dist_pct": 9.93
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": 0.48,
-          "weak_close_today": false
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 1977.08,
-          "actionable": false,
-          "status": "+8.9% vs the 44w-SMA 1977.08; hold the last 20% runner",
-          "hit": false,
-          "below_sma": false,
-          "dist_pct": 8.88
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 2366.48 (+2R) \u2014 resting limit",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 1977.08"
-      ]
-    },
-    {
-      "ticker": "ADANIPORTS",
-      "kind": "hold",
-      "current_price": 1750.8,
-      "frozen_price": 1737.8,
-      "sma20": 1771.24,
-      "as_of": "2026-10-16",
-      "entry": 1700.0,
-      "stop": 1640.4,
-      "target": 1819.2,
-      "pnl_pct": 2.99,
-      "dist_to_stop_pct": 6.73,
-      "dist_to_target_pct": 3.91,
-      "r_multiple": 0.85,
-      "stop_breached": false,
-      "target_reached": false,
-      "implied_trail_sma20": 1700.39,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 1819.2,
-          "actionable": false,
-          "status": "3.9% away",
-          "hit": false,
-          "dist_pct": 3.91
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": 0.85,
-          "weak_close_today": false
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 1619.89,
-          "actionable": false,
-          "status": "+8.1% vs the 44w-SMA 1619.89; hold the last 20% runner",
-          "hit": false,
-          "below_sma": false,
-          "dist_pct": 8.08
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 1819.2 (+2R) \u2014 resting limit",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 1619.89"
-      ]
-    },
-    {
-      "ticker": "IKS",
-      "kind": "hold",
-      "current_price": 1731.4,
-      "frozen_price": 1776.4,
-      "sma20": 1775.26,
-      "as_of": "2026-10-16",
-      "entry": 1830.2,
-      "stop": 1725.0,
-      "target": 2040.6,
-      "pnl_pct": -5.4,
-      "dist_to_stop_pct": 0.37,
-      "dist_to_target_pct": 17.86,
-      "r_multiple": -0.94,
-      "stop_breached": false,
-      "target_reached": false,
-      "implied_trail_sma20": 1704.24,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 2040.6,
-          "actionable": false,
-          "status": "17.9% away",
-          "hit": false,
-          "dist_pct": 17.86
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": -0.94,
-          "weak_close_today": false
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 1650.8,
-          "actionable": false,
-          "status": "+4.9% vs the 44w-SMA 1650.8; hold the last 20% runner",
-          "hit": false,
-          "below_sma": false,
-          "dist_pct": 4.88
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 2040.6 (+2R) \u2014 resting limit",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 1650.8"
-      ]
-    },
-    {
-      "ticker": "PHOENIXLTD",
-      "kind": "hold",
-      "current_price": 1896.9,
-      "frozen_price": 1930.0,
-      "sma20": 1906.27,
-      "as_of": "2026-10-16",
-      "entry": 1913.57,
-      "stop": 1873.52,
-      "target": 1993.66,
-      "pnl_pct": -0.87,
-      "dist_to_stop_pct": 1.25,
-      "dist_to_target_pct": 5.1,
-      "r_multiple": -0.42,
-      "stop_breached": false,
-      "target_reached": false,
-      "implied_trail_sma20": 1830.02,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 1993.66,
-          "actionable": false,
-          "status": "5.1% away",
-          "hit": false,
-          "dist_pct": 5.1
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": -0.42,
-          "weak_close_today": true
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 1811.03,
-          "actionable": false,
-          "status": "+4.7% vs the 44w-SMA 1811.03; hold the last 20% runner",
-          "hit": false,
-          "below_sma": false,
-          "dist_pct": 4.74
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 1993.66 (+2R) \u2014 resting limit",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 1811.03"
-      ]
-    },
-    {
-      "ticker": "JSWSTEEL",
-      "kind": "hold",
-      "current_price": 1216.3,
-      "frozen_price": 1233.0,
-      "sma20": 1234.63,
-      "as_of": "2026-10-16",
-      "entry": 1298.0,
-      "stop": 1250.4,
-      "target": 1393.2,
-      "pnl_pct": -6.29,
-      "dist_to_stop_pct": -2.73,
-      "dist_to_target_pct": 14.54,
-      "r_multiple": -1.72,
-      "stop_breached": true,
-      "target_reached": false,
-      "implied_trail_sma20": 1185.25,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 1393.2,
-          "actionable": false,
-          "status": "14.5% away",
-          "hit": false,
-          "dist_pct": 14.54
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": -1.72,
-          "weak_close_today": false
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 1225.33,
-          "actionable": false,
-          "status": "below the 44w-SMA 1225.33 intra-week (-0.7%) \u2014 only a Friday weekly close confirms the runner exit (Sat decides)",
-          "hit": false,
-          "below_sma": true,
-          "dist_pct": -0.74
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 1393.2 (+2R) \u2014 resting limit",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 1225.33"
-      ]
-    },
-    {
-      "ticker": "SAIL",
-      "kind": "hold",
-      "current_price": 170.95,
-      "frozen_price": 174.5,
-      "sma20": 175.43,
-      "as_of": "2026-10-16",
-      "entry": 172.54,
-      "stop": 165.94,
-      "target": 185.75,
-      "pnl_pct": -0.92,
-      "dist_to_stop_pct": 3.02,
-      "dist_to_target_pct": 8.66,
-      "r_multiple": -0.24,
-      "stop_breached": false,
-      "target_reached": false,
-      "implied_trail_sma20": 168.41,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 185.75,
-          "actionable": false,
-          "status": "8.7% away",
-          "hit": false,
-          "dist_pct": 8.66
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": -0.24,
-          "weak_close_today": false
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 164.85,
-          "actionable": false,
-          "status": "+3.7% vs the 44w-SMA 164.85; hold the last 20% runner",
-          "hit": false,
-          "below_sma": false,
-          "dist_pct": 3.7
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 185.75 (+2R) \u2014 resting limit",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 164.85"
-      ]
-    },
-    {
-      "ticker": "USHAMART",
-      "kind": "hold",
-      "current_price": 491.3,
-      "frozen_price": 491.7,
-      "sma20": 506.55,
-      "as_of": "2026-10-16",
-      "entry": 493.9,
-      "stop": 479.0,
-      "target": 523.7,
-      "pnl_pct": -0.53,
-      "dist_to_stop_pct": 2.57,
-      "dist_to_target_pct": 6.59,
-      "r_multiple": -0.17,
-      "stop_breached": false,
-      "target_reached": false,
-      "implied_trail_sma20": 486.29,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 523.7,
-          "actionable": false,
-          "status": "6.6% away",
-          "hit": false,
-          "dist_pct": 6.59
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": -0.17,
-          "weak_close_today": false
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 457.61,
-          "actionable": false,
-          "status": "+7.4% vs the 44w-SMA 457.61; hold the last 20% runner",
-          "hit": false,
-          "below_sma": false,
-          "dist_pct": 7.36
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 523.7 (+2R) \u2014 resting limit",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 457.61"
-      ]
-    },
-    {
-      "ticker": "IDFCFIRSTB",
-      "kind": "hold",
-      "current_price": 78.08,
-      "frozen_price": 80.39,
-      "sma20": 81.49,
-      "as_of": "2026-10-16",
-      "entry": 86.29,
-      "stop": 82.5,
-      "target": 93.87,
-      "pnl_pct": -9.51,
-      "dist_to_stop_pct": -5.36,
-      "dist_to_target_pct": 20.22,
-      "r_multiple": -2.17,
-      "stop_breached": true,
-      "target_reached": false,
-      "implied_trail_sma20": 78.23,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 93.87,
-          "actionable": false,
-          "status": "20.2% away",
-          "hit": false,
-          "dist_pct": 20.22
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": -2.17,
-          "weak_close_today": true
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 77.65,
-          "actionable": false,
-          "status": "+0.6% vs the 44w-SMA 77.65; hold the last 20% runner",
-          "hit": false,
-          "below_sma": false,
-          "dist_pct": 0.55
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 93.87 (+2R) \u2014 resting limit",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 77.65"
-      ]
-    },
-    {
-      "ticker": "ASTERDM",
-      "kind": "hold",
-      "current_price": 674.35,
-      "frozen_price": 708.9,
-      "sma20": 713.65,
-      "as_of": "2026-10-16",
-      "entry": 786.0,
-      "stop": 745.05,
-      "target": 867.9,
-      "pnl_pct": -14.2,
-      "dist_to_stop_pct": -9.49,
-      "dist_to_target_pct": 28.7,
-      "r_multiple": -2.73,
-      "stop_breached": true,
-      "target_reached": false,
-      "implied_trail_sma20": 685.1,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 867.9,
-          "actionable": false,
-          "status": "28.7% away",
-          "hit": false,
-          "dist_pct": 28.7
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": -2.73,
-          "weak_close_today": true
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 704.79,
-          "actionable": false,
-          "status": "below the 44w-SMA 704.79 intra-week (-4.3%) \u2014 only a Friday weekly close confirms the runner exit (Sat decides)",
-          "hit": false,
-          "below_sma": true,
-          "dist_pct": -4.32
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 867.9 (+2R) \u2014 resting limit",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 704.79"
-      ]
-    },
-    {
-      "ticker": "GESHIP",
-      "kind": "hold",
-      "current_price": 1507.4,
-      "frozen_price": 1530.6,
-      "sma20": 1517.74,
-      "as_of": "2026-10-16",
-      "entry": 1412.2,
-      "stop": 1352.0,
-      "target": 1532.6,
-      "pnl_pct": 6.74,
-      "dist_to_stop_pct": 11.49,
-      "dist_to_target_pct": 1.67,
-      "r_multiple": 1.58,
-      "stop_breached": false,
-      "target_reached": false,
-      "implied_trail_sma20": 1457.03,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 1532.6,
-          "actionable": false,
-          "status": "1.7% away",
-          "hit": false,
-          "dist_pct": 1.67
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": 1.58,
-          "weak_close_today": false
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 1338.36,
-          "actionable": false,
-          "status": "+12.6% vs the 44w-SMA 1338.36; hold the last 20% runner",
-          "hit": false,
-          "below_sma": false,
-          "dist_pct": 12.63
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 1532.6 (+2R) \u2014 resting limit",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 1338.36"
-      ]
-    },
-    {
-      "ticker": "BANDHANBNK",
-      "kind": "hold",
-      "current_price": 167.5,
-      "frozen_price": 176.0,
-      "sma20": 173.25,
-      "as_of": "2026-10-16",
-      "entry": 176.52,
-      "stop": 161.67,
-      "target": 206.22,
-      "pnl_pct": -5.11,
-      "dist_to_stop_pct": 3.61,
-      "dist_to_target_pct": 23.12,
-      "r_multiple": -0.61,
-      "stop_breached": false,
-      "target_reached": false,
-      "implied_trail_sma20": 166.32,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 206.22,
-          "actionable": false,
-          "status": "23.1% away",
-          "hit": false,
-          "dist_pct": 23.12
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": -0.61,
-          "weak_close_today": true
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 173.53,
-          "actionable": false,
-          "status": "below the 44w-SMA 173.53 intra-week (-3.5%) \u2014 only a Friday weekly close confirms the runner exit (Sat decides)",
-          "hit": false,
-          "below_sma": true,
-          "dist_pct": -3.47
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 206.22 (+2R) \u2014 resting limit",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 173.53"
-      ]
-    },
-    {
-      "ticker": "POWERINDIA",
-      "kind": "hold",
-      "current_price": 28990.0,
-      "frozen_price": 31290.0,
-      "sma20": 30889.0,
-      "as_of": "2026-10-16",
-      "entry": 32480.0,
-      "stop": 29645.0,
-      "target": 38150.0,
-      "pnl_pct": -10.75,
-      "dist_to_stop_pct": -2.21,
-      "dist_to_target_pct": 31.6,
-      "r_multiple": -1.23,
-      "stop_breached": true,
-      "target_reached": false,
-      "implied_trail_sma20": 29653.44,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 38150.0,
-          "actionable": false,
-          "status": "31.6% away",
-          "hit": false,
-          "dist_pct": 31.6
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": -1.23,
-          "weak_close_today": false
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 28207.28,
-          "actionable": false,
-          "status": "+2.8% vs the 44w-SMA 28207.28; hold the last 20% runner",
-          "hit": false,
-          "below_sma": false,
-          "dist_pct": 2.77
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 38150.0 (+2R) \u2014 resting limit",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 28207.28"
-      ]
-    },
-    {
-      "ticker": "ABCAPITAL",
-      "kind": "hold",
-      "current_price": 379.4,
-      "frozen_price": 375.05,
-      "sma20": 384.63,
-      "as_of": "2026-10-16",
-      "entry": 405.1,
-      "stop": 378.0,
-      "target": 459.3,
-      "pnl_pct": -6.34,
-      "dist_to_stop_pct": 0.37,
-      "dist_to_target_pct": 21.06,
-      "r_multiple": -0.95,
-      "stop_breached": false,
-      "target_reached": false,
-      "implied_trail_sma20": 369.24,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 459.3,
-          "actionable": false,
-          "status": "21.1% away",
-          "hit": false,
-          "dist_pct": 21.06
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": -0.95,
-          "weak_close_today": false
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 363.91,
-          "actionable": false,
-          "status": "+4.3% vs the 44w-SMA 363.91; hold the last 20% runner",
-          "hit": false,
-          "below_sma": false,
-          "dist_pct": 4.26
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 459.3 (+2R) \u2014 resting limit",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 363.91"
-      ]
-    },
-    {
-      "ticker": "OBEROIRLTY",
-      "kind": "hold",
-      "current_price": 1703.0,
-      "frozen_price": 1754.6,
-      "sma20": 1762.45,
-      "as_of": "2026-10-16",
-      "entry": 1854.9,
-      "stop": 1754.3,
-      "target": 2056.1,
-      "pnl_pct": -8.19,
-      "dist_to_stop_pct": -2.92,
-      "dist_to_target_pct": 20.73,
-      "r_multiple": -1.51,
-      "stop_breached": true,
-      "target_reached": false,
-      "implied_trail_sma20": 1691.95,
-      "tranches": [
-        {
-          "type": "target",
-          "pct": 40,
-          "level": 2056.1,
-          "actionable": false,
-          "status": "20.7% away",
-          "hit": false,
-          "dist_pct": 20.73
-        },
-        {
-          "type": "pattern",
-          "pct": 40,
-          "level": null,
-          "actionable": false,
-          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
-          "hit": false,
-          "armed": false,
-          "r_multiple": -1.51,
-          "weak_close_today": true
-        },
-        {
-          "type": "runner",
-          "pct": 20,
-          "level": 1680.73,
-          "actionable": false,
-          "status": "+1.3% vs the 44w-SMA 1680.73; hold the last 20% runner",
-          "hit": false,
-          "below_sma": false,
-          "dist_pct": 1.33
-        }
-      ],
-      "plan_tags": [
-        "Sell 40% at Rs 2056.1 (+2R) \u2014 resting limit",
-        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 1680.73"
-      ]
-    },
-    {
-      "ticker": "STARHEALTH",
-      "kind": "hold",
-      "current_price": 548.85,
-      "frozen_price": 537.7,
-      "sma20": 548.43,
-      "as_of": "2026-10-16",
-      "entry": 550.8,
-      "stop": 513.0,
-      "target": 626.4,
-      "pnl_pct": -0.35,
-      "dist_to_stop_pct": 6.99,
-      "dist_to_target_pct": 14.13,
+      "current_price": 3623.0,
+      "frozen_price": 3624.0,
+      "sma20": 3751.65,
+      "as_of": "2026-10-19",
+      "entry": 3633.15,
+      "stop": 3420.19,
+      "target": 4059.05,
+      "pnl_pct": -0.28,
+      "dist_to_stop_pct": 5.93,
+      "dist_to_target_pct": 12.04,
       "r_multiple": -0.05,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 526.5,
+      "implied_trail_sma20": 3601.58,
       "tranches": [
         {
           "type": "target",
           "pct": 40,
-          "level": 626.4,
+          "level": 4059.05,
           "actionable": false,
-          "status": "14.1% away",
+          "status": "12.0% away",
           "hit": false,
-          "dist_pct": 14.13
+          "dist_pct": 12.04
         },
         {
           "type": "pattern",
@@ -1393,46 +151,46 @@
         {
           "type": "runner",
           "pct": 20,
-          "level": 512.01,
+          "level": 3512.69,
           "actionable": false,
-          "status": "+7.2% vs the 44w-SMA 512.01; hold the last 20% runner",
+          "status": "+3.1% vs the 44w-SMA 3512.69; hold the last 20% runner",
           "hit": false,
           "below_sma": false,
-          "dist_pct": 7.2
+          "dist_pct": 3.14
         }
       ],
       "plan_tags": [
-        "Sell 40% at Rs 626.4 (+2R) \u2014 resting limit",
+        "Sell 40% at Rs 4059.05 (+2R) \u2014 resting limit",
         "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 512.01"
+        "Hold 20% runner to the 44w-SMA 3512.69"
       ]
     },
     {
-      "ticker": "MANAPPURAM",
+      "ticker": "TVSMOTOR",
       "kind": "hold",
-      "current_price": 323.95,
-      "frozen_price": 308.9,
-      "sma20": 317.7,
-      "as_of": "2026-10-16",
-      "entry": 328.0,
-      "stop": 313.15,
-      "target": 357.7,
-      "pnl_pct": -1.23,
-      "dist_to_stop_pct": 3.45,
-      "dist_to_target_pct": 10.42,
-      "r_multiple": -0.27,
+      "current_price": 4074.0,
+      "frozen_price": 4095.1,
+      "sma20": 4037.31,
+      "as_of": "2026-10-19",
+      "entry": 3905.0,
+      "stop": 3550.1,
+      "target": 4614.8,
+      "pnl_pct": 4.33,
+      "dist_to_stop_pct": 14.76,
+      "dist_to_target_pct": 13.27,
+      "r_multiple": 0.48,
       "stop_breached": false,
       "target_reached": false,
-      "implied_trail_sma20": 304.99,
+      "implied_trail_sma20": 3875.82,
       "tranches": [
         {
           "type": "target",
           "pct": 40,
-          "level": 357.7,
+          "level": 4614.8,
           "actionable": false,
-          "status": "10.4% away",
+          "status": "13.3% away",
           "hit": false,
-          "dist_pct": 10.42
+          "dist_pct": 13.27
         },
         {
           "type": "pattern",
@@ -1442,288 +200,1242 @@
           "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
           "hit": false,
           "armed": false,
-          "r_multiple": -0.27,
+          "r_multiple": 0.48,
+          "weak_close_today": true
+        },
+        {
+          "type": "runner",
+          "pct": 20,
+          "level": 3763.44,
+          "actionable": false,
+          "status": "+8.2% vs the 44w-SMA 3763.44; hold the last 20% runner",
+          "hit": false,
+          "below_sma": false,
+          "dist_pct": 8.25
+        }
+      ],
+      "plan_tags": [
+        "Sell 40% at Rs 4614.8 (+2R) \u2014 resting limit",
+        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
+        "Hold 20% runner to the 44w-SMA 3763.44"
+      ]
+    },
+    {
+      "ticker": "GRAPHITE",
+      "kind": "hold",
+      "current_price": 745.5,
+      "frozen_price": 770.25,
+      "sma20": 802.61,
+      "as_of": "2026-10-19",
+      "entry": 675.8,
+      "stop": 618.6,
+      "target": 790.2,
+      "pnl_pct": 10.31,
+      "dist_to_stop_pct": 20.51,
+      "dist_to_target_pct": 6.0,
+      "r_multiple": 1.22,
+      "stop_breached": false,
+      "target_reached": false,
+      "implied_trail_sma20": 770.51,
+      "tranches": [
+        {
+          "type": "target",
+          "pct": 40,
+          "level": 790.2,
+          "actionable": false,
+          "status": "6.0% away",
+          "hit": false,
+          "dist_pct": 6.0
+        },
+        {
+          "type": "pattern",
+          "pct": 40,
+          "level": null,
+          "actionable": false,
+          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
+          "hit": false,
+          "armed": false,
+          "r_multiple": 1.22,
+          "weak_close_today": true
+        },
+        {
+          "type": "runner",
+          "pct": 20,
+          "level": 679.01,
+          "actionable": false,
+          "status": "+9.8% vs the 44w-SMA 679.01; hold the last 20% runner",
+          "hit": false,
+          "below_sma": false,
+          "dist_pct": 9.79
+        }
+      ],
+      "plan_tags": [
+        "Sell 40% at Rs 790.2 (+2R) \u2014 resting limit",
+        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
+        "Hold 20% runner to the 44w-SMA 679.01"
+      ]
+    },
+    {
+      "ticker": "GVT&D",
+      "kind": "hold",
+      "current_price": 3925.0,
+      "frozen_price": 3959.1,
+      "sma20": 4207.82,
+      "as_of": "2026-10-19",
+      "entry": 4312.33,
+      "stop": 3952.42,
+      "target": 5032.14,
+      "pnl_pct": -8.98,
+      "dist_to_stop_pct": -0.69,
+      "dist_to_target_pct": 28.21,
+      "r_multiple": -1.08,
+      "stop_breached": true,
+      "target_reached": false,
+      "implied_trail_sma20": 4039.51,
+      "tranches": [
+        {
+          "type": "target",
+          "pct": 40,
+          "level": 5032.14,
+          "actionable": false,
+          "status": "28.2% away",
+          "hit": false,
+          "dist_pct": 28.21
+        },
+        {
+          "type": "pattern",
+          "pct": 40,
+          "level": null,
+          "actionable": false,
+          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
+          "hit": false,
+          "armed": false,
+          "r_multiple": -1.08,
+          "weak_close_today": true
+        },
+        {
+          "type": "runner",
+          "pct": 20,
+          "level": 4075.96,
+          "actionable": false,
+          "status": "below the 44w-SMA 4075.96 intra-week (-3.7%) \u2014 only a Friday weekly close confirms the runner exit (Sat decides)",
+          "hit": false,
+          "below_sma": true,
+          "dist_pct": -3.7
+        }
+      ],
+      "plan_tags": [
+        "Sell 40% at Rs 5032.14 (+2R) \u2014 resting limit",
+        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
+        "Hold 20% runner to the 44w-SMA 4075.96"
+      ]
+    },
+    {
+      "ticker": "ENGINERSIN",
+      "kind": "hold",
+      "current_price": 269.85,
+      "frozen_price": 273.45,
+      "sma20": 297.61,
+      "as_of": "2026-10-19",
+      "entry": 238.64,
+      "stop": 220.56,
+      "target": 274.78,
+      "pnl_pct": 13.08,
+      "dist_to_stop_pct": 22.35,
+      "dist_to_target_pct": 1.83,
+      "r_multiple": 1.73,
+      "stop_breached": false,
+      "target_reached": false,
+      "implied_trail_sma20": 285.71,
+      "tranches": [
+        {
+          "type": "target",
+          "pct": 40,
+          "level": 274.78,
+          "actionable": false,
+          "status": "1.8% away",
+          "hit": false,
+          "dist_pct": 1.83
+        },
+        {
+          "type": "pattern",
+          "pct": 40,
+          "level": null,
+          "actionable": false,
+          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
+          "hit": false,
+          "armed": false,
+          "r_multiple": 1.73,
+          "weak_close_today": true
+        },
+        {
+          "type": "runner",
+          "pct": 20,
+          "level": 228.4,
+          "actionable": false,
+          "status": "+18.1% vs the 44w-SMA 228.4; hold the last 20% runner",
+          "hit": false,
+          "below_sma": false,
+          "dist_pct": 18.15
+        }
+      ],
+      "plan_tags": [
+        "Sell 40% at Rs 274.78 (+2R) \u2014 resting limit",
+        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
+        "Hold 20% runner to the 44w-SMA 228.4"
+      ]
+    },
+    {
+      "ticker": "PTCIL",
+      "kind": "hold",
+      "current_price": 25045.0,
+      "frozen_price": 24680.0,
+      "sma20": 23457.75,
+      "as_of": "2026-10-19",
+      "entry": 19299.0,
+      "stop": 17776.0,
+      "target": 22345.0,
+      "pnl_pct": 29.77,
+      "dist_to_stop_pct": 40.89,
+      "dist_to_target_pct": -10.78,
+      "r_multiple": 3.77,
+      "stop_breached": false,
+      "target_reached": true,
+      "implied_trail_sma20": 22519.44,
+      "tranches": [
+        {
+          "type": "target",
+          "pct": 40,
+          "level": 22345.0,
+          "actionable": true,
+          "status": "reached \u2014 your resting limit to sell 40% should fill",
+          "hit": true,
+          "dist_pct": -10.78
+        },
+        {
+          "type": "pattern",
+          "pct": 40,
+          "level": null,
+          "actionable": false,
+          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
+          "hit": false,
+          "armed": false,
+          "r_multiple": 3.77,
           "weak_close_today": false
         },
         {
           "type": "runner",
           "pct": 20,
-          "level": 307.14,
+          "level": 18508.91,
           "actionable": false,
-          "status": "+5.5% vs the 44w-SMA 307.14; hold the last 20% runner",
+          "status": "+35.3% vs the 44w-SMA 18508.91; hold the last 20% runner",
           "hit": false,
           "below_sma": false,
-          "dist_pct": 5.47
+          "dist_pct": 35.31
         }
       ],
       "plan_tags": [
-        "Sell 40% at Rs 357.7 (+2R) \u2014 resting limit",
+        "Sell 40% at Rs 22345.0 (+2R) \u2014 resting limit (REACHED)",
         "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
-        "Hold 20% runner to the 44w-SMA 307.14"
+        "Hold 20% runner to the 44w-SMA 18508.91"
+      ]
+    },
+    {
+      "ticker": "MCX",
+      "kind": "hold",
+      "current_price": 3184.5,
+      "frozen_price": 3162.0,
+      "sma20": 3276.88,
+      "as_of": "2026-10-19",
+      "entry": 2905.98,
+      "stop": 2615.38,
+      "target": 3487.18,
+      "pnl_pct": 9.58,
+      "dist_to_stop_pct": 21.76,
+      "dist_to_target_pct": 9.5,
+      "r_multiple": 0.96,
+      "stop_breached": false,
+      "target_reached": false,
+      "implied_trail_sma20": 3145.8,
+      "tranches": [
+        {
+          "type": "target",
+          "pct": 40,
+          "level": 3487.18,
+          "actionable": false,
+          "status": "9.5% away",
+          "hit": false,
+          "dist_pct": 9.5
+        },
+        {
+          "type": "pattern",
+          "pct": 40,
+          "level": null,
+          "actionable": false,
+          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
+          "hit": false,
+          "armed": false,
+          "r_multiple": 0.96,
+          "weak_close_today": true
+        },
+        {
+          "type": "runner",
+          "pct": 20,
+          "level": 2760.13,
+          "actionable": false,
+          "status": "+15.4% vs the 44w-SMA 2760.13; hold the last 20% runner",
+          "hit": false,
+          "below_sma": false,
+          "dist_pct": 15.38
+        }
+      ],
+      "plan_tags": [
+        "Sell 40% at Rs 3487.18 (+2R) \u2014 resting limit",
+        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
+        "Hold 20% runner to the 44w-SMA 2760.13"
+      ]
+    },
+    {
+      "ticker": "APLAPOLLO",
+      "kind": "hold",
+      "current_price": 2144.6,
+      "frozen_price": 2152.7,
+      "sma20": 2157.08,
+      "as_of": "2026-10-19",
+      "entry": 2084.97,
+      "stop": 1944.21,
+      "target": 2366.48,
+      "pnl_pct": 2.86,
+      "dist_to_stop_pct": 10.31,
+      "dist_to_target_pct": 10.35,
+      "r_multiple": 0.42,
+      "stop_breached": false,
+      "target_reached": false,
+      "implied_trail_sma20": 2070.8,
+      "tranches": [
+        {
+          "type": "target",
+          "pct": 40,
+          "level": 2366.48,
+          "actionable": false,
+          "status": "10.3% away",
+          "hit": false,
+          "dist_pct": 10.35
+        },
+        {
+          "type": "pattern",
+          "pct": 40,
+          "level": null,
+          "actionable": false,
+          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
+          "hit": false,
+          "armed": false,
+          "r_multiple": 0.42,
+          "weak_close_today": false
+        },
+        {
+          "type": "runner",
+          "pct": 20,
+          "level": 1994.62,
+          "actionable": false,
+          "status": "+7.5% vs the 44w-SMA 1994.62; hold the last 20% runner",
+          "hit": false,
+          "below_sma": false,
+          "dist_pct": 7.52
+        }
+      ],
+      "plan_tags": [
+        "Sell 40% at Rs 2366.48 (+2R) \u2014 resting limit",
+        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
+        "Hold 20% runner to the 44w-SMA 1994.62"
+      ]
+    },
+    {
+      "ticker": "ADANIPORTS",
+      "kind": "hold",
+      "current_price": 1766.0,
+      "frozen_price": 1750.8,
+      "sma20": 1768.34,
+      "as_of": "2026-10-19",
+      "entry": 1700.0,
+      "stop": 1640.4,
+      "target": 1819.2,
+      "pnl_pct": 3.88,
+      "dist_to_stop_pct": 7.66,
+      "dist_to_target_pct": 3.01,
+      "r_multiple": 1.11,
+      "stop_breached": false,
+      "target_reached": false,
+      "implied_trail_sma20": 1697.6,
+      "tranches": [
+        {
+          "type": "target",
+          "pct": 40,
+          "level": 1819.2,
+          "actionable": false,
+          "status": "3.0% away",
+          "hit": false,
+          "dist_pct": 3.01
+        },
+        {
+          "type": "pattern",
+          "pct": 40,
+          "level": null,
+          "actionable": false,
+          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
+          "hit": false,
+          "armed": false,
+          "r_multiple": 1.11,
+          "weak_close_today": false
+        },
+        {
+          "type": "runner",
+          "pct": 20,
+          "level": 1631.07,
+          "actionable": false,
+          "status": "+8.3% vs the 44w-SMA 1631.07; hold the last 20% runner",
+          "hit": false,
+          "below_sma": false,
+          "dist_pct": 8.27
+        }
+      ],
+      "plan_tags": [
+        "Sell 40% at Rs 1819.2 (+2R) \u2014 resting limit",
+        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
+        "Hold 20% runner to the 44w-SMA 1631.07"
+      ]
+    },
+    {
+      "ticker": "SAIL",
+      "kind": "hold",
+      "current_price": 168.97,
+      "frozen_price": 170.95,
+      "sma20": 175.12,
+      "as_of": "2026-10-19",
+      "entry": 172.54,
+      "stop": 165.94,
+      "target": 185.75,
+      "pnl_pct": -2.07,
+      "dist_to_stop_pct": 1.83,
+      "dist_to_target_pct": 9.93,
+      "r_multiple": -0.54,
+      "stop_breached": false,
+      "target_reached": false,
+      "implied_trail_sma20": 168.12,
+      "tranches": [
+        {
+          "type": "target",
+          "pct": 40,
+          "level": 185.75,
+          "actionable": false,
+          "status": "9.9% away",
+          "hit": false,
+          "dist_pct": 9.93
+        },
+        {
+          "type": "pattern",
+          "pct": 40,
+          "level": null,
+          "actionable": false,
+          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
+          "hit": false,
+          "armed": false,
+          "r_multiple": -0.54,
+          "weak_close_today": true
+        },
+        {
+          "type": "runner",
+          "pct": 20,
+          "level": 166.7,
+          "actionable": false,
+          "status": "+1.4% vs the 44w-SMA 166.7; hold the last 20% runner",
+          "hit": false,
+          "below_sma": false,
+          "dist_pct": 1.36
+        }
+      ],
+      "plan_tags": [
+        "Sell 40% at Rs 185.75 (+2R) \u2014 resting limit",
+        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
+        "Hold 20% runner to the 44w-SMA 166.7"
+      ]
+    },
+    {
+      "ticker": "ZYDUSWELL",
+      "kind": "hold",
+      "current_price": 515.4,
+      "frozen_price": 512.75,
+      "sma20": 509.3,
+      "as_of": "2026-10-19",
+      "entry": 530.0,
+      "stop": 490.0,
+      "target": 610.0,
+      "pnl_pct": -2.75,
+      "dist_to_stop_pct": 5.18,
+      "dist_to_target_pct": 18.35,
+      "r_multiple": -0.36,
+      "stop_breached": false,
+      "target_reached": false,
+      "implied_trail_sma20": 488.93,
+      "tranches": [
+        {
+          "type": "target",
+          "pct": 40,
+          "level": 610.0,
+          "actionable": false,
+          "status": "18.4% away",
+          "hit": false,
+          "dist_pct": 18.35
+        },
+        {
+          "type": "pattern",
+          "pct": 40,
+          "level": null,
+          "actionable": false,
+          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
+          "hit": false,
+          "armed": false,
+          "r_multiple": -0.36,
+          "weak_close_today": false
+        },
+        {
+          "type": "runner",
+          "pct": 20,
+          "level": 485.77,
+          "actionable": false,
+          "status": "+6.1% vs the 44w-SMA 485.77; hold the last 20% runner",
+          "hit": false,
+          "below_sma": false,
+          "dist_pct": 6.1
+        }
+      ],
+      "plan_tags": [
+        "Sell 40% at Rs 610.0 (+2R) \u2014 resting limit",
+        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
+        "Hold 20% runner to the 44w-SMA 485.77"
+      ]
+    },
+    {
+      "ticker": "USHAMART",
+      "kind": "hold",
+      "current_price": 485.15,
+      "frozen_price": 491.3,
+      "sma20": 505.44,
+      "as_of": "2026-10-19",
+      "entry": 493.9,
+      "stop": 479.0,
+      "target": 523.7,
+      "pnl_pct": -1.77,
+      "dist_to_stop_pct": 1.28,
+      "dist_to_target_pct": 7.95,
+      "r_multiple": -0.59,
+      "stop_breached": false,
+      "target_reached": false,
+      "implied_trail_sma20": 485.23,
+      "tranches": [
+        {
+          "type": "target",
+          "pct": 40,
+          "level": 523.7,
+          "actionable": false,
+          "status": "8.0% away",
+          "hit": false,
+          "dist_pct": 7.95
+        },
+        {
+          "type": "pattern",
+          "pct": 40,
+          "level": null,
+          "actionable": false,
+          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
+          "hit": false,
+          "armed": false,
+          "r_multiple": -0.59,
+          "weak_close_today": true
+        },
+        {
+          "type": "runner",
+          "pct": 20,
+          "level": 460.5,
+          "actionable": false,
+          "status": "+5.3% vs the 44w-SMA 460.5; hold the last 20% runner",
+          "hit": false,
+          "below_sma": false,
+          "dist_pct": 5.35
+        }
+      ],
+      "plan_tags": [
+        "Sell 40% at Rs 523.7 (+2R) \u2014 resting limit",
+        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
+        "Hold 20% runner to the 44w-SMA 460.5"
+      ]
+    },
+    {
+      "ticker": "GESHIP",
+      "kind": "hold",
+      "current_price": 1519.3,
+      "frozen_price": 1507.4,
+      "sma20": 1522.1,
+      "as_of": "2026-10-19",
+      "entry": 1412.2,
+      "stop": 1352.0,
+      "target": 1532.6,
+      "pnl_pct": 7.58,
+      "dist_to_stop_pct": 12.37,
+      "dist_to_target_pct": 0.88,
+      "r_multiple": 1.78,
+      "stop_breached": false,
+      "target_reached": false,
+      "implied_trail_sma20": 1461.22,
+      "tranches": [
+        {
+          "type": "target",
+          "pct": 40,
+          "level": 1532.6,
+          "actionable": false,
+          "status": "0.9% away",
+          "hit": false,
+          "dist_pct": 0.88
+        },
+        {
+          "type": "pattern",
+          "pct": 40,
+          "level": null,
+          "actionable": false,
+          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
+          "hit": false,
+          "armed": false,
+          "r_multiple": 1.78,
+          "weak_close_today": false
+        },
+        {
+          "type": "runner",
+          "pct": 20,
+          "level": 1358.69,
+          "actionable": false,
+          "status": "+11.8% vs the 44w-SMA 1358.69; hold the last 20% runner",
+          "hit": false,
+          "below_sma": false,
+          "dist_pct": 11.82
+        }
+      ],
+      "plan_tags": [
+        "Sell 40% at Rs 1532.6 (+2R) \u2014 resting limit",
+        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
+        "Hold 20% runner to the 44w-SMA 1358.69"
+      ]
+    },
+    {
+      "ticker": "ABDL",
+      "kind": "hold",
+      "current_price": 739.95,
+      "frozen_price": 748.65,
+      "sma20": 706.61,
+      "as_of": "2026-10-19",
+      "entry": 635.0,
+      "stop": 586.55,
+      "target": 731.9,
+      "pnl_pct": 16.53,
+      "dist_to_stop_pct": 26.15,
+      "dist_to_target_pct": -1.09,
+      "r_multiple": 2.17,
+      "stop_breached": false,
+      "target_reached": true,
+      "implied_trail_sma20": 678.34,
+      "tranches": [
+        {
+          "type": "target",
+          "pct": 40,
+          "level": 731.9,
+          "actionable": true,
+          "status": "reached \u2014 your resting limit to sell 40% should fill",
+          "hit": true,
+          "dist_pct": -1.09
+        },
+        {
+          "type": "pattern",
+          "pct": 40,
+          "level": null,
+          "actionable": false,
+          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
+          "hit": false,
+          "armed": false,
+          "r_multiple": 2.17,
+          "weak_close_today": true
+        },
+        {
+          "type": "runner",
+          "pct": 20,
+          "level": 567.58,
+          "actionable": false,
+          "status": "+30.4% vs the 44w-SMA 567.58; hold the last 20% runner",
+          "hit": false,
+          "below_sma": false,
+          "dist_pct": 30.37
+        }
+      ],
+      "plan_tags": [
+        "Sell 40% at Rs 731.9 (+2R) \u2014 resting limit (REACHED)",
+        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
+        "Hold 20% runner to the 44w-SMA 567.58"
+      ]
+    },
+    {
+      "ticker": "POWERINDIA",
+      "kind": "hold",
+      "current_price": 28730.0,
+      "frozen_price": 28990.0,
+      "sma20": 30690.5,
+      "as_of": "2026-10-19",
+      "entry": 32480.0,
+      "stop": 29645.0,
+      "target": 38150.0,
+      "pnl_pct": -11.55,
+      "dist_to_stop_pct": -3.09,
+      "dist_to_target_pct": 32.79,
+      "r_multiple": -1.32,
+      "stop_breached": true,
+      "target_reached": false,
+      "implied_trail_sma20": 29462.88,
+      "tranches": [
+        {
+          "type": "target",
+          "pct": 40,
+          "level": 38150.0,
+          "actionable": false,
+          "status": "32.8% away",
+          "hit": false,
+          "dist_pct": 32.79
+        },
+        {
+          "type": "pattern",
+          "pct": 40,
+          "level": null,
+          "actionable": false,
+          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
+          "hit": false,
+          "armed": false,
+          "r_multiple": -1.32,
+          "weak_close_today": true
+        },
+        {
+          "type": "runner",
+          "pct": 20,
+          "level": 28679.2,
+          "actionable": false,
+          "status": "+0.2% vs the 44w-SMA 28679.2; hold the last 20% runner",
+          "hit": false,
+          "below_sma": false,
+          "dist_pct": 0.18
+        }
+      ],
+      "plan_tags": [
+        "Sell 40% at Rs 38150.0 (+2R) \u2014 resting limit",
+        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
+        "Hold 20% runner to the 44w-SMA 28679.2"
+      ]
+    },
+    {
+      "ticker": "STARHEALTH",
+      "kind": "hold",
+      "current_price": 542.05,
+      "frozen_price": 548.85,
+      "sma20": 548.18,
+      "as_of": "2026-10-19",
+      "entry": 550.8,
+      "stop": 513.0,
+      "target": 626.4,
+      "pnl_pct": -1.59,
+      "dist_to_stop_pct": 5.66,
+      "dist_to_target_pct": 15.56,
+      "r_multiple": -0.23,
+      "stop_breached": false,
+      "target_reached": false,
+      "implied_trail_sma20": 526.26,
+      "tranches": [
+        {
+          "type": "target",
+          "pct": 40,
+          "level": 626.4,
+          "actionable": false,
+          "status": "15.6% away",
+          "hit": false,
+          "dist_pct": 15.56
+        },
+        {
+          "type": "pattern",
+          "pct": 40,
+          "level": null,
+          "actionable": false,
+          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
+          "hit": false,
+          "armed": false,
+          "r_multiple": -0.23,
+          "weak_close_today": true
+        },
+        {
+          "type": "runner",
+          "pct": 20,
+          "level": 516.07,
+          "actionable": false,
+          "status": "+5.0% vs the 44w-SMA 516.07; hold the last 20% runner",
+          "hit": false,
+          "below_sma": false,
+          "dist_pct": 5.03
+        }
+      ],
+      "plan_tags": [
+        "Sell 40% at Rs 626.4 (+2R) \u2014 resting limit",
+        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
+        "Hold 20% runner to the 44w-SMA 516.07"
+      ]
+    },
+    {
+      "ticker": "NUVAMA",
+      "kind": "hold",
+      "current_price": 1683.8,
+      "frozen_price": 1706.1,
+      "sma20": 1729.61,
+      "as_of": "2026-10-19",
+      "entry": 1709.4,
+      "stop": 1605.1,
+      "target": 1918.0,
+      "pnl_pct": -1.5,
+      "dist_to_stop_pct": 4.9,
+      "dist_to_target_pct": 13.91,
+      "r_multiple": -0.25,
+      "stop_breached": false,
+      "target_reached": false,
+      "implied_trail_sma20": 1660.43,
+      "tranches": [
+        {
+          "type": "target",
+          "pct": 40,
+          "level": 1918.0,
+          "actionable": false,
+          "status": "13.9% away",
+          "hit": false,
+          "dist_pct": 13.91
+        },
+        {
+          "type": "pattern",
+          "pct": 40,
+          "level": null,
+          "actionable": false,
+          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
+          "hit": false,
+          "armed": false,
+          "r_multiple": -0.25,
+          "weak_close_today": true
+        },
+        {
+          "type": "runner",
+          "pct": 20,
+          "level": 1532.13,
+          "actionable": false,
+          "status": "+9.9% vs the 44w-SMA 1532.13; hold the last 20% runner",
+          "hit": false,
+          "below_sma": false,
+          "dist_pct": 9.9
+        }
+      ],
+      "plan_tags": [
+        "Sell 40% at Rs 1918.0 (+2R) \u2014 resting limit",
+        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
+        "Hold 20% runner to the 44w-SMA 1532.13"
+      ]
+    },
+    {
+      "ticker": "IIFL",
+      "kind": "hold",
+      "current_price": 612.5,
+      "frozen_price": 615.4,
+      "sma20": 604.66,
+      "as_of": "2026-10-19",
+      "entry": 606.0,
+      "stop": 566.3,
+      "target": 685.4,
+      "pnl_pct": 1.07,
+      "dist_to_stop_pct": 8.16,
+      "dist_to_target_pct": 11.9,
+      "r_multiple": 0.16,
+      "stop_breached": false,
+      "target_reached": false,
+      "implied_trail_sma20": 580.47,
+      "tranches": [
+        {
+          "type": "target",
+          "pct": 40,
+          "level": 685.4,
+          "actionable": false,
+          "status": "11.9% away",
+          "hit": false,
+          "dist_pct": 11.9
+        },
+        {
+          "type": "pattern",
+          "pct": 40,
+          "level": null,
+          "actionable": false,
+          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
+          "hit": false,
+          "armed": false,
+          "r_multiple": 0.16,
+          "weak_close_today": true
+        },
+        {
+          "type": "runner",
+          "pct": 20,
+          "level": 541.59,
+          "actionable": false,
+          "status": "+13.1% vs the 44w-SMA 541.59; hold the last 20% runner",
+          "hit": false,
+          "below_sma": false,
+          "dist_pct": 13.09
+        }
+      ],
+      "plan_tags": [
+        "Sell 40% at Rs 685.4 (+2R) \u2014 resting limit",
+        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
+        "Hold 20% runner to the 44w-SMA 541.59"
+      ]
+    },
+    {
+      "ticker": "FEDERALBNK",
+      "kind": "hold",
+      "current_price": 348.85,
+      "frozen_price": 338.0,
+      "sma20": 327.7,
+      "as_of": "2026-10-19",
+      "entry": 330.0,
+      "stop": 317.05,
+      "target": 355.9,
+      "pnl_pct": 5.71,
+      "dist_to_stop_pct": 10.03,
+      "dist_to_target_pct": 2.02,
+      "r_multiple": 1.46,
+      "stop_breached": false,
+      "target_reached": false,
+      "implied_trail_sma20": 314.59,
+      "tranches": [
+        {
+          "type": "target",
+          "pct": 40,
+          "level": 355.9,
+          "actionable": false,
+          "status": "2.0% away",
+          "hit": false,
+          "dist_pct": 2.02
+        },
+        {
+          "type": "pattern",
+          "pct": 40,
+          "level": null,
+          "actionable": false,
+          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
+          "hit": false,
+          "armed": false,
+          "r_multiple": 1.46,
+          "weak_close_today": false
+        },
+        {
+          "type": "runner",
+          "pct": 20,
+          "level": 305.05,
+          "actionable": false,
+          "status": "+14.4% vs the 44w-SMA 305.05; hold the last 20% runner",
+          "hit": false,
+          "below_sma": false,
+          "dist_pct": 14.36
+        }
+      ],
+      "plan_tags": [
+        "Sell 40% at Rs 355.9 (+2R) \u2014 resting limit",
+        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
+        "Hold 20% runner to the 44w-SMA 305.05"
+      ]
+    },
+    {
+      "ticker": "TATATECH",
+      "kind": "hold",
+      "current_price": 705.15,
+      "frozen_price": 723.85,
+      "sma20": 713.11,
+      "as_of": "2026-10-19",
+      "entry": 717.0,
+      "stop": 686.7,
+      "target": 777.6,
+      "pnl_pct": -1.65,
+      "dist_to_stop_pct": 2.69,
+      "dist_to_target_pct": 10.27,
+      "r_multiple": -0.39,
+      "stop_breached": false,
+      "target_reached": false,
+      "implied_trail_sma20": 684.59,
+      "tranches": [
+        {
+          "type": "target",
+          "pct": 40,
+          "level": 777.6,
+          "actionable": false,
+          "status": "10.3% away",
+          "hit": false,
+          "dist_pct": 10.27
+        },
+        {
+          "type": "pattern",
+          "pct": 40,
+          "level": null,
+          "actionable": false,
+          "status": "watching \u2014 sells 40% on a blow-off weekly close (Sat decides)",
+          "hit": false,
+          "armed": false,
+          "r_multiple": -0.39,
+          "weak_close_today": true
+        },
+        {
+          "type": "runner",
+          "pct": 20,
+          "level": 672.78,
+          "actionable": false,
+          "status": "+4.8% vs the 44w-SMA 672.78; hold the last 20% runner",
+          "hit": false,
+          "below_sma": false,
+          "dist_pct": 4.81
+        }
+      ],
+      "plan_tags": [
+        "Sell 40% at Rs 777.6 (+2R) \u2014 resting limit",
+        "Sell 40% on a blow-off/exhaustion WEEKLY close (Sat decides)",
+        "Hold 20% runner to the 44w-SMA 672.78"
       ]
     }
   ],
   "flags": [
     {
-      "ticker": "NUVAMA",
-      "event": "WINDOW_FILLED",
-      "severity": "info",
-      "message": "NUVAMA filled 2026-10-05 at 1709.40 \u2014 buy window now closed"
-    },
-    {
       "ticker": "GVT&D",
       "event": "RUNNER_BELOW_SMA",
       "severity": "warn",
-      "message": "GVT&D: closed 3959.10 below its 44w-SMA runner line 4022.59 intra-week. NOT actionable \u2014 only a FRIDAY WEEKLY close confirms the runner exit; the Saturday recompute decides."
+      "message": "GVT&D: closed 3925.00 below its 44w-SMA runner line 4075.96 intra-week. NOT actionable \u2014 only a FRIDAY WEEKLY close confirms the runner exit; the Saturday recompute decides."
     },
     {
       "ticker": "GVT&D",
-      "event": "NEAR_STOP",
-      "severity": "warn",
-      "message": "GVT&D is 0.2% above its stop 3952.42"
-    },
-    {
-      "ticker": "ENGINERSIN",
-      "event": "TRANCHE_TARGET_2R",
-      "severity": "action",
-      "message": "ENGINERSIN: +2R target 274.78 reached (last 273.45) \u2014 your resting limit to sell 40% should fill (intra-week OK)."
-    },
-    {
-      "ticker": "UNIONBANK",
-      "event": "NEAR_STOP",
-      "severity": "warn",
-      "message": "UNIONBANK is 0.2% above its stop 171.40"
+      "event": "STOP_BREACH",
+      "severity": "high",
+      "message": "GVT&D closed 3925.00 at/under its stop 3952.42 \u2014 the weekly close will confirm the exit"
     },
     {
       "ticker": "PTCIL",
       "event": "TRANCHE_TARGET_2R",
       "severity": "action",
-      "message": "PTCIL: +2R target 22345.0 reached (last 24680.00) \u2014 your resting limit to sell 40% should fill (intra-week OK)."
+      "message": "PTCIL: +2R target 22345.0 reached (last 25045.00) \u2014 your resting limit to sell 40% should fill (intra-week OK)."
     },
     {
-      "ticker": "IKS",
+      "ticker": "SAIL",
       "event": "NEAR_STOP",
       "severity": "warn",
-      "message": "IKS is 0.4% above its stop 1725.00"
+      "message": "SAIL is 1.8% above its stop 165.94"
     },
     {
-      "ticker": "PHOENIXLTD",
+      "ticker": "USHAMART",
       "event": "NEAR_STOP",
       "severity": "warn",
-      "message": "PHOENIXLTD is 1.2% above its stop 1873.52"
+      "message": "USHAMART is 1.3% above its stop 479.00"
     },
     {
-      "ticker": "JSWSTEEL",
-      "event": "RUNNER_BELOW_SMA",
-      "severity": "warn",
-      "message": "JSWSTEEL: closed 1216.30 below its 44w-SMA runner line 1225.33 intra-week. NOT actionable \u2014 only a FRIDAY WEEKLY close confirms the runner exit; the Saturday recompute decides."
-    },
-    {
-      "ticker": "JSWSTEEL",
-      "event": "STOP_BREACH",
-      "severity": "high",
-      "message": "JSWSTEEL closed 1216.30 at/under its stop 1250.40 \u2014 the weekly close will confirm the exit"
-    },
-    {
-      "ticker": "IDFCFIRSTB",
-      "event": "STOP_BREACH",
-      "severity": "high",
-      "message": "IDFCFIRSTB closed 78.08 at/under its stop 82.50 \u2014 the weekly close will confirm the exit"
-    },
-    {
-      "ticker": "ASTERDM",
-      "event": "RUNNER_BELOW_SMA",
-      "severity": "warn",
-      "message": "ASTERDM: closed 674.35 below its 44w-SMA runner line 704.79 intra-week. NOT actionable \u2014 only a FRIDAY WEEKLY close confirms the runner exit; the Saturday recompute decides."
-    },
-    {
-      "ticker": "ASTERDM",
-      "event": "STOP_BREACH",
-      "severity": "high",
-      "message": "ASTERDM closed 674.35 at/under its stop 745.05 \u2014 the weekly close will confirm the exit"
-    },
-    {
-      "ticker": "BANDHANBNK",
-      "event": "RUNNER_BELOW_SMA",
-      "severity": "warn",
-      "message": "BANDHANBNK: closed 167.50 below its 44w-SMA runner line 173.53 intra-week. NOT actionable \u2014 only a FRIDAY WEEKLY close confirms the runner exit; the Saturday recompute decides."
+      "ticker": "ABDL",
+      "event": "TRANCHE_TARGET_2R",
+      "severity": "action",
+      "message": "ABDL: +2R target 731.9 reached (last 739.95) \u2014 your resting limit to sell 40% should fill (intra-week OK)."
     },
     {
       "ticker": "POWERINDIA",
       "event": "STOP_BREACH",
       "severity": "high",
-      "message": "POWERINDIA closed 28990.00 at/under its stop 29645.00 \u2014 the weekly close will confirm the exit"
-    },
-    {
-      "ticker": "ABCAPITAL",
-      "event": "NEAR_STOP",
-      "severity": "warn",
-      "message": "ABCAPITAL is 0.4% above its stop 378.00"
-    },
-    {
-      "ticker": "OBEROIRLTY",
-      "event": "STOP_BREACH",
-      "severity": "high",
-      "message": "OBEROIRLTY closed 1703.00 at/under its stop 1754.30 \u2014 the weekly close will confirm the exit"
+      "message": "POWERINDIA closed 28730.00 at/under its stop 29645.00 \u2014 the weekly close will confirm the exit"
     },
     {
       "ticker": "GLENMARK",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold GLENMARK on 2026-07-27 at Rs 2,215.80 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 2,226.70 (+0.5% vs the model's exit)."
+      "message": "The model sold GLENMARK on 2026-07-27 at Rs 2,215.80 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 2,210.20 (-0.3% vs the model's exit)."
     },
     {
       "ticker": "CANFINHOME",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold CANFINHOME on 2026-07-27 at Rs 818.70 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 732.15 (-10.6% vs the model's exit)."
+      "message": "The model sold CANFINHOME on 2026-07-27 at Rs 818.70 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 732.20 (-10.6% vs the model's exit)."
     },
     {
       "ticker": "NATCOPHARM",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold NATCOPHARM on 2026-07-27 at Rs 921.60 \u2014 the weekly close broke the 44-week SMA \u2014 the runner's trend is gone. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 785.05 (-14.8% vs the model's exit)."
+      "message": "The model sold NATCOPHARM on 2026-07-27 at Rs 921.60 \u2014 the weekly close broke the 44-week SMA \u2014 the runner's trend is gone. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 800.85 (-13.1% vs the model's exit)."
     },
     {
       "ticker": "LINDEINDIA",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold LINDEINDIA on 2026-07-27 at Rs 6,740.57 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 6,184.50 (-8.2% vs the model's exit)."
+      "message": "The model sold LINDEINDIA on 2026-07-27 at Rs 6,740.57 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 6,003.50 (-10.9% vs the model's exit)."
     },
     {
       "ticker": "3MINDIA",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold 3MINDIA on 2026-08-03 at Rs 35,170.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 30,400.00 (-13.6% vs the model's exit)."
+      "message": "The model sold 3MINDIA on 2026-08-03 at Rs 35,170.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 30,115.00 (-14.4% vs the model's exit)."
     },
     {
       "ticker": "DELHIVERY",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold DELHIVERY on 2026-08-17 at Rs 458.70 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 407.50 (-11.2% vs the model's exit)."
+      "message": "The model sold DELHIVERY on 2026-08-17 at Rs 458.70 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 400.00 (-12.8% vs the model's exit)."
     },
     {
       "ticker": "NLCINDIA",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold NLCINDIA on 2026-08-17 at Rs 275.74 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 253.35 (-8.1% vs the model's exit)."
+      "message": "The model sold NLCINDIA on 2026-08-17 at Rs 275.74 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 244.35 (-11.4% vs the model's exit)."
     },
     {
       "ticker": "GESHIP",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold GESHIP on 2026-08-17 at Rs 1,281.10 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 1,507.40 (+17.7% vs the model's exit)."
+      "message": "The model sold GESHIP on 2026-08-17 at Rs 1,281.10 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 1,519.30 (+18.6% vs the model's exit)."
     },
     {
       "ticker": "CCL",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold CCL on 2026-08-24 at Rs 1,079.99 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 1,008.30 (-6.6% vs the model's exit)."
+      "message": "The model sold CCL on 2026-08-24 at Rs 1,079.99 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 986.80 (-8.6% vs the model's exit)."
     },
     {
       "ticker": "BIOCON",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold BIOCON on 2026-09-07 at Rs 396.50 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 349.20 (-11.9% vs the model's exit)."
-    },
-    {
-      "ticker": "HINDZINC",
-      "event": "MISSED_EXIT",
-      "severity": "high",
-      "message": "The model sold HINDZINC on 2026-09-14 at Rs 576.45 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 540.00 (-6.3% vs the model's exit)."
+      "message": "The model sold BIOCON on 2026-09-07 at Rs 396.50 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 340.00 (-14.2% vs the model's exit)."
     },
     {
       "ticker": "NESTLEIND",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold NESTLEIND on 2026-09-21 at Rs 1,360.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 1,265.50 (-6.9% vs the model's exit)."
+      "message": "The model sold NESTLEIND on 2026-09-21 at Rs 1,360.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 1,242.70 (-8.6% vs the model's exit)."
     },
     {
       "ticker": "MRPL",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold MRPL on 2026-09-21 at Rs 167.45 \u2014 the weekly close broke the 44-week SMA \u2014 the runner's trend is gone. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 172.71 (+3.1% vs the model's exit)."
+      "message": "The model sold MRPL on 2026-09-21 at Rs 167.45 \u2014 the weekly close broke the 44-week SMA \u2014 the runner's trend is gone. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 173.72 (+3.7% vs the model's exit)."
     },
     {
       "ticker": "INDUSINDBK",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold INDUSINDBK on 2026-09-28 at Rs 912.20 \u2014 the weekly close broke the 44-week SMA \u2014 the runner's trend is gone. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 877.00 (-3.9% vs the model's exit)."
+      "message": "The model sold INDUSINDBK on 2026-09-28 at Rs 912.20 \u2014 the weekly close broke the 44-week SMA \u2014 the runner's trend is gone. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 863.20 (-5.4% vs the model's exit)."
     },
     {
       "ticker": "LTF",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold LTF on 2026-09-28 at Rs 282.75 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 253.85 (-10.2% vs the model's exit)."
+      "message": "The model sold LTF on 2026-09-28 at Rs 282.75 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 253.00 (-10.5% vs the model's exit)."
     },
     {
       "ticker": "M&MFIN",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold M&MFIN on 2026-09-28 at Rs 333.00 \u2014 the weekly close broke the 44-week SMA \u2014 the runner's trend is gone. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 311.55 (-6.4% vs the model's exit)."
+      "message": "The model sold M&MFIN on 2026-09-28 at Rs 333.00 \u2014 the weekly close broke the 44-week SMA \u2014 the runner's trend is gone. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 304.90 (-8.4% vs the model's exit)."
     },
     {
       "ticker": "HINDALCO",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold HINDALCO on 2026-09-28 at Rs 972.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 908.00 (-6.6% vs the model's exit)."
+      "message": "The model sold HINDALCO on 2026-09-28 at Rs 972.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 900.45 (-7.4% vs the model's exit)."
     },
     {
       "ticker": "CHOLAFIN",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold CHOLAFIN on 2026-09-28 at Rs 1,655.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 1,574.40 (-4.9% vs the model's exit)."
+      "message": "The model sold CHOLAFIN on 2026-09-28 at Rs 1,655.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 1,553.00 (-6.2% vs the model's exit)."
     },
     {
       "ticker": "ANGELONE",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold ANGELONE on 2026-09-28 at Rs 286.40 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 300.00 (+4.7% vs the model's exit)."
-    },
-    {
-      "ticker": "BAJAJ-AUTO",
-      "event": "MISSED_EXIT",
-      "severity": "high",
-      "message": "The model sold BAJAJ-AUTO on 2026-10-01 at Rs 10,701.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 10,405.00 (-2.8% vs the model's exit)."
+      "message": "The model sold ANGELONE on 2026-09-28 at Rs 286.40 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 302.90 (+5.8% vs the model's exit)."
     },
     {
       "ticker": "UNIONBANK",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold UNIONBANK on 2026-10-01 at Rs 169.69 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 171.68 (+1.2% vs the model's exit)."
+      "message": "The model sold UNIONBANK on 2026-10-05 at Rs 169.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 180.70 (+6.9% vs the model's exit)."
     },
     {
       "ticker": "JSWSTEEL",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold JSWSTEEL on 2026-10-01 at Rs 1,253.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 1,216.30 (-2.9% vs the model's exit)."
+      "message": "The model sold JSWSTEEL on 2026-10-05 at Rs 1,233.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 1,241.30 (+0.7% vs the model's exit)."
     },
     {
       "ticker": "IDFCFIRSTB",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold IDFCFIRSTB on 2026-10-01 at Rs 80.95 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 78.08 (-3.5% vs the model's exit)."
+      "message": "The model sold IDFCFIRSTB on 2026-10-05 at Rs 80.76 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 76.33 (-5.5% vs the model's exit)."
     },
     {
       "ticker": "ASTERDM",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold ASTERDM on 2026-10-01 at Rs 694.05 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 674.35 (-2.8% vs the model's exit)."
+      "message": "The model sold ASTERDM on 2026-10-05 at Rs 708.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 667.15 (-5.8% vs the model's exit)."
     },
     {
       "ticker": "ABCAPITAL",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold ABCAPITAL on 2026-10-01 at Rs 378.60 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 379.40 (+0.2% vs the model's exit)."
+      "message": "The model sold ABCAPITAL on 2026-10-05 at Rs 375.95 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 373.05 (-0.8% vs the model's exit)."
     },
     {
       "ticker": "MANAPPURAM",
       "event": "MISSED_EXIT",
       "severity": "high",
-      "message": "The model sold MANAPPURAM on 2026-10-01 at Rs 315.85 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 323.95 (+2.6% vs the model's exit)."
+      "message": "The model sold MANAPPURAM on 2026-10-05 at Rs 311.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 319.55 (+2.7% vs the model's exit)."
+    },
+    {
+      "ticker": "IKS",
+      "event": "MISSED_EXIT",
+      "severity": "high",
+      "message": "The model sold IKS on 2026-10-12 at Rs 1,716.60 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 1,685.80 (-1.8% vs the model's exit)."
+    },
+    {
+      "ticker": "PHOENIXLTD",
+      "event": "MISSED_EXIT",
+      "severity": "high",
+      "message": "The model sold PHOENIXLTD on 2026-10-12 at Rs 1,804.80 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 1,884.00 (+4.4% vs the model's exit)."
+    },
+    {
+      "ticker": "OBEROIRLTY",
+      "event": "MISSED_EXIT",
+      "severity": "high",
+      "message": "The model sold OBEROIRLTY on 2026-10-12 at Rs 1,698.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 1,676.40 (-1.3% vs the model's exit)."
+    },
+    {
+      "ticker": "GVT&D",
+      "event": "MISSED_EXIT",
+      "severity": "high",
+      "message": "The model sold GVT&D on 2026-10-16 at Rs 3,970.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 3,925.00 (-1.1% vs the model's exit)."
+    },
+    {
+      "ticker": "POWERINDIA",
+      "event": "MISSED_EXIT",
+      "severity": "high",
+      "message": "The model sold POWERINDIA on 2026-10-16 at Rs 28,965.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 28,730.00 (-0.8% vs the model's exit)."
+    },
+    {
+      "ticker": "PTCIL",
+      "event": "MISSED_EXIT",
+      "severity": "action",
+      "message": "The model sold PTCIL on 2026-10-16 at Rs 25,100.00 \u2014 the model's profit target was reached. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 25,045.00 (-0.2% vs the model's exit)."
     }
   ],
-  "n_missed_exits": 26,
+  "n_missed_exits": 30,
   "missed_exits": [
     {
       "ticker": "GLENMARK",
@@ -1734,13 +1446,13 @@
       "cause": "the weekly close broke its stop",
       "due_date": "2026-07-27",
       "due_price": 2215.8,
-      "last_close": 2226.7,
-      "as_of": "2026-10-16",
-      "drift_pct": 0.49,
+      "last_close": 2210.2,
+      "as_of": "2026-10-19",
+      "drift_pct": -0.25,
       "entry": 2283.63,
       "stop": null,
       "r_at_exit": -0.93,
-      "do": "The model sold GLENMARK on 2026-07-27 at Rs 2,215.80 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 2,226.70 (+0.5% vs the model's exit).",
+      "do": "The model sold GLENMARK on 2026-07-27 at Rs 2,215.80 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 2,210.20 (-0.3% vs the model's exit).",
       "source": "booked"
     },
     {
@@ -1752,13 +1464,13 @@
       "cause": "the weekly close broke its stop",
       "due_date": "2026-07-27",
       "due_price": 818.7,
-      "last_close": 732.15,
-      "as_of": "2026-10-16",
+      "last_close": 732.2,
+      "as_of": "2026-10-19",
       "drift_pct": -10.57,
       "entry": 920.25,
       "stop": null,
       "r_at_exit": -2.94,
-      "do": "The model sold CANFINHOME on 2026-07-27 at Rs 818.70 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 732.15 (-10.6% vs the model's exit).",
+      "do": "The model sold CANFINHOME on 2026-07-27 at Rs 818.70 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 732.20 (-10.6% vs the model's exit).",
       "source": "booked"
     },
     {
@@ -1770,13 +1482,13 @@
       "cause": "the weekly close broke the 44-week SMA \u2014 the runner's trend is gone",
       "due_date": "2026-07-27",
       "due_price": 921.6,
-      "last_close": 785.05,
-      "as_of": "2026-10-16",
-      "drift_pct": -14.82,
+      "last_close": 800.85,
+      "as_of": "2026-10-19",
+      "drift_pct": -13.1,
       "entry": 982.4,
       "stop": null,
       "r_at_exit": -0.95,
-      "do": "The model sold NATCOPHARM on 2026-07-27 at Rs 921.60 \u2014 the weekly close broke the 44-week SMA \u2014 the runner's trend is gone. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 785.05 (-14.8% vs the model's exit).",
+      "do": "The model sold NATCOPHARM on 2026-07-27 at Rs 921.60 \u2014 the weekly close broke the 44-week SMA \u2014 the runner's trend is gone. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 800.85 (-13.1% vs the model's exit).",
       "source": "booked"
     },
     {
@@ -1788,13 +1500,13 @@
       "cause": "the weekly close broke its stop",
       "due_date": "2026-07-27",
       "due_price": 6740.57,
-      "last_close": 6184.5,
-      "as_of": "2026-10-16",
-      "drift_pct": -8.25,
+      "last_close": 6003.5,
+      "as_of": "2026-10-19",
+      "drift_pct": -10.93,
       "entry": 7058.03,
       "stop": null,
       "r_at_exit": -2.32,
-      "do": "The model sold LINDEINDIA on 2026-07-27 at Rs 6,740.57 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 6,184.50 (-8.2% vs the model's exit).",
+      "do": "The model sold LINDEINDIA on 2026-07-27 at Rs 6,740.57 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 6,003.50 (-10.9% vs the model's exit).",
       "source": "booked"
     },
     {
@@ -1806,13 +1518,13 @@
       "cause": "the weekly close broke its stop",
       "due_date": "2026-08-03",
       "due_price": 35170.0,
-      "last_close": 30400.0,
-      "as_of": "2026-10-16",
-      "drift_pct": -13.56,
+      "last_close": 30115.0,
+      "as_of": "2026-10-19",
+      "drift_pct": -14.37,
       "entry": 35790.0,
       "stop": null,
       "r_at_exit": -0.57,
-      "do": "The model sold 3MINDIA on 2026-08-03 at Rs 35,170.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 30,400.00 (-13.6% vs the model's exit).",
+      "do": "The model sold 3MINDIA on 2026-08-03 at Rs 35,170.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 30,115.00 (-14.4% vs the model's exit).",
       "source": "booked"
     },
     {
@@ -1824,13 +1536,13 @@
       "cause": "the weekly close broke its stop",
       "due_date": "2026-08-17",
       "due_price": 458.7,
-      "last_close": 407.5,
-      "as_of": "2026-10-16",
-      "drift_pct": -11.16,
+      "last_close": 400.0,
+      "as_of": "2026-10-19",
+      "drift_pct": -12.8,
       "entry": 510.95,
       "stop": null,
       "r_at_exit": -1.05,
-      "do": "The model sold DELHIVERY on 2026-08-17 at Rs 458.70 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 407.50 (-11.2% vs the model's exit).",
+      "do": "The model sold DELHIVERY on 2026-08-17 at Rs 458.70 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 400.00 (-12.8% vs the model's exit).",
       "source": "booked"
     },
     {
@@ -1842,13 +1554,13 @@
       "cause": "the weekly close broke its stop",
       "due_date": "2026-08-17",
       "due_price": 275.74,
-      "last_close": 253.35,
-      "as_of": "2026-10-16",
-      "drift_pct": -8.12,
+      "last_close": 244.35,
+      "as_of": "2026-10-19",
+      "drift_pct": -11.38,
       "entry": 309.71,
       "stop": null,
       "r_at_exit": -1.97,
-      "do": "The model sold NLCINDIA on 2026-08-17 at Rs 275.74 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 253.35 (-8.1% vs the model's exit).",
+      "do": "The model sold NLCINDIA on 2026-08-17 at Rs 275.74 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 244.35 (-11.4% vs the model's exit).",
       "source": "booked"
     },
     {
@@ -1860,13 +1572,13 @@
       "cause": "the weekly close broke its stop",
       "due_date": "2026-08-17",
       "due_price": 1281.1,
-      "last_close": 1507.4,
-      "as_of": "2026-10-16",
-      "drift_pct": 17.66,
+      "last_close": 1519.3,
+      "as_of": "2026-10-19",
+      "drift_pct": 18.59,
       "entry": 1423.68,
       "stop": null,
       "r_at_exit": -1.46,
-      "do": "The model sold GESHIP on 2026-08-17 at Rs 1,281.10 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 1,507.40 (+17.7% vs the model's exit).",
+      "do": "The model sold GESHIP on 2026-08-17 at Rs 1,281.10 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 1,519.30 (+18.6% vs the model's exit).",
       "source": "booked"
     },
     {
@@ -1878,13 +1590,13 @@
       "cause": "the weekly close broke its stop",
       "due_date": "2026-08-24",
       "due_price": 1079.99,
-      "last_close": 1008.3,
-      "as_of": "2026-10-16",
-      "drift_pct": -6.64,
+      "last_close": 986.8,
+      "as_of": "2026-10-19",
+      "drift_pct": -8.63,
       "entry": 1141.22,
       "stop": null,
       "r_at_exit": -2.18,
-      "do": "The model sold CCL on 2026-08-24 at Rs 1,079.99 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 1,008.30 (-6.6% vs the model's exit).",
+      "do": "The model sold CCL on 2026-08-24 at Rs 1,079.99 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 986.80 (-8.6% vs the model's exit).",
       "source": "booked"
     },
     {
@@ -1896,31 +1608,13 @@
       "cause": "the weekly close broke its stop",
       "due_date": "2026-09-07",
       "due_price": 396.5,
-      "last_close": 349.2,
-      "as_of": "2026-10-16",
-      "drift_pct": -11.93,
+      "last_close": 340.0,
+      "as_of": "2026-10-19",
+      "drift_pct": -14.25,
       "entry": 440.4,
       "stop": null,
       "r_at_exit": -1.16,
-      "do": "The model sold BIOCON on 2026-09-07 at Rs 396.50 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 349.20 (-11.9% vs the model's exit).",
-      "source": "booked"
-    },
-    {
-      "ticker": "HINDZINC",
-      "signal_id": "HINDZINC__2026-08-31",
-      "signal_date": "2026-08-31",
-      "reason": "stop",
-      "severity": "high",
-      "cause": "the weekly close broke its stop",
-      "due_date": "2026-09-14",
-      "due_price": 576.45,
-      "last_close": 540.0,
-      "as_of": "2026-10-16",
-      "drift_pct": -6.32,
-      "entry": 602.9,
-      "stop": null,
-      "r_at_exit": -1.65,
-      "do": "The model sold HINDZINC on 2026-09-14 at Rs 576.45 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 540.00 (-6.3% vs the model's exit).",
+      "do": "The model sold BIOCON on 2026-09-07 at Rs 396.50 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 340.00 (-14.2% vs the model's exit).",
       "source": "booked"
     },
     {
@@ -1932,13 +1626,13 @@
       "cause": "the weekly close broke its stop",
       "due_date": "2026-09-21",
       "due_price": 1360.0,
-      "last_close": 1265.5,
-      "as_of": "2026-10-16",
-      "drift_pct": -6.95,
+      "last_close": 1242.7,
+      "as_of": "2026-10-19",
+      "drift_pct": -8.63,
       "entry": 1450.13,
       "stop": null,
       "r_at_exit": -1.2,
-      "do": "The model sold NESTLEIND on 2026-09-21 at Rs 1,360.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 1,265.50 (-6.9% vs the model's exit).",
+      "do": "The model sold NESTLEIND on 2026-09-21 at Rs 1,360.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 1,242.70 (-8.6% vs the model's exit).",
       "source": "booked"
     },
     {
@@ -1950,13 +1644,13 @@
       "cause": "the weekly close broke the 44-week SMA \u2014 the runner's trend is gone",
       "due_date": "2026-09-21",
       "due_price": 167.45,
-      "last_close": 172.71,
-      "as_of": "2026-10-16",
-      "drift_pct": 3.14,
+      "last_close": 173.72,
+      "as_of": "2026-10-19",
+      "drift_pct": 3.74,
       "entry": 172.0,
       "stop": null,
       "r_at_exit": -0.29,
-      "do": "The model sold MRPL on 2026-09-21 at Rs 167.45 \u2014 the weekly close broke the 44-week SMA \u2014 the runner's trend is gone. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 172.71 (+3.1% vs the model's exit).",
+      "do": "The model sold MRPL on 2026-09-21 at Rs 167.45 \u2014 the weekly close broke the 44-week SMA \u2014 the runner's trend is gone. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 173.72 (+3.7% vs the model's exit).",
       "source": "booked"
     },
     {
@@ -1968,13 +1662,13 @@
       "cause": "the weekly close broke the 44-week SMA \u2014 the runner's trend is gone",
       "due_date": "2026-09-28",
       "due_price": 912.2,
-      "last_close": 877.0,
-      "as_of": "2026-10-16",
-      "drift_pct": -3.86,
+      "last_close": 863.2,
+      "as_of": "2026-10-19",
+      "drift_pct": -5.37,
       "entry": 968.0,
       "stop": null,
       "r_at_exit": -0.93,
-      "do": "The model sold INDUSINDBK on 2026-09-28 at Rs 912.20 \u2014 the weekly close broke the 44-week SMA \u2014 the runner's trend is gone. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 877.00 (-3.9% vs the model's exit).",
+      "do": "The model sold INDUSINDBK on 2026-09-28 at Rs 912.20 \u2014 the weekly close broke the 44-week SMA \u2014 the runner's trend is gone. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 863.20 (-5.4% vs the model's exit).",
       "source": "booked"
     },
     {
@@ -1986,13 +1680,13 @@
       "cause": "the weekly close broke its stop",
       "due_date": "2026-09-28",
       "due_price": 282.75,
-      "last_close": 253.85,
-      "as_of": "2026-10-16",
-      "drift_pct": -10.22,
+      "last_close": 253.0,
+      "as_of": "2026-10-19",
+      "drift_pct": -10.52,
       "entry": 314.75,
       "stop": null,
       "r_at_exit": -1.85,
-      "do": "The model sold LTF on 2026-09-28 at Rs 282.75 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 253.85 (-10.2% vs the model's exit).",
+      "do": "The model sold LTF on 2026-09-28 at Rs 282.75 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 253.00 (-10.5% vs the model's exit).",
       "source": "booked"
     },
     {
@@ -2004,13 +1698,13 @@
       "cause": "the weekly close broke the 44-week SMA \u2014 the runner's trend is gone",
       "due_date": "2026-09-28",
       "due_price": 333.0,
-      "last_close": 311.55,
-      "as_of": "2026-10-16",
-      "drift_pct": -6.44,
+      "last_close": 304.9,
+      "as_of": "2026-10-19",
+      "drift_pct": -8.44,
       "entry": 361.0,
       "stop": null,
       "r_at_exit": -0.78,
-      "do": "The model sold M&MFIN on 2026-09-28 at Rs 333.00 \u2014 the weekly close broke the 44-week SMA \u2014 the runner's trend is gone. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 311.55 (-6.4% vs the model's exit).",
+      "do": "The model sold M&MFIN on 2026-09-28 at Rs 333.00 \u2014 the weekly close broke the 44-week SMA \u2014 the runner's trend is gone. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 304.90 (-8.4% vs the model's exit).",
       "source": "booked"
     },
     {
@@ -2022,13 +1716,13 @@
       "cause": "the weekly close broke its stop",
       "due_date": "2026-09-28",
       "due_price": 972.0,
-      "last_close": 908.0,
-      "as_of": "2026-10-16",
-      "drift_pct": -6.58,
+      "last_close": 900.45,
+      "as_of": "2026-10-19",
+      "drift_pct": -7.36,
       "entry": 1053.4,
       "stop": null,
       "r_at_exit": -1.13,
-      "do": "The model sold HINDALCO on 2026-09-28 at Rs 972.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 908.00 (-6.6% vs the model's exit).",
+      "do": "The model sold HINDALCO on 2026-09-28 at Rs 972.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 900.45 (-7.4% vs the model's exit).",
       "source": "booked"
     },
     {
@@ -2040,13 +1734,13 @@
       "cause": "the weekly close broke its stop",
       "due_date": "2026-09-28",
       "due_price": 1655.0,
-      "last_close": 1574.4,
-      "as_of": "2026-10-16",
-      "drift_pct": -4.87,
+      "last_close": 1553.0,
+      "as_of": "2026-10-19",
+      "drift_pct": -6.16,
       "entry": 1845.9,
       "stop": null,
       "r_at_exit": -3.76,
-      "do": "The model sold CHOLAFIN on 2026-09-28 at Rs 1,655.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 1,574.40 (-4.9% vs the model's exit).",
+      "do": "The model sold CHOLAFIN on 2026-09-28 at Rs 1,655.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 1,553.00 (-6.2% vs the model's exit).",
       "source": "booked"
     },
     {
@@ -2058,153 +1752,246 @@
       "cause": "the weekly close broke its stop",
       "due_date": "2026-09-28",
       "due_price": 286.4,
-      "last_close": 300.0,
-      "as_of": "2026-10-16",
-      "drift_pct": 4.75,
+      "last_close": 302.9,
+      "as_of": "2026-10-19",
+      "drift_pct": 5.76,
       "entry": 305.0,
       "stop": null,
       "r_at_exit": -1.17,
-      "do": "The model sold ANGELONE on 2026-09-28 at Rs 286.40 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 300.00 (+4.7% vs the model's exit).",
+      "do": "The model sold ANGELONE on 2026-09-28 at Rs 286.40 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 302.90 (+5.8% vs the model's exit).",
       "source": "booked"
-    },
-    {
-      "ticker": "BAJAJ-AUTO",
-      "signal_id": "BAJAJ-AUTO__2026-07-13",
-      "signal_date": "2026-07-13",
-      "reason": "HIT_STOP",
-      "severity": "high",
-      "cause": "the weekly close broke its stop",
-      "due_date": "2026-10-01",
-      "due_price": 10701.0,
-      "last_close": 10405.0,
-      "as_of": "2026-10-16",
-      "drift_pct": -2.77,
-      "entry": 10080.0,
-      "stop": 9785.5,
-      "r_at_exit": 2.11,
-      "r_now": 1.1,
-      "do": "The model sold BAJAJ-AUTO on 2026-10-01 at Rs 10,701.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 10,405.00 (-2.8% vs the model's exit).",
-      "source": "issued"
     },
     {
       "ticker": "UNIONBANK",
       "signal_id": "UNIONBANK__2026-08-10",
       "signal_date": "2026-08-10",
-      "reason": "HIT_STOP",
+      "reason": "stop",
       "severity": "high",
       "cause": "the weekly close broke its stop",
-      "due_date": "2026-10-01",
-      "due_price": 169.69,
-      "last_close": 171.68,
-      "as_of": "2026-10-16",
-      "drift_pct": 1.17,
+      "due_date": "2026-10-05",
+      "due_price": 169.0,
+      "last_close": 180.7,
+      "as_of": "2026-10-19",
+      "drift_pct": 6.92,
       "entry": 183.69,
-      "stop": 171.4,
-      "r_at_exit": -1.14,
-      "r_now": -0.98,
-      "do": "The model sold UNIONBANK on 2026-10-01 at Rs 169.69 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 171.68 (+1.2% vs the model's exit).",
-      "source": "issued"
+      "stop": null,
+      "r_at_exit": -1.2,
+      "do": "The model sold UNIONBANK on 2026-10-05 at Rs 169.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 180.70 (+6.9% vs the model's exit).",
+      "source": "booked"
     },
     {
       "ticker": "JSWSTEEL",
       "signal_id": "JSWSTEEL__2026-08-24",
       "signal_date": "2026-08-24",
-      "reason": "HIT_STOP",
+      "reason": "stop",
       "severity": "high",
       "cause": "the weekly close broke its stop",
-      "due_date": "2026-10-01",
-      "due_price": 1253.0,
-      "last_close": 1216.3,
-      "as_of": "2026-10-16",
-      "drift_pct": -2.93,
+      "due_date": "2026-10-05",
+      "due_price": 1233.0,
+      "last_close": 1241.3,
+      "as_of": "2026-10-19",
+      "drift_pct": 0.67,
       "entry": 1298.0,
-      "stop": 1250.4,
-      "r_at_exit": -0.95,
-      "r_now": -1.72,
-      "do": "The model sold JSWSTEEL on 2026-10-01 at Rs 1,253.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 1,216.30 (-2.9% vs the model's exit).",
-      "source": "issued"
+      "stop": null,
+      "r_at_exit": -1.37,
+      "do": "The model sold JSWSTEEL on 2026-10-05 at Rs 1,233.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 1,241.30 (+0.7% vs the model's exit).",
+      "source": "booked"
     },
     {
       "ticker": "IDFCFIRSTB",
       "signal_id": "IDFCFIRSTB__2026-09-07",
       "signal_date": "2026-09-07",
-      "reason": "HIT_STOP",
+      "reason": "stop",
       "severity": "high",
       "cause": "the weekly close broke its stop",
-      "due_date": "2026-10-01",
-      "due_price": 80.95,
-      "last_close": 78.08,
-      "as_of": "2026-10-16",
-      "drift_pct": -3.55,
+      "due_date": "2026-10-05",
+      "due_price": 80.76,
+      "last_close": 76.33,
+      "as_of": "2026-10-19",
+      "drift_pct": -5.49,
       "entry": 86.29,
-      "stop": 82.5,
-      "r_at_exit": -1.41,
-      "r_now": -2.17,
-      "do": "The model sold IDFCFIRSTB on 2026-10-01 at Rs 80.95 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 78.08 (-3.5% vs the model's exit).",
-      "source": "issued"
+      "stop": null,
+      "r_at_exit": -1.46,
+      "do": "The model sold IDFCFIRSTB on 2026-10-05 at Rs 80.76 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 76.33 (-5.5% vs the model's exit).",
+      "source": "booked"
     },
     {
       "ticker": "ASTERDM",
       "signal_id": "ASTERDM__2026-09-07",
       "signal_date": "2026-09-07",
-      "reason": "HIT_STOP",
+      "reason": "stop",
       "severity": "high",
       "cause": "the weekly close broke its stop",
-      "due_date": "2026-10-01",
-      "due_price": 694.05,
-      "last_close": 674.35,
-      "as_of": "2026-10-16",
-      "drift_pct": -2.84,
+      "due_date": "2026-10-05",
+      "due_price": 708.0,
+      "last_close": 667.15,
+      "as_of": "2026-10-19",
+      "drift_pct": -5.77,
       "entry": 786.0,
-      "stop": 745.05,
-      "r_at_exit": -2.25,
-      "r_now": -2.73,
-      "do": "The model sold ASTERDM on 2026-10-01 at Rs 694.05 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 674.35 (-2.8% vs the model's exit).",
-      "source": "issued"
+      "stop": null,
+      "r_at_exit": -1.91,
+      "do": "The model sold ASTERDM on 2026-10-05 at Rs 708.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 667.15 (-5.8% vs the model's exit).",
+      "source": "booked"
     },
     {
       "ticker": "ABCAPITAL",
       "signal_id": "ABCAPITAL__2026-09-21",
       "signal_date": "2026-09-21",
-      "reason": "HIT_STOP",
+      "reason": "stop",
       "severity": "high",
       "cause": "the weekly close broke its stop",
-      "due_date": "2026-10-01",
-      "due_price": 378.6,
-      "last_close": 379.4,
-      "as_of": "2026-10-16",
-      "drift_pct": 0.21,
+      "due_date": "2026-10-05",
+      "due_price": 375.95,
+      "last_close": 373.05,
+      "as_of": "2026-10-19",
+      "drift_pct": -0.77,
       "entry": 405.1,
-      "stop": 378.0,
-      "r_at_exit": -0.98,
-      "r_now": -0.95,
-      "do": "The model sold ABCAPITAL on 2026-10-01 at Rs 378.60 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 379.40 (+0.2% vs the model's exit).",
-      "source": "issued"
+      "stop": null,
+      "r_at_exit": -1.08,
+      "do": "The model sold ABCAPITAL on 2026-10-05 at Rs 375.95 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 373.05 (-0.8% vs the model's exit).",
+      "source": "booked"
     },
     {
       "ticker": "MANAPPURAM",
       "signal_id": "MANAPPURAM__2026-09-28",
       "signal_date": "2026-09-28",
+      "reason": "stop",
+      "severity": "high",
+      "cause": "the weekly close broke its stop",
+      "due_date": "2026-10-05",
+      "due_price": 311.0,
+      "last_close": 319.55,
+      "as_of": "2026-10-19",
+      "drift_pct": 2.75,
+      "entry": 328.0,
+      "stop": null,
+      "r_at_exit": -1.15,
+      "do": "The model sold MANAPPURAM on 2026-10-05 at Rs 311.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 319.55 (+2.7% vs the model's exit).",
+      "source": "booked"
+    },
+    {
+      "ticker": "IKS",
+      "signal_id": "IKS__2026-08-18",
+      "signal_date": "2026-08-18",
+      "reason": "stop",
+      "severity": "high",
+      "cause": "the weekly close broke its stop",
+      "due_date": "2026-10-12",
+      "due_price": 1716.6,
+      "last_close": 1685.8,
+      "as_of": "2026-10-19",
+      "drift_pct": -1.79,
+      "entry": 1830.2,
+      "stop": null,
+      "r_at_exit": -1.08,
+      "do": "The model sold IKS on 2026-10-12 at Rs 1,716.60 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 1,685.80 (-1.8% vs the model's exit).",
+      "source": "booked"
+    },
+    {
+      "ticker": "PHOENIXLTD",
+      "signal_id": "PHOENIXLTD__2026-08-24",
+      "signal_date": "2026-08-24",
+      "reason": "stop_part",
+      "severity": "high",
+      "cause": "the weekly close broke its stop",
+      "due_date": "2026-10-12",
+      "due_price": 1804.8,
+      "last_close": 1884.0,
+      "as_of": "2026-10-19",
+      "drift_pct": 4.39,
+      "entry": 1913.57,
+      "stop": null,
+      "r_at_exit": -0.83,
+      "do": "The model sold PHOENIXLTD on 2026-10-12 at Rs 1,804.80 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 1,884.00 (+4.4% vs the model's exit).",
+      "source": "booked"
+    },
+    {
+      "ticker": "OBEROIRLTY",
+      "signal_id": "OBEROIRLTY__2026-09-28",
+      "signal_date": "2026-09-28",
+      "reason": "stop",
+      "severity": "high",
+      "cause": "the weekly close broke its stop",
+      "due_date": "2026-10-12",
+      "due_price": 1698.0,
+      "last_close": 1676.4,
+      "as_of": "2026-10-19",
+      "drift_pct": -1.27,
+      "entry": 1854.9,
+      "stop": null,
+      "r_at_exit": -1.56,
+      "do": "The model sold OBEROIRLTY on 2026-10-12 at Rs 1,698.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 1,676.40 (-1.3% vs the model's exit).",
+      "source": "booked"
+    },
+    {
+      "ticker": "GVT&D",
+      "signal_id": "GVT&D__2026-08-03",
+      "signal_date": "2026-08-03",
       "reason": "HIT_STOP",
       "severity": "high",
       "cause": "the weekly close broke its stop",
-      "due_date": "2026-10-01",
-      "due_price": 315.85,
-      "last_close": 323.95,
-      "as_of": "2026-10-16",
-      "drift_pct": 2.56,
-      "entry": 328.0,
-      "stop": 313.15,
-      "r_at_exit": -0.82,
-      "r_now": -0.27,
-      "do": "The model sold MANAPPURAM on 2026-10-01 at Rs 315.85 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 323.95 (+2.6% vs the model's exit).",
+      "due_date": "2026-10-16",
+      "due_price": 3970.0,
+      "last_close": 3925.0,
+      "as_of": "2026-10-19",
+      "drift_pct": -1.13,
+      "entry": 4312.33,
+      "stop": 3952.42,
+      "r_at_exit": -0.95,
+      "r_now": -1.08,
+      "do": "The model sold GVT&D on 2026-10-16 at Rs 3,970.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 3,925.00 (-1.1% vs the model's exit).",
+      "source": "issued"
+    },
+    {
+      "ticker": "POWERINDIA",
+      "signal_id": "POWERINDIA__2026-09-21",
+      "signal_date": "2026-09-21",
+      "reason": "HIT_STOP",
+      "severity": "high",
+      "cause": "the weekly close broke its stop",
+      "due_date": "2026-10-16",
+      "due_price": 28965.0,
+      "last_close": 28730.0,
+      "as_of": "2026-10-19",
+      "drift_pct": -0.81,
+      "entry": 32480.0,
+      "stop": 29645.0,
+      "r_at_exit": -1.24,
+      "r_now": -1.32,
+      "do": "The model sold POWERINDIA on 2026-10-16 at Rs 28,965.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 28,730.00 (-0.8% vs the model's exit).",
+      "source": "issued"
+    },
+    {
+      "ticker": "PTCIL",
+      "signal_id": "PTCIL__2026-08-10",
+      "signal_date": "2026-08-10",
+      "reason": "HIT_TARGET",
+      "severity": "action",
+      "cause": "the model's profit target was reached",
+      "due_date": "2026-10-16",
+      "due_price": 25100.0,
+      "last_close": 25045.0,
+      "as_of": "2026-10-19",
+      "drift_pct": -0.22,
+      "entry": 19299.0,
+      "stop": 17776.0,
+      "r_at_exit": 3.81,
+      "r_now": 3.77,
+      "do": "The model sold PTCIL on 2026-10-16 at Rs 25,100.00 \u2014 the model's profit target was reached. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 25,045.00 (-0.2% vs the model's exit).",
       "source": "issued"
     }
   ],
-  "n_missed_unpriceable": 0,
-  "missed_unpriceable": [],
+  "n_missed_unpriceable": 1,
+  "missed_unpriceable": [
+    {
+      "ticker": "BAJAJ-AUTO",
+      "due_date": "2026-10-05",
+      "source": "booked",
+      "why": "no daily bars cached for this ticker"
+    }
+  ],
   "scheduler_health": {
-    "checked_utc": "2026-10-16T10:49:23.979250+00:00",
+    "checked_utc": "2026-10-19T10:50:03.118239+00:00",
     "overall": "CONTRACT_BREACH",
     "source_of_truth": "actions-run-log",
     "jobs": [
@@ -2216,9 +2003,9 @@
         "source": "run-log",
         "run_id": 37128957384,
         "last_fired_utc": "2026-10-03T14:14:57+00:00",
-        "artifact_last_utc": "2026-10-01T00:00:00+00:00",
-        "artifact_corroborates": true,
-        "age_days": 12.86,
+        "artifact_last_utc": "2026-10-16T00:00:00+00:00",
+        "artifact_corroborates": false,
+        "age_days": 15.86,
         "overdue_after_days": 9,
         "status": "OVERDUE"
       },
@@ -2228,11 +2015,11 @@
         "cadence": "weekday",
         "proof": "forward_accum_health.json",
         "source": "run-log",
-        "run_id": 38722978240,
-        "last_fired_utc": "2026-10-15T10:49:27+00:00",
-        "artifact_last_utc": "2026-10-15T10:50:13+00:00",
+        "run_id": 38889654784,
+        "last_fired_utc": "2026-10-16T10:48:34+00:00",
+        "artifact_last_utc": "2026-10-16T10:49:27+00:00",
         "artifact_corroborates": true,
-        "age_days": 1.0,
+        "age_days": 3.0,
         "overdue_after_days": 5,
         "status": "OK"
       },
@@ -2244,9 +2031,9 @@
         "source": "run-log",
         "run_id": 37128957384,
         "last_fired_utc": "2026-10-03T14:14:57+00:00",
-        "artifact_last_utc": "2026-10-16T10:48:42.083876+00:00",
+        "artifact_last_utc": "2026-10-19T10:49:38.982508+00:00",
         "artifact_corroborates": false,
-        "age_days": 12.86,
+        "age_days": 15.86,
         "overdue_after_days": 9,
         "status": "OVERDUE"
       },
@@ -2258,9 +2045,9 @@
         "source": "run-log",
         "run_id": 37128957384,
         "last_fired_utc": "2026-10-03T14:14:57+00:00",
-        "artifact_last_utc": "2026-10-16T10:48:42.075173+00:00",
+        "artifact_last_utc": "2026-10-19T10:49:38.974535+00:00",
         "artifact_corroborates": false,
-        "age_days": 12.86,
+        "age_days": 15.86,
         "overdue_after_days": 9,
         "status": "OVERDUE"
       },
@@ -2270,11 +2057,11 @@
         "cadence": "weekday",
         "proof": "intraday_scan",
         "source": "run-log",
-        "run_id": 38726059940,
-        "last_fired_utc": "2026-10-15T11:15:37+00:00",
-        "artifact_last_utc": "2026-10-16T10:48:42.078800+00:00",
+        "run_id": 38892598461,
+        "last_fired_utc": "2026-10-16T11:15:39+00:00",
+        "artifact_last_utc": "2026-10-19T10:49:38.978289+00:00",
         "artifact_corroborates": false,
-        "age_days": 0.98,
+        "age_days": 2.98,
         "overdue_after_days": 5,
         "status": "OK"
       },
@@ -2284,11 +2071,11 @@
         "cadence": "weekday",
         "proof": "paper_portfolio.json",
         "source": "run-log",
-        "run_id": 38739751606,
-        "last_fired_utc": "2026-10-15T13:05:14+00:00",
-        "artifact_last_utc": "2026-10-16T10:48:42.081720+00:00",
+        "run_id": 38905041667,
+        "last_fired_utc": "2026-10-16T13:04:10+00:00",
+        "artifact_last_utc": "2026-10-19T10:49:38.981290+00:00",
         "artifact_corroborates": false,
-        "age_days": 0.91,
+        "age_days": 2.91,
         "overdue_after_days": 5,
         "status": "OK"
       }
@@ -2297,41 +2084,43 @@
     "note": "Dead-man reconstruction produced by the daily monitor (the proven weekday heartbeat). Firing truth is the Actions run log; committed artifacts corroborate only. If THIS block's checked_utc is itself stale, the monitor has stopped and every downstream freshness claim is suspect.",
     "output_contracts": {
       "overall": "RED",
-      "checked_at": "2026-10-16T10:49:26.660139+00:00",
+      "checked_at": "2026-10-19T10:50:05.696923+00:00",
       "history": {
         "adequate": true,
         "shallow": false,
-        "n_commits": 960,
+        "n_commits": 964,
         "oldest_commit": "2026-06-29T03:34:14+05:30",
         "reaches_back_past_cadence": true
       },
       "jobs": [
         {
           "job": "weekly-scanner",
-          "status": "STALE",
-          "last_commit": "5e851900",
-          "committed_at": "2026-10-03T14:18:03Z",
-          "age_days": 12.86,
+          "status": "OK",
+          "last_commit": "fd97244b",
+          "committed_at": "2026-10-17T12:53:41Z",
+          "age_days": 1.91,
           "missing_required": [],
           "missing_conditional": [],
-          "n_paths_in_commit": 30
+          "n_paths_in_commit": 31
         },
         {
           "job": "forward-accumulators",
-          "status": "OK",
-          "last_commit": "d6524a24",
-          "committed_at": "2026-10-15T10:50:16Z",
-          "age_days": 1.0,
+          "status": "OK_WITH_WARN",
+          "last_commit": "38a487b8",
+          "committed_at": "2026-10-16T10:49:30Z",
+          "age_days": 3.0,
           "missing_required": [],
-          "missing_conditional": [],
-          "n_paths_in_commit": 4
+          "missing_conditional": [
+            "results/ratings_forward.csv"
+          ],
+          "n_paths_in_commit": 3
         },
         {
           "job": "intraday-scan",
           "status": "OK",
-          "last_commit": "e36dd0fb",
-          "committed_at": "2026-10-15T11:16:52Z",
-          "age_days": 0.98,
+          "last_commit": "04d441cb",
+          "committed_at": "2026-10-16T11:16:50Z",
+          "age_days": 2.98,
           "missing_required": [],
           "missing_conditional": [],
           "n_paths_in_commit": 1
@@ -2339,9 +2128,9 @@
         {
           "job": "forward-wall-log",
           "status": "CONTRACT_BREACH",
-          "last_commit": "9d35f848",
-          "committed_at": "2026-10-15T13:07:05Z",
-          "age_days": 0.9,
+          "last_commit": "1d07de2a",
+          "committed_at": "2026-10-16T13:06:18Z",
+          "age_days": 2.91,
           "missing_required": [],
           "missing_conditional": [
             "results/scheduler_health.json"
@@ -2350,10 +2139,10 @@
         }
       ],
       "breaches": [
-        "weekly-scanner: last cron commit is 12.9d old (cadence 9d)",
-        "forward-wall-log: has stopped updating results/forward_wall_start.json (last written 64d ago, bound 20d)"
+        "forward-wall-log: has stopped updating results/forward_wall_start.json (last written 67d ago, bound 20d)"
       ],
       "warnings": [
+        "forward-accumulators: conditional artifact(s) not persisted: results/ratings_forward.csv",
         "forward-wall-log: conditional artifact(s) not persisted: results/scheduler_health.json"
       ],
       "indeterminate": [],
