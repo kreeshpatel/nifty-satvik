@@ -68,6 +68,16 @@ KNOWN_INCOMPLETE: dict[tuple[str, str], str] = {
         "(touch_depth_min_ext) and R_pct survive because they are recomputed from OHLCV. Recording "
         "it rather than backfilling: prereg_signal_quality.md freezes the axes AT SIGNAL, and a "
         "value derived later from a different week's candle would not be that measurement.",
+    ("FEDERALBNK", "2026-10-12"):
+        "Its FRESH state fell in the week of the 2026-10-10 scan, which halted on the ADR-0013 seam escalation, so it was first archived on 2026-10-16 already ACTIVE and its axes were never recorded. Lost with that week; not backfilled, for the reason given for PHOENIXLTD above.",
+    ("IIFL", "2026-10-12"):
+        "Its FRESH state fell in the week of the 2026-10-10 scan, which halted on the ADR-0013 seam escalation, so it was first archived on 2026-10-16 already ACTIVE and its axes were never recorded. Lost with that week; not backfilled, for the reason given for PHOENIXLTD above.",
+    ("TATATECH", "2026-10-12"):
+        "Its FRESH state fell in the week of the 2026-10-10 scan, which halted on the ADR-0013 seam escalation, so it was first archived on 2026-10-16 already ACTIVE and its axes were never recorded. Lost with that week; not backfilled, for the reason given for PHOENIXLTD above.",
+    ("ZYDUSWELL", "2026-08-31"):
+        "A retroactive signal: the name entered the live scan on 2026-10-16 (ADR-0017) and the from-inception rebuild placed its past signal in a past week, where it was archived ACTIVE without ever having been a FRESH card. The 2026-10-19 prod-fix masks such windows; this row stays in the immutable 2026-10-16 archive and is declared rather than deleted.",
+    ("ABDL", "2026-09-15"):
+        "A retroactive signal: the name entered the live scan on 2026-10-16 (ADR-0017) and the from-inception rebuild placed its past signal in a past week, where it was archived ACTIVE without ever having been a FRESH card. The 2026-10-19 prod-fix masks such windows; this row stays in the immutable 2026-10-16 archive and is declared rather than deleted.",
 }
 
 

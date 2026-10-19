@@ -110,6 +110,14 @@ LIVE_STALENESS = dict(stale_absent_days=STALE_ABSENT_DAYS)
 # rest of it is NSE holidays still counts as closed. prep_weekly_rank's default stays OFF so the frozen
 # research run and the golden master are byte-identical.
 LIVE_PREP = dict(complete_weeks_only=True)
+# NO RETROACTIVE ENTRANTS (2026-10-19, prod-fix to ADR-0017). The weekly history is rebuilt from
+# inception every scan, and Grade A is the top-5-by-CRS of EVERY signal in a setup week. When the live
+# universe gained 48 names (2026-10-16 scan), their PAST signals entered past weeks' rankings: ZYDUSWELL
+# displaced HINDZINC (a closed -1.65R trade) in the week of 2026-08-31 and ABDL displaced the open
+# BANDHANBNK in the week of 2026-09-14 - the forward record rewritten by a universe change. A name
+# outside the carried snapshot may therefore signal only from the later of the day it entered the live
+# scan and the start of its current index membership.
+LIVE_UNIVERSE_EFFECTIVE = "2026-10-16"
 CORPORATE_ACTIONS_ADDENDUM = ROOT / "data" / "corporate_actions_post_harvest.csv"
 # LIVE CORPORATE-ACTION HOLD (2026-09-16 owner decision; see R94.CA_HOLD_DROP and the dated block
 # `live_corporate_action_hold` in models/bhanushali_weekly/config.json). B′ only credits a demerger that
@@ -852,6 +860,29 @@ def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
     return ohlcv
 
 
+def _mask_late_entrants(P: dict, late: set, mem: dict | None, effective: str = LIVE_UNIVERSE_EFFECTIVE,
+                        today: pd.Timestamp | None = None) -> int:
+    """Drop entry windows of names outside the carried snapshot that precede their live entry.
+
+    Pure on its inputs apart from mutating ``P`` in place; returns how many windows were dropped. A
+    window's date is its first entry session. The floor per name is the later of ``effective`` and the
+    start of the membership period covering today, so a future index entrant cannot reach back either.
+    """
+    floor0 = pd.Timestamp(effective)
+    now = pd.Timestamp(today) if today is not None else pd.Timestamp.today().normalize()
+    dropped = 0
+    for t in late & set(P):
+        floor = floor0
+        for d_from, d_to in (mem or {}).get(t.upper(), []):
+            if pd.Timestamp(d_from) <= now <= pd.Timestamp(d_to):
+                floor = max(floor, pd.Timestamp(d_from))
+        s = P[t]
+        for e0 in [e for e in s["entry_win"] if pd.Timestamp(s["dates"][e]) < floor]:
+            del s["entry_win"][e0]
+            dropped += 1
+    return dropped
+
+
 def _detect_readjusted(old: dict, fresh: dict) -> list[str]:
     """Tickers whose overlapping close shifted > ADJ_JUMP between the cache and a fresh top-up — i.e.
     yfinance re-adjusted the whole series for a split/bonus. Those need a clean full re-fetch so the
@@ -1117,6 +1148,10 @@ def main(argv=None) -> int:
     mem = load_membership()
     # LIVE strategy = 0093 + Nifty-50 with CRS-ranked fills (finding 0038; supersedes arbitrary fill).
     P = R94.prep_weekly_rank(ohlcv, **LIVE_PREP)
+    from run_cpcv import build_universe
+    _late = set(build_universe("union")) - set(build_universe("current"))
+    print(f"late entrants: {_mask_late_entrants(P, _late, mem)} past entry window(s) masked "
+          f"across {len(_late & set(P))} name(s) outside the snapshot", flush=True)
     # The panel's own latest session, pinned for every one-ticker demerger view, so a view cannot
     # disagree with the panel about which week is still open.
     prep_kw = dict(LIVE_PREP, as_of=max((pd.Timestamp(s["dates"][-1]) for s in P.values()), default=None))

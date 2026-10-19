@@ -142,3 +142,12 @@ Format: date — model — what changed — why — evidence — reversal.
   (no config changes between review dates). From the 2026-10-17 scan, cards can include previously
   unscanned names; cross-date forward comparisons must note it.
 - **Unchanged:** the record path, every backtest number, both golden masters.
+
+## 2026-10-19 — No retroactive entrants (prod-fix to ADR-0017)
+
+- **What:** the live cron masks entry windows of names outside the carried snapshot before
+  `LIVE_UNIVERSE_EFFECTIVE` (2026-10-16) or their current membership start, whichever is later.
+- **Why:** the first union scan let two newly scanned names enter past weeks' Grade-A top-5, displacing
+  HINDZINC (closed) and BANDHANBNK (open) from the forward record.
+- **Effect:** the next rebuild restores both and drops the two retroactive trades. No backtest number or
+  golden master moves. Test: `tests/test_no_retroactive_entrants.py`.

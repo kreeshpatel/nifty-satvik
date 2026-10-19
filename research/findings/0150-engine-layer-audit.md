@@ -64,9 +64,16 @@ Every Δ here is inside the ≈ 0.59 ΔSharpe half-width (n_eff ≈ 37).
 
 ## Why this differs from CRS_DISSECTED
 
-CRS_DISSECTED placed the CRS portfolio at the 99–100th percentile of random draws. It ran with no index
-membership, an older exit, and a window reaching into the sealed slice. Under the live membership gate the
-rank's apparent skill disappears, and the same gate is what exposes the seat waste.
+CRS_DISSECTED placed the CRS portfolio at the 99–100th percentile of random draws.
+
+**CORRECTION 2026-10-19.** The first version of this paragraph said CRS_DISSECTED ran with no index
+membership. That was asserted, not checked, and it is wrong: `diag_crs_dissect.py` passes
+`load_membership()` (lines 57, 66, 77 in its last committed version). The differences that do hold are
+the exit (the older P2 exit, not the live scaled exit P), the window (2017 to 2026, which includes the
+2017–18 years this programme does not trust and runs into the sealed 2024H2+ slice), and its own split
+(skill inside the noise in 2017–21, beating every draw in 2022–26). Which of those explains the gap to this
+study is **not established**. The two results should be read as disagreeing under different exits and
+windows, not as one being superseded by a membership fix.
 
 ## What this licenses, and what it does not
 
