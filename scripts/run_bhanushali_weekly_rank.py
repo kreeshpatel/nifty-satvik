@@ -68,7 +68,18 @@ def week_closed_at(d) -> bool:
     if d.weekday() >= 4:
         return True
     rest = [d + pd.Timedelta(days=k) for k in range(1, 5 - d.weekday())]      # the weekdays up to Friday
-    if str(d.date()) < NSE_HOLIDAYS_COVERED_FROM or str(rest[-1].date()) > NSE_HOLIDAYS_COVERED_THROUGH:
+    if str(d.date()) < NSE_HOLIDAYS_COVERED_FROM:
+        return False
+    if str(rest[-1].date()) > NSE_HOLIDAYS_COVERED_THROUGH:
+        # 2026-10-20: past the published calendar the answer is a guess. It is only wrong in a week
+        # whose remaining weekdays are holidays (e.g. a Friday holiday makes Thursday the week's close),
+        # where the week would silently be read as still open and its signals slip a week. Raising would
+        # halt the scan and lose the week, so it warns loudly; scripts/check_calendar_coverage.py goes red
+        # from 30 days before expiry so the next year is loaded before this branch is ever reached.
+        import warnings
+        warnings.warn(f"week_closed_at({d.date()}): NSE holiday calendar ends {NSE_HOLIDAYS_COVERED_THROUGH};"
+                      f" a holiday-shortened week cannot be detected. Load the next year into config.py.",
+                      RuntimeWarning, stacklevel=2)
         return False
     return all(str(x.date()) in NSE_HOLIDAYS for x in rest)
 

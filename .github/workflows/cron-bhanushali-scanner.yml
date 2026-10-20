@@ -210,3 +210,7 @@ jobs:
       # not declare. Newly closed trades ("appeared") are normal and never fail it.
       - name: History must not change undeclared
         run: python scripts/check_history_drift.py
+      # Read-only, after the commit: turns red from 30 days before the NSE holiday calendar runs out, so the
+      # next year is loaded in December instead of the engine guessing at holiday-shortened weeks.
+      - name: Holiday calendar must not be about to run out
+        run: python scripts/check_calendar_coverage.py
