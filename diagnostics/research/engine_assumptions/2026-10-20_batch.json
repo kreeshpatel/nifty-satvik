@@ -1,0 +1,869 @@
+{
+ "window": [
+  "2019-01-01",
+  "2024-06-30"
+ ],
+ "tier": "0/1 zero-trial",
+ "items": {
+  "1_sizing": {
+   "live_forward": {
+    "n_fills": 10,
+    "n_at_20pct_cap": 10,
+    "share_at_cap": 1.0,
+    "notional_pct_min": 0.2,
+    "notional_pct_median": 0.2,
+    "notional_pct_max": 0.2,
+    "stop_width_median": 0.063696,
+    "stop_width_max": 0.1,
+    "implied_risk_pct_median": 1.273918,
+    "implied_risk_pct_min": 0.829757,
+    "implied_risk_pct_max": 2.0,
+    "implied_risk_pct_mean": 1.37586,
+    "share_risk_above_2pct": 0.0,
+    "share_stop_clamped_at_10pct": 0.1,
+    "source": "results/brain/position_log.csv.gz (first row per name) / prior-session equity from results/portfolio_history_weekly.csv; first session uses EQ0 1,000,000",
+    "fills": [
+     {
+      "tkr": "APLAPOLLO",
+      "entry_date": "2026-08-17",
+      "notional_pct": 0.2,
+      "stop_width_pct": 6.751083,
+      "implied_risk_pct": 1.350217
+     },
+     {
+      "tkr": "CUB",
+      "entry_date": "2026-07-06",
+      "notional_pct": 0.2,
+      "stop_width_pct": 6.037737,
+      "implied_risk_pct": 1.207547
+     },
+     {
+      "tkr": "DELHIVERY",
+      "entry_date": "2026-07-06",
+      "notional_pct": 0.2,
+      "stop_width_pct": 9.77591,
+      "implied_risk_pct": 1.955182
+     },
+     {
+      "tkr": "GESHIP",
+      "entry_date": "2026-07-28",
+      "notional_pct": 0.2,
+      "stop_width_pct": 4.148786,
+      "implied_risk_pct": 0.829757
+     },
+     {
+      "tkr": "IIFL",
+      "entry_date": "2026-10-12",
+      "notional_pct": 0.2,
+      "stop_width_pct": 6.551157,
+      "implied_risk_pct": 1.310231
+     },
+     {
+      "tkr": "INDUSINDBK",
+      "entry_date": "2026-07-06",
+      "notional_pct": 0.2,
+      "stop_width_pct": 6.188019,
+      "implied_risk_pct": 1.237604
+     },
+     {
+      "tkr": "MCX",
+      "entry_date": "2026-08-17",
+      "notional_pct": 0.2,
+      "stop_width_pct": 10.0,
+      "implied_risk_pct": 2.0
+     },
+     {
+      "tkr": "NESTLEIND",
+      "entry_date": "2026-07-06",
+      "notional_pct": 0.2,
+      "stop_width_pct": 5.188387,
+      "implied_risk_pct": 1.037677
+     },
+     {
+      "tkr": "OBEROIRLTY",
+      "entry_date": "2026-09-28",
+      "notional_pct": 0.2,
+      "stop_width_pct": 5.423472,
+      "implied_risk_pct": 1.084694
+     },
+     {
+      "tkr": "POWERINDIA",
+      "entry_date": "2026-09-21",
+      "notional_pct": 0.2,
+      "stop_width_pct": 8.728448,
+      "implied_risk_pct": 1.74569
+     }
+    ],
+    "attribution_position_size_check": [
+     {
+      "tkr": "CUB",
+      "bought": "2026-07-06",
+      "position_size": 200000.0,
+      "pct_of_prior_equity": 0.2
+     },
+     {
+      "tkr": "DELHIVERY",
+      "bought": "2026-07-06",
+      "position_size": 200000.0,
+      "pct_of_prior_equity": 0.2
+     },
+     {
+      "tkr": "INDUSINDBK",
+      "bought": "2026-07-06",
+      "position_size": 200000.0,
+      "pct_of_prior_equity": 0.2
+     },
+     {
+      "tkr": "NESTLEIND",
+      "bought": "2026-07-06",
+      "position_size": 200000.0,
+      "pct_of_prior_equity": 0.2
+     },
+     {
+      "tkr": "APLAPOLLO",
+      "bought": "2026-08-17",
+      "position_size": 200486.89,
+      "pct_of_prior_equity": 0.2
+     },
+     {
+      "tkr": "MCX",
+      "bought": "2026-08-17",
+      "position_size": 203999.39,
+      "pct_of_prior_equity": 0.203504
+     },
+     {
+      "tkr": "CHOLAFIN",
+      "bought": "2026-09-14",
+      "position_size": 205518.7,
+      "pct_of_prior_equity": 0.201781
+     },
+     {
+      "tkr": "POWERINDIA",
+      "bought": "2026-09-21",
+      "position_size": 205225.01,
+      "pct_of_prior_equity": 0.2
+     },
+     {
+      "tkr": "OBEROIRLTY",
+      "bought": "2026-09-28",
+      "position_size": 200120.78,
+      "pct_of_prior_equity": 0.2
+     },
+     {
+      "tkr": "IIFL",
+      "bought": "2026-10-12",
+      "position_size": 194264.92,
+      "pct_of_prior_equity": 0.2
+     }
+    ],
+    "seats": {
+     "avg_names_held": 4.786667,
+     "max": 5,
+     "n_sessions": 75
+    }
+   },
+   "train_base": {
+    "n_fills": 77,
+    "n_at_20pct_cap": 77,
+    "share_at_cap": 1.0,
+    "notional_pct_min": 0.2,
+    "notional_pct_median": 0.2,
+    "notional_pct_max": 0.2,
+    "stop_width_median": 0.09288,
+    "stop_width_max": 0.1,
+    "implied_risk_pct_median": 1.857605,
+    "implied_risk_pct_min": 0.360026,
+    "implied_risk_pct_max": 2.0,
+    "implied_risk_pct_mean": 1.653181,
+    "share_risk_above_2pct": 0.0,
+    "share_stop_clamped_at_10pct": 0.402597,
+    "source": "nq.lab.runs.replay() default, ledger entries x position_log first row / prior-session NAV"
+   },
+   "grid_EXPLORATORY_not_decision_grade": [
+    {
+     "max_notional_pct": 0.15,
+     "max_risk_pct": 0.1,
+     "label": "NOT LIVE BOOK: max_notional_pct",
+     "differs_on": [
+      "max_notional_pct"
+     ],
+     "membership": "pit",
+     "config_hash": "2bf660d2f879",
+     "cagr": 0.25014,
+     "sharpe": 1.312889,
+     "maxdd": -0.36384,
+     "n_trades": 105,
+     "n_returns": 1356,
+     "last_bar": "2024-06-28",
+     "deflated_sharpe": 0.649167,
+     "dsr_prob": 0.906022,
+     "sr0_annual": 0.663722,
+     "meter_n_trials": 9,
+     "avg_seats_all_sessions": 11.024318,
+     "avg_seats_when_invested": 11.056911,
+     "share_sessions_5plus": 0.993368,
+     "max_seats": 15,
+     "share_fills_at_notional_cap": 1.0,
+     "mean_implied_risk_pct": 1.221354,
+     "median_notional_pct": 0.15
+    },
+    {
+     "max_notional_pct": 0.15,
+     "max_risk_pct": 0.15,
+     "label": "NOT LIVE BOOK: max_notional_pct",
+     "differs_on": [
+      "max_notional_pct",
+      "max_risk_pct"
+     ],
+     "membership": "pit",
+     "config_hash": "27a850ac97ba",
+     "cagr": 0.338548,
+     "sharpe": 1.636273,
+     "maxdd": -0.342294,
+     "n_trades": 107,
+     "n_returns": 1356,
+     "last_bar": "2024-06-28",
+     "deflated_sharpe": 0.97255,
+     "dsr_prob": 0.970108,
+     "sr0_annual": 0.663722,
+     "meter_n_trials": 9,
+     "avg_seats_all_sessions": 11.256448,
+     "avg_seats_when_invested": 11.289727,
+     "share_sessions_5plus": 0.993368,
+     "max_seats": 17,
+     "share_fills_at_notional_cap": 0.813084,
+     "mean_implied_risk_pct": 1.332522,
+     "median_notional_pct": 0.15
+    },
+    {
+     "max_notional_pct": 0.2,
+     "max_risk_pct": 0.1,
+     "label": "LIVE BOOK",
+     "differs_on": [],
+     "membership": "pit",
+     "config_hash": "4009e76e4bc4",
+     "cagr": 0.204673,
+     "sharpe": 1.024763,
+     "maxdd": -0.40113,
+     "n_trades": 77,
+     "n_returns": 1356,
+     "last_bar": "2024-06-28",
+     "deflated_sharpe": 0.361041,
+     "dsr_prob": 0.776083,
+     "sr0_annual": 0.663722,
+     "meter_n_trials": 9,
+     "avg_seats_all_sessions": 7.055269,
+     "avg_seats_when_invested": 7.076127,
+     "share_sessions_5plus": 0.951363,
+     "max_seats": 10,
+     "share_fills_at_notional_cap": 1.0,
+     "mean_implied_risk_pct": 1.653181,
+     "median_notional_pct": 0.2
+    },
+    {
+     "max_notional_pct": 0.2,
+     "max_risk_pct": 0.15,
+     "label": "NOT LIVE BOOK: max_risk_pct",
+     "differs_on": [
+      "max_risk_pct"
+     ],
+     "membership": "pit",
+     "config_hash": "77a89b09b3e8",
+     "cagr": 0.277179,
+     "sharpe": 1.351302,
+     "maxdd": -0.344512,
+     "n_trades": 88,
+     "n_returns": 1356,
+     "last_bar": "2024-06-28",
+     "deflated_sharpe": 0.68758,
+     "dsr_prob": 0.917322,
+     "sr0_annual": 0.663722,
+     "meter_n_trials": 9,
+     "avg_seats_all_sessions": 8.888725,
+     "avg_seats_when_invested": 8.915004,
+     "share_sessions_5plus": 0.993368,
+     "max_seats": 14,
+     "share_fills_at_notional_cap": 0.409091,
+     "mean_implied_risk_pct": 1.726426,
+     "median_notional_pct": 0.181866
+    },
+    {
+     "max_notional_pct": 0.25,
+     "max_risk_pct": 0.1,
+     "label": "NOT LIVE BOOK: max_notional_pct",
+     "differs_on": [
+      "max_notional_pct"
+     ],
+     "membership": "pit",
+     "config_hash": "5000872c6bae",
+     "cagr": 0.255947,
+     "sharpe": 1.231091,
+     "maxdd": -0.365404,
+     "n_trades": 71,
+     "n_returns": 1356,
+     "last_bar": "2024-06-28",
+     "deflated_sharpe": 0.567369,
+     "dsr_prob": 0.877639,
+     "sr0_annual": 0.663722,
+     "meter_n_trials": 9,
+     "avg_seats_all_sessions": 7.334562,
+     "avg_seats_when_invested": 7.356245,
+     "share_sessions_5plus": 0.97126,
+     "max_seats": 10,
+     "share_fills_at_notional_cap": 0.253521,
+     "mean_implied_risk_pct": 1.858529,
+     "median_notional_pct": 0.2
+    },
+    {
+     "max_notional_pct": 0.25,
+     "max_risk_pct": 0.15,
+     "label": "NOT LIVE BOOK: max_notional_pct",
+     "differs_on": [
+      "max_notional_pct",
+      "max_risk_pct"
+     ],
+     "membership": "pit",
+     "config_hash": "2464a501e944",
+     "cagr": 0.258266,
+     "sharpe": 1.233294,
+     "maxdd": -0.367149,
+     "n_trades": 79,
+     "n_returns": 1356,
+     "last_bar": "2024-06-28",
+     "deflated_sharpe": 0.569572,
+     "dsr_prob": 0.878485,
+     "sr0_annual": 0.663722,
+     "meter_n_trials": 9,
+     "avg_seats_all_sessions": 7.644805,
+     "avg_seats_when_invested": 7.667406,
+     "share_sessions_5plus": 0.983051,
+     "max_seats": 11,
+     "share_fills_at_notional_cap": 0.189873,
+     "mean_implied_risk_pct": 1.880496,
+     "median_notional_pct": 0.184615
+    },
+    {
+     "max_notional_pct": 0.33,
+     "max_risk_pct": 0.1,
+     "label": "NOT LIVE BOOK: max_notional_pct",
+     "differs_on": [
+      "max_notional_pct"
+     ],
+     "membership": "pit",
+     "config_hash": "3e7ab3cc59ec",
+     "cagr": 0.306855,
+     "sharpe": 1.348971,
+     "maxdd": -0.397249,
+     "n_trades": 67,
+     "n_returns": 1356,
+     "last_bar": "2024-06-28",
+     "deflated_sharpe": 0.685249,
+     "dsr_prob": 0.916671,
+     "sr0_annual": 0.663722,
+     "meter_n_trials": 9,
+     "avg_seats_all_sessions": 6.933677,
+     "avg_seats_when_invested": 6.954176,
+     "share_sessions_5plus": 0.955048,
+     "max_seats": 11,
+     "share_fills_at_notional_cap": 0.059701,
+     "mean_implied_risk_pct": 1.941723,
+     "median_notional_pct": 0.2
+    },
+    {
+     "max_notional_pct": 0.33,
+     "max_risk_pct": 0.15,
+     "label": "NOT LIVE BOOK: max_notional_pct",
+     "differs_on": [
+      "max_notional_pct",
+      "max_risk_pct"
+     ],
+     "membership": "pit",
+     "config_hash": "b40572874b46",
+     "cagr": 0.403503,
+     "sharpe": 1.739669,
+     "maxdd": -0.262799,
+     "n_trades": 70,
+     "n_returns": 1356,
+     "last_bar": "2024-06-28",
+     "deflated_sharpe": 1.075947,
+     "dsr_prob": 0.979783,
+     "sr0_annual": 0.663722,
+     "meter_n_trials": 9,
+     "avg_seats_all_sessions": 8.09801,
+     "avg_seats_when_invested": 8.121951,
+     "share_sessions_5plus": 0.968312,
+     "max_seats": 12,
+     "share_fills_at_notional_cap": 0.042857,
+     "mean_implied_risk_pct": 1.968983,
+     "median_notional_pct": 0.177128
+    }
+   ],
+   "grid_sharpe_range": [
+    1.024763,
+    1.739669
+   ],
+   "base_seats": {
+    "avg_seats_all_sessions": 7.055269,
+    "avg_seats_when_invested": 7.076127,
+    "share_sessions_5plus": 0.951363,
+    "max_seats": 10
+   }
+  },
+  "7_costs": {
+   "i_current_model": {
+    "cagr": 0.204673,
+    "sharpe": 1.024763,
+    "maxdd": -0.40113,
+    "net_pnl_sum": 1772049.42
+   },
+   "ii_stamp_plus_dp": {
+    "stamp_duty_rupees": 3278.38875,
+    "dp_charges_rupees": 2102.76,
+    "n_dp_sell_scrip_days": 132,
+    "cagr": 0.204248,
+    "sharpe": 1.021564,
+    "maxdd": -0.402227,
+    "delta_cagr_bp": -4.252467,
+    "delta_sharpe": -0.003199,
+    "method": "first-order: rupee charge subtracted from NAV on its date, no path re-sizing"
+   },
+   "iii_gap_slippage": {
+    "engine_fill_rule": "weekly close <= stop queues ('pending'), filled at the NEXT SESSION OPEN (run_bhanushali_weekly_rank.py pending branch, px = s['o'][i])",
+    "gap_already_in_fill": true,
+    "extra_cost_for_gap_itself": 0,
+    "residual_not_modelled": "ADV-tier slippage is the same bp on a stop exit as on any exit; no extra impact for forced selling into a gap",
+    "extra_bp_on_stop_exits_only_sensitivity": {
+     "25": {
+      "rupees": 16941.35694,
+      "delta_cagr_bp": -13.410816,
+      "sharpe": 1.013543
+     },
+     "50": {
+      "rupees": 33882.71388,
+      "delta_cagr_bp": -26.889068,
+      "sharpe": 1.00235
+     },
+     "100": {
+      "rupees": 67765.427759,
+      "delta_cagr_bp": -54.050927,
+      "sharpe": 0.98005
+     },
+     "200": {
+      "rupees": 135530.855519,
+      "delta_cagr_bp": -109.218157,
+      "sharpe": 0.935858
+     }
+    },
+    "n_stop_exits": 32
+   },
+   "extra_bp_curve": [
+    {
+     "extra_bp_per_side": 0,
+     "cagr": 0.204673,
+     "sharpe": 1.024763,
+     "maxdd": -0.40113,
+     "n_trades": 77,
+     "manifest_label_unpatched_config": "LIVE BOOK"
+    },
+    {
+     "extra_bp_per_side": 5,
+     "cagr": 0.20225,
+     "sharpe": 1.013957,
+     "maxdd": -0.40196,
+     "n_trades": 77,
+     "manifest_label_unpatched_config": "LIVE BOOK"
+    },
+    {
+     "extra_bp_per_side": 10,
+     "cagr": 0.198836,
+     "sharpe": 0.999512,
+     "maxdd": -0.404622,
+     "n_trades": 77,
+     "manifest_label_unpatched_config": "LIVE BOOK"
+    },
+    {
+     "extra_bp_per_side": 20,
+     "cagr": 0.192672,
+     "sharpe": 0.962132,
+     "maxdd": -0.411866,
+     "n_trades": 82,
+     "manifest_label_unpatched_config": "LIVE BOOK"
+    },
+    {
+     "extra_bp_per_side": 30,
+     "cagr": 0.201511,
+     "sharpe": 1.055022,
+     "maxdd": -0.367137,
+     "n_trades": 80,
+     "manifest_label_unpatched_config": "LIVE BOOK"
+    },
+    {
+     "extra_bp_per_side": 50,
+     "cagr": 0.251276,
+     "sharpe": 1.22265,
+     "maxdd": -0.364521,
+     "n_trades": 74,
+     "manifest_label_unpatched_config": "LIVE BOOK"
+    },
+    {
+     "extra_bp_per_side": 75,
+     "cagr": 0.23745,
+     "sharpe": 1.139777,
+     "maxdd": -0.370829,
+     "n_trades": 77,
+     "manifest_label_unpatched_config": "LIVE BOOK"
+    },
+    {
+     "extra_bp_per_side": 100,
+     "cagr": 0.178447,
+     "sharpe": 0.917037,
+     "maxdd": -0.464808,
+     "n_trades": 78,
+     "manifest_label_unpatched_config": "LIVE BOOK"
+    },
+    {
+     "extra_bp_per_side": 150,
+     "cagr": 0.128465,
+     "sharpe": 0.689158,
+     "maxdd": -0.418482,
+     "n_trades": 82,
+     "manifest_label_unpatched_config": "LIVE BOOK"
+    },
+    {
+     "extra_bp_per_side": 200,
+     "cagr": 0.057038,
+     "sharpe": 0.381668,
+     "maxdd": -0.426102,
+     "n_trades": 80,
+     "manifest_label_unpatched_config": "LIVE BOOK"
+    },
+    {
+     "extra_bp_per_side": 300,
+     "cagr": 0.071618,
+     "sharpe": 0.442007,
+     "maxdd": -0.506288,
+     "n_trades": 74,
+     "manifest_label_unpatched_config": "LIVE BOOK"
+    }
+   ],
+   "breakeven_bp_per_side": {
+    "cagr_halves": 168.290352,
+    "cagr_zero": null,
+    "note": "extra bp added to EVERY leg (buy and each sell) on top of brokerage+STT+tiered slippage; linearly interpolated"
+   },
+   "extra_bp_curve_fixed_path": [
+    {
+     "extra_bp_per_side": 0,
+     "cagr": 0.204673,
+     "sharpe": 1.024763,
+     "maxdd": -0.40113
+    },
+    {
+     "extra_bp_per_side": 25,
+     "cagr": 0.196067,
+     "sharpe": 0.963973,
+     "maxdd": -0.420636
+    },
+    {
+     "extra_bp_per_side": 50,
+     "cagr": 0.187173,
+     "sharpe": 0.904029,
+     "maxdd": -0.44076
+    },
+    {
+     "extra_bp_per_side": 100,
+     "cagr": 0.168431,
+     "sharpe": 0.78725,
+     "maxdd": -0.483228
+    },
+    {
+     "extra_bp_per_side": 150,
+     "cagr": 0.148233,
+     "sharpe": 0.675658,
+     "maxdd": -0.526637
+    },
+    {
+     "extra_bp_per_side": 200,
+     "cagr": 0.126302,
+     "sharpe": 0.570721,
+     "maxdd": -0.571018
+    },
+    {
+     "extra_bp_per_side": 300,
+     "cagr": 0.07562,
+     "sharpe": 0.389425,
+     "maxdd": -0.662832
+    },
+    {
+     "extra_bp_per_side": 400,
+     "cagr": 0.011194,
+     "sharpe": 0.281005,
+     "maxdd": -0.758952
+    },
+    {
+     "extra_bp_per_side": 500,
+     "cagr": -0.079674,
+     "sharpe": -0.837749,
+     "maxdd": -1.059695
+    },
+    {
+     "extra_bp_per_side": 750,
+     "cagr": null,
+     "sharpe": 0.131114,
+     "maxdd": -1.91036
+    },
+    {
+     "extra_bp_per_side": 1000,
+     "cagr": null,
+     "sharpe": 0.104893,
+     "maxdd": -2.772756
+    }
+   ],
+   "breakeven_bp_per_side_fixed_path": {
+    "cagr_halves": 247.286019,
+    "cagr_zero": 412.318968,
+    "total_leg_notional_rupees": 42905266.37727,
+    "method": "first-order, trade set and sizing frozen at the base run; no re-selection under cash contention"
+   },
+   "rerun_curve_path_noise_sharpe_range_0_to_100bp": [
+    0.917037,
+    1.22265
+   ],
+   "context": {
+    "modelled_round_trip_bp_floor": 36
+   }
+  },
+  "3_gap_exits": {
+   "train": {
+    "n_stop_exits": 32,
+    "n_filled_through": 29,
+    "share_through": 0.90625,
+    "beyond_r_mean_through": 0.90294,
+    "beyond_r_median_through": 0.560622,
+    "beyond_r_p90_through": 2.296298,
+    "beyond_r_max": 4.368421,
+    "beyond_r_mean_all_stop_exits": 0.81829,
+    "n_gt_0p5R": 15,
+    "n_gt_1R": 7,
+    "mean_R_of_stop_exits": -1.539813,
+    "n_all_trades": 77,
+    "basis": "per-unit price: (stop0 - exit_px)/(entry - stop0); live scaled exit has no ratchet so stop0 is the stop"
+   },
+   "live_cards": {
+    "n_stop_exits": 22,
+    "n_gap_through": 20,
+    "share_through": 0.909091,
+    "beyond_stop_r_mean_through": -0.65,
+    "beyond_stop_r_median_through": -0.415,
+    "beyond_stop_r_min": -2.76,
+    "basis": "results/attribution_ledger.csv (card-level reconstruction of every Grade-A signal, forward from 2026-07-04; gap_through / beyond_stop_r as the ledger defines them, beyond_stop_r is negative)"
+   },
+   "live_book_names": {
+    "n_stop_exits": 4,
+    "n_gap_through": 4,
+    "beyond_stop_r": {
+     "DELHIVERY": -0.05,
+     "NESTLEIND": -0.2,
+     "GESHIP": -0.46,
+     "OBEROIRLTY": -0.56
+    },
+    "basis": "attribution_ledger rows for the names in results/brain/position_log.csv.gz"
+   }
+  },
+  "10_freeze": {
+   "held_sessions_checked": 9552,
+   "n_trades": 77,
+   "n_trigger_sessions": 5,
+   "n_unregistered_would_freeze": 5,
+   "n_registered_in_demerger_register": 0,
+   "n_booked_exit_that_session": 3,
+   "n_booked_tranche_that_session": 0,
+   "n_endured_unbooked": 2,
+   "n_exit_blocked_by_freeze_(frozen_not_booked)": 3,
+   "n_exit_booked_before_freeze_(close-leg_after_open_fill)": 2,
+   "per_year": 0.90994,
+   "events": [
+    {
+     "tkr": "JSL",
+     "date": "2020-03-12",
+     "leg": "close",
+     "exit_blocked_by_freeze": true,
+     "exit_booked_before_freeze": false,
+     "open_move": -0.06815,
+     "close_move": -0.16968,
+     "registered_in_demerger_register": false,
+     "exit_fill_that_session": false,
+     "exit_reason": null,
+     "tranche_fill_that_session": false
+    },
+    {
+     "tkr": "VBL",
+     "date": "2020-03-23",
+     "leg": "open",
+     "exit_blocked_by_freeze": true,
+     "exit_booked_before_freeze": false,
+     "open_move": -0.2,
+     "close_move": -0.027291,
+     "registered_in_demerger_register": false,
+     "exit_fill_that_session": true,
+     "exit_reason": "sma_break",
+     "tranche_fill_that_session": false
+    },
+    {
+     "tkr": "MUTHOOTFIN",
+     "date": "2020-03-23",
+     "leg": "close",
+     "exit_blocked_by_freeze": false,
+     "exit_booked_before_freeze": true,
+     "open_move": -0.099992,
+     "close_move": -0.165422,
+     "registered_in_demerger_register": false,
+     "exit_fill_that_session": true,
+     "exit_reason": "sma_break",
+     "tranche_fill_that_session": false
+    },
+    {
+     "tkr": "ATGL",
+     "date": "2023-01-27",
+     "leg": "close",
+     "exit_blocked_by_freeze": true,
+     "exit_booked_before_freeze": false,
+     "open_move": -0.05,
+     "close_move": -0.2,
+     "registered_in_demerger_register": false,
+     "exit_fill_that_session": false,
+     "exit_reason": null,
+     "tranche_fill_that_session": false
+    },
+    {
+     "tkr": "ATGL",
+     "date": "2023-01-30",
+     "leg": "close",
+     "exit_blocked_by_freeze": false,
+     "exit_booked_before_freeze": true,
+     "open_move": -0.145833,
+     "close_move": -0.2,
+     "registered_in_demerger_register": false,
+     "exit_fill_that_session": true,
+     "exit_reason": "stop",
+     "tranche_fill_that_session": false
+    }
+   ],
+   "reading_basis": "open or close <= -15% vs prior close on a session AFTER entry and up to and including the exit session; R94.CA_HOLD_DROP semantics; registered = in data/corporate_actions_demerger_register.csv"
+  },
+  "9_entry_window": {
+   "reconciliation_eligible_vs_fills": {
+    "eligible": 740,
+    "uncapped_fills_it": 526,
+    "uncapped_not_filled_ticker_already_held": 214,
+    "uncapped_not_filled_other": 0,
+    "capped_fills_it": 69,
+    "capped_not_filled_ticker_already_held": 36,
+    "capped_not_filled_other_cash_or_same_day_priority": 635
+   },
+   "census": {
+    "A_signals_total": 1240,
+    "refused_not_member_at_activation": 336,
+    "activated": 904,
+    "fill_eligible": 740,
+    "eligible_first_day_k0": 620,
+    "eligible_first_day_k3": 20,
+    "eligible_first_day_k2": 27,
+    "no_fill_in_band_but_over_ext_cap": 89,
+    "eligible_first_day_k1": 66,
+    "no_fill_all_opens_above_band(gap-up)": 75,
+    "eligible_first_day_k4": 7
+   },
+   "eligible_first_fill_weekday_census": {
+    "Monday": 575,
+    "Tuesday": 102,
+    "Thursday": 22,
+    "Wednesday": 31,
+    "Friday": 10
+   },
+   "uncapped_lab_run": {
+    "label": "NOT LIVE BOOK: uncapped",
+    "differs_on": [
+     "uncapped"
+    ],
+    "membership": "pit",
+    "config_hash": "837c4624503e",
+    "cagr": 0.55554,
+    "sharpe": 1.239205,
+    "maxdd": -0.778324,
+    "n_trades": 526,
+    "n_returns": 1356,
+    "last_bar": "2024-06-28",
+    "n_fills": 526,
+    "fill_weekday": {
+     "Monday": 401,
+     "Tuesday": 77,
+     "Wednesday": 25,
+     "Thursday": 16,
+     "Friday": 7
+    }
+   },
+   "capped_base_fill_weekday": {
+    "Monday": 58,
+    "Thursday": 7,
+    "Tuesday": 6,
+    "Wednesday": 4,
+    "Friday": 2
+   },
+   "capped_base_n_fills": 77,
+   "cash_or_occupancy_blocked_eligible": 663,
+   "live_book_fill_weekday": {
+    "Monday": 9,
+    "Tuesday": 1
+   },
+   "shares_of_activated": {
+    "fill_eligible": 0.818584,
+    "no_fill_in_band_but_over_ext_cap": 0.098451,
+    "no_fill_all_opens_above_band(gap-up)": 0.082965
+   }
+  },
+  "8_research_vs_plain_cache": {
+   "raw_top5": {
+    "weeks_with_any_A": 273,
+    "weeks_differ": 112,
+    "share_differ": 0.410256,
+    "mean_sym_diff_names_in_differing_weeks": 2.205357,
+    "differing_weeks_symdiff_contains_corrected_only_name": 112,
+    "differing_weeks_symdiff_only_shared_names_(displacement)": 0
+   },
+   "membership_gated_top5": {
+    "weeks_with_any_A": 267,
+    "weeks_differ": 88,
+    "share_differ": 0.329588,
+    "mean_sym_diff_names_in_differing_weeks": 1.670455,
+    "differing_weeks_symdiff_contains_corrected_only_name": 52,
+    "differing_weeks_symdiff_only_shared_names_(displacement)": 36
+   },
+   "universe": {
+    "names_corrected": 757,
+    "names_plain_pinned": 653,
+    "names_only_in_corrected": 104
+   },
+   "plain_cache_sha256_prefix": "f8625a8f",
+   "limits": "Both sides read the same local data/ohlcv.pkl; the 'live' refreshed yfinance cache (25-day top-up, price-vintage drift, Nifty-50 refresh) is not available here. This measures the survivor-only pinned universe vs corrected_universe(), i.e. the universe/backfill/alias leg of the research-vs-live gap, not price-vintage drift."
+  }
+ },
+ "last_bar_seen": "2024-06-28",
+ "base": {
+  "label": "LIVE BOOK",
+  "differs_on": [],
+  "membership": "pit",
+  "config_hash": "4009e76e4bc4",
+  "cagr": 0.204673,
+  "sharpe": 1.024763,
+  "maxdd": -0.40113,
+  "n_trades": 77,
+  "n_returns": 1356,
+  "last_bar": "2024-06-28"
+ },
+ "standing_counts": {
+  "n_trials": 2,
+  "family_level_count": 2,
+  "lab_meter_distinct_configs_in_this_worktree": 9
+ }
+}
