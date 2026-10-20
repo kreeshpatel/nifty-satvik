@@ -1,0 +1,5575 @@
+{
+  "label": "MEASUREMENT (tier 1); no price series read",
+  "snapshots": [
+    "2026-07-24",
+    "2026-07-31",
+    "2026-07-31__rerun-20260804T215840Z",
+    "2026-07-31__rerun-20260810T101618Z",
+    "2026-08-07",
+    "2026-08-12",
+    "2026-08-14",
+    "2026-08-14__rerun-20260816T004818Z",
+    "2026-08-17",
+    "2026-08-21",
+    "2026-08-28",
+    "2026-09-04",
+    "2026-09-11",
+    "2026-09-15",
+    "2026-09-15__rerun-20260915T221531Z",
+    "2026-09-18",
+    "2026-09-25",
+    "2026-10-01",
+    "2026-10-16"
+  ],
+  "A_levels_and_consistency": {
+    "n_snapshots": 19,
+    "n_card_rows": 465,
+    "n_distinct_cards": 90,
+    "n_fresh_rows": 61,
+    "target_not_2R": {
+      "n": 0,
+      "rows": []
+    },
+    "stop_rule_mismatch": {
+      "n": 0,
+      "rows": []
+    },
+    "ext_pct_mismatch": {
+      "n": 0,
+      "rows": []
+    },
+    "fresh_over_ext_cap_not_flagged": {
+      "n": 0,
+      "rows": []
+    },
+    "levels_restated_across_snapshots": {
+      "n": 11,
+      "n_positions": 10,
+      "by_snapshot_pair": [
+        {
+          "from_snapshot": "2026-07-24",
+          "to_snapshot": "2026-07-31",
+          "n": 2
+        },
+        {
+          "from_snapshot": "2026-07-31",
+          "to_snapshot": "2026-08-07",
+          "n": 1
+        },
+        {
+          "from_snapshot": "2026-08-17",
+          "to_snapshot": "2026-08-21",
+          "n": 1
+        },
+        {
+          "from_snapshot": "2026-08-21",
+          "to_snapshot": "2026-08-28",
+          "n": 1
+        },
+        {
+          "from_snapshot": "2026-09-04",
+          "to_snapshot": "2026-09-11",
+          "n": 1
+        },
+        {
+          "from_snapshot": "2026-09-11",
+          "to_snapshot": "2026-09-15",
+          "n": 1
+        },
+        {
+          "from_snapshot": "2026-09-18",
+          "to_snapshot": "2026-09-25",
+          "n": 1
+        },
+        {
+          "from_snapshot": "2026-09-25",
+          "to_snapshot": "2026-10-01",
+          "n": 3
+        }
+      ],
+      "entry_delta_pct_abs_max": 62.62,
+      "entry_delta_pct_abs_median": 0.49,
+      "rows": [
+        {
+          "key": [
+            "CUB",
+            "2026-07-06"
+          ],
+          "from_snapshot": "2026-07-24",
+          "to_snapshot": "2026-07-31",
+          "was": [
+            212.0,
+            199.2,
+            237.6,
+            "A"
+          ],
+          "now": [
+            210.03,
+            197.35,
+            235.39,
+            "A"
+          ],
+          "entry_delta_pct": -0.93,
+          "stop_delta_pct": -0.93
+        },
+        {
+          "key": [
+            "SIEMENS",
+            "2026-07-20"
+          ],
+          "from_snapshot": "2026-07-24",
+          "to_snapshot": "2026-07-31",
+          "was": [
+            3651.0,
+            3437.0,
+            4079.0,
+            "A"
+          ],
+          "now": [
+            3633.15,
+            3420.19,
+            4059.05,
+            "A"
+          ],
+          "entry_delta_pct": -0.49,
+          "stop_delta_pct": -0.49
+        },
+        {
+          "key": [
+            "HEG",
+            "2026-07-27"
+          ],
+          "from_snapshot": "2026-09-11",
+          "to_snapshot": "2026-09-15",
+          "was": [
+            650.0,
+            585.0,
+            780.0,
+            "A"
+          ],
+          "now": [
+            242.95,
+            218.66,
+            291.54,
+            "A"
+          ],
+          "entry_delta_pct": -62.62,
+          "stop_delta_pct": -62.62
+        },
+        {
+          "key": [
+            "GESHIP",
+            "2026-07-27"
+          ],
+          "from_snapshot": "2026-07-31",
+          "to_snapshot": "2026-08-07",
+          "was": [
+            1439.0,
+            1340.0,
+            1637.0,
+            "A"
+          ],
+          "now": [
+            1423.68,
+            1325.74,
+            1619.58,
+            "A"
+          ],
+          "entry_delta_pct": -1.06,
+          "stop_delta_pct": -1.06
+        },
+        {
+          "key": [
+            "GVT&D",
+            "2026-08-03"
+          ],
+          "from_snapshot": "2026-08-17",
+          "to_snapshot": "2026-08-21",
+          "was": [
+            4323.0,
+            3962.2,
+            5044.6,
+            "A"
+          ],
+          "now": [
+            4312.33,
+            3952.42,
+            5032.14,
+            "A"
+          ],
+          "entry_delta_pct": -0.25,
+          "stop_delta_pct": -0.25
+        },
+        {
+          "key": [
+            "ENGINERSIN",
+            "2026-08-10"
+          ],
+          "from_snapshot": "2026-09-18",
+          "to_snapshot": "2026-09-25",
+          "was": [
+            240.6,
+            222.38,
+            277.04,
+            "A"
+          ],
+          "now": [
+            238.64,
+            220.56,
+            274.78,
+            "A"
+          ],
+          "entry_delta_pct": -0.81,
+          "stop_delta_pct": -0.82
+        },
+        {
+          "key": [
+            "MCX",
+            "2026-08-17"
+          ],
+          "from_snapshot": "2026-08-21",
+          "to_snapshot": "2026-08-28",
+          "was": [
+            2913.1,
+            2621.79,
+            3495.72,
+            "A"
+          ],
+          "now": [
+            2905.98,
+            2615.38,
+            3487.18,
+            "A"
+          ],
+          "entry_delta_pct": -0.24,
+          "stop_delta_pct": -0.24
+        },
+        {
+          "key": [
+            "APLAPOLLO",
+            "2026-08-17"
+          ],
+          "from_snapshot": "2026-09-25",
+          "to_snapshot": "2026-10-01",
+          "was": [
+            2093.0,
+            1951.7,
+            2375.6,
+            "A"
+          ],
+          "now": [
+            2084.97,
+            1944.21,
+            2366.48,
+            "A"
+          ],
+          "entry_delta_pct": -0.38,
+          "stop_delta_pct": -0.38
+        },
+        {
+          "key": [
+            "PHOENIXLTD",
+            "2026-08-24"
+          ],
+          "from_snapshot": "2026-09-04",
+          "to_snapshot": "2026-09-11",
+          "was": [
+            1916.1,
+            1876.0,
+            1996.3,
+            "A"
+          ],
+          "now": [
+            1913.57,
+            1876.0,
+            1988.7,
+            "A"
+          ],
+          "entry_delta_pct": -0.13,
+          "stop_delta_pct": 0.0
+        },
+        {
+          "key": [
+            "PHOENIXLTD",
+            "2026-08-24"
+          ],
+          "from_snapshot": "2026-09-25",
+          "to_snapshot": "2026-10-01",
+          "was": [
+            1913.57,
+            1876.0,
+            1988.7,
+            "A"
+          ],
+          "now": [
+            1913.57,
+            1873.52,
+            1993.66,
+            "A"
+          ],
+          "entry_delta_pct": 0.0,
+          "stop_delta_pct": -0.13
+        },
+        {
+          "key": [
+            "SAIL",
+            "2026-08-24"
+          ],
+          "from_snapshot": "2026-09-25",
+          "to_snapshot": "2026-10-01",
+          "was": [
+            174.8,
+            168.11,
+            188.18,
+            "A"
+          ],
+          "now": [
+            172.54,
+            165.94,
+            185.75,
+            "A"
+          ],
+          "entry_delta_pct": -1.29,
+          "stop_delta_pct": -1.29
+        }
+      ]
+    },
+    "rerun_vs_original": [
+      {
+        "rerun": "2026-07-31__rerun-20260804T215840Z",
+        "base": "2026-07-31",
+        "only_in_base": [],
+        "only_in_rerun": [],
+        "level_or_grade_changed": []
+      },
+      {
+        "rerun": "2026-07-31__rerun-20260810T101618Z",
+        "base": "2026-07-31",
+        "only_in_base": [],
+        "only_in_rerun": [],
+        "level_or_grade_changed": []
+      },
+      {
+        "rerun": "2026-08-14__rerun-20260816T004818Z",
+        "base": "2026-08-14",
+        "only_in_base": [],
+        "only_in_rerun": [
+          [
+            "CCL",
+            "2026-08-14"
+          ],
+          [
+            "NATIONALUM",
+            "2026-08-07"
+          ]
+        ],
+        "level_or_grade_changed": []
+      },
+      {
+        "rerun": "2026-09-15__rerun-20260915T221531Z",
+        "base": "2026-09-15",
+        "only_in_base": [],
+        "only_in_rerun": [],
+        "level_or_grade_changed": []
+      }
+    ],
+    "published_vs_fill": {
+      "n": 32,
+      "entry_slip_pct_mean": 0.37875000000000003,
+      "entry_slip_pct_min_max": [
+        -3.07,
+        4.19
+      ],
+      "risk_pct_pub_mean": 5.8218749999999995,
+      "risk_pct_fill_mean": 6.075,
+      "n_fill_above_no_chase": 1,
+      "n_fill_outside_band": 0,
+      "worst": [
+        {
+          "key": [
+            "POWERINDIA",
+            "2026-09-18",
+            "2026-09-21"
+          ],
+          "pub_entry": 31172.5,
+          "pub_stop": 29645.0,
+          "fill_entry": 32480.0,
+          "fill_stop": 29645.0,
+          "entry_slip_pct": 4.19,
+          "risk_pct_pub": 4.9,
+          "risk_pct_fill": 8.73,
+          "above_no_chase": true,
+          "outside_band": false
+        },
+        {
+          "key": [
+            "HINDALCO",
+            "2026-08-07",
+            "2026-08-11"
+          ],
+          "pub_entry": 1020.47,
+          "pub_stop": 981.35,
+          "fill_entry": 1053.4,
+          "fill_stop": 981.35,
+          "entry_slip_pct": 3.23,
+          "risk_pct_pub": 3.83,
+          "risk_pct_fill": 6.84,
+          "above_no_chase": false,
+          "outside_band": false
+        },
+        {
+          "key": [
+            "HINDZINC",
+            "2026-08-28",
+            "2026-08-31"
+          ],
+          "pub_entry": 622.0,
+          "pub_stop": 586.85,
+          "fill_entry": 602.9,
+          "fill_stop": 586.85,
+          "entry_slip_pct": -3.07,
+          "risk_pct_pub": 5.65,
+          "risk_pct_fill": 2.66,
+          "above_no_chase": false,
+          "outside_band": false
+        },
+        {
+          "key": [
+            "ABCAPITAL",
+            "2026-09-18",
+            "2026-09-21"
+          ],
+          "pub_entry": 394.02,
+          "pub_stop": 378.0,
+          "fill_entry": 405.1,
+          "fill_stop": 378.0,
+          "entry_slip_pct": 2.81,
+          "risk_pct_pub": 4.07,
+          "risk_pct_fill": 6.69,
+          "above_no_chase": false,
+          "outside_band": false
+        },
+        {
+          "key": [
+            "MANAPPURAM",
+            "2026-09-25",
+            "2026-09-28"
+          ],
+          "pub_entry": 334.0,
+          "pub_stop": 313.15,
+          "fill_entry": 328.0,
+          "fill_stop": 313.15,
+          "entry_slip_pct": -1.8,
+          "risk_pct_pub": 6.24,
+          "risk_pct_fill": 4.53,
+          "above_no_chase": false,
+          "outside_band": false
+        },
+        {
+          "key": [
+            "STARHEALTH",
+            "2026-09-25",
+            "2026-09-28"
+          ],
+          "pub_entry": 558.15,
+          "pub_stop": 513.0,
+          "fill_entry": 550.8,
+          "fill_stop": 513.0,
+          "entry_slip_pct": -1.32,
+          "risk_pct_pub": 8.09,
+          "risk_pct_fill": 6.86,
+          "above_no_chase": false,
+          "outside_band": false
+        },
+        {
+          "key": [
+            "M&MFIN",
+            "2026-07-24",
+            "2026-07-27"
+          ],
+          "pub_entry": 356.5,
+          "pub_stop": 317.6,
+          "fill_entry": 361.0,
+          "fill_stop": 324.9,
+          "entry_slip_pct": 1.26,
+          "risk_pct_pub": 10.91,
+          "risk_pct_fill": 10.0,
+          "above_no_chase": false,
+          "outside_band": false
+        },
+        {
+          "key": [
+            "PTCIL",
+            "2026-08-07",
+            "2026-08-10"
+          ],
+          "pub_entry": 19076.0,
+          "pub_stop": 17776.0,
+          "fill_entry": 19299.0,
+          "fill_stop": 17776.0,
+          "entry_slip_pct": 1.17,
+          "risk_pct_pub": 6.81,
+          "risk_pct_fill": 7.89,
+          "above_no_chase": false,
+          "outside_band": false
+        }
+      ]
+    },
+    "stop_pct_distribution": {
+      "min": 1.52,
+      "median": 6.25,
+      "max": 10.91
+    }
+  },
+  "B_corporate_action_exposure": {
+    "events_loaded": {
+      "layer2_passA_max_ex": "2026-06-24",
+      "n_events": 10302,
+      "by_kind": {
+        "dividend": 9835,
+        "rights": 239,
+        "bonus": 115,
+        "split": 68,
+        "demerger": 38,
+        "bonus+split": 7
+      },
+      "census_end": "2026-07-01"
+    },
+    "fresh": {
+      "observations": 48,
+      "distinct_ticker_signals": 36,
+      "with_ca_in_lookback": 16,
+      "share": 0.444
+    },
+    "held": {
+      "observations": 328,
+      "distinct_ticker_signals": 53,
+      "with_ca_in_lookback": 27,
+      "share": 0.509
+    },
+    "events_by_kind_distinct_signals": {
+      "dividend": 40,
+      "bonus": 1,
+      "split": 6,
+      "demerger": 1
+    },
+    "fresh_event_in_signal_week": 0,
+    "held_event_during_hold": 1,
+    "fresh_cap_flips_if_raw": 0,
+    "fresh_ext_shift_pp_abs_max": 81.44,
+    "worst_ext_shift": [
+      {
+        "snapshot": "2026-09-11",
+        "ticker": "ANGELONE",
+        "role": "FRESH",
+        "sma44_raw_over_adj": 4.1055,
+        "ext_adj": 7.66,
+        "ext_raw_est": -73.78,
+        "ext_shift_pp": -81.44,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-08-14",
+        "ticker": "MCX",
+        "role": "FRESH",
+        "sma44_raw_over_adj": 2.0,
+        "ext_adj": 16.75,
+        "ext_raw_est": -41.63,
+        "ext_shift_pp": -58.38,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-10-01",
+        "ticker": "NUVAMA",
+        "role": "FRESH",
+        "sma44_raw_over_adj": 1.3711,
+        "ext_adj": 12.03,
+        "ext_raw_est": -18.29,
+        "ext_shift_pp": -30.32,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-08-28",
+        "ticker": "HINDZINC",
+        "role": "FRESH",
+        "sma44_raw_over_adj": 1.0104,
+        "ext_adj": 10.31,
+        "ext_raw_est": 9.17,
+        "ext_shift_pp": -1.14,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-09-11",
+        "ticker": "GESHIP",
+        "role": "FRESH",
+        "sma44_raw_over_adj": 1.0068,
+        "ext_adj": 7.72,
+        "ext_raw_est": 6.99,
+        "ext_shift_pp": -0.73,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-08-07",
+        "ticker": "ENGINERSIN",
+        "role": "FRESH",
+        "sma44_raw_over_adj": 1.0037,
+        "ext_adj": 13.38,
+        "ext_raw_est": 12.96,
+        "ext_shift_pp": -0.42,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-08-17",
+        "ticker": "ADANIPORTS",
+        "role": "FRESH",
+        "sma44_raw_over_adj": 1.0034,
+        "ext_adj": 6.84,
+        "ext_raw_est": 6.47,
+        "ext_shift_pp": -0.37,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-09-04",
+        "ticker": "ASTERDM",
+        "role": "FRESH",
+        "sma44_raw_over_adj": 1.0018,
+        "ext_adj": 12.62,
+        "ext_raw_est": 12.41,
+        "ext_shift_pp": -0.21,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-09-25",
+        "ticker": "MANAPPURAM",
+        "role": "FRESH",
+        "sma44_raw_over_adj": 1.0012,
+        "ext_adj": 8.95,
+        "ext_raw_est": 8.82,
+        "ext_shift_pp": -0.13,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-08-17",
+        "ticker": "CCL",
+        "role": "FRESH",
+        "sma44_raw_over_adj": 1.0009,
+        "ext_adj": 8.07,
+        "ext_raw_est": 7.97,
+        "ext_shift_pp": -0.1,
+        "cap_flips": false
+      }
+    ],
+    "worst_sma_distortion_any_role": [
+      {
+        "snapshot": "2026-09-11",
+        "ticker": "ANGELONE",
+        "role": "FRESH",
+        "sma44_raw_over_adj": 4.1055,
+        "ext_adj": 7.66,
+        "ext_raw_est": -73.78,
+        "ext_shift_pp": -81.44,
+        "cap_flips": false,
+        "events": [
+          {
+            "ex": "2026-02-26",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 10.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          },
+          {
+            "ex": "2026-01-21",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 23 Per Share",
+            "factor": 1.00754,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-03-27",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs  1.75 Per Share",
+            "factor": 1.00574,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ]
+      },
+      {
+        "snapshot": "2026-09-18",
+        "ticker": "ANGELONE",
+        "role": "HELD",
+        "sma44_raw_over_adj": 3.8986,
+        "ext_adj": NaN,
+        "ext_raw_est": NaN,
+        "ext_shift_pp": NaN,
+        "cap_flips": NaN,
+        "events": [
+          {
+            "ex": "2026-02-26",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 10.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          },
+          {
+            "ex": "2026-01-21",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 23 Per Share",
+            "factor": 1.00769,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-03-27",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs  1.75 Per Share",
+            "factor": 1.00585,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ]
+      },
+      {
+        "snapshot": "2026-08-14",
+        "ticker": "MCX",
+        "role": "FRESH",
+        "sma44_raw_over_adj": 2.0,
+        "ext_adj": 16.75,
+        "ext_raw_est": -41.63,
+        "ext_shift_pp": -58.38,
+        "cap_flips": false,
+        "events": [
+          {
+            "ex": "2026-01-02",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 5.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ]
+      },
+      {
+        "snapshot": "2026-08-21",
+        "ticker": "MCX",
+        "role": "HELD",
+        "sma44_raw_over_adj": 1.9091,
+        "ext_adj": NaN,
+        "ext_raw_est": NaN,
+        "ext_shift_pp": NaN,
+        "cap_flips": NaN,
+        "events": [
+          {
+            "ex": "2026-01-02",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 5.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ]
+      },
+      {
+        "snapshot": "2026-10-01",
+        "ticker": "NUVAMA",
+        "role": "FRESH",
+        "sma44_raw_over_adj": 1.3711,
+        "ext_adj": 12.03,
+        "ext_raw_est": -18.29,
+        "ext_shift_pp": -30.32,
+        "cap_flips": false,
+        "events": [
+          {
+            "ex": "2025-12-26",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 5.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          },
+          {
+            "ex": "2026-05-15",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 14 Per Share",
+            "factor": 1.00823,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ]
+      },
+      {
+        "snapshot": "2026-07-24",
+        "ticker": "CUB",
+        "role": "HELD",
+        "sma44_raw_over_adj": 1.2803,
+        "ext_adj": NaN,
+        "ext_raw_est": NaN,
+        "ext_shift_pp": NaN,
+        "cap_flips": NaN,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "bonus",
+            "subject": "Bonus 1:3",
+            "factor": 1.33333,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ]
+      },
+      {
+        "snapshot": "2026-10-16",
+        "ticker": "NUVAMA",
+        "role": "HELD",
+        "sma44_raw_over_adj": 1.0956,
+        "ext_adj": NaN,
+        "ext_raw_est": NaN,
+        "ext_shift_pp": NaN,
+        "cap_flips": NaN,
+        "events": [
+          {
+            "ex": "2025-12-26",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 5.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          },
+          {
+            "ex": "2026-05-15",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 14 Per Share",
+            "factor": 1.00821,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ]
+      },
+      {
+        "snapshot": "2026-07-24",
+        "ticker": "MRPL",
+        "role": "HELD",
+        "sma44_raw_over_adj": 1.0129,
+        "ext_adj": NaN,
+        "ext_raw_est": NaN,
+        "ext_shift_pp": NaN,
+        "cap_flips": NaN,
+        "events": [
+          {
+            "ex": "2026-03-11",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 4 Per Share",
+            "factor": 1.02356,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ]
+      },
+      {
+        "snapshot": "2026-07-24",
+        "ticker": "BAJAJ-AUTO",
+        "role": "HELD",
+        "sma44_raw_over_adj": 1.0107,
+        "ext_adj": NaN,
+        "ext_raw_est": NaN,
+        "ext_shift_pp": NaN,
+        "cap_flips": NaN,
+        "events": [
+          {
+            "ex": "2026-05-29",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 150 Per Share",
+            "factor": 1.01348,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ]
+      },
+      {
+        "snapshot": "2026-08-28",
+        "ticker": "HINDZINC",
+        "role": "FRESH",
+        "sma44_raw_over_adj": 1.0104,
+        "ext_adj": 10.31,
+        "ext_raw_est": 9.17,
+        "ext_shift_pp": -1.14,
+        "cap_flips": false,
+        "events": [
+          {
+            "ex": "2026-04-30",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 11 Per Share",
+            "factor": 1.01768,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ]
+      }
+    ],
+    "live_window_close_breaks_gt25pct": [
+      {
+        "ticker": "HEG",
+        "from": "2026-09-04",
+        "to": "2026-09-11",
+        "close_from": 728.25,
+        "close_to": 237.2,
+        "ratio": 0.326
+      }
+    ],
+    "n_rows_with_known_seam_in_lookback": 0,
+    "exposure_rows": [
+      {
+        "snapshot": "2026-07-24",
+        "ticker": "GESHIP",
+        "role": "FRESH",
+        "status": "FRESH",
+        "signal_date": "2026-07-24",
+        "n_events": 3,
+        "events": [
+          {
+            "ex": "2025-11-13",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 7.20 Per Share",
+            "factor": 1.00501,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-02-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 9 Per Share",
+            "factor": 1.00626,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-05-20",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 11.70 Per Share",
+            "factor": 1.00814,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0098,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-07-24",
+        "ticker": "TVSMOTOR",
+        "role": "FRESH",
+        "status": "FRESH",
+        "signal_date": "2026-07-24",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-30",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 12 Per Share",
+            "factor": 1.0031,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0019,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-07-24",
+        "ticker": "INDUSINDBK",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-25",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 1.50 Per Share",
+            "factor": 1.00151,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0013,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-07-24",
+        "ticker": "NESTLEIND",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-02-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 7 Per Share",
+            "factor": 1.00485,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0021,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-07-24",
+        "ticker": "CUB",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "bonus",
+            "subject": "Bonus 1:3",
+            "factor": 1.33333,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.2803,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-07-24",
+        "ticker": "LTF",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-09",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-22",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 2.75 Per Share",
+            "factor": 1.00909,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.007,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-07-24",
+        "ticker": "NLCINDIA",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-13",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-01-20",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 3.60 Per Share",
+            "factor": 1.0123,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0048,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-07-24",
+        "ticker": "GLENMARK",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-07-13",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2025-10-03",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 2.50 Per Share",
+            "factor": 1.00114,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-07-24",
+        "ticker": "BAJAJ-AUTO",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-13",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-29",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 150 Per Share",
+            "factor": 1.01348,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0107,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-07-24",
+        "ticker": "CANFINHOME",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-07-13",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2025-12-19",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 7 Per Share",
+            "factor": 1.0086,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0023,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-07-24",
+        "ticker": "NATCOPHARM",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-07-13",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2025-11-20",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 1.50 Per Share",
+            "factor": 1.00163,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-02-18",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 1.50 Per Share",
+            "factor": 1.00163,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0011,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-07-24",
+        "ticker": "MRPL",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-20",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-11",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 4 Per Share",
+            "factor": 1.02356,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0129,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-07-31",
+        "ticker": "CHOLAFIN",
+        "role": "FRESH",
+        "status": "FRESH",
+        "signal_date": "2026-07-31",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-02-05",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 1.30 Per Share",
+            "factor": 1.0007,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0003,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": 12.03,
+        "ext_raw_est": 12.0,
+        "ext_shift_pp": -0.03,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-07-31",
+        "ticker": "INDUSINDBK",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-25",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 1.50 Per Share",
+            "factor": 1.00148,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0013,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-07-31",
+        "ticker": "NESTLEIND",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-02-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 7 Per Share",
+            "factor": 1.00464,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0019,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-07-31",
+        "ticker": "CUB",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "bonus",
+            "subject": "Bonus 1:3",
+            "factor": 1.33333,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.2727,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-07-31",
+        "ticker": "LTF",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-09",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-22",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 2.75 Per Share",
+            "factor": 1.00898,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0067,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-07-31",
+        "ticker": "NLCINDIA",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-07-13",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-01-20",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 3.60 Per Share",
+            "factor": 1.01233,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0045,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-07-31",
+        "ticker": "BAJAJ-AUTO",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-13",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-29",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 150 Per Share",
+            "factor": 1.01312,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0101,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-07-31",
+        "ticker": "MRPL",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-20",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-11",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 4 Per Share",
+            "factor": 1.02354,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0123,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-07-31",
+        "ticker": "GESHIP",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-27",
+        "n_events": 3,
+        "events": [
+          {
+            "ex": "2025-11-13",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 7.20 Per Share",
+            "factor": 1.00525,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-02-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 9 Per Share",
+            "factor": 1.00656,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-05-20",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 11.70 Per Share",
+            "factor": 1.00853,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0098,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-07-31",
+        "ticker": "TVSMOTOR",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-27",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-30",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 12 Per Share",
+            "factor": 1.00285,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0017,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-07",
+        "ticker": "ENGINERSIN",
+        "role": "FRESH",
+        "status": "FRESH",
+        "signal_date": "2026-08-07",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2025-12-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Re 1 Per Share",
+            "factor": 1.00416,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-03-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 1.50 Per Share",
+            "factor": 1.00623,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0037,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": 13.38,
+        "ext_raw_est": 12.96,
+        "ext_shift_pp": -0.42,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-08-07",
+        "ticker": "INDUSINDBK",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-25",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 1.50 Per Share",
+            "factor": 1.00147,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0012,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-07",
+        "ticker": "NESTLEIND",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-02-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 7 Per Share",
+            "factor": 1.00455,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0018,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-07",
+        "ticker": "CUB",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "bonus",
+            "subject": "Bonus 1:3",
+            "factor": 1.33333,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.2651,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-07",
+        "ticker": "LTF",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-09",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-22",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 2.75 Per Share",
+            "factor": 1.00893,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0065,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-07",
+        "ticker": "NLCINDIA",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-13",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-01-20",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 3.60 Per Share",
+            "factor": 1.01183,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.004,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-07",
+        "ticker": "BAJAJ-AUTO",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-13",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-29",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 150 Per Share",
+            "factor": 1.01286,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0096,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-07",
+        "ticker": "MRPL",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-20",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-11",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 4 Per Share",
+            "factor": 1.02395,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.012,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-07",
+        "ticker": "GESHIP",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-27",
+        "n_events": 3,
+        "events": [
+          {
+            "ex": "2025-11-13",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 7.20 Per Share",
+            "factor": 1.00537,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-02-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 9 Per Share",
+            "factor": 1.00671,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-05-20",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 11.70 Per Share",
+            "factor": 1.00872,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0096,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-07",
+        "ticker": "TVSMOTOR",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-27",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-30",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 12 Per Share",
+            "factor": 1.0027,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0015,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-12",
+        "ticker": "ENGINERSIN",
+        "role": "FRESH",
+        "status": "FRESH",
+        "signal_date": "2026-08-07",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2025-12-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Re 1 Per Share",
+            "factor": 1.00418,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-03-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 1.50 Per Share",
+            "factor": 1.00627,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0038,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": 12.26,
+        "ext_raw_est": 11.84,
+        "ext_shift_pp": -0.42,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-08-12",
+        "ticker": "INDUSINDBK",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-25",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 1.50 Per Share",
+            "factor": 1.00147,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0012,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-12",
+        "ticker": "NESTLEIND",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-02-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 7 Per Share",
+            "factor": 1.00464,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0018,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-12",
+        "ticker": "CUB",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "bonus",
+            "subject": "Bonus 1:3",
+            "factor": 1.33333,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.2651,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-12",
+        "ticker": "LTF",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-09",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-22",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 2.75 Per Share",
+            "factor": 1.00867,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0063,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-12",
+        "ticker": "NLCINDIA",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-07-13",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-01-20",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 3.60 Per Share",
+            "factor": 1.01301,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0041,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-12",
+        "ticker": "BAJAJ-AUTO",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-13",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-29",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 150 Per Share",
+            "factor": 1.01282,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0096,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-12",
+        "ticker": "MRPL",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-20",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-11",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 4 Per Share",
+            "factor": 1.02281,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0109,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-12",
+        "ticker": "GESHIP",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-07-27",
+        "n_events": 3,
+        "events": [
+          {
+            "ex": "2025-11-13",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 7.20 Per Share",
+            "factor": 1.00562,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-02-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 9 Per Share",
+            "factor": 1.00702,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-05-20",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 11.70 Per Share",
+            "factor": 1.00913,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0097,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-12",
+        "ticker": "TVSMOTOR",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-27",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-30",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 12 Per Share",
+            "factor": 1.00274,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0015,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-14",
+        "ticker": "MCX",
+        "role": "FRESH",
+        "status": "FRESH",
+        "signal_date": "2026-08-14",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-01-02",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 5.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 2.0,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": 16.75,
+        "ext_raw_est": -41.63,
+        "ext_shift_pp": -58.38,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-08-14",
+        "ticker": "INDUSINDBK",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-25",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 1.50 Per Share",
+            "factor": 1.00146,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0012,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-14",
+        "ticker": "NESTLEIND",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-02-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 7 Per Share",
+            "factor": 1.00467,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0017,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-14",
+        "ticker": "CUB",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "bonus",
+            "subject": "Bonus 1:3",
+            "factor": 1.33333,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.2576,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-14",
+        "ticker": "LTF",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-09",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-22",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 2.75 Per Share",
+            "factor": 1.00898,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0063,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-14",
+        "ticker": "NLCINDIA",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-07-13",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-01-20",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 3.60 Per Share",
+            "factor": 1.01307,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0042,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-14",
+        "ticker": "BAJAJ-AUTO",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-13",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-29",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 150 Per Share",
+            "factor": 1.01282,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0093,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-14",
+        "ticker": "MRPL",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-20",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-11",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 4 Per Share",
+            "factor": 1.02345,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0112,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-14",
+        "ticker": "GESHIP",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-07-27",
+        "n_events": 3,
+        "events": [
+          {
+            "ex": "2025-11-13",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 7.20 Per Share",
+            "factor": 1.00554,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-02-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 9 Per Share",
+            "factor": 1.00693,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-05-20",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 11.70 Per Share",
+            "factor": 1.00901,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0094,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-14",
+        "ticker": "TVSMOTOR",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-27",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-30",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 12 Per Share",
+            "factor": 1.00279,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0015,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-14",
+        "ticker": "ENGINERSIN",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-10",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2025-12-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Re 1 Per Share",
+            "factor": 1.00416,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-03-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 1.50 Per Share",
+            "factor": 1.00623,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0035,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-17",
+        "ticker": "MCX",
+        "role": "FRESH",
+        "status": "FRESH",
+        "signal_date": "2026-08-14",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-01-02",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 5.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 2.0,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": 17.56,
+        "ext_raw_est": -41.22,
+        "ext_shift_pp": -58.78,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-08-17",
+        "ticker": "ADANIPORTS",
+        "role": "FRESH",
+        "status": "FRESH",
+        "signal_date": "2026-08-14",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 7.50 Per Share",
+            "factor": 1.00444,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0034,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": 6.84,
+        "ext_raw_est": 6.47,
+        "ext_shift_pp": -0.37,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-08-17",
+        "ticker": "CCL",
+        "role": "FRESH",
+        "status": "FRESH",
+        "signal_date": "2026-08-14",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-02-10",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 2.75 Per Share",
+            "factor": 1.00242,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0009,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": 8.07,
+        "ext_raw_est": 7.97,
+        "ext_shift_pp": -0.1,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-08-17",
+        "ticker": "INDUSINDBK",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-25",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 1.50 Per Share",
+            "factor": 1.00148,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0012,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-17",
+        "ticker": "NESTLEIND",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-02-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 7 Per Share",
+            "factor": 1.00473,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0017,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-17",
+        "ticker": "CUB",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "bonus",
+            "subject": "Bonus 1:3",
+            "factor": 1.33333,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.2576,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-17",
+        "ticker": "LTF",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-09",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-22",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 2.75 Per Share",
+            "factor": 1.00878,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0062,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-17",
+        "ticker": "BAJAJ-AUTO",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-13",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-29",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 150 Per Share",
+            "factor": 1.01276,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0093,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-17",
+        "ticker": "MRPL",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-20",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-11",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 4 Per Share",
+            "factor": 1.02303,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.011,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-17",
+        "ticker": "TVSMOTOR",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-27",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-30",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 12 Per Share",
+            "factor": 1.00274,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0014,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-17",
+        "ticker": "ENGINERSIN",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-10",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2025-12-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Re 1 Per Share",
+            "factor": 1.00416,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-03-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 1.50 Per Share",
+            "factor": 1.00625,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0035,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-21",
+        "ticker": "INDUSINDBK",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-25",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 1.50 Per Share",
+            "factor": 1.00149,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0012,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-21",
+        "ticker": "NESTLEIND",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-02-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 7 Per Share",
+            "factor": 1.00474,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0016,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-21",
+        "ticker": "CUB",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "bonus",
+            "subject": "Bonus 1:3",
+            "factor": 1.33333,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.25,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-21",
+        "ticker": "LTF",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-09",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-22",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 2.75 Per Share",
+            "factor": 1.00867,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0059,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-21",
+        "ticker": "BAJAJ-AUTO",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-13",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-29",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 150 Per Share",
+            "factor": 1.01282,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.009,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-21",
+        "ticker": "MRPL",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-20",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-11",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 4 Per Share",
+            "factor": 1.02262,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0103,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-21",
+        "ticker": "TVSMOTOR",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-27",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-30",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 12 Per Share",
+            "factor": 1.00273,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0014,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-21",
+        "ticker": "ENGINERSIN",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-10",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2025-12-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Re 1 Per Share",
+            "factor": 1.00408,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-03-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 1.50 Per Share",
+            "factor": 1.00612,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0032,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-21",
+        "ticker": "MCX",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-17",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-01-02",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 5.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.9091,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-21",
+        "ticker": "ADANIPORTS",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-17",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 7.50 Per Share",
+            "factor": 1.00441,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0033,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-21",
+        "ticker": "CCL",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-08-17",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-02-10",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 2.75 Per Share",
+            "factor": 1.00247,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0009,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-28",
+        "ticker": "HINDZINC",
+        "role": "FRESH",
+        "status": "FRESH",
+        "signal_date": "2026-08-28",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-04-30",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 11 Per Share",
+            "factor": 1.01768,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0104,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": 10.31,
+        "ext_raw_est": 9.17,
+        "ext_shift_pp": -1.14,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-08-28",
+        "ticker": "INDUSINDBK",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-25",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 1.50 Per Share",
+            "factor": 1.00151,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0012,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-28",
+        "ticker": "NESTLEIND",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-02-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 7 Per Share",
+            "factor": 1.00481,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0015,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-28",
+        "ticker": "CUB",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "bonus",
+            "subject": "Bonus 1:3",
+            "factor": 1.33333,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.2424,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-28",
+        "ticker": "LTF",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-09",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-22",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 2.75 Per Share",
+            "factor": 1.00875,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0058,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-28",
+        "ticker": "BAJAJ-AUTO",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-13",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-29",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 150 Per Share",
+            "factor": 1.01259,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0086,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-28",
+        "ticker": "MRPL",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-20",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-11",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 4 Per Share",
+            "factor": 1.02373,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0102,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-28",
+        "ticker": "TVSMOTOR",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-27",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-30",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 12 Per Share",
+            "factor": 1.00279,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0014,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-28",
+        "ticker": "ENGINERSIN",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-10",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2025-12-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Re 1 Per Share",
+            "factor": 1.00394,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-03-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 1.50 Per Share",
+            "factor": 1.00591,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0029,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-28",
+        "ticker": "MCX",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-17",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-01-02",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 5.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.8182,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-08-28",
+        "ticker": "ADANIPORTS",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-17",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 7.50 Per Share",
+            "factor": 1.00439,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0032,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-04",
+        "ticker": "ASTERDM",
+        "role": "FRESH",
+        "status": "FRESH",
+        "signal_date": "2026-09-04",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-04-02",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 3 Per Share",
+            "factor": 1.00382,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0018,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": 12.62,
+        "ext_raw_est": 12.41,
+        "ext_shift_pp": -0.21,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-09-04",
+        "ticker": "INDUSINDBK",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-25",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 1.50 Per Share",
+            "factor": 1.00149,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0011,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-04",
+        "ticker": "NESTLEIND",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-02-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 7 Per Share",
+            "factor": 1.00496,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0015,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-04",
+        "ticker": "CUB",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "bonus",
+            "subject": "Bonus 1:3",
+            "factor": 1.33333,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.2348,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-04",
+        "ticker": "LTF",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-09",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-22",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 2.75 Per Share",
+            "factor": 1.00876,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0056,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-04",
+        "ticker": "BAJAJ-AUTO",
+        "role": "HELD",
+        "status": "HIT_TARGET",
+        "signal_date": "2026-07-13",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-29",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 150 Per Share",
+            "factor": 1.01258,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0083,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-04",
+        "ticker": "MRPL",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-20",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-11",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 4 Per Share",
+            "factor": 1.02288,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0094,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-04",
+        "ticker": "TVSMOTOR",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-27",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-30",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 12 Per Share",
+            "factor": 1.0029,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0014,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-04",
+        "ticker": "ENGINERSIN",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-10",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2025-12-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Re 1 Per Share",
+            "factor": 1.00358,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-03-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 1.50 Per Share",
+            "factor": 1.00537,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0024,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-04",
+        "ticker": "MCX",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-17",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-01-02",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 5.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.7273,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-04",
+        "ticker": "ADANIPORTS",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-17",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 7.50 Per Share",
+            "factor": 1.00439,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0031,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-04",
+        "ticker": "HINDZINC",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-31",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-04-30",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 11 Per Share",
+            "factor": 1.0183,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0104,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-11",
+        "ticker": "CHOLAFIN",
+        "role": "FRESH",
+        "status": "FRESH",
+        "signal_date": "2026-09-11",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-02-05",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 1.30 Per Share",
+            "factor": 1.0007,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0002,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": 9.96,
+        "ext_raw_est": 9.94,
+        "ext_shift_pp": -0.02,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-09-11",
+        "ticker": "ANGELONE",
+        "role": "FRESH",
+        "status": "FRESH",
+        "signal_date": "2026-09-11",
+        "n_events": 3,
+        "events": [
+          {
+            "ex": "2026-02-26",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 10.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          },
+          {
+            "ex": "2026-01-21",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 23 Per Share",
+            "factor": 1.00754,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-03-27",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs  1.75 Per Share",
+            "factor": 1.00574,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 4.1055,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": 7.66,
+        "ext_raw_est": -73.78,
+        "ext_shift_pp": -81.44,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-09-11",
+        "ticker": "GESHIP",
+        "role": "FRESH",
+        "status": "FRESH",
+        "signal_date": "2026-09-11",
+        "n_events": 3,
+        "events": [
+          {
+            "ex": "2025-11-13",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 7.20 Per Share",
+            "factor": 1.0051,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-02-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 9 Per Share",
+            "factor": 1.00637,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-05-20",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 11.70 Per Share",
+            "factor": 1.00828,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0068,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": 7.72,
+        "ext_raw_est": 6.99,
+        "ext_shift_pp": -0.73,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-09-11",
+        "ticker": "INDUSINDBK",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-25",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 1.50 Per Share",
+            "factor": 1.00153,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0011,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-11",
+        "ticker": "NESTLEIND",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-02-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 7 Per Share",
+            "factor": 1.00506,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0014,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-11",
+        "ticker": "CUB",
+        "role": "HELD",
+        "status": "HIT_TARGET",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "bonus",
+            "subject": "Bonus 1:3",
+            "factor": 1.33333,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.2273,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-11",
+        "ticker": "LTF",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-09",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-22",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 2.75 Per Share",
+            "factor": 1.0089,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0055,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-11",
+        "ticker": "BAJAJ-AUTO",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-13",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-29",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 150 Per Share",
+            "factor": 1.01284,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0082,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-11",
+        "ticker": "MRPL",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-20",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-11",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 4 Per Share",
+            "factor": 1.02275,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0088,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-11",
+        "ticker": "HEG",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-07-27",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-09-07",
+            "kind": "demerger",
+            "subject": "Demerger",
+            "factor": 0.99438,
+            "resolution": "LEFT_UNADJUSTED_AS_INTENDED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0,
+        "event_in_signal_week": true,
+        "event_during_hold": true,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-11",
+        "ticker": "TVSMOTOR",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-27",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-30",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 12 Per Share",
+            "factor": 1.00291,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0013,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-11",
+        "ticker": "ENGINERSIN",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-10",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2025-12-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Re 1 Per Share",
+            "factor": 1.00372,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-03-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 1.50 Per Share",
+            "factor": 1.00558,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0023,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-11",
+        "ticker": "MCX",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-17",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-01-02",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 5.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.6364,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-11",
+        "ticker": "ADANIPORTS",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-17",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 7.50 Per Share",
+            "factor": 1.00425,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0029,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-11",
+        "ticker": "HINDZINC",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-08-31",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-04-30",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 11 Per Share",
+            "factor": 1.01908,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0104,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-11",
+        "ticker": "ASTERDM",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-09-07",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-04-02",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 3 Per Share",
+            "factor": 1.00393,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0018,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-15",
+        "ticker": "CHOLAFIN",
+        "role": "FRESH",
+        "status": "FRESH",
+        "signal_date": "2026-09-11",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-02-05",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 1.30 Per Share",
+            "factor": 1.00073,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0002,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": 8.99,
+        "ext_raw_est": 8.97,
+        "ext_shift_pp": -0.02,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-09-15",
+        "ticker": "ANGELONE",
+        "role": "FRESH",
+        "status": "FRESH",
+        "signal_date": "2026-09-11",
+        "n_events": 3,
+        "events": [
+          {
+            "ex": "2026-02-26",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 10.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          },
+          {
+            "ex": "2026-01-21",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 23 Per Share",
+            "factor": 1.00773,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-03-27",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs  1.75 Per Share",
+            "factor": 1.00588,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 4.1064,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": 4.78,
+        "ext_raw_est": -74.48,
+        "ext_shift_pp": -79.26,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-09-15",
+        "ticker": "GESHIP",
+        "role": "FRESH",
+        "status": "FRESH",
+        "signal_date": "2026-09-11",
+        "n_events": 3,
+        "events": [
+          {
+            "ex": "2025-11-13",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 7.20 Per Share",
+            "factor": 1.00518,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-02-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 9 Per Share",
+            "factor": 1.00647,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-05-20",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 11.70 Per Share",
+            "factor": 1.00841,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0069,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": 5.54,
+        "ext_raw_est": 4.81,
+        "ext_shift_pp": -0.73,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-09-15",
+        "ticker": "INDUSINDBK",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-25",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 1.50 Per Share",
+            "factor": 1.00157,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0011,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-15",
+        "ticker": "NESTLEIND",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-02-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 7 Per Share",
+            "factor": 1.00514,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0014,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-15",
+        "ticker": "CUB",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "bonus",
+            "subject": "Bonus 1:3",
+            "factor": 1.33333,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.2273,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-15",
+        "ticker": "LTF",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-07-09",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-22",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 2.75 Per Share",
+            "factor": 1.00927,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0057,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-15",
+        "ticker": "BAJAJ-AUTO",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-13",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-29",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 150 Per Share",
+            "factor": 1.01313,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0084,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-15",
+        "ticker": "MRPL",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-20",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-11",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 4 Per Share",
+            "factor": 1.02398,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0093,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-15",
+        "ticker": "HEG",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-27",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-09-07",
+            "kind": "demerger",
+            "subject": "Demerger",
+            "factor": 0.99438,
+            "resolution": "LEFT_UNADJUSTED_AS_INTENDED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0,
+        "event_in_signal_week": false,
+        "event_during_hold": true,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-15",
+        "ticker": "TVSMOTOR",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-27",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-30",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 12 Per Share",
+            "factor": 1.00296,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0013,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-15",
+        "ticker": "ENGINERSIN",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-10",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2025-12-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Re 1 Per Share",
+            "factor": 1.00381,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-03-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 1.50 Per Share",
+            "factor": 1.00572,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0023,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-15",
+        "ticker": "MCX",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-17",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-01-02",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 5.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.6364,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-15",
+        "ticker": "ADANIPORTS",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-17",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 7.50 Per Share",
+            "factor": 1.00438,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.003,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-15",
+        "ticker": "ASTERDM",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-09-07",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-04-02",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 3 Per Share",
+            "factor": 1.00405,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0018,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-18",
+        "ticker": "CARBORUNIV",
+        "role": "FRESH",
+        "status": "FRESH",
+        "signal_date": "2026-09-18",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-02-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 1.50 Per Share",
+            "factor": 1.00133,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0003,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": 17.78,
+        "ext_raw_est": 17.74,
+        "ext_shift_pp": -0.04,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-09-18",
+        "ticker": "INDUSINDBK",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-25",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 1.50 Per Share",
+            "factor": 1.00155,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0011,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-18",
+        "ticker": "NESTLEIND",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-02-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 7 Per Share",
+            "factor": 1.0051,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0013,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-18",
+        "ticker": "CUB",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "bonus",
+            "subject": "Bonus 1:3",
+            "factor": 1.33333,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.2197,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-18",
+        "ticker": "LTF",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-09",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-22",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 2.75 Per Share",
+            "factor": 1.00879,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0052,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-18",
+        "ticker": "BAJAJ-AUTO",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-13",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-29",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 150 Per Share",
+            "factor": 1.01314,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0081,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-18",
+        "ticker": "MRPL",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-07-20",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-11",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 4 Per Share",
+            "factor": 1.02419,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0088,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-18",
+        "ticker": "HEG",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-27",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-09-07",
+            "kind": "demerger",
+            "subject": "Demerger",
+            "factor": 0.99438,
+            "resolution": "LEFT_UNADJUSTED_AS_INTENDED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0,
+        "event_in_signal_week": false,
+        "event_during_hold": true,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-18",
+        "ticker": "TVSMOTOR",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-27",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-30",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 12 Per Share",
+            "factor": 1.00288,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0012,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-18",
+        "ticker": "ENGINERSIN",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-10",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2025-12-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Re 1 Per Share",
+            "factor": 1.00375,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-03-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 1.50 Per Share",
+            "factor": 1.00563,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0021,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-18",
+        "ticker": "MCX",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-17",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-01-02",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 5.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.5455,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-18",
+        "ticker": "ADANIPORTS",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-17",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 7.50 Per Share",
+            "factor": 1.00411,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0027,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-18",
+        "ticker": "ASTERDM",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-09-07",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-04-02",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 3 Per Share",
+            "factor": 1.00397,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0017,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-18",
+        "ticker": "CHOLAFIN",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-09-14",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-02-05",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 1.30 Per Share",
+            "factor": 1.00072,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0002,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-18",
+        "ticker": "ANGELONE",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-09-14",
+        "n_events": 3,
+        "events": [
+          {
+            "ex": "2026-02-26",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 10.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          },
+          {
+            "ex": "2026-01-21",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 23 Per Share",
+            "factor": 1.00769,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-03-27",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs  1.75 Per Share",
+            "factor": 1.00585,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 3.8986,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-18",
+        "ticker": "GESHIP",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-09-14",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2026-02-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 9 Per Share",
+            "factor": 1.00628,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-05-20",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 11.70 Per Share",
+            "factor": 1.00817,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0064,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-25",
+        "ticker": "OBEROIRLTY",
+        "role": "FRESH",
+        "status": "FRESH",
+        "signal_date": "2026-09-25",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2026-01-23",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 2 Per Share",
+            "factor": 1.00108,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-05-14",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 2 Per Share",
+            "factor": 1.00108,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0008,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": 10.75,
+        "ext_raw_est": 10.66,
+        "ext_shift_pp": -0.09,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-09-25",
+        "ticker": "MANAPPURAM",
+        "role": "FRESH",
+        "status": "FRESH",
+        "signal_date": "2026-09-25",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2026-02-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Re 0.50 Per Share",
+            "factor": 1.0015,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-05-11",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Re 0.50 Per Share",
+            "factor": 1.0015,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0012,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": 8.95,
+        "ext_raw_est": 8.82,
+        "ext_shift_pp": -0.13,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-09-25",
+        "ticker": "INDUSINDBK",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-25",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 1.50 Per Share",
+            "factor": 1.00164,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0011,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-25",
+        "ticker": "CUB",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "bonus",
+            "subject": "Bonus 1:3",
+            "factor": 1.33333,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.2121,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-25",
+        "ticker": "LTF",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-07-09",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-22",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 2.75 Per Share",
+            "factor": 1.00968,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0055,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-25",
+        "ticker": "BAJAJ-AUTO",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-13",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-29",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 150 Per Share",
+            "factor": 1.0133,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0079,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-25",
+        "ticker": "HEG",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-27",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-09-07",
+            "kind": "demerger",
+            "subject": "Demerger",
+            "factor": 0.99438,
+            "resolution": "LEFT_UNADJUSTED_AS_INTENDED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0,
+        "event_in_signal_week": false,
+        "event_during_hold": true,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-25",
+        "ticker": "TVSMOTOR",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-27",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-30",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 12 Per Share",
+            "factor": 1.00289,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0012,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-25",
+        "ticker": "ENGINERSIN",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-10",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2025-12-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Re 1 Per Share",
+            "factor": 1.00317,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-03-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 1.50 Per Share",
+            "factor": 1.00475,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0016,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-25",
+        "ticker": "MCX",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-17",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-01-02",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 5.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.4545,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-25",
+        "ticker": "ADANIPORTS",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-17",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 7.50 Per Share",
+            "factor": 1.00419,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0027,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-25",
+        "ticker": "ASTERDM",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-09-07",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-04-02",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 3 Per Share",
+            "factor": 1.00395,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0016,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-25",
+        "ticker": "CHOLAFIN",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-09-14",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-02-05",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 1.30 Per Share",
+            "factor": 1.00078,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0002,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-25",
+        "ticker": "ANGELONE",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-09-14",
+        "n_events": 3,
+        "events": [
+          {
+            "ex": "2026-02-26",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 10.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          },
+          {
+            "ex": "2026-01-21",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 23 Per Share",
+            "factor": 1.00799,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-03-27",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs  1.75 Per Share",
+            "factor": 1.00608,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 3.6922,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-09-25",
+        "ticker": "GESHIP",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-09-14",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2026-02-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 9 Per Share",
+            "factor": 1.00601,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-05-20",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 11.70 Per Share",
+            "factor": 1.00781,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0058,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-10-01",
+        "ticker": "NUVAMA",
+        "role": "FRESH",
+        "status": "FRESH",
+        "signal_date": "2026-10-01",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2025-12-26",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 5.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          },
+          {
+            "ex": "2026-05-15",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 14 Per Share",
+            "factor": 1.00823,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.3711,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": 12.03,
+        "ext_raw_est": -18.29,
+        "ext_shift_pp": -30.32,
+        "cap_flips": false
+      },
+      {
+        "snapshot": "2026-10-01",
+        "ticker": "CUB",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "bonus",
+            "subject": "Bonus 1:3",
+            "factor": 1.33333,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.2121,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-10-01",
+        "ticker": "BAJAJ-AUTO",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-07-13",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-05-29",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 150 Per Share",
+            "factor": 1.01493,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0088,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-10-01",
+        "ticker": "TVSMOTOR",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-27",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-30",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 12 Per Share",
+            "factor": 1.00298,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0012,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-10-01",
+        "ticker": "ENGINERSIN",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-10",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2025-12-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Re 1 Per Share",
+            "factor": 1.0032,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-03-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 1.50 Per Share",
+            "factor": 1.0048,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0015,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-10-01",
+        "ticker": "MCX",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-17",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-01-02",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 5.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.4545,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-10-01",
+        "ticker": "ADANIPORTS",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-17",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 7.50 Per Share",
+            "factor": 1.00432,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0027,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-10-01",
+        "ticker": "ASTERDM",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-09-07",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-04-02",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 3 Per Share",
+            "factor": 1.00423,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0016,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-10-01",
+        "ticker": "GESHIP",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-09-14",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2026-02-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 9 Per Share",
+            "factor": 1.00588,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-05-20",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 11.70 Per Share",
+            "factor": 1.00764,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0054,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-10-01",
+        "ticker": "OBEROIRLTY",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-09-28",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2026-01-23",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 2 Per Share",
+            "factor": 1.00114,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-05-14",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 2 Per Share",
+            "factor": 1.00114,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0008,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-10-01",
+        "ticker": "MANAPPURAM",
+        "role": "HELD",
+        "status": "HIT_STOP",
+        "signal_date": "2026-09-28",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2026-02-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Re 0.50 Per Share",
+            "factor": 1.00162,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-05-11",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Re 0.50 Per Share",
+            "factor": 1.00162,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0012,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-10-16",
+        "ticker": "CUB",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-06",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "bonus",
+            "subject": "Bonus 1:3",
+            "factor": 1.33333,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.1894,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-10-16",
+        "ticker": "TVSMOTOR",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-07-27",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-30",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 12 Per Share",
+            "factor": 1.00293,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.001,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-10-16",
+        "ticker": "ENGINERSIN",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-10",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-03-06",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 1.50 Per Share",
+            "factor": 1.00549,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0014,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-10-16",
+        "ticker": "MCX",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-17",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-01-02",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 5.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.1818,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-10-16",
+        "ticker": "ADANIPORTS",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-08-17",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-12",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 7.50 Per Share",
+            "factor": 1.00428,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0024,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-10-16",
+        "ticker": "GESHIP",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-09-14",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2026-02-04",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 9 Per Share",
+            "factor": 1.00597,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          },
+          {
+            "ex": "2026-05-20",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 11.70 Per Share",
+            "factor": 1.00776,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0048,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-10-16",
+        "ticker": "ABDL",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-09-15",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-25",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 5.40 Per Share",
+            "factor": 1.00721,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0044,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-10-16",
+        "ticker": "NUVAMA",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-10-05",
+        "n_events": 2,
+        "events": [
+          {
+            "ex": "2025-12-26",
+            "kind": "split",
+            "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To ",
+            "factor": 5.0,
+            "resolution": "CORRECTLY_ADJUSTED"
+          },
+          {
+            "ex": "2026-05-15",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 14 Per Share",
+            "factor": 1.00821,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0956,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-10-16",
+        "ticker": "IIFL",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-10-12",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-01-29",
+            "kind": "dividend",
+            "subject": "Interim Dividend - Rs 4 Per Share",
+            "factor": 1.0065,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0009,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      },
+      {
+        "snapshot": "2026-10-16",
+        "ticker": "TATATECH",
+        "role": "HELD",
+        "status": "ACTIVE",
+        "signal_date": "2026-10-12",
+        "n_events": 1,
+        "events": [
+          {
+            "ex": "2026-06-18",
+            "kind": "dividend",
+            "subject": "Dividend - Rs 8.35 Per Share & Special Dividend - Rs 3.35 Pe",
+            "factor": 1.01616,
+            "resolution": "VENDOR_ADJUSTED_ASSUMED"
+          }
+        ],
+        "sma44_raw_over_adj": 1.0095,
+        "event_in_signal_week": false,
+        "event_during_hold": false,
+        "ext_adj": null,
+        "ext_raw_est": null,
+        "ext_shift_pp": null,
+        "cap_flips": null
+      }
+    ],
+    "status_row_counts": {
+      "FRESH": 48,
+      "ACTIVE": 288,
+      "HIT_STOP": 37,
+      "HIT_TARGET": 3
+    }
+  }
+}
