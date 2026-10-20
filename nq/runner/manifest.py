@@ -29,6 +29,12 @@ ROOT = Path(__file__).resolve().parents[2]
 IGNORED_KEYS = frozenset({"start"})
 # Engine switches the cron leaves at their default; absent from the LIVE_* blocks but must still match.
 LIVE_DEFAULTS: dict[str, Any] = {"uncapped": False, "grade_gate": True}
+# Live behaviours a historical REPLAY cannot honour, so leaving them out is a stated exception rather than a
+# different book (2026-10-20, found by the repo-map rewrite: before this a replay that dropped them still
+# read plain "LIVE BOOK"). The label now names them.
+REPLAY_EXCEPTIONS: dict[str, str] = {
+    "ca_hold_drop": "the corporate-action freeze waits for an owner review a reconstruction cannot have",
+}
 
 
 def _live_blocks() -> dict[str, dict]:
@@ -37,7 +43,13 @@ def _live_blocks() -> dict[str, dict]:
             sys.path.insert(0, str(p))
     import run_bhanushali_cron as C
     return {"LIVE_DISCIPLINE": C.LIVE_DISCIPLINE, "LIVE_EXIT": C.LIVE_EXIT,
-            "LIVE_STALENESS": C.LIVE_STALENESS, "LIVE_PREP": C.LIVE_PREP}
+            "LIVE_STALENESS": C.LIVE_STALENESS, "LIVE_PREP": C.LIVE_PREP, "LIVE_CA_HOLD": C.LIVE_CA_HOLD}
+
+
+def _live_scalars() -> dict[str, Any]:
+    """Live settings that are not backtest kwargs but still define the book (part of the fingerprint)."""
+    import run_bhanushali_cron as C
+    return {"LIVE_UNIVERSE_EFFECTIVE": C.LIVE_UNIVERSE_EFFECTIVE}
 
 
 def live_engine_kwargs() -> dict[str, Any]:
@@ -58,7 +70,7 @@ def _sha(obj: Any) -> str:
 
 def live_config_fingerprint() -> str:
     """sha256 of the canonical JSON of the live engine kwargs + ``{"membership": "pit"}``."""
-    return _sha({**_live_blocks(), "membership": "pit"})
+    return _sha({**_live_blocks(), **_live_scalars(), "membership": "pit"})
 
 
 def diff_from_live(engine_kwargs: Mapping[str, Any], membership: str) -> list[str]:
@@ -77,7 +89,7 @@ def diff_from_live(engine_kwargs: Mapping[str, Any], membership: str) -> list[st
             if _canon(live[k]) != _canon(mine[k]):
                 diffs.append(k)
         elif k in live:                     # live sets it, the run does not
-            if k not in LIVE_DEFAULTS and k not in prep_keys:
+            if k not in LIVE_DEFAULTS and k not in prep_keys and k not in REPLAY_EXCEPTIONS:
                 diffs.append(k)
         else:                               # the run sets something the live book does not
             diffs.append(k)
@@ -99,11 +111,14 @@ def build_manifest(engine_kwargs: Mapping[str, Any], *, membership: str, data_vi
         raise ValueError(f"membership must be 'pit' or 'none', got {membership!r}")
     import pandas as pd
     diffs = diff_from_live(engine_kwargs, membership)
+    excepted = sorted(k for k in REPLAY_EXCEPTIONS if k not in engine_kwargs)
+    live_label = "LIVE BOOK" + (f" (replay exceptions: {', '.join(excepted)})" if excepted else "")
     return {
         "config_hash": _sha({"engine_kwargs": dict(engine_kwargs), "membership": membership}),
         "live_fingerprint": live_config_fingerprint(),
         "is_live_book": not diffs,
-        "label": "LIVE BOOK" if not diffs else f"NOT LIVE BOOK: {diffs[0]}",
+        "label": live_label if not diffs else f"NOT LIVE BOOK: {diffs[0]}",
+        "replay_exceptions": excepted,
         "differs_on": diffs,
         "membership": membership,
         "data_vintage": data_vintage,

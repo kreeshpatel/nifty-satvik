@@ -241,7 +241,10 @@ def replay(config: Mapping[str, Any] | None = None, *, use_cache: bool = True,
     cut = cut_universe(ohlcv if ohlcv is not None else corrected_universe())
     last = assert_within_cut(cut)
     P = R94.prep_weekly_rank(cut, **live["LIVE_PREP"])
-    events = R94.build_demerger_events(cut, load_demerger_rows(), **live["LIVE_PREP"])
+    # Pin every one-ticker demerger view to the panel's last session, exactly as the cron does
+    # (run_bhanushali_cron: prep_kw as_of), so a view cannot disagree with the panel about the open week.
+    as_of = max((pd.Timestamp(s["dates"][-1]) for s in P.values()), default=None)
+    events = R94.build_demerger_events(cut, load_demerger_rows(), **{**live["LIVE_PREP"], "as_of": as_of})
     mem = load_membership() if cfg["pit_membership"] else None
 
     kw = engine_kwargs(cfg)
