@@ -1,18 +1,36 @@
 {
-  "generated_at": "2026-10-20",
-  "signals": [],
+  "generated_at": "2026-10-21",
+  "signals": [
+    {
+      "ticker": "SYRMA",
+      "entry": 1473.84,
+      "stop": 1223.4,
+      "target": 1805.75,
+      "target_pct": 22.52,
+      "current_price": 1473.1,
+      "close": 1473.1,
+      "signal_date": "2026-10-21",
+      "hold_days": 63,
+      "grade": "B",
+      "tier": "signal",
+      "status": "FRESH",
+      "buy_window": "T+1..T+3 at open",
+      "indicative_close": 1473.1,
+      "indicative_entry": 1473.84
+    }
+  ],
   "regime": {
     "status": "UNKNOWN",
     "strength": 0,
     "vix": 0,
     "breadth": 0
   },
-  "n_positions": 15,
-  "cash": 104.57,
+  "n_positions": 14,
+  "cash": 83920.18,
   "kill_state": {
     "wr_last20": 50.0,
     "wr_breach": false,
-    "sharpe_30d": -1.257,
+    "sharpe_30d": -1.793,
     "sharpe_30d_breach": true,
     "mode": "observe"
   }

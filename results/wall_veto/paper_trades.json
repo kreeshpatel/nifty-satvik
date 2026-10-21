@@ -523,5 +523,35 @@
     "net_pct": -7.86,
     "net_pnl": -7055.76,
     "hold_days": 10
+  },
+  {
+    "ticker": "HSCL",
+    "entry_date": "2026-09-30",
+    "exit_date": "2026-10-21",
+    "entry": 667.43,
+    "exit": 538.98,
+    "qty": 154,
+    "days_held": 13,
+    "reason": "stop",
+    "return_pct": -19.25,
+    "pnl": -20023.31,
+    "net_pct": -19.25,
+    "net_pnl": -20023.31,
+    "hold_days": 13
+  },
+  {
+    "ticker": "MCX",
+    "entry_date": "2026-10-06",
+    "exit_date": "2026-10-21",
+    "entry": 3196.6,
+    "exit": 3085.46,
+    "qty": 32,
+    "days_held": 10,
+    "reason": "trailing",
+    "return_pct": -3.48,
+    "pnl": -3817.85,
+    "net_pct": -3.48,
+    "net_pnl": -3817.85,
+    "hold_days": 10
   }
 ]
