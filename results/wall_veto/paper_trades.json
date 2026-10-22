@@ -553,5 +553,50 @@
     "net_pct": -3.48,
     "net_pnl": -3817.85,
     "hold_days": 10
+  },
+  {
+    "ticker": "HFCL",
+    "entry_date": "2026-10-05",
+    "exit_date": "2026-10-22",
+    "entry": 238.11,
+    "exit": 251.42,
+    "qty": 426,
+    "days_held": 12,
+    "reason": "trailing",
+    "return_pct": 5.59,
+    "pnl": 5401.18,
+    "net_pct": 5.59,
+    "net_pnl": 5401.18,
+    "hold_days": 12
+  },
+  {
+    "ticker": "KIRLOSENG",
+    "entry_date": "2026-10-06",
+    "exit_date": "2026-10-22",
+    "entry": 2259.93,
+    "exit": 1868.07,
+    "qty": 45,
+    "days_held": 11,
+    "reason": "stop",
+    "return_pct": -17.34,
+    "pnl": -17875.37,
+    "net_pct": -17.34,
+    "net_pnl": -17875.37,
+    "hold_days": 11
+  },
+  {
+    "ticker": "RRKABEL",
+    "entry_date": "2026-10-14",
+    "exit_date": "2026-10-22",
+    "entry": 2635.32,
+    "exit": 2261.97,
+    "qty": 1,
+    "days_held": 5,
+    "reason": "stop",
+    "return_pct": -14.17,
+    "pnl": -379.71,
+    "net_pct": -14.17,
+    "net_pnl": -379.71,
+    "hold_days": 5
   }
 ]

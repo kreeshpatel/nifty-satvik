@@ -1,9 +1,10 @@
 {
-  "cash": 181583.79848650208,
+  "cash": 209571.37372597383,
   "peak": 1026655.7556091606,
   "pending": [
-    "GLAND",
-    "JINDALSAW"
+    "HFCL",
+    "RRKABEL",
+    "KIRLOSENG"
   ],
   "positions": {
     "HONASA": {
@@ -16,8 +17,8 @@
       "peak": 484.8999938964844,
       "atr_pct": 3.217832529272994,
       "adv": 992445757.9546967,
-      "days_held": 35,
-      "last_mark": 441.1499938964844,
+      "days_held": 36,
+      "last_mark": 442.3999938964844,
       "absent_run": 0
     },
     "LAURUSLABS": {
@@ -30,8 +31,8 @@
       "peak": 2069.199951171875,
       "atr_pct": 2.3240037222384395,
       "adv": 6404766944.0,
-      "days_held": 30,
-      "last_mark": 2012.5,
+      "days_held": 31,
+      "last_mark": 2002.5,
       "absent_run": 0
     },
     "FEDERALBNK": {
@@ -44,8 +45,8 @@
       "peak": 348.8500061035156,
       "atr_pct": 1.9940904524157377,
       "adv": 1716930689.9016054,
-      "days_held": 23,
-      "last_mark": 344.0,
+      "days_held": 24,
+      "last_mark": 347.79998779296875,
       "absent_run": 0
     },
     "GRANULES": {
@@ -58,36 +59,8 @@
       "peak": 850.425,
       "atr_pct": 3.040402578645517,
       "adv": 1306881966.3125,
-      "days_held": 14,
-      "last_mark": 807.6500244140625,
-      "absent_run": 0
-    },
-    "HFCL": {
-      "ticker": "HFCL",
-      "entry_date": "2026-10-05 00:00:00",
-      "entry": 238.10900049591064,
-      "qty": 426,
-      "stop": 200.62934746969634,
-      "target": 291.73114740758973,
-      "peak": 271.8999938964844,
-      "atr_pct": 4.288976685219858,
-      "adv": 1801593114.675228,
-      "days_held": 11,
-      "last_mark": 264.7799987792969,
-      "absent_run": 0
-    },
-    "KIRLOSENG": {
-      "ticker": "KIRLOSENG",
-      "entry_date": "2026-10-06 00:00:00",
-      "entry": 2259.929448852539,
-      "qty": 45,
-      "stop": 1887.540757282569,
-      "target": 2768.8655607341307,
-      "peak": 2259.929448852539,
-      "atr_pct": 4.489888318469929,
-      "adv": 1655388840.6580076,
-      "days_held": 10,
-      "last_mark": 1908.699951171875,
+      "days_held": 15,
+      "last_mark": 817.0,
       "absent_run": 0
     },
     "SONACOMS": {
@@ -100,8 +73,8 @@
       "peak": 810.5,
       "atr_pct": 2.7539655010388153,
       "adv": 1932486455.9999998,
-      "days_held": 10,
-      "last_mark": 765.9000244140625,
+      "days_held": 11,
+      "last_mark": 764.9000244140625,
       "absent_run": 0
     },
     "SAILIFE": {
@@ -114,8 +87,8 @@
       "peak": 1561.800048828125,
       "atr_pct": 3.19796404807869,
       "adv": 946030393.601532,
-      "days_held": 10,
-      "last_mark": 1393.5999755859375,
+      "days_held": 11,
+      "last_mark": 1395.9000244140625,
       "absent_run": 0
     },
     "CHENNPETRO": {
@@ -128,22 +101,8 @@
       "peak": 1546.0999755859375,
       "atr_pct": 4.847775862912046,
       "adv": 4341995424.23042,
-      "days_held": 7,
-      "last_mark": 1438.4000244140625,
-      "absent_run": 0
-    },
-    "RRKABEL": {
-      "ticker": "RRKABEL",
-      "entry_date": "2026-10-14 00:00:00",
-      "entry": 2635.317,
-      "qty": 1,
-      "stop": 2280.915383605973,
-      "target": 3228.7903884,
-      "peak": 2635.317,
-      "atr_pct": 3.6643484608313814,
-      "adv": 902678368.138916,
-      "days_held": 4,
-      "last_mark": 2327.800048828125,
+      "days_held": 8,
+      "last_mark": 1453.699951171875,
       "absent_run": 0
     },
     "AEGISLOG": {
@@ -156,8 +115,8 @@
       "peak": 1425.6124744262695,
       "atr_pct": 5.227847369985538,
       "adv": 1522649230.815271,
-      "days_held": 2,
-      "last_mark": 1323.0,
+      "days_held": 3,
+      "last_mark": 1304.0999755859375,
       "absent_run": 0
     },
     "BHEL": {
@@ -170,8 +129,8 @@
       "peak": 436.1679872131347,
       "atr_pct": 3.204999406252899,
       "adv": 5156073568.151816,
-      "days_held": 2,
-      "last_mark": 410.20001220703125,
+      "days_held": 3,
+      "last_mark": 398.8999938964844,
       "absent_run": 0
     },
     "APARINDS": {
@@ -184,8 +143,36 @@
       "peak": 16048.019999999999,
       "atr_pct": 4.5328872850792905,
       "adv": 1928474141.1499999,
-      "days_held": 1,
-      "last_mark": 15122.0,
+      "days_held": 2,
+      "last_mark": 14713.0,
+      "absent_run": 0
+    },
+    "GLAND": {
+      "ticker": "GLAND",
+      "entry_date": "2026-10-22 00:00:00",
+      "entry": 2907.553147705078,
+      "qty": 28,
+      "stop": 2561.6532096733804,
+      "target": 3562.334116568262,
+      "peak": 2907.553147705078,
+      "atr_pct": 3.2415801027818105,
+      "adv": 1116988775.0913575,
+      "days_held": 0,
+      "last_mark": 2907.553147705078,
+      "absent_run": 0
+    },
+    "JINDALSAW": {
+      "ticker": "JINDALSAW",
+      "entry_date": "2026-10-22 00:00:00",
+      "entry": 266.98607388305663,
+      "qty": 313,
+      "stop": 218.8973657690743,
+      "target": 327.111337721521,
+      "peak": 266.98607388305663,
+      "atr_pct": 4.907817861516225,
+      "adv": 446021582.74664915,
+      "days_held": 0,
+      "last_mark": 266.98607388305663,
       "absent_run": 0
     }
   },
@@ -633,6 +620,42 @@
       "reason": "trailing",
       "return_pct": -3.48,
       "pnl": -3817.85
+    },
+    {
+      "ticker": "HFCL",
+      "entry_date": "2026-10-05",
+      "exit_date": "2026-10-22",
+      "entry": 238.11,
+      "exit": 251.42,
+      "qty": 426,
+      "days_held": 12,
+      "reason": "trailing",
+      "return_pct": 5.59,
+      "pnl": 5401.18
+    },
+    {
+      "ticker": "KIRLOSENG",
+      "entry_date": "2026-10-06",
+      "exit_date": "2026-10-22",
+      "entry": 2259.93,
+      "exit": 1868.07,
+      "qty": 45,
+      "days_held": 11,
+      "reason": "stop",
+      "return_pct": -17.34,
+      "pnl": -17875.37
+    },
+    {
+      "ticker": "RRKABEL",
+      "entry_date": "2026-10-14",
+      "exit_date": "2026-10-22",
+      "entry": 2635.32,
+      "exit": 2261.97,
+      "qty": 1,
+      "days_held": 5,
+      "reason": "stop",
+      "return_pct": -14.17,
+      "pnl": -379.71
     }
   ],
   "equity_curve": [
@@ -1109,6 +1132,12 @@
       "equity": 927530.78,
       "cash": 181583.8,
       "n_positions": 13
+    },
+    {
+      "date": "2026-10-22",
+      "equity": 911262.28,
+      "cash": 209571.37,
+      "n_positions": 12
     }
   ],
   "config": {
