@@ -109,3 +109,56 @@ found runner truncation a better explanation than pure capital recycling.
 
 **What it closes, restated:** the giveback ratchet as a per-trade edge on the live exit. Its effect on the
 capped book's equity path is not separable from noise on this window, and is not a licence to adopt it.
+
+
+---
+
+## CORRECTION 2026-10-23 — degenerate-stop outliers in the uncapped arms
+
+**Nothing above this line is edited; it stands as measured. Tier 1 re-run, no new screen row; standing counts
+(read from the ledgers by the script): screens 23 · sealed opens 3 · n_trials 2.** Reproduce:
+`python pipelines/diagnostics/diag_degenerate_stop_restate_2026_10_23.py` →
+`diagnostics/research/degenerate_stop/result.json`. Cause, exposure and the proposed engine fix:
+`diagnostics/research/explore/2026-10-23_degenerate_stop_outlier.md`.
+
+**The rule, declared before any restated number** (`nq.lab.stats.exclude_degenerate_stops`, commit `e3eae32`): a trade
+whose initial risk (entry − stop0) is under **0.5% of entry** is a degenerate stop, and its R-multiple measures the sliver,
+not the trade; it is excluded. |R| > 20 is a review flag only and is **not** excluded (real compounders live there).
+
+**What was wrong.** One trade in the uncapped Grade-A ledger, **VMART entered 2019-05-06**, has entry 676.74 and stop 676.69
+(initial risk 0.0074% of entry) and books **−389.75R** for a roughly −4.8% loss. The engine fills any entry-week open inside
+the signal-week band, sets the stop at the signal-week low, and `max_risk_pct` only lifts a *wide* stop, so a gap-down open
+a few paise above the low is a legal fill with near-zero risk. It is in every uncapped arm (same fill, same −389.75R in
+base, 2.75 → 1.5 and 2.50 → 1.5). It never reaches the capped book (smallest capped risk 1.8%, worst capped R −5.4; no
+capped arm has a degenerate trade). It is the **only** uncapped Grade-A trade under 0.5%.
+
+**Reproduction check.** The raw re-run reproduces the committed `result.json` `sum_R_incl_open_at_mark` for all three
+uncapped arms to 1e-6.
+
+### Restated uncapped arms (VMART excluded; 525 / 544 / 547 trades)
+
+| arm | mean R closed, as published | mean R closed, restated | open-marked ΣR, as published | restated | win % |
+|---|---|---|---|---|---|
+| base | −0.262 | **+0.621** | +260.4 | **+650.2** | 42.8 → 42.9 |
+| 2.75 → 1.5 | −0.359 | **+0.478** | +181.6 | **+571.3** | 45.5 → 45.6 |
+| 2.50 → 1.5 | −0.365 | **+0.467** | +177.8 | **+567.5** | 45.2 → 45.3 |
+
+Median R is unchanged (−0.65 / −0.58 / −0.60): the published **sign of the mean R was the outlier**, not the trades'
+typical outcome. The 2019 R-by-year of the base arm moves from −341.1 to +48.6.
+
+| uncapped Δ vs base | Δ R/yr (open marked), published → restated | Δ mean R, published → restated | Δ R by sub-period (2019–21 / 2022–24H1) |
+|---|---|---|---|
+| 2.75 → 1.5 | −14.36 → **−14.36** | −0.097 → **−0.143** | −77.94 / +26.23 (unchanged) |
+| 2.50 → 1.5 | −15.05 → **−15.05** | −0.103 → **−0.154** | −80.15 / +24.65 (unchanged) |
+
+### Does the reading change?
+
+**No.** The pre-committed bound, **BOUND RECORDED, no trial**, is unchanged, and so is the interpretation that matters: the
+ratchet **cuts runners** in the per-signal book. VMART carries the identical −389.75R in every arm, so it cancels in every
+**difference** the bound is built from (Δ R/yr and the sub-period deltas are identical to the cent); it only distorted the
+**levels**. Delta mean R becomes more negative once the divisor stops absorbing a −390R hole (−0.10 → −0.14 and −0.10 → −0.15),
+the same sign and reading. The capped-book rows of this finding (Sharpe, CAGR, MaxDD and capped Δ R/yr) contain no degenerate trade
+and are untouched. Any citation of the uncapped base book as "mean R −0.26 / closed ΣR −116" should read **+0.62 / +274**.
+
+**Limit.** One trade, so this corrects the level of the uncapped means and leaves the ratchet verdict as it was. The
+sensitivity that also drops |R| > 20 trades is in `result.json` and is not the declared rule.
