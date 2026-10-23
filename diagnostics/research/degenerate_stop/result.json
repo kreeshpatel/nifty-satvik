@@ -1,0 +1,886 @@
+{
+  "rule": "degenerate stop = initial risk < 0.5% of entry (EXCLUDED); |R| > 20 = review flag only (not excluded)",
+  "window": [
+    "2019-01-01",
+    "2024-06-30"
+  ],
+  "last_bar_seen": "2024-06-28",
+  "standing_counts": {
+    "screens": 23,
+    "sealed_opens": 3,
+    "n_trials": 2
+  },
+  "part_a_0148_uncapped": {
+    "raw": {
+      "base": {
+        "n_trades": 526,
+        "n_open_at_cut": 84,
+        "mean_R": -0.2620407239819002,
+        "sum_R": -115.82199999999989,
+        "median_R": -0.6525000000000001,
+        "win_pct": 42.76018099547511,
+        "sum_R_incl_open_at_mark": 260.44,
+        "R_by_year": {
+          "2019": -341.13,
+          "2020": 188.14,
+          "2021": 24.11,
+          "2022": 9.33,
+          "2023": 19.69,
+          "2024": -15.95
+        }
+      },
+      "primary_2.75_1.5": {
+        "n_trades": 545,
+        "n_open_at_cut": 79,
+        "mean_R": -0.3594763948497852,
+        "sum_R": -167.5159999999999,
+        "median_R": -0.589,
+        "win_pct": 45.493562231759654,
+        "sum_R_incl_open_at_mark": 181.55100000000004,
+        "R_by_year": {
+          "2019": -367.2,
+          "2020": 138.84,
+          "2021": 21.54,
+          "2022": 22.87,
+          "2023": 32.23,
+          "2024": -15.8
+        }
+      },
+      "robust_2.50_1.5": {
+        "n_trades": 548,
+        "n_open_at_cut": 79,
+        "mean_R": -0.3652707889125801,
+        "sum_R": -171.31200000000007,
+        "median_R": -0.602,
+        "win_pct": 45.20255863539446,
+        "sum_R_incl_open_at_mark": 177.75499999999988,
+        "R_by_year": {
+          "2019": -366.29,
+          "2020": 135.24,
+          "2021": 22.02,
+          "2022": 19.35,
+          "2023": 34.17,
+          "2024": -15.8
+        }
+      }
+    },
+    "raw_bound": {
+      "primary_2.75_1.5": {
+        "delta_R_per_yr": -14.36,
+        "delta_R_per_yr_closed_only_censored": -9.41,
+        "delta_mean_R": -0.0974,
+        "delta_R_by_year": {
+          "2019": -26.07,
+          "2020": -49.3,
+          "2021": -2.57,
+          "2022": 13.54,
+          "2023": 12.54,
+          "2024": 0.15
+        },
+        "delta_R_by_subperiod": {
+          "2019-21": -77.94,
+          "2022-24H1": 26.23
+        },
+        "reading": "BOUND RECORDED \u2014 below the floor or wrong-signed; no trial"
+      },
+      "robust_2.50_1.5": {
+        "delta_R_per_yr": -15.05,
+        "delta_R_per_yr_closed_only_censored": -10.1,
+        "delta_mean_R": -0.1032,
+        "delta_R_by_year": {
+          "2019": -25.16,
+          "2020": -52.9,
+          "2021": -2.09,
+          "2022": 10.02,
+          "2023": 14.48,
+          "2024": 0.15
+        },
+        "delta_R_by_subperiod": {
+          "2019-21": -80.15,
+          "2022-24H1": 24.65
+        },
+        "reading": "BOUND RECORDED \u2014 below the floor or wrong-signed; no trial"
+      }
+    },
+    "raw_reproduces_committed": {
+      "base": true,
+      "primary_2.75_1.5": true,
+      "robust_2.50_1.5": true
+    },
+    "restated": {
+      "base": {
+        "n_trades": 525,
+        "n_open_at_cut": 84,
+        "mean_R": 0.621154195011338,
+        "sum_R": 273.92900000000003,
+        "median_R": -0.645,
+        "win_pct": 42.857142857142854,
+        "sum_R_incl_open_at_mark": 650.1909999999999,
+        "R_by_year": {
+          "2019": 48.62,
+          "2020": 188.14,
+          "2021": 24.11,
+          "2022": 9.33,
+          "2023": 19.69,
+          "2024": -15.95
+        }
+      },
+      "primary_2.75_1.5": {
+        "n_trades": 544,
+        "n_open_at_cut": 79,
+        "mean_R": 0.4779247311827957,
+        "sum_R": 222.235,
+        "median_R": -0.579,
+        "win_pct": 45.59139784946237,
+        "sum_R_incl_open_at_mark": 571.3019999999999,
+        "R_by_year": {
+          "2019": 22.55,
+          "2020": 138.84,
+          "2021": 21.54,
+          "2022": 22.87,
+          "2023": 32.23,
+          "2024": -15.8
+        }
+      },
+      "robust_2.50_1.5": {
+        "n_trades": 547,
+        "n_open_at_cut": 79,
+        "mean_R": 0.46675000000000005,
+        "sum_R": 218.43900000000002,
+        "median_R": -0.6005,
+        "win_pct": 45.2991452991453,
+        "sum_R_incl_open_at_mark": 567.506,
+        "R_by_year": {
+          "2019": 23.46,
+          "2020": 135.24,
+          "2021": 22.02,
+          "2022": 19.35,
+          "2023": 34.17,
+          "2024": -15.8
+        }
+      }
+    },
+    "restated_bound": {
+      "primary_2.75_1.5": {
+        "delta_R_per_yr": -14.36,
+        "delta_R_per_yr_closed_only_censored": -9.41,
+        "delta_mean_R": -0.1432,
+        "delta_R_by_year": {
+          "2019": -26.07,
+          "2020": -49.3,
+          "2021": -2.57,
+          "2022": 13.54,
+          "2023": 12.54,
+          "2024": 0.15
+        },
+        "delta_R_by_subperiod": {
+          "2019-21": -77.94,
+          "2022-24H1": 26.23
+        },
+        "reading": "BOUND RECORDED \u2014 below the floor or wrong-signed; no trial"
+      },
+      "robust_2.50_1.5": {
+        "delta_R_per_yr": -15.05,
+        "delta_R_per_yr_closed_only_censored": -10.1,
+        "delta_mean_R": -0.1544,
+        "delta_R_by_year": {
+          "2019": -25.16,
+          "2020": -52.9,
+          "2021": -2.09,
+          "2022": 10.02,
+          "2023": 14.48,
+          "2024": 0.15
+        },
+        "delta_R_by_subperiod": {
+          "2019-21": -80.15,
+          "2022-24H1": 24.65
+        },
+        "reading": "BOUND RECORDED \u2014 below the floor or wrong-signed; no trial"
+      }
+    },
+    "n_degenerate_dropped": {
+      "base": 1,
+      "primary_2.75_1.5": 1,
+      "robust_2.50_1.5": 1
+    },
+    "sensitivity_also_drop_absR_gt_20": {
+      "arms": {
+        "base": {
+          "n_trades": 522,
+          "n_open_at_cut": 84,
+          "mean_R": 0.40499315068493164,
+          "sum_R": 177.38700000000006,
+          "median_R": -0.6605000000000001,
+          "win_pct": 42.465753424657535,
+          "sum_R_incl_open_at_mark": 553.6489999999999,
+          "R_by_year": {
+            "2019": 7.81,
+            "2020": 132.4,
+            "2021": 24.11,
+            "2022": 9.33,
+            "2023": 19.69,
+            "2024": -15.95
+          }
+        },
+        "primary_2.75_1.5": {
+          "n_trades": 543,
+          "n_open_at_cut": 79,
+          "mean_R": 0.41490517241379304,
+          "sum_R": 192.51599999999996,
+          "median_R": -0.589,
+          "win_pct": 45.474137931034484,
+          "sum_R_incl_open_at_mark": 541.583,
+          "R_by_year": {
+            "2019": 22.55,
+            "2020": 109.12,
+            "2021": 21.54,
+            "2022": 22.87,
+            "2023": 32.23,
+            "2024": -15.8
+          }
+        },
+        "robust_2.50_1.5": {
+          "n_trades": 546,
+          "n_open_at_cut": 79,
+          "mean_R": 0.4041113490364026,
+          "sum_R": 188.72000000000003,
+          "median_R": -0.602,
+          "win_pct": 45.182012847965744,
+          "sum_R_incl_open_at_mark": 537.787,
+          "R_by_year": {
+            "2019": 23.46,
+            "2020": 105.52,
+            "2021": 22.02,
+            "2022": 19.35,
+            "2023": 34.17,
+            "2024": -15.8
+          }
+        }
+      },
+      "bound": {
+        "primary_2.75_1.5": {
+          "delta_R_per_yr": -2.2,
+          "delta_R_per_yr_closed_only_censored": 2.75,
+          "delta_mean_R": 0.0099,
+          "delta_R_by_year": {
+            "2019": 14.74,
+            "2020": -23.28,
+            "2021": -2.57,
+            "2022": 13.54,
+            "2023": 12.54,
+            "2024": 0.15
+          },
+          "delta_R_by_subperiod": {
+            "2019-21": -11.11,
+            "2022-24H1": 26.23
+          },
+          "reading": "BOUND RECORDED \u2014 below the floor or wrong-signed; no trial"
+        },
+        "robust_2.50_1.5": {
+          "delta_R_per_yr": -2.89,
+          "delta_R_per_yr_closed_only_censored": 2.06,
+          "delta_mean_R": -0.0009,
+          "delta_R_by_year": {
+            "2019": 15.65,
+            "2020": -26.88,
+            "2021": -2.09,
+            "2022": 10.02,
+            "2023": 14.48,
+            "2024": 0.15
+          },
+          "delta_R_by_subperiod": {
+            "2019-21": -13.32,
+            "2022-24H1": 24.65
+          },
+          "reading": "BOUND RECORDED \u2014 below the floor or wrong-signed; no trial"
+        }
+      }
+    },
+    "flagged_trades_by_arm": [
+      {
+        "tkr": "VMART",
+        "entry_date": "2019-05-06 00:00:00",
+        "entry": 676.74,
+        "stop0": 676.69,
+        "risk0_frac": 7.388361852403364e-05,
+        "exit_date": "2019-05-13 00:00:00",
+        "exit_px": 644.24,
+        "reason": "stop_part",
+        "R": -389.751,
+        "book": "uncapped",
+        "degenerate_stop": true,
+        "arm": "base"
+      },
+      {
+        "tkr": "ALKYLAMINE",
+        "entry_date": "2020-03-23 00:00:00",
+        "entry": 430.95,
+        "stop0": 400.28,
+        "risk0_frac": 0.07116834899640333,
+        "exit_date": "2021-11-29 00:00:00",
+        "exit_px": 3130.5,
+        "reason": "sma_break",
+        "R": 29.719,
+        "book": "uncapped",
+        "degenerate_stop": false,
+        "arm": "base"
+      },
+      {
+        "tkr": "SUVEN",
+        "entry_date": "2019-08-27 00:00:00",
+        "entry": 11.87,
+        "stop0": 10.78,
+        "risk0_frac": 0.09182813816343723,
+        "exit_date": "2021-12-06 00:00:00",
+        "exit_px": 84.67,
+        "reason": "sma_break",
+        "R": 40.811,
+        "book": "uncapped",
+        "degenerate_stop": false,
+        "arm": "base"
+      },
+      {
+        "tkr": "TRIDENT",
+        "entry_date": "2020-09-14 00:00:00",
+        "entry": 6.17,
+        "stop0": 5.76,
+        "risk0_frac": 0.06645056726094005,
+        "exit_date": "2022-06-13 00:00:00",
+        "exit_px": 39.51,
+        "reason": "sma_break",
+        "R": 26.012,
+        "book": "uncapped",
+        "degenerate_stop": false,
+        "arm": "base"
+      },
+      {
+        "tkr": "VMART",
+        "entry_date": "2019-05-06 00:00:00",
+        "entry": 676.74,
+        "stop0": 676.69,
+        "risk0_frac": 7.388361852403364e-05,
+        "exit_date": "2019-05-13 00:00:00",
+        "exit_px": 644.24,
+        "reason": "stop_part",
+        "R": -389.751,
+        "book": "uncapped",
+        "degenerate_stop": true,
+        "arm": "primary_2.75_1.5"
+      },
+      {
+        "tkr": "ALKYLAMINE",
+        "entry_date": "2020-03-23 00:00:00",
+        "entry": 430.95,
+        "stop0": 400.28,
+        "risk0_frac": 0.07116834899640333,
+        "exit_date": "2021-11-29 00:00:00",
+        "exit_px": 3130.5,
+        "reason": "sma_break",
+        "R": 29.719,
+        "book": "uncapped",
+        "degenerate_stop": false,
+        "arm": "primary_2.75_1.5"
+      },
+      {
+        "tkr": "VMART",
+        "entry_date": "2019-05-06 00:00:00",
+        "entry": 676.74,
+        "stop0": 676.69,
+        "risk0_frac": 7.388361852403364e-05,
+        "exit_date": "2019-05-13 00:00:00",
+        "exit_px": 644.24,
+        "reason": "stop_part",
+        "R": -389.751,
+        "book": "uncapped",
+        "degenerate_stop": true,
+        "arm": "robust_2.50_1.5"
+      },
+      {
+        "tkr": "ALKYLAMINE",
+        "entry_date": "2020-03-23 00:00:00",
+        "entry": 430.95,
+        "stop0": 400.28,
+        "risk0_frac": 0.07116834899640333,
+        "exit_date": "2021-11-29 00:00:00",
+        "exit_px": 3130.5,
+        "reason": "sma_break",
+        "R": 29.719,
+        "book": "uncapped",
+        "degenerate_stop": false,
+        "arm": "robust_2.50_1.5"
+      }
+    ]
+  },
+  "part_a_capped_check": {
+    "base": {
+      "n": 77,
+      "degenerate": 0,
+      "extreme_R": 2,
+      "min_risk0_frac": 0.018011796326713413,
+      "worst_R": -5.355,
+      "best_R": 29.719
+    },
+    "primary_2.75_1.5": {
+      "n": 90,
+      "degenerate": 0,
+      "extreme_R": 1,
+      "min_risk0_frac": 0.016249317892439257,
+      "worst_R": -9.408,
+      "best_R": 29.719
+    },
+    "robust_2.50_1.5": {
+      "n": 88,
+      "degenerate": 0,
+      "extreme_R": 1,
+      "min_risk0_frac": 0.010059375159268108,
+      "worst_R": -9.408,
+      "best_R": 29.719
+    }
+  },
+  "part_b_0150_part1": {
+    "raw": {
+      "all": {
+        "n": 1367,
+        "n_weeks": 238,
+        "rank_ic_mean": -0.004125672001171992,
+        "meanR_rank1_5": 1.285269596199525,
+        "meanR_rank6_10": 1.5605833333333334,
+        "meanR_rank11plus": 1.1484050632911391,
+        "edge_A_minus_rest_same_weeks": 0.07760571428571383,
+        "hit2R_A": 0.40498812351543945,
+        "hit2R_rest": 0.3580952380952381,
+        "null_p_A": 0.35697812335759155,
+        "null_p_rest": 0.3556194979939989,
+        "rank_ic_ci95": [
+          -0.08259748547163474,
+          0.0748533421372511
+        ],
+        "edge_ci95": [
+          -1.0324565211950716,
+          0.6622676583033187
+        ]
+      },
+      "2019-21": {
+        "n": 566,
+        "n_weeks": 121,
+        "rank_ic_mean": 0.053360649115060874,
+        "meanR_rank1_5": 0.8669674185463658,
+        "meanR_rank6_10": 2.1757943925233643,
+        "meanR_rank11plus": 1.9573666666666667,
+        "edge_A_minus_rest_same_weeks": -1.412450698602795,
+        "hit2R_A": 0.39348370927318294,
+        "hit2R_rest": 0.39520958083832336,
+        "null_p_A": 0.357351942097014,
+        "null_p_rest": 0.3573269690500844,
+        "rank_ic_ci95": [
+          -0.060407483376909495,
+          0.16956273398850652
+        ],
+        "edge_ci95": [
+          -3.7979242435737177,
+          0.403600895046217
+        ]
+      },
+      "2022-24H1": {
+        "n": 801,
+        "n_weeks": 117,
+        "rank_ic_mean": -0.05394715030190715,
+        "meanR_rank1_5": 1.6620248306997747,
+        "meanR_rank6_10": 1.1968950276243095,
+        "meanR_rank11plus": 0.8741807909604519,
+        "edge_A_minus_rest_same_weeks": 1.0425319451498218,
+        "hit2R_A": 0.4153498871331828,
+        "hit2R_rest": 0.3407821229050279,
+        "null_p_A": 0.3566414333417235,
+        "null_p_rest": 0.3548229961326406,
+        "rank_ic_ci95": [
+          -0.16062772956431362,
+          0.05255274474108459
+        ],
+        "edge_ci95": [
+          -0.1098246753743865,
+          1.3747875666552756
+        ]
+      },
+      "reading": "NOT DISTINGUISHABLE FROM NOISE",
+      "n_trades": 1367
+    },
+    "raw_reproduces_committed": true,
+    "restated_rerank": {
+      "all": {
+        "n": 1364,
+        "n_weeks": 238,
+        "rank_ic_mean": -0.007654583565797846,
+        "meanR_rank1_5": 1.289033293697979,
+        "meanR_rank6_10": 1.0248181818181816,
+        "meanR_rank11plus": 1.1484050632911391,
+        "edge_A_minus_rest_same_weeks": 0.3712978202676862,
+        "hit2R_A": 0.4054696789536266,
+        "hit2R_rest": 0.3575525812619503,
+        "null_p_A": 0.3570058467714466,
+        "null_p_rest": 0.3557028793176948,
+        "rank_ic_ci95": [
+          -0.08628950885744006,
+          0.07106632263480014
+        ],
+        "edge_ci95": [
+          -0.37985879258814714,
+          0.7644133180559991
+        ]
+      },
+      "2019-21": {
+        "n": 564,
+        "n_weeks": 121,
+        "rank_ic_mean": 0.05217017292458469,
+        "meanR_rank1_5": 0.8669674185463658,
+        "meanR_rank6_10": 0.7281904761904763,
+        "meanR_rank11plus": 1.9573666666666667,
+        "edge_A_minus_rest_same_weeks": -0.49029696969696945,
+        "hit2R_A": 0.39348370927318294,
+        "hit2R_rest": 0.3939393939393939,
+        "null_p_A": 0.357351942097014,
+        "null_p_rest": 0.3576119591979942,
+        "rank_ic_ci95": [
+          -0.0645344082591392,
+          0.16873459484042458
+        ],
+        "edge_ci95": [
+          -1.2323552256569499,
+          0.603375060000303
+        ]
+      },
+      "2022-24H1": {
+        "n": 800,
+        "n_weeks": 117,
+        "rank_ic_mean": -0.0595027058574627,
+        "meanR_rank1_5": 1.6700384615384614,
+        "meanR_rank6_10": 1.1968950276243095,
+        "meanR_rank11plus": 0.8741807909604519,
+        "edge_A_minus_rest_same_weeks": 1.0425319451498218,
+        "hit2R_A": 0.416289592760181,
+        "hit2R_rest": 0.3407821229050279,
+        "null_p_A": 0.35669342135311777,
+        "null_p_rest": 0.3548229961326406,
+        "rank_ic_ci95": [
+          -0.16529962027146947,
+          0.04691713571830725
+        ],
+        "edge_ci95": [
+          -0.10029795656553249,
+          1.3806685930600273
+        ]
+      },
+      "reading": "NOT DISTINGUISHABLE FROM NOISE",
+      "n_trades": 1364
+    },
+    "restated_keep_ranks": {
+      "all": {
+        "n": 1364,
+        "n_weeks": 238,
+        "rank_ic_mean": -0.007654583565797846,
+        "meanR_rank1_5": 1.289033293697979,
+        "meanR_rank6_10": 1.0248181818181816,
+        "meanR_rank11plus": 1.1484050632911391,
+        "edge_A_minus_rest_same_weeks": 0.3712978202676862,
+        "hit2R_A": 0.4054696789536266,
+        "hit2R_rest": 0.3575525812619503,
+        "null_p_A": 0.3570058467714466,
+        "null_p_rest": 0.3557028793176948,
+        "rank_ic_ci95": [
+          -0.08628950885744006,
+          0.07106632263480014
+        ],
+        "edge_ci95": [
+          -0.37985879258814714,
+          0.7644133180559991
+        ]
+      },
+      "2019-21": {
+        "n": 564,
+        "n_weeks": 121,
+        "rank_ic_mean": 0.05217017292458469,
+        "meanR_rank1_5": 0.8669674185463658,
+        "meanR_rank6_10": 0.7281904761904763,
+        "meanR_rank11plus": 1.9573666666666667,
+        "edge_A_minus_rest_same_weeks": -0.49029696969696945,
+        "hit2R_A": 0.39348370927318294,
+        "hit2R_rest": 0.3939393939393939,
+        "null_p_A": 0.357351942097014,
+        "null_p_rest": 0.3576119591979942,
+        "rank_ic_ci95": [
+          -0.0645344082591392,
+          0.16873459484042458
+        ],
+        "edge_ci95": [
+          -1.2323552256569499,
+          0.603375060000303
+        ]
+      },
+      "2022-24H1": {
+        "n": 800,
+        "n_weeks": 117,
+        "rank_ic_mean": -0.0595027058574627,
+        "meanR_rank1_5": 1.6700384615384614,
+        "meanR_rank6_10": 1.1968950276243095,
+        "meanR_rank11plus": 0.8741807909604519,
+        "edge_A_minus_rest_same_weeks": 1.0425319451498218,
+        "hit2R_A": 0.416289592760181,
+        "hit2R_rest": 0.3407821229050279,
+        "null_p_A": 0.35669342135311777,
+        "null_p_rest": 0.3548229961326406,
+        "rank_ic_ci95": [
+          -0.16529962027146947,
+          0.04691713571830725
+        ],
+        "edge_ci95": [
+          -0.10029795656553249,
+          1.3806685930600273
+        ]
+      },
+      "reading": "NOT DISTINGUISHABLE FROM NOISE",
+      "n_trades": 1364
+    },
+    "sensitivity_also_drop_absR_gt_20_rerank": {
+      "all": {
+        "n": 1354,
+        "n_weeks": 238,
+        "rank_ic_mean": -0.020991840124335394,
+        "meanR_rank1_5": 1.0310071684587814,
+        "meanR_rank6_10": 0.8991660777385162,
+        "meanR_rank11plus": 1.0293247863247865,
+        "edge_A_minus_rest_same_weeks": 0.29060013056092837,
+        "hit2R_A": 0.4002389486260454,
+        "hit2R_rest": 0.35589941972920697,
+        "null_p_A": 0.35705688547018183,
+        "null_p_rest": 0.355757089813649,
+        "rank_ic_ci95": [
+          -0.09720502152552359,
+          0.057553009811125815
+        ],
+        "edge_ci95": [
+          -0.4300741709026426,
+          0.5379872499180081
+        ]
+      },
+      "2019-21": {
+        "n": 559,
+        "n_weeks": 121,
+        "rank_ic_mean": 0.03177813354962817,
+        "meanR_rank1_5": 0.5729621212121213,
+        "meanR_rank6_10": 0.7410961538461538,
+        "meanR_rank11plus": 1.5744745762711865,
+        "edge_A_minus_rest_same_weeks": -0.48279846625766876,
+        "hit2R_A": 0.3888888888888889,
+        "hit2R_rest": 0.39263803680981596,
+        "null_p_A": 0.3574024371963203,
+        "null_p_rest": 0.35764468618874395,
+        "rank_ic_ci95": [
+          -0.08343140187270309,
+          0.14620883887099945
+        ],
+        "edge_ci95": [
+          -1.2826709199997546,
+          0.25423413580244897
+        ]
+      },
+      "2022-24H1": {
+        "n": 795,
+        "n_weeks": 117,
+        "rank_ic_mean": -0.0655531512267935,
+        "meanR_rank1_5": 1.442312925170068,
+        "meanR_rank6_10": 0.991005586592179,
+        "meanR_rank11plus": 0.8455314285714287,
+        "edge_A_minus_rest_same_weeks": 0.8930914227015921,
+        "hit2R_A": 0.41043083900226757,
+        "hit2R_rest": 0.3389830508474576,
+        "null_p_A": 0.3567465941242615,
+        "null_p_rest": 0.3548879423302013,
+        "rank_ic_ci95": [
+          -0.17209292146947075,
+          0.04028253870093959
+        ],
+        "edge_ci95": [
+          -0.09841355255239304,
+          1.122891910816062
+        ]
+      },
+      "reading": "NOT DISTINGUISHABLE FROM NOISE",
+      "n_trades": 1354
+    },
+    "n_degenerate_dropped": 3,
+    "n_total": 1367,
+    "meanR_all": 1.3195442574981713,
+    "meanR_all_restated": 1.209198680351906,
+    "flagged_trades": [
+      {
+        "tkr": "TECHM",
+        "entry_date": "2019-01-15 00:00:00",
+        "entry": 528.58,
+        "stop0": 528.27,
+        "risk0_frac": 0.0005864769760491488,
+        "exit_date": "2019-05-27 00:00:00",
+        "exit_px": 570.42,
+        "reason": "sma_break",
+        "R": 154.804,
+        "book": "uncapped_all_grades",
+        "degenerate_stop": true
+      },
+      {
+        "tkr": "ZFCVINDIA",
+        "entry_date": "2020-08-03 00:00:00",
+        "entry": 1149.1,
+        "stop0": 1146.45,
+        "risk0_frac": 0.00230615264119734,
+        "exit_date": "2020-08-31 00:00:00",
+        "exit_px": 1152.4,
+        "reason": "stop_part",
+        "R": 1.546,
+        "book": "uncapped_all_grades",
+        "degenerate_stop": true
+      },
+      {
+        "tkr": "SEQUENT",
+        "entry_date": "2020-05-04 00:00:00",
+        "entry": 73.3,
+        "stop0": 71.6,
+        "risk0_frac": 0.023192360163710818,
+        "exit_date": "2021-08-30 00:00:00",
+        "exit_px": 235.0,
+        "reason": "sma_break",
+        "R": 21.871,
+        "book": "uncapped_all_grades",
+        "degenerate_stop": false
+      },
+      {
+        "tkr": "VAIBHAVGBL",
+        "entry_date": "2020-04-13 00:00:00",
+        "entry": 149.51,
+        "stop0": 144.14,
+        "risk0_frac": 0.03591732994448535,
+        "exit_date": "2021-10-04 00:00:00",
+        "exit_px": 635.96,
+        "reason": "sma_break",
+        "R": 24.548,
+        "book": "uncapped_all_grades",
+        "degenerate_stop": false
+      },
+      {
+        "tkr": "ALKYLAMINE",
+        "entry_date": "2020-03-23 00:00:00",
+        "entry": 430.95,
+        "stop0": 400.28,
+        "risk0_frac": 0.07116834899640333,
+        "exit_date": "2021-11-29 00:00:00",
+        "exit_px": 3130.5,
+        "reason": "sma_break",
+        "R": 29.719,
+        "book": "uncapped_all_grades",
+        "degenerate_stop": false
+      },
+      {
+        "tkr": "SUVEN",
+        "entry_date": "2019-08-27 00:00:00",
+        "entry": 11.87,
+        "stop0": 10.78,
+        "risk0_frac": 0.09182813816343723,
+        "exit_date": "2021-12-06 00:00:00",
+        "exit_px": 84.67,
+        "reason": "sma_break",
+        "R": 40.811,
+        "book": "uncapped_all_grades",
+        "degenerate_stop": false
+      },
+      {
+        "tkr": "ICICIBANK",
+        "entry_date": "2022-04-18 00:00:00",
+        "entry": 728.48,
+        "stop0": 727.76,
+        "risk0_frac": 0.0009883593235229893,
+        "exit_date": "2022-04-25 00:00:00",
+        "exit_px": 725.24,
+        "reason": "stop_part",
+        "R": -1.88,
+        "book": "uncapped_all_grades",
+        "degenerate_stop": true
+      },
+      {
+        "tkr": "TRIDENT",
+        "entry_date": "2020-09-14 00:00:00",
+        "entry": 6.17,
+        "stop0": 5.76,
+        "risk0_frac": 0.06645056726094005,
+        "exit_date": "2022-06-13 00:00:00",
+        "exit_px": 39.51,
+        "reason": "sma_break",
+        "R": 26.012,
+        "book": "uncapped_all_grades",
+        "degenerate_stop": false
+      },
+      {
+        "tkr": "MAZDOCK",
+        "entry_date": "2022-07-25 00:00:00",
+        "entry": 131.85,
+        "stop0": 125.14,
+        "risk0_frac": 0.05089116420174436,
+        "exit_date": "2024-04-01 00:00:00",
+        "exit_px": 925.05,
+        "reason": "sma_break",
+        "R": 25.372,
+        "book": "uncapped_all_grades",
+        "degenerate_stop": false
+      },
+      {
+        "tkr": "HAL",
+        "entry_date": "2022-03-07 00:00:00",
+        "entry": 643.32,
+        "stop0": 610.25,
+        "risk0_frac": 0.0514052104706834,
+        "exit_date": "2024-06-28 00:00:00",
+        "exit_px": 5151.74,
+        "reason": "eos",
+        "R": 29.845,
+        "book": "uncapped_all_grades",
+        "degenerate_stop": false
+      },
+      {
+        "tkr": "IRFC",
+        "entry_date": "2023-04-10 00:00:00",
+        "entry": 26.15,
+        "stop0": 25.3,
+        "risk0_frac": 0.03250478011472267,
+        "exit_date": "2024-06-28 00:00:00",
+        "exit_px": 167.91,
+        "reason": "eos",
+        "R": 43.205,
+        "book": "uncapped_all_grades",
+        "degenerate_stop": false
+      },
+      {
+        "tkr": "ARE&M",
+        "entry_date": "2023-05-02 00:00:00",
+        "entry": 581.49,
+        "stop0": 568.66,
+        "risk0_frac": 0.022064007979501008,
+        "exit_date": "2024-06-28 00:00:00",
+        "exit_px": 1632.59,
+        "reason": "eos",
+        "R": 25.712,
+        "book": "uncapped_all_grades",
+        "degenerate_stop": false
+      },
+      {
+        "tkr": "GMRAIRPORT",
+        "entry_date": "2023-06-12 00:00:00",
+        "entry": 42.5,
+        "stop0": 41.1,
+        "risk0_frac": 0.0329411764705882,
+        "exit_date": "2024-06-28 00:00:00",
+        "exit_px": 96.57,
+        "reason": "eos",
+        "R": 23.973,
+        "book": "uncapped_all_grades",
+        "degenerate_stop": false
+      }
+    ]
+  }
+}

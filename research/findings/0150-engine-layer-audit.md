@@ -85,3 +85,60 @@ windows, not as one being superseded by a membership fix.
 - **For the rating question:** treat Grade A as a seat-allocation rule, not a quality score. A card's
   "Grade A" label should not be read as "this trade is better".
 - Below the resolution floor, and not proposed: removing the extension cap, changing the exit.
+
+
+---
+
+## CORRECTION 2026-10-23 — degenerate-stop outliers in Part 1
+
+**Nothing above this line is edited; it stands as measured. Tier 1 re-run, no new screen row; standing counts (read
+from the ledgers by the script): screens 23 · sealed opens 3 · n_trials 2.** Reproduce:
+`python pipelines/diagnostics/diag_degenerate_stop_restate_2026_10_23.py` →
+`diagnostics/research/degenerate_stop/result.json`. Cause, exposure and the proposed engine fix:
+`diagnostics/research/explore/2026-10-23_degenerate_stop_outlier.md`.
+
+**The rule, declared before any restated number** (`nq.lab.stats.exclude_degenerate_stops`, commit `e3eae32`): a trade
+whose initial risk (entry − stop0) is under **0.5% of entry** is a degenerate stop (its R measures the sliver, not the
+trade) and is excluded. |R| > 20 is a review flag only and is **not** excluded.
+
+**What was wrong.** Part 1's uncapped all-grade ledger (1,367 trades) contains **three** degenerate-stop trades: **TECHM
+2019-01-15** (entry 528.58, stop 528.27, risk 0.059%, **+154.8R**), ICICIBANK 2022-04-18 (risk 0.099%, −1.9R) and ZFCVINDIA
+2020-08-03 (risk 0.23%, +1.5R). The engine has no minimum-risk floor (`max_risk_pct` lifts only wide stops), so a fill
+a few paise above the signal-week low is legal and its R explodes in either sign. The large-|R| winners that remain (SUVEN
++40.8R, IRFC +43.2R and others, on 3% to 9% stops) are genuine and are **kept**. TECHM was rank 8 of 8 that week, in the 6–10
+bucket, which is where the published contrast got its lift.
+
+**Reproduction check.** The raw re-run reproduces the committed Part 1 point estimates and both 95% CIs (week-clustered
+bootstrap, same seeds) to 1e-9. The restated bootstrap uses a vectorised copy of the same statistic and the same draws
+(`fast_boot` in the script), checked by that equality.
+
+### Restated Part 1 (3 trades excluded, 1,364 trades; ranks recomputed among the remaining fills)
+
+| statistic | as published | restated | restated 95% CI (week-clustered) |
+|---|---|---|---|
+| within-week rank IC | −0.004 | **−0.008** | −0.086 … +0.071 |
+| ranks 1–5 minus the rest | +0.08R | **+0.37R** | −0.38 … +0.76 |
+| mean R by rank | 1–5 +1.29, 6–10 +1.56, 11+ +1.15 | 1–5 **+1.29**, 6–10 **+1.03**, 11+ **+1.15** | not monotone |
+| mean R, all fills | +1.320 | **+1.209** | |
+| 2R hit rate vs null | top-5 40.5% vs 35.7%; rest 35.8% vs 35.6% | unchanged (40.5 / 35.7; 35.8 / 35.6) | gap not significant |
+| edge, 2019–21 | −1.41R (CI −3.80 … +0.40) | **−0.49R** (−1.23 … +0.60) | |
+| edge, 2022–24H1 | +1.04R (CI −0.11 … +1.37) | **+1.04R** (−0.10 … +1.38) | |
+
+Keeping the original ranks and only dropping the rows gives identical figures (TECHM held rank 8 of 8 in its week and ZFCVINDIA
+6 of 7, so both were in the rest group; ICICIBANK was rank 5 of 5, the last, so removing it re-ranks no one).
+Sensitivity, **not the declared rule**: also dropping the ten |R| > 20 trades (1,354 left) gives IC −0.021, edge +0.29
+(−0.43 … +0.54), mean R by rank +1.03 / +0.90 / +1.03; same conclusion.
+
+### Does the reading change?
+
+**No.** The pre-committed reading stays **NOT DISTINGUISHABLE FROM NOISE**, and the rank IC, the 2R hit-rate gap and
+the 2022–24H1 edge barely move. What did move, and should no longer be quoted as published:
+the **mean-R contrasts**. The +0.08R top-5 edge becomes +0.37R (still inside a CI that spans zero), the 6–10 bucket's
++1.56R becomes +1.03R (so the "6–10 beats 1–5" curiosity disappears, while the buckets remain non-monotone), and the
+2019–21 edge of −1.41R, which carried the "sub-periods disagree in sign" remark, is −0.49R. The sub-periods still disagree in
+sign (−0.49 / +1.04) and both intervals still span zero. Part 2 (capped Sharpe by layer) is a curve-based readout of capped
+books and was not re-run; the capped ledgers checked in the sibling 0148 re-run contained no degenerate trade.
+
+**Limit.** Three trades. The correction trims a tail that inflated the mean-R contrasts; the Part 1 answer (the CRS rank is
+indistinguishable from noise as a rating of tradeable signals) is the same, and remains **underpowered rather than
+proven flat**.

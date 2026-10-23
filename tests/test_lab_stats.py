@@ -182,3 +182,44 @@ def test_holdings_weights_and_correlation_at_use_only_past_bars():
 def test_trade_quality_empty_ledger():
     out = S.trade_quality(pd.DataFrame(columns=["tkr", "entry", "stop0", "R", "entry_date", "exit_date"]), {})
     assert out["n"] == 0 and out["uninformative"] is True
+
+
+def _rled():
+    # VMART-like sliver stop (risk 0.0074% of entry) with a huge R; a normal stop with an honest big
+    # winner (|R| 30 on a 7% stop); a normal loser; a tiny-risk winner (TECHM-like, positive R).
+    return pd.DataFrame({
+        "tkr": ["SLIVER_LOSS", "REAL_WINNER", "NORMAL", "SLIVER_WIN"],
+        "entry": [676.74, 100.0, 200.0, 528.58],
+        "stop0": [676.69, 93.0, 186.0, 528.27],
+        "R": [-389.751, 30.0, -1.0, 154.8],
+    })
+
+
+def test_r_sanity_flags_degenerate_and_extreme_are_separate():
+    f = S.r_sanity_flags(_rled())
+    assert f["degenerate_stop"].tolist() == [True, False, False, True]
+    assert f["extreme_R"].tolist() == [True, True, False, True]
+    assert f["r_flagged"].tolist() == [True, True, False, True]
+    assert f["risk0_frac"].iloc[0] == pytest.approx(0.05 / 676.74)
+    assert f["risk0_frac"].iloc[1] == pytest.approx(0.07)
+
+
+def test_r_sanity_flags_does_not_mutate_or_drop():
+    led = _rled()
+    before = led.copy()
+    f = S.r_sanity_flags(led)
+    pd.testing.assert_frame_equal(led, before)
+    assert len(f) == len(led)
+
+
+def test_exclude_degenerate_stops_keeps_real_big_winner():
+    kept = S.exclude_degenerate_stops(_rled())
+    assert kept["tkr"].tolist() == ["REAL_WINNER", "NORMAL"]            # the |R|=30 normal-stop winner stays
+    edge = pd.DataFrame({"entry": [100.0], "stop0": [99.5], "R": [-1.0]})  # exactly 0.5% is NOT degenerate (strict <)
+    assert not S.r_sanity_flags(edge)["degenerate_stop"].iloc[0]
+
+
+def test_r_sanity_flags_nan_never_flagged_and_empty_ok():
+    nanrow = pd.DataFrame({"entry": [float("nan")], "stop0": [1.0], "R": [float("nan")]})
+    assert not S.r_sanity_flags(nanrow)["r_flagged"].iloc[0]
+    assert len(S.r_sanity_flags(_rled().iloc[0:0])) == 0
