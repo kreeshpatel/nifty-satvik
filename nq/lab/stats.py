@@ -333,3 +333,41 @@ def correlation_timeseries(position_log: pd.DataFrame, returns: pd.DataFrame, da
                      "effective_bets": c["effective_bets"]})
     return pd.DataFrame(rows).set_index("date") if rows else pd.DataFrame(
         columns=["n_held", "avg_corr", "effective_bets"])
+
+
+# --------------------------------------------------------------------------- R-sanity (declared rule)
+# DECLARED RULE, written 2026-10-23 BEFORE any restated number (finding 0148/0150 CORRECTIONS): an
+# R-multiple is initial-risk-denominated, so a trade whose initial risk is a sliver of its entry price
+# has an R that measures the sliver, not the trade (VMART 2019-05-06: entry 676.74, stop0 676.69,
+# risk 0.0074% of entry, R = -389.8 for a ~5% loss). The engine has no minimum-risk floor
+# (max_risk_pct only lifts WIDE stops), so the lab flags such trades instead of letting one row move a
+# mean of 526. This is a DESCRIPTION: it never changes the engine and never drops a row by itself.
+MIN_RISK_FRAC = 0.005    # initial risk below 0.5% of entry => degenerate stop, R is not interpretable
+R_ABS_CAP = 20.0         # |R| above this => review (real compounders sit here too: SUVEN +40.8R is genuine)
+
+
+def r_sanity_flags(ledger: pd.DataFrame, *, min_risk_frac: float = MIN_RISK_FRAC,
+                   r_abs_cap: float = R_ABS_CAP) -> pd.DataFrame:
+    """Per-trade R-sanity columns for an engine ledger (``entry``, ``stop0``, ``R``).
+
+    Adds ``risk0_frac`` = (entry - stop0) / entry, ``degenerate_stop`` (risk0_frac < ``min_risk_frac``),
+    ``extreme_R`` (|R| > ``r_abs_cap``) and ``r_flagged`` (either). Returns a copy; the input is
+    untouched and no row is removed. NaN inputs are never flagged.
+    """
+    out = ledger.copy()
+    entry = out["entry"].astype(float)
+    risk0 = (entry - out["stop0"].astype(float)) / entry
+    out["risk0_frac"] = risk0
+    out["degenerate_stop"] = (risk0 < float(min_risk_frac)) & risk0.notna()
+    out["extreme_R"] = (out["R"].astype(float).abs() > float(r_abs_cap)) & out["R"].notna()
+    out["r_flagged"] = out["degenerate_stop"] | out["extreme_R"]
+    return out
+
+
+def exclude_degenerate_stops(ledger: pd.DataFrame, *, min_risk_frac: float = MIN_RISK_FRAC) -> pd.DataFrame:
+    """The ledger without degenerate-stop trades (initial risk < ``min_risk_frac`` of entry).
+
+    ONLY the degenerate-stop rule excludes rows. ``extreme_R`` is a review flag, not an exclusion: a
+    large |R| on a normal stop is a real fat-tail winner and dropping it would bias the mean down."""
+    f = r_sanity_flags(ledger, min_risk_frac=min_risk_frac)
+    return ledger.loc[~f["degenerate_stop"].to_numpy()].copy()
