@@ -598,5 +598,20 @@
     "net_pct": -14.17,
     "net_pnl": -379.71,
     "hold_days": 5
+  },
+  {
+    "ticker": "LAURUSLABS",
+    "entry_date": "2026-09-04",
+    "exit_date": "2026-10-23",
+    "entry": 1855.93,
+    "exit": 1969.02,
+    "qty": 61,
+    "days_held": 32,
+    "reason": "trailing",
+    "return_pct": 6.09,
+    "pnl": 6595.02,
+    "net_pct": 6.09,
+    "net_pnl": 6595.02,
+    "hold_days": 32
   }
 ]

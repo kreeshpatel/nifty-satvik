@@ -1,56 +1,22 @@
 {
-  "generated_at": "2026-10-22",
+  "generated_at": "2026-10-23",
   "signals": [
     {
-      "ticker": "RRKABEL",
-      "entry": 2264.23,
-      "stop": 1888.75,
-      "target": 2774.13,
+      "ticker": "LAURUSLABS",
+      "entry": 1970.98,
+      "stop": 1787.37,
+      "target": 2414.84,
       "target_pct": 22.52,
-      "current_price": 2263.1,
-      "close": 2263.1,
-      "signal_date": "2026-10-22",
+      "current_price": 1970.0,
+      "close": 1970.0,
+      "signal_date": "2026-10-23",
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
       "status": "FRESH",
       "buy_window": "T+1..T+3 at open",
-      "indicative_close": 2263.1,
-      "indicative_entry": 2264.23
-    },
-    {
-      "ticker": "KIRLOSENG",
-      "entry": 1869.93,
-      "stop": 1513.21,
-      "target": 2291.04,
-      "target_pct": 22.52,
-      "current_price": 1869.0,
-      "close": 1869.0,
-      "signal_date": "2026-10-22",
-      "hold_days": 63,
-      "grade": "B",
-      "tier": "signal",
-      "status": "FRESH",
-      "buy_window": "T+1..T+3 at open",
-      "indicative_close": 1869.0,
-      "indicative_entry": 1869.93
-    },
-    {
-      "ticker": "FINCABLES",
-      "entry": 1140.47,
-      "stop": 919.5,
-      "target": 1397.3,
-      "target_pct": 22.52,
-      "current_price": 1139.9,
-      "close": 1139.9,
-      "signal_date": "2026-10-22",
-      "hold_days": 63,
-      "grade": "B",
-      "tier": "signal",
-      "status": "FRESH",
-      "buy_window": "T+1..T+3 at open",
-      "indicative_close": 1139.9,
-      "indicative_entry": 1140.47
+      "indicative_close": 1970.0,
+      "indicative_entry": 1970.98
     }
   ],
   "regime": {
@@ -59,12 +25,12 @@
     "vix": 0,
     "breadth": 0
   },
-  "n_positions": 12,
-  "cash": 157212.31,
+  "n_positions": 14,
+  "cash": 26639.59,
   "kill_state": {
-    "wr_last20": 40.0,
-    "wr_breach": true,
-    "sharpe_30d": -2.64,
+    "wr_last20": 45.0,
+    "wr_breach": false,
+    "sharpe_30d": -3.826,
     "sharpe_30d_breach": true,
     "mode": "observe"
   }
