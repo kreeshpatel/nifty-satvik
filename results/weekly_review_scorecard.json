@@ -1,26 +1,26 @@
 {
-  "generated_utc": "2026-10-17T12:42:16.591346+00:00",
-  "generated_ist": "2026-10-17 18:12",
+  "generated_utc": "2026-10-24T12:43:09.502608+00:00",
+  "generated_ist": "2026-10-24 18:13",
   "book": "weekly-swing-0094-rank",
   "inception": "2026-07-04",
-  "days_live": 105,
+  "days_live": 112,
   "next_review": "2027-01-01",
-  "days_to_review": 76,
+  "days_to_review": 69,
   "next_review_verified": false,
   "holidays_covered_through": "2026-12-31",
   "review_cadence": "first trading day of Jan/Apr/Jul/Oct (forward/prereg.md \u00a78)",
   "forward": {
-    "n_closed": 28,
-    "expectancy_R": -1.25,
-    "win_rate_pct": 3.6,
-    "sharpe": -1.383325415230566,
-    "maxdd_pct": -10.1,
-    "nav": 955533.69
+    "n_closed": 32,
+    "expectancy_R": -1.26,
+    "win_rate_pct": 3.1,
+    "sharpe": -2.1985217079894905,
+    "maxdd_pct": -13.9,
+    "nav": 910416.78
   },
   "gates": {
     "readiness": {
       "rule": ">=40 closed OR 4 quarters (\u00a710.2)",
-      "n_closed": 28,
+      "n_closed": 32,
       "quarters_elapsed": 1,
       "ready": false,
       "convention": {
@@ -31,8 +31,8 @@
     },
     "promote": {
       "rule": "expectancy > +0.10R AND MaxDD shallower than -25% (\u00a710.2)",
-      "expectancy_R": -1.25,
-      "maxdd_pct": -10.1,
+      "expectancy_R": -1.26,
+      "maxdd_pct": -13.9,
       "pass": false,
       "_units": "expectancy_R is GROSS (raw-price R); maxdd_pct and sharpe are NET (off the NAV curve). The two limbs of this gate are not in the same unit \u2014 see forward/prereg.md \u00a710.2 and DEFINITIONS_REGISTER \u00a78.",
       "convention": {
@@ -40,13 +40,13 @@
         "maxdd_book": "capped Rs.10L A-only paper book (the one that would hold positions)",
         "maxdd_grid": "daily",
         "cagr_years": "calendar",
-        "expectancy_informative": ">=30 closed (now 28)",
+        "expectancy_informative": ">=30 closed (now 32)",
         "authority": "prereg_swing.md \u00a711.2, \u00a711.3, \u00a711.4, \u00a711.5"
       }
     },
     "kill": {
       "rule": "net Sharpe < 0 (\u00a710.2)",
-      "sharpe": -1.383325415230566,
+      "sharpe": -2.1985217079894905,
       "triggered": true,
       "convention": {
         "book": "capped Rs.10L A-only paper book (the one that would hold positions)",
@@ -58,7 +58,7 @@
     },
     "halt": {
       "rule": "live MaxDD <= -50% (\u00a74, mechanical)",
-      "maxdd_pct": -10.1,
+      "maxdd_pct": -13.9,
       "triggered": false,
       "convention": {
         "book": "capped Rs.10L A-only paper book (the one that would hold positions)",
@@ -72,7 +72,7 @@
     "rule": "keep A-only if forward MaxDD shallower AND Calmar >= base - 0.05; revert if MaxDD not shallower OR Calmar > 0.10 below base; < 20 closed per book -> insufficient evidence, DEFAULT TO BASE-SWING and carry A-only (forward/prereg_swing.md \u00a74)",
     "authority": "forward/prereg_swing.md \u00a74 (frozen 2026-07-13, tighten-only)",
     "decided_at": "2027-07-01 primary; 2026-10-01 is a first read only",
-    "a_only_closed": 28,
+    "a_only_closed": 32,
     "floor_per_book": 20,
     "convention": {
       "a_only_closed_book": "uncapped A-only signal tracker (cash never runs out)",
@@ -84,32 +84,32 @@
       "authority": "prereg_swing.md \u00a711.5 + finding 0146"
     },
     "not_implemented": "\u00a74's CI-overlap limb of the insufficient-evidence clause. A KEEP or REVERT verdict from this panel is provisional until block-bootstrap CIs on forward MaxDD and Calmar are computed and checked for overlap.",
-    "base_swing_closed": 5,
+    "base_swing_closed": 6,
     "common_window": {
       "from": "2026-07-06",
-      "to": "2026-10-16"
+      "to": "2026-10-23"
     },
     "a_only": {
-      "cagr_pct": -22.181,
-      "maxdd_pct": -10.136,
-      "calmar": -2.1883,
+      "cagr_pct": -32.75,
+      "maxdd_pct": -13.916,
+      "calmar": -2.3534,
       "from": "2026-07-06",
-      "to": "2026-10-16",
-      "n_points": 75
+      "to": "2026-10-23",
+      "n_points": 79
     },
     "base_swing": {
-      "cagr_pct": -22.181,
-      "maxdd_pct": -10.136,
-      "calmar": -2.1883,
+      "cagr_pct": -32.75,
+      "maxdd_pct": -13.916,
+      "calmar": -2.3534,
       "from": "2026-07-06",
-      "to": "2026-10-16",
-      "n_points": 75
+      "to": "2026-10-23",
+      "n_points": 79
     },
     "verdict": "INSUFFICIENT EVIDENCE -> default base-swing, carry A-only",
-    "reason": "5 closed trades in the thinner book, below the \u00a74 floor of 20 per book"
+    "reason": "6 closed trades in the thinner book, below the \u00a74 floor of 20 per book"
   },
   "status": "ACCRUING",
-  "headline": "28/40 closed, 1/4 quarters -> not yet evaluable; 76 days to the 2027-01-01 review [UNVERIFIED DATE - calendar coverage ends 2026-12-31]",
+  "headline": "32/40 closed, 1/4 quarters -> not yet evaluable; 69 days to the 2027-01-01 review [UNVERIFIED DATE - calendar coverage ends 2026-12-31]",
   "spec_note": "The \u00a710.2 registered proposal names practitioner Engine B + 4xATR; the live forward book is weekly-swing-0094-rank. The Oct-1 review must reconcile which spec is judged (forward/prereg.md \u00a710.2). Gates are surfaced, never applied between review dates; the only mechanical action is the \u00a74 halt. The `swing_grading` block encodes the OTHER doc \u2014 forward/prereg_swing.md \u00a74 \u2014 so both candidate specs are now computed rather than argued at the review.",
   "authority": "forward/prereg.md (the doc is the authority; this scorecard only reads it)"
 }

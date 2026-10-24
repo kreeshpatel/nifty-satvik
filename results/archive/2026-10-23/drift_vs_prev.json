@@ -1,0 +1,66 @@
+{
+  "prev_snapshot": "2026-10-16",
+  "cur_snapshot": "2026-10-23",
+  "closed_prev": 28,
+  "closed_cur": 32,
+  "closed_delta": 4,
+  "nav_prev": 955533.69,
+  "nav_cur": 910416.78,
+  "nav_delta": -45116.91,
+  "n_restated": 2,
+  "restated": [
+    {
+      "trade": "MRPL|2026-07-20",
+      "changed": {
+        "entry": [
+          172.0,
+          169.03
+        ],
+        "close_price": [
+          167.45,
+          164.56
+        ]
+      }
+    },
+    {
+      "trade": "OBEROIRLTY|2026-09-28",
+      "changed": {
+        "close_price": [
+          1698.0,
+          1695.91
+        ],
+        "r_multiple": [
+          -1.56,
+          -1.58
+        ]
+      }
+    }
+  ],
+  "n_vanished": 0,
+  "vanished": [],
+  "n_appeared": 4,
+  "appeared": [
+    "BANDHANBNK|2026-09-14",
+    "GVT&D|2026-08-03",
+    "HINDZINC|2026-08-31",
+    "POWERINDIA|2026-09-21"
+  ],
+  "n_vanished_open": 2,
+  "vanished_open": [
+    "ABDL|2026-09-15",
+    "ZYDUSWELL|2026-08-31"
+  ],
+  "inputs_changed": [
+    "nifty50_csv_sha256",
+    "ohlcv_cache_sha256",
+    "ohlcv_last_bar",
+    "ohlcv_n_rows"
+  ],
+  "clean": false,
+  "as_of": "2026-10-23",
+  "prev_as_of": "2026-10-16",
+  "gap_days": 7,
+  "backfilled": false,
+  "logged_utc": "2026-10-24T12:43:10.483309+00:00",
+  "is_baseline": false
+}
