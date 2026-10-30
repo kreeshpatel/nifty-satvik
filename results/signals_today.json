@@ -1,18 +1,53 @@
 {
-  "generated_at": "2026-10-29",
-  "signals": [],
+  "generated_at": "2026-10-30",
+  "signals": [
+    {
+      "ticker": "HFCL",
+      "entry": 231.41,
+      "stop": 186.18,
+      "target": 283.52,
+      "target_pct": 22.52,
+      "current_price": 231.29,
+      "close": 231.29,
+      "signal_date": "2026-10-30",
+      "hold_days": 63,
+      "grade": "B",
+      "tier": "signal",
+      "status": "FRESH",
+      "buy_window": "T+1..T+3 at open",
+      "indicative_close": 231.29,
+      "indicative_entry": 231.41
+    },
+    {
+      "ticker": "AEGISLOG",
+      "entry": 1097.25,
+      "stop": 829.6,
+      "target": 1344.35,
+      "target_pct": 22.52,
+      "current_price": 1096.7,
+      "close": 1096.7,
+      "signal_date": "2026-10-30",
+      "hold_days": 63,
+      "grade": "B",
+      "tier": "signal",
+      "status": "FRESH",
+      "buy_window": "T+1..T+3 at open",
+      "indicative_close": 1096.7,
+      "indicative_entry": 1097.25
+    }
+  ],
   "regime": {
     "status": "UNKNOWN",
     "strength": 0,
     "vix": 0,
     "breadth": 0
   },
-  "n_positions": 15,
-  "cash": 1113.7,
+  "n_positions": 13,
+  "cash": 148092.41,
   "kill_state": {
     "wr_last20": 45.0,
     "wr_breach": false,
-    "sharpe_30d": -0.427,
+    "sharpe_30d": -0.924,
     "sharpe_30d_breach": true,
     "mode": "observe"
   }

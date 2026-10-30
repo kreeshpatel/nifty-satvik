@@ -574,18 +574,32 @@
     "exit_reason": "trailing"
   },
   {
+    "ticker": "AEGISLOG",
+    "signal_date": "2026-10-16",
+    "status": "HIT_STOP",
+    "entry": 1425.61,
+    "close_price": 1096.15,
+    "close_date": "2026-10-30",
+    "return_pct": -23.11,
+    "pnl_pct": -23.11,
+    "close_pnl_pct": -23.11,
+    "days_since": 9,
+    "hold_days": 9,
+    "exit_reason": "stop"
+  },
+  {
     "ticker": "HONASA",
     "signal_date": "2026-08-28",
     "status": "ACTIVE",
     "entry": 484.04,
     "stop": 426.88,
     "target": 593.05,
-    "current_price": 447.7,
-    "close_price": 447.7,
-    "pnl_pct": -7.51,
-    "return_pct": -7.51,
-    "days_since": 41,
-    "hold_days": 41
+    "current_price": 442.1,
+    "close_price": 442.1,
+    "pnl_pct": -8.66,
+    "return_pct": -8.66,
+    "days_since": 42,
+    "hold_days": 42
   },
   {
     "ticker": "FEDERALBNK",
@@ -594,12 +608,12 @@
     "entry": 341.97,
     "stop": 316.94,
     "target": 418.98,
-    "current_price": 347.75,
-    "close_price": 347.75,
-    "pnl_pct": 1.69,
-    "return_pct": 1.69,
-    "days_since": 29,
-    "hold_days": 29
+    "current_price": 339.7,
+    "close_price": 339.7,
+    "pnl_pct": -0.66,
+    "return_pct": -0.66,
+    "days_since": 30,
+    "hold_days": 30
   },
   {
     "ticker": "GRANULES",
@@ -608,12 +622,12 @@
     "entry": 850.42,
     "stop": 755.53,
     "target": 1041.94,
-    "current_price": 837.35,
-    "close_price": 837.35,
-    "pnl_pct": -1.54,
-    "return_pct": -1.54,
-    "days_since": 20,
-    "hold_days": 20
+    "current_price": 839.75,
+    "close_price": 839.75,
+    "pnl_pct": -1.26,
+    "return_pct": -1.26,
+    "days_since": 21,
+    "hold_days": 21
   },
   {
     "ticker": "SONACOMS",
@@ -622,12 +636,12 @@
     "entry": 800.1,
     "stop": 719.23,
     "target": 980.28,
-    "current_price": 873.6,
-    "close_price": 873.6,
-    "pnl_pct": 9.19,
-    "return_pct": 9.19,
-    "days_since": 16,
-    "hold_days": 16
+    "current_price": 890.5,
+    "close_price": 890.5,
+    "pnl_pct": 11.3,
+    "return_pct": 11.3,
+    "days_since": 17,
+    "hold_days": 17
   },
   {
     "ticker": "SAILIFE",
@@ -636,12 +650,12 @@
     "entry": 1520.76,
     "stop": 1342.28,
     "target": 1863.24,
-    "current_price": 1495.7,
-    "close_price": 1495.7,
-    "pnl_pct": -1.65,
-    "return_pct": -1.65,
-    "days_since": 16,
-    "hold_days": 16
+    "current_price": 1557.5,
+    "close_price": 1557.5,
+    "pnl_pct": 2.42,
+    "return_pct": 2.42,
+    "days_since": 17,
+    "hold_days": 17
   },
   {
     "ticker": "CHENNPETRO",
@@ -650,26 +664,12 @@
     "entry": 1531.77,
     "stop": 1259.24,
     "target": 1876.72,
-    "current_price": 1511.8,
-    "close_price": 1511.8,
-    "pnl_pct": -1.3,
-    "return_pct": -1.3,
-    "days_since": 13,
-    "hold_days": 13
-  },
-  {
-    "ticker": "AEGISLOG",
-    "signal_date": "2026-10-16",
-    "status": "ACTIVE",
-    "entry": 1425.61,
-    "stop": 1152.09,
-    "target": 1746.66,
-    "current_price": 1178.7,
-    "close_price": 1178.7,
-    "pnl_pct": -17.32,
-    "return_pct": -17.32,
-    "days_since": 8,
-    "hold_days": 8
+    "current_price": 1511.5,
+    "close_price": 1511.5,
+    "pnl_pct": -1.32,
+    "return_pct": -1.32,
+    "days_since": 14,
+    "hold_days": 14
   },
   {
     "ticker": "BHEL",
@@ -678,12 +678,12 @@
     "entry": 436.17,
     "stop": 384.86,
     "target": 534.39,
-    "current_price": 401.95,
-    "close_price": 401.95,
-    "pnl_pct": -7.85,
-    "return_pct": -7.85,
-    "days_since": 8,
-    "hold_days": 8
+    "current_price": 387.6,
+    "close_price": 387.6,
+    "pnl_pct": -11.14,
+    "return_pct": -11.14,
+    "days_since": 9,
+    "hold_days": 9
   },
   {
     "ticker": "APARINDS",
@@ -692,12 +692,12 @@
     "entry": 16048.02,
     "stop": 13378.32,
     "target": 19662.03,
-    "current_price": 15846.0,
-    "close_price": 15846.0,
-    "pnl_pct": -1.26,
-    "return_pct": -1.26,
-    "days_since": 7,
-    "hold_days": 7
+    "current_price": 15678.0,
+    "close_price": 15678.0,
+    "pnl_pct": -2.31,
+    "return_pct": -2.31,
+    "days_since": 8,
+    "hold_days": 8
   },
   {
     "ticker": "GLAND",
@@ -706,12 +706,12 @@
     "entry": 2907.55,
     "stop": 2561.65,
     "target": 3562.33,
-    "current_price": 3074.5,
-    "close_price": 3074.5,
-    "pnl_pct": 5.74,
-    "return_pct": 5.74,
-    "days_since": 5,
-    "hold_days": 5
+    "current_price": 3095.9,
+    "close_price": 3095.9,
+    "pnl_pct": 6.48,
+    "return_pct": 6.48,
+    "days_since": 6,
+    "hold_days": 6
   },
   {
     "ticker": "JINDALSAW",
@@ -720,12 +720,12 @@
     "entry": 266.99,
     "stop": 218.9,
     "target": 327.11,
-    "current_price": 237.6,
-    "close_price": 237.6,
-    "pnl_pct": -11.01,
-    "return_pct": -11.01,
-    "days_since": 5,
-    "hold_days": 5
+    "current_price": 228.05,
+    "close_price": 228.05,
+    "pnl_pct": -14.58,
+    "return_pct": -14.58,
+    "days_since": 6,
+    "hold_days": 6
   },
   {
     "ticker": "HFCL",
@@ -734,12 +734,12 @@
     "entry": 240.12,
     "stop": 195.5,
     "target": 294.2,
-    "current_price": 243.46,
-    "close_price": 243.46,
-    "pnl_pct": 1.39,
-    "return_pct": 1.39,
-    "days_since": 4,
-    "hold_days": 4
+    "current_price": 231.29,
+    "close_price": 231.29,
+    "pnl_pct": -3.68,
+    "return_pct": -3.68,
+    "days_since": 5,
+    "hold_days": 5
   },
   {
     "ticker": "RRKABEL",
@@ -748,12 +748,12 @@
     "entry": 2261.13,
     "stop": 1858.84,
     "target": 2770.34,
-    "current_price": 2122.9,
-    "close_price": 2122.9,
-    "pnl_pct": -6.11,
-    "return_pct": -6.11,
-    "days_since": 4,
-    "hold_days": 4
+    "current_price": 2055.7,
+    "close_price": 2055.7,
+    "pnl_pct": -9.09,
+    "return_pct": -9.09,
+    "days_since": 5,
+    "hold_days": 5
   },
   {
     "ticker": "KIRLOSENG",
@@ -762,12 +762,12 @@
     "entry": 1860.33,
     "stop": 1489.05,
     "target": 2279.28,
-    "current_price": 1890.3,
-    "close_price": 1890.3,
-    "pnl_pct": 1.61,
-    "return_pct": 1.61,
-    "days_since": 4,
-    "hold_days": 4
+    "current_price": 1796.1,
+    "close_price": 1796.1,
+    "pnl_pct": -3.45,
+    "return_pct": -3.45,
+    "days_since": 5,
+    "hold_days": 5
   },
   {
     "ticker": "LAURUSLABS",
@@ -776,11 +776,11 @@
     "entry": 1960.98,
     "stop": 1779.93,
     "target": 2402.59,
-    "current_price": 2244.0,
-    "close_price": 2244.0,
-    "pnl_pct": 14.43,
-    "return_pct": 14.43,
-    "days_since": 3,
-    "hold_days": 3
+    "current_price": 2405.5,
+    "close_price": 2405.5,
+    "pnl_pct": 22.67,
+    "return_pct": 22.67,
+    "days_since": 4,
+    "hold_days": 4
   }
 ]

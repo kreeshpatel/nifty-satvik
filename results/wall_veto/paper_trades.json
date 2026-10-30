@@ -613,5 +613,20 @@
     "net_pct": 6.09,
     "net_pnl": 6595.02,
     "hold_days": 32
+  },
+  {
+    "ticker": "AEGISLOG",
+    "entry_date": "2026-10-16",
+    "exit_date": "2026-10-30",
+    "entry": 1425.61,
+    "exit": 1096.15,
+    "qty": 7,
+    "days_held": 9,
+    "reason": "stop",
+    "return_pct": -23.11,
+    "pnl": -2329.17,
+    "net_pct": -23.11,
+    "net_pnl": -2329.17,
+    "hold_days": 9
   }
 ]
