@@ -28,11 +28,15 @@ primary_region = "sin"   # Singapore — lowest latency to NSE + India users
 [http_service]
   internal_port = 8080
   force_https = true
-  # Always-on: the /ws WebSocket, the in-memory rate limiter, and the scanner's
-  # backend prune-exemption call need a live machine. Do NOT scale to zero.
-  auto_stop_machines = "off"
+  # Scale to zero when idle (2026-11-02, cost): Oct bill was $17.57 for TWO 1GB machines
+  # running 24/7 for a solo-user app. "suspend" snapshots RAM, so the in-memory rate
+  # limiter and caches survive; any request (browser, GitHub-Actions cron, scanner
+  # prune-exemption call) auto-starts it in ~1s, and an open /ws connection keeps it
+  # awake. There are no in-process schedulers — every cron is external.
+  # Run ONE machine only: `fly scale count 1` (fly deploy creates 2 by default).
+  auto_stop_machines = "suspend"
   auto_start_machines = true
-  min_machines_running = 1
+  min_machines_running = 0
 
   [[http_service.checks]]
     interval = "30s"
