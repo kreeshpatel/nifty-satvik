@@ -74,14 +74,19 @@ ERASED_TRADES: dict[str, str] = {
     "HEG:2026-07-24": "Vendor truncated HEG.NS history to start 2026-07-17 after the 2026-09-07 demerger; "
                       "with < 44 weeks of bars the 2026-10-03 rebuild could not form the SMA and deleted "
                       "the open trade. Last archived as ACTIVE in the 2026-09-25 snapshot.",
-    # TEMPORARY, 2026-10-19. Erased by the 2026-10-16 rebuild when newly scanned names (ADR-0017) entered
-    # past weeks' Grade-A top-5: ZYDUSWELL displaced HINDZINC, ABDL displaced BANDHANBNK. The
-    # no-retroactive-entrants prod-fix restores both on the next rebuild (2026-10-24 scan). Once the
-    # history carries them again, delete these two entries: unlike HEG, they are not permanently lost.
-    "HINDZINC:2026-08-28": "Displaced from its week's top-5 by retroactive entrant ZYDUSWELL (2026-10-16 "
-                           "rebuild). Closed -1.65R before erasure. Restored by the 2026-10-19 prod-fix.",
-    "BANDHANBNK:2026-09-11": "Displaced from its week's top-5 by retroactive entrant ABDL (2026-10-16 "
-                             "rebuild) while open. Restored by the 2026-10-19 prod-fix.",
+    # 2026-11-02: the 2026-10-24 rebuild ran the 2026-10-19 no-retroactive-entrants prod-fix, as planned.
+    # HINDZINC (-1.65R) and BANDHANBNK (-1.26R) are back in the history with outcomes, so their temporary
+    # entries are gone. The two retroactive entrants that displaced them are now the rows with no
+    # history: their cards stay in the immutable 2026-10-16 archive (ACTIVE, never FRESH), and they are
+    # declared here by name. Same wording as KNOWN_INCOMPLETE in collect_signal_quality_forward.py.
+    "ZYDUSWELL:2026-08-31": "Retroactive signal, never a real-time trade: the name entered the live scan "
+                            "on 2026-10-16 (ADR-0017) and the from-inception rebuild placed its past signal "
+                            "in a past week, archived ACTIVE without ever being a FRESH card. The "
+                            "2026-10-19 prod-fix removed it from the history on the 2026-10-24 rebuild.",
+    "ABDL:2026-09-15": "Retroactive signal, never a real-time trade: the name entered the live scan on "
+                       "2026-10-16 (ADR-0017) and the from-inception rebuild placed its past signal in a "
+                       "past week, archived ACTIVE without ever being a FRESH card. The 2026-10-19 "
+                       "prod-fix removed it from the history on the 2026-10-24 rebuild.",
 }
 
 DECLARED_HOLES: dict[str, str] = {

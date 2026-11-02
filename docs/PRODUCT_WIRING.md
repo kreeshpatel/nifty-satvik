@@ -65,11 +65,9 @@ Written by the daily monitor (weekdays 16:15 IST).
 
 | field | on cards | api | api-exec | recon | cards lib | This week | Research | Dashboard | Portfolio | History | read by |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| `as_of` | buy,hold,missed_exits | ✓ | · | ✓ | · | · | · | ✓ | · | · | **3** |
-| `buy_window_open` | buy | · | · | · | · | · | ✓ | · | · | · | **1** |
-| `buy_window_until` | buy | · | · | · | ✓ | · | ✓ | · | · | · | **2** |
+| `as_of` | hold,missed_exits | ✓ | · | ✓ | · | · | · | ✓ | · | · | **3** |
 | `cause` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | **2** |
-| `current_price` | buy,hold | ✓ | · | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | **6** |
+| `current_price` | hold | ✓ | · | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | **6** |
 | `dist_to_stop_pct` | hold | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `dist_to_target_pct` | hold | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `do` | missed_exits | · | · | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | **6** |
@@ -77,15 +75,9 @@ Written by the daily monitor (weekdays 16:15 IST).
 | `due_date` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | **2** |
 | `due_price` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | **2** |
 | `entry` | hold,missed_exits | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
-| `entry_high` | buy | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
-| `entry_low` | buy | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
-| `expired` | buy | ✓ | · | · | ✓ | · | ✓ | · | ✓ | ✓ | **5** |
-| `filled_on` | buy | · | · | · | · | · | ✓ | · | · | · | **1** |
-| `filled_price` | buy | · | · | · | ✓ | · | ✓ | · | · | · | **2** |
-| `filled_today` | buy | · | · | · | · | · | ✓ | · | · | · | **1** |
-| `frozen_price` | buy,hold | · | · | · | · | · | ✓ | · | · | · | **1** |
+| `frozen_price` | hold | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `implied_trail_sma20` | hold | · | · | · | · | · | · | · | · | · | **0** |
-| `kind` | buy,hold | · | · | · | ✓ | · | ✓ | · | · | · | **2** |
+| `kind` | hold | · | · | · | ✓ | · | ✓ | · | · | · | **2** |
 | `last_close` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | **2** |
 | `plan_tags` | hold | · | · | · | · | · | · | · | · | · | **0** |
 | `pnl_pct` | hold | · | · | · | · | · | ✓ | · | · | · | **1** |
@@ -96,25 +88,20 @@ Written by the daily monitor (weekdays 16:15 IST).
 | `severity` | missed_exits | · | · | ✓ | · | ✓ | · | · | ✓ | · | **3** |
 | `signal_date` | missed_exits | · | · | ✓ | ✓ | ✓ | ✓ | · | ✓ | ✓ | **6** |
 | `signal_id` | missed_exits | ✓ | ✓ | ✓ | · | ✓ | ✓ | · | ✓ | · | **6** |
-| `sma20` | buy,hold | · | · | · | · | · | · | · | · | · | **0** |
+| `sma20` | hold | · | · | · | · | · | · | · | · | · | **0** |
 | `source` | missed_exits | ✓ | ✓ | · | · | · | ✓ | · | ✓ | · | **4** |
 | `stop` | hold,missed_exits | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **9** |
 | `stop_breached` | hold | · | · | · | · | · | ✓ | · | · | · | **1** |
 | `target` | hold | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **9** |
 | `target_reached` | hold | · | · | · | · | · | ✓ | · | · | · | **1** |
-| `ticker` | buy,hold,missed_exits | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
-| `today_open` | buy | · | · | · | · | · | · | · | · | · | **0** |
+| `ticker` | hold,missed_exits | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | **8** |
 | `tranches` | hold | · | · | · | · | ✓ | ✓ | · | · | · | **2** |
-| `window_basis` | buy | · | · | · | · | · | · | · | · | · | **0** |
-| `window_filled` | buy | · | · | · | · | · | ✓ | · | · | · | **1** |
 
-**Unread by decision (5)**
+**Unread by decision (3)**
 
 - `implied_trail_sma20` — The producer marks it NOT an active level — the ratchet trail only moves at the weekly close. Showing a level the engine will not act on until Saturday invites acting on it.
 - `plan_tags` — A second, LOSSIER phrasing of `exit_plan.tranches[].do`, which CasePanel already prints verbatim. The tag reads 'Hold 20% runner to the 44w-SMA 897.65'; the `do` reads 'Exit only on a weekly CLOSE below the 44-week SMA'. Dropping the weekly-close condition changes the rule from a close to a touch. Two phrasings of one instruction, and only one of them was backtested.
 - `sma20` — Raw input to implied_trail_sma20 above; carries no instruction of its own.
-- `today_open` — Engine input to window_filled. The reader-facing fact it supports — 'Filled Mon, 24 Aug at 1,298.00' — is already on the row, priced and dated.
-- `window_basis` — Provenance for `buy_window_open`, added with B-4 (2026-09-28): the date the window was compared against, the feed's own as-of, and whether the feed is behind. Deliberately not a surface field — a reader does not act on it, and printing a second date beside the window invites reading the FEED's date as the window's. It exists so that a window reading 'open' against today while the data is days stale is diagnosable from the artifact rather than from the operator's memory, which is the failure B-4 fixed.
 
 ## Alias hazards
 
@@ -140,7 +127,6 @@ Parse them as LOCAL dates (`parseCalendarDate` in SignalsV3.jsx), never with a b
 | `bought_date` | api, recon, cards lib, This week, Research |
 | `buy_window_until` | cards lib, Research |
 | `due_date` | recon, This week |
-| `filled_on` | Research |
 | `signal_date` | recon, cards lib, This week, Research, Portfolio, History |
 
 ## How to use this
