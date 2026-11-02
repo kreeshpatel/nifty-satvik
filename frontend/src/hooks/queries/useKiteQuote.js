@@ -18,9 +18,8 @@
  * Uses owner's Kite session (paid Market Data) on the backend, so it works
  * for every user regardless of whether they've connected their personal Kite.
  *
- * Polls every 3s while page is visible — Level 2 depth only matters when
- * you're staring at the page deciding to trade. Stops when tab is hidden.
- * Bumped from 2s → 3s 2026-05-21 to halve backend QPS on cold-start path.
+ * One snapshot per mount — NO polling (2026-11-02). Live quotes were removed
+ * to let the Fly machine suspend; depth is a point-in-time snapshot only.
  */
 import { useQuery } from '@tanstack/react-query';
 import { kiteQuote } from '@/services/api';
@@ -28,15 +27,16 @@ import { kiteQuote } from '@/services/api';
 /**
  * @param symbol — short ticker like 'RELIANCE'. Will be prefixed with NSE:
  * @param exchange — defaults to 'NSE'. Pass 'BSE' for Sensex names.
- * @param refetchInterval — defaults to 3000ms; set to 0 to poll only on focus.
+ * @param refetchInterval — defaults to false (no polling).
  */
-export function useKiteQuote(symbol, { exchange = 'NSE', refetchInterval = 3000, enabled = true } = {}) {
+export function useKiteQuote(symbol, { exchange = 'NSE', refetchInterval = false, enabled = true } = {}) {
   const instrument = symbol ? `${exchange}:${String(symbol).toUpperCase()}` : null;
   return useQuery({
     queryKey: ['kite', 'quote', instrument],
     queryFn: () => kiteQuote([instrument]),
     enabled: enabled && !!instrument,
-    staleTime: 1000,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
     gcTime: 5 * 60 * 1000,
     refetchInterval,
     refetchIntervalInBackground: false,

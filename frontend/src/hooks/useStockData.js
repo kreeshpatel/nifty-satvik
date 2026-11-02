@@ -1,14 +1,14 @@
 // useStockData — master hook for the stock detail page
-// Tries Kite first for live data, falls back to Yahoo Finance for everything.
+// Candles: Kite first, Yahoo fallback. Price: Yahoo last COMPLETED daily close,
+// fetched once per page load — no live quotes, no polling (2026-11-02, hosting cost).
 
 import { useState, useEffect, useCallback, useContext } from 'react';
 import {
   getInstrumentToken, getInstrumentInfo, fetchStockData,
-  fetchCurrentPrice, computeAllIndicators,
+  computeAllIndicators,
 } from '@/services/kiteStock';
 import {
-  subscribeToTicks, unsubscribeFromTicks,
-  kiteQuote, yahooQuote, yahooHistorical, yahooFundamentals,
+  yahooQuote, yahooHistorical, yahooFundamentals,
 } from '@/services/api';
 import { KiteContext } from '@/App';
 
@@ -39,7 +39,8 @@ export function useStockData(symbol) {
   // but returned nothing" — lets the empty-state UI pick warn vs muted.
   // 'network' | 'empty' | null
   const [errorKind, setErrorKind] = useState(null);
-  const [tick, setTick] = useState(null);
+  // No live depth feed any more; kept null so OrderBookL2 fetches its own snapshot.
+  const tick = null;
   // warmingUp flips true if loading lingers past 2s — surfaced in the UI as
   // a "fetching live data" banner so users know we're alive during a slow
   // first load (a cold 24h instrument-master cache, an uncached historical
@@ -107,9 +108,9 @@ export function useStockData(symbol) {
       // from "didn't even try because no Kite session".
       const kiteAttempt = kite.connected && token;
 
-      const priceKite = kiteAttempt
-        ? fetchCurrentPrice(token).catch(() => null)
-        : Promise.resolve(null);
+      // Price is the daily close from Yahoo only — the Kite live-LTP arm was
+      // removed with the rest of the live quotes (2026-11-02).
+      const priceKite = Promise.resolve(null);
 
       const priceYahoo = yahooQuote(symbol).catch(() => null);
 
@@ -334,83 +335,6 @@ export function useStockData(symbol) {
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [symbol, period, candles, indicators]);
-
-  // Subscribe to WebSocket ticks for live price (Kite only)
-  useEffect(() => {
-    if (!token || !kite.connected) return;
-    subscribeToTicks([token]);
-    return () => unsubscribeFromTicks([token]);
-  }, [token, kite.connected]);
-
-  // Live price polling: Kite quote every 3s if connected, Yahoo every 30s as fallback.
-  //
-  // Why 3s and not 1s: human reaction time on depth is ~1s, but the page is
-  // not a HFT terminal — a 3s refresh feels live and halves backend QPS,
-  // which matters a lot on the cold-start path where every extra request
-  // queues behind the warm-up. OrderBookL2 reads from the same tick we
-  // refresh here (via the `tick` prop in StockDetailV2), so it inherits
-  // this cadence too — no separate /api/kite/quote poll fires.
-  useEffect(() => {
-    if (!symbol) return;
-
-    const pollKite = kite.connected && symbol;
-    const intervalMs = pollKite ? 3000 : 30000;
-    const instrumentKey = `NSE:${symbol}`;
-
-    const poll = async () => {
-      try {
-        if (pollKite) {
-          // Kite paid live quote — real-time, includes market depth
-          const data = await kiteQuote([instrumentKey]);
-          const q = data?.[instrumentKey] || data?.data?.[instrumentKey];
-          if (q) {
-            setPrice(prev => ({
-              ...prev,
-              last_price: q.last_price,
-              open: q.ohlc?.open,
-              high: q.ohlc?.high,
-              low: q.ohlc?.low,
-              close: q.ohlc?.close,
-              volume: q.volume || q.volume_traded,
-              change: q.net_change,
-              change_pct: q.ohlc?.close ? ((q.last_price - q.ohlc.close) / q.ohlc.close * 100) : null,
-            }));
-            // Update tick with depth data for OrderBook
-            if (q.depth) {
-              setTick({ depth: q.depth, last_price: q.last_price, volume: q.volume });
-            }
-          }
-        } else {
-          // Yahoo fallback — ~15min delay
-          const yq = await yahooQuote(symbol);
-          if (yq && yq.last_price) {
-            setPrice(prev => ({
-              ...prev,
-              last_price: yq.last_price,
-              open: yq.open,
-              high: yq.high,
-              low: yq.low,
-              close: yq.previous_close || yq.close,
-              volume: yq.volume,
-              change: yq.change,
-              change_pct: yq.change_pct,
-              fifty_two_week_high: yq.fifty_two_week_high,
-              fifty_two_week_low: yq.fifty_two_week_low,
-            }));
-          }
-        }
-      } catch {}
-    };
-
-    // Fire the first poll immediately so depth + live LTP arrive on the
-    // SAME tick the user hits the page. Previously the first poll waited a
-    // full intervalMs (was 1s, now 3s) before firing — visible delay on
-    // every navigation. The interval handles subsequent ticks.
-    poll();
-    const interval = setInterval(poll, intervalMs);
-    return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [symbol, kite.connected]);
 
   const changePeriod = useCallback((p) => setPeriod(p), []);
 

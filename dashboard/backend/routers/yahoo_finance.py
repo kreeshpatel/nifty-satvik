@@ -9,6 +9,7 @@ from functools import lru_cache
 import asyncio
 import time
 import logging
+from datetime import datetime, timedelta, timezone
 
 logger = logging.getLogger("niftyquant.yahoo")
 
@@ -47,6 +48,103 @@ def _yf_symbol(symbol: str, exchange: str = "NSE") -> str:
     if exchange == "BSE":
         return f"{symbol}.BO"
     return f"{symbol}.NS"
+
+
+# ── Daily-close quotes (2026-11-02, hosting cost) ─────────────────────────
+# The product is a weekend-scanned weekly-swing book; nothing needs an
+# intraday price. Quote endpoints therefore serve the last COMPLETED NSE
+# daily bar from Yahoo, and the cache holds it until the next 16:00 IST
+# settle — so Yahoo is called at most once per symbol per trading day, and
+# the frontend no longer polls (which let the Fly machine suspend).
+_IST = timezone(timedelta(hours=5, minutes=30))
+_CLOSE_SETTLE_HOUR_IST = 16  # NSE closes 15:30; give Yahoo 30 min to settle
+
+
+def _last_close_boundary(now: datetime | None = None) -> datetime:
+    """Most recent weekday 16:00 IST at or before `now`.
+
+    NSE holidays are not modelled: on a holiday the cache refreshes once and
+    gets the same last bar back, which is harmless.
+    """
+    now = (now or datetime.now(_IST)).astimezone(_IST)
+    boundary = now.replace(hour=_CLOSE_SETTLE_HOUR_IST, minute=0, second=0, microsecond=0)
+    if now < boundary:
+        boundary -= timedelta(days=1)
+    while boundary.weekday() >= 5:  # Sat/Sun → back to Friday
+        boundary -= timedelta(days=1)
+    return boundary
+
+
+def _fresh_since_close(cached_at: float, now: datetime | None = None) -> bool:
+    """True when a cache entry was written after the latest daily-close boundary."""
+    return cached_at >= _last_close_boundary(now).timestamp()
+
+
+def _quote_from_daily_bars(bars, boundary_date) -> dict | None:
+    """Build a quote from a daily OHLCV frame, using only completed bars.
+
+    Bars dated after `boundary_date` (today's still-forming bar, before the
+    16:00 IST settle) are dropped, so an intraday price can never leak in.
+    """
+    if bars is None or len(bars) == 0 or "Close" not in bars:
+        return None
+    bars = bars.dropna(subset=["Close"])
+    bars = bars[[d.date() <= boundary_date for d in bars.index]]
+    if len(bars) == 0:
+        return None
+    last = bars.iloc[-1]
+    prev_close = float(bars["Close"].iloc[-2]) if len(bars) >= 2 else None
+    close = float(last["Close"])
+    change = round(close - prev_close, 2) if prev_close else None
+    change_pct = round((close - prev_close) / prev_close * 100, 2) if prev_close else None
+
+    def _num(col):
+        v = last.get(col) if hasattr(last, "get") else None
+        try:
+            return None if v is None or v != v else float(v)  # v != v → NaN
+        except (TypeError, ValueError):
+            return None
+
+    return {
+        "last_price": round(close, 2),
+        "previous_close": round(prev_close, 2) if prev_close else None,
+        "open": _num("Open"),
+        "high": _num("High"),
+        "low": _num("Low"),
+        "volume": _num("Volume"),
+        "change": change,
+        "change_pct": change_pct,
+        "as_of": bars.index[-1].date().isoformat(),
+    }
+
+
+def _daily_close_quotes(yf_syms: list[str], now: datetime | None = None) -> dict:
+    """{yf_symbol: quote} from ONE batched Yahoo daily-bar download. Blocking."""
+    import pandas as pd
+    import yfinance as yf
+
+    if not yf_syms:
+        return {}
+    boundary_date = _last_close_boundary(now).date()
+    df = yf.download(
+        yf_syms, period="10d", interval="1d", group_by="ticker",
+        auto_adjust=False, progress=False, threads=True,
+    )
+    out = {}
+    for ys in yf_syms:
+        try:
+            if isinstance(df.columns, pd.MultiIndex):
+                if ys not in df.columns.get_level_values(0):
+                    continue
+                bars = df[ys]
+            else:
+                bars = df
+            quote = _quote_from_daily_bars(bars, boundary_date)
+            if quote:
+                out[ys] = quote
+        except Exception as e:  # one bad ticker must not sink the batch
+            logger.warning(f"Daily-close quote skip {ys}: {e}")
+    return out
 
 
 @router.get("/fundamentals/{symbol}")
@@ -360,43 +458,47 @@ async def get_historical(symbol: str, interval: str = "1d", period: str = "1y", 
 @router.get("/quote/{symbol}")
 async def get_quote(symbol: str, exchange: str = "NSE"):
     """
-    Get current quote data from Yahoo Finance.
-    Returns LTP, OHLC, volume, change, 52W range — all in one call.
+    Quote for one symbol: price fields are the last COMPLETED daily close
+    (see _quote_from_daily_bars); name / 52W range / market cap / P/E come
+    from Yahoo's info. Cached until the next 16:00 IST close boundary.
     """
     cache_key = f"quote:{symbol}:{exchange}"
-    cached = _get_cached(cache_key)
-    if cached:
-        return cached
+    entry = _cache.get(cache_key)
+    if entry and _fresh_since_close(entry[0]):
+        return entry[1]
 
     try:
         import yfinance as yf
         yf_sym = _yf_symbol(symbol, exchange)
-        ticker = yf.Ticker(yf_sym)
-        info = ticker.info or {}
+
+        def _fetch():
+            info = yf.Ticker(yf_sym).info or {}
+            daily = _daily_close_quotes([yf_sym]).get(yf_sym) or {}
+            return info, daily
+
+        info, daily = await asyncio.to_thread(_fetch)
+        if not daily:
+            raise ValueError("no completed daily bar")
 
         result = {
             "symbol": symbol,
             "name": info.get("longName") or info.get("shortName") or symbol,
-            "last_price": info.get("currentPrice") or info.get("regularMarketPrice"),
-            "previous_close": info.get("previousClose") or info.get("regularMarketPreviousClose"),
-            "open": info.get("open") or info.get("regularMarketOpen"),
-            "high": info.get("dayHigh") or info.get("regularMarketDayHigh"),
-            "low": info.get("dayLow") or info.get("regularMarketDayLow"),
-            "close": info.get("previousClose"),
-            "volume": info.get("volume") or info.get("regularMarketVolume"),
+            "last_price": daily["last_price"],
+            "previous_close": daily["previous_close"],
+            "open": daily["open"],
+            "high": daily["high"],
+            "low": daily["low"],
+            "close": daily["last_price"],
+            "volume": daily["volume"],
             "fifty_two_week_high": info.get("fiftyTwoWeekHigh"),
             "fifty_two_week_low": info.get("fiftyTwoWeekLow"),
             "market_cap": info.get("marketCap"),
             "pe_ratio": info.get("trailingPE"),
-            "change": None,
-            "change_pct": None,
+            "change": daily["change"],
+            "change_pct": daily["change_pct"],
+            "as_of": daily["as_of"],
         }
-
-        if result["last_price"] and result["previous_close"]:
-            result["change"] = round(result["last_price"] - result["previous_close"], 2)
-            result["change_pct"] = round((result["change"] / result["previous_close"]) * 100, 2)
-
-        _set_cached(cache_key, result)
+        _cache[cache_key] = (time.time(), result)
         return result
 
     except Exception as e:
@@ -407,13 +509,13 @@ async def get_quote(symbol: str, exchange: str = "NSE"):
 @router.get("/quote-batch")
 async def get_quote_batch(symbols: str, exchange: str = "NSE"):
     """
-    Get current prices for multiple symbols in one request.
-    Returns: { "IDBI": {last_price, change, change_pct}, ... }
+    Daily-close prices for multiple symbols in one request.
+    Returns: { "IDBI": {last_price, previous_close, change, change_pct, as_of, ...}, ... }
 
-    Used by Signals page Active Signal Tracker to compute live P&L for
-    all active positions in a single round trip. 30s cache per symbol.
+    `last_price` is the last COMPLETED NSE daily close, not a live price.
+    Missing symbols are fetched in ONE batched Yahoo download (off the event
+    loop) and cached until the next 16:00 IST close boundary.
     """
-    QUOTE_BATCH_TTL = 30
     symbol_list = [s.strip().upper() for s in symbols.split(",") if s.strip()]
     if not symbol_list:
         return {}
@@ -422,63 +524,21 @@ async def get_quote_batch(symbols: str, exchange: str = "NSE"):
 
     result = {}
     missing = []
-    now = time.time()
 
-    # Check per-symbol batch cache first
     for sym in symbol_list:
-        key = f"quote-batch:{sym}:{exchange}"
-        entry = _cache.get(key)
-        if entry and (now - entry[0]) < QUOTE_BATCH_TTL:
+        entry = _cache.get(f"quote-batch:{sym}:{exchange}")
+        if entry and _fresh_since_close(entry[0]):
             result[sym] = entry[1]
         else:
             missing.append(sym)
 
     if missing:
         try:
-            import yfinance as yf
             yf_syms = [_yf_symbol(s, exchange) for s in missing]
-            # yf.Tickers accepts space-separated string
-            tickers = yf.Tickers(" ".join(yf_syms))
-
-            # `.fast_info` still makes its own blocking HTTP call per ticker —
-            # yfinance has no true single-request bulk quote. Fetching them in
-            # a plain for-loop inside an `async def` endpoint ran N sequential
-            # round trips to Yahoo directly on the event loop, which (a) made
-            # an uncached watchlist take N x ~300-500ms to load and (b) BLOCKED
-            # THE ENTIRE BACKEND for every other user's request meanwhile,
-            # since nothing here was ever handed off to a thread. Push each
-            # fetch into a worker thread and run them concurrently instead —
-            # wall-clock drops to roughly the slowest single call, and the
-            # event loop stays free for other requests the whole time.
-            def _fetch_one(sym: str, yf_sym: str) -> dict | None:
-                try:
-                    t = tickers.tickers.get(yf_sym)
-                    if t is None:
-                        return None
-                    fi = getattr(t, "fast_info", None) or {}
-                    last_price = fi.get("last_price") if isinstance(fi, dict) else getattr(fi, "last_price", None)
-                    prev_close = fi.get("previous_close") if isinstance(fi, dict) else getattr(fi, "previous_close", None)
-                    if last_price is None:
-                        return None
-                    change = None
-                    change_pct = None
-                    if prev_close:
-                        change = round(last_price - prev_close, 2)
-                        change_pct = round((change / prev_close) * 100, 2)
-                    return {
-                        "last_price": round(last_price, 2),
-                        "previous_close": round(prev_close, 2) if prev_close else None,
-                        "change": change,
-                        "change_pct": change_pct,
-                    }
-                except Exception as e:
-                    logger.warning(f"Batch quote skip {sym}: {e}")
-                    return None
-
-            fetched = await asyncio.gather(
-                *(asyncio.to_thread(_fetch_one, sym, yf_sym) for sym, yf_sym in zip(missing, yf_syms))
-            )
-            for sym, quote in zip(missing, fetched):
+            fetched = await asyncio.to_thread(_daily_close_quotes, yf_syms)
+            now = time.time()
+            for sym, yf_sym in zip(missing, yf_syms):
+                quote = fetched.get(yf_sym)
                 if quote is None:
                     continue
                 result[sym] = quote
