@@ -46,6 +46,19 @@ def _replay(cfg_key: str, cfg_json: str) -> dict:
     return L.replay(json.loads(cfg_json))
 
 
+@st.cache_resource(show_spinner="Preparing the ensemble panel (cut at 2024-06-30)...")
+def _ens_context():
+    from nq.lab import ensemble as EN
+    return EN.prepare_context()
+
+
+@st.cache_resource(show_spinner="Running the noise-band ensemble (N engine replays, ~7s each)...")
+def _ensemble(cfg_key: str, cfg_json: str, n: int) -> dict:
+    import json
+    from nq.lab import ensemble as EN
+    return EN.replay_ensemble(json.loads(cfg_json), n=n, context=_ens_context())
+
+
 @st.cache_data(show_spinner="Building the returns panel...")
 def _returns_panel(_ohlcv: dict, key: str) -> pd.DataFrame:
     cols = {t: df["Close"].astype(float) for t, df in _ohlcv.items() if "Close" in df}
@@ -102,6 +115,10 @@ with st.sidebar:
                           min_value=pd.Timestamp(L.MIN_START).date(), max_value=pd.Timestamp("2023-12-31").date())
     pit = st.checkbox("Point-in-time membership filter (live)", value=True,
                       help="Off reproduces the committed diagnostics' anchor; on is what the live cron applies.")
+    noise = st.checkbox("Noise band (N paths)", value=False,
+                        help="Re-runs the config under +-10bp cost jitter and a shifted 2019 start to show the "
+                             "single-replay path noise (~7s per path). Reported on 2019-03-01..2024-06-30.")
+    n_paths = st.number_input("N paths", 5, 60, 30, 5, disabled=not noise)
     run = st.button("Run", type="primary", use_container_width=True)
 
 cfg = {"ext_cap": ext_cap, "grade_gate": grade_gate, "uncapped": uncapped, "max_notional_pct": max_notional,
@@ -157,6 +174,17 @@ with tabs[0]:
     st.altair_chart(_line(dd, "drawdown", fmt=".1%", height=220), use_container_width=True)
     st.caption("Book NAV is a fresh-capital run from the chosen start; it is a description, not a gate number "
                "(sub-period gates are continuous slices of one full run).")
+    if noise:
+        import json
+        ens = _ensemble(res["config_hash"], json.dumps(res["config"]), int(n_paths))
+        st.subheader(f"Noise band ({ens['n']} paths, seed {ens['seed']})")
+        sm = ens["summary"]
+        tbl = pd.DataFrame({k: [sm[k]["p5"], sm[k]["median"], sm[k]["p95"]] for k in ("sharpe", "cagr", "maxdd", "trades")},
+                           index=["5th pct", "median", "95th pct"])
+        st.dataframe(tbl.style.format({"sharpe": "{:.2f}", "cagr": "{:.1%}", "maxdd": "{:.1%}", "trades": "{:.0f}"}))
+        st.caption("Perturbations: cost +-10bp per side, start within the first 20 trading days of 2019; each path is a "
+                   "continuous slice of its own run. A single-replay difference smaller than this band is not a measurement. "
+                   + ens["skipped"][0])
 
 # --------------------------------------------------------------------------- Correlation & variance
 with tabs[1]:
