@@ -1,0 +1,1047 @@
+{
+ "tier": "EXPLORE (docs/PROCESS_TIERS.md tier 0)",
+ "standing_counts": {
+  "screens": 23,
+  "sealed_opens": 3,
+  "n_trials": 2
+ },
+ "n_paths": 2,
+ "seed": 20261102,
+ "perturb": [
+  "cost",
+  "start"
+ ],
+ "skipped": [
+  "fill-order tie jitter skipped: the engine's candidate key is (-rank, ticker), a total order, so ties are already broken deterministically and jittering them would change the engine's tie rule rather than sample noise"
+ ],
+ "report_window": [
+  "2019-03-01",
+  "2024-06-30"
+ ],
+ "last_bar": "2024-06-28",
+ "reading_rule": "A candidate is 'robust to path noise' only if its 5th-percentile paired dSharpe vs live is > 0; otherwise it is 'inside path noise'. 'Robust' means 'worth a pre-registered trial', never adoption: it is still train-window in-sample, with a statistical half-width of about 0.59 (n_eff about 37) on top of path noise.",
+ "runs": {
+  "live": {
+   "desc": "live book (control)",
+   "config": {
+    "ext_cap": 0.2,
+    "grade_gate": true,
+    "uncapped": false,
+    "max_notional_pct": 0.2,
+    "max_risk_pct": 0.1,
+    "exit": "live",
+    "start": "2019-01-01",
+    "pit_membership": true,
+    "min_rr_at_fill": null,
+    "whole_shares": false
+   },
+   "config_hash": "4009e76e4bc48dd7ce04c012e765a29ebf074ac075c1017e6ea3088393ce8e8a",
+   "grade_mode": "default",
+   "manifest_label": "LIVE BOOK (replay exceptions: ca_hold_drop)",
+   "differs_on": [],
+   "summary": {
+    "sharpe": {
+     "median": 1.2837573148448307,
+     "p5": 1.2251171193904622,
+     "p95": 1.3423975102991994,
+     "mean": 1.2837573148448307,
+     "n": 2
+    },
+    "cagr": {
+     "median": 0.2897458085549306,
+     "p5": 0.254302638597232,
+     "p95": 0.3251889785126292,
+     "mean": 0.2897458085549306,
+     "n": 2
+    },
+    "maxdd": {
+     "median": -0.4131308644914326,
+     "p5": -0.46978565077495227,
+     "p95": -0.35647607820791294,
+     "mean": -0.4131308644914326,
+     "n": 2
+    },
+    "trades": {
+     "median": 69.0,
+     "p5": 67.2,
+     "p95": 70.8,
+     "mean": 69.0,
+     "n": 2
+    },
+    "mean_R": {
+     "median": 1.951619297876813,
+     "p5": 1.625490098801766,
+     "p95": 2.27774849695186,
+     "mean": 1.951619297876813,
+     "n": 2
+    },
+    "mean_R_ex_degen": {
+     "median": 1.951619297876813,
+     "p5": 1.625490098801766,
+     "p95": 2.27774849695186,
+     "mean": 1.951619297876813,
+     "n": 2
+    }
+   },
+   "unperturbed_trade_R": {
+    "n_closed": 67,
+    "n_degenerate": 0,
+    "mean_R_raw": 0.8771492537313432,
+    "mean_R_ex_degenerate": 0.8771492537313432
+   }
+  },
+  "h5": {
+   "desc": "h5: scaled exit kept, the four caps reverted (ext_cap, grade gate, notional cap, risk cap)",
+   "config": {
+    "ext_cap": null,
+    "grade_gate": false,
+    "uncapped": false,
+    "max_notional_pct": null,
+    "max_risk_pct": null,
+    "exit": "live",
+    "start": "2019-01-01",
+    "pit_membership": true,
+    "min_rr_at_fill": null,
+    "whole_shares": false
+   },
+   "config_hash": "d5640ed83d3ca393146f3e7660242f1fc62a171d8b54611a68ce943691426a36",
+   "grade_mode": "default",
+   "manifest_label": "NOT LIVE BOOK: ext_cap",
+   "differs_on": [
+    "ext_cap",
+    "grade_gate",
+    "max_notional_pct",
+    "max_risk_pct"
+   ],
+   "summary": {
+    "sharpe": {
+     "median": 1.4113372933707047,
+     "p5": 1.4017332559396671,
+     "p95": 1.420941330801742,
+     "mean": 1.4113372933707047,
+     "n": 2
+    },
+    "cagr": {
+     "median": 0.31751783050455173,
+     "p5": 0.3170768936123881,
+     "p95": 0.31795876739671536,
+     "mean": 0.31751783050455173,
+     "n": 2
+    },
+    "maxdd": {
+     "median": -0.3599247387106952,
+     "p5": -0.389115831136084,
+     "p95": -0.3307336462853064,
+     "mean": -0.3599247387106952,
+     "n": 2
+    },
+    "trades": {
+     "median": 83.5,
+     "p5": 82.15,
+     "p95": 84.85,
+     "mean": 83.5,
+     "n": 2
+    },
+    "mean_R": {
+     "median": 1.2781698708751794,
+     "p5": 1.2510593400286945,
+     "p95": 1.3052804017216644,
+     "mean": 1.2781698708751794,
+     "n": 2
+    },
+    "mean_R_ex_degen": {
+     "median": 1.2781698708751794,
+     "p5": 1.2510593400286945,
+     "p95": 1.3052804017216644,
+     "mean": 1.2781698708751794,
+     "n": 2
+    }
+   },
+   "unperturbed_trade_R": {
+    "n_closed": 73,
+    "n_degenerate": 0,
+    "mean_R_raw": 1.1917123287671234,
+    "mean_R_ex_degenerate": 1.1917123287671234
+   }
+  },
+  "g": {
+   "desc": "g: all five live-only switches reverted (the bridge; engine-default exit too)",
+   "config": {
+    "ext_cap": null,
+    "grade_gate": false,
+    "uncapped": false,
+    "max_notional_pct": null,
+    "max_risk_pct": null,
+    "exit": "base",
+    "start": "2019-01-01",
+    "pit_membership": true,
+    "min_rr_at_fill": null,
+    "whole_shares": false
+   },
+   "config_hash": "ca486cdc07fde04e8db65144eb4544c1cef689fc20e31c8b6a81c7a45808a22a",
+   "grade_mode": "default",
+   "manifest_label": "NOT LIVE BOOK: ext_cap",
+   "differs_on": [
+    "ext_cap",
+    "grade_gate",
+    "max_notional_pct",
+    "max_risk_pct",
+    "scaled_exit"
+   ],
+   "summary": {
+    "sharpe": {
+     "median": 1.4396176945048524,
+     "p5": 1.2999662330668353,
+     "p95": 1.5792691559428695,
+     "mean": 1.4396176945048524,
+     "n": 2
+    },
+    "cagr": {
+     "median": 0.3387653547027748,
+     "p5": 0.3053878819716099,
+     "p95": 0.3721428274339397,
+     "mean": 0.3387653547027748,
+     "n": 2
+    },
+    "maxdd": {
+     "median": -0.3870145063695031,
+     "p5": -0.4528822286595899,
+     "p95": -0.32114678407941627,
+     "mean": -0.3870145063695031,
+     "n": 2
+    },
+    "trades": {
+     "median": 153.0,
+     "p5": 152.1,
+     "p95": 153.9,
+     "mean": 153.0,
+     "n": 2
+    },
+    "mean_R": {
+     "median": 0.5458833732057418,
+     "p5": 0.5074928827751197,
+     "p95": 0.5842738636363637,
+     "mean": 0.5458833732057418,
+     "n": 2
+    },
+    "mean_R_ex_degen": {
+     "median": 0.5458833732057418,
+     "p5": 0.5074928827751197,
+     "p95": 0.5842738636363637,
+     "mean": 0.5458833732057418,
+     "n": 2
+    }
+   },
+   "unperturbed_trade_R": {
+    "n_closed": 148,
+    "n_degenerate": 0,
+    "mean_R_raw": 0.60725,
+    "mean_R_ex_degenerate": 0.60725
+   }
+  },
+  "d6": {
+   "desc": "D6: live + grade_a_entries(P, mem=mem, filter_before_rank=True)",
+   "config": {
+    "ext_cap": 0.2,
+    "grade_gate": true,
+    "uncapped": false,
+    "max_notional_pct": 0.2,
+    "max_risk_pct": 0.1,
+    "exit": "live",
+    "start": "2019-01-01",
+    "pit_membership": true,
+    "min_rr_at_fill": null,
+    "whole_shares": false
+   },
+   "config_hash": "4009e76e4bc48dd7ce04c012e765a29ebf074ac075c1017e6ea3088393ce8e8a",
+   "grade_mode": "filter_before_rank",
+   "manifest_label": "NOT LIVE BOOK: a_grade",
+   "differs_on": [
+    "a_grade"
+   ],
+   "summary": {
+    "sharpe": {
+     "median": 1.2217477333507576,
+     "p5": 1.1153055367699352,
+     "p95": 1.32818992993158,
+     "mean": 1.2217477333507576,
+     "n": 2
+    },
+    "cagr": {
+     "median": 0.24858296303565464,
+     "p5": 0.21639037951817744,
+     "p95": 0.28077554655313186,
+     "mean": 0.24858296303565464,
+     "n": 2
+    },
+    "maxdd": {
+     "median": -0.35519576319742646,
+     "p5": -0.36217941665206477,
+     "p95": -0.34821210974278816,
+     "mean": -0.35519576319742646,
+     "n": 2
+    },
+    "trades": {
+     "median": 69.5,
+     "p5": 67.25,
+     "p95": 71.75,
+     "mean": 69.5,
+     "n": 2
+    },
+    "mean_R": {
+     "median": 1.607278399668325,
+     "p5": 1.4406528399668326,
+     "p95": 1.7739039593698176,
+     "mean": 1.607278399668325,
+     "n": 2
+    },
+    "mean_R_ex_degen": {
+     "median": 1.607278399668325,
+     "p5": 1.4406528399668326,
+     "p95": 1.7739039593698176,
+     "mean": 1.607278399668325,
+     "n": 2
+    }
+   },
+   "unperturbed_trade_R": {
+    "n_closed": 72,
+    "n_degenerate": 0,
+    "mean_R_raw": 0.741388888888889,
+    "mean_R_ex_degenerate": 0.741388888888889
+   }
+  },
+  "rr1.0": {
+   "desc": "min_rr_at_fill = 1.0",
+   "config": {
+    "ext_cap": 0.2,
+    "grade_gate": true,
+    "uncapped": false,
+    "max_notional_pct": 0.2,
+    "max_risk_pct": 0.1,
+    "exit": "live",
+    "start": "2019-01-01",
+    "pit_membership": true,
+    "min_rr_at_fill": 1.0,
+    "whole_shares": false
+   },
+   "config_hash": "6fca7d53c1b045a6d62e2db4c75d4a541fb5a7f79db36d1b30e7ca8c18ac92b3",
+   "grade_mode": "default",
+   "manifest_label": "NOT LIVE BOOK: min_rr_at_fill",
+   "differs_on": [
+    "min_rr_at_fill"
+   ],
+   "summary": {
+    "sharpe": {
+     "median": 1.2837573148448307,
+     "p5": 1.2251171193904622,
+     "p95": 1.3423975102991994,
+     "mean": 1.2837573148448307,
+     "n": 2
+    },
+    "cagr": {
+     "median": 0.2897458085549306,
+     "p5": 0.254302638597232,
+     "p95": 0.3251889785126292,
+     "mean": 0.2897458085549306,
+     "n": 2
+    },
+    "maxdd": {
+     "median": -0.4131308644914326,
+     "p5": -0.46978565077495227,
+     "p95": -0.35647607820791294,
+     "mean": -0.4131308644914326,
+     "n": 2
+    },
+    "trades": {
+     "median": 69.0,
+     "p5": 67.2,
+     "p95": 70.8,
+     "mean": 69.0,
+     "n": 2
+    },
+    "mean_R": {
+     "median": 1.951619297876813,
+     "p5": 1.625490098801766,
+     "p95": 2.27774849695186,
+     "mean": 1.951619297876813,
+     "n": 2
+    },
+    "mean_R_ex_degen": {
+     "median": 1.951619297876813,
+     "p5": 1.625490098801766,
+     "p95": 2.27774849695186,
+     "mean": 1.951619297876813,
+     "n": 2
+    }
+   },
+   "unperturbed_trade_R": {
+    "n_closed": 67,
+    "n_degenerate": 0,
+    "mean_R_raw": 0.8771492537313432,
+    "mean_R_ex_degenerate": 0.8771492537313432
+   }
+  },
+  "rr1.5": {
+   "desc": "min_rr_at_fill = 1.5",
+   "config": {
+    "ext_cap": 0.2,
+    "grade_gate": true,
+    "uncapped": false,
+    "max_notional_pct": 0.2,
+    "max_risk_pct": 0.1,
+    "exit": "live",
+    "start": "2019-01-01",
+    "pit_membership": true,
+    "min_rr_at_fill": 1.5,
+    "whole_shares": false
+   },
+   "config_hash": "b35362455c3c4db6d8aac51c9030ee80095e619343bd9ab30634657b5193b531",
+   "grade_mode": "default",
+   "manifest_label": "NOT LIVE BOOK: min_rr_at_fill",
+   "differs_on": [
+    "min_rr_at_fill"
+   ],
+   "summary": {
+    "sharpe": {
+     "median": 1.0582205581976696,
+     "p5": 1.0005638611867218,
+     "p95": 1.1158772552086176,
+     "mean": 1.0582205581976696,
+     "n": 2
+    },
+    "cagr": {
+     "median": 0.22678165025470054,
+     "p5": 0.19173388319529905,
+     "p95": 0.26182941731410203,
+     "mean": 0.22678165025470054,
+     "n": 2
+    },
+    "maxdd": {
+     "median": -0.4131308644914326,
+     "p5": -0.46978565077495227,
+     "p95": -0.35647607820791294,
+     "mean": -0.4131308644914326,
+     "n": 2
+    },
+    "trades": {
+     "median": 71.0,
+     "p5": 70.1,
+     "p95": 71.9,
+     "mean": 71.0,
+     "n": 2
+    },
+    "mean_R": {
+     "median": 1.3982134920634919,
+     "p5": 1.2509213492063493,
+     "p95": 1.5455056349206346,
+     "mean": 1.3982134920634919,
+     "n": 2
+    },
+    "mean_R_ex_degen": {
+     "median": 1.3982134920634919,
+     "p5": 1.2509213492063493,
+     "p95": 1.5455056349206346,
+     "mean": 1.3982134920634919,
+     "n": 2
+    }
+   },
+   "unperturbed_trade_R": {
+    "n_closed": 74,
+    "n_degenerate": 0,
+    "mean_R_raw": 0.6460675675675676,
+    "mean_R_ex_degenerate": 0.6460675675675676
+   }
+  },
+  "whole": {
+   "desc": "whole_shares = True (realism check)",
+   "config": {
+    "ext_cap": 0.2,
+    "grade_gate": true,
+    "uncapped": false,
+    "max_notional_pct": 0.2,
+    "max_risk_pct": 0.1,
+    "exit": "live",
+    "start": "2019-01-01",
+    "pit_membership": true,
+    "min_rr_at_fill": null,
+    "whole_shares": true
+   },
+   "config_hash": "3105b4bf799d1f51829efbd24586edb92fd135b7a3998742389cf866b758b424",
+   "grade_mode": "default",
+   "manifest_label": "NOT LIVE BOOK: whole_shares",
+   "differs_on": [
+    "whole_shares"
+   ],
+   "summary": {
+    "sharpe": {
+     "median": 1.2375385533131533,
+     "p5": 1.2042664321750733,
+     "p95": 1.2708106744512335,
+     "mean": 1.2375385533131533,
+     "n": 2
+    },
+    "cagr": {
+     "median": 0.2543856943266408,
+     "p5": 0.2471207328762418,
+     "p95": 0.26165065577703983,
+     "mean": 0.2543856943266408,
+     "n": 2
+    },
+    "maxdd": {
+     "median": -0.3354713646930837,
+     "p5": -0.34924072196833256,
+     "p95": -0.32170200741783483,
+     "mean": -0.3354713646930837,
+     "n": 2
+    },
+    "trades": {
+     "median": 72.0,
+     "p5": 72.0,
+     "p95": 72.0,
+     "mean": 72.0,
+     "n": 2
+    },
+    "mean_R": {
+     "median": 1.6037847222222221,
+     "p5": 1.5607409722222223,
+     "p95": 1.6468284722222222,
+     "mean": 1.6037847222222221,
+     "n": 2
+    },
+    "mean_R_ex_degen": {
+     "median": 1.6037847222222221,
+     "p5": 1.5607409722222223,
+     "p95": 1.6468284722222222,
+     "mean": 1.6037847222222221,
+     "n": 2
+    }
+   },
+   "unperturbed_trade_R": {
+    "n_closed": 70,
+    "n_degenerate": 0,
+    "mean_R_raw": 0.7546142857142858,
+    "mean_R_ex_degenerate": 0.7546142857142858
+   }
+  }
+ },
+ "paired_vs_live": {
+  "h5": {
+   "summary": {
+    "sharpe": {
+     "median": 0.12757997852587377,
+     "p5": 0.07854382050254265,
+     "p95": 0.17661613654920488,
+     "mean": 0.12757997852587377,
+     "n": 2
+    },
+    "cagr": {
+     "median": 0.02777202194962114,
+     "p5": -0.0072302111159138205,
+     "p95": 0.0627742550151561,
+     "mean": 0.02777202194962114,
+     "n": 2
+    },
+    "maxdd": {
+     "median": 0.05320612578073741,
+     "p5": -0.03263975292817111,
+     "p95": 0.13905200448964594,
+     "mean": 0.05320612578073741,
+     "n": 2
+    },
+    "trades": {
+     "median": 14.5,
+     "p5": 11.35,
+     "p95": 17.65,
+     "mean": 14.5,
+     "n": 2
+    },
+    "mean_R": {
+     "median": -0.6734494270016336,
+     "p5": -1.0266891569231655,
+     "p95": -0.3202096970801016,
+     "mean": -0.6734494270016336,
+     "n": 2
+    },
+    "mean_R_ex_degen": {
+     "median": -0.6734494270016336,
+     "p5": -1.0266891569231655,
+     "p95": -0.3202096970801016,
+     "mean": -0.6734494270016336,
+     "n": 2
+    }
+   },
+   "share_better": 1.0,
+   "n_paired": 2,
+   "robust_to_path_noise": true
+  },
+  "g": {
+   "summary": {
+    "sharpe": {
+     "median": 0.15586037966002175,
+     "p5": -0.04243127723236402,
+     "p95": 0.3541520365524075,
+     "mean": 0.15586037966002175,
+     "n": 2
+    },
+    "cagr": {
+     "median": 0.049019546147844206,
+     "p5": -0.019801096541019338,
+     "p95": 0.11784018883670774,
+     "mean": 0.049019546147844206,
+     "n": 2
+    },
+    "maxdd": {
+     "median": 0.026116358121929528,
+     "p5": 0.016903422115362426,
+     "p95": 0.03532929412849663,
+     "mean": 0.026116358121929528,
+     "n": 2
+    },
+    "trades": {
+     "median": 84.0,
+     "p5": 81.3,
+     "p95": 86.7,
+     "mean": 84.0,
+     "n": 2
+    },
+    "mean_R": {
+     "median": -1.4057359246710712,
+     "p5": -1.7702556141767403,
+     "p95": -1.0412162351654024,
+     "mean": -1.4057359246710712,
+     "n": 2
+    },
+    "mean_R_ex_degen": {
+     "median": -1.4057359246710712,
+     "p5": -1.7702556141767403,
+     "p95": -1.0412162351654024,
+     "mean": -1.4057359246710712,
+     "n": 2
+    }
+   },
+   "share_better": 0.5,
+   "n_paired": 2,
+   "robust_to_path_noise": false
+  },
+  "d6": {
+   "summary": {
+    "sharpe": {
+     "median": -0.06200958149407321,
+     "p5": -0.10981158262052705,
+     "p95": -0.01420758036761937,
+     "mean": -0.06200958149407321,
+     "n": 2
+    },
+    "cagr": {
+     "median": -0.04116284551927596,
+     "p5": -0.04441343195949735,
+     "p95": -0.037912259079054565,
+     "mean": -0.04116284551927596,
+     "n": 2
+    },
+    "maxdd": {
+     "median": 0.05793510129400614,
+     "p5": 0.008263968465124782,
+     "p95": 0.1076062341228875,
+     "mean": 0.05793510129400614,
+     "n": 2
+    },
+    "trades": {
+     "median": 0.5,
+     "p5": 0.05,
+     "p95": 0.95,
+     "mean": 0.5,
+     "n": 2
+    },
+    "mean_R": {
+     "median": -0.3443408982084879,
+     "p5": -0.5038445375820426,
+     "p95": -0.18483725883493324,
+     "mean": -0.3443408982084879,
+     "n": 2
+    },
+    "mean_R_ex_degen": {
+     "median": -0.3443408982084879,
+     "p5": -0.5038445375820426,
+     "p95": -0.18483725883493324,
+     "mean": -0.3443408982084879,
+     "n": 2
+    }
+   },
+   "share_better": 0.0,
+   "n_paired": 2,
+   "robust_to_path_noise": false
+  },
+  "rr1.0": {
+   "summary": {
+    "sharpe": {
+     "median": 0.0,
+     "p5": 0.0,
+     "p95": 0.0,
+     "mean": 0.0,
+     "n": 2
+    },
+    "cagr": {
+     "median": 0.0,
+     "p5": 0.0,
+     "p95": 0.0,
+     "mean": 0.0,
+     "n": 2
+    },
+    "maxdd": {
+     "median": 0.0,
+     "p5": 0.0,
+     "p95": 0.0,
+     "mean": 0.0,
+     "n": 2
+    },
+    "trades": {
+     "median": 0.0,
+     "p5": 0.0,
+     "p95": 0.0,
+     "mean": 0.0,
+     "n": 2
+    },
+    "mean_R": {
+     "median": 0.0,
+     "p5": 0.0,
+     "p95": 0.0,
+     "mean": 0.0,
+     "n": 2
+    },
+    "mean_R_ex_degen": {
+     "median": 0.0,
+     "p5": 0.0,
+     "p95": 0.0,
+     "mean": 0.0,
+     "n": 2
+    }
+   },
+   "share_better": 0.0,
+   "n_paired": 2,
+   "robust_to_path_noise": false
+  },
+  "rr1.5": {
+   "summary": {
+    "sharpe": {
+     "median": -0.22553675664716116,
+     "p5": -0.2265202550905819,
+     "p95": -0.22455325820374042,
+     "mean": -0.22553675664716116,
+     "n": 2
+    },
+    "cagr": {
+     "median": -0.06296415830023006,
+     "p5": -0.06335956119852718,
+     "p95": -0.06256875540193294,
+     "mean": -0.06296415830023006,
+     "n": 2
+    },
+    "maxdd": {
+     "median": 0.0,
+     "p5": 0.0,
+     "p95": 0.0,
+     "mean": 0.0,
+     "n": 2
+    },
+    "trades": {
+     "median": 2.0,
+     "p5": 1.1,
+     "p95": 2.9,
+     "mean": 2.0,
+     "n": 2
+    },
+    "mean_R": {
+     "median": -0.553405805813321,
+     "p5": -0.7322428620312253,
+     "p95": -0.37456874959541664,
+     "mean": -0.553405805813321,
+     "n": 2
+    },
+    "mean_R_ex_degen": {
+     "median": -0.553405805813321,
+     "p5": -0.7322428620312253,
+     "p95": -0.37456874959541664,
+     "mean": -0.553405805813321,
+     "n": 2
+    }
+   },
+   "share_better": 0.0,
+   "n_paired": 2,
+   "robust_to_path_noise": false
+  },
+  "whole": {
+   "summary": {
+    "sharpe": {
+     "median": -0.046218761531677366,
+     "p5": -0.07158683584796602,
+     "p95": -0.02085068721538872,
+     "mean": -0.046218761531677366,
+     "n": 2
+    },
+    "cagr": {
+     "median": -0.035360114228289774,
+     "p5": -0.06353832273558935,
+     "p95": -0.007181905720990203,
+     "mean": -0.035360114228289774,
+     "n": 2
+    },
+    "maxdd": {
+     "median": 0.07765949979834891,
+     "p5": 0.007235356239580354,
+     "p95": 0.14808364335711746,
+     "mean": 0.07765949979834891,
+     "n": 2
+    },
+    "trades": {
+     "median": 3.0,
+     "p5": 1.2,
+     "p95": 4.8,
+     "mean": 3.0,
+     "n": 2
+    },
+    "mean_R": {
+     "median": -0.34783457565459075,
+     "p5": -0.6309200247296378,
+     "p95": -0.0647491265795437,
+     "mean": -0.34783457565459075,
+     "n": 2
+    },
+    "mean_R_ex_degen": {
+     "median": -0.34783457565459075,
+     "p5": -0.6309200247296378,
+     "p95": -0.0647491265795437,
+     "mean": -0.34783457565459075,
+     "n": 2
+    }
+   },
+   "share_better": 0.0,
+   "n_paired": 2,
+   "robust_to_path_noise": false
+  }
+ },
+ "whole_shares_realism": {
+  "n_fills_off": 77,
+  "n_fills_on": 82,
+  "same_fill_dates": 69,
+  "only_in_off": [
+   "INDUSINDBK 2021-09-20",
+   "MAPMYINDIA 2024-06-27",
+   "MHRIL 2024-06-24",
+   "MINDACORP 2024-03-27",
+   "MRF 2023-05-12",
+   "POONAWALLA 2023-12-07",
+   "TRITURBINE 2024-02-12",
+   "VGUARD 2023-10-23"
+  ],
+  "only_in_on": [
+   "BORORENEW 2024-03-04",
+   "CAMS 2024-03-18",
+   "CASTROLIND 2023-12-01",
+   "HINDALCO 2023-10-03",
+   "IDEA 2024-05-27",
+   "INDUSINDBK 2021-09-21",
+   "INGERRAND 2023-12-15",
+   "JINDWORLD 2023-08-29",
+   "LINDEINDIA 2024-03-18",
+   "MHRIL 2024-06-26",
+   "MRF 2023-05-08",
+   "TORNTPHARM 2023-10-30",
+   "USHAMART 2024-05-06"
+  ],
+  "common_with_share_change": 69,
+  "share_rounding_rel_loss_median": 0.001210045579555751,
+  "share_rounding_rel_loss_max": 0.05408757580208794,
+  "min_shares_on": 14.0,
+  "single_replay": {
+   "sharpe_off": 1.0247630332429298,
+   "sharpe_on": 1.0678801222775713,
+   "cagr_off": 0.20467342852524917,
+   "cagr_on": 0.21933169397277186
+  }
+ },
+ "paths": {
+  "live": [
+   {
+    "path": 0,
+    "cost_delta": 0.0003579891,
+    "start": "2019-01-21",
+    "sharpe": 1.3489130876,
+    "cagr": 0.3291271085,
+    "maxdd": -0.476080627,
+    "trades": 67,
+    "mean_R": 2.3139850746,
+    "mean_R_ex_degen": 2.3139850746,
+    "n_degenerate": 0
+   },
+   {
+    "path": 1,
+    "cost_delta": -0.0001415647,
+    "start": "2019-01-23",
+    "sharpe": 1.2186015421,
+    "cagr": 0.2503645086,
+    "maxdd": -0.350181102,
+    "trades": 71,
+    "mean_R": 1.5892535211,
+    "mean_R_ex_degen": 1.5892535211,
+    "n_degenerate": 0
+   }
+  ],
+  "h5": [
+   {
+    "path": 0,
+    "cost_delta": 0.0003579891,
+    "start": "2019-01-21",
+    "sharpe": 1.4220084461,
+    "cagr": 0.3180077604,
+    "maxdd": -0.3274901916,
+    "trades": 85,
+    "mean_R": 1.2480470588,
+    "mean_R_ex_degen": 1.2480470588,
+    "n_degenerate": 0
+   },
+   {
+    "path": 1,
+    "cost_delta": -0.0001415647,
+    "start": "2019-01-23",
+    "sharpe": 1.4006661407,
+    "cagr": 0.3170279006,
+    "maxdd": -0.3923592859,
+    "trades": 82,
+    "mean_R": 1.3082926829,
+    "mean_R_ex_degen": 1.3082926829,
+    "n_degenerate": 0
+   }
+  ],
+  "g": [
+   {
+    "path": 0,
+    "cost_delta": 0.0003579891,
+    "start": "2019-01-21",
+    "sharpe": 1.284449404,
+    "cagr": 0.3016792739,
+    "maxdd": -0.4602008645,
+    "trades": 154,
+    "mean_R": 0.5032272727,
+    "mean_R_ex_degen": 0.5032272727,
+    "n_degenerate": 0
+   },
+   {
+    "path": 1,
+    "cost_delta": -0.0001415647,
+    "start": "2019-01-23",
+    "sharpe": 1.594785985,
+    "cagr": 0.3758514355,
+    "maxdd": -0.3138281483,
+    "trades": 152,
+    "mean_R": 0.5885394737,
+    "mean_R_ex_degen": 0.5885394737,
+    "n_degenerate": 0
+   }
+  ],
+  "d6": [
+   {
+    "path": 0,
+    "cost_delta": 0.0003579891,
+    "start": "2019-01-21",
+    "sharpe": 1.3400168407,
+    "cagr": 0.2843525003,
+    "maxdd": -0.3629553781,
+    "trades": 67,
+    "mean_R": 1.7924179104,
+    "mean_R_ex_degen": 1.7924179104,
+    "n_degenerate": 0
+   },
+   {
+    "path": 1,
+    "cost_delta": -0.0001415647,
+    "start": "2019-01-23",
+    "sharpe": 1.103478626,
+    "cagr": 0.2128134258,
+    "maxdd": -0.3474361482,
+    "trades": 72,
+    "mean_R": 1.4221388889,
+    "mean_R_ex_degen": 1.4221388889,
+    "n_degenerate": 0
+   }
+  ],
+  "rr1.0": [
+   {
+    "path": 0,
+    "cost_delta": 0.0003579891,
+    "start": "2019-01-21",
+    "sharpe": 1.3489130876,
+    "cagr": 0.3291271085,
+    "maxdd": -0.476080627,
+    "trades": 67,
+    "mean_R": 2.3139850746,
+    "mean_R_ex_degen": 2.3139850746,
+    "n_degenerate": 0
+   },
+   {
+    "path": 1,
+    "cost_delta": -0.0001415647,
+    "start": "2019-01-23",
+    "sharpe": 1.2186015421,
+    "cagr": 0.2503645086,
+    "maxdd": -0.350181102,
+    "trades": 71,
+    "mean_R": 1.5892535211,
+    "mean_R_ex_degen": 1.5892535211,
+    "n_degenerate": 0
+   }
+  ],
+  "rr1.5": [
+   {
+    "path": 0,
+    "cost_delta": 0.0003579891,
+    "start": "2019-01-21",
+    "sharpe": 1.1222835549,
+    "cagr": 0.2657236137,
+    "maxdd": -0.476080627,
+    "trades": 70,
+    "mean_R": 1.5618714286,
+    "mean_R_ex_degen": 1.5618714286,
+    "n_degenerate": 0
+   },
+   {
+    "path": 1,
+    "cost_delta": -0.0001415647,
+    "start": "2019-01-23",
+    "sharpe": 0.9941575615,
+    "cagr": 0.1878396869,
+    "maxdd": -0.350181102,
+    "trades": 72,
+    "mean_R": 1.2345555556,
+    "mean_R_ex_degen": 1.2345555556,
+    "n_degenerate": 0
+   }
+  ],
+  "whole": [
+   {
+    "path": 0,
+    "cost_delta": 0.0003579891,
+    "start": "2019-01-21",
+    "sharpe": 1.2745075768,
+    "cagr": 0.2624578737,
+    "maxdd": -0.3201720788,
+    "trades": 72,
+    "mean_R": 1.6516111111,
+    "mean_R_ex_degen": 1.6516111111,
+    "n_degenerate": 0
+   },
+   {
+    "path": 1,
+    "cost_delta": -0.0001415647,
+    "start": "2019-01-23",
+    "sharpe": 1.2005695298,
+    "cagr": 0.2463135149,
+    "maxdd": -0.3507706506,
+    "trades": 72,
+    "mean_R": 1.5559583333,
+    "mean_R_ex_degen": 1.5559583333,
+    "n_degenerate": 0
+   }
+  ]
+ }
+}

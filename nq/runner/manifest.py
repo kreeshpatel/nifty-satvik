@@ -28,7 +28,10 @@ ROOT = Path(__file__).resolve().parents[2]
 # Keys that do not define WHICH book is run (the evaluation window start is a reporting choice).
 IGNORED_KEYS = frozenset({"start"})
 # Engine switches the cron leaves at their default; absent from the LIVE_* blocks but must still match.
-LIVE_DEFAULTS: dict[str, Any] = {"uncapped": False, "grade_gate": True}
+# `min_rr_at_fill` / `whole_shares` (2026-11-02) are gated research levers, OFF in the live book: any other value
+# is a difference from it.
+LIVE_DEFAULTS: dict[str, Any] = {"uncapped": False, "grade_gate": True,
+                                 "min_rr_at_fill": None, "whole_shares": False}
 # Live behaviours a historical REPLAY cannot honour, so leaving them out is a stated exception rather than a
 # different book (2026-10-20, found by the repo-map rewrite: before this a replay that dropped them still
 # read plain "LIVE BOOK"). The label now names them.
