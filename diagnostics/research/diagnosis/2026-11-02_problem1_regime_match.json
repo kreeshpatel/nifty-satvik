@@ -1,0 +1,1721 @@
+{
+  "standing_counts": {
+    "screens": 23,
+    "sealed_opens": 3,
+    "n_trials": 2
+  },
+  "run": {
+    "config": {
+      "ext_cap": 0.2,
+      "grade_gate": true,
+      "uncapped": false,
+      "max_notional_pct": 0.2,
+      "max_risk_pct": 0.1,
+      "exit": "live",
+      "start": "2019-01-01",
+      "pit_membership": true
+    },
+    "config_hash": "4009e76e4bc48dd7ce04c012e765a29ebf074ac075c1017e6ea3088393ce8e8a",
+    "sharpe": 1.0247630332429298,
+    "maxdd": -0.401129518327873,
+    "cagr": 0.20467342852524917,
+    "n_trades_capped": 77,
+    "n_trades_uncapped": 526,
+    "last_bar": "2024-06-28",
+    "ledger_capped": {
+      "rows": 77,
+      "degenerate_excluded": 0,
+      "eos_excluded": 10
+    },
+    "ledger_uncapped": {
+      "rows": 526,
+      "degenerate_excluded": 1,
+      "eos_excluded": 84
+    }
+  },
+  "train_baseline": {
+    "capped_all": {
+      "n": 67,
+      "wins": 28,
+      "win_rate": 0.417910447761194,
+      "mean_R": 0.8771492537313432,
+      "median_R": -0.823,
+      "stop_exit_share": 0.47761194029850745,
+      "share_below_m1.5R": 0.1791044776119403,
+      "mean_beyond_stop_R": 0.7245357142857143,
+      "share_stops_beyond_1R": 0.8928571428571429
+    },
+    "uncapped_all": {
+      "n": 441,
+      "wins": 189,
+      "win_rate": 0.42857142857142855,
+      "mean_R": 0.621154195011338,
+      "median_R": -0.645,
+      "stop_exit_share": 0.5170068027210885,
+      "share_below_m1.5R": 0.13151927437641722,
+      "mean_beyond_stop_R": 0.44565816326530616,
+      "share_stops_beyond_1R": 0.8877551020408163
+    }
+  },
+  "live": {
+    "first": "2026-07-06",
+    "last": "2026-10-23",
+    "n_sessions": 79,
+    "book_return": -0.08958321983498663,
+    "maxdd": -0.13916085888219942,
+    "sharpe": -2.1985217079894905,
+    "n_closed": 32,
+    "wins": 1,
+    "win_rate": 0.03125,
+    "mean_R": -1.25875,
+    "median_R": -1.185,
+    "share_below_m1.5R": 0.28125,
+    "n_below_m1.5R": 9,
+    "stop_exit_share": 0.8125,
+    "n_open": 19
+  },
+  "analysis": {
+    "dd_8pct": {
+      "threshold": 0.08,
+      "n_episodes": 7,
+      "episodes": [
+        {
+          "start": "2019-01-02",
+          "peak_date": "2018-08-28",
+          "trough_date": "2019-02-19",
+          "end": "2019-02-28",
+          "depth": -0.09661799979767427,
+          "sessions": 41,
+          "window_end": "2019-04-28",
+          "full_episode": {
+            "slice": {
+              "first": "2019-01-02",
+              "last": "2019-02-28",
+              "n_sessions": 42,
+              "book_return": 0.020617254232117466,
+              "maxdd": -0.06316693232295578,
+              "sharpe": 0.8915794650550317,
+              "nifty_return": 0.0,
+              "book_minus_nifty": 0.020617254232117466
+            },
+            "capped": {
+              "entered": {
+                "n": 6,
+                "wins": 3,
+                "win_rate": 0.5,
+                "mean_R": 0.38899999999999996,
+                "median_R": 0.5425,
+                "stop_exit_share": 0.6666666666666666,
+                "share_below_m1.5R": 0.16666666666666666,
+                "mean_beyond_stop_R": 0.3305,
+                "share_stops_beyond_1R": 0.5
+              },
+              "closed_by_window_end": {
+                "n": 1,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -0.137,
+                "median_R": -0.137,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": NaN,
+                "share_stops_beyond_1R": NaN
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 26,
+                "wins": 10,
+                "win_rate": 0.38461538461538464,
+                "mean_R": -0.1287692307692308,
+                "median_R": -0.327,
+                "stop_exit_share": 0.6153846153846154,
+                "share_below_m1.5R": 0.11538461538461539,
+                "mean_beyond_stop_R": 0.6806363636363636,
+                "share_stops_beyond_1R": 0.8181818181818182
+              },
+              "closed_by_window_end": {
+                "n": 8,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -1.571,
+                "median_R": -1.155,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 0.25,
+                "mean_beyond_stop_R": 1.0525,
+                "share_stops_beyond_1R": 1.0
+              }
+            }
+          },
+          "live_shaped_window": {
+            "slice": {
+              "first": "2019-01-02",
+              "last": "2019-04-26",
+              "n_sessions": 79,
+              "book_return": 0.09102449998056383,
+              "maxdd": -0.06316693232295578,
+              "sharpe": 2.1475146787270765,
+              "nifty_return": 0.08914990879082696,
+              "book_minus_nifty": 0.0018745911897368739
+            },
+            "capped": {
+              "entered": {
+                "n": 7,
+                "wins": 3,
+                "win_rate": 0.42857142857142855,
+                "mean_R": -0.13085714285714292,
+                "median_R": -0.137,
+                "stop_exit_share": 0.7142857142857143,
+                "share_below_m1.5R": 0.2857142857142857,
+                "mean_beyond_stop_R": 0.9703333333333334,
+                "share_stops_beyond_1R": 0.6666666666666666
+              },
+              "closed_by_window_end": {
+                "n": 1,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -0.137,
+                "median_R": -0.137,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": NaN,
+                "share_stops_beyond_1R": NaN
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 43,
+                "wins": 17,
+                "win_rate": 0.3953488372093023,
+                "mean_R": -0.10469767441860463,
+                "median_R": -0.449,
+                "stop_exit_share": 0.5348837209302325,
+                "share_below_m1.5R": 0.13953488372093023,
+                "mean_beyond_stop_R": 0.6621666666666667,
+                "share_stops_beyond_1R": 0.8888888888888888
+              },
+              "closed_by_window_end": {
+                "n": 12,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -1.3278333333333332,
+                "median_R": -1.155,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 0.16666666666666666,
+                "mean_beyond_stop_R": 0.7525555555555556,
+                "share_stops_beyond_1R": 0.8888888888888888
+              }
+            }
+          }
+        },
+        {
+          "start": "2019-07-30",
+          "peak_date": "2019-06-03",
+          "trough_date": "2019-09-19",
+          "end": "2019-09-19",
+          "depth": -0.11446782470660233,
+          "sessions": 34,
+          "window_end": "2019-11-23",
+          "full_episode": {
+            "slice": {
+              "first": "2019-07-30",
+              "last": "2019-09-19",
+              "n_sessions": 34,
+              "book_return": 0.03521279392848986,
+              "maxdd": -0.028393679661138926,
+              "sharpe": 1.5198666121221747,
+              "nifty_return": -0.03433349924458995,
+              "book_minus_nifty": 0.06954629317307981
+            },
+            "capped": {
+              "entered": {
+                "n": 1,
+                "wins": 1,
+                "win_rate": 1.0,
+                "mean_R": 1.615,
+                "median_R": 1.615,
+                "stop_exit_share": 0.0,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": NaN,
+                "share_stops_beyond_1R": NaN
+              },
+              "closed_by_window_end": {
+                "n": 0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 17,
+                "wins": 10,
+                "win_rate": 0.5882352941176471,
+                "mean_R": 2.792529411764706,
+                "median_R": 0.819,
+                "stop_exit_share": 0.29411764705882354,
+                "share_below_m1.5R": 0.17647058823529413,
+                "mean_beyond_stop_R": 0.5214000000000001,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 2,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -1.104,
+                "median_R": -1.104,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": 0.10399999999999998,
+                "share_stops_beyond_1R": 1.0
+              }
+            }
+          },
+          "live_shaped_window": {
+            "slice": {
+              "first": "2019-07-30",
+              "last": "2019-11-22",
+              "n_sessions": 76,
+              "book_return": 0.07886684994199,
+              "maxdd": -0.04152680910671436,
+              "sharpe": 1.4444368778347263,
+              "nifty_return": 0.07478304533782021,
+              "book_minus_nifty": 0.004083804604169794
+            },
+            "capped": {
+              "entered": {
+                "n": 5,
+                "wins": 2,
+                "win_rate": 0.4,
+                "mean_R": -0.08580000000000002,
+                "median_R": -0.254,
+                "stop_exit_share": 0.6,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": 0.09999999999999998,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 36,
+                "wins": 18,
+                "win_rate": 0.5,
+                "mean_R": 1.9690277777777776,
+                "median_R": -0.066,
+                "stop_exit_share": 0.4166666666666667,
+                "share_below_m1.5R": 0.1388888888888889,
+                "mean_beyond_stop_R": 0.3724166666666667,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 5,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -1.5214000000000003,
+                "median_R": -1.553,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 0.6,
+                "mean_beyond_stop_R": 0.5214000000000001,
+                "share_stops_beyond_1R": 1.0
+              }
+            }
+          }
+        },
+        {
+          "start": "2020-02-28",
+          "peak_date": "2020-01-14",
+          "trough_date": "2020-03-23",
+          "end": "2020-09-30",
+          "depth": -0.38439852452742107,
+          "sessions": 147,
+          "window_end": "2020-06-23",
+          "full_episode": {
+            "slice": {
+              "first": "2020-02-28",
+              "last": "2020-09-30",
+              "n_sessions": 147,
+              "book_return": 0.25851127844463906,
+              "maxdd": -0.3094664732440283,
+              "sharpe": 1.347535031683938,
+              "nifty_return": 0.004088629427321688,
+              "book_minus_nifty": 0.25442264901731737
+            },
+            "capped": {
+              "entered": {
+                "n": 16,
+                "wins": 10,
+                "win_rate": 0.625,
+                "mean_R": 4.5215625,
+                "median_R": 2.184,
+                "stop_exit_share": 0.375,
+                "share_below_m1.5R": 0.25,
+                "mean_beyond_stop_R": 1.5145,
+                "share_stops_beyond_1R": 0.8333333333333334
+              },
+              "closed_by_window_end": {
+                "n": 6,
+                "wins": 1,
+                "win_rate": 0.16666666666666666,
+                "mean_R": -2.2005,
+                "median_R": -1.9169999999999998,
+                "stop_exit_share": 0.8333333333333334,
+                "share_below_m1.5R": 0.6666666666666666,
+                "mean_beyond_stop_R": 1.8174,
+                "share_stops_beyond_1R": 1.0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 77,
+                "wins": 48,
+                "win_rate": 0.6233766233766234,
+                "mean_R": 2.5768051948051944,
+                "median_R": 2.131,
+                "stop_exit_share": 0.3116883116883117,
+                "share_below_m1.5R": 0.06493506493506493,
+                "mean_beyond_stop_R": 0.6189130434782609,
+                "share_stops_beyond_1R": 0.9130434782608695
+              },
+              "closed_by_window_end": {
+                "n": 26,
+                "wins": 3,
+                "win_rate": 0.11538461538461539,
+                "mean_R": -1.2078461538461538,
+                "median_R": -1.112,
+                "stop_exit_share": 0.6923076923076923,
+                "share_below_m1.5R": 0.19230769230769232,
+                "mean_beyond_stop_R": 0.7538888888888889,
+                "share_stops_beyond_1R": 0.9444444444444444
+              }
+            }
+          },
+          "live_shaped_window": {
+            "slice": {
+              "first": "2020-02-28",
+              "last": "2020-06-23",
+              "n_sessions": 76,
+              "book_return": 0.0006137561969461469,
+              "maxdd": -0.3094664732440283,
+              "sharpe": 0.2020566869904302,
+              "nifty_return": -0.06523534269199005,
+              "book_minus_nifty": 0.0658490988889362
+            },
+            "capped": {
+              "entered": {
+                "n": 11,
+                "wins": 7,
+                "win_rate": 0.6363636363636364,
+                "mean_R": 3.780818181818182,
+                "median_R": 2.131,
+                "stop_exit_share": 0.36363636363636365,
+                "share_below_m1.5R": 0.36363636363636365,
+                "mean_beyond_stop_R": 2.16675,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 4,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -3.16675,
+                "median_R": -2.7455,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 1.0,
+                "mean_beyond_stop_R": 2.16675,
+                "share_stops_beyond_1R": 1.0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 45,
+                "wins": 29,
+                "win_rate": 0.6444444444444445,
+                "mean_R": 2.6898222222222223,
+                "median_R": 2.131,
+                "stop_exit_share": 0.26666666666666666,
+                "share_below_m1.5R": 0.1111111111111111,
+                "mean_beyond_stop_R": 1.03225,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 12,
+                "wins": 1,
+                "win_rate": 0.08333333333333333,
+                "mean_R": -1.8526666666666667,
+                "median_R": -1.3639999999999999,
+                "stop_exit_share": 0.8333333333333334,
+                "share_below_m1.5R": 0.4166666666666667,
+                "mean_beyond_stop_R": 1.2231999999999998,
+                "share_stops_beyond_1R": 1.0
+              }
+            }
+          }
+        },
+        {
+          "start": "2021-11-30",
+          "peak_date": "2021-10-18",
+          "trough_date": "2021-12-20",
+          "end": "2021-12-22",
+          "depth": -0.10081974577838848,
+          "sessions": 17,
+          "window_end": "2022-03-26",
+          "full_episode": {
+            "slice": {
+              "first": "2021-11-30",
+              "last": "2021-12-22",
+              "n_sessions": 17,
+              "book_return": -0.017782106634503414,
+              "maxdd": -0.07041114527938286,
+              "sharpe": -0.9301189275792235,
+              "nifty_return": -0.0016339677608776526,
+              "book_minus_nifty": -0.01614813887362576
+            },
+            "capped": {
+              "entered": {
+                "n": 2,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -1.494,
+                "median_R": -1.494,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 0.5,
+                "mean_beyond_stop_R": 0.494,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 9,
+                "wins": 3,
+                "win_rate": 0.3333333333333333,
+                "mean_R": -0.2408888888888889,
+                "median_R": -0.754,
+                "stop_exit_share": 0.6666666666666666,
+                "share_below_m1.5R": 0.1111111111111111,
+                "mean_beyond_stop_R": 0.368,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 0
+              }
+            }
+          },
+          "live_shaped_window": {
+            "slice": {
+              "first": "2021-11-30",
+              "last": "2022-03-25",
+              "n_sessions": 81,
+              "book_return": -0.02184455041860167,
+              "maxdd": -0.2003819004034625,
+              "sharpe": -0.10131996891170987,
+              "nifty_return": 0.00999816224628236,
+              "book_minus_nifty": -0.03184271266488403
+            },
+            "capped": {
+              "entered": {
+                "n": 6,
+                "wins": 1,
+                "win_rate": 0.16666666666666666,
+                "mean_R": -0.45566666666666683,
+                "median_R": -1.048,
+                "stop_exit_share": 0.5,
+                "share_below_m1.5R": 0.16666666666666666,
+                "mean_beyond_stop_R": 0.425,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 2,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -1.494,
+                "median_R": -1.494,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 0.5,
+                "mean_beyond_stop_R": 0.494,
+                "share_stops_beyond_1R": 1.0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 38,
+                "wins": 13,
+                "win_rate": 0.34210526315789475,
+                "mean_R": 0.12249999999999996,
+                "median_R": -0.9299999999999999,
+                "stop_exit_share": 0.6052631578947368,
+                "share_below_m1.5R": 0.13157894736842105,
+                "mean_beyond_stop_R": 0.40910526315789475,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 24,
+                "wins": 3,
+                "win_rate": 0.125,
+                "mean_R": -1.080125,
+                "median_R": -1.2785,
+                "stop_exit_share": 0.875,
+                "share_below_m1.5R": 0.20833333333333334,
+                "mean_beyond_stop_R": 0.4158888888888889,
+                "share_stops_beyond_1R": 1.0
+              }
+            }
+          }
+        },
+        {
+          "start": "2022-02-14",
+          "peak_date": "2021-10-18",
+          "trough_date": "2022-06-17",
+          "end": "2022-07-28",
+          "depth": -0.17229756084670067,
+          "sessions": 114,
+          "window_end": "2022-06-10",
+          "full_episode": {
+            "slice": {
+              "first": "2022-02-14",
+              "last": "2022-07-28",
+              "n_sessions": 114,
+              "book_return": -0.06050283140857393,
+              "maxdd": -0.15915676748558683,
+              "sharpe": -0.436937145504058,
+              "nifty_return": 0.005153467600330863,
+              "book_minus_nifty": -0.0656562990089048
+            },
+            "capped": {
+              "entered": {
+                "n": 4,
+                "wins": 2,
+                "win_rate": 0.5,
+                "mean_R": 0.261,
+                "median_R": 0.024499999999999966,
+                "stop_exit_share": 0.25,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": 0.2869999999999999,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 2,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -1.048,
+                "median_R": -1.048,
+                "stop_exit_share": 0.5,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": 0.2869999999999999,
+                "share_stops_beyond_1R": 1.0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 40,
+                "wins": 17,
+                "win_rate": 0.425,
+                "mean_R": 0.31115000000000004,
+                "median_R": -0.675,
+                "stop_exit_share": 0.55,
+                "share_below_m1.5R": 0.15,
+                "mean_beyond_stop_R": 0.43274999999999997,
+                "share_stops_beyond_1R": 0.9
+              },
+              "closed_by_window_end": {
+                "n": 21,
+                "wins": 2,
+                "win_rate": 0.09523809523809523,
+                "mean_R": -1.1738095238095239,
+                "median_R": -1.24,
+                "stop_exit_share": 0.9047619047619048,
+                "share_below_m1.5R": 0.2857142857142857,
+                "mean_beyond_stop_R": 0.4612941176470588,
+                "share_stops_beyond_1R": 0.8823529411764706
+              }
+            }
+          },
+          "live_shaped_window": {
+            "slice": {
+              "first": "2022-02-14",
+              "last": "2022-06-10",
+              "n_sessions": 80,
+              "book_return": -0.10451787125889589,
+              "maxdd": -0.14424022040421558,
+              "sharpe": -1.151807622590318,
+              "nifty_return": -0.03805786133123923,
+              "book_minus_nifty": -0.06646000992765666
+            },
+            "capped": {
+              "entered": {
+                "n": 3,
+                "wins": 1,
+                "win_rate": 0.3333333333333333,
+                "mean_R": -0.4126666666666667,
+                "median_R": -0.809,
+                "stop_exit_share": 0.3333333333333333,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": 0.2869999999999999,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 2,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -1.048,
+                "median_R": -1.048,
+                "stop_exit_share": 0.5,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": 0.2869999999999999,
+                "share_stops_beyond_1R": 1.0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 26,
+                "wins": 10,
+                "win_rate": 0.38461538461538464,
+                "mean_R": 0.3623846153846154,
+                "median_R": -0.9275,
+                "stop_exit_share": 0.6153846153846154,
+                "share_below_m1.5R": 0.19230769230769232,
+                "mean_beyond_stop_R": 0.4364285714285714,
+                "share_stops_beyond_1R": 0.9285714285714286
+              },
+              "closed_by_window_end": {
+                "n": 13,
+                "wins": 1,
+                "win_rate": 0.07692307692307693,
+                "mean_R": -1.1557692307692309,
+                "median_R": -1.287,
+                "stop_exit_share": 0.8461538461538461,
+                "share_below_m1.5R": 0.38461538461538464,
+                "mean_beyond_stop_R": 0.5065999999999999,
+                "share_stops_beyond_1R": 0.9
+              }
+            }
+          }
+        },
+        {
+          "start": "2022-09-28",
+          "peak_date": "2021-10-18",
+          "trough_date": "2022-09-29",
+          "end": "2022-10-11",
+          "depth": -0.08978441373113821,
+          "sessions": 9,
+          "window_end": "2023-01-22",
+          "full_episode": {
+            "slice": {
+              "first": "2022-09-28",
+              "last": "2022-10-11",
+              "n_sessions": 9,
+              "book_return": 0.018508300017028967,
+              "maxdd": -0.0311996550438719,
+              "sharpe": 2.1469084666333926,
+              "nifty_return": 0.007411717151495578,
+              "book_minus_nifty": 0.011096582865533389
+            },
+            "capped": {
+              "entered": {
+                "n": 0
+              },
+              "closed_by_window_end": {
+                "n": 0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 2,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -1.3265,
+                "median_R": -1.3265,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 0.5,
+                "mean_beyond_stop_R": 0.3265,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 0
+              }
+            }
+          },
+          "live_shaped_window": {
+            "slice": {
+              "first": "2022-09-28",
+              "last": "2023-01-20",
+              "n_sessions": 80,
+              "book_return": 0.03392130505157165,
+              "maxdd": -0.09108748992569993,
+              "sharpe": 0.7619943276668691,
+              "nifty_return": 0.06934447749740102,
+              "book_minus_nifty": -0.035423172445829376
+            },
+            "capped": {
+              "entered": {
+                "n": 6,
+                "wins": 1,
+                "win_rate": 0.16666666666666666,
+                "mean_R": -0.842,
+                "median_R": -1.2675,
+                "stop_exit_share": 0.8333333333333334,
+                "share_below_m1.5R": 0.16666666666666666,
+                "mean_beyond_stop_R": 0.5820000000000001,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 4,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -1.259,
+                "median_R": -1.2675,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": 0.25899999999999995,
+                "share_stops_beyond_1R": 1.0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 17,
+                "wins": 4,
+                "win_rate": 0.23529411764705882,
+                "mean_R": -0.6068823529411764,
+                "median_R": -1.087,
+                "stop_exit_share": 0.8235294117647058,
+                "share_below_m1.5R": 0.23529411764705882,
+                "mean_beyond_stop_R": 0.3760833333333333,
+                "share_stops_beyond_1R": 0.9166666666666666
+              },
+              "closed_by_window_end": {
+                "n": 11,
+                "wins": 1,
+                "win_rate": 0.09090909090909091,
+                "mean_R": -1.2593636363636362,
+                "median_R": -1.196,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 0.2727272727272727,
+                "mean_beyond_stop_R": 0.39449999999999996,
+                "share_stops_beyond_1R": 1.0
+              }
+            }
+          }
+        },
+        {
+          "start": "2023-02-28",
+          "peak_date": "2022-12-01",
+          "trough_date": "2023-03-24",
+          "end": "2023-03-29",
+          "depth": -0.09926640365448502,
+          "sessions": 21,
+          "window_end": "2023-06-24",
+          "full_episode": {
+            "slice": {
+              "first": "2023-02-28",
+              "last": "2023-03-29",
+              "n_sessions": 21,
+              "book_return": 0.007687534519587258,
+              "maxdd": -0.02624350706689149,
+              "sharpe": 0.8547797138584657,
+              "nifty_return": -0.012901679100981944,
+              "book_minus_nifty": 0.020589213620569202
+            },
+            "capped": {
+              "entered": {
+                "n": 1,
+                "wins": 1,
+                "win_rate": 1.0,
+                "mean_R": 1.093,
+                "median_R": 1.093,
+                "stop_exit_share": 0.0,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": NaN,
+                "share_stops_beyond_1R": NaN
+              },
+              "closed_by_window_end": {
+                "n": 0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 6,
+                "wins": 4,
+                "win_rate": 0.6666666666666666,
+                "mean_R": 0.9031666666666668,
+                "median_R": 1.3375,
+                "stop_exit_share": 0.3333333333333333,
+                "share_below_m1.5R": 0.16666666666666666,
+                "mean_beyond_stop_R": 0.5765,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 1,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -1.196,
+                "median_R": -1.196,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": 0.19599999999999995,
+                "share_stops_beyond_1R": 1.0
+              }
+            }
+          },
+          "live_shaped_window": {
+            "slice": {
+              "first": "2023-02-28",
+              "last": "2023-06-23",
+              "n_sessions": 78,
+              "book_return": 0.1250019236526949,
+              "maxdd": -0.02624350706689149,
+              "sharpe": 3.7736362605296243,
+              "nifty_return": 0.07868439533876281,
+              "book_minus_nifty": 0.0463175283139321
+            },
+            "capped": {
+              "entered": {
+                "n": 2,
+                "wins": 2,
+                "win_rate": 1.0,
+                "mean_R": 1.3415,
+                "median_R": 1.3415,
+                "stop_exit_share": 0.0,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": NaN,
+                "share_stops_beyond_1R": NaN
+              },
+              "closed_by_window_end": {
+                "n": 0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 20,
+                "wins": 12,
+                "win_rate": 0.6,
+                "mean_R": 0.9076000000000001,
+                "median_R": 1.4135,
+                "stop_exit_share": 0.25,
+                "share_below_m1.5R": 0.05,
+                "mean_beyond_stop_R": 0.30925,
+                "share_stops_beyond_1R": 0.75
+              },
+              "closed_by_window_end": {
+                "n": 3,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -1.4123333333333334,
+                "median_R": -1.196,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 0.3333333333333333,
+                "mean_beyond_stop_R": 0.4123333333333334,
+                "share_stops_beyond_1R": 1.0
+              }
+            }
+          }
+        }
+      ],
+      "pooled_uncapped_gradeA_unique": {
+        "entered": {
+          "n": 215,
+          "wins": 98,
+          "win_rate": 0.4558139534883721,
+          "mean_R": 0.8934558139534885,
+          "median_R": -0.433,
+          "stop_exit_share": 0.48372093023255813,
+          "share_below_m1.5R": 0.13488372093023257,
+          "mean_beyond_stop_R": 0.5315568181818182,
+          "share_stops_beyond_1R": 0.9431818181818182
+        },
+        "closed_by_window_end": {
+          "n": 78,
+          "wins": 6,
+          "win_rate": 0.07692307692307693,
+          "mean_R": -1.3008589743589742,
+          "median_R": -1.234,
+          "stop_exit_share": 0.9102564102564102,
+          "share_below_m1.5R": 0.28205128205128205,
+          "mean_beyond_stop_R": 0.6032063492063491,
+          "share_stops_beyond_1R": 0.9682539682539683
+        }
+      },
+      "range": {
+        "book_return_min": -0.10451787125889589,
+        "book_return_max": 0.1250019236526949,
+        "live_book_return": -0.08958321983498663,
+        "live_inside_book_return": true,
+        "pct_episodes_worse_than_live_book_return": 0.14285714285714285,
+        "winrate_qualifying_episodes": [
+          {
+            "start": "2019-01-02",
+            "win_rate": 0.0
+          },
+          {
+            "start": "2020-02-28",
+            "win_rate": 0.08333333333333333
+          },
+          {
+            "start": "2021-11-30",
+            "win_rate": 0.125
+          },
+          {
+            "start": "2022-02-14",
+            "win_rate": 0.07692307692307693
+          },
+          {
+            "start": "2022-09-28",
+            "win_rate": 0.09090909090909091
+          }
+        ],
+        "winrate_min": 0.0,
+        "winrate_max": 0.125,
+        "live_win_rate": 0.03125,
+        "live_inside_win_rate": true,
+        "pct_episodes_worse_than_live_win_rate": 0.2,
+        "pooled_closed_by_window_end": {
+          "n": 78,
+          "wins": 6,
+          "win_rate": 0.07692307692307693
+        },
+        "pooled_entered_eventual": {
+          "n": 215,
+          "wins": 98,
+          "win_rate": 0.4558139534883721
+        },
+        "binom_P_le_1_win_in_32": 0.28306360288237653,
+        "binom_P_le_1_win_in_32_eventual_secondary": 9.727809565048955e-08
+      },
+      "verdict": "REGIME"
+    },
+    "dd_10pct": {
+      "threshold": 0.1,
+      "n_episodes": 6,
+      "episodes": [
+        {
+          "start": "2019-08-05",
+          "peak_date": "2019-06-03",
+          "trough_date": "2019-09-19",
+          "end": "2019-09-19",
+          "depth": -0.11446782470660233,
+          "sessions": 30,
+          "window_end": "2019-11-29",
+          "full_episode": {
+            "slice": {
+              "first": "2019-08-05",
+              "last": "2019-09-19",
+              "n_sessions": 30,
+              "book_return": 0.06546527359707288,
+              "maxdd": -0.028071157109049616,
+              "sharpe": 3.029446922906118,
+              "nifty_return": -0.014526891385309826,
+              "book_minus_nifty": 0.07999216498238271
+            },
+            "capped": {
+              "entered": {
+                "n": 1,
+                "wins": 1,
+                "win_rate": 1.0,
+                "mean_R": 1.615,
+                "median_R": 1.615,
+                "stop_exit_share": 0.0,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": NaN,
+                "share_stops_beyond_1R": NaN
+              },
+              "closed_by_window_end": {
+                "n": 0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 17,
+                "wins": 10,
+                "win_rate": 0.5882352941176471,
+                "mean_R": 2.792529411764706,
+                "median_R": 0.819,
+                "stop_exit_share": 0.29411764705882354,
+                "share_below_m1.5R": 0.17647058823529413,
+                "mean_beyond_stop_R": 0.5214000000000001,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 2,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -1.104,
+                "median_R": -1.104,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": 0.10399999999999998,
+                "share_stops_beyond_1R": 1.0
+              }
+            }
+          },
+          "live_shaped_window": {
+            "slice": {
+              "first": "2019-08-05",
+              "last": "2019-11-29",
+              "n_sessions": 77,
+              "book_return": 0.12421434483508098,
+              "maxdd": -0.04152680910671436,
+              "sharpe": 2.159804480719693,
+              "nifty_return": 0.10986782521952554,
+              "book_minus_nifty": 0.014346519615555442
+            },
+            "capped": {
+              "entered": {
+                "n": 5,
+                "wins": 2,
+                "win_rate": 0.4,
+                "mean_R": -0.08580000000000002,
+                "median_R": -0.254,
+                "stop_exit_share": 0.6,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": 0.09999999999999998,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 39,
+                "wins": 20,
+                "win_rate": 0.5128205128205128,
+                "mean_R": 1.8641025641025641,
+                "median_R": 0.093,
+                "stop_exit_share": 0.4358974358974359,
+                "share_below_m1.5R": 0.15384615384615385,
+                "mean_beyond_stop_R": 0.4316153846153846,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 6,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -1.4600000000000002,
+                "median_R": -1.353,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 0.5,
+                "mean_beyond_stop_R": 0.46,
+                "share_stops_beyond_1R": 1.0
+              }
+            }
+          }
+        },
+        {
+          "start": "2020-03-06",
+          "peak_date": "2020-01-14",
+          "trough_date": "2020-03-23",
+          "end": "2020-08-05",
+          "depth": -0.38439852452742107,
+          "sessions": 102,
+          "window_end": "2020-06-30",
+          "full_episode": {
+            "slice": {
+              "first": "2020-03-06",
+              "last": "2020-08-05",
+              "n_sessions": 102,
+              "book_return": 0.12671115658232202,
+              "maxdd": -0.2988994564783871,
+              "sharpe": 1.012650752298642,
+              "nifty_return": 0.010209809710076234,
+              "book_minus_nifty": 0.11650134687224578
+            },
+            "capped": {
+              "entered": {
+                "n": 12,
+                "wins": 8,
+                "win_rate": 0.6666666666666666,
+                "mean_R": 3.87575,
+                "median_R": 2.5595,
+                "stop_exit_share": 0.3333333333333333,
+                "share_below_m1.5R": 0.3333333333333333,
+                "mean_beyond_stop_R": 2.16675,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 4,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -3.16675,
+                "median_R": -2.7455,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 1.0,
+                "mean_beyond_stop_R": 2.16675,
+                "share_stops_beyond_1R": 1.0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 59,
+                "wins": 38,
+                "win_rate": 0.6440677966101694,
+                "mean_R": 2.5102711864406784,
+                "median_R": 2.167,
+                "stop_exit_share": 0.2542372881355932,
+                "share_below_m1.5R": 0.0847457627118644,
+                "mean_beyond_stop_R": 0.8409333333333333,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 19,
+                "wins": 1,
+                "win_rate": 0.05263157894736842,
+                "mean_R": -1.4894210526315792,
+                "median_R": -1.135,
+                "stop_exit_share": 0.7368421052631579,
+                "share_below_m1.5R": 0.2631578947368421,
+                "mean_beyond_stop_R": 0.8996428571428571,
+                "share_stops_beyond_1R": 1.0
+              }
+            }
+          },
+          "live_shaped_window": {
+            "slice": {
+              "first": "2020-03-06",
+              "last": "2020-06-30",
+              "n_sessions": 76,
+              "book_return": -0.03868301620824455,
+              "maxdd": -0.2988994564783871,
+              "sharpe": -0.13175716441546195,
+              "nifty_return": -0.06254640347982887,
+              "book_minus_nifty": 0.023863387271584324
+            },
+            "capped": {
+              "entered": {
+                "n": 11,
+                "wins": 7,
+                "win_rate": 0.6363636363636364,
+                "mean_R": 3.780818181818182,
+                "median_R": 2.131,
+                "stop_exit_share": 0.36363636363636365,
+                "share_below_m1.5R": 0.36363636363636365,
+                "mean_beyond_stop_R": 2.16675,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 4,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -3.16675,
+                "median_R": -2.7455,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 1.0,
+                "mean_beyond_stop_R": 2.16675,
+                "share_stops_beyond_1R": 1.0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 47,
+                "wins": 30,
+                "win_rate": 0.6382978723404256,
+                "mean_R": 2.708404255319149,
+                "median_R": 2.131,
+                "stop_exit_share": 0.2553191489361702,
+                "share_below_m1.5R": 0.10638297872340426,
+                "mean_beyond_stop_R": 1.03225,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 12,
+                "wins": 1,
+                "win_rate": 0.08333333333333333,
+                "mean_R": -1.8526666666666667,
+                "median_R": -1.3639999999999999,
+                "stop_exit_share": 0.8333333333333334,
+                "share_below_m1.5R": 0.4166666666666667,
+                "mean_beyond_stop_R": 1.2231999999999998,
+                "share_stops_beyond_1R": 1.0
+              }
+            }
+          }
+        },
+        {
+          "start": "2020-09-24",
+          "peak_date": "2020-01-14",
+          "trough_date": "2020-09-24",
+          "end": "2020-09-25",
+          "depth": -0.1259272161810634,
+          "sessions": 2,
+          "window_end": "2021-01-18",
+          "full_episode": {
+            "slice": {
+              "n_sessions": 2
+            },
+            "capped": {
+              "entered": {
+                "n": 0
+              },
+              "closed_by_window_end": {
+                "n": 0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 1,
+                "wins": 1,
+                "win_rate": 1.0,
+                "mean_R": 2.953,
+                "median_R": 2.953,
+                "stop_exit_share": 0.0,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": NaN,
+                "share_stops_beyond_1R": NaN
+              },
+              "closed_by_window_end": {
+                "n": 0
+              }
+            }
+          },
+          "live_shaped_window": {
+            "slice": {
+              "first": "2020-09-24",
+              "last": "2021-01-18",
+              "n_sessions": 80,
+              "book_return": 0.25060205853412176,
+              "maxdd": -0.07223861176311097,
+              "sharpe": 3.0577658275615356,
+              "nifty_return": 0.32166341026832357,
+              "book_minus_nifty": -0.0710613517342018
+            },
+            "capped": {
+              "entered": {
+                "n": 1,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -1.576,
+                "median_R": -1.576,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 1.0,
+                "mean_beyond_stop_R": 0.5760000000000001,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 1,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -1.576,
+                "median_R": -1.576,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 1.0,
+                "mean_beyond_stop_R": 0.5760000000000001,
+                "share_stops_beyond_1R": 1.0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 9,
+                "wins": 4,
+                "win_rate": 0.4444444444444444,
+                "mean_R": 0.7326666666666666,
+                "median_R": -0.661,
+                "stop_exit_share": 0.4444444444444444,
+                "share_below_m1.5R": 0.1111111111111111,
+                "mean_beyond_stop_R": 0.23325,
+                "share_stops_beyond_1R": 0.75
+              },
+              "closed_by_window_end": {
+                "n": 4,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -1.2275,
+                "median_R": -1.1785,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 0.25,
+                "mean_beyond_stop_R": 0.23325,
+                "share_stops_beyond_1R": 0.75
+              }
+            }
+          }
+        },
+        {
+          "start": "2021-12-20",
+          "peak_date": "2021-10-18",
+          "trough_date": "2021-12-20",
+          "end": "2021-12-20",
+          "depth": -0.10081974577838848,
+          "sessions": 1,
+          "window_end": "2022-04-15",
+          "full_episode": {
+            "slice": {
+              "n_sessions": 1
+            },
+            "capped": {
+              "entered": {
+                "n": 0
+              },
+              "closed_by_window_end": {
+                "n": 0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 4,
+                "wins": 1,
+                "win_rate": 0.25,
+                "mean_R": -0.3225,
+                "median_R": -0.5935,
+                "stop_exit_share": 0.75,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": 0.16500000000000004,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 0
+              }
+            }
+          },
+          "live_shaped_window": {
+            "slice": {
+              "first": "2021-12-20",
+              "last": "2022-04-13",
+              "n_sessions": 80,
+              "book_return": 0.05891204276096329,
+              "maxdd": -0.2003819004034625,
+              "sharpe": 0.7969959681112055,
+              "nifty_return": 0.051850297479447915,
+              "book_minus_nifty": 0.007061745281515375
+            },
+            "capped": {
+              "entered": {
+                "n": 4,
+                "wins": 1,
+                "win_rate": 0.25,
+                "mean_R": 0.0635,
+                "median_R": -0.615,
+                "stop_exit_share": 0.25,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": 0.2869999999999999,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 1,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -1.287,
+                "median_R": -1.287,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": 0.2869999999999999,
+                "share_stops_beyond_1R": 1.0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 39,
+                "wins": 12,
+                "win_rate": 0.3076923076923077,
+                "mean_R": -0.05748717948717939,
+                "median_R": -1.051,
+                "stop_exit_share": 0.6666666666666666,
+                "share_below_m1.5R": 0.1794871794871795,
+                "mean_beyond_stop_R": 0.4432857142857142,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 21,
+                "wins": 2,
+                "win_rate": 0.09523809523809523,
+                "mean_R": -1.100142857142857,
+                "median_R": -1.238,
+                "stop_exit_share": 0.9047619047619048,
+                "share_below_m1.5R": 0.19047619047619047,
+                "mean_beyond_stop_R": 0.404125,
+                "share_stops_beyond_1R": 1.0
+              }
+            }
+          }
+        },
+        {
+          "start": "2022-02-24",
+          "peak_date": "2021-10-18",
+          "trough_date": "2022-03-07",
+          "end": "2022-03-10",
+          "depth": -0.1414674030813139,
+          "sessions": 10,
+          "window_end": "2022-06-20",
+          "full_episode": {
+            "slice": {
+              "first": "2022-02-24",
+              "last": "2022-03-10",
+              "n_sessions": 10,
+              "book_return": 0.0787466835997126,
+              "maxdd": -0.05851296555668306,
+              "sharpe": 5.060188364422171,
+              "nifty_return": 0.021353474816324436,
+              "book_minus_nifty": 0.05739320878338816
+            },
+            "capped": {
+              "entered": {
+                "n": 1,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -1.287,
+                "median_R": -1.287,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": 0.2869999999999999,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 3,
+                "wins": 2,
+                "win_rate": 0.6666666666666666,
+                "mean_R": 3.2416666666666667,
+                "median_R": 3.625,
+                "stop_exit_share": 0.3333333333333333,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": 0.2869999999999999,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 0
+              }
+            }
+          },
+          "live_shaped_window": {
+            "slice": {
+              "first": "2022-02-24",
+              "last": "2022-06-20",
+              "n_sessions": 78,
+              "book_return": -0.06911018720081918,
+              "maxdd": -0.1517230318335725,
+              "sharpe": -0.7785037616754169,
+              "nifty_return": -0.05525618886661243,
+              "book_minus_nifty": -0.013853998334206752
+            },
+            "capped": {
+              "entered": {
+                "n": 2,
+                "wins": 1,
+                "win_rate": 0.5,
+                "mean_R": -0.21449999999999997,
+                "median_R": -0.21449999999999997,
+                "stop_exit_share": 0.5,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": 0.2869999999999999,
+                "share_stops_beyond_1R": 1.0
+              },
+              "closed_by_window_end": {
+                "n": 1,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -1.287,
+                "median_R": -1.287,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": 0.2869999999999999,
+                "share_stops_beyond_1R": 1.0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 27,
+                "wins": 10,
+                "win_rate": 0.37037037037037035,
+                "mean_R": 0.36462962962962964,
+                "median_R": -1.046,
+                "stop_exit_share": 0.6666666666666666,
+                "share_below_m1.5R": 0.14814814814814814,
+                "mean_beyond_stop_R": 0.41312499999999996,
+                "share_stops_beyond_1R": 0.875
+              },
+              "closed_by_window_end": {
+                "n": 16,
+                "wins": 1,
+                "win_rate": 0.0625,
+                "mean_R": -1.255375,
+                "median_R": -1.2635,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 0.25,
+                "mean_beyond_stop_R": 0.46414285714285713,
+                "share_stops_beyond_1R": 0.9285714285714286
+              }
+            }
+          }
+        },
+        {
+          "start": "2022-05-06",
+          "peak_date": "2021-10-18",
+          "trough_date": "2022-06-17",
+          "end": "2022-07-26",
+          "depth": -0.17229756084670067,
+          "sessions": 58,
+          "window_end": "2022-08-30",
+          "full_episode": {
+            "slice": {
+              "first": "2022-05-06",
+              "last": "2022-07-26",
+              "n_sessions": 58,
+              "book_return": 0.017918678240053998,
+              "maxdd": -0.08385290805653456,
+              "sharpe": 0.47880858044847086,
+              "nifty_return": 0.004423770850788378,
+              "book_minus_nifty": 0.01349490738926562
+            },
+            "capped": {
+              "entered": {
+                "n": 2,
+                "wins": 2,
+                "win_rate": 1.0,
+                "mean_R": 1.57,
+                "median_R": 1.57,
+                "stop_exit_share": 0.0,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": NaN,
+                "share_stops_beyond_1R": NaN
+              },
+              "closed_by_window_end": {
+                "n": 0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 23,
+                "wins": 11,
+                "win_rate": 0.4782608695652174,
+                "mean_R": 0.18291304347826098,
+                "median_R": -0.276,
+                "stop_exit_share": 0.4782608695652174,
+                "share_below_m1.5R": 0.043478260869565216,
+                "mean_beyond_stop_R": 0.35918181818181816,
+                "share_stops_beyond_1R": 0.8181818181818182
+              },
+              "closed_by_window_end": {
+                "n": 9,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -1.300888888888889,
+                "median_R": -1.24,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 0.1111111111111111,
+                "mean_beyond_stop_R": 0.3611111111111111,
+                "share_stops_beyond_1R": 0.7777777777777778
+              }
+            }
+          },
+          "live_shaped_window": {
+            "slice": {
+              "first": "2022-05-06",
+              "last": "2022-08-30",
+              "n_sessions": 81,
+              "book_return": 0.13472650899022098,
+              "maxdd": -0.08385290805653456,
+              "sharpe": 2.061433724839484,
+              "nifty_return": 0.08214187104882331,
+              "book_minus_nifty": 0.05258463794139767
+            },
+            "capped": {
+              "entered": {
+                "n": 2,
+                "wins": 2,
+                "win_rate": 1.0,
+                "mean_R": 1.57,
+                "median_R": 1.57,
+                "stop_exit_share": 0.0,
+                "share_below_m1.5R": 0.0,
+                "mean_beyond_stop_R": NaN,
+                "share_stops_beyond_1R": NaN
+              },
+              "closed_by_window_end": {
+                "n": 0
+              }
+            },
+            "uncapped_gradeA": {
+              "entered": {
+                "n": 33,
+                "wins": 18,
+                "win_rate": 0.5454545454545454,
+                "mean_R": 0.8148181818181818,
+                "median_R": 0.28,
+                "stop_exit_share": 0.42424242424242425,
+                "share_below_m1.5R": 0.030303030303030304,
+                "mean_beyond_stop_R": 0.34007692307692305,
+                "share_stops_beyond_1R": 0.8461538461538461
+              },
+              "closed_by_window_end": {
+                "n": 9,
+                "wins": 0,
+                "win_rate": 0.0,
+                "mean_R": -1.300888888888889,
+                "median_R": -1.24,
+                "stop_exit_share": 1.0,
+                "share_below_m1.5R": 0.1111111111111111,
+                "mean_beyond_stop_R": 0.3611111111111111,
+                "share_stops_beyond_1R": 0.7777777777777778
+              }
+            }
+          }
+        }
+      ],
+      "pooled_uncapped_gradeA_unique": {
+        "entered": {
+          "n": 168,
+          "wins": 84,
+          "win_rate": 0.5,
+          "mean_R": 1.3690833333333334,
+          "median_R": -0.0465,
+          "stop_exit_share": 0.44047619047619047,
+          "share_below_m1.5R": 0.11904761904761904,
+          "mean_beyond_stop_R": 0.513921875,
+          "share_stops_beyond_1R": 0.953125
+        },
+        "closed_by_window_end": {
+          "n": 59,
+          "wins": 4,
+          "win_rate": 0.06779661016949153,
+          "mean_R": -1.3342542372881354,
+          "median_R": -1.24,
+          "stop_exit_share": 0.9322033898305084,
+          "share_below_m1.5R": 0.288135593220339,
+          "mean_beyond_stop_R": 0.5720399999999999,
+          "share_stops_beyond_1R": 0.94
+        }
+      },
+      "range": {
+        "book_return_min": -0.06911018720081918,
+        "book_return_max": 0.25060205853412176,
+        "live_book_return": -0.08958321983498663,
+        "live_inside_book_return": false,
+        "pct_episodes_worse_than_live_book_return": 0.0,
+        "winrate_qualifying_episodes": [
+          {
+            "start": "2020-03-06",
+            "win_rate": 0.08333333333333333
+          },
+          {
+            "start": "2021-12-20",
+            "win_rate": 0.09523809523809523
+          },
+          {
+            "start": "2022-02-24",
+            "win_rate": 0.0625
+          }
+        ],
+        "winrate_min": 0.0625,
+        "winrate_max": 0.09523809523809523,
+        "live_win_rate": 0.03125,
+        "live_inside_win_rate": false,
+        "pct_episodes_worse_than_live_win_rate": 0.0,
+        "pooled_closed_by_window_end": {
+          "n": 59,
+          "wins": 4,
+          "win_rate": 0.06779661016949153
+        },
+        "pooled_entered_eventual": {
+          "n": 168,
+          "wins": 84,
+          "win_rate": 0.5
+        },
+        "binom_P_le_1_win_in_32": 0.35190877111813323,
+        "binom_P_le_1_win_in_32_eventual_secondary": 7.683411240577698e-09
+      },
+      "verdict": "WORSE THAN REGIME"
+    }
+  },
+  "verdict_primary_8pct": "REGIME"
+}
