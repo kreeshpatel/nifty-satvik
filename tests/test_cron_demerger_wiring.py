@@ -73,12 +73,13 @@ def test_every_book_in_main_receives_the_demerger_events():
     calls = [n for n in ast.walk(tree) if isinstance(n, ast.Call)
              and isinstance(n.func, ast.Attribute) and n.func.attr == "backtest"
              and isinstance(n.func.value, ast.Name) and n.func.value.id == "R94"]
-    assert len(calls) == 3, f"expected the paper, uncapped and base-swing books, found {len(calls)} backtest calls"
+    # paper, uncapped, base-swing, and (2026-11-03) the two shadow-exit books (uncapped + paper)
+    assert len(calls) == 5, f"expected the paper, uncapped, base-swing and two shadow-exit books, found {len(calls)} backtest calls"
     for c in calls:
         kw = {k.arg: k.value for k in c.keywords if k.arg}
         assert "demerger_events" in kw, f"a backtest call on line {c.lineno} of main() gets no demerger events"
         assert isinstance(kw["demerger_events"], ast.Name) and kw["demerger_events"].id == "ca_events", (
-            "all three books must share ONE events object, or they can disagree about the same holding")
+            "every book must share ONE events object, or they can disagree about the same holding")
 
 
 # --------------------------------------------------------------------------- the card

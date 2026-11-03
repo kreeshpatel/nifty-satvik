@@ -193,6 +193,20 @@ _STATUS = {"target3": "HIT_TARGET", "targets": "HIT_TARGET", "trail": "HIT_STOP"
            "time": "EXPIRED", "eos": "EXPIRED"}
 
 
+def _active_stop(p: dict) -> float:
+    """The stop the engine will actually act on for an open position.
+
+    Under the scaled exit (config P) the engine's stop is ``p["stop"]``: the 2R tranche sets ``half_done``
+    for information only and never moves ``p["trail"]``, which stays at the original stop. Reading the trail
+    after the 2R tranche would hide any raised stop (0148 ratchet, ``lockin_ladder``) from the card. The two
+    are equal under the live config today, so this is byte-identical until a stop-raise rule is switched on.
+    The legacy half-book exit keeps its trailing stop.
+    """
+    if LIVE_EXIT.get("scaled_exit"):
+        return float(p["stop"])
+    return float(p["trail"] if p["half_done"] else p["stop"])
+
+
 def _exit_stage(plan: dict, p: dict) -> dict:
     """Which tranches have actually LEFT the book, plus the one queued to leave next session.
 
@@ -605,7 +619,7 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
         s = P[t]
         cur = float(_last(P, t, "c"))
         entry = float(p["en"])
-        stop = float(p["trail"] if p["half_done"] else p["stop"])
+        stop = _active_stop(p)
         bought = str(p["rec"]["entry_date"])[:10] if "rec" in p else None
         rec = {
             "ticker": t, "entry": round(entry, 2), "stop": round(stop, 2),
@@ -663,7 +677,7 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
     for t, p in out["open_positions"].items():
         cur = float(_last(P, t, "c"))
         entry = float(p["en"])
-        stop = float(p["trail"] if p["half_done"] else p["stop"])
+        stop = _active_stop(p)
         shares = float(p["sh"])
         ed = str(p["rec"]["entry_date"])[:10] if "rec" in p else None
         pct = round((cur / entry - 1) * 100, 2) if entry else 0.0
@@ -715,7 +729,7 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
     paper_positions = {}
     for t, p in out_paper["open_positions"].items():
         cur = float(_last(P, t, "c")); entry = float(p["en"])
-        stop = float(p["trail"] if p["half_done"] else p["stop"]); shares = float(p["sh"])
+        stop = _active_stop(p); shares = float(p["sh"])
         ed = str(p["rec"]["entry_date"])[:10] if "rec" in p else None
         pct = round((cur / entry - 1) * 100, 2) if entry else 0.0
         paper_positions[t] = {
@@ -1020,6 +1034,70 @@ def _base_swing_record(out: dict, ledger: list, inception: str, generated_at: st
     }
 
 
+# SHADOW EXIT (2026-11-03, diagnostics/research/explore/2026-11-03_giveback_solution_map.md). The live book
+# runs LIVE_EXIT; this rule is run beside it, never traded and never shown on a card, so the review can judge
+# it on forward trades. Only entries on or after SHADOW_EXIT_EFFECTIVE count as forward evidence: earlier
+# trades are reconstructed history (the rule was chosen after seeing them) and are labelled as such.
+SHADOW_EXIT_RULE = {"lockin_mfe": 1.0, "lockin_at": 0.0}     # stop to entry once the peak reaches +1R
+SHADOW_EXIT_EFFECTIVE = "2026-11-09"                       # first entry week after the rule was fixed
+
+
+def _shadow_exit_kwargs() -> dict:
+    return {**LIVE_EXIT, "scaled_exit": {**LIVE_EXIT["scaled_exit"], **SHADOW_EXIT_RULE}}
+
+
+def _trade_r(P: dict, out: dict, ledger: list) -> dict:
+    """(ticker, entry_date) -> {R, status}: closed trades at their booked R, open ones marked at the last close
+    (banked tranches plus the remaining fraction at the mark, in units of initial risk)."""
+    rows = {}
+    for r in ledger:
+        rows[(r["tkr"], str(r["entry_date"])[:10])] = {"R": round(float(r["R"]), 3), "status": "closed",
+                                                       "exit_reason": str(r["reason"])}
+    for t, p in out["open_positions"].items():
+        if "rec" not in p or not p.get("risk0"):
+            continue
+        cur = float(_last(P, t, "c"))
+        mark = p.get("realized_r", 0.0) + p.get("frac_left", 1.0) * (cur - float(p["en"])) / float(p["risk0"])
+        rows[(t, str(p["rec"]["entry_date"])[:10])] = {"R": round(float(mark), 3), "status": "open"}
+    return rows
+
+
+def _shadow_exit_record(P: dict, live: tuple, shadow: tuple, live_paper: dict, shadow_paper: dict,
+                        generated_at: str) -> dict:
+    """Live vs shadow exit, per trade (uncapped tracker) and for the ₹10L book (NAV, MaxDD)."""
+    a, b = _trade_r(P, *live), _trade_r(P, *shadow)
+    trades = []
+    for k in sorted(set(a) | set(b), key=lambda k: (k[1], k[0])):
+        trades.append({"ticker": k[0], "entry_date": k[1],
+                       "forward": k[1] >= SHADOW_EXIT_EFFECTIVE,
+                       "live": a.get(k), "shadow": b.get(k)})
+
+    def _sum(fwd: bool) -> dict:
+        both = [t for t in trades if t["forward"] == fwd and t["live"] and t["shadow"]]
+        lr = sum(t["live"]["R"] for t in both); sr = sum(t["shadow"]["R"] for t in both)
+        return {"n_trades": len(both), "live_sum_R": round(lr, 2), "shadow_sum_R": round(sr, 2),
+                "shadow_minus_live_R": round(sr - lr, 2)}
+
+    def _book(out: dict) -> dict:
+        c = pd.Series(out["curve"], dtype=float)
+        return {"equity": round(float(c.iloc[-1]), 2) if len(c) else None,
+                "maxdd_pct": round(float((c / c.cummax() - 1).min() * 100), 3) if len(c) else None}
+
+    return {
+        "rule": "stop moves to entry once the trade's peak reaches +1R (scaled_exit lockin_mfe=1.0, lockin_at=0.0)",
+        "status": "SHADOW — computed beside the live book, never traded, never shown on a card",
+        "authority": "diagnostics/research/explore/2026-11-03_giveback_solution_map.md; decided at a review, not here",
+        "effective": SHADOW_EXIT_EFFECTIVE,
+        "as_of": generated_at,
+        "forward": _sum(True),
+        "reconstructed_before_effective": _sum(False),
+        "paper_book": {"live": _book(live_paper), "shadow": _book(shadow_paper)},
+        "trades": trades,
+        "_why": ("Only trades entered on or after `effective` are forward evidence. Earlier ones are listed for "
+                 "context but the rule was chosen after seeing them. Open trades are marked at the last close."),
+    }
+
+
 def _write_brain_logs(plog: list, elog: list, generated_at: str, sd: Path) -> None:
     """Persist what the capital book HELD each session, and what was DONE to it.
 
@@ -1213,6 +1291,17 @@ def main(argv=None) -> int:
     (sd / "base_swing_forward.json").write_text(
         json.dumps(_base_swing_record(out_base, led_base, args.start, generated_at),
                    indent=2, default=str), encoding="utf-8")
+    # SHADOW EXIT — the same two books under the shadow rule; written to its own file, never to a card.
+    led_sh_all: list = []
+    out_sh_all = R94.backtest(P, mem, ledger=led_sh_all, start=args.start, return_state=True, uncapped=True,
+                              a_grade=a_set, **LIVE_DISCIPLINE, **_shadow_exit_kwargs(), **LIVE_STALENESS,
+                              demerger_events=ca_events, **ca_hold)
+    out_sh_paper = R94.backtest(P, mem, ledger=[], start=args.start, return_state=True, a_grade=a_set,
+                                **LIVE_DISCIPLINE, **_shadow_exit_kwargs(), **LIVE_STALENESS,
+                                demerger_events=ca_events, **ca_hold)
+    (sd / "shadow_exit_forward.json").write_text(
+        json.dumps(_shadow_exit_record(P, (out_all, led_all), (out_sh_all, led_sh_all), out_paper, out_sh_paper,
+                                       generated_at), indent=2, default=str), encoding="utf-8")
     _write_sma_panel(P, a_set, generated_at, sd)
     _write_brain_logs(plog, elog, generated_at, sd)
 
