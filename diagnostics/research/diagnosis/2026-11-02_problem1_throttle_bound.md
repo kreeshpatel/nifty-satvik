@@ -87,3 +87,53 @@ Fixed here; not revisited after the run.
 # Result (everything above this line was written before the run)
 
 *(filled in below after the run)*
+
+Reproduce: `python pipelines/diagnostics/diag_problem1_throttle_bound.py` →
+`diagnostics/research/diagnosis/2026-11-02_problem1_throttle_bound.json`. CONTROL reproduces the Strategy Lab
+live-book anchor exactly (Sharpe 1.0248, MaxDD −40.1%, 77 trades); last bar seen 2024-06-28. Standing counts
+(read from the ledgers by the script): screens 24 · sealed opens 3 · n_trials 2.
+
+## Readout (one continuous run per row; sub-periods are slices of it)
+
+| row | Sharpe | CAGR | MaxDD | Calmar | 2019-21 Sharpe / MaxDD | 2022-24H1 Sharpe / MaxDD | weeks throttled | trades | reading |
+|---|---|---|---|---|---|---|---|---|---|
+| CONTROL | 1.025 | 20.5% | −40.1% | 0.51 | 1.03 / −40.1% | 1.01 / −25.2% | — | 77 | — |
+| S1 Nifty < 40w SMA → 0 | 0.916 | 21.4% | **−26.6%** | 0.80 | 0.75 / −26.6% | 1.35 / −16.0% | 21% | 70 | **RISK DIAL** |
+| S2 Nifty weak → ½ | 1.313 | 26.0% | −38.3% | 0.68 | 1.18 / −38.3% | 1.48 / −18.9% | 26% | 118 | NO HELP |
+| S3 breadth < median → ½ | 1.306 | 24.5% | −40.6% | 0.60 | 0.99 / −40.6% | 1.72 / −15.4% | 44% | 123 | NO HELP |
+| S4 own 4w R < 0 → 0 | 1.095 | 20.3% | −39.1% | 0.52 | 1.03 / −39.1% | 1.19 / −19.4% | 2% | 79 | NO HELP |
+| CV0 clairvoyant → 0 | 1.643 | 34.3% | −25.3% | 1.35 | 1.59 / −25.3% | 1.69 / −16.9% | 27% | 64 | (ceiling) |
+| CVh clairvoyant → ½ | 1.142 | 22.6% | −42.4% | 0.53 | 0.67 / −42.4% | 1.78 / −18.1% | 27% | 111 | (ceiling) |
+
+**Readings, as pre-committed:** no causal signal earns a trial proposal. **S1 is a RISK DIAL**: MaxDD falls 13.5pp
+(2019-21) and 9.2pp (2022-24H1), Calmar rises in both, but 2019-21 Sharpe falls 0.28 (limit 0.10). S2, S3 and S4
+are **NO HELP**: none cuts the 2019-21 drawdown by 5pp (the 2020 crash was too fast for any of them).
+
+## What the numbers say beyond the grade
+
+1. **The causal signals throttle the book's best weeks.** The Law-III bookend: CONTROL trades entered in the
+   weeks S1 would have skipped averaged **+2.16R (65% wins)**, against +0.21R in the weeks it left open. S2:
+   +1.21R vs +0.64R; S3: +1.11R vs +0.64R; S4: +7.46R (6 trades, all wins). The clairvoyant weeks are the
+   opposite: −1.07R (17% wins) skipped vs +1.96R kept. A pullback buyer's best entries are bought in a weak
+   tape, *after* the index has turned down, which is exactly when lagging market-state signals fire. Timing is
+   the whole prize (CV0 Calmar 1.35 vs 0.51), and these signals capture it backwards. S1 captures 35% of the
+   ceiling's Calmar gain only because it stays in cash through the 2020 crash; its precision against the
+   clairvoyant weeks is 8%.
+2. **The half-size rows change the book's shape, not just its timing.** S2, S3 and CVh take 111–123 trades
+   against 77: half-size fills leave notional headroom, so more names fit under the 20% cap. Their Sharpe gains
+   are confounded with "more, smaller seats", which program-laws already records as a separate lever (seat count
+   and sizing grid). Even the half-size *clairvoyant* row fails in 2019-21 (Sharpe −0.36). These gains are not
+   evidence of a timing edge.
+3. **2022-24H1 flatters every throttle** (every row's 2022-24H1 Sharpe rises); 2019-21, with the fastest crash
+   and the strongest rebound, is where they all pay. Picking a signal on 2022-24H1 would fit the regime after
+   seeing it (the same trap as 0148's ratchet).
+
+## What this closes, and what it does not
+
+- **Closes (current harness, live book, train window):** a lagging market-state throttle on new seats as an
+  edge. Cite as `BOUND (2026-11-02, live book)`. S1 is available as an owner **risk dial**: about −0.1 Sharpe
+  for about 14pp less drawdown in-sample (Law VII), not an improvement.
+- **Does not close:** a signal that fires *before* the correction rather than after it (a leading signal),
+  which is what the clairvoyant gap asks for; and the seat-count effect in point 2, which belongs to the sizing
+  grid, not to timing.
+- Single path per row (≈0.2 Sharpe path noise): rankings only. Nothing changes live.
