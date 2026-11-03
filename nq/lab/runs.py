@@ -44,7 +44,13 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "ext_cap": 0.20, "grade_gate": True, "uncapped": False,
     "max_notional_pct": 0.20, "max_risk_pct": 0.10, "exit": "live", "start": MIN_START,
     "pit_membership": True,
+    "min_rr_at_fill": None, "whole_shares": False,       # gated research levers, OFF = the live book
 }
+# Engine levers that default OFF. At their default they are left out of the config hash (so the hash of every
+# pre-existing config, and the lab cache + multiplicity ledger keyed by it, is unchanged) and out of
+# `engine_kwargs` (so the live-parity key set is unchanged); a non-default value joins both, and the run
+# manifest then labels the book NOT LIVE BOOK.
+LEVER_DEFAULTS: dict[str, Any] = {"min_rr_at_fill": None, "whole_shares": False}
 
 
 class CutViolation(AssertionError):
@@ -82,14 +88,20 @@ def normalize_config(config: Mapping[str, Any] | None = None) -> dict[str, Any]:
         raise ValueError(f"start must be in [{MIN_START}, {CUT}): earlier bars are warm-up only")
     for k in ("ext_cap", "max_notional_pct", "max_risk_pct"):
         c[k] = None if c[k] is None else float(c[k])
-    for k in ("grade_gate", "uncapped", "pit_membership"):
+    for k in ("grade_gate", "uncapped", "pit_membership", "whole_shares"):
         c[k] = bool(c[k])
+    if c["min_rr_at_fill"] is not None:
+        c["min_rr_at_fill"] = float(c["min_rr_at_fill"])
+        if not c["min_rr_at_fill"] > 0:
+            raise ValueError(f"min_rr_at_fill must be > 0 (or None), got {c['min_rr_at_fill']!r}")
     return c
 
 
 def config_hash(config: Mapping[str, Any] | None = None) -> str:
     """sha256 of the canonical (normalised, sorted-key, compact) config JSON."""
-    blob = json.dumps(normalize_config(config), sort_keys=True, separators=(",", ":"))
+    c = normalize_config(config)
+    c = {k: v for k, v in c.items() if not (k in LEVER_DEFAULTS and v == LEVER_DEFAULTS[k])}
+    blob = json.dumps(c, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
 
@@ -186,7 +198,8 @@ def engine_kwargs(config: Mapping[str, Any] | None = None) -> dict[str, Any]:
     """The pure-config kwargs `replay` hands ``R94.backtest`` (no data, no logs, no ``a_grade``).
 
     = LIVE_DISCIPLINE with the lab's three overrides, LIVE_EXIT (or ``{}`` when ``exit == "base"``),
-    LIVE_STALENESS, plus ``start`` and ``uncapped``. Factored out so that the lab default can be held
+    LIVE_STALENESS, plus ``start`` and ``uncapped`` (and ``min_rr_at_fill`` / ``whole_shares`` only when set
+    away from their OFF default). Factored out so that the lab default can be held
     key-by-key to the live cron's LIVE_* blocks (tests/test_replay_parity.py).
     """
     cfg = normalize_config(config)
@@ -194,8 +207,9 @@ def engine_kwargs(config: Mapping[str, Any] | None = None) -> dict[str, Any]:
     discipline = {**live["LIVE_DISCIPLINE"], "ext_cap": cfg["ext_cap"],
                   "max_notional_pct": cfg["max_notional_pct"], "max_risk_pct": cfg["max_risk_pct"]}
     exit_cfg = live["LIVE_EXIT"] if cfg["exit"] == "live" else {}
+    levers = {k: cfg[k] for k in LEVER_DEFAULTS if cfg[k] != LEVER_DEFAULTS[k]}
     return {**discipline, **exit_cfg, **live["LIVE_STALENESS"], "start": cfg["start"],
-            "uncapped": cfg["uncapped"]}
+            "uncapped": cfg["uncapped"], **levers}
 
 
 def _manifest(cfg: Mapping[str, Any], last_bar: str | None) -> dict[str, Any]:

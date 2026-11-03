@@ -14,6 +14,7 @@ Frozen in diagnostics/research/preregistry/0094-weekly-crs-rank-fill.md.
 """
 from __future__ import annotations
 
+import math
 import sys
 from pathlib import Path
 
@@ -592,6 +593,38 @@ def grade_a_entries(P, top_n: int = 5, *, mem=None, filter_before_rank: bool = F
     return a
 
 
+def _fill_rr(s: dict, o_: dict, fill: float, scaled_exit: dict | None, max_risk_pct: float | None,
+             stop_atr_mult: float | None, stop_widen_pct: float) -> float:
+    """Reward:risk of an in_range fill, against the INITIAL signal geometry (the `min_rr_at_fill` lever).
+
+    Target = the +tp1_r tranche level the card prints: E0 + tp1_r x (E0 - stop(E0)), where E0 is the signal
+    week's close (the card's ``cur``) when strictly inside the band (lo, hi), else the band midpoint, exactly
+    as `run_bhanushali_cron` builds the card; ``tp1_r`` is ``scaled_exit['tp1_r']`` (2.0 when no scaled exit).
+    Risk uses the stop the engine will record at the FILL (same lifts as the sizing block). A fill at E0
+    scores ``tp1_r``; a gap-up fill scores less. Returns +inf when the fill is not above its stop (the
+    engine's own ``en > st`` test then decides). Read-only: touches no engine state."""
+    def stop_at(en: float) -> float:
+        st = o_["lo"]
+        if stop_atr_mult:
+            atr = o_.get("atr", float("nan"))
+            if atr == atr and atr > 0:
+                st = en - stop_atr_mult * atr
+        if max_risk_pct is not None:
+            st = max(st, en * (1.0 - max_risk_pct))
+        if stop_widen_pct:
+            st = en - (en - st) * (1.0 + stop_widen_pct)
+        return st
+    e0_idx = min(o_["days"]) - 1                           # last session of the signal week
+    cur = float(s["c"][e0_idx]) if e0_idx >= 0 else float("nan")
+    e0 = cur if (cur == cur and o_["lo"] < cur < o_["hi"]) else (o_["lo"] + o_["hi"]) / 2.0
+    tp1_r = float(scaled_exit.get("tp1_r", 2.0)) if scaled_exit else 2.0
+    target = e0 + tp1_r * (e0 - stop_at(e0))
+    st_fill = stop_at(fill)
+    if not fill > st_fill:
+        return float("inf")
+    return (target - fill) / (fill - st_fill)
+
+
 def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              start: str | None = None, return_state: bool = False,
              vol_target: tuple | None = None, eq0: float | None = None,
@@ -614,7 +647,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              max_risk_pct: float | None = None, max_notional_pct: float | None = None,
              stale_absent_days: int = 0, demerger_events: dict | None = None,
              ca_hold_drop: float = 0.0, ca_reviewed=None, position_log: list | None = None,
-             event_log: list | None = None, entry_size_scale_by_week: dict | None = None):
+             event_log: list | None = None, entry_size_scale_by_week: dict | None = None,
+             min_rr_at_fill: float | None = None, whole_shares: bool = False):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
@@ -666,9 +700,25 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
     and no owner review in `ca_reviewed` ({(ticker, 'YYYY-MM-DD')}), is FROZEN — no fill, no tranche, no
     exit — and carries `ca_hold` until the owner resolves it: register the event (B′ then re-bases it)
     or record the move as genuine (the rules then run as if the hold never existed). See CA_HOLD_DROP.
-    0.0 (default) => OFF => byte-identical."""
+    0.0 (default) => OFF => byte-identical.
+
+    min_rr_at_fill (research lever, 2026-11-02; None = OFF => byte-identical): skip an in_range fill whose
+    reward:risk AT THE FILL is below this. R:R = (target - fill) / (fill - stop), where `target` is the +tp1_r
+    tranche level of the INITIAL signal geometry (the card's: reference entry E0 + tp1_r x (E0 - stop(E0)), E0 =
+    the signal-week close, or the band midpoint when the close is not strictly inside the band) and `stop` is the
+    stop the record would use at the fill. The engine re-bases its own target on the actual fill, so a fill that
+    gaps UP through the signal geometry keeps its taught target out of reach while the book still sizes to it;
+    this lever is the test of skipping those. Applied in the in_range path only (see `_fill_rr`).
+
+    whole_shares (research lever, 2026-11-02; False = OFF => byte-identical): round entry share counts DOWN to
+    whole shares (a broker cannot fill 37.4 shares) and sell tranches in whole shares rounded down, the remainder
+    riding in the runner. A fill that rounds to zero shares is skipped. The tranche R weights use the shares
+    actually sold. Record-fidelity lever, not an edge."""
     vt_ann, vt_win, vt_floor = vol_target if vol_target else (0.0, 42, 1.0)
     _EQ0 = EQ0 if eq0 is None else float(eq0)
+    # whole_shares: tranche sizes round DOWN to whole shares (1e-9 absorbs 2.0000000000000004-style float noise).
+    # OFF => identity, so every share count is the very same float as before (byte-identical).
+    _wsh = (lambda x: float(math.floor(x + 1e-9))) if whole_shares else (lambda x: x)
     dts = pd.DatetimeIndex(sorted(set().union(*[set(s["dates"]) for s in P.values()])))
     dts = dts[dts >= pd.Timestamp(start or START)]
     didx = {t: {d: i for i, d in enumerate(s["dates"])} for t, s in P.items()}
@@ -780,7 +830,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                 act, rs = p["pending"]
                 px = s["o"][i]
                 if act == "half":
-                    half = p["sh0"] * 0.5; hp = half * px
+                    half = _wsh(p["sh0"] * 0.5); hp = half * px
                     got = hp * (1 - _cost_leg(p["adv"], hp, cost_off))
                     cash += got; p["proceeds"] += got
                     p["sh"] -= half; p["half_done"] = True
@@ -793,13 +843,13 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     # fill, and KEEP the position open for the remaining runner. Partial-exit sibling of
                     # the intraweek tp1/tp2 tranches; only fires when scaled_exit carries pattern_frac.
                     _pf = p.pop("pending_frac", 0.0)
-                    _shx = min(p["sh0"] * _pf, p["sh"])
+                    _shx = min(_wsh(p["sh0"] * _pf), p["sh"])
                     if _shx > 0:
                         _xp = _shx * px
                         _got = _xp * (1 - _cost_leg(p["adv"], _xp, cost_off))
                         cash += _got; p["proceeds"] += _got; p["stt"] += _xp * STT_PCT
                         p["sh"] -= _shx
-                        _w = _pf * p.get("ca_scale", 1.0)       # B′: shares now carry r of the value
+                        _w = (_shx / p["sh0"] if whole_shares else _pf) * p.get("ca_scale", 1.0)   # B′: shares now carry r of the value
                         p["realized_r"] += _w * (px - p["en"]) / p["risk0"]
                         p["frac_left"] = max(p["frac_left"] - _w, 0.0)
                         p["half_done"] = True
@@ -830,7 +880,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
             # TRIVENI H512 vs target 495). Off (tp_on_high=False) => byte-identical.
             if tp_on_high and p["pending"] is None and not p["half_done"] and s["h"][i] >= p["tp2"]:
                 px = p["tp2"]
-                half = p["sh0"] * 0.5; hp = half * px
+                half = _wsh(p["sh0"] * 0.5); hp = half * px
                 got = hp * (1 - _cost_leg(p["adv"], hp, cost_off))
                 cash += got; p["proceeds"] += got
                 p["sh"] -= half; p["half_done"] = True
@@ -929,14 +979,14 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     if s["h"][i] < _lvl:
                         break
                     _f = scaled_exit[_fk]
-                    _shx = min(p["sh0"] * _f, p["sh"])
+                    _shx = min(_wsh(p["sh0"] * _f), p["sh"])
                     if _shx <= 0:
                         p[_tag] = True; continue
                     _xp = _shx * _lvl
                     _got = _xp * (1 - _cost_leg(p["adv"], _xp, cost_off))
                     cash += _got; p["proceeds"] += _got; p["stt"] += _xp * STT_PCT
                     p["sh"] -= _shx
-                    _w = _f * p.get("ca_scale", 1.0)            # B′: shares now carry r of the value
+                    _w = (_shx / p["sh0"] if whole_shares else _f) * p.get("ca_scale", 1.0)   # B′: shares now carry r of the value
                     p["realized_r"] += _w * scaled_exit[_rk]
                     p["frac_left"] = max(p["frac_left"] - _w, 0.0)
                     p[_tag] = True
@@ -1160,6 +1210,13 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                             continue
                         cands.append((o_["rank"], t, i, _px))
                 elif o_["lo"] < opn < o_["hi"]:
+                    # RESEARCH LEVER min_rr_at_fill (2026-11-02): skip a fill whose reward:risk at the OPEN is
+                    # below the floor, against the target of the INITIAL signal geometry (see `_fill_rr`). Runs
+                    # BEFORE the ext_cap test. None => never entered => byte-identical.
+                    if (min_rr_at_fill is not None
+                            and _fill_rr(s, o_, opn, scaled_exit, max_risk_pct, stop_atr_mult, stop_widen_pct)
+                            < min_rr_at_fill):
+                        continue
                     # PHASE-1 entry lever: fill-time extension cap. The 20%+ blow-off fills are near-dead
                     # money (per-trade 47-51% win, ~0R) while <10% fires win 87%; skip a fill whose OPEN is
                     # > ext_cap over the signal-week SMA (PIT-safe: the open is observed before we buy).
@@ -1244,6 +1301,10 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                 if entry_size_scale_by_week is not None:
                     _iso_fill = pd.Timestamp(d).isocalendar()
                     sh *= float(entry_size_scale_by_week.get((int(_iso_fill[0]), int(_iso_fill[1])), 1.0))
+                if whole_shares:
+                    sh = float(math.floor(sh + 1e-9))      # whole shares only; a name worth > the risk budget rounds to 0
+                    if sh <= 0:
+                        continue                           # cannot buy even one share inside the sizing: skip the fill
                 notion = sh * en * (1 + _cost_leg(s["adv20"][i], sh * en, cost_off))
                 if (uncapped or notion <= cash) and sh > 0:   # uncapped: fill EVERY signal (ledger mode)
                     cash -= notion
@@ -1261,7 +1322,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     # The notional cap legitimately UNDER-sizes (that is what a cap does), so the strict
                     # sizing invariant only applies when uncapped. Capped, risk may only be REDUCED —
                     # never exceeded. (The strict form guards the finding-0022 under-sizing bug.)
-                    if max_notional_pct is None and entry_size_scale_by_week is None:
+                    if max_notional_pct is None and entry_size_scale_by_week is None and not whole_shares:
                         assert _risk * 100 - 0.02 <= rp <= _risk * 100 + 0.02, f"sizing {rp:.3f}"
                     else:
                         assert rp <= _risk * 100 + 0.02, f"sizing over cap {rp:.3f}"
