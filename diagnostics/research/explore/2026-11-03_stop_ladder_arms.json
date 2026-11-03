@@ -1,0 +1,101 @@
+{
+  "window": [
+    "2019-01-01",
+    "2024-06-30"
+  ],
+  "last_bar_seen": "2024-06-28",
+  "tier": "EXPLORE",
+  "arms": {
+    "capped": {
+      "base": {
+        "n": 77,
+        "fired": 0,
+        "win_pct": 41.8,
+        "mean_R_closed": 0.877,
+        "sum_R_incl_open": 99.3,
+        "cagr_pct": 20.5,
+        "full": {
+          "sharpe": 1.0247630332429298,
+          "maxdd_pct": -40.1129518327873
+        },
+        "sub": {
+          "2019-21": {
+            "sharpe": 1.0293909755869641,
+            "maxdd_pct": -40.1129518327873
+          },
+          "2022-24H1": {
+            "sharpe": 1.0073684224714563,
+            "maxdd_pct": -25.178094597322808
+          }
+        }
+      },
+      "ladder_1.0/0_2.0/1": {
+        "n": 94,
+        "fired": 0,
+        "win_pct": 50.6,
+        "mean_R_closed": 0.821,
+        "sum_R_incl_open": 119.1,
+        "cagr_pct": 31.0,
+        "full": {
+          "sharpe": 1.490347421589224,
+          "maxdd_pct": -36.07865187942401
+        },
+        "sub": {
+          "2019-21": {
+            "sharpe": 1.6780488833282234,
+            "maxdd_pct": -36.07865187942401
+          },
+          "2022-24H1": {
+            "sharpe": 1.2222851151438314,
+            "maxdd_pct": -27.858040247387315
+          }
+        }
+      },
+      "ladder_1.5/0_2.0/1": {
+        "n": 96,
+        "fired": 0,
+        "win_pct": 51.2,
+        "mean_R_closed": 0.722,
+        "sum_R_incl_open": 109.7,
+        "cagr_pct": 25.8,
+        "full": {
+          "sharpe": 1.2827469573132801,
+          "maxdd_pct": -35.69731596688913
+        },
+        "sub": {
+          "2019-21": {
+            "sharpe": 1.2261104560595943,
+            "maxdd_pct": -35.69731596688913
+          },
+          "2022-24H1": {
+            "sharpe": 1.3469871359338037,
+            "maxdd_pct": -19.46942180836615
+          }
+        }
+      }
+    },
+    "uncapped": {
+      "base": {
+        "n": 525,
+        "fired": 0,
+        "win_pct": 42.9,
+        "mean_R_closed": 0.621,
+        "sum_R_incl_open": 650.2
+      },
+      "ladder_1.0/0_2.0/1": {
+        "n": 566,
+        "fired": 0,
+        "win_pct": 44.3,
+        "mean_R_closed": 0.426,
+        "sum_R_incl_open": 553.8
+      },
+      "ladder_1.5/0_2.0/1": {
+        "n": 552,
+        "fired": 0,
+        "win_pct": 46.4,
+        "mean_R_closed": 0.465,
+        "sum_R_incl_open": 573.0
+      }
+    }
+  }
+}
