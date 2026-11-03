@@ -279,7 +279,8 @@ def check_adjustment_monotonicity(ohlcv: dict, ref: pd.DataFrame | None = None, 
     return rep
 
 
-def _new_seam_is_benign(seam: dict, held: set[str], cutoff: pd.Timestamp) -> bool:
+def _new_seam_is_benign(seam: dict, held: set[str], cutoff: pd.Timestamp,
+                        entry_dates: dict | None = None) -> bool:
     """A new (unregistered) seam is provably harmless — and so auto-tolerated rather than halted —
     only when ALL THREE hold: its step is below a dividend scale, it is entirely OLDER than the
     trailing live window, and its name is not held. Any one failing keeps the hard halt: a large step
@@ -290,11 +291,25 @@ def _new_seam_is_benign(seam: dict, held: set[str], cutoff: pd.Timestamp) -> boo
         in_window = pd.Timestamp(seam["window_end"]) >= cutoff       # step reaches into the live window
     except Exception:  # noqa: BLE001 — a seam we cannot classify is not one we may wave through
         return False
-    return not big and not in_window and seam["symbol"] not in held
+    if big or in_window:
+        return False
+    if seam["symbol"] not in held:
+        return True
+    # 2026-11-02: a held name is still provably unaffected when the whole seam ENDS before that position's
+    # entry. The position's entry, stop and levels were all set after the step, and the step is older than
+    # the 44-week window, so it cannot move a live gate either. Before this, the 2026-10-31 scan halted on
+    # TECHM (held since 2026-10) over a x1.0083 dividend-scale re-adjustment dated 2025-01..02 and lost the
+    # week. No entry date known -> stays a halt.
+    try:
+        ent = (entry_dates or {}).get(seam["symbol"])
+        return ent is not None and pd.Timestamp(seam["window_end"]) < pd.Timestamp(ent)
+    except Exception:  # noqa: BLE001
+        return False
 
 
 def assert_no_new_seams(ohlcv: dict, ref: pd.DataFrame | None = None, *,
-                        known: dict | None = None, positions=None, as_of=None) -> SeamReport:
+                        known: dict | None = None, positions=None, as_of=None,
+                        entry_dates: dict | None = None) -> SeamReport:
     """Build-path gate. Raises on a DANGEROUS unregistered seam; known seams warn; and — when the
     caller supplies ``positions`` — a new seam that is *provably benign* is warned and recorded rather
     than halted.
@@ -328,7 +343,8 @@ def assert_no_new_seams(ohlcv: dict, ref: pd.DataFrame | None = None, *,
                     if df is not None and len(df)]
             as_of = max(ends) if ends else pd.Timestamp.today().normalize()
         cutoff = pd.Timestamp(as_of) - pd.Timedelta(weeks=LIVE_WINDOW_WEEKS)
-        benign = [s for s in rep.new_seams if _new_seam_is_benign(s, held, cutoff)]
+        ed = {str(k).upper(): v for k, v in (entry_dates or {}).items()}
+        benign = [s for s in rep.new_seams if _new_seam_is_benign(s, held, cutoff, ed)]
         dangerous = [s for s in rep.new_seams if s not in benign]
         rep.tolerated_seams = benign
         rep.new_seams = dangerous
@@ -454,6 +470,17 @@ def assert_no_live_escalation(ohlcv: dict, positions=(), *, as_of=None,
             "This returns to the owner immediately. Do NOT widen the window, edit the register's\n"
             "owner_status, or bypass this to get the scan green.")
     return ex
+
+
+def load_book_entry_dates(path: Path | None = None) -> dict[str, str]:
+    """{ticker: entry_date} for the paper book's open positions; {} if unavailable (then a held seam halts)."""
+    import json
+    p = path or (DATA_DIR.parent / "results" / "paper_portfolio_weekly.json")
+    try:
+        pos = json.loads(p.read_text(encoding="utf-8")).get("positions", {})
+        return {t: v.get("entry_date") for t, v in pos.items() if isinstance(v, dict) and v.get("entry_date")}
+    except Exception:  # noqa: BLE001
+        return {}
 
 
 def load_book_positions(path: Path | None = None) -> list[str]:

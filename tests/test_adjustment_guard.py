@@ -339,3 +339,17 @@ class TestADR0013ExpiryGap:
         sats = pd.date_range("2026-10-02", "2026-11-05", freq="D")
         assert sum(d.weekday() == 5 for d in sats) == 5
 
+
+
+def test_a_held_name_seam_that_predates_the_position_is_tolerated():
+    """2026-10-31 lost its week: TECHM, held since 2026-10, re-adjusted x1.0083 over 2025-01..02 (dividend
+    scale, older than the 44-week window). A seam that ends before the position's entry cannot touch it."""
+    from nq.data.adjustment_guard import _new_seam_is_benign
+    seam = {"symbol": "TECHM", "step_factor": 1.0083, "window_start": "2025-01-10", "window_end": "2025-02-17"}
+    cutoff = pd.Timestamp("2026-10-30") - pd.Timedelta(weeks=44)
+    assert _new_seam_is_benign(seam, {"TECHM"}, cutoff, {"TECHM": "2026-10-12"})
+    assert not _new_seam_is_benign(seam, {"TECHM"}, cutoff, None), "no entry date known -> still a halt"
+    assert not _new_seam_is_benign(seam, {"TECHM"}, cutoff, {"TECHM": "2025-01-20"}), \
+        "a seam after the entry can move the position's own levels -> halt"
+    big = {**seam, "step_factor": 1.25}
+    assert not _new_seam_is_benign(big, {"TECHM"}, cutoff, {"TECHM": "2026-10-12"}), "large step -> halt"

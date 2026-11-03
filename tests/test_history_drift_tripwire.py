@@ -58,3 +58,20 @@ def test_committed_declarations_cover_the_known_restatement():
     d = json.loads((ROOT / "results" / "history_restatements.json").read_text(encoding="utf-8"))
     for k in ("HINDZINC|2026-08-31", "BANDHANBNK|2026-09-14", "ZYDUSWELL|2026-08-31", "ABDL|2026-09-15"):
         assert d[k].strip()
+
+
+def test_dividend_rebasing_is_a_warning_not_a_failure():
+    """2026-10-24: MRPL entry and close both re-scaled -1.7% (R unchanged) and OBEROIRLTY's close -0.12%
+    (R -1.56 -> -1.58) by dividend back-adjustment. Routine re-basing must not fail the run."""
+    import check_history_drift as T
+    assert T.is_rebase({"entry": [172.0, 169.03], "close_price": [167.45, 164.56]})
+    assert T.is_rebase({"close_price": [1698.0, 1695.91], "r_multiple": [-1.56, -1.58]})
+
+
+def test_a_real_rewrite_still_fails():
+    import check_history_drift as T
+    assert not T.is_rebase({"close_price": [100.0, 90.0]}), "a 10% price change is not a dividend"
+    assert not T.is_rebase({"r_multiple": [-1.0, 2.0]}), "an R flip is not a re-basing"
+    assert not T.is_rebase({"close_date": ["2026-08-01", "2026-08-08"]}), "a date change is not a re-basing"
+    entry = {"restated": [{"trade": "X|2026-07-01", "changed": {"close_price": [100.0, 90.0]}}]}
+    assert T.undeclared(entry, {}) == [("restated", "X|2026-07-01")]
