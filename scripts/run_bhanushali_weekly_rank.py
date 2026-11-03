@@ -1061,6 +1061,16 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                         if p["stop"] != _sb:
                             _emit(t, p, "stop_ratchet", date=d, stop_before=_sb,
                                   stop_after=p["stop"], reason="lockin_at")
+                    # STOP LADDER (2026-11-03, giveback explore): several (mfe_r, at_r) steps, e.g.
+                    # ((1.0, 0.0), (2.0, 1.0)) = breakeven once +1R, entry +1R once +2R. Same peak and
+                    # weekly-close trigger as the single ratchet above. Absent key => byte-identical.
+                    for _lm, _la in scaled_exit.get("lockin_ladder", ()):
+                        if _mfe_r >= _lm:
+                            _sb = p["stop"]
+                            p["stop"] = max(p["stop"], p["en"] + _la * p["risk0"])
+                            if p["stop"] != _sb:
+                                _emit(t, p, "stop_ratchet", date=d, stop_before=_sb,
+                                      stop_after=p["stop"], reason="lockin_ladder")
                     if wc <= p["stop"]:
                         p["pending"] = ("full", "stop" + ("_part" if p["t1_done"] or p.get("pt_done") else ""))
                     elif (_pf and not p.get("pt_done") and _wk is not None and _mfe_r >= _parm
