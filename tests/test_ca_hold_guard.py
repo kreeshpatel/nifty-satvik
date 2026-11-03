@@ -166,7 +166,7 @@ def test_every_book_in_main_runs_with_the_hold():
     tree = ast.parse(inspect.getsource(C.main))
     calls = [n for n in ast.walk(tree) if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
              and n.func.attr == "backtest" and getattr(n.func.value, "id", None) == "R94"]
-    assert len(calls) == 3
+    assert len(calls) == 5   # paper, uncapped, base-swing + the two shadow-exit books (2026-11-03)
     for c in calls:
         starred = [k.value.id for k in c.keywords if k.arg is None and isinstance(k.value, ast.Name)]
         assert "ca_hold" in starred, f"backtest call on line {c.lineno} runs without the corporate-action hold"
