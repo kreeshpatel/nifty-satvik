@@ -614,7 +614,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              max_risk_pct: float | None = None, max_notional_pct: float | None = None,
              stale_absent_days: int = 0, demerger_events: dict | None = None,
              ca_hold_drop: float = 0.0, ca_reviewed=None, position_log: list | None = None,
-             event_log: list | None = None):
+             event_log: list | None = None, entry_size_scale_by_week: dict | None = None):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
@@ -1236,6 +1236,14 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                 # the stop is tight). None => uncapped => byte-identical.
                 if max_notional_pct is not None and en > 0:
                     sh = min(sh, sizing_eq * max_notional_pct / en)
+                # EXPOSURE THROTTLE lever (2026-11-02, problem-1 bound study): scale NEW-entry size by the ISO
+                # (year, week) of the FILL date. Mapping-like (only `.get(key, default)` is called), so a
+                # caller may pass a plain dict or an object that decides from its own PIT state. Existing
+                # positions are never touched; 0.0 skips the fill and the freed cash stays in cash.
+                # None (default) => no scaling => byte-identical to the 0094 run of record.
+                if entry_size_scale_by_week is not None:
+                    _iso_fill = pd.Timestamp(d).isocalendar()
+                    sh *= float(entry_size_scale_by_week.get((int(_iso_fill[0]), int(_iso_fill[1])), 1.0))
                 notion = sh * en * (1 + _cost_leg(s["adv20"][i], sh * en, cost_off))
                 if (uncapped or notion <= cash) and sh > 0:   # uncapped: fill EVERY signal (ledger mode)
                     cash -= notion
@@ -1253,7 +1261,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     # The notional cap legitimately UNDER-sizes (that is what a cap does), so the strict
                     # sizing invariant only applies when uncapped. Capped, risk may only be REDUCED —
                     # never exceeded. (The strict form guards the finding-0022 under-sizing bug.)
-                    if max_notional_pct is None:
+                    if max_notional_pct is None and entry_size_scale_by_week is None:
                         assert _risk * 100 - 0.02 <= rp <= _risk * 100 + 0.02, f"sizing {rp:.3f}"
                     else:
                         assert rp <= _risk * 100 + 0.02, f"sizing over cap {rp:.3f}"

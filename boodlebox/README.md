@@ -20,7 +20,7 @@ repository that produced it. Numbers are reproduced from committed scripts, not 
 - **Discipline in one line:** ideas are cheap and evidence is expensive. Anything that would change real money
   is pre-registered with thresholds fixed in advance and judged once on a sealed 2024H2–2026H1 slice; everything
   else is exploration on 2019–2024H1 and is labelled exploratory.
-- **Standing counts:** screens 23 · sealed opens 3 · n_trials 2 (from
+- **Standing counts:** screens 24 · sealed opens 3 · n_trials 2 (from
   [`diagnostics/research/n_trials.json`](../diagnostics/research/n_trials.json) and the screen ledger).
 
 ## 2. Honest scorecard (live configuration)
