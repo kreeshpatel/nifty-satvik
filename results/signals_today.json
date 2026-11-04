@@ -1,18 +1,36 @@
 {
-  "generated_at": "2026-11-03",
-  "signals": [],
+  "generated_at": "2026-11-04",
+  "signals": [
+    {
+      "ticker": "GLAND",
+      "entry": 3160.58,
+      "stop": 2810.52,
+      "target": 3872.34,
+      "target_pct": 22.52,
+      "current_price": 3159.0,
+      "close": 3159.0,
+      "signal_date": "2026-11-04",
+      "hold_days": 63,
+      "grade": "B",
+      "tier": "signal",
+      "status": "FRESH",
+      "buy_window": "T+1..T+3 at open",
+      "indicative_close": 3159.0,
+      "indicative_entry": 3160.58
+    }
+  ],
   "regime": {
     "status": "UNKNOWN",
     "strength": 0,
     "vix": 0,
     "breadth": 0
   },
-  "n_positions": 15,
-  "cash": 109.28,
+  "n_positions": 14,
+  "cash": 39817.7,
   "kill_state": {
-    "wr_last20": 30.0,
+    "wr_last20": 35.0,
     "wr_breach": true,
-    "sharpe_30d": -2.839,
+    "sharpe_30d": -2.508,
     "sharpe_30d_breach": true,
     "mode": "observe"
   }
