@@ -131,10 +131,12 @@ function ProtectedAppLayout() {
   return (
     <KiteContext.Provider value={kiteValue}>
       <div data-page-ctx="dashboard" className="min-h-screen flex flex-col">
+        {/* WCAG 2.4.1 bypass block: keyboard users jump past the nav straight to the page. */}
+        <a href="#main-content" className="skip-link">Skip to main content</a>
         <TopBar />
         <div className="flex flex-1 min-w-0">
           <WatchlistRail />
-          <main className="flex-1 min-w-0 overflow-x-hidden relative z-10">
+          <main id="main-content" tabIndex={-1} className="flex-1 min-w-0 overflow-x-hidden relative z-10">
             <Outlet />
           </main>
         </div>
@@ -222,11 +224,17 @@ function AnimatedRoutes() {
         {/* Internal — Phase 1 primitive library QA page. Not linked from nav.
             Unauthenticated so design review doesn't require a login. Remove
             before Phase 2 ship if this becomes a security concern. */}
+        {/* Dev-only since 2026-11-05: unauthenticated pages that expose internal UI/layout have
+            no business on the public origin. Production builds drop both routes (and their chunks). */}
+        {process.env.NODE_ENV !== 'production' && (
         <Route path="/_primitives" element={<PageTransition><PrimitivesShowcase /></PageTransition>} />
+        )}
         {/* fxreplay-inspired dashboard prototype. Public, no auth gate.
             Lives at /preview-dashboard — separate from /dashboard so
             the redesign doesn't affect paying users. */}
+        {process.env.NODE_ENV !== 'production' && (
         <Route path="/preview-dashboard" element={<PageTransition><PreviewDashboard /></PageTransition>} />
+        )}
 
         {/* Authenticated app — wrapped with sidebar + KiteContext */}
         <Route element={<ProtectedAppLayout />}>

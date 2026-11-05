@@ -186,11 +186,13 @@ export default function DashboardMockup() {
 
         <aside className="mock-side">
           <div className="mock-card mock-card-primary">
-            <div className="mock-card-tag">Today's signal</div>
+            {/* Labelled illustrative: a product picture must not read as a live call. The old
+                "Confidence 0.94" row named a model score the live book does not publish. */}
+            <div className="mock-card-tag">Sample signal · illustrative</div>
             <div className="mock-card-ticker">RELIANCE</div>
             <div className="mock-card-row">
-              <span>Confidence</span>
-              <strong>0.94</strong>
+              <span>Grade</span>
+              <strong>A</strong>
             </div>
             <div className="mock-card-row">
               <span>Entry</span>

@@ -314,7 +314,7 @@
 .sig-foot-meta { font-size: 11px; color: var(--text-4); }
 
 /* ── mobile: full-screen pushed detail ── */
-.mobile-detail { position: fixed; inset: 0; z-index: 200; background: linear-gradient(180deg, #0a0e22 0%, #07091c 100%); display: flex; flex-direction: column; animation: mdIn 240ms var(--ease-out-quart) both; }
+.mobile-detail { position: fixed; inset: 0; z-index: 200; background: linear-gradient(180deg, #0a0e22 0%, #070a16 100%); display: flex; flex-direction: column; animation: mdIn 240ms var(--ease-out-quart) both; }
 @keyframes mdIn { from { transform: translateX(28px); opacity: 0.5; } to { transform: none; opacity: 1; } }
 .md-bar { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-bottom: 1px solid var(--edge-1); background: rgba(10,14,34,0.9); backdrop-filter: blur(20px); flex-shrink: 0; }
 .md-back { display: inline-flex; align-items: center; gap: 7px; background: transparent; border: 0; color: var(--text-1); font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer; }

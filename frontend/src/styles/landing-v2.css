@@ -15,9 +15,10 @@
  *       Spline Sans Mono (figures). Loaded scoped via @import below.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap');
 
-/* Type: house DM Sans (body) + Caveat (handwritten accent, TradePro-style). */
+/* Type: house DM Sans only. The accent word is DM Sans italic in the brand gradient
+   (the Caveat handwriting accent was retired 2026-11-05: off-brand for an institutional
+   product, and a second, third-party font). */
 
 /* ─────────────────────────────────────────────────────────────
    TOKENS
@@ -29,7 +30,7 @@
      rules keep resolving. Single source of truth = --brand / --surface / --bull. */
 
   /* canvas + glass surfaces */
-  --alm-bg:        var(--surface-0);              /* #07091c navy base */
+  --alm-bg:        var(--surface-0);              /* #070a16 navy base */
   --alm-bg-2:      #0b1026;
   --alm-surf:      var(--surface-1);              /* rgba white 4% glass */
   --alm-surf-2:    var(--surface-2);              /* rgba white 7% */
@@ -1428,7 +1429,7 @@
 /* ═══════════════════════════════════════════════════════════
    TRADEPRO-STYLE SYSTEM — clean, modern, rounded, script accent
    ═══════════════════════════════════════════════════════════ */
-[data-page-ctx="landing"] { --tp-r: 20px; --tp-r-sm: 14px; --tp-script: 'Caveat', cursive; }
+[data-page-ctx="landing"] { --tp-r: 20px; --tp-r-sm: 14px; --tp-script: var(--font-display); }
 
 /* centered hero */
 [data-page-ctx="landing"] .tp-hero { padding: 54px 0 40px; text-align: center; position: relative; }
@@ -1445,8 +1446,8 @@
   margin: 24px auto 0; max-width: 16ch; color: var(--alm-ink); text-wrap: balance;
 }
 [data-page-ctx="landing"] .tp-script {
-  font-family: var(--tp-script); font-weight: 700; letter-spacing: 0;
-  font-size: 1.18em; line-height: 0.8; padding: 0 0.04em;
+  font-family: var(--tp-script); font-weight: 700; font-style: italic; letter-spacing: -0.02em;
+  font-size: 1em; line-height: inherit; padding: 0 0.08em 0 0.02em;
   background: var(--alm-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
 }
 [data-page-ctx="landing"] .tp-hero-sub {
@@ -1480,7 +1481,7 @@
 [data-page-ctx="landing"] .tp-head { text-align: center; max-width: 640px; margin: 0 auto 40px; }
 [data-page-ctx="landing"] .tp-eyebrow { display: inline-block; font-family: var(--alm-sans); font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--alm-accent); margin-bottom: 12px; }
 [data-page-ctx="landing"] .tp-title { font-family: var(--alm-sans); font-weight: 700; font-size: clamp(28px, 3.4vw, 42px); line-height: 1.12; letter-spacing: -0.025em; color: var(--alm-ink); margin: 0; text-wrap: balance; }
-[data-page-ctx="landing"] .tp-title .tp-script { font-size: 1.15em; }
+[data-page-ctx="landing"] .tp-title .tp-script { font-size: 1em; }
 [data-page-ctx="landing"] .tp-sub { font-family: var(--alm-sans); font-size: 15.5px; line-height: 1.6; color: var(--alm-ink-2); margin: 14px auto 0; max-width: 56ch; }
 
 /* generic rounded card */
@@ -1585,7 +1586,8 @@
 /* cta → big rounded TradePro card */
 [data-page-ctx="landing"] .alm-cta-card { border-radius: 30px; }
 [data-page-ctx="landing"] .alm-cta-title { font-family: var(--alm-sans); font-weight: 700; letter-spacing: -0.03em; }
-[data-page-ctx="landing"] .alm-cta-title em { font-family: var(--tp-script); font-style: normal; font-size: 1.15em; }
+[data-page-ctx="landing"] .alm-cta-title em { font-family: var(--tp-script); font-style: italic; font-size: 1em;
+  background: linear-gradient(100deg, #6DA1FF, #8B7BFF); -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: .06em; }
 
 /* moat / ledger / anatomy hover-lift + rounding */
 [data-page-ctx="landing"] .alm-moat, [data-page-ctx="landing"] .alm-ledger { border-radius: var(--tp-r); }

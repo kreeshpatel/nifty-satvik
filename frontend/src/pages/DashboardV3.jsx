@@ -209,11 +209,15 @@ function SigCard({ sig, modelWinRate, brewing, idx, onOpen }) {
       onKeyDown={(e) => { if (e.key === 'Enter') onOpen?.(sig); }}
       style={{ cursor: 'pointer' }}
     >
-      <span className={`sig-tag pill ${brewing ? 'brew' : 'fresh'}`}>{brewing ? '● BREW' : '● FRESH'}</span>
       <div className="sig-head">
         <ProtoLogo sym={sym} />
         <div><div className="sig-sym">{sym}</div><div className="sig-name">{name !== sym ? name : sector}</div></div>
-        <span className={`grade${grade === 'A' ? ' a' : ''}`}>{grade}</span>
+        {/* Grade + status sit in the header flow (the status pill was absolutely positioned and
+            landed on top of the grade chip). */}
+        <span className="sig-chips">
+          <span className={`grade${grade === 'A' ? ' a' : ''}`} aria-label={`Grade ${grade}`}>{grade}</span>
+          <span className={`sig-tag pill ${brewing ? 'brew' : 'fresh'}`}>{brewing ? '● BREW' : '● FRESH'}</span>
+        </span>
       </div>
       <div className="sig-metrics">
         <div className="m"><div className="k">Win rate</div><div className="v bull tnum">{wr != null ? `${wr}%` : '—'}</div></div>

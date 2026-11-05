@@ -33,7 +33,7 @@
 @layer base {
   :root {
     /* Design-system bridge vars — Navy gradient page + blue glass */
-    --bg-main: #07091c;
+    --bg-main: #070a16;
     --bg-gradient-start: #0a0e22;
     --bg-surface: rgba(255, 255, 255, 0.04);
     --bg-surface-2: rgba(255, 255, 255, 0.07);
@@ -345,3 +345,13 @@
   .text-fierce-cyan { color: var(--apple-teal); }
   .text-fierce-amber { color: var(--apple-orange); }
 }
+
+/* Skip link — off-screen until keyboard-focused (WCAG 2.4.1). */
+.skip-link {
+  position: fixed; left: 12px; top: -48px; z-index: 1000;
+  padding: 10px 14px; border-radius: 8px;
+  background: var(--brand); color: var(--brand-fg); font-weight: 600; font-size: 13px;
+  transition: top var(--dur-hover) var(--ease-out-cubic);
+}
+.skip-link:focus { top: 12px; }
+#main-content:focus { outline: none; }
