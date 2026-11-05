@@ -32,7 +32,7 @@ class AccessRequestCreate(BaseModel):
 
 @router.post("/access-requests")
 @limiter.limit("5/hour")  # public form — stop scripted spam without a CAPTCHA (inner-circle product)
-async def submit_access_request(
+def submit_access_request(
     body: AccessRequestCreate,
     request: Request,
     db: Session = Depends(get_db),
@@ -97,7 +97,7 @@ def require_admin(user: User = Depends(get_current_user)) -> User:
 
 
 @router.get("/admin/access-requests")
-async def list_access_requests(
+def list_access_requests(
     status: Optional[str] = Query(None),
     page: int = Query(1, ge=1),
     per_page: int = Query(50, ge=10, le=200),
@@ -134,7 +134,7 @@ async def list_access_requests(
 
 
 @router.post("/admin/access-requests/{request_id}/reject")
-async def reject_access_request(
+def reject_access_request(
     request_id: int,
     request: Request,
     admin: User = Depends(require_admin),
@@ -163,7 +163,7 @@ class ApproveRequest(BaseModel):
 
 
 @router.post("/admin/access-requests/{request_id}/approve")
-async def approve_access_request(
+def approve_access_request(
     request_id: int,
     body: ApproveRequest,
     request: Request,
@@ -227,7 +227,7 @@ async def approve_access_request(
 
 
 @router.delete("/admin/access-requests/{request_id}")
-async def delete_access_request(
+def delete_access_request(
     request_id: int,
     request: Request,
     admin: User = Depends(require_admin),

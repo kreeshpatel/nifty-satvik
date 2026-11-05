@@ -148,7 +148,7 @@ def _daily_close_quotes(yf_syms: list[str], now: datetime | None = None) -> dict
 
 
 @router.get("/fundamentals/{symbol}")
-async def get_fundamentals(symbol: str, exchange: str = "NSE"):
+def get_fundamentals(symbol: str, exchange: str = "NSE"):
     """
     Get stock fundamentals from Yahoo Finance.
     Returns: market cap, P/E, P/B, dividend yield, 52W high/low, sector, industry, etc.
@@ -211,7 +211,7 @@ async def get_fundamentals(symbol: str, exchange: str = "NSE"):
 
 
 @router.get("/news/{symbol}")
-async def get_news(symbol: str, exchange: str = "NSE"):
+def get_news(symbol: str, exchange: str = "NSE"):
     """
     Get recent news for a stock from Yahoo Finance.
     """
@@ -282,7 +282,7 @@ async def get_news(symbol: str, exchange: str = "NSE"):
 
 
 @router.get("/peers/{symbol}")
-async def get_peers(symbol: str, exchange: str = "NSE"):
+def get_peers(symbol: str, exchange: str = "NSE"):
     """
     Get peer comparison data — same-sector stocks with key metrics.
     """
@@ -355,7 +355,7 @@ async def get_peers(symbol: str, exchange: str = "NSE"):
 
 
 @router.get("/shareholding/{symbol}")
-async def get_shareholding(symbol: str, exchange: str = "NSE"):
+def get_shareholding(symbol: str, exchange: str = "NSE"):
     """
     Get major holders / institutional ownership from Yahoo Finance.
     """
@@ -407,7 +407,7 @@ async def get_shareholding(symbol: str, exchange: str = "NSE"):
 
 
 @router.get("/historical/{symbol}")
-async def get_historical(symbol: str, interval: str = "1d", period: str = "1y", exchange: str = "NSE"):
+def get_historical(symbol: str, interval: str = "1d", period: str = "1y", exchange: str = "NSE"):
     """
     Get historical OHLCV candle data from Yahoo Finance.
     No Kite auth needed. Works for any NSE/BSE stock.

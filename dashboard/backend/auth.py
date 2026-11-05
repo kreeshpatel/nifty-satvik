@@ -321,7 +321,7 @@ def get_current_user_from_ws_ticket(ticket: str, db: Session) -> User:
 # ── Routes ────────────────────────────────────────────
 
 @router.post("/login")
-async def login(body: LoginRequest, request: Request, db: Session = Depends(get_db)):
+def login(body: LoginRequest, request: Request, db: Session = Depends(get_db)):
     from audit import log_event
 
     user = db.query(User).filter(User.email == body.email.lower().strip()).first()
@@ -422,7 +422,7 @@ class LogoutRequest(BaseModel):
 
 
 @router.post("/logout")
-async def logout(
+def logout(
     request: Request,
     body: LogoutRequest | None = None,
     db: Session = Depends(get_db),
@@ -475,7 +475,7 @@ class RefreshRequest(BaseModel):
 
 
 @router.post("/refresh")
-async def refresh(
+def refresh(
     request: Request,
     body: RefreshRequest | None = None,
     db: Session = Depends(get_db),
@@ -560,12 +560,12 @@ async def refresh(
 
 
 @router.get("/me")
-async def me(user: User = Depends(get_current_user)):
+def me(user: User = Depends(get_current_user)):
     return {"id": user.id, "email": user.email, "name": user.name, "is_admin": user.is_admin}
 
 
 @router.get("/ws-ticket")
-async def ws_ticket(user: User = Depends(get_current_user)):
+def ws_ticket(user: User = Depends(get_current_user)):
     """
     Issue a short-lived single-use ticket for WebSocket authentication.
     Each ticket carries a random jti; the /ws endpoint rejects replays.
@@ -684,7 +684,7 @@ class ResetPasswordRequest(BaseModel):
 
 
 @router.post("/forgot-password")
-async def forgot_password(
+def forgot_password(
     body: ForgotPasswordRequest,
     request: Request,
     db: Session = Depends(get_db),
@@ -728,7 +728,7 @@ async def forgot_password(
 
 
 @router.post("/reset-password")
-async def reset_password(
+def reset_password(
     body: ResetPasswordRequest,
     request: Request,
     db: Session = Depends(get_db),
@@ -788,7 +788,7 @@ class MfaLoginRequest(BaseModel):
 
 
 @router.post("/login/mfa")
-async def login_mfa(
+def login_mfa(
     body: MfaLoginRequest,
     request: Request,
     db: Session = Depends(get_db),
@@ -825,7 +825,7 @@ async def login_mfa(
 
 
 @router.post("/mfa/setup")
-async def mfa_setup(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def mfa_setup(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """
     Begin TOTP enrollment.
 
@@ -852,7 +852,7 @@ class MfaCodeRequest(BaseModel):
 
 
 @router.post("/mfa/verify")
-async def mfa_verify(
+def mfa_verify(
     body: MfaCodeRequest,
     request: Request,
     user: User = Depends(get_current_user),
@@ -882,7 +882,7 @@ class MfaDisableRequest(BaseModel):
 
 
 @router.post("/mfa/disable")
-async def mfa_disable(
+def mfa_disable(
     body: MfaDisableRequest,
     request: Request,
     user: User = Depends(get_current_user),
@@ -903,12 +903,12 @@ async def mfa_disable(
 
 
 @router.get("/mfa/status")
-async def mfa_status(user: User = Depends(get_current_user)):
+def mfa_status(user: User = Depends(get_current_user)):
     return {"enabled": bool(user.mfa_enabled)}
 
 
 @router.post("/register")
-async def register(body: RegisterRequest, request: Request, db: Session = Depends(get_db), admin: User = Depends(get_current_user)):
+def register(body: RegisterRequest, request: Request, db: Session = Depends(get_db), admin: User = Depends(get_current_user)):
     """Create a new user. Only admins can register new users."""
     from audit import log_event
 

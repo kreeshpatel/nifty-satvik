@@ -386,7 +386,7 @@ async def get_quotes(
 
 
 @router.get("/quote/ltp")
-async def get_ltp(
+def get_ltp(
     instruments: str,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -397,7 +397,7 @@ async def get_ltp(
 
 
 @router.get("/ltp-via-history")
-async def get_ltp_via_history(
+def get_ltp_via_history(
     tokens: str,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
