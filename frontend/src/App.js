@@ -22,7 +22,7 @@ import MobileNav from '@/components/layout/MobileNav';
 // Login + Landing stay eager — they're the entry points and any lazy
 // Suspense flicker on first paint reads as broken.
 import Login from '@/pages/Login';
-import LandingV2 from '@/pages/LandingV2';
+import LandingV3 from '@/pages/LandingV3';
 import InfoPage from '@/pages/InfoPage';
 // NOTE: the legacy `Landing` page + its exclusive components were DELETED 2026-07-18. They carried
 // fabricated stats, a pricing block contradicting the invite-only positioning, and the RETIRED-v1
@@ -213,9 +213,9 @@ function AnimatedRoutes() {
       <Suspense fallback={<RouteFallback />}>
       <Routes location={location} key={location.pathname}>
         {/* Public routes — landing page always shown at / */}
-        {/* LandingV2 is the single live landing; /landing-v1 (legacy) redirects here — it
+        {/* LandingV3 (design v5, 2026-11-05) is the single live landing; /landing-v1 (legacy) redirects here — it
             carried fabricated stats + a contradictory pricing block. Roll back via git. */}
-        <Route path="/" element={<PageTransition><LandingV2 /></PageTransition>} />
+        <Route path="/" element={<PageTransition><LandingV3 /></PageTransition>} />
         <Route path="/landing-v1" element={<Navigate to="/" replace />} />
         <Route path="/login" element={<PageTransition><LoginGuard /></PageTransition>} />
         <Route path="/forgot-password" element={<PageTransition><ForgotPassword /></PageTransition>} />

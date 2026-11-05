@@ -6,6 +6,7 @@
    Tokens defined here override anything redefined below in :root. */
 @import './styles/tokens.css';
 @import './styles/typography.css';
+@import './styles/tokens-v5.css';   /* v5 Ledger layer — docs/DESIGN_BRIEF_V5.md */
 
 /* Legacy Apple Liquid Glass — being retired page-by-page through Phase 1+ of
    ~/.claude/plans/we-need-to-highly-streamed-bengio.md. Do NOT add new usages. */

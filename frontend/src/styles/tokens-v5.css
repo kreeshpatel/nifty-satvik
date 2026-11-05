@@ -1,0 +1,114 @@
+/* ================================================================
+   DESIGN TOKENS v5 — "Ledger" (2026-11-05). Spec: docs/DESIGN_BRIEF_V5.md
+   A layer on top of tokens.css: it re-maps the existing variable NAMES to the v5
+   values, so every page moves to the new system at once. New components should use
+   the --l-* names below; the legacy names stay as aliases until each page is re-skinned.
+   `:root:root` outranks the shadcn :root block in index.css without !important.
+   ================================================================ */
+
+:root:root {
+  /* ── v5 primitives ── */
+  --l-ground:   #0A0C10;
+  --l-s1:       #111419;
+  --l-s2:       #171B21;
+  --l-s3:       #1E232B;
+  --l-line:     #20252D;
+  --l-line-2:   #2A303A;
+  --l-ink:      #F3F5F8;
+  --l-ink-2:    #A8B0BC;
+  --l-ink-3:    #78818E;
+  --l-ink-4:    #4B535E;
+  --l-brand:    #3D7BFF;
+  --l-brand-hi: #5B91FF;
+  --l-brand-lo: #2F66E0;
+  --l-brand-a:  rgba(61, 123, 255, 0.12);
+  --l-up:       #1FCB7A;
+  --l-up-a:     rgba(31, 203, 122, 0.12);
+  --l-down:     #FF5A5F;
+  --l-down-a:   rgba(255, 90, 95, 0.12);
+  --l-warn:     #F5A524;
+  --l-warn-a:   rgba(245, 165, 36, 0.12);
+
+  --l-sans: 'Geist Variable', 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --l-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --l-r-sm: 8px;
+  --l-r:    12px;
+  --l-r-lg: 16px;
+  --l-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* ── legacy names → v5 values ── */
+  --brand: var(--l-brand);  --brand-hi: var(--l-brand-hi);  --brand-lo: var(--l-brand-lo);
+  --brand-soft: var(--l-brand-a);  --brand-edge: rgba(61, 123, 255, 0.45);
+  --brand-grad: linear-gradient(135deg, #2F66E0 0%, #3D7BFF 60%, #5B91FF 100%);
+
+  --surface-0: var(--l-ground);
+  --surface-1: var(--l-s1);  --surface-2: var(--l-s2);  --surface-3: var(--l-s3);
+  --surface-modal: var(--l-s1);
+  --surface-solid-0: var(--l-ground);  --surface-solid-1: var(--l-s1);
+  --surface-solid-2: var(--l-s2);      --surface-solid-3: var(--l-s3);
+
+  --edge-1: var(--l-line);  --edge-2: var(--l-line-2);  --edge-3: #3A414D;
+
+  --text-1: var(--l-ink);  --text-2: var(--l-ink-2);  --text-3: var(--l-ink-3);  --text-4: var(--l-ink-4);
+
+  --bull: var(--l-up);    --bull-soft: var(--l-up-a);
+  --bear: var(--l-down);  --bear-soft: var(--l-down-a);
+  --warn: var(--l-warn);  --warn-soft: var(--l-warn-a);
+  --info: #5AB8FF;        --info-soft: rgba(90, 184, 255, 0.12);  --info-edge: rgba(90, 184, 255, 0.4);
+
+  --r-chip: var(--l-r-sm);  --r-card: var(--l-r);  --r-panel: var(--l-r-lg);
+
+  /* Depth is a hairline, not a glow. */
+  --shadow-glass: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-glass-lg: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 8px 24px rgba(0, 0, 0, 0.45);
+  --inset-specular: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  --glow-brand-strong: rgba(61, 123, 255, 0.22);
+  --glow-brand: rgba(61, 123, 255, 0.12);
+  --glow-brand-soft: rgba(61, 123, 255, 0.06);
+  --glow-brand-whisp: rgba(61, 123, 255, 0.03);
+  --glow-violet: transparent;  --glow-violet-soft: transparent;
+  --shadow-glow-sm: var(--shadow-sm);  --shadow-glow-md: var(--shadow-md);
+  --shadow-glow-lg: var(--shadow-glass-lg);  --shadow-glow-xl: var(--shadow-glass-lg);
+  --stage-light-brand: none;  --stage-light-brand-strong: none;
+  --stage-light-bull: none;   --stage-light-info: none;
+
+  --page-bg: var(--l-ground);
+
+  --font-sans: var(--l-sans);  --font-display: var(--l-sans);
+  /* Figures use the sans with tabular numerals (aligned, but not 'code'). */
+  --font-mono: var(--l-sans);
+
+  /* shadcn / Tailwind HSL channels */
+  --background: 220 23% 5%;   --foreground: 216 27% 96%;
+  --card: 220 19% 8%;         --card-foreground: 216 27% 96%;
+  --popover: 220 19% 8%;      --popover-foreground: 216 27% 96%;
+  --primary: 221 100% 62%;    --primary-foreground: 0 0% 100%;
+  --secondary: 217 16% 11%;   --secondary-foreground: 216 27% 96%;
+  --muted: 217 17% 14%;       --muted-foreground: 215 12% 70%;
+  --accent: 221 100% 62%;     --accent-foreground: 0 0% 100%;
+  --destructive: 358 100% 68%; --success: 152 74% 46%; --warning: 37 91% 55%;
+  --border: 217 17% 15%;      --input: 217 17% 15%;   --ring: 221 100% 62%;
+  --radius: 0.75rem;
+}
+
+/* Glass is retired: surfaces are solid. */
+:root:root .glass, :root:root [class*="glass-card"] { -webkit-backdrop-filter: none; backdrop-filter: none; }
+
+html { background: var(--l-ground); }
+body {
+  background: var(--l-ground);
+  color: var(--l-ink);
+  font-family: var(--l-sans);
+  font-feature-settings: 'ss01', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+::selection { background: rgba(61, 123, 255, 0.35); color: #fff; }
+
+/* Every figure is mono + tabular (brief §4.1). */
+.tnum, .tabular-nums, .font-mono, [data-num] { font-family: var(--l-sans); font-variant-numeric: tabular-nums; font-feature-settings: 'tnum', 'ss01'; }
+
+/* Scrollbars: thin, quiet. */
+* { scrollbar-width: thin; scrollbar-color: #2A303A transparent; }
