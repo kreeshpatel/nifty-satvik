@@ -24,6 +24,7 @@
  * "guarantee/will/sure" language. The exit_plan `do` strings are printed verbatim.
  */
 
+import { LineChart } from 'lucide-react';
 import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '@/context/AuthContext';
@@ -829,7 +830,7 @@ export default function SignalsV3() {
       <header className="rs-head">
         <div>
           <div className="ns-kicker">RESEARCH · THE MODEL’S BOOK</div>
-          <h1 className="ns-title">Research</h1>
+          <div className="pg-head"><span className="pf-ic cool" aria-hidden="true"><LineChart /></span><h1 className="ns-title">Research</h1></div>
           <p className="ns-sub">
             Why each name is on the book, and what the plan expects of it. Only <b>Grade A</b> —
             the week’s top relative-strength leaders — is traded. What to actually do today is on{' '}
@@ -955,7 +956,7 @@ export default function SignalsV3() {
       <footer className="ns-foot">
         <div className="ns-disclaimer">{DISCLAIMER}</div>
         <div className="ns-disclaimer" style={{ marginTop: 'var(--space-2)' }}>
-          SEBI Research Analyst · Model-generated signals · Research output only · NSE data delayed 15 min · v2026.08
+          Not SEBI-registered · Model-generated research output · Prices are daily closes
         </div>
       </footer>
 

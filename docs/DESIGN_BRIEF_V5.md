@@ -152,3 +152,34 @@ with the website and dashboard redone together.
 verbatim, no invented numbers (the phone shows labelled sample content), strict CSP, no new
 running cost, the mobile density rules (§4.9), `prefers-reduced-motion` stops all floating
 motion.
+
+## 9. Revision v6.1 — density and the remaining pages (owner, 2026-11-05)
+
+**Feedback.** "Good — keep going on the detail (spacing, formatting, icons, palette) and make it
+a little denser. Not Bloomberg; just a step denser than now."
+
+**Density, as numbers** (app pages; the marketing site tightens by the same ratio):
+
+| Token | v6 | v6.1 |
+|---|---|---|
+| Card padding | 20–24px | 16px (dense rows 12px) |
+| Grid gap | 16px | 12px |
+| Section gap | 36px | 24px |
+| Body / row text | 14–15px | 13.5px |
+| Card radius | 18px | 16px |
+| Table row height | ~48px | 40px |
+| Page title | 34px | 26px, with a one-line description and an icon tile |
+
+**One page anatomy for every app page.** Page header (gradient icon tile · title · one-line
+description · actions on the right) → a summary row of compact stat cards where the page has
+numbers → content in layered cards → disclaimer. Tables: sticky uppercase-free header, 40px rows,
+right-aligned tabular figures, hover row, no vertical rules. Tabs and segmented controls: one
+pill style everywhere. Status always as a chip with a dot.
+
+**Icon system.** Lucide at 16px (inline) / 18px (tiles), 1.75 stroke; a tile's hue encodes its
+meaning: blue-violet = product/navigation, cyan = market data, green = gains/targets/success,
+amber = caution/time, coral = loss/stop. No emoji, no mixed icon sets.
+
+**Accuracy fix found on the way.** Three more pages (the shared PageShell, Research, Portfolio)
+carried the "SEBI Research Analyst … NSE data delayed 15 min" footer; all now read "Not
+SEBI-registered · Model-generated research output · Prices are daily closes".

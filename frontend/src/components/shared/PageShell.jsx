@@ -130,7 +130,7 @@ export function PageShell({
                   {DISCLAIMER}
                 </div>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-4)', marginTop: 6 }}>
-                  SEBI Research Analyst · Model-generated signals · Research output only · NSE data delayed 15 min · v2026.06
+                  Not SEBI-registered · Model-generated research output · Prices are daily closes
                 </div>
               </div>
             )}

@@ -528,3 +528,27 @@
   .l3-mcta .l3-btn-ghost { border-radius: 12px; }
 }
 .l3 .pf-ic { color: #fff; }
+
+/* ═══ v6.1 DENSITY (§9) ═══ */
+@media (min-width: 641px) {
+  .l3-section { padding-top: 88px; }
+  .l3-head { margin-bottom: 40px; }
+  .l3-h2 { font-size: clamp(28px, 3.3vw, 42px); }
+  .l3-sub { font-size: 16px; }
+  .l3-hero { padding: 48px 0 64px; }
+  .l3-strip-grid { gap: 12px; }
+  .l3-strip-grid > div, .l3-strip-grid > div:first-child { padding: 20px; }
+  .l3-stat { font-size: 34px; }
+  .l3-steps, .l3-grid3, .l3-grid4 { gap: 12px; }
+  .l3-steps li { padding: 20px; }
+  .l3-steps p, .l3-feature p, .l3-parts dd, .l3-isnt p { font-size: 14px; }
+  .l3-feature { padding: 20px; }
+  .l3-feature .pf-ic { width: 40px; height: 40px; margin-bottom: 14px; }
+  .l3-parts > div { padding: 16px 18px; margin-bottom: 10px; }
+  .l3-panel, .l3-isnt .l3-panel { padding: 22px; }
+  .l3-isnt li { padding: 14px 0; }
+  .l3-faq { gap: 8px; }
+  .l3-faq-item button { min-height: 56px; font-size: 16px; }
+  .l3-final { margin-top: 96px; }
+  .l3-final-in { padding: 56px 32px; }
+}

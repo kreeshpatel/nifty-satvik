@@ -24,6 +24,7 @@
  * breach midweek. So the header states the next scan AND that a midweek trigger is acted on at the
  * next open, matching the engine (weekly-close decision, next-open execution).
  */
+import { ListChecks } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -249,7 +250,7 @@ export default function ThisWeek() {
       <header className="tw-head">
         <div>
           <div className="ns-kicker">THIS WEEK · WHAT TO DO</div>
-          <h1 className="ns-title">This week</h1>
+          <div className="pg-head"><span className="pf-ic" aria-hidden="true"><ListChecks /></span><h1 className="ns-title">This week</h1></div>
           <p className="ns-sub">
             Everything the model expects of you, in one place. Recording a fill clears its line.
           </p>
@@ -425,7 +426,7 @@ export default function ThisWeek() {
                   </div>
                 </div>
                 <div className="ns-row-r">
-                  <span className="ns-num">
+                  <span className={`ns-num${!row?.status && !capital ? ' ns-num--hint' : ''}`}>
                     {row?.status === SIZER_STATUS.FUNDED ? `${row.qty} sh · ${money0(row.cost)}`
                       : row?.status === SIZER_STATUS.OUT_OF_RANGE ? 'above buy range'
                       : row?.status === SIZER_STATUS.NOT_FUNDED ? 'no cash left'

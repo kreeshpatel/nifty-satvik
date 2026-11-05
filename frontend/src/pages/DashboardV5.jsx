@@ -127,10 +127,9 @@ function BuyCard({ s, onOpen }) {
     <button type="button" className={`d5-card d5-stripe-${low ? 'warn' : 'brand'}`} onClick={() => onOpen(s)}>
       <div className="d5-card-top">
         <Tile sym={sym(s)} />
-        <div className="d5-card-id"><span className="d5-sym">{sym(s)}</span><span className="d5-meta">{s.sector || 'NSE'}</span></div>
+        <div className="d5-card-id"><span className="d5-sym">{sym(s)}</span><span className="d5-meta">{low ? <span className="warn">Low conviction</span> : (s.sector || 'NSE')}</span></div>
         <span className="d5-chips">
-          <span className="d5-chip d5-chip-up" title="Grade">{(s.grade || 'A')[0]}</span>
-          {low && <span className="d5-chip d5-chip-warn">Low conviction</span>}
+          <span className="d5-chip d5-chip-up" title="Grade">Grade {(s.grade || 'A')[0]}</span>
         </span>
       </div>
       <div className="d5-buy-mid">

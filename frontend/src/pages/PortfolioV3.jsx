@@ -23,6 +23,7 @@
  * DISCLAIMER footer sourced from @/lib/signalCopy.
  */
 
+import { Briefcase } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
 import { useOverview } from '@/hooks/queries/useOverview';
 import { useNavHistory } from '@/hooks/queries/useNavHistory';
@@ -1593,7 +1594,7 @@ export default function PortfolioV3() {
         <div className="pv3-row-head">
           <div>
             <div className="pv3-t-ui-micro">PORTFOLIO · MONITORING</div>
-            <h2 className="pv3-row-title">Portfolio</h2>
+            <div className="pg-head"><span className="pf-ic up" aria-hidden="true"><Briefcase /></span><h2 className="pv3-row-title">Portfolio</h2></div>
             <div className="pv3-t-ui-footnote">
               {isPaper
                 ? "The model's paper book · a labeled reference, not your return"
@@ -1719,7 +1720,7 @@ export default function PortfolioV3() {
       <footer className="pv3-foot">
         <div className="pv3-disclaimer">{DISCLAIMER}</div>
         <div className="pv3-foot-meta">
-          SEBI Research Analyst · Model-generated signals · Research output only · v2026.06
+          Not SEBI-registered · Model-generated research output · Prices are daily closes
         </div>
       </footer>
     </div>

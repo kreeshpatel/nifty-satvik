@@ -219,3 +219,33 @@ td.d5-col-rail { padding-left: 24px; }
   .d5-big { font-size: 21px; }
 }
 .d5 .pf-ic { color: #fff; }
+
+/* ═══ v6.1 DENSITY (§9) ═══ */
+@media (min-width: 641px) {
+  .d5 { padding: 22px 24px 56px; }
+  .d5-hero { margin-bottom: 16px; }
+  .d5-hero h1 { font-size: 28px; }
+  .d5-kpis { gap: 12px; margin-bottom: 24px; }
+  .d5-kpi-card { padding: 16px; gap: 12px; }
+  .d5-kpi-card .pf-ic { width: 38px; height: 38px; border-radius: 11px; }
+  .d5-kpi { font-size: 24px; }
+  .d5-kpi-hero { padding: 16px 18px; }
+  .d5-kpi-hero-v { font-size: 32px; }
+  .d5-grid { gap: 20px; grid-template-columns: minmax(0, 1fr) 320px; }
+  .d5-main { gap: 24px; }
+  .d5-sec-head { margin-bottom: 10px; }
+  .d5-sec-head h2 { font-size: 17px; }
+  .d5-cards { gap: 12px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+  .d5-card { padding: 16px 16px 14px 18px; gap: 12px; }
+  .d5-tile { width: 34px; height: 34px; border-radius: 10px; }
+  .d5-sym { font-size: 15px; }
+  .d5-big { font-size: 22px; }
+  .d5-kv dd { font-size: 13px; }
+  .d5-table th, .d5-table td { padding: 10px 14px; }
+  .d5-rail { gap: 12px; }
+  .d5-panel { padding: 16px; }
+  .d5-quick a { height: 40px; }
+}
+@media (min-width: 641px) { .d5-cards { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); } }
+.d5-card-id { flex: 1 1 auto; }
+.d5-chips { flex-wrap: wrap; justify-content: flex-end; max-width: 55%; }

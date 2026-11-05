@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, History } from 'lucide-react';
 import useSignalHistory from '@/hooks/queries/useSignalHistory';
 import { fmtPrice } from '@/lib/format';
 import '@/styles/research-insights.css';
@@ -100,7 +100,7 @@ export default function RecommendationHistory() {
       <div className="ri-head">
         <div>
           <Link to="/premove" className="rh-back"><ArrowLeft size={14} /> Research</Link>
-          <h1 className="ri-title">Recommendation History</h1>
+          <div className="pg-head"><span className="pf-ic warm" aria-hidden="true"><History /></span><h1 className="ri-title">Recommendation History</h1></div>
           <p className="ri-sub">
             Every weekly call the model has posted, and how it performed from the entry-week Monday
             open — whether or not it was bought. Winners and losers both, tracked to the exit.

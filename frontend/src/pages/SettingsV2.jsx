@@ -11,7 +11,7 @@
  *   6. Danger zone     — bear tone, sign-out as a text link
  */
 import React, { useContext, useEffect, useState } from 'react';
-import { LogOut, User as UserIcon, Plug, Bell, Palette, ShieldCheck, Loader2 } from 'lucide-react';
+import { LogOut, User as UserIcon, Plug, Bell, Palette, ShieldCheck, Loader2, Settings2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { QRCodeSVG } from 'qrcode.react';
 import { PageShell } from '@/components/shared/PageShell';
@@ -44,7 +44,7 @@ export default function SettingsV2() {
   return (
     <PageShell title="Settings" heroTone={null}>
       <div style={{ paddingTop: 24, paddingBottom: 24 }}>
-        <h1 className="t-title-1" style={{ margin: 0, fontSize: 28, fontWeight: 600, color: 'var(--text-1)' }}>Settings</h1>
+        <div className="pg-head"><span className="pf-ic" aria-hidden="true"><Settings2 /></span><h1 className="t-title-1" style={{ margin: 0, color: 'var(--text-1)' }}>Settings</h1></div>
       </div>
 
       {/* 2-Col Layout: 200px sidebar | flex-1 form — stacks on mobile */}
