@@ -10,7 +10,7 @@
  */
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowUpRight, AlertTriangle, Clock, LineChart, TrendingUp, CircleDot, Inbox } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, AlertTriangle, Clock, LineChart, TrendingUp, CircleDot, Inbox, Activity, Gauge, Sparkles } from 'lucide-react';
 import { useSignals } from '@/hooks/queries/useSignals';
 import { useOverview } from '@/hooks/queries/useOverview';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
@@ -219,25 +219,40 @@ export default function DashboardV5() {
       )}
 
       <section className="d5-kpis" aria-label="Market and book summary">
-        <div>
-          <p className="d5-lbl">Market regime</p>
-          <p className={`d5-kpi ${regimeTone}`}>{status ? status.charAt(0) + status.slice(1).toLowerCase() : '—'}</p>
-          <p className="d5-sub" data-num>Strength {n(regime.strength) ?? '—'}/100</p>
+        <div className={`d5-kpi-hero d5-kpi-${regimeTone}`}>
+          <div className="d5-kpi-hero-top">
+            <p className="d5-lbl">Market regime</p>
+            <span className="d5-kpi-badge" data-num>Strength {n(regime.strength) ?? '—'}/100</span>
+          </div>
+          <p className="d5-kpi-hero-v">{status ? status.charAt(0) + status.slice(1).toLowerCase() : '—'}</p>
+          <div className="d5-meter" aria-hidden><span style={{ width: `${Math.max(0, Math.min(100, n(regime.strength) ?? 0))}%` }} /></div>
+          <svg viewBox="0 0 300 60" className="d5-kpi-wave" aria-hidden preserveAspectRatio="none">
+            <path d="M0 50 C40 46 60 30 100 34 S160 18 200 22 S260 6 300 10 L300 60 L0 60Z" />
+          </svg>
         </div>
-        <div>
-          <p className="d5-lbl">Breadth</p>
-          <p className={`d5-kpi ${tone(regime.breadth)}`} data-num>{n(regime.breadth) == null ? '—' : <>{arrow(regime.breadth)}{n(regime.breadth) > 0 ? '+' : ''}{String(regime.breadth).replace('-', MINUS)}</>}</p>
-          <p className="d5-sub">Advances − declines</p>
+        <div className="d5-kpi-card">
+          <span className="pf-ic cool"><Activity size={19} aria-hidden /></span>
+          <div>
+            <p className="d5-lbl">Breadth</p>
+            <p className={`d5-kpi ${tone(regime.breadth)}`} data-num>{n(regime.breadth) == null ? '—' : <>{arrow(regime.breadth)}{n(regime.breadth) > 0 ? '+' : ''}{String(regime.breadth).replace('-', MINUS)}</>}</p>
+            <p className="d5-sub">Advances − declines</p>
+          </div>
         </div>
-        <div>
-          <p className="d5-lbl">India VIX</p>
-          <p className="d5-kpi" data-num>{n(regime.vix) ? n(regime.vix).toFixed(1) : '—'}</p>
-          <p className="d5-sub">{n(regime.vix) ? (regime.vix < 15 ? 'Calm' : regime.vix < 22 ? 'Normal' : 'Elevated') : 'Unavailable'}</p>
+        <div className="d5-kpi-card">
+          <span className="pf-ic warm"><Gauge size={19} aria-hidden /></span>
+          <div>
+            <p className="d5-lbl">India VIX</p>
+            <p className="d5-kpi" data-num>{n(regime.vix) ? n(regime.vix).toFixed(1) : '—'}</p>
+            <p className="d5-sub">{n(regime.vix) ? (regime.vix < 15 ? 'Calm' : regime.vix < 22 ? 'Normal' : 'Elevated') : 'Unavailable'}</p>
+          </div>
         </div>
-        <div>
-          <p className="d5-lbl">This week</p>
-          <p className="d5-kpi" data-num>{sq.isLoading ? '—' : buys.length}<span className="d5-kpi-unit">fresh</span> {sq.isLoading ? '' : sells.length}<span className="d5-kpi-unit">to act</span></p>
-          <p className="d5-sub" data-num>{holds.length + sells.length} in the model book</p>
+        <div className="d5-kpi-card">
+          <span className="pf-ic up"><Sparkles size={19} aria-hidden /></span>
+          <div>
+            <p className="d5-lbl">This week</p>
+            <p className="d5-kpi" data-num>{sq.isLoading ? '—' : buys.length}<span className="d5-kpi-unit">fresh</span>{sq.isLoading ? '' : sells.length}<span className="d5-kpi-unit">to act</span></p>
+            <p className="d5-sub" data-num>{holds.length + sells.length} in the model book</p>
+          </div>
         </div>
       </section>
 

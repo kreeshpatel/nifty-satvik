@@ -166,3 +166,56 @@ td.d5-col-rail { padding-left: 24px; }
   .d5-disc { margin-top: 28px; font-size: 11.5px; }
 }
 .d5-main { grid-template-columns: minmax(0, 1fr); } .d5-sec { min-width: 0; }
+
+/* ═══ v6 PREMIUM FINTECH (2026-11-05) ═══ */
+.d5-hero h1 { font-size: 34px; font-weight: 780; letter-spacing: -0.04em; }
+.d5-fresh { background: rgba(255,255,255,.04); border-color: var(--l-line-2); }
+.d5-kpis { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 16px; border: 0; background: none; border-radius: 0; overflow: visible; margin-bottom: 32px; }
+.d5-kpis > div, .d5-kpis > div:first-child { border-left: 0; }
+.d5-kpi-card { display: flex; gap: 14px; align-items: flex-start; padding: 20px; border-radius: var(--l-r); background: var(--l-card-bg); border: 1px solid var(--l-line) !important; box-shadow: var(--l-card-shadow); }
+.d5-kpi { font-size: 28px; font-weight: 760; letter-spacing: -0.04em; }
+.d5-kpi-hero { position: relative; overflow: hidden; padding: 20px 22px; border-radius: var(--l-r); color: #fff;
+  background: var(--l-grad); box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 22px 44px -20px rgba(91,92,255,.85); }
+.d5-kpi-hero.d5-kpi-up { background: linear-gradient(135deg, #3D63FF 0%, #5B5CFF 45%, #14B8A6 130%); }
+.d5-kpi-hero.d5-kpi-down { background: linear-gradient(135deg, #3D3F8F 0%, #8B3A6B 60%, #E0563F 130%); }
+.d5-kpi-hero .d5-lbl { color: rgba(255,255,255,.8); }
+.d5-kpi-hero-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; position: relative; z-index: 1; }
+.d5-kpi-badge { font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: rgba(255,255,255,.18); white-space: nowrap; }
+.d5-kpi-hero-v { font-size: 38px; font-weight: 800; letter-spacing: -0.045em; line-height: 1.1; margin-top: 6px; position: relative; z-index: 1; }
+.d5-meter { height: 6px; border-radius: 99px; background: rgba(255,255,255,.2); margin-top: 12px; overflow: hidden; position: relative; z-index: 1; }
+.d5-meter span { display: block; height: 100%; border-radius: inherit; background: #fff; }
+.d5-kpi-wave { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 60px; fill: rgba(255,255,255,.10); }
+.d5-sec-head h2 { font-size: 20px; font-weight: 740; letter-spacing: -0.03em; }
+.d5-count { background: var(--l-grad); color: #fff; height: 22px; border-radius: 8px; }
+.d5-card { padding: 20px 20px 18px 22px; gap: 16px; border-radius: var(--l-r); background: var(--l-card-bg); border-color: var(--l-line); box-shadow: var(--l-card-shadow); transition: transform .18s, border-color .18s; }
+.d5-card:hover { background: var(--l-card-bg); border-color: var(--l-line-2); transform: translateY(-2px); }
+.d5-card::before { width: 4px; top: 16px; bottom: 16px; border-radius: 0 4px 4px 0; }
+.d5-tile { width: 38px; height: 38px; border-radius: 12px; font-size: 12px; font-weight: 750; color: #fff; background: linear-gradient(135deg, #2A3366, #1A2147); box-shadow: inset 0 1px 0 rgba(255,255,255,.12); }
+.d5-sym { font-size: 16px; font-weight: 720; }
+.d5-big { font-size: 26px; font-weight: 780; }
+.d5-rr { height: 7px; } .d5-rr-risk, .d5-rr-rew { opacity: .8; }
+.d5-chip { height: 24px; border-radius: 8px; font-weight: 650; }
+.d5-table-wrap, .d5-panel { border-radius: var(--l-r); background: var(--l-card-bg); border-color: var(--l-line); box-shadow: var(--l-card-shadow); }
+.d5-table thead th { background: rgba(255,255,255,.03); }
+.d5-panel { padding: 20px; }
+.d5-panel-head h2 { font-size: 15px; font-weight: 700; }
+.d5-quick a { height: 46px; font-weight: 550; }
+.d5-quick a svg { color: var(--l-brand-hi); }
+.d5-empty { border-style: solid; background: var(--l-card-bg); border-color: var(--l-line); border-radius: var(--l-r); }
+.d5-alert { border-radius: var(--l-r); }
+@media (max-width: 1180px) { .d5-kpis { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 640px) {
+  .d5-hero h1 { font-size: 24px; }
+  .d5-kpis { grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .d5-kpi-hero { grid-column: 1 / -1; padding: 16px; }
+  .d5-kpi-hero-v { font-size: 30px; }
+  .d5-kpis > div:nth-child(n+3) { border-top: 1px solid var(--l-line); }
+  .d5-kpi-card { padding: 12px; gap: 10px; flex-direction: column; }
+  .d5-kpi-card .pf-ic { width: 32px; height: 32px; border-radius: 10px; }
+  .d5-kpi-card:last-child { grid-column: 1 / -1; flex-direction: row; align-items: center; }
+  .d5-kpi { font-size: 20px; }
+  .d5-sec-head h2 { font-size: 17px; }
+  .d5-card { padding: 16px 16px 14px 18px; gap: 12px; }
+  .d5-big { font-size: 21px; }
+}
+.d5 .pf-ic { color: #fff; }

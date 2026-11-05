@@ -115,3 +115,72 @@ body {
 
 /* App top bar tabs (inline-styled in TopBar.jsx): hover needs !important to beat the inline style. */
 .nq-tab:not([aria-current="page"]):hover { background: var(--l-s1) !important; color: var(--l-ink) !important; }
+
+/* ================================================================
+   v6 "PREMIUM FINTECH" LAYER (2026-11-05) — docs/DESIGN_BRIEF_V5.md §8
+   Later in the file at equal specificity, so these win over the v5 values above.
+   ================================================================ */
+:root:root {
+  --l-ground:  #070B1A;
+  --l-s1:      #0E1428;
+  --l-s2:      #141B34;
+  --l-s3:      #1C2442;
+  --l-line:    rgba(148, 163, 255, 0.10);
+  --l-line-2:  rgba(148, 163, 255, 0.18);
+  --l-ink:     #F5F7FF;
+  --l-ink-2:   #B4BCD8;
+  --l-ink-3:   #7F89AB;
+  --l-brand:   #4C6FFF;
+  --l-brand-hi:#7B93FF;
+  --l-violet:  #8B5CFF;
+  --l-cyan:    #22D3EE;
+  --l-grad:    linear-gradient(135deg, #3D63FF 0%, #7B5CFF 55%, #B05CFF 100%);
+  --l-grad-cool: linear-gradient(135deg, #2563FF 0%, #22D3EE 100%);
+  --l-grad-up: linear-gradient(135deg, #0EA58A 0%, #20C4A0 60%, #5EE6C4 100%);
+  --l-mesh:
+    radial-gradient(60% 50% at 12% -5%, rgba(61, 99, 255, .30), transparent 70%),
+    radial-gradient(45% 40% at 92% 8%, rgba(34, 211, 238, .14), transparent 70%),
+    radial-gradient(55% 45% at 55% 105%, rgba(139, 92, 255, .18), transparent 70%);
+  --l-card-bg: linear-gradient(180deg, rgba(255, 255, 255, .055) 0%, rgba(255, 255, 255, .015) 100%), #0E1428;
+  --l-card-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), 0 2px 6px rgba(0, 0, 0, .35), 0 24px 48px -24px rgba(0, 0, 0, .75);
+  --l-r-sm: 10px; --l-r: 18px; --l-r-lg: 24px;
+
+  --surface-1: var(--l-s1); --surface-2: var(--l-s2); --surface-3: var(--l-s3);
+  --edge-1: var(--l-line); --edge-2: var(--l-line-2);
+  --text-1: var(--l-ink); --text-2: var(--l-ink-2); --text-3: var(--l-ink-3);
+  --brand: var(--l-brand); --brand-hi: var(--l-brand-hi);
+  --brand-grad: var(--l-grad);
+  --shadow-glass: var(--l-card-shadow); --shadow-glass-lg: var(--l-card-shadow);
+  --r-card: var(--l-r); --r-panel: var(--l-r-lg); --r-chip: var(--l-r-sm);
+  --background: 229 58% 6%; --card: 228 48% 11%; --popover: 228 48% 11%;
+  --secondary: 228 44% 14%; --muted: 228 40% 18%; --border: 230 40% 18%; --input: 230 40% 18%;
+  --primary: 228 100% 65%; --ring: 228 100% 65%; --radius: 1rem;
+}
+html, body { background: var(--l-ground); }
+body { background-image: var(--l-mesh); background-attachment: fixed; background-repeat: no-repeat; }
+
+/* ── shared premium utilities ── */
+.pf-card { background: var(--l-card-bg); border: 1px solid var(--l-line); border-radius: var(--l-r); box-shadow: var(--l-card-shadow); }
+.pf-ring { position: relative; }
+.pf-ring::after { /* gradient hairline border */
+  content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: linear-gradient(140deg, rgba(123, 147, 255, .7), rgba(139, 92, 255, .25) 40%, rgba(34, 211, 238, .45));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+}
+.pf-ic { width: 44px; height: 44px; border-radius: 13px; display: inline-grid; place-items: center; color: #fff; flex-shrink: 0;
+  background: var(--l-grad); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 8px 18px -8px rgba(76, 111, 255, .8); }
+.pf-ic.cool { background: var(--l-grad-cool); box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 8px 18px -8px rgba(34, 211, 238, .6); }
+.pf-ic.up { background: var(--l-grad-up); box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 8px 18px -8px rgba(32, 196, 160, .6); }
+.pf-ic.warm { background: linear-gradient(135deg, #F59E0B, #F97316); box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 8px 18px -8px rgba(249, 115, 22, .6); }
+.pf-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 22px; border-radius: 14px;
+  font-weight: 650; font-size: 15px; color: #fff !important; background: var(--l-grad); border: 0; cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 12px 28px -10px rgba(91, 92, 255, .85); transition: transform .15s, box-shadow .15s, filter .15s; }
+.pf-btn:hover { filter: brightness(1.08); transform: translateY(-1px); box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 16px 34px -10px rgba(91, 92, 255, .95); }
+.pf-btn:active { transform: translateY(0); }
+.pf-btn-2 { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 22px; border-radius: 14px;
+  font-weight: 600; font-size: 15px; color: var(--l-ink); background: rgba(255,255,255,.06); border: 1px solid var(--l-line-2); cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06); transition: background .15s; }
+.pf-btn-2:hover { background: rgba(255,255,255,.1); }
+.pf-grad-text { background: linear-gradient(100deg, #8FA2FF 0%, #B79BFF 45%, #67E3F5 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+@keyframes pf-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@media (prefers-reduced-motion: reduce) { .pf-float { animation: none !important; } }

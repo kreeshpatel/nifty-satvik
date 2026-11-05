@@ -8,7 +8,7 @@
  */
 import { useEffect, useMemo, useState, useId } from 'react';
 import { ArrowRight, ArrowUpRight, Check, Minus, Plus, ShieldCheck, Lock, LineChart,
-  Scale, FlaskConical, Layers, Eye, Gauge, CircleSlash, UserCheck, Users, DoorOpen } from 'lucide-react';
+  Scale, FlaskConical, Layers, Eye, Gauge, CircleSlash, UserCheck, Users, DoorOpen, TrendingUp } from 'lucide-react';
 import RequestAccessModal from '@/components/landing/RequestAccessModal';
 import BrandMark from '@/components/brand/BrandMark';
 import { DISCLAIMER } from '@/lib/signalCopy';
@@ -224,6 +224,45 @@ function StepArt({ i }) {
   );
 }
 
+
+/* Hero product shot — a CSS-built phone running a sample Nifty Satvik screen. Sample content
+   only (labelled on screen); no live figures are implied. */
+function PhoneMock() {
+  const rows = [['MCX', 'A', '+27.6%'], ['SYRMA', 'A', '+26.6%'], ['LAURUSLABS', 'A', '+18.2%']];
+  return (
+    <div className="pf-phone-wrap" aria-hidden>
+      <div className="pf-phone">
+        <div className="pf-notch" />
+        <div className="pf-screen">
+          <div className="pf-s-top"><BrandMark size={20} /><span>Command center</span><i className="pf-s-av" /></div>
+          <div className="pf-s-hero">
+            <span className="pf-s-lbl">Market regime</span>
+            <span className="pf-s-big">Bullish</span>
+            <span className="pf-s-pill">▲ Breadth +41</span>
+            <svg viewBox="0 0 220 60" className="pf-s-spark"><defs><linearGradient id="pfsg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="#fff" stopOpacity=".45" /><stop offset="1" stopColor="#fff" stopOpacity="0" /></linearGradient></defs>
+              <path d="M0 48 L20 44 L40 46 L60 36 L80 38 L100 28 L120 31 L140 20 L160 24 L180 12 L200 15 L220 6 L220 60 L0 60Z" fill="url(#pfsg)" />
+              <path d="M0 48 L20 44 L40 46 L60 36 L80 38 L100 28 L120 31 L140 20 L160 24 L180 12 L200 15 L220 6" fill="none" stroke="#fff" strokeWidth="2" strokeLinejoin="round" /></svg>
+          </div>
+          <div className="pf-s-sec"><span>Fresh buys</span><b>3</b></div>
+          {rows.map(([t, g, u]) => (
+            <div key={t} className="pf-s-row"><span className="pf-s-tile">{t.slice(0, 2)}</span><span className="pf-s-t">{t}<small>Grade {g}</small></span><span className="pf-s-u">▲ {u}</span></div>
+          ))}
+          <div className="pf-s-cta">View trade plan</div>
+          <p className="pf-s-note">Sample screen</p>
+        </div>
+      </div>
+      <div className="pf-float pf-fl-a pf-card pf-ring">
+        <span className="pf-ic up"><TrendingUp size={18} /></span>
+        <div><p className="pf-fl-l">Target reached</p><p className="pf-fl-v">Trim 40% · +2R</p></div>
+      </div>
+      <div className="pf-float pf-fl-b pf-card pf-ring">
+        <span className="pf-ic"><ShieldCheck size={18} /></span>
+        <div><p className="pf-fl-l">Every call ships with</p><p className="pf-fl-v">Entry · Stop · Target</p></div>
+      </div>
+    </div>
+  );
+}
+
 /* ── Pieces ───────────────────────────────────────────────────────────── */
 
 function Section({ id, eyebrow, title, sub, children, className = '' }) {
@@ -382,17 +421,17 @@ export default function LandingV3() {
           <div className="l3-wrap l3-hero-grid">
             <div className="l3-hero-copy">
               <p className="l3-pill"><span className="l3-dot-live" aria-hidden />Invite-only · Nifty 500 research</p>
-              <h1 className="l3-h1">Trade the plan.<br /><span>Not the noise.</span></h1>
+              <h1 className="l3-h1">Trade the plan.<br /><span className="pf-grad-text">Not the noise.</span></h1>
               <p className="l3-lede">
                 Nifty Satvik re-scores the Nifty 500 every Saturday evening, and re‑prices what you
                 already hold after each weekday close. You get A‑grade signals with an explicit entry,
                 stop and target — and you place the orders yourself.
               </p>
               <div className="l3-cta-row">
-                <button type="button" className="l3-btn l3-btn-primary l3-btn-lg" onClick={ask}>
+                <button type="button" className="pf-btn" onClick={ask}>
                   Request access <ArrowRight size={16} aria-hidden />
                 </button>
-                <button type="button" className="l3-btn l3-btn-ghost l3-btn-lg" onClick={() => go('how')}>How it works</button>
+                <button type="button" className="pf-btn-2" onClick={() => go('how')}>How it works</button>
               </div>
               <ul className="l3-assure">
                 <li><ShieldCheck size={15} aria-hidden />You place every order yourself</li>
@@ -401,20 +440,7 @@ export default function LandingV3() {
               </ul>
             </div>
 
-            <div className="l3-hero-card">
-              <div className="l3-hero-card-head">
-                <div>
-                  <p className="l3-label">Growth of ₹100 · backtest {bt.period}</p>
-                  <p className="l3-big" data-num>
-                    {bt.mult != null ? `${num(bt.mult, 1)}×` : '—'}
-                    {totalReturn != null && <span className="l3-delta up">▲ {signed(totalReturn)}%</span>}
-                  </p>
-                </div>
-                <span className="l3-chip">In-sample · not certified</span>
-              </div>
-              {eq.length > 1 ? <GrowthChart data={eq} /> : <div className="l3-chart-skel" aria-hidden />}
-              <p className="l3-fine">Net of brokerage, STT and slippage, before 20% STCG. Survivorship-corrected universe. Not indicative of future results; no real capital has traded.</p>
-            </div>
+            <PhoneMock />
           </div>
         </section>
 
@@ -479,6 +505,20 @@ export default function LandingV3() {
         {/* RECORD */}
         <Section id="record" eyebrow="Track record" title="The numbers, net of every cost."
           sub={`The weekly-swing book on a survivorship-corrected backtest (${bt.period}), net of brokerage, STT and slippage. In-sample and not yet certified — no real capital has traded.`}>
+            <div className="l3-hero-card l3-growth-card">
+              <div className="l3-hero-card-head">
+                <div>
+                  <p className="l3-label">Growth of ₹100 · backtest {bt.period}</p>
+                  <p className="l3-big" data-num>
+                    {bt.mult != null ? `${num(bt.mult, 1)}×` : '—'}
+                    {totalReturn != null && <span className="l3-delta up">▲ {signed(totalReturn)}%</span>}
+                  </p>
+                </div>
+                <span className="l3-chip">In-sample · not certified</span>
+              </div>
+              {eq.length > 1 ? <GrowthChart data={eq} /> : <div className="l3-chart-skel" aria-hidden />}
+              <p className="l3-fine">Net of brokerage, STT and slippage, before 20% STCG. Survivorship-corrected universe. Not indicative of future results; no real capital has traded.</p>
+            </div>
           <div className="l3-panel">
             <div className="l3-panel-head">
               <h3>Calendar-year returns</h3>
@@ -509,7 +549,7 @@ export default function LandingV3() {
         <Section id="method" eyebrow="Methodology" title="No screenshots. No selective memory.">
           <ul className="l3-grid3">
             {METHOD.map(([Icon, t, d]) => (
-              <li key={t} className="l3-feature"><span className="l3-ic"><Icon size={18} aria-hidden /></span><h3>{t}</h3><p>{d}</p></li>
+              <li key={t} className="l3-feature pf-card"><span className="pf-ic"><Icon size={19} aria-hidden /></span><h3>{t}</h3><p>{d}</p></li>
             ))}
           </ul>
           <div className="l3-roadmap">
@@ -522,7 +562,7 @@ export default function LandingV3() {
           sub="Nifty Satvik isn’t sold. It’s a private research tool shared with a small group of traders — no plans, no tiers, no card.">
           <ul className="l3-grid4">
             {ACCESS.map(([Icon, t, d]) => (
-              <li key={t} className="l3-feature"><span className="l3-ic"><Icon size={18} aria-hidden /></span><h3>{t}</h3><p>{d}</p></li>
+              <li key={t} className="l3-feature pf-card"><span className="pf-ic"><Icon size={19} aria-hidden /></span><h3>{t}</h3><p>{d}</p></li>
             ))}
           </ul>
         </Section>
@@ -533,11 +573,11 @@ export default function LandingV3() {
 
         <section className="l3-final" aria-labelledby="final-h">
           <div className="l3-wrap l3-final-in">
-            <h2 id="final-h" className="l3-h2">Wake up to conviction.<br /><span>Not noise.</span></h2>
+            <h2 id="final-h" className="l3-h2">Wake up to conviction.<br />Not noise.</h2>
             <p className="l3-sub">Invite-only. No subscription, no card — you keep your own broker account.</p>
             <div className="l3-cta-row l3-center-row">
-              <button type="button" className="l3-btn l3-btn-primary l3-btn-lg" onClick={ask}>Request access <ArrowRight size={16} aria-hidden /></button>
-              <button type="button" className="l3-btn l3-btn-ghost l3-btn-lg" onClick={() => go('record')}>See the track record</button>
+              <button type="button" className="pf-btn" onClick={ask}>Request access <ArrowRight size={16} aria-hidden /></button>
+              <button type="button" className="pf-btn-2" onClick={() => go('record')}>See the track record</button>
             </div>
             <p className="l3-fine">Research and decision-support output, not investment advice. Past performance is not indicative of future returns. Subject to market risk.</p>
           </div>

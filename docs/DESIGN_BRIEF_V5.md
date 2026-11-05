@@ -127,3 +127,28 @@ inside a data region. Everything honours `prefers-reduced-motion`.
 5. Next: re-skin This week, Research, Portfolio, Track record, History, Settings, Admin and the
    info/legal pages as fresh v5 components (they already inherit the v5 tokens); forgot/reset
    password onto `auth-v5.css`; a light theme; a social-share image.
+
+---
+
+## 8. Revision v6 — "Premium fintech" (owner feedback, 2026-11-05)
+
+**Feedback.** v5 read as too sparse ("easy looking", "untidy"). The owner chose a premium
+fintech direction (Revolut / Stripe / Groww) over a trading terminal or a corporate bank look,
+with the website and dashboard redone together.
+
+**What changes, and how**
+
+| Element | v5 | v6 |
+|---|---|---|
+| Ground | flat near-black | deep navy-ink with a three-colour mesh glow (blue, violet, cyan) |
+| Cards | flat surface + hairline | layered: gradient surface, top highlight, deep two-stage shadow; featured cards get a gradient border |
+| Type | 600–640 weight | 700–800 display weight, larger hero (up to 88px) |
+| Buttons | white pill | brand-gradient fill with a soft coloured glow; 48px tall |
+| Icons | outline in a grey tile | white glyph on a gradient tile, one hue family per meaning |
+| Product imagery | a chart card | a 3D-tilted phone showing the app, with floating stat and signal cards |
+| Colour blocks | none | full-width gradient band for the closing call to action; gradient stat cards |
+
+**What stays.** Validated up/down colours, arrows and signs on every move, compliance copy
+verbatim, no invented numbers (the phone shows labelled sample content), strict CSP, no new
+running cost, the mobile density rules (§4.9), `prefers-reduced-motion` stops all floating
+motion.
