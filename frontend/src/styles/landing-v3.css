@@ -66,7 +66,7 @@
   font-size: 12px; font-weight: 520; color: var(--l-ink-2); background: var(--l-s2); border: 1px solid var(--l-line);
   white-space: nowrap;
 }
-.l3-chip-up { color: var(--l-up); background: var(--l-up-a); border-color: rgba(31, 203, 122, .25); }
+.l3-chip-up { color: var(--l-up); background: var(--l-up-a); border-color: rgba(32, 196, 160, .25); }
 
 /* ── nav ── */
 .l3-nav { position: sticky; top: 0; z-index: 50; background: rgba(10, 12, 16, 0); border-bottom: 1px solid transparent; transition: background .2s, border-color .2s; }
@@ -98,7 +98,7 @@
   display: inline-flex; align-items: center; gap: 8px; height: 28px; padding: 0 12px; margin-bottom: 24px;
   border: 1px solid var(--l-line-2); border-radius: 999px; font-size: 13px; color: var(--l-ink-2);
 }
-.l3-dot-live { width: 6px; height: 6px; border-radius: 50%; background: var(--l-up); box-shadow: 0 0 0 3px rgba(31, 203, 122, .18); }
+.l3-dot-live { width: 6px; height: 6px; border-radius: 50%; background: var(--l-up); box-shadow: 0 0 0 3px rgba(32, 196, 160, .18); }
 .l3-cta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
 .l3-center-row { justify-content: center; }
 .l3-assure { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 28px; font-size: 13px; color: var(--l-ink-3); }
@@ -214,7 +214,7 @@
 .l3-years .up .l3-years-v { color: var(--l-up); }
 .l3-years .down .l3-years-v { color: var(--l-down); }
 .l3-years-track { display: flex; align-items: flex-end; justify-content: center; border-bottom: 1px solid var(--l-line-2); }
-.l3-years-bar { width: 100%; max-width: 40px; min-height: 3px; border-radius: 6px 6px 0 0; background: var(--l-up); opacity: .85; transition: opacity .15s; }
+.l3-years-bar { width: 100%; max-width: 40px; min-height: 3px; border-radius: 4px 4px 0 0; background: var(--l-up); opacity: .85; transition: opacity .15s; }
 .l3-years .down .l3-years-bar { background: var(--l-down); }
 .l3-years li:hover .l3-years-bar { opacity: 1; }
 .l3-years-y { font-size: 12px; color: var(--l-ink-3); }
@@ -284,4 +284,114 @@
   .l3-hero-card { padding: 18px 16px 16px; border-radius: 16px; }
   .l3-hero-card-head { flex-direction: column-reverse; gap: 10px; }
   .l3-growth svg { height: 200px; }
+}
+
+/* step illustrations */
+.l3-art { display: block; width: 100%; max-width: 260px; height: auto; margin-bottom: 20px; overflow: visible; }
+.l3-art .a-lo { fill: var(--l-line-2); }
+.l3-art .a-hi { fill: var(--l-brand); }
+.l3-art .a-up { fill: var(--l-up); }
+.l3-art .a-down { fill: var(--l-down); opacity: .7; }
+.l3-art .a-upbar { fill: var(--l-up); opacity: .7; }
+.l3-art .a-ink { fill: var(--l-ink); }
+.l3-art .a-axis { stroke: var(--l-line-2); stroke-width: 1; }
+.l3-art .a-gate { fill: var(--l-ink-3); }
+.l3-art .a-pass { fill: none; stroke: var(--l-up); stroke-width: 1.5; stroke-linecap: round; }
+.l3-art .a-stop { fill: none; stroke: var(--l-line-2); stroke-width: 1.5; stroke-dasharray: 2 4; stroke-linecap: round; }
+.l3-art .a-t { fill: var(--l-ink-3); font: 500 11px var(--l-sans); }
+.l3-art .a-tup { fill: var(--l-up); } .l3-art .a-tdown { fill: var(--l-down); }
+.l3-steps li:hover .a-hi { fill: var(--l-brand-hi); }
+
+/* ═══ MOBILE DENSITY PASS (2026-11-05) ═══════════════════════════════════════
+   Real phone users scan, they don't read long stacks. On phones: tighter rhythm,
+   smaller display type, multi-card sections become swipeable rows (with the next
+   card peeking, so the affordance is visible), and the primary CTA lives in a
+   sticky bottom bar inside the thumb zone. Tap targets stay >= 44px. */
+.l3-mcta { display: none; }
+@media (max-width: 640px) {
+  .l3 { font-size: 14.5px; }
+  .l3-nav-in { height: 56px; }
+  .l3-nav-cta .l3-btn-primary { display: none; }           /* moves to the bottom bar */
+  .l3-hero { padding: 20px 0 28px; }
+  .l3-hero-grid { gap: 24px; }
+  .l3-pill { margin-bottom: 14px; height: 26px; font-size: 12px; }
+  .l3-h1 { font-size: 38px; letter-spacing: -0.04em; }
+  .l3-lede { font-size: 15px; margin-top: 14px; line-height: 1.5; }
+  .l3-cta-row { margin-top: 20px; }
+  .l3-cta-row .l3-btn-lg { height: 44px; padding: 0 18px; font-size: 14.5px; flex: 1; }
+  .l3-assure { display: none; }                            /* repeated in Access + FAQ */
+  .l3-big { font-size: 36px; }
+  .l3-growth svg { height: 150px; }
+  .l3-fine { font-size: 11.5px; margin-top: 10px; }
+
+  .l3-strip-grid > div { padding: 14px 12px; }
+  .l3-stat { font-size: 22px; margin: 4px 0 2px; }
+  .l3-cap { font-size: 12px; }
+
+  .l3-section { padding-top: 48px; }
+  .l3-tight { padding-top: 40px; }
+  .l3-head { margin-bottom: 20px; text-align: left; }
+  .l3-eyebrow { margin-bottom: 8px; font-size: 11px; }
+  .l3-h2 { font-size: 26px; letter-spacing: -0.03em; }
+  .l3-sub { font-size: 14.5px; margin: 8px 0 0; }
+  #how .l3-sub, #edge .l3-sub, #access .l3-sub { display: none; }   /* decorative intros; caveat-bearing subs stay */
+
+  /* swipeable rows */
+  .l3-steps, .l3-grid3, .l3-grid4 {
+    display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 10px;
+    margin: 0 calc(var(--gut) * -1); padding: 0 var(--gut) 6px; border: 0; border-radius: 0; background: none;
+    scrollbar-width: none; scroll-padding-left: var(--gut);
+  }
+  .l3-steps::-webkit-scrollbar, .l3-grid3::-webkit-scrollbar, .l3-grid4::-webkit-scrollbar { display: none; }
+  .l3-steps li, .l3-grid3 > li, .l3-grid4 > li {
+    flex: 0 0 80%; scroll-snap-align: start; padding: 16px; border: 1px solid var(--l-line); border-radius: 14px; background: var(--l-s1);
+  }
+  .l3-steps li::before { display: none; }
+  .l3-art { margin-bottom: 12px; max-width: 200px; }
+  .l3-steps h3 { font-size: 17px; margin: 6px 0 4px; }
+  .l3-steps p, .l3-feature p { font-size: 13.5px; line-height: 1.5; }
+  .l3-ic { width: 32px; height: 32px; margin-bottom: 12px; }
+  .l3-feature h3 { font-size: 15px; }
+  .l3-moat, .l3-roadmap { margin-top: 14px; padding: 14px; font-size: 13.5px; gap: 10px; }
+  .l3-moat p { font-size: 13.5px; }
+
+  .l3-split { gap: 16px; }
+  .l3-plan { padding: 16px; }
+  .l3-plan-rows > div { padding: 8px 0; }
+  .l3-parts > div { padding: 12px 0; }
+  .l3-parts dt { font-size: 15px; margin-bottom: 2px; }
+  .l3-parts dd { font-size: 13.5px; }
+
+  .l3-panel { padding: 16px; }
+  .l3-years li { grid-template-rows: auto 64px auto; }
+  .l3-isnt li { padding: 12px 0; gap: 10px; }
+  .l3-isnt h3 { font-size: 15px; }
+  .l3-isnt p { font-size: 13.5px; }
+
+  .l3-faq-item button { min-height: 52px; font-size: 15px; }
+  .l3-faq-a p { padding: 0 0 14px; font-size: 14px; }
+
+  .l3-final { margin-top: 56px; padding: 48px 0; }
+  .l3-foot { padding: 36px 0 96px; }                      /* clear the sticky bar */
+  .l3-foot-grid { gap: 20px; }
+  .l3-foot-base { margin-top: 24px; }
+
+  .l3-mcta {
+    display: flex; gap: 8px; position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    background: rgba(10, 12, 16, .92); border-top: 1px solid var(--l-line);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+    transform: translateY(110%); transition: transform .25s var(--l-ease);
+  }
+  .l3-mcta.show { transform: none; }
+  .l3-mcta .l3-btn { height: 44px; flex: 1; font-size: 14.5px; }
+}
+@media (max-width: 640px) {
+  .l3-parts, .l3-isnt {
+    display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 10px;
+    margin: 0 calc(var(--gut) * -1); padding: 0 var(--gut) 6px; scrollbar-width: none; scroll-padding-left: var(--gut);
+  }
+  .l3-parts::-webkit-scrollbar, .l3-isnt::-webkit-scrollbar { display: none; }
+  .l3-parts > div, .l3-parts > div:last-child { flex: 0 0 72%; scroll-snap-align: start; padding: 14px; border: 1px solid var(--l-line); border-radius: 14px; background: var(--l-s1); }
+  .l3-isnt > .l3-panel { flex: 0 0 88%; scroll-snap-align: start; }
 }

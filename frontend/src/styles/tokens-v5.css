@@ -22,10 +22,10 @@
   --l-brand-hi: #5B91FF;
   --l-brand-lo: #2F66E0;
   --l-brand-a:  rgba(61, 123, 255, 0.12);
-  --l-up:       #1FCB7A;
-  --l-up-a:     rgba(31, 203, 122, 0.12);
-  --l-down:     #FF5A5F;
-  --l-down-a:   rgba(255, 90, 95, 0.12);
+  --l-up:       #20C4A0;
+  --l-up-a:     rgba(32, 196, 160, 0.12);
+  --l-down:     #FF6B4A;
+  --l-down-a:   rgba(255, 107, 74, 0.12);
   --l-warn:     #F5A524;
   --l-warn-a:   rgba(245, 165, 36, 0.12);
 
@@ -112,3 +112,6 @@ body {
 
 /* Scrollbars: thin, quiet. */
 * { scrollbar-width: thin; scrollbar-color: #2A303A transparent; }
+
+/* App top bar tabs (inline-styled in TopBar.jsx): hover needs !important to beat the inline style. */
+.nq-tab:not([aria-current="page"]):hover { background: var(--l-s1) !important; color: var(--l-ink) !important; }

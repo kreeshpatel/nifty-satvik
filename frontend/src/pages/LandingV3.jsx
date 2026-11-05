@@ -10,7 +10,7 @@ import { useEffect, useMemo, useState, useId } from 'react';
 import { ArrowRight, ArrowUpRight, Check, Minus, Plus, ShieldCheck, Lock, LineChart,
   Scale, FlaskConical, Layers, Eye, Gauge, CircleSlash, UserCheck, Users, DoorOpen } from 'lucide-react';
 import RequestAccessModal from '@/components/landing/RequestAccessModal';
-import brandLogo from '@/assets/brand/nifty-satvik-logo.png';
+import BrandMark from '@/components/brand/BrandMark';
 import { DISCLAIMER } from '@/lib/signalCopy';
 import '@/styles/landing-v3.css';
 
@@ -171,6 +171,59 @@ function YearBars({ data }) {
   );
 }
 
+
+/* Step illustrations — schematic only (no data is implied). Deterministic, so SSR/screenshot-stable. */
+const rnd = (i) => { const x = Math.sin(i * 12.9898) * 43758.5453; return x - Math.floor(x); };
+function StepArt({ i }) {
+  const W = 220, H = 96;
+  if (i === 0) { // Scan: the whole universe, every name a dot
+    return (
+      <svg viewBox={`0 0 ${W} ${H}`} className="l3-art" aria-hidden>
+        {Array.from({ length: 84 }).map((_, k) => (
+          <circle key={k} cx={10 + (k % 14) * 15.4} cy={12 + Math.floor(k / 14) * 14.4} r="2.6"
+            className={rnd(k) > 0.86 ? 'a-hi' : 'a-lo'} />
+        ))}
+      </svg>
+    );
+  }
+  if (i === 1) { // Rank: the same names, sorted by score; the top tail lights up
+    const vals = Array.from({ length: 28 }).map((_, k) => 0.12 + 0.86 * Math.pow(1 - k / 28, 1.6) + rnd(k) * 0.05);
+    return (
+      <svg viewBox={`0 0 ${W} ${H}`} className="l3-art" aria-hidden>
+        {vals.map((v, k) => (
+          <rect key={k} x={6 + k * 7.6} y={H - 8 - v * 74} width="5" height={v * 74} rx="1.5" className={k < 5 ? 'a-hi' : 'a-lo'} />
+        ))}
+        <line x1="4" x2={W - 4} y1={H - 7.5} y2={H - 7.5} className="a-axis" />
+      </svg>
+    );
+  }
+  if (i === 2) { // Screen: a liquidity/solvency gate only a couple pass
+    return (
+      <svg viewBox={`0 0 ${W} ${H}`} className="l3-art" aria-hidden>
+        {Array.from({ length: 5 }).map((_, k) => (
+          <circle key={k} cx="22" cy={16 + k * 16} r="3" className="a-hi" />
+        ))}
+        <rect x="96" y="6" width="3" height="84" rx="1.5" className="a-gate" />
+        {[16, 32, 48, 64, 80].map((y, k) => (
+          <path key={y} d={k === 1 || k === 3 ? `M28 ${y} C70 ${y} 80 48 100 48 L196 ${y === 32 ? 38 : 58}` : `M28 ${y} L88 ${y}`}
+            className={k === 1 || k === 3 ? 'a-pass' : 'a-stop'} />
+        ))}
+        <circle cx="200" cy="38" r="4" className="a-up" /><circle cx="200" cy="58" r="4" className="a-up" />
+      </svg>
+    );
+  }
+  return ( // Risk-size: stop · entry · target, drawn to scale
+    <svg viewBox={`0 0 ${W} ${H}`} className="l3-art" aria-hidden>
+      <rect x="10" y="44" width="62" height="6" rx="3" className="a-down" />
+      <rect x="74" y="44" width="136" height="6" rx="3" className="a-upbar" />
+      <rect x="71.5" y="36" width="2.5" height="22" rx="1.2" className="a-ink" />
+      <text x="10" y="74" className="a-t">stop</text><text x="73" y="74" className="a-t" textAnchor="middle">entry</text>
+      <text x="210" y="74" className="a-t" textAnchor="end">target</text>
+      <text x="40" y="30" className="a-t a-tdown" textAnchor="middle">1R</text><text x="142" y="30" className="a-t a-tup" textAnchor="middle">2R</text>
+    </svg>
+  );
+}
+
 /* ── Pieces ───────────────────────────────────────────────────────────── */
 
 function Section({ id, eyebrow, title, sub, children, className = '' }) {
@@ -224,7 +277,7 @@ function PlanCard() {
 }
 
 function Faq() {
-  const [open, setOpen] = useState(0);
+  const [open, setOpen] = useState(null);
   return (
     <div className="l3-faq">
       {FAQ.map(([q, a], i) => {
@@ -255,6 +308,7 @@ export default function LandingV3() {
   const [requestOpen, setRequestOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [menu, setMenu] = useState(false);
+  const [pastHero, setPastHero] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -275,7 +329,7 @@ export default function LandingV3() {
   }, []);
 
   useEffect(() => {
-    const on = () => setScrolled(window.scrollY > 8);
+    const on = () => { setScrolled(window.scrollY > 8); setPastHero(window.scrollY > 520); };
     on(); window.addEventListener('scroll', on, { passive: true });
     document.title = 'Nifty Satvik — systematic swing research for the Nifty 500';
     return () => window.removeEventListener('scroll', on);
@@ -300,7 +354,7 @@ export default function LandingV3() {
       <header className={`l3-nav${scrolled ? ' scrolled' : ''}`}>
         <div className="l3-wrap l3-nav-in">
           <a className="l3-brand" href="#top" aria-label="Nifty Satvik home">
-            <img src={brandLogo} alt="" width="28" height="28" />
+            <BrandMark size={28} />
             <span>Nifty Satvik</span>
           </a>
           <nav aria-label="Primary" className="l3-nav-links">
@@ -396,6 +450,7 @@ export default function LandingV3() {
           <ol className="l3-steps">
             {STEPS.map(([t, d], i) => (
               <li key={t}>
+                <StepArt i={i} />
                 <span className="l3-step-n" data-num>{String(i + 1).padStart(2, '0')}</span>
                 <h3>{t}</h3>
                 <p>{d}</p>
@@ -493,7 +548,7 @@ export default function LandingV3() {
         <div className="l3-wrap">
           <div className="l3-foot-grid">
             <div className="l3-foot-brand">
-              <a className="l3-brand" href="#top"><img src={brandLogo} alt="" width="26" height="26" /><span>Nifty Satvik</span></a>
+              <a className="l3-brand" href="#top"><BrandMark size={26} /><span>Nifty Satvik</span></a>
               <p>Systematic swing research for the Nifty 500. Walk-forward validated; you place every order in your own broker.</p>
             </div>
             <nav aria-label="Product"><h4>Product</h4><ul>
@@ -518,6 +573,12 @@ export default function LandingV3() {
           <p className="l3-fine l3-left">{DISCLAIMER}</p>
         </div>
       </footer>
+
+      {/* Mobile: primary action pinned in the thumb zone once the hero CTA scrolls away. */}
+      <div className={`l3-mcta${pastHero ? ' show' : ''}`} aria-hidden={!pastHero}>
+        <a className="l3-btn l3-btn-ghost" href="/login" tabIndex={pastHero ? 0 : -1}>Sign in</a>
+        <button type="button" className="l3-btn l3-btn-primary" onClick={ask} tabIndex={pastHero ? 0 : -1}>Request access</button>
+      </div>
 
       <RequestAccessModal open={requestOpen} onOpenChange={setRequestOpen} />
     </div>

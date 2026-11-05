@@ -45,9 +45,14 @@ calm surfaces, exact numbers, colour only where it carries meaning.
 | hairline 1 / 2 | `#20252D` / `#2A303A` | borders and dividers |
 | ink 1 / 2 / 3 | `#F3F5F8` / `#A8B0BC` / `#78818E` | text ramp (3 is AA on ground) |
 | brand | `#3D7BFF` | the logo blue; interactive elements only |
-| up | `#1FCB7A` | gains, buys, take-profit |
-| down | `#FF5A5F` | losses, stops, sells |
+| up | `#20C4A0` | gains, buys, take-profit |
+| down | `#FF6B4A` | losses, stops, sells |
 | warn | `#F5A524` | low conviction, stale data |
+
+Up/down were chosen with the dataviz palette validator against the chart surface
+`#111419`: the conventional `#1FCB7A`/`#FF5A5F` pair separates by only ΔE 4.9 for
+deuteranopes (fail); `#20C4A0`/`#FF6B4A` separates by ΔE 11.1 (pass, target ≥ 8) and still
+reads as gain/loss. Arrows and signs remain mandatory regardless (§4.2).
 
 Gradients and glow are reserved for at most one hero moment per page.
 
@@ -75,7 +80,12 @@ inside a data region. Everything honours `prefers-reduced-motion`.
 5. Freshness is always visible: when the data was produced, and whether it is stale.
 6. Alignment: numbers right-aligned in tables; labels and values share a baseline.
 7. Copy is sentence case, short, and never overclaims (see §6).
-8. Layout works at 390px, 768px and 1440px with no horizontal scroll.
+8. Layout works at 390px, 768px and 1440px with no horizontal page scroll.
+9. **Phones are for scanning, not reading** (owner, 2026-11-05). On a phone: tighter vertical
+   rhythm and smaller display type; any section of three or more cards becomes a swipeable
+   row with the next card peeking (the affordance is visible); decorative intros hide, but
+   caveat-bearing copy never does; FAQ starts collapsed; the primary action sits in a sticky
+   bottom bar inside the thumb zone; tap targets stay ≥ 44px; the sticky header stays ≤ 56px.
 
 ## 5. How we will build it
 
@@ -110,8 +120,10 @@ inside a data region. Everything honours `prefers-reduced-motion`.
 
 ## 7. Phases
 
-1. Foundations: v5 tokens, fonts, base components.
-2. Marketing site.
-3. Sign-in.
-4. App shell and dashboard.
-5. Light theme and per-page re-skins of the remaining app pages (later session).
+1. Foundations: v5 tokens, fonts, base components. — done 2026-11-05
+2. Marketing site (`LandingV3`). — done 2026-11-05
+3. Sign-in (`Login`). — done 2026-11-05
+4. App shell (top bar re-skin, vector brand mark) and dashboard (`DashboardV5`). — done 2026-11-05
+5. Next: re-skin This week, Research, Portfolio, Track record, History, Settings, Admin and the
+   info/legal pages as fresh v5 components (they already inherit the v5 tokens); forgot/reset
+   password onto `auth-v5.css`; a light theme; a social-share image.

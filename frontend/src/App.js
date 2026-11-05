@@ -29,7 +29,7 @@ import InfoPage from '@/pages/InfoPage';
 // strategy in plain text (Features.jsx named the old LightGBM model / feature count). Unrouted since
 // 2026-07-02, but a disclosure landmine one route change away. /landing-v1 still redirects to `/`.
 
-const DashboardV3     = React.lazy(() => import('@/pages/DashboardV3'));
+const DashboardV5     = React.lazy(() => import('@/pages/DashboardV5'));
 const SignalsV3       = React.lazy(() => import('@/pages/SignalsV3'));
 const BacktestV2      = React.lazy(() => import('@/pages/BacktestV2'));
 const StockDetailV2   = React.lazy(() => import('@/pages/StockDetailV2'));
@@ -238,7 +238,7 @@ function AnimatedRoutes() {
 
         {/* Authenticated app — wrapped with sidebar + KiteContext */}
         <Route element={<ProtectedAppLayout />}>
-          <Route path="/dashboard" element={<PageTransition><DashboardV3 /></PageTransition>} />
+          <Route path="/dashboard" element={<PageTransition><DashboardV5 /></PageTransition>} />
           {/* The single "what to do this week" surface — consolidates the buys (Research),
               the exits (Portfolio's outstanding strip) and the monitor flags into one list. */}
           <Route path="/this-week" element={<PageTransition><ThisWeek /></PageTransition>} />
