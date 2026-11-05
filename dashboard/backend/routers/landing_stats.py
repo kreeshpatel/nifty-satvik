@@ -437,7 +437,7 @@ def _compute_stats() -> dict:
 
 
 @router.get("/landing-stats")
-async def get_landing_stats():
+def get_landing_stats():
     """
     Public endpoint — returns aggregate trading stats for the landing page.
 

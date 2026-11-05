@@ -634,7 +634,7 @@ def get_regime():
 
 @router.post("/signals/scan")
 @limiter.limit("2/minute")
-async def run_scan(request: Request):
+def run_scan(request: Request):
     """
     Return the most recent signals from the daily cron.
 

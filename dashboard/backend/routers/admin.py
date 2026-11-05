@@ -76,7 +76,7 @@ def _cron_health_block(ch, now: datetime) -> dict:
 # ── User Management ──────────────────────────────────
 
 @router.get("/users")
-async def list_users(admin: User = Depends(require_admin), db: Session = Depends(get_db)):
+def list_users(admin: User = Depends(require_admin), db: Session = Depends(get_db)):
     """List all users with their status."""
     users = db.query(User).order_by(User.created_at.desc()).all()
     result = []
@@ -99,7 +99,7 @@ async def list_users(admin: User = Depends(require_admin), db: Session = Depends
 
 
 @router.post("/users/{user_id}/deactivate")
-async def deactivate_user(
+def deactivate_user(
     user_id: int,
     request: Request,
     admin: User = Depends(require_admin),
@@ -128,7 +128,7 @@ async def deactivate_user(
 
 
 @router.post("/users/{user_id}/activate")
-async def activate_user(
+def activate_user(
     user_id: int,
     request: Request,
     admin: User = Depends(require_admin),
@@ -153,7 +153,7 @@ async def activate_user(
 
 
 @router.post("/users/{user_id}/unlock")
-async def unlock_user(
+def unlock_user(
     user_id: int,
     request: Request,
     admin: User = Depends(require_admin),
@@ -177,7 +177,7 @@ async def unlock_user(
 
 
 @router.post("/users/{user_id}/reset-password")
-async def reset_password(
+def reset_password(
     user_id: int,
     request: Request,
     admin: User = Depends(require_admin),
@@ -204,7 +204,7 @@ async def reset_password(
 
 
 @router.post("/users/{user_id}/revoke-kite")
-async def revoke_kite_session(
+def revoke_kite_session(
     user_id: int,
     request: Request,
     admin: User = Depends(require_admin),
@@ -225,7 +225,7 @@ async def revoke_kite_session(
 # ── Audit Logs ───────────────────────────────────────
 
 @router.get("/audit-logs")
-async def get_audit_logs(
+def get_audit_logs(
     page: int = Query(1, ge=1),
     per_page: int = Query(50, ge=10, le=200),
     action: Optional[str] = Query(None),
@@ -265,7 +265,7 @@ async def get_audit_logs(
 # ── Owner Kite Session Status & Refresh ──────────────
 
 @router.get("/kite-status")
-async def get_owner_kite_status(
+def get_owner_kite_status(
     admin: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
@@ -296,7 +296,7 @@ async def get_owner_kite_status(
 
 
 @router.post("/refresh-kite")
-async def manual_refresh_kite(
+def manual_refresh_kite(
     request: Request,
     admin: User = Depends(require_admin),
     db: Session = Depends(get_db),
@@ -329,7 +329,7 @@ async def manual_refresh_kite(
 
 
 @router.get("/system-health")
-async def get_system_health(
+def get_system_health(
     admin: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):

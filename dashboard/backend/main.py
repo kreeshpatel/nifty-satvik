@@ -343,11 +343,15 @@ async def websocket_endpoint(ws: WebSocket):
         await ws.close(code=4001, reason="Missing authentication ticket")
         return
 
-    db = SessionLocal()
-    try:
-        user = get_current_user_from_ws_ticket(ticket, db)
-    finally:
-        db.close()
+    def _check_ticket():
+        # Sync DB work, kept off the event loop (2026-11-05 outage: a blocked DB call froze the whole app).
+        db = SessionLocal()
+        try:
+            return get_current_user_from_ws_ticket(ticket, db)
+        finally:
+            db.close()
+
+    user = await asyncio.to_thread(_check_ticket)
 
     if not user:
         await ws.close(code=4001, reason="Invalid or expired ticket")
