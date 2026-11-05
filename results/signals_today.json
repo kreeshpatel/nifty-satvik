@@ -1,22 +1,39 @@
 {
-  "generated_at": "2026-11-04",
+  "generated_at": "2026-11-05",
   "signals": [
     {
-      "ticker": "GLAND",
-      "entry": 3160.58,
-      "stop": 2810.52,
-      "target": 3872.34,
+      "ticker": "SYRMA",
+      "entry": 1515.76,
+      "stop": 1251.65,
+      "target": 1857.11,
       "target_pct": 22.52,
-      "current_price": 3159.0,
-      "close": 3159.0,
-      "signal_date": "2026-11-04",
+      "current_price": 1515.0,
+      "close": 1515.0,
+      "signal_date": "2026-11-05",
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
       "status": "FRESH",
       "buy_window": "T+1..T+3 at open",
-      "indicative_close": 3159.0,
-      "indicative_entry": 3160.58
+      "indicative_close": 1515.0,
+      "indicative_entry": 1515.76
+    },
+    {
+      "ticker": "CHENNPETRO",
+      "entry": 1419.21,
+      "stop": 1136.08,
+      "target": 1738.82,
+      "target_pct": 22.52,
+      "current_price": 1418.5,
+      "close": 1418.5,
+      "signal_date": "2026-11-05",
+      "hold_days": 63,
+      "grade": "B",
+      "tier": "signal",
+      "status": "FRESH",
+      "buy_window": "T+1..T+3 at open",
+      "indicative_close": 1418.5,
+      "indicative_entry": 1419.21
     }
   ],
   "regime": {
@@ -25,12 +42,12 @@
     "vix": 0,
     "breadth": 0
   },
-  "n_positions": 14,
-  "cash": 39817.7,
+  "n_positions": 13,
+  "cash": 165496.96,
   "kill_state": {
     "wr_last20": 35.0,
     "wr_breach": true,
-    "sharpe_30d": -2.508,
+    "sharpe_30d": -2.775,
     "sharpe_30d_breach": true,
     "mode": "observe"
   }
