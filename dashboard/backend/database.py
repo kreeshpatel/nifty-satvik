@@ -34,7 +34,26 @@ if DATABASE_URL.startswith("postgresql://") and "sslmode=" not in DATABASE_URL:
     sep = "&" if "?" in DATABASE_URL else "?"
     DATABASE_URL = f"{DATABASE_URL}{sep}sslmode=require"
 
-engine = create_engine(DATABASE_URL, pool_pre_ping=True) if DATABASE_URL else None
+# SUSPEND-SAFE POOL (2026-11-05). Since #160 the Fly machine suspends when idle and resumes from a RAM
+# snapshot. A pooled Postgres socket that was open at suspend is dead on resume, and the network drops it
+# silently (no RST), so `pool_pre_ping` waited on it for the kernel's ~15-minute retransmit timeout. The
+# handlers are `async def` running this sync session on the event loop, so the whole app froze: health
+# checks failed, the proxy returned 503, and login spun forever.
+#  - pool_recycle: a connection older than 5 minutes (every connection after a suspend) is discarded at
+#    checkout instead of reused.
+#  - tcp_user_timeout / keepalives / connect_timeout (libpq): any dead socket that slips through fails in
+#    about 10 seconds, and pre_ping then opens a fresh one.
+_PG_CONNECT_ARGS = {
+    "connect_timeout": 10,
+    "keepalives": 1, "keepalives_idle": 30, "keepalives_interval": 10, "keepalives_count": 3,
+    "tcp_user_timeout": 10_000,  # ms
+}
+POOL_RECYCLE_S = 300
+engine = (
+    create_engine(DATABASE_URL, pool_pre_ping=True, pool_recycle=POOL_RECYCLE_S,
+                  connect_args=_PG_CONNECT_ARGS if DATABASE_URL.startswith("postgresql") else {})
+    if DATABASE_URL else None
+)
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False) if engine else None
 
 Base = declarative_base()
