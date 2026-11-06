@@ -1,39 +1,39 @@
 {
-  "generated_at": "2026-11-05",
+  "generated_at": "2026-11-06",
   "signals": [
     {
-      "ticker": "SYRMA",
-      "entry": 1515.76,
-      "stop": 1251.65,
-      "target": 1857.11,
+      "ticker": "WELCORP",
+      "entry": 2206.0,
+      "stop": 1725.84,
+      "target": 2702.79,
       "target_pct": 22.52,
-      "current_price": 1515.0,
-      "close": 1515.0,
-      "signal_date": "2026-11-05",
+      "current_price": 2204.9,
+      "close": 2204.9,
+      "signal_date": "2026-11-06",
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
       "status": "FRESH",
       "buy_window": "T+1..T+3 at open",
-      "indicative_close": 1515.0,
-      "indicative_entry": 1515.76
+      "indicative_close": 2204.9,
+      "indicative_entry": 2206.0
     },
     {
-      "ticker": "CHENNPETRO",
-      "entry": 1419.21,
-      "stop": 1136.08,
-      "target": 1738.82,
+      "ticker": "SAILIFE",
+      "entry": 1785.99,
+      "stop": 1582.79,
+      "target": 2188.19,
       "target_pct": 22.52,
-      "current_price": 1418.5,
-      "close": 1418.5,
-      "signal_date": "2026-11-05",
+      "current_price": 1785.1,
+      "close": 1785.1,
+      "signal_date": "2026-11-06",
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
       "status": "FRESH",
       "buy_window": "T+1..T+3 at open",
-      "indicative_close": 1418.5,
-      "indicative_entry": 1419.21
+      "indicative_close": 1785.1,
+      "indicative_entry": 1785.99
     }
   ],
   "regime": {
@@ -43,11 +43,11 @@
     "breadth": 0
   },
   "n_positions": 13,
-  "cash": 165496.96,
+  "cash": 189875.81,
   "kill_state": {
-    "wr_last20": 35.0,
+    "wr_last20": 40.0,
     "wr_breach": true,
-    "sharpe_30d": -2.775,
+    "sharpe_30d": -3.496,
     "sharpe_30d_breach": true,
     "mode": "observe"
   }

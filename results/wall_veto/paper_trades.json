@@ -628,5 +628,20 @@
     "net_pct": -23.11,
     "net_pnl": -2329.17,
     "hold_days": 9
+  },
+  {
+    "ticker": "HFCL",
+    "entry_date": "2026-10-23",
+    "exit_date": "2026-11-06",
+    "entry": 240.12,
+    "exit": 210.55,
+    "qty": 338,
+    "days_held": 10,
+    "reason": "trailing",
+    "return_pct": -12.31,
+    "pnl": -10191.11,
+    "net_pct": -12.31,
+    "net_pnl": -10191.11,
+    "hold_days": 10
   }
 ]
