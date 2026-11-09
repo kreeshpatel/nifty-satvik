@@ -975,12 +975,10 @@ def _previous_generated_at(state_dir: Path) -> str | None:
 
 def _sessions_after(day: str, upto: str) -> int:
     """NSE sessions strictly after ``day`` and up to ``upto``. Weekend- and holiday-aware."""
-    lo, hi = pd.Timestamp(day), pd.Timestamp(upto)
-    if hi <= lo:
-        return 0
-    hol = set(NSE_HOLIDAYS)
-    return sum(1 for d in pd.bdate_range(lo + pd.Timedelta(days=1), hi)
-               if d.date().isoformat() not in hol)
+    # REGULAR sessions via the one trading calendar (a Muhurat/Budget special session is not a session the
+    # panel is obliged to have advanced past; an unlisted-past-coverage holiday degrades with a warning).
+    from nq.data.trading_calendar import sessions_between
+    return len(sessions_between(day, upto, regular=True))
 
 
 def _assert_data_advanced(prev: str | None, now_: str, *, allow_stale: bool = False) -> None:
@@ -1001,7 +999,8 @@ def _assert_data_advanced(prev: str | None, now_: str, *, allow_stale: bool = Fa
     """
     if prev is None or allow_stale or now_ > prev:
         return
-    elapsed = _sessions_after(prev, str(pd.Timestamp.today().date()))
+    from nq.data.trading_calendar import today_ist
+    elapsed = _sessions_after(prev, str(today_ist()))
     if elapsed <= 0:
         return
     raise StaleDataError(
