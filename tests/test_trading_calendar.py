@@ -190,3 +190,55 @@ def test_blend_drops_special_sessions_before_intersecting():
     idx = pd.to_datetime(["2026-11-05", "2026-11-06", "2026-11-08", "2026-11-09"])
     keep = [d for d in idx if C.is_regular_session(d)]
     assert [str(d.date()) for d in keep] == ["2026-11-05", "2026-11-06", "2026-11-09"]
+
+
+# ── ingest guard: closed-market vendor bars (2026-09-14 Ganesh Chaturthi incident) ─────────────────
+def _frame(*dates):
+    import pandas as pd
+    idx = pd.to_datetime(list(dates))
+    return pd.DataFrame({"Open": 1.0, "High": 1.0, "Low": 1.0, "Close": 1.0, "Volume": 10.0}, index=idx)
+
+
+def test_holiday_and_weekend_bars_are_dropped_special_sessions_kept():
+    df = _frame("2026-09-11", "2026-09-14", "2026-09-15", "2026-09-19",   # holiday, Saturday
+                "2026-11-08", "2025-10-21", "2025-02-01")                 # declared special sessions
+    out, dropped = C.drop_non_session_bars(df, "ANGELONE")
+    assert dropped == ["2026-09-14", "2026-09-19"]
+    assert sorted(str(i.date()) for i in out.index) == [
+        "2025-02-01", "2025-10-21", "2026-09-11", "2026-09-15", "2026-11-08"]
+
+
+def test_ingest_guard_never_judges_history_before_the_calendar_starts():
+    df = _frame("2019-10-27", "2020-11-14", "2024-12-25")      # Muhurat Sun/Sat and a pre-calendar holiday
+    out, dropped = C.drop_non_session_bars(df)
+    assert dropped == [] and len(out) == 3
+
+
+def test_ingest_guard_past_the_runout_only_judges_weekends():
+    first = D(config.NSE_HOLIDAYS_COVERED_THROUGH) + timedelta(days=1)
+    while first.weekday() >= 5:
+        first += timedelta(days=1)
+    sat = first + timedelta(days=5 - first.weekday())
+    out, dropped = C.drop_non_session_bars(_frame(str(first), str(sat)))
+    assert dropped == [str(sat)] and len(out) == 1
+
+
+def test_filter_ohlcv_dict_counts_and_warns(capsys):
+    d = {"ANGELONE": _frame("2026-09-11", "2026-09-14"), "CHOLAFIN": _frame("2026-09-14", "2026-09-15"),
+         "CLEAN": _frame("2026-09-15")}
+    out, hist = C.filter_ohlcv_non_session(d, label="t")
+    assert hist == {"2026-09-14": 2} and len(out["ANGELONE"]) == 1 and out["CLEAN"] is d["CLEAN"]
+    assert "::warning::t: dropped 2 vendor bar" in capsys.readouterr().out
+
+
+def test_single_special_sessions_source():
+    assert C.special_sessions() is C.SPECIAL_SESSIONS and "2026-11-08" in C.special_sessions()
+
+
+def test_weekly_cron_cache_load_purges_a_poisoned_holiday_bar(monkeypatch):
+    """Regression (prod path): a cached 2026-09-14 bar must not reach the scan; fails on the old code."""
+    import run_bhanushali_cron as CRON
+    cache = {"ANGELONE": _frame("2026-09-11", "2026-09-14", "2026-09-15")}
+    monkeypatch.setattr(CRON, "load_ohlcv_cache", lambda *_a, **_k: cache)
+    out = CRON._refresh_ohlcv("2026-07-04", 300, False)
+    assert [str(i.date()) for i in out["ANGELONE"].index] == ["2026-09-11", "2026-09-15"]

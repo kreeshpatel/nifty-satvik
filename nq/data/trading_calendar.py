@@ -223,6 +223,61 @@ def add_sessions(d, n: int, *, regular: bool = True, observed: Iterable | None =
     return cur
 
 
+# ── ingest guard ─────────────────────────────────────────────────────────────────────────────────
+def special_sessions() -> frozenset[str]:
+    """The ONE declared special-session source (ISO dates). Other modules (scan watchdog, checks) must read
+    this, not keep their own list."""
+    return SPECIAL_SESSIONS
+
+
+def is_ingestible_bar_date(d) -> bool:
+    """May a vendor bar dated ``d`` enter the LIVE cache? False only when the calendar is authoritative for
+    ``d`` (>= config.NSE_HOLIDAYS_COVERED_FROM) AND ``d`` is a weekend or listed holiday AND not a declared
+    special session. Earlier dates are never judged (no holidays are carried before COVERED_FROM, and the
+    historical research cache is deliberately left alone); past the run-out only weekends can be judged.
+    """
+    d = to_date(d)
+    if _iso(d) < _cfg.NSE_HOLIDAYS_COVERED_FROM:
+        return True
+    if _iso(d) in SPECIAL_SESSIONS:
+        return True
+    if d.weekday() >= 5:
+        return False
+    return _iso(d) not in _cfg.NSE_HOLIDAYS
+
+
+def drop_non_session_bars(df, ticker: str = "?"):
+    """``(clean_df, dropped_iso_dates)``: remove bars dated on a closed-market day. Pure; df untouched if clean.
+
+    Incident 2026-09-14 (Ganesh Chaturthi): Yahoo carried bars for the holiday, weekly rebuilds entered
+    ANGELONE / CHOLAFIN / GESHIP on it, Yahoo later dropped the bar, the rebuild re-dated the entries to
+    09-15 and history-drift went red. A closed-market bar never enters the live cache.
+    """
+    if df is None or len(df) == 0:
+        return df, []
+    keep = [is_ingestible_bar_date(ts) for ts in df.index]
+    if all(keep):
+        return df, []
+    dropped = [_iso(to_date(ts)) for ts, k in zip(df.index, keep) if not k]
+    return df[keep], dropped
+
+
+def filter_ohlcv_non_session(ohlcv, *, label: str = "ohlcv", warn: bool = True):
+    """Apply :func:`drop_non_session_bars` to ``{ticker: DataFrame}``. Returns ``(clean_dict, {date: n_tickers})``.
+    LIVE/cron paths only; the research cache and backtests never call this."""
+    out, hist = {}, {}
+    for t, df in ohlcv.items():
+        c, dropped = drop_non_session_bars(df, t)
+        out[t] = c
+        for d in dropped:
+            hist[d] = hist.get(d, 0) + 1
+    if hist and warn:
+        summary = ", ".join(f"{d} x{n}" for d, n in sorted(hist.items())[:8])
+        print(f"::warning::{label}: dropped {sum(hist.values())} vendor bar(s) dated on closed-market days "
+              f"(holiday/weekend, not a declared special session): {summary}", flush=True)
+    return out, hist
+
+
 def week_key(d, observed: Iterable | None = None) -> tuple[int, int]:
     """``(iso_year, iso_week)`` of the trading week ``d`` belongs to. A weekend SESSION -> following week."""
     d = to_date(d)

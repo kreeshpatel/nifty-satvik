@@ -212,6 +212,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"::warning::OHLCV top-up returned 0 of {len(universe)} names through {end} "
                   f"— the cache did not advance; downstream panel/wall will not move", flush=True)
         ohlcv = merge_ohlcv(ohlcv, fresh) if ohlcv else fresh
+        from nq.data.trading_calendar import filter_ohlcv_non_session
+        ohlcv, _ = filter_ohlcv_non_session(ohlcv, label="paper cron")   # ingest guard (2026-09-14 incident)
         save_ohlcv_cache(ohlcv, cache)
     if not ohlcv:
         print("ERROR: no OHLCV (empty cache and --no-download)", flush=True)

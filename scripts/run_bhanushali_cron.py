@@ -804,6 +804,9 @@ def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
     (workflow) bounds slow dividend-adjustment drift with a periodic clean rebuild.
     """
     ohlcv = load_ohlcv_cache(OHLCV_CACHE) or {}
+    # INGEST GUARD (2026-09-14 incident): a closed-market bar already sitting in the cache never feeds the scan.
+    from nq.data.trading_calendar import filter_ohlcv_non_session
+    ohlcv, _ = filter_ohlcv_non_session(ohlcv, label="weekly cron (cached)")
     if not do_download:
         return ohlcv
     from nq.data.history_guard import assert_open_history_intact, history_starts, open_tickers
@@ -841,6 +844,10 @@ def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
                 full_start = min([hist_start] + [ohlcv[t].index.min().date().isoformat()
                                                  for t in readjusted if t in ohlcv and len(ohlcv[t])])
                 ohlcv = _replace_readjusted(ohlcv, download_ohlcv(readjusted, start=full_start, end=today))
+        # INGEST GUARD (2026-09-14 incident): no bar dated on a holiday/weekend (outside declared special
+        # sessions) enters the live cache; this also purges one an earlier run already saved.
+        from nq.data.trading_calendar import filter_ohlcv_non_session
+        ohlcv, _ = filter_ohlcv_non_session(ohlcv, label="weekly cron")
         save_ohlcv_cache(ohlcv, OHLCV_CACHE)
     except Exception as exc:  # noqa: BLE001 — a download hiccup must not lose the existing cache/book
         print(f"download failed ({type(exc).__name__}: {exc}); using cached bars", flush=True)
