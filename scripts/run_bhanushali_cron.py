@@ -769,6 +769,22 @@ MIN_CACHED_BARS = 300         # a name with fewer cached bars can't warm-up the 
 ADJ_JUMP = 0.005              # >0.5% shift on an overlapping close = a corporate action re-adjusted history
 
 
+def _replace_readjusted(ohlcv: dict, full: dict) -> dict:
+    """Swap in a re-adjusted ticker's clean full series WHOLESALE (2026-11-08).
+
+    A split or bonus re-bases the vendor's entire history. The re-fetch used to be MERGED, and
+    `merge_ohlcv` keeps every cached date the re-fetch did not cover, so bars older than the re-fetch
+    window stayed on the pre-split basis. CONCORDBIO (2-for-1, ex 2026-11-04) came out split-adjusted from
+    early 2025 and unadjusted before it; the adjustment guard rightly halted the 2026-11-07 scan on the x2
+    step. A ticker whose re-fetch came back empty keeps its old series, and the guard still judges it.
+    """
+    out = dict(ohlcv)
+    for t, df in full.items():
+        if df is not None and len(df):
+            out[t] = df
+    return out
+
+
 def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
     """Return the LIVE OHLCV cache, refreshed with recent bars unless --no-download.
 
@@ -822,7 +838,9 @@ def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
             if readjusted:
                 print(f"corporate-action re-adjust -> clean full re-fetch of {len(readjusted)}: "
                       f"{readjusted[:8]}", flush=True)
-                ohlcv = merge_ohlcv(ohlcv, download_ohlcv(readjusted, start=hist_start, end=today))
+                full_start = min([hist_start] + [ohlcv[t].index.min().date().isoformat()
+                                                 for t in readjusted if t in ohlcv and len(ohlcv[t])])
+                ohlcv = _replace_readjusted(ohlcv, download_ohlcv(readjusted, start=full_start, end=today))
         save_ohlcv_cache(ohlcv, OHLCV_CACHE)
     except Exception as exc:  # noqa: BLE001 — a download hiccup must not lose the existing cache/book
         print(f"download failed ({type(exc).__name__}: {exc}); using cached bars", flush=True)
