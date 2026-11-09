@@ -648,7 +648,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              stale_absent_days: int = 0, demerger_events: dict | None = None,
              ca_hold_drop: float = 0.0, ca_reviewed=None, position_log: list | None = None,
              event_log: list | None = None, entry_size_scale_by_week: dict | None = None,
-             min_rr_at_fill: float | None = None, whole_shares: bool = False):
+             min_rr_at_fill: float | None = None, whole_shares: bool = False,
+             quarantine: dict | None = None):
     """W89's weekly engine with ONE change: fillable candidates are attempted strongest-CRS-first.
     start/return_state mirror W89's live kwargs (defaults preserve the 0094 run of record).
 
@@ -701,6 +702,12 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
     exit — and carries `ca_hold` until the owner resolves it: register the event (B′ then re-bases it)
     or record the move as genuine (the rules then run as if the hold never existed). See CA_HOLD_DROP.
     0.0 (default) => OFF => byte-identical.
+
+    quarantine (prod-fix 2026-11-08, DATA QUARANTINE; None = OFF => byte-identical): {ticker: last_good_date}.
+    A position in a quarantined ticker is FROZEN on every session AFTER its last-good date - no fill, no
+    tranche, no ratchet, no exit - because the price series behind it failed the data guards (see
+    nq.data.data_quarantine). Its stop and levels stay at their last good values, and it carries
+    `data_quarantine` (the last-good date) for the card. Sessions on or before that date run as normal.
 
     min_rr_at_fill (research lever, 2026-11-02; None = OFF => byte-identical): skip an in_range fill whose
     reward:risk AT THE FILL is below this. R:R = (target - fill) / (fill - stop), where `target` is the +tp1_r
@@ -815,6 +822,9 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     s = p["ca_view"]
             p["absent_run"] = 0
             p["last_mark"] = float(s["c"][i])      # last TRADED close (the B-1 stale-exit price)
+            if quarantine and t in quarantine and d > quarantine[t]:
+                p["data_quarantine"] = str(pd.Timestamp(quarantine[t]).date())
+                continue                            # suspect data: keep the position, move nothing
             # CORPORATE-ACTION HOLD: the OPEN gap is checked before any pending fill (a demerger re-bases
             # at the open, and a queued exit filling there would book the carved-out value as a loss);
             # the CLOSE move is checked after the day's fills. Both use only prices known at that point.

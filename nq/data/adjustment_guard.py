@@ -307,29 +307,15 @@ def _new_seam_is_benign(seam: dict, held: set[str], cutoff: pd.Timestamp,
         return False
 
 
-def assert_no_new_seams(ohlcv: dict, ref: pd.DataFrame | None = None, *,
-                        known: dict | None = None, positions=None, as_of=None,
-                        entry_dates: dict | None = None) -> SeamReport:
-    """Build-path gate. Raises on a DANGEROUS unregistered seam; known seams warn; and — when the
-    caller supplies ``positions`` — a new seam that is *provably benign* is warned and recorded rather
-    than halted.
+def evaluate_new_seams(ohlcv: dict, ref: pd.DataFrame | None = None, *,
+                       known: dict | None = None, positions=None, as_of=None,
+                       entry_dates: dict | None = None) -> SeamReport:
+    """The non-raising half of :func:`assert_no_new_seams`: classify, never halt.
 
-    The asymmetry for registered seams is deliberate: the F-1 seams are a live owner decision
-    (FOUNDATION_AUDIT.md); halting the book over them would be this guard deciding that question by
-    itself.
-
-    The benign auto-tolerance (2026-08-18, owner decision — resolves the recurring scheduled-scanner
-    halts) is NOT a softening of detection: ``check_adjustment_monotonicity`` still flags every seam,
-    however small, so nothing enters silently. It relaxes only the HALT, and only for a seam that
-    cannot affect a decision — below ``BENIGN_FACTOR_MAX``, entirely older than the trailing
-    ``LIVE_WINDOW_WEEKS`` window, and not on a held name (:func:`_new_seam_is_benign`). This is the
-    recurring upstream defect: yfinance re-adjusts one dividend-paying name at a time by a
-    dividend-sized step on an old, unheld session — halting the live scanner weekly over a step that
-    moves nothing. A seam that is large, in-window, or held still HALTS exactly as before.
-
-    ``positions=None`` (the default) keeps the legacy strict behaviour — every unregistered seam
-    halts — so existing callers and tests are unchanged. Pass ``positions`` (a possibly-empty held
-    list) to enable auto-tolerance; ``as_of`` defaults to the latest bar in the cache.
+    Returns the report with ``new_seams`` holding only the DANGEROUS unregistered seams (all of them
+    when ``positions`` is None). Split out so the per-ticker quarantine can act on each offending name
+    instead of losing the whole scan to the first one; ``assert_no_new_seams`` is now this plus the
+    raise, with identical behaviour.
     """
     rep = check_adjustment_monotonicity(ohlcv, ref, known=known)
     if not rep.new_seams:
@@ -355,7 +341,39 @@ def assert_no_new_seams(ohlcv: dict, ref: pd.DataFrame | None = None, *,
                   f"x{s['step_factor']:.4f} between {s['window_start']} and {s['window_end']}", flush=True)
         if not dangerous:
             rep.overall = "WARN" if (rep.seams or benign) else "OK"
-            return rep
+        return rep
+
+    return rep
+
+
+def assert_no_new_seams(ohlcv: dict, ref: pd.DataFrame | None = None, *,
+                        known: dict | None = None, positions=None, as_of=None,
+                        entry_dates: dict | None = None) -> SeamReport:
+    """Build-path gate. Raises on a DANGEROUS unregistered seam; known seams warn; and — when the
+    caller supplies ``positions`` — a new seam that is *provably benign* is warned and recorded rather
+    than halted.
+
+    The asymmetry for registered seams is deliberate: the F-1 seams are a live owner decision
+    (FOUNDATION_AUDIT.md); halting the book over them would be this guard deciding that question by
+    itself.
+
+    The benign auto-tolerance (2026-08-18, owner decision — resolves the recurring scheduled-scanner
+    halts) is NOT a softening of detection: ``check_adjustment_monotonicity`` still flags every seam,
+    however small, so nothing enters silently. It relaxes only the HALT, and only for a seam that
+    cannot affect a decision — below ``BENIGN_FACTOR_MAX``, entirely older than the trailing
+    ``LIVE_WINDOW_WEEKS`` window, and not on a held name (:func:`_new_seam_is_benign`). This is the
+    recurring upstream defect: yfinance re-adjusts one dividend-paying name at a time by a
+    dividend-sized step on an old, unheld session — halting the live scanner weekly over a step that
+    moves nothing. A seam that is large, in-window, or held still HALTS exactly as before.
+
+    ``positions=None`` (the default) keeps the legacy strict behaviour — every unregistered seam
+    halts — so existing callers and tests are unchanged. Pass ``positions`` (a possibly-empty held
+    list) to enable auto-tolerance; ``as_of`` defaults to the latest bar in the cache.
+    """
+    rep = evaluate_new_seams(ohlcv, ref, known=known, positions=positions, as_of=as_of,
+                             entry_dates=entry_dates)
+    if not rep.new_seams:
+        return rep
 
     lines = [f"  {s['symbol']}: adj fell x{s['step_factor']:.4f} between {s['window_start']} "
              f"and {s['window_end']} ({s['adj_before']:.6f} -> {s['adj_after']:.6f})"
