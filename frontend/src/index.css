@@ -112,13 +112,12 @@
     border-color: rgba(255, 255, 255, 0.06);
   }
   html, body {
-    /* DM Sans everywhere by default (locked 2026-04-25). Legacy pages that
-       used `font-sans`/`font-heading` Tailwind classes resolved to Geist
-       — those classes now resolve to DM Sans via tailwind.config.js. */
+    /* Inter (v7, docs/DESIGN_BRIEF_V5.md §10). Body text uses normal figures: Inter's tabular
+       feature also widens punctuation (hyphens read as "re - scores"). Tabular figures are
+       applied where they belong — .tnum / .tabular-nums / [data-num] / tables. */
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-variant-numeric: tabular-nums;
   }
   code, kbd, pre, samp {
     font-family: var(--font-mono);

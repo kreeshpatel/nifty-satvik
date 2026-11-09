@@ -1,16 +1,12 @@
 /**
- * DashboardV5 — the daily command center, design v5 "Ledger".
- * Layout follows docs/FRONTEND_SPEC.md §1/§3: it answers, in order,
- *   1. Is there anything to sell or trim right now?   (Act now)
- *   2. What is fresh to buy this week, and how good?  (Fresh buys)
- *   3. How are the holds doing vs stop and target?    (Model book)
- * Data: the same hooks DashboardV3 used — no new endpoint.
- * Compliance: no "guarantee/will/sure" wording; Nifty Satvik is NOT SEBI-registered (the V3 footer
- * said "SEBI Research Analyst" — removed); DISCLAIMER from @/lib/signalCopy.
+ * Dashboard — the daily command center, design v7 "Institutional" (docs/DESIGN_BRIEF_V5.md §10).
+ * Order follows docs/FRONTEND_SPEC.md: Act now → Fresh buys → Model book. Dense ruled tables
+ * (TradingView / IBKR register), mono figures, 1px dividers, colour only for signal.
+ * Data: the same hooks as before — no new endpoint.
+ * Compliance: Nifty Satvik is NOT SEBI-registered; DISCLAIMER from @/lib/signalCopy.
  */
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowUpRight, AlertTriangle, Clock, LineChart, TrendingUp, CircleDot, Inbox, Activity, Gauge, Sparkles } from 'lucide-react';
 import { useSignals } from '@/hooks/queries/useSignals';
 import { useOverview } from '@/hooks/queries/useOverview';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
@@ -22,146 +18,59 @@ import '@/styles/dashboard-v5.css';
 
 const MINUS = '−';
 const n = (v) => (v == null || v === '' || Number.isNaN(Number(v)) ? null : Number(v));
-const inr = (v, dp = 2) => {
+const fmt = (v, dp = 2) => {
   const x = n(v); if (x == null) return '—';
   const s = Math.abs(x).toLocaleString('en-IN', { minimumFractionDigits: dp, maximumFractionDigits: dp });
-  return `${x < 0 ? MINUS : ''}₹${s}`;
+  return `${x < 0 ? MINUS : ''}${s}`;
 };
-const pct = (v, dp = 1, sign = true) => {
+const pct = (v, dp = 1) => {
   const x = n(v); if (x == null) return '—';
-  const s = Math.abs(x).toFixed(dp);
-  return `${x < 0 ? MINUS : sign && x > 0 ? '+' : ''}${s}%`;
+  return `${x < 0 ? '▼ ' + MINUS : x > 0 ? '▲ +' : ''}${Math.abs(x).toFixed(dp)}%`;
 };
 const tone = (v) => (n(v) == null || n(v) === 0 ? '' : n(v) > 0 ? 'up' : 'down');
-/* Direction is never colour-only (WCAG 1.4.1): a small fixed-size arrow precedes every signed move. */
-const arrow = (v) => (n(v) == null || n(v) === 0 ? null : <span className="d5-arr" aria-hidden>{n(v) > 0 ? '▲' : '▼'}</span>);
 const ago = (iso) => {
   if (!iso) return null;
   const t = new Date(iso).getTime(); if (Number.isNaN(t)) return null;
   const m = Math.round((Date.now() - t) / 60000);
-  if (m < 60) return `${Math.max(m, 1)} min ago`;
-  const h = Math.round(m / 60); if (h < 48) return `${h} h ago`;
-  return `${Math.round(h / 24)} days ago`;
+  if (m < 60) return `${Math.max(m, 1)}m ago`;
+  const h = Math.round(m / 60); if (h < 48) return `${h}h ago`;
+  return `${Math.round(h / 24)}d ago`;
 };
 const sym = (s) => (s?.ticker || s?.symbol || s?.sym || '').toUpperCase();
 
-/* ── small parts ─────────────────────────────────────────────────── */
-
-function Tile({ sym: s }) {
-  return <span className="d5-tile" aria-hidden>{s.slice(0, 2)}</span>;
-}
-
-function RRBar({ entry, stop, target, price }) {
-  const e = n(entry), st = n(stop), t = n(target);
-  if (e == null || st == null || t == null || t <= st) return null;
+/* stop → target rail: entry tick and last-price dot, to scale */
+function Rail({ entry, stop, target, price }) {
+  const e = n(entry), st = n(stop), t = n(target), p = n(price);
+  if (e == null || st == null || t == null || t <= st) return <span className="d7-muted">—</span>;
   const span = t - st;
   const ePos = ((e - st) / span) * 100;
-  const p = n(price);
   const pPos = p == null ? null : Math.max(0, Math.min(100, ((p - st) / span) * 100));
   return (
-    <div className="d5-rr" role="img" aria-label={`Stop ${inr(st)}, entry ${inr(e)}, target ${inr(t)}${p != null ? `, last ${inr(p)}` : ''}`}>
-      <span className="d5-rr-risk" style={{ width: `${ePos}%` }} />
-      <span className="d5-rr-rew" style={{ width: `${100 - ePos}%` }} />
-      <span className="d5-rr-entry" style={{ left: `${ePos}%` }} />
-      {pPos != null && <span className={`d5-rr-now ${p >= e ? 'up' : 'down'}`} style={{ left: `${pPos}%` }} />}
-    </div>
+    <span className="d7-rail" role="img" aria-label={`Stop ${fmt(st)}, entry ${fmt(e)}, target ${fmt(t)}${p != null ? `, last ${fmt(p)}` : ''}`}>
+      <span className="d7-rail-risk" style={{ width: `${ePos}%` }} />
+      <span className="d7-rail-rew" />
+      <span className="d7-rail-entry" style={{ left: `${ePos}%` }} />
+      {pPos != null && <span className={`d7-rail-now ${p >= e ? 'up' : 'down'}`} style={{ left: `${pPos}%` }} />}
+    </span>
   );
 }
 
-function Empty({ icon: Icon = Inbox, title, children }) {
+function Panel({ id, title, count, meta, action, children }) {
   return (
-    <div className="d5-empty">
-      <Icon size={18} aria-hidden />
-      <div><p className="d5-empty-t">{title}</p>{children && <p className="d5-empty-s">{children}</p>}</div>
-    </div>
-  );
-}
-
-function Skeleton({ rows = 3, h = 120 }) {
-  return <div className="d5-skel-grid">{Array.from({ length: rows }).map((_, i) => <div key={i} className="d5-skel" style={{ height: h }} />)}</div>;
-}
-
-function Section({ title, count, hint, action, children, id }) {
-  return (
-    <section className="d5-sec" aria-labelledby={`${id}-h`}>
-      <header className="d5-sec-head">
-        <h2 id={`${id}-h`}>{title}{count != null && <span className="d5-count" data-num>{count}</span>}</h2>
-        {hint && <p className="d5-sec-hint">{hint}</p>}
-        {action && <div className="d5-sec-act">{action}</div>}
+    <section className="d7-panel" aria-labelledby={`${id}-h`}>
+      <header className="d7-panel-head">
+        <h2 id={`${id}-h`}>{title}</h2>
+        {count != null && <span className="d7-count" data-num>{count}</span>}
+        {meta && <span className="d7-panel-meta">{meta}</span>}
+        {action && <span className="d7-panel-act">{action}</span>}
       </header>
       {children}
     </section>
   );
 }
 
-/* ── tiers ───────────────────────────────────────────────────────── */
-
-function SellCard({ s, onOpen }) {
-  const g = s.sell_guidance || {};
-  const trim = n(g.partial_pct) != null;
-  const kind = g.reason === 'stop' ? 'down' : g.tone === 'warn' ? 'warn' : 'up';
-  return (
-    <button type="button" className={`d5-card d5-stripe-${kind}`} onClick={() => onOpen(s)}>
-      <div className="d5-card-top">
-        <Tile sym={sym(s)} />
-        <div className="d5-card-id"><span className="d5-sym">{sym(s)}</span><span className="d5-meta">Model holding</span></div>
-        <span className={`d5-chip d5-chip-${kind}`}>{trim ? `Trim ${g.partial_pct}%` : g.reason === 'stop' ? 'Exit · stop' : 'Exit'}</span>
-      </div>
-      <p className="d5-sell-head">{g.headline || 'Exit recommended'}</p>
-      <dl className="d5-kv">
-        <div><dt>Suggested exit</dt><dd data-num>{inr(g.suggested_exit_price ?? s.current_price)}</dd></div>
-        <div><dt>Entry</dt><dd data-num>{inr(s.entry)}</dd></div>
-        <div><dt>Since entry</dt><dd data-num className={tone(s.current_price - s.entry)}>{n(s.entry) ? pct(((s.current_price - s.entry) / s.entry) * 100) : '—'}</dd></div>
-      </dl>
-      {g.note && <p className="d5-note">{g.note}</p>}
-    </button>
-  );
-}
-
-function BuyCard({ s, onOpen }) {
-  const e = n(s.entry), st = n(s.stop), t = n(s.target);
-  const up = e && t ? ((t - e) / e) * 100 : null;
-  const rr = e && st && t && e > st ? (t - e) / (e - st) : null;
-  const low = s.signal_conviction === 'low';
-  return (
-    <button type="button" className={`d5-card d5-stripe-${low ? 'warn' : 'brand'}`} onClick={() => onOpen(s)}>
-      <div className="d5-card-top">
-        <Tile sym={sym(s)} />
-        <div className="d5-card-id"><span className="d5-sym">{sym(s)}</span><span className="d5-meta">{low ? <span className="warn">Low conviction</span> : (s.sector || 'NSE')}</span></div>
-        <span className="d5-chips">
-          <span className="d5-chip d5-chip-up" title="Grade">Grade {(s.grade || 'A')[0]}</span>
-        </span>
-      </div>
-      <div className="d5-buy-mid">
-        <div><p className="d5-lbl">To target</p><p className="d5-big up" data-num>{up != null ? <>{arrow(up)}{pct(up)}</> : '—'}</p></div>
-        <div className="d5-right"><p className="d5-lbl">Reward : risk</p><p className="d5-big" data-num>{rr != null ? `${rr.toFixed(1)}R` : '—'}</p></div>
-      </div>
-      <RRBar entry={e} stop={st} target={t} price={s.current_price} />
-      <dl className="d5-kv d5-kv3">
-        <div><dt>Stop</dt><dd data-num className="down">{inr(st)}</dd></div>
-        <div><dt>Entry</dt><dd data-num>{inr(e)}</dd></div>
-        <div><dt>Target</dt><dd data-num className="up">{inr(t)}</dd></div>
-      </dl>
-      {s.buy_window_until && <p className="d5-note"><Clock size={12} aria-hidden /> Buy window through {s.buy_window_until}</p>}
-    </button>
-  );
-}
-
-function HoldRow({ s, onOpen }) {
-  const e = n(s.entry), p = n(s.current_price);
-  const chg = e && p ? ((p - e) / e) * 100 : null;
-  return (
-    <tr onClick={() => onOpen(s)} tabIndex={0} onKeyDown={(ev) => ev.key === 'Enter' && onOpen(s)}>
-      <th scope="row"><span className="d5-row-id"><Tile sym={sym(s)} />{sym(s)}</span></th>
-      <td data-num>{inr(e)}</td>
-      <td data-num>{inr(p)}</td>
-      <td data-num className={tone(chg)}>{chg != null ? <>{arrow(chg)}{pct(chg)}</> : '—'}</td>
-      <td className="d5-col-rail"><RRBar entry={s.entry} stop={s.stop} target={s.target} price={p} /></td>
-    </tr>
-  );
-}
-
-/* ── page ────────────────────────────────────────────────────────── */
+function Empty({ children }) { return <p className="d7-empty">{children}</p>; }
+function Loading({ rows = 3 }) { return <div aria-busy="true">{Array.from({ length: rows }).map((_, i) => <div key={i} className="d7-skel" />)}</div>; }
 
 export default function DashboardV5() {
   const [card, setCard] = useState(null);
@@ -175,7 +84,8 @@ export default function DashboardV5() {
   const cron = sq.data?.cron_health ?? {};
   const metrics = oq.data?.metrics ?? {};
 
-  const sells = useMemo(() => signals.filter((s) => s.sell_guidance), [signals]);
+  const sells = useMemo(() => [...signals.filter((s) => s.sell_guidance)]
+    .sort((a, b) => (b.sell_guidance?.urgency === 'high') - (a.sell_guidance?.urgency === 'high')), [signals]);
   const buys = useMemo(() => signals.filter((s) => s.status === 'FRESH' && !s.sell_guidance)
     .sort((a, b) => (a.signal_conviction === 'low') - (b.signal_conviction === 'low') || (n(b.crs_rank) ?? 0) - (n(a.crs_rank) ?? 0)), [signals]);
   const holds = useMemo(() => signals.filter((s) => s.status === 'ACTIVE' && !s.sell_guidance), [signals]);
@@ -186,150 +96,164 @@ export default function DashboardV5() {
 
   const status = String(regime.status || '').toUpperCase();
   const regimeTone = status === 'BULL' ? 'up' : status === 'BEAR' ? 'down' : 'warn';
-  const updated = ago(sq.data?.generated_at);
-  const stale = sq.data?.generated_at && Date.now() - new Date(sq.data.generated_at).getTime() > 8 * 864e5;
+  const gen = sq.data?.generated_at;
+  const stale = gen && Date.now() - new Date(gen).getTime() > 8 * 864e5;
   const missed = actions.data?.missed ?? 0;
   const due = actions.data?.exitsDue ?? 0;
-  const today = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
+  const today = new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  const strength = Math.max(0, Math.min(100, n(regime.strength) ?? 0));
 
   return (
-    <div className="d5">
-      <header className="d5-hero">
+    <div className="d7">
+      <header className="d7-head">
         <div>
-          <p className="d5-date">{today}</p>
           <h1>Command center</h1>
+          <p className="d7-sub">{today} · Weekly recompute Sat 18:00 IST · Daily re-price on trading days</p>
         </div>
-        <div className="d5-fresh" title={sq.data?.generated_at || ''}>
-          <span className={`d5-dot ${stale ? 'warn' : 'up'}`} aria-hidden />
-          {sq.isLoading ? 'Loading scan…' : updated ? `Scan updated ${updated}` : 'Scan time unavailable'}
-          {stale && <span className="d5-chip d5-chip-warn">Stale</span>}
-        </div>
+        <p className={`d7-fresh${stale ? ' warn' : ''}`} title={gen || ''}>
+          <span className="d7-dot" aria-hidden />{sq.isLoading ? 'Loading scan…' : gen ? `Scan ${ago(gen)}${stale ? ' · stale' : ''}` : 'Scan time unavailable'}
+        </p>
       </header>
 
       {(missed > 0 || due > 0) && (
-        <Link to="/this-week" className={`d5-alert ${missed ? 'down' : ''}`}>
-          <AlertTriangle size={16} aria-hidden />
-          <span>
-            <b>{missed ? `The model has already sold ${missed} ${missed === 1 ? 'name' : 'names'} you still hold.` : `${due} exit${due === 1 ? '' : 's'} due on your book.`}</b>
-            {' '}{missed ? 'Sell the remainder at the next open.' : 'From the model’s plan versus your recorded ledger.'}
-          </span>
-          <ArrowRight size={16} aria-hidden className="d5-alert-go" />
+        <Link to="/this-week" className={`d7-alert${missed ? ' down' : ''}`}>
+          <b>{missed ? `The model has already sold ${missed} ${missed === 1 ? 'name' : 'names'} you still hold.` : `${due} exit${due === 1 ? '' : 's'} due on your book.`}</b>
+          <span>{missed ? 'Sell the remainder at the next open.' : 'From the model’s plan versus your recorded ledger.'}</span>
+          <span className="d7-alert-go">Review →</span>
         </Link>
       )}
 
-      <section className="d5-kpis" aria-label="Market and book summary">
-        <div className={`d5-kpi-hero d5-kpi-${regimeTone}`}>
-          <div className="d5-kpi-hero-top">
-            <p className="d5-lbl">Market regime</p>
-            <span className="d5-kpi-badge" data-num>Strength {n(regime.strength) ?? '—'}/100</span>
-          </div>
-          <p className="d5-kpi-hero-v">{status ? status.charAt(0) + status.slice(1).toLowerCase() : '—'}</p>
-          <div className="d5-meter" aria-hidden><span style={{ width: `${Math.max(0, Math.min(100, n(regime.strength) ?? 0))}%` }} /></div>
-          <svg viewBox="0 0 300 60" className="d5-kpi-wave" aria-hidden preserveAspectRatio="none">
-            <path d="M0 50 C40 46 60 30 100 34 S160 18 200 22 S260 6 300 10 L300 60 L0 60Z" />
-          </svg>
+      <dl className="d7-stats" aria-label="Market and book summary">
+        <div>
+          <dt>Market regime</dt>
+          <dd className={regimeTone}>{status ? status.charAt(0) + status.slice(1).toLowerCase() : '—'}</dd>
+          <span className="d7-meter" aria-label={`Strength ${strength} of 100`}><span style={{ width: `${strength}%` }} /></span>
         </div>
-        <div className="d5-kpi-card">
-          <span className="pf-ic cool"><Activity size={19} aria-hidden /></span>
-          <div>
-            <p className="d5-lbl">Breadth</p>
-            <p className={`d5-kpi ${tone(regime.breadth)}`} data-num>{n(regime.breadth) == null ? '—' : <>{arrow(regime.breadth)}{n(regime.breadth) > 0 ? '+' : ''}{String(regime.breadth).replace('-', MINUS)}</>}</p>
-            <p className="d5-sub">Advances − declines</p>
-          </div>
-        </div>
-        <div className="d5-kpi-card">
-          <span className="pf-ic warm"><Gauge size={19} aria-hidden /></span>
-          <div>
-            <p className="d5-lbl">India VIX</p>
-            <p className="d5-kpi" data-num>{n(regime.vix) ? n(regime.vix).toFixed(1) : '—'}</p>
-            <p className="d5-sub">{n(regime.vix) ? (regime.vix < 15 ? 'Calm' : regime.vix < 22 ? 'Normal' : 'Elevated') : 'Unavailable'}</p>
-          </div>
-        </div>
-        <div className="d5-kpi-card">
-          <span className="pf-ic up"><Sparkles size={19} aria-hidden /></span>
-          <div>
-            <p className="d5-lbl">This week</p>
-            <p className="d5-kpi" data-num>{sq.isLoading ? '—' : buys.length}<span className="d5-kpi-unit">fresh</span>{sq.isLoading ? '' : sells.length}<span className="d5-kpi-unit">to act</span></p>
-            <p className="d5-sub" data-num>{holds.length + sells.length} in the model book</p>
-          </div>
-        </div>
-      </section>
+        <div><dt>Strength</dt><dd data-num>{n(regime.strength) ?? '—'}<small>/100</small></dd></div>
+        <div><dt>Breadth</dt><dd data-num className={tone(regime.breadth)}>{n(regime.breadth) == null ? '—' : `${n(regime.breadth) > 0 ? '+' : ''}${String(regime.breadth).replace('-', MINUS)}`}</dd></div>
+        <div><dt>India VIX</dt><dd data-num>{n(regime.vix) ? n(regime.vix).toFixed(2) : '—'}</dd></div>
+        <div><dt>Fresh buys</dt><dd data-num>{sq.isLoading ? '—' : buys.length}</dd></div>
+        <div><dt>To act</dt><dd data-num className={sells.length ? 'acc' : ''}>{sq.isLoading ? '—' : sells.length}</dd></div>
+      </dl>
 
-      <div className="d5-grid">
-        <div className="d5-main">
-          <Section id="act" title="Act now" count={sq.isLoading ? null : sells.length}
-            hint="Take-profit tranches and exits from the model book. Most urgent first.">
-            {sq.isLoading ? <Skeleton rows={2} h={150} /> : sells.length === 0
-              ? <Empty icon={CircleDot} title="Nothing to sell or trim.">No position in the model book has reached a target, stop or time exit.</Empty>
-              : <div className="d5-cards">{[...sells].sort((a, b) => (b.sell_guidance?.urgency === 'high') - (a.sell_guidance?.urgency === 'high')).map((s) => <SellCard key={sym(s)} s={s} onOpen={setCard} />)}</div>}
-          </Section>
-
-          <Section id="buys" title="Fresh buys" count={sq.isLoading ? null : buys.length}
-            hint="Buy at the open, inside the buy window. Every call has an explicit stop and target."
-            action={<Link to="/premove" className="d5-link">All research <ArrowUpRight size={14} aria-hidden /></Link>}>
-            {sq.isLoading ? <Skeleton rows={3} h={210} /> : buys.length === 0
-              ? <Empty title="No fresh setups this week.">The model is designed to stay silent when nothing clears the bar. The weekly scan runs Saturday evening.</Empty>
-              : <div className="d5-cards">{buys.map((s) => <BuyCard key={sym(s)} s={s} onOpen={setCard} />)}</div>}
-          </Section>
-
-          <Section id="holds" title="Model book" count={sq.isLoading ? null : holds.length}
-            hint="Open positions in the model’s paper book. The rail runs stop → target; the dot is the last price.">
-            {sq.isLoading ? <Skeleton rows={1} h={160} /> : holds.length === 0
-              ? <Empty title="The model book is flat.">Positions appear here after a fresh buy fills.</Empty>
-              : (
-                <div className="d5-table-wrap">
-                  <table className="d5-table">
-                    <thead><tr><th scope="col">Symbol</th><th scope="col">Entry</th><th scope="col">Last</th><th scope="col">Since entry</th><th scope="col" className="d5-col-rail">Stop → target</th></tr></thead>
-                    <tbody>{holds.map((s) => <HoldRow key={sym(s)} s={s} onOpen={setCard} />)}</tbody>
-                  </table>
-                </div>
-              )}
-          </Section>
-        </div>
-
-        <aside className="d5-rail" aria-label="Your book and model health">
-          <div className="d5-panel">
-            <div className="d5-panel-head"><h2>Your positions</h2><Link to="/portfolio" className="d5-link">Portfolio <ArrowUpRight size={14} aria-hidden /></Link></div>
-            {exec.isLoading ? <Skeleton rows={1} h={80} /> : mine.length === 0 ? (
-              <p className="d5-muted">Record a fill from any call and it appears here, priced at the daily close.</p>
-            ) : (
-              <ul className="d5-mine">
-                {mine.slice(0, 8).map((p) => {
-                  const t = (p.ticker || '').toUpperCase();
-                  const avg = Number(costBasisOf(p)?.avg) || 0;
-                  const last = n(quotes.data?.[t]?.last_price) ?? avg;
-                  const ch = avg ? ((last - avg) / avg) * 100 : null;
+      <div className="d7-grid">
+        <div className="d7-main">
+          <Panel id="act" title="Act now" count={sq.isLoading ? null : sells.length} meta="Trims and exits from the model book">
+            {sq.isLoading ? <Loading rows={1} /> : sells.length === 0 ? <Empty>Nothing to sell or trim. No position has reached a target, stop or time exit.</Empty> : (
+              <div className="d7-tw"><table className="d7-t">
+                <thead><tr><th scope="col">Symbol</th><th scope="col">Action</th><th scope="col">Instruction</th><th scope="col" className="r">Suggested exit</th><th scope="col" className="r">Entry</th><th scope="col" className="r">Since entry</th><th scope="col"><span className="sr-only">Open</span></th></tr></thead>
+                <tbody>{sells.map((s) => {
+                  const g = s.sell_guidance || {};
+                  const kind = g.reason === 'stop' ? 'down' : 'up';
+                  const since = n(s.entry) ? ((n(s.current_price) - n(s.entry)) / n(s.entry)) * 100 : null;
                   return (
-                    <li key={p.signal_id || t}>
-                      <Link to={`/stock/${t}`}><span className="d5-sym">{t}</span><span className="d5-meta" data-num>{Number(p.remaining_qty)} × {inr(avg)}</span></Link>
-                      <span data-num className={tone(ch)}>{ch != null ? <>{arrow(ch)}{pct(ch)}</> : '—'}</span>
-                    </li>
+                    <tr key={sym(s)} onClick={() => setCard(s)}>
+                      <th scope="row">{sym(s)}</th>
+                      <td><span className={`d7-tag ${kind}`}>{n(g.partial_pct) != null ? `Trim ${g.partial_pct}%` : g.reason === 'stop' ? 'Exit · stop' : 'Exit'}</span></td>
+                      <td className="d7-text">{g.headline || 'Exit recommended'}</td>
+                      <td className="r" data-num>{fmt(g.suggested_exit_price ?? s.current_price)}</td>
+                      <td className="r" data-num>{fmt(s.entry)}</td>
+                      <td className={`r ${tone(since)}`} data-num>{pct(since)}</td>
+                      <td className="r"><button type="button" className="d7-btn" onClick={(e) => { e.stopPropagation(); setCard(s); }}>Plan</button></td>
+                    </tr>
                   );
-                })}
-              </ul>
+                })}</tbody>
+              </table></div>
             )}
-          </div>
+          </Panel>
 
-          <div className="d5-panel">
-            <div className="d5-panel-head"><h2>Model health</h2></div>
-            <dl className="d5-health">
-              <div><dt>Weekly scan</dt><dd className={stale ? 'warn' : 'up'}>{stale ? 'Stale' : updated ? 'Current' : '—'}</dd></div>
+          <Panel id="buys" title="Fresh buys" count={sq.isLoading ? null : buys.length}
+            meta={buys[0]?.buy_window_until ? `Buy at the open, through ${new Date(buys[0].buy_window_until).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}` : 'Buy at the open, inside the window'}
+            action={<Link to="/premove" className="d7-link">All research →</Link>}>
+            {sq.isLoading ? <Loading /> : buys.length === 0 ? <Empty>No fresh setups this week. The model stays silent when nothing clears the bar.</Empty> : (
+              <div className="d7-tw"><table className="d7-t">
+                <thead><tr>
+                  <th scope="col">Symbol</th><th scope="col" className="r">Entry</th><th scope="col" className="r">Stop</th>
+                  <th scope="col" className="r">Target</th><th scope="col" className="r">Upside</th><th scope="col" className="r">R:R</th>
+                  <th scope="col" className="d7-col-rail">Stop → target</th>
+                </tr></thead>
+                <tbody>{buys.map((s) => {
+                  const e = n(s.entry), st = n(s.stop), t = n(s.target);
+                  const up = e && t ? ((t - e) / e) * 100 : null;
+                  const rr = e && st && t && e > st ? (t - e) / (e - st) : null;
+                  const low = s.signal_conviction === 'low';
+                  return (
+                    <tr key={sym(s)} onClick={() => setCard(s)}>
+                      <th scope="row">{sym(s)}{(s.grade || 'A')[0] !== 'A' && <span className="d7-flag">Grade {(s.grade || '')[0]}</span>}{low && <span className="d7-flag">Low conviction</span>}</th>
+                      <td className="r" data-num>{fmt(e)}</td>
+                      <td className="r down" data-num>{fmt(st)}</td>
+                      <td className="r up" data-num>{fmt(t)}</td>
+                      <td className="r up" data-num>{pct(up)}</td>
+                      <td className="r" data-num>{rr != null ? `${rr.toFixed(1)}R` : '—'}</td>
+                      <td className="d7-col-rail"><Rail entry={e} stop={st} target={t} price={s.current_price} /></td>
+                    </tr>
+                  );
+                })}</tbody>
+              </table></div>
+            )}
+          </Panel>
+
+          <Panel id="book" title="Model book" count={sq.isLoading ? null : holds.length} meta="Open paper positions · dot = last close">
+            {sq.isLoading ? <Loading rows={2} /> : holds.length === 0 ? <Empty>The model book is flat.</Empty> : (
+              <div className="d7-tw"><table className="d7-t">
+                <thead><tr><th scope="col">Symbol</th><th scope="col" className="r">Entry</th><th scope="col" className="r">Last</th><th scope="col" className="r">Since entry</th><th scope="col" className="r">Stop</th><th scope="col" className="r">Target</th><th scope="col" className="d7-col-rail">Position</th></tr></thead>
+                <tbody>{holds.map((s) => {
+                  const e = n(s.entry), p = n(s.current_price);
+                  const ch = e && p ? ((p - e) / e) * 100 : null;
+                  return (
+                    <tr key={sym(s)} onClick={() => setCard(s)}>
+                      <th scope="row">{sym(s)}</th>
+                      <td className="r" data-num>{fmt(e)}</td><td className="r" data-num>{fmt(p)}</td>
+                      <td className={`r ${tone(ch)}`} data-num>{pct(ch)}</td>
+                      <td className="r d7-muted" data-num>{fmt(s.stop)}</td><td className="r d7-muted" data-num>{fmt(s.target)}</td>
+                      <td className="d7-col-rail"><Rail entry={s.entry} stop={s.stop} target={s.target} price={p} /></td>
+                    </tr>
+                  );
+                })}</tbody>
+              </table></div>
+            )}
+          </Panel>
+        </div>
+
+        <aside className="d7-side" aria-label="Your book and model health">
+          <Panel id="mine" title="Your positions" action={<Link to="/portfolio" className="d7-link">Portfolio →</Link>}>
+            {exec.isLoading ? <Loading rows={2} /> : mine.length === 0 ? (
+              <Empty>Record a fill from any call and it appears here, priced at the daily close.</Empty>
+            ) : (
+              <table className="d7-t d7-t-compact"><tbody>{mine.slice(0, 10).map((p) => {
+                const t = (p.ticker || '').toUpperCase();
+                const avg = Number(costBasisOf(p)?.avg) || 0;
+                const last = n(quotes.data?.[t]?.last_price) ?? avg;
+                const ch = avg ? ((last - avg) / avg) * 100 : null;
+                return (
+                  <tr key={p.signal_id || t}>
+                    <th scope="row"><Link to={`/stock/${t}`}>{t}</Link><span className="d7-qty" data-num>{Number(p.remaining_qty)} @ {fmt(avg)}</span></th>
+                    <td className={`r ${tone(ch)}`} data-num>{pct(ch)}</td>
+                  </tr>
+                );
+              })}</tbody></table>
+            )}
+          </Panel>
+
+          <Panel id="health" title="Model health">
+            <dl className="d7-kv">
+              <div><dt>Weekly scan</dt><dd className={stale ? 'warn' : 'up'}>{stale ? 'Stale' : gen ? 'Current' : '—'}</dd></div>
               <div><dt>Daily re-price</dt><dd className={cron.last_run_today ? 'up' : 'warn'}>{cron.last_run_today ? 'Ran today' : 'Pending'}</dd></div>
-              <div><dt>Win rate (paper)</dt><dd data-num>{n(metrics.win_rate) != null ? `${Number(metrics.win_rate).toFixed(0)}%` : '—'}</dd></div>
-              <div><dt>Max drawdown (paper)</dt><dd data-num className={tone(metrics.max_drawdown)}>{n(metrics.max_drawdown) != null ? pct(metrics.max_drawdown, 1, false) : '—'}</dd></div>
+              <div><dt>Win rate, paper</dt><dd data-num>{n(metrics.win_rate) != null ? `${Number(metrics.win_rate).toFixed(0)}%` : '—'}</dd></div>
+              <div><dt>Max drawdown, paper</dt><dd data-num className={tone(metrics.max_drawdown)}>{n(metrics.max_drawdown) != null ? `${MINUS}${Math.abs(metrics.max_drawdown).toFixed(1)}%` : '—'}</dd></div>
             </dl>
-            <p className="d5-muted">Forward paper record — not certified. Weekly recompute Saturday 18:00 IST; daily re-price on trading days.</p>
-          </div>
+            <p className="d7-note">Forward paper record — not certified.</p>
+          </Panel>
 
-          <nav className="d5-panel d5-quick" aria-label="Shortcuts">
-            <Link to="/this-week"><TrendingUp size={16} aria-hidden />This week’s plan</Link>
-            <Link to="/history"><Clock size={16} aria-hidden />Recommendation history</Link>
-            <Link to="/track-record"><LineChart size={16} aria-hidden />Track record</Link>
+          <nav className="d7-panel d7-links" aria-label="Shortcuts">
+            <Link to="/this-week">This week’s plan</Link>
+            <Link to="/history">Recommendation history</Link>
+            <Link to="/track-record">Track record</Link>
           </nav>
         </aside>
       </div>
 
-      <footer className="d5-disc">{DISCLAIMER}</footer>
+      <footer className="d7-disc">{DISCLAIMER} Charts by TradingView Lightweight Charts™.</footer>
       <TradeCardModal sig={card} open={!!card} onOpenChange={(o) => !o && setCard(null)} />
     </div>
   );

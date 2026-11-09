@@ -183,3 +183,38 @@ amber = caution/time, coral = loss/stop. No emoji, no mixed icon sets.
 **Accuracy fix found on the way.** Three more pages (the shared PageShell, Research, Portfolio)
 carried the "SEBI Research Analyst … NSE data delayed 15 min" footer; all now read "Not
 SEBI-registered · Model-generated research output · Prices are daily closes".
+
+---
+
+## 10. v7 "Institutional" — the binding spec (owner, 2026-11-05)
+
+v5–v6.1 and the three canvas directions were rejected as unprofessional. The owner supplied
+references and a diagnosis; this section supersedes §3, §8 and §9 wherever they conflict.
+
+**References.** Stripe (restraint, one accent, tight component spacing inside generous section
+spacing), TradingView (dark-first, tabular/mono numerals, 1px dividers instead of shadows, colour
+only for signal), Interactive Brokers (muted navy/grey, real charts and numbers, dense aligned
+tables), Zerodha Kite (spartan, few icons, typography over decoration), Linear (no off-grid
+measurement anywhere).
+
+**The tells v6 had, now banned:** uniform padding everywhere; a drop shadow on every card;
+default icon tiles; centred single-column marketing stacks; blue/purple gradients and rounding
+everything; decorative squiggle charts.
+
+**Rules (hard):**
+- **Spacing:** 4 · 8 · 12 · 16 · 24 · 32 · 48 · 64 px only. Inside a component is tighter (8–16)
+  than between components (24–32) and sections (48–64).
+- **Type:** Inter for UI; JetBrains Mono for numerals in tables and price figures. Sizes
+  12 · 14 · 16 · 20 · 24 · 32 · 48 only. Weights 400 / 500 / 600.
+- **Colour:** one 7-step neutral ramp, one accent, semantic up/down. The accent is **not blue**
+  (every fintech is blue): amber `#F0B429`, used for primary actions, the active nav item and
+  focus, nothing else. Up `#20C4A0`, down `#FF6B4A` (CVD-validated, §3). No decorative gradients.
+- **Elevation:** 1px borders and background-tone shifts. Shadows only on true overlays (modals,
+  menus, toasts). Radius 4 (controls) / 6 (panels); nothing rounder except pills for status.
+- **Icons:** sparing. Text labels first; where an icon is needed, one 1.5px-stroke set at 16px,
+  no coloured tiles.
+- **Data:** decorative graphics are replaced by real chart components — `lightweight-charts`
+  (already a dependency, free) — fed with real-shaped data (the backtest series from the API on
+  the website; the signal book on the dashboard).
+- **Layout:** asymmetric grids; the website hero is a product shot rendered from real components,
+  not an illustration.

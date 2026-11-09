@@ -1,186 +1,122 @@
 /* ================================================================
-   DESIGN TOKENS v5 — "Ledger" (2026-11-05). Spec: docs/DESIGN_BRIEF_V5.md
-   A layer on top of tokens.css: it re-maps the existing variable NAMES to the v5
-   values, so every page moves to the new system at once. New components should use
-   the --l-* names below; the legacy names stay as aliases until each page is re-skinned.
+   DESIGN TOKENS v7 — "Institutional" (2026-11-05). Spec: docs/DESIGN_BRIEF_V5.md §10.
+   (File name kept from v5 so imports do not move.) Replaces the v5/v6 layers entirely.
+
+   Hard rules encoded here:
+   - spacing 4/8/12/16/24/32/48/64 only        - type 12/14/16/20/24/32/48 only
+   - Inter (UI) + JetBrains Mono (numerals)    - one neutral ramp, one amber accent, up/down
+   - 1px borders and tone shifts; shadows only on overlays; radius 4 / 6
    `:root:root` outranks the shadcn :root block in index.css without !important.
    ================================================================ */
-
 :root:root {
-  /* ── v5 primitives ── */
-  --l-ground:   #0A0C10;
-  --l-s1:       #111419;
-  --l-s2:       #171B21;
-  --l-s3:       #1E232B;
-  --l-line:     #20252D;
-  --l-line-2:   #2A303A;
-  --l-ink:      #F3F5F8;
-  --l-ink-2:    #A8B0BC;
-  --l-ink-3:    #78818E;
-  --l-ink-4:    #4B535E;
-  --l-brand:    #3D7BFF;
-  --l-brand-hi: #5B91FF;
-  --l-brand-lo: #2F66E0;
-  --l-brand-a:  rgba(61, 123, 255, 0.12);
-  --l-up:       #20C4A0;
-  --l-up-a:     rgba(32, 196, 160, 0.12);
-  --l-down:     #FF6B4A;
-  --l-down-a:   rgba(255, 107, 74, 0.12);
-  --l-warn:     #F5A524;
-  --l-warn-a:   rgba(245, 165, 36, 0.12);
+  /* neutral ramp (dark-first) */
+  --n0: #0B0E11;   /* ground */
+  --n1: #11151A;   /* panel */
+  --n2: #171C22;   /* raised / hover */
+  --n3: #1F252D;   /* input / pressed */
+  --n4: #2A313B;   /* strong line */
+  --line: #20262E; /* default 1px divider */
 
-  --l-sans: 'Geist Variable', 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --l-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --ink:   #E6E9EE;
+  --ink-2: #A3ACB9;
+  --ink-3: #7A8494;   /* 4.9:1 on n0 */
+  --ink-4: #4C5562;   /* disabled / decorative only */
 
-  --l-r-sm: 8px;
-  --l-r:    12px;
-  --l-r-lg: 16px;
-  --l-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --acc:       #F0B429;   /* not "--accent": shadcn owns that name (HSL channels below) */
+  --acc-hi: #F7C548;
+  --acc-ink:#14110A;
+  --acc-a:  rgba(240, 180, 41, .12);
+  --up:   #20C4A0;  --up-a:   rgba(32, 196, 160, .12);
+  --down: #FF6B4A;  --down-a: rgba(255, 107, 74, .12);
+  --warn: #F0B429;
 
-  /* ── legacy names → v5 values ── */
-  --brand: var(--l-brand);  --brand-hi: var(--l-brand-hi);  --brand-lo: var(--l-brand-lo);
-  --brand-soft: var(--l-brand-a);  --brand-edge: rgba(61, 123, 255, 0.45);
-  --brand-grad: linear-gradient(135deg, #2F66E0 0%, #3D7BFF 60%, #5B91FF 100%);
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 24px; --s6: 32px; --s7: 48px; --s8: 64px;
+  --t12: 12px; --t14: 14px; --t16: 16px; --t20: 20px; --t24: 24px; --t32: 32px; --t48: 48px;
+  --r1: 4px; --r2: 6px;
 
-  --surface-0: var(--l-ground);
-  --surface-1: var(--l-s1);  --surface-2: var(--l-s2);  --surface-3: var(--l-s3);
-  --surface-modal: var(--l-s1);
-  --surface-solid-0: var(--l-ground);  --surface-solid-1: var(--l-s1);
-  --surface-solid-2: var(--l-s2);      --surface-solid-3: var(--l-s3);
+  --sans: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --overlay-shadow: 0 8px 24px rgba(0, 0, 0, .5), 0 0 0 1px var(--n4);
 
-  --edge-1: var(--l-line);  --edge-2: var(--l-line-2);  --edge-3: #3A414D;
+  /* ── names used by the v5/v6 components (LandingV3, DashboardV5, Login) ── */
+  --l-ground: var(--n0); --l-s1: var(--n1); --l-s2: var(--n2); --l-s3: var(--n3);
+  --l-line: var(--line); --l-line-2: var(--n4);
+  --l-ink: var(--ink); --l-ink-2: var(--ink-2); --l-ink-3: var(--ink-3); --l-ink-4: var(--ink-4);
+  --l-brand: var(--acc); --l-brand-hi: var(--acc-hi); --l-brand-lo: #D99E14; --l-brand-a: var(--acc-a);
+  --l-up: var(--up); --l-up-a: var(--up-a); --l-down: var(--down); --l-down-a: var(--down-a);
+  --l-warn: var(--warn); --l-warn-a: var(--acc-a);
+  --l-sans: var(--sans); --l-mono: var(--mono);
+  --l-r-sm: var(--r1); --l-r: var(--r2); --l-r-lg: var(--r2);
+  --l-ease: cubic-bezier(.2, .8, .2, 1);
+  --l-grad: var(--acc); --l-grad-cool: var(--n3); --l-grad-up: var(--up);
+  --l-mesh: none; --l-card-bg: var(--n1); --l-card-shadow: none;
 
-  --text-1: var(--l-ink);  --text-2: var(--l-ink-2);  --text-3: var(--l-ink-3);  --text-4: var(--l-ink-4);
-
-  --bull: var(--l-up);    --bull-soft: var(--l-up-a);
-  --bear: var(--l-down);  --bear-soft: var(--l-down-a);
-  --warn: var(--l-warn);  --warn-soft: var(--l-warn-a);
-  --info: #5AB8FF;        --info-soft: rgba(90, 184, 255, 0.12);  --info-edge: rgba(90, 184, 255, 0.4);
-
-  --r-chip: var(--l-r-sm);  --r-card: var(--l-r);  --r-panel: var(--l-r-lg);
-
-  /* Depth is a hairline, not a glow. */
-  --shadow-glass: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-glass-lg: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 8px 24px rgba(0, 0, 0, 0.45);
-  --inset-specular: inset 0 1px 0 rgba(255, 255, 255, 0.03);
-  --glow-brand-strong: rgba(61, 123, 255, 0.22);
-  --glow-brand: rgba(61, 123, 255, 0.12);
-  --glow-brand-soft: rgba(61, 123, 255, 0.06);
-  --glow-brand-whisp: rgba(61, 123, 255, 0.03);
-  --glow-violet: transparent;  --glow-violet-soft: transparent;
-  --shadow-glow-sm: var(--shadow-sm);  --shadow-glow-md: var(--shadow-md);
-  --shadow-glow-lg: var(--shadow-glass-lg);  --shadow-glow-xl: var(--shadow-glass-lg);
-  --stage-light-brand: none;  --stage-light-brand-strong: none;
-  --stage-light-bull: none;   --stage-light-info: none;
-
-  --page-bg: var(--l-ground);
-
-  --font-sans: var(--l-sans);  --font-display: var(--l-sans);
-  /* Figures use the sans with tabular numerals (aligned, but not 'code'). */
-  --font-mono: var(--l-sans);
+  /* ── legacy app names ── */
+  --brand: var(--acc); --brand-hi: var(--acc-hi); --brand-lo: #D99E14;
+  --brand-soft: var(--acc-a); --brand-edge: rgba(240, 180, 41, .45); --brand-fg: var(--acc-ink); --brand-ink: var(--acc-ink);
+  --brand-grad: var(--acc);
+  --surface-0: var(--n0); --surface-1: var(--n1); --surface-2: var(--n2); --surface-3: var(--n3); --surface-modal: var(--n1);
+  --surface-solid-0: var(--n0); --surface-solid-1: var(--n1); --surface-solid-2: var(--n2); --surface-solid-3: var(--n3);
+  --edge-1: var(--line); --edge-2: var(--n4); --edge-3: #39424E; --edge-brand: var(--brand-edge);
+  --text-1: var(--ink); --text-2: var(--ink-2); --text-3: var(--ink-3); --text-4: var(--ink-4);
+  --bull: var(--up); --bull-soft: var(--up-a); --bear: var(--down); --bear-soft: var(--down-a);
+  --warn-soft: var(--acc-a); --info: #6EA8FE; --info-soft: rgba(110, 168, 254, .12); --info-edge: rgba(110, 168, 254, .4);
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 24px; --space-7: 32px; --space-8: 48px; --space-9: 64px;
+  --pad-card: 16px; --pad-card-lg: 24px; --gutter: 16px; --gutter-tight: 12px; --gutter-loose: 24px; --pad-cell-y: 8px; --pad-cell-x: 12px;
+  --fs-micro: 12px; --fs-xs: 12px; --fs-sm: 14px; --fs-base: 14px; --fs-md: 16px; --fs-lg: 20px; --fs-xl: 24px; --fs-2xl: 32px;
+  --r-chip: var(--r1); --r-card: var(--r2); --r-panel: var(--r2);
+  --shadow-sm: none; --shadow-md: none; --shadow-lg: var(--overlay-shadow);
+  --shadow-glass: none; --shadow-glass-lg: none; --inset-specular: none;
+  --shadow-glow-sm: none; --shadow-glow-md: none; --shadow-glow-lg: none; --shadow-glow-xl: none;
+  --glow-brand-strong: transparent; --glow-brand: transparent; --glow-brand-soft: transparent; --glow-brand-whisp: transparent;
+  --glow-violet: transparent; --glow-violet-soft: transparent; --glow-bull: transparent; --glow-bull-soft: transparent;
+  --glow-bear: transparent; --glow-bear-soft: transparent; --glow-info: transparent; --glow-info-soft: transparent;
+  --glow-warn: transparent; --glow-warn-soft: transparent;
+  --bloom-brand: none; --bloom-bull: none; --bloom-info: none;
+  --stage-light-brand: none; --stage-light-brand-strong: none; --stage-light-bull: none; --stage-light-info: none;
+  --page-bg: var(--n0);
+  --font-sans: var(--sans); --font-display: var(--sans); --font-mono: var(--mono);
 
   /* shadcn / Tailwind HSL channels */
-  --background: 220 23% 5%;   --foreground: 216 27% 96%;
-  --card: 220 19% 8%;         --card-foreground: 216 27% 96%;
-  --popover: 220 19% 8%;      --popover-foreground: 216 27% 96%;
-  --primary: 221 100% 62%;    --primary-foreground: 0 0% 100%;
-  --secondary: 217 16% 11%;   --secondary-foreground: 216 27% 96%;
-  --muted: 217 17% 14%;       --muted-foreground: 215 12% 70%;
-  --accent: 221 100% 62%;     --accent-foreground: 0 0% 100%;
-  --destructive: 358 100% 68%; --success: 152 74% 46%; --warning: 37 91% 55%;
-  --border: 217 17% 15%;      --input: 217 17% 15%;   --ring: 221 100% 62%;
-  --radius: 0.75rem;
+  --background: 210 21% 5%; --foreground: 216 18% 92%;
+  --card: 213 21% 8%; --card-foreground: 216 18% 92%;
+  --popover: 213 21% 8%; --popover-foreground: 216 18% 92%;
+  --primary: 41 87% 55%; --primary-foreground: 40 33% 6%;
+  --secondary: 213 18% 11%; --secondary-foreground: 216 18% 92%;
+  --muted: 213 18% 15%; --muted-foreground: 215 11% 68%;
+  --accent: 41 87% 55%; --accent-foreground: 40 33% 6%;
+  --destructive: 11 100% 65%; --success: 167 72% 45%; --warning: 41 87% 55%;
+  --border: 213 19% 15%; --input: 213 19% 15%; --ring: 41 87% 55%;
+  --radius: 0.375rem;
 }
 
-/* Glass is retired: surfaces are solid. */
-:root:root .glass, :root:root [class*="glass-card"] { -webkit-backdrop-filter: none; backdrop-filter: none; }
-
-html { background: var(--l-ground); }
+html, body { background: var(--n0); }
 body {
-  background: var(--l-ground);
-  color: var(--l-ink);
-  font-family: var(--l-sans);
-  font-feature-settings: 'ss01', 'cv11';
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+  color: var(--ink); font-family: var(--sans); font-size: 14px;
+  font-feature-settings: 'cv11', 'ss01'; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
 }
-::selection { background: rgba(61, 123, 255, 0.35); color: #fff; }
+::selection { background: rgba(240, 180, 41, .3); color: #fff; }
+:root:root .glass, :root:root [class*="glass-card"] { -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; }
 
-/* Every figure is mono + tabular (brief §4.1). */
-.tnum, .tabular-nums, .font-mono, [data-num] { font-family: var(--l-sans); font-variant-numeric: tabular-nums; font-feature-settings: 'tnum', 'ss01'; }
+/* numerals: mono in data contexts */
+.tnum, .tabular-nums, .font-mono, [data-num] { font-family: var(--mono); font-variant-numeric: tabular-nums; font-feature-settings: 'zero' 0; letter-spacing: 0; }
 
-/* Scrollbars: thin, quiet. */
-* { scrollbar-width: thin; scrollbar-color: #2A303A transparent; }
+* { scrollbar-width: thin; scrollbar-color: var(--n4) transparent; }
 
-/* App top bar tabs (inline-styled in TopBar.jsx): hover needs !important to beat the inline style. */
-.nq-tab:not([aria-current="page"]):hover { background: var(--l-s1) !important; color: var(--l-ink) !important; }
+/* focus — the accent, everywhere */
+:where(a, button, input, select, textarea, [tabindex]:not([tabindex="-1"]), [role="tab"]):focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
 
-/* ================================================================
-   v6 "PREMIUM FINTECH" LAYER (2026-11-05) — docs/DESIGN_BRIEF_V5.md §8
-   Later in the file at equal specificity, so these win over the v5 values above.
-   ================================================================ */
-:root:root {
-  --l-ground:  #070B1A;
-  --l-s1:      #0E1428;
-  --l-s2:      #141B34;
-  --l-s3:      #1C2442;
-  --l-line:    rgba(148, 163, 255, 0.10);
-  --l-line-2:  rgba(148, 163, 255, 0.18);
-  --l-ink:     #F5F7FF;
-  --l-ink-2:   #B4BCD8;
-  --l-ink-3:   #7F89AB;
-  --l-brand:   #4C6FFF;
-  --l-brand-hi:#7B93FF;
-  --l-violet:  #8B5CFF;
-  --l-cyan:    #22D3EE;
-  --l-grad:    linear-gradient(135deg, #3D63FF 0%, #7B5CFF 55%, #B05CFF 100%);
-  --l-grad-cool: linear-gradient(135deg, #2563FF 0%, #22D3EE 100%);
-  --l-grad-up: linear-gradient(135deg, #0EA58A 0%, #20C4A0 60%, #5EE6C4 100%);
-  --l-mesh:
-    radial-gradient(60% 50% at 12% -5%, rgba(61, 99, 255, .30), transparent 70%),
-    radial-gradient(45% 40% at 92% 8%, rgba(34, 211, 238, .14), transparent 70%),
-    radial-gradient(55% 45% at 55% 105%, rgba(139, 92, 255, .18), transparent 70%);
-  --l-card-bg: linear-gradient(180deg, rgba(255, 255, 255, .055) 0%, rgba(255, 255, 255, .015) 100%), #0E1428;
-  --l-card-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), 0 2px 6px rgba(0, 0, 0, .35), 0 24px 48px -24px rgba(0, 0, 0, .75);
-  --l-r-sm: 10px; --l-r: 18px; --l-r-lg: 24px;
+/* ── v6 utility class names, redefined flat (no gradients, no shadows) ── */
+.pf-card { background: var(--n1); border: 1px solid var(--line); border-radius: var(--r2); }
+.pf-ring::after { display: none; }
+.pf-ic { display: none; }
+.pf-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: var(--r1);
+  font: 600 14px var(--sans); color: var(--acc-ink) !important; background: var(--acc); border: 0; cursor: pointer; transition: background .12s; }
+.pf-btn:hover { background: var(--acc-hi); }
+.pf-btn-2 { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: var(--r1);
+  font: 500 14px var(--sans); color: var(--ink); background: transparent; border: 1px solid var(--n4); cursor: pointer; transition: background .12s, border-color .12s; }
+.pf-btn-2:hover { background: var(--n2); border-color: #39424E; }
+.pf-grad-text { color: var(--ink-3); }
 
-  --surface-1: var(--l-s1); --surface-2: var(--l-s2); --surface-3: var(--l-s3);
-  --edge-1: var(--l-line); --edge-2: var(--l-line-2);
-  --text-1: var(--l-ink); --text-2: var(--l-ink-2); --text-3: var(--l-ink-3);
-  --brand: var(--l-brand); --brand-hi: var(--l-brand-hi);
-  --brand-grad: var(--l-grad);
-  --shadow-glass: var(--l-card-shadow); --shadow-glass-lg: var(--l-card-shadow);
-  --r-card: var(--l-r); --r-panel: var(--l-r-lg); --r-chip: var(--l-r-sm);
-  --background: 229 58% 6%; --card: 228 48% 11%; --popover: 228 48% 11%;
-  --secondary: 228 44% 14%; --muted: 228 40% 18%; --border: 230 40% 18%; --input: 230 40% 18%;
-  --primary: 228 100% 65%; --ring: 228 100% 65%; --radius: 1rem;
-}
-html, body { background: var(--l-ground); }
-body { background-image: var(--l-mesh); background-attachment: fixed; background-repeat: no-repeat; }
-
-/* ── shared premium utilities ── */
-.pf-card { background: var(--l-card-bg); border: 1px solid var(--l-line); border-radius: var(--l-r); box-shadow: var(--l-card-shadow); }
-.pf-ring { position: relative; }
-.pf-ring::after { /* gradient hairline border */
-  content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
-  background: linear-gradient(140deg, rgba(123, 147, 255, .7), rgba(139, 92, 255, .25) 40%, rgba(34, 211, 238, .45));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
-}
-.pf-ic { width: 44px; height: 44px; border-radius: 13px; display: inline-grid; place-items: center; color: #fff; flex-shrink: 0;
-  background: var(--l-grad); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25), 0 8px 18px -8px rgba(76, 111, 255, .8); }
-.pf-ic.cool { background: var(--l-grad-cool); box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 8px 18px -8px rgba(34, 211, 238, .6); }
-.pf-ic.up { background: var(--l-grad-up); box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 8px 18px -8px rgba(32, 196, 160, .6); }
-.pf-ic.warm { background: linear-gradient(135deg, #F59E0B, #F97316); box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 8px 18px -8px rgba(249, 115, 22, .6); }
-.pf-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 22px; border-radius: 14px;
-  font-weight: 650; font-size: 15px; color: #fff !important; background: var(--l-grad); border: 0; cursor: pointer;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 12px 28px -10px rgba(91, 92, 255, .85); transition: transform .15s, box-shadow .15s, filter .15s; }
-.pf-btn:hover { filter: brightness(1.08); transform: translateY(-1px); box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 16px 34px -10px rgba(91, 92, 255, .95); }
-.pf-btn:active { transform: translateY(0); }
-.pf-btn-2 { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 22px; border-radius: 14px;
-  font-weight: 600; font-size: 15px; color: var(--l-ink); background: rgba(255,255,255,.06); border: 1px solid var(--l-line-2); cursor: pointer;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.06); transition: background .15s; }
-.pf-btn-2:hover { background: rgba(255,255,255,.1); }
-.pf-grad-text { background: linear-gradient(100deg, #8FA2FF 0%, #B79BFF 45%, #67E3F5 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
-@keyframes pf-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-@media (prefers-reduced-motion: reduce) { .pf-float { animation: none !important; } }
+/* app top-bar tabs (inline-styled in TopBar.jsx) */
+.nq-tab:not([aria-current="page"]):hover { background: var(--n2) !important; color: var(--ink) !important; }

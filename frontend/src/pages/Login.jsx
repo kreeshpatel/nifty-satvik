@@ -67,7 +67,7 @@ export default function Login() {
           <BrandMark size={28} /> Nifty Satvik
         </Link>
         <div className="auth5-side-body">
-          <p className="auth5-quote">“Trade the plan.<br /><span>Not the noise.</span>”</p>
+          <p className="auth5-quote">Systematic swing research<br /><span>for the Nifty 500.</span></p>
           <ul className="auth5-points">
             <li><ShieldCheck size={16} />No broker connection. We never place an order or hold your capital.</li>
             <li><KeyRound size={16} />Two-factor authentication available for every account.</li>

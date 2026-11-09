@@ -1,72 +1,67 @@
 /* ================================================================
-   PAGE KIT v6.1 (2026-11-05) — docs/DESIGN_BRIEF_V5.md §9
-   One look for every app page without rewriting each one: layered cards, one tab style,
-   one table style, denser rhythm. Selectors are prefixed with `html:root body` so they
-   outrank the per-page stylesheets that load later in lazy chunks.
+   PAGE KIT v7 (2026-11-05) — docs/DESIGN_BRIEF_V5.md §10.
+   Every app page, one register: 1px dividers and tone shifts (no shadows, no gradients),
+   radius 4/6, spacing on the 4/8 scale, Inter for text and JetBrains Mono for figures.
+   `html:root body` outranks the per-page stylesheets that load later in lazy chunks.
    ================================================================ */
-:root:root {
-  --pad-card: 16px; --pad-card-lg: 18px; --gutter: 12px; --gutter-tight: 10px; --gutter-loose: 18px;
-  --pad-cell-y: 10px; --pad-cell-x: 12px; --r-card: 16px; --l-r: 16px;
-}
 
-/* cards */
+/* panels */
 html:root body :is(.ri-card, .pv3-card, .ns-card, .pv3-risk-card, .pv3-eq-hero, .db-chart-card, .rh-stat, .pv3-pstat,
-  .pv3-eqh-kpi, .pv3-regime-strip, .pv3-actions-strip, .pv3-pnl-strip, .settings-layout > :last-child, .metric-strip) {
-  background: var(--l-card-bg); border: 1px solid var(--l-line); border-radius: 16px; box-shadow: var(--l-card-shadow);
+  .pv3-eqh-kpi, .pv3-regime-strip, .pv3-actions-strip, .pv3-pnl-strip, .settings-layout > :last-child, .metric-strip,
+  [class*="glass-card"], .glass) {
+  background: var(--n1); border: 1px solid var(--line); border-radius: var(--r2); box-shadow: none;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
 }
-html:root body :is([class*="glass-card"], .glass) { background: var(--l-card-bg); border-color: var(--l-line); box-shadow: var(--l-card-shadow); }
 
-/* list rows (This week) */
-html:root body .ns-row { background: var(--l-card-bg); border: 1px solid var(--l-line); border-radius: 14px; padding: 12px 14px; box-shadow: var(--l-card-shadow); transition: border-color .15s, transform .15s; }
-html:root body .ns-row:hover { border-color: var(--l-line-2); transform: translateY(-1px); }
-html:root body .ns-row--alarm { box-shadow: inset 3px 0 0 var(--l-down), var(--l-card-shadow); }
-html:root body .ns-btn { border-radius: 10px; height: 34px; font-weight: 600; }
-html:root body .ns-btn--primary { background: var(--l-grad); color: #fff; border: 0; box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 8px 18px -8px rgba(91,92,255,.8); }
+/* list rows (This week): a ruled list, not floating cards */
+html:root body .ns-row { background: transparent; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; box-shadow: none; padding: 12px 0; transform: none; }
+html:root body .ns-row:hover { background: var(--n1); }
+html:root body .ns-row--alarm { box-shadow: inset 2px 0 0 var(--down); padding-left: 12px; }
+html:root body .ns-btn { border-radius: var(--r1); height: 32px; font-weight: 500; font-size: 14px; background: transparent; border: 1px solid var(--n4); color: var(--ink); box-shadow: none; }
+html:root body .ns-btn:hover { background: var(--n2); }
+html:root body .ns-btn--primary { background: var(--acc); color: var(--acc-ink); border-color: var(--acc); }
 
-/* titles & section heads */
-html:root body :is(.ns-title, .t-title-1, .ri-title, .page-title) { font-size: 26px; font-weight: 760; letter-spacing: -0.035em; line-height: 1.15; }
-html:root body :is(.ns-section-h, .ri-card-h, .pv3-card-head, .ri-head, .t-title-2, .pv3-row-title) { font-weight: 700; letter-spacing: -0.015em; }
-html:root body :is(.ns-section-sub, .t-ui-footnote) { color: var(--l-ink-3); }
+/* titles and heads */
+html:root body :is(.ns-title, .t-title-1, .ri-title, .page-title) { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.25; }
+html:root body :is(.ns-section-h, .ri-card-h, .pv3-card-head, .ri-head, .t-title-2, .pv3-row-title) { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+html:root body :is(.ns-section-sub, .t-ui-footnote) { color: var(--ink-3); font-size: 12px; }
+.pg-head { display: flex; align-items: center; gap: 12px; }
+.pg-head .pf-ic { display: none; }
 
-/* tabs & segmented controls — one pill style */
-html:root body :is(.pv3-subtabs, .pv3-stocks-table-tabs, .pv3-eq-seg, .grade-filter, .seg) {
-  display: inline-flex; gap: 2px; padding: 3px; border-radius: 12px; background: rgba(255,255,255,.04); border: 1px solid var(--l-line);
+/* tabs and segmented controls: underline tabs, TradingView/Kite style */
+html:root body :is(.pv3-subtabs, .pv3-stocks-table-tabs, .grade-filter) {
+  display: flex; gap: 24px; padding: 0; border-radius: 0; background: none; border: 0; border-bottom: 1px solid var(--line);
 }
-html:root body :is(.pv3-subtab, .pv3-ttab, .gf-btn, .seg button) { border-radius: 9px; height: 30px; padding: 0 12px; font-size: 13px; font-weight: 550; color: var(--l-ink-2); background: transparent; border: 0; }
-html:root body :is(.pv3-subtab.active, .pv3-ttab.active, .gf-btn.on, .seg button.on) { background: var(--l-grad); color: #fff; box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 6px 14px -6px rgba(91,92,255,.8); }
-html:root body .settings-tab-btn { border-radius: 10px; height: 38px; font-weight: 550; }
+html:root body :is(.pv3-subtab, .pv3-ttab, .gf-btn) {
+  height: 40px; padding: 0; border-radius: 0; background: none; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px;
+  font-size: 14px; font-weight: 500; color: var(--ink-3); box-shadow: none;
+}
+html:root body :is(.pv3-subtab.active, .pv3-ttab.active, .gf-btn.on) { color: var(--ink); border-bottom-color: var(--acc); background: none; box-shadow: none; }
+html:root body :is(.pv3-eq-seg, .seg) { display: inline-flex; gap: 0; padding: 0; border: 1px solid var(--n4); border-radius: var(--r1); background: none; overflow: hidden; }
+html:root body :is(.pv3-eq-seg button, .seg button) { height: 28px; padding: 0 12px; border-radius: 0; font-size: 12px; font-weight: 500; color: var(--ink-3); background: none; box-shadow: none; }
+html:root body :is(.pv3-eq-seg button.active, .pv3-eq-seg button.on, .seg button.on) { background: var(--n3); color: var(--ink); box-shadow: none; }
+html:root body .settings-tab-btn { border-radius: var(--r1); height: 32px; font-weight: 500; font-size: 14px; }
 
 /* tables */
-html:root body :is(.rs-table, .ri-table, .pv3-stocks-table) { border-radius: 16px; overflow: hidden; background: var(--l-card-bg); border: 1px solid var(--l-line); box-shadow: var(--l-card-shadow); }
-html:root body :is(.ri-thead, .rs-head, .pv3-stocks-table-head, .pv3-row-head) { background: rgba(255,255,255,.03); font-size: 11.5px; letter-spacing: .04em; color: var(--l-ink-3); }
-html:root body :is(.ri-row, .pv3-row) { min-height: 40px; border-color: var(--l-line); transition: background .12s; }
-html:root body :is(.ri-row, .pv3-row):hover { background: rgba(255,255,255,.035); }
+html:root body :is(.rs-table, .ri-table, .pv3-stocks-table) { border-radius: var(--r2); overflow: hidden; background: var(--n1); border: 1px solid var(--line); box-shadow: none; }
+html:root body :is(.ri-thead, .rs-head, .pv3-stocks-table-head, .pv3-row-head) {
+  background: var(--n1); border-bottom: 1px solid var(--line); font-size: 12px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--ink-3);
+}
+html:root body :is(.ri-row, .pv3-row) { min-height: 40px; border-color: var(--line); transition: background .1s; }
+html:root body :is(.ri-row, .pv3-row):hover { background: var(--n2); }
+html:root body :is(.ri-cell, .pv3-td, .rs-c, .rs-r) { font-variant-numeric: tabular-nums; }
 
-/* chips & status */
-html:root body :is(.grade-badge, .conv-pill, .act-chip, .pv3-tag-bull, .pv3-tag-bear, .ns-chip--warn, .ns-chip--alarm) { border-radius: 8px; font-weight: 650; }
-
-/* page header icon tile (added in each page's JSX) */
-.pg-head { display: flex; align-items: center; gap: 14px; }
-.pg-head .pf-ic { width: 42px; height: 42px; border-radius: 13px; color: #fff; }
-.pg-head .pf-ic svg { width: 19px; height: 19px; }
-
-/* denser rhythm for page containers on phones */
-@media (max-width: 640px) {
-  html:root body :is(.ns-title, .t-title-1, .ri-title, .page-title) { font-size: 22px; }
-  .pg-head .pf-ic { width: 36px; height: 36px; border-radius: 11px; }
-  html:root body .ns-row { padding: 10px 12px; }
+/* chips: flat, small, square-ish */
+html:root body :is(.grade-badge, .conv-pill, .act-chip, .pv3-tag-bull, .pv3-tag-bear, .ns-chip--warn, .ns-chip--alarm, .ns-count--alarm) {
+  border-radius: var(--r1); font-weight: 500; font-size: 12px; box-shadow: none;
 }
 
-/* rows that already sit inside a card stay flat (no card-in-card) */
-html:root body :is(.ns-card, .ri-card, .pv3-card) .ns-row { background: rgba(255,255,255,.025); box-shadow: none; }
 @media (max-width: 640px) {
-  /* This week: two-line rows with the action inline. The per-row "set capital" hint hides
-     (the section's "Set your capital" control covers it); a real quantity stays visible. */
-  html:root body .ns-row { display: flex; flex-direction: row; align-items: center; gap: 10px; }
+  html:root body :is(.ns-title, .t-title-1, .ri-title, .page-title) { font-size: 20px; }
+  html:root body .ns-row { display: flex; flex-direction: row; align-items: center; gap: 12px; padding: 12px 0; }
   html:root body .ns-row .ns-row-l { flex: 1 1 auto; min-width: 0; }
-  html:root body .ns-row .ns-row-r { flex: 0 0 auto; width: auto; display: flex; align-items: center; gap: 6px; margin: 0; }
   html:root body .ns-row .ns-row-l > div { min-width: 0; }
+  html:root body .ns-row .ns-row-r { flex: 0 0 auto; width: auto; display: flex; align-items: center; gap: 8px; margin: 0; }
   html:root body .ns-row .ns-num--hint { display: none; }
-  html:root body .ns-row .ns-row-r .ns-num { font-size: 11.5px; }
-  html:root body .ns-row .ns-btn { height: 36px; padding: 0 12px; font-size: 13px; }
+  html:root body .ns-row .ns-row-r .ns-num { font-size: 12px; }
 }
