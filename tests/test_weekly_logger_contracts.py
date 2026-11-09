@@ -118,7 +118,9 @@ def test_the_checker_runs_after_the_commit_step():
     """Placement IS the design. Before the commit, a side-book defect would withhold the live book."""
     text = WORKFLOW.read_text(encoding="utf-8")
     commit_at = text.index("- name: Commit weekly paper state")
-    check_at = text.index("- name: Watched-book loggers must have logged this week")
+    # The logger check now runs inside the single health runner (2026-11-09), continue-on-error before
+    # the commit; the read-only RED gate after the commit is the invariant.
+    check_at = text.index("- name: Fail the run on RED scan health")
     assert check_at > commit_at, (
         "the logger check must run AFTER the commit — making it earlier would abort the job before the "
         "weekly state is saved, trading a silent miss for a lost week")
