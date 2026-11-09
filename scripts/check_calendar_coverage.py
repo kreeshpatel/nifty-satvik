@@ -29,7 +29,8 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--today", default=None)
     a = ap.parse_args(argv)
-    today = date.fromisoformat(a.today) if a.today else date.today()
+    from nq.data.trading_calendar import today_ist
+    today = date.fromisoformat(a.today) if a.today else today_ist()
     left = days_left(today, THROUGH)
     if left <= WARN_DAYS:
         print(f"::error::NSE holiday calendar ends {THROUGH} ({left} days). Run "

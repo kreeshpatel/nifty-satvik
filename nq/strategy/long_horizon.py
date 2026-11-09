@@ -40,13 +40,8 @@ def _grade(rank_pct: float) -> tuple[str, str]:
 
 def _add_trading_days(d: date, n: int) -> date:
     """Add ``n`` NSE trading days to ``d`` (skip weekends + NSE holidays)."""
-    cur, added = d, 0
-    while added < n:
-        cur += timedelta(days=1)
-        if cur.weekday() >= 5 or cur.strftime("%Y-%m-%d") in NSE_HOLIDAYS:
-            continue
-        added += 1
-    return cur
+    from nq.data.trading_calendar import add_sessions
+    return add_sessions(d, n, regular=True)
 
 
 def build_signal(
