@@ -65,3 +65,17 @@ html:root body :is(.grade-badge, .conv-pill, .act-chip, .pv3-tag-bull, .pv3-tag-
   html:root body .ns-row .ns-num--hint { display: none; }
   html:root body .ns-row .ns-row-r .ns-num { font-size: 12px; }
 }
+
+/* ── Ticker strip (components/shared/TickerStrip.jsx) — real index levels + model schedule ── */
+.tk { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--n1); overflow-x: auto; scrollbar-width: none; }
+.tk::-webkit-scrollbar { display: none; }
+.tk-in { display: flex; align-items: stretch; min-width: max-content; height: 32px; font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+.tk-cell { display: inline-flex; align-items: center; gap: 8px; padding: 0 16px; border-right: 1px solid var(--line); white-space: nowrap; }
+.tk-cell b { color: var(--ink); font-weight: 500; }
+.tk-name { color: var(--ink-2); font-family: var(--sans); }
+.tk-up { color: var(--up); } .tk-down { color: var(--down); }
+.tk-status { font-family: var(--sans); text-transform: uppercase; letter-spacing: .06em; }
+.tk-live { width: 6px; height: 6px; border-radius: 50%; background: var(--up); box-shadow: 0 0 0 3px var(--up-a); }
+.tk-clock { min-width: 96px; }
+.tk-muted { color: var(--ink-4); }
+.tk-end { margin-left: auto; border-right: 0; border-left: 1px solid var(--line); }

@@ -218,3 +218,23 @@ everything; decorative squiggle charts.
   the website; the signal book on the dashboard).
 - **Layout:** asymmetric grids; the website hero is a product shot rendered from real components,
   not an illustration.
+
+## 11. v7.1 — density by zone (owner, 2026-11-09)
+
+**Rule.** Every region has a job before it is laid out; a zone whose job is "nothing" is deleted,
+not padded. Sections meet through a 1px rule or a tone shift (n0 ↔ n1), never through empty
+height. Short columns get real content, not vertical centring. Small operational details
+(timestamps, sparklines, a ticker strip) carry the "running software" texture — all real data.
+
+**Website zones and their jobs**
+
+| Zone | Job |
+|---|---|
+| Ticker strip (under nav) | Real index levels + intraday sparklines from `/api/yahoo/index-sparklines`; model status cells: last re-score time, live countdown to the next one |
+| Hero left | Status line → headline (40px, not 48) → paragraph → this-week model counts (from the API when published, else universe facts) → CTAs → compliance line → 2×2 facts grid. Packed; fills the column |
+| Hero right | Instrument panel: header bar (tabs, data source), real chart, sample table, footnote row. Stretches to the left column's height — no gap under it |
+| Key-figures strip | Directly abuts the hero (tone n1). Five backtest figures, each with a real sparkline (equity, drawdown, yearly returns) |
+| Regulatory strip | One ruled line: Not SEBI-registered · research only · you place every order · in-sample, not certified · paper record since date |
+| Sections | Full-width header row (title left, summary right) then content; 40px vertical padding; alternating n0/n1 |
+| Access + FAQ | One section, two columns (was two sparse sections) |
+| Closing CTA | One compact row, not a hero-sized block |
