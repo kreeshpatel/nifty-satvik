@@ -1,0 +1,858 @@
+{
+  "rule": "stop moves to entry once the trade's peak reaches +1R (scaled_exit lockin_mfe=1.0, lockin_at=0.0)",
+  "status": "SHADOW \u2014 computed beside the live book, never traded, never shown on a card",
+  "authority": "diagnostics/research/explore/2026-11-03_giveback_solution_map.md; decided at a review, not here",
+  "effective": "2026-11-09",
+  "as_of": "2026-11-08",
+  "forward": {
+    "n_trades": 0,
+    "live_sum_R": 0,
+    "shadow_sum_R": 0,
+    "shadow_minus_live_R": 0
+  },
+  "reconstructed_before_effective": {
+    "n_trades": 55,
+    "live_sum_R": -25.18,
+    "shadow_sum_R": -23.16,
+    "shadow_minus_live_R": 2.01
+  },
+  "paper_book": {
+    "live": {
+      "equity": 960294.0,
+      "maxdd_pct": -13.895
+    },
+    "shadow": {
+      "equity": 1021331.65,
+      "maxdd_pct": -10.263
+    }
+  },
+  "trades": [
+    {
+      "ticker": "CUB",
+      "entry_date": "2026-07-06",
+      "forward": false,
+      "live": {
+        "R": 1.493,
+        "status": "open"
+      },
+      "shadow": {
+        "R": 0.728,
+        "status": "closed",
+        "exit_reason": "stop_part"
+      }
+    },
+    {
+      "ticker": "DELHIVERY",
+      "entry_date": "2026-07-06",
+      "forward": false,
+      "live": {
+        "R": -1.046,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -1.046,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "INDUSINDBK",
+      "entry_date": "2026-07-06",
+      "forward": false,
+      "live": {
+        "R": -0.932,
+        "status": "closed",
+        "exit_reason": "sma_break"
+      },
+      "shadow": {
+        "R": -0.117,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "NESTLEIND",
+      "entry_date": "2026-07-06",
+      "forward": false,
+      "live": {
+        "R": -1.198,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -0.653,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "LTF",
+      "entry_date": "2026-07-09",
+      "forward": false,
+      "live": {
+        "R": -1.855,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -1.855,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "BAJAJ-AUTO",
+      "entry_date": "2026-07-13",
+      "forward": false,
+      "live": {
+        "R": 3.12,
+        "status": "closed",
+        "exit_reason": "sma_break"
+      },
+      "shadow": {
+        "R": 3.12,
+        "status": "closed",
+        "exit_reason": "stop_part"
+      }
+    },
+    {
+      "ticker": "CANFINHOME",
+      "entry_date": "2026-07-13",
+      "forward": false,
+      "live": {
+        "R": -2.943,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -2.943,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "GLENMARK",
+      "entry_date": "2026-07-13",
+      "forward": false,
+      "live": {
+        "R": -0.926,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -0.926,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "NATCOPHARM",
+      "entry_date": "2026-07-13",
+      "forward": false,
+      "live": {
+        "R": -0.949,
+        "status": "closed",
+        "exit_reason": "sma_break"
+      },
+      "shadow": {
+        "R": -0.949,
+        "status": "closed",
+        "exit_reason": "sma_break"
+      }
+    },
+    {
+      "ticker": "NLCINDIA",
+      "entry_date": "2026-07-13",
+      "forward": false,
+      "live": {
+        "R": -1.965,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -1.965,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "BIOCON",
+      "entry_date": "2026-07-20",
+      "forward": false,
+      "live": {
+        "R": -1.164,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -1.164,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "LINDEINDIA",
+      "entry_date": "2026-07-20",
+      "forward": false,
+      "live": {
+        "R": -2.321,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -2.321,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "MRPL",
+      "entry_date": "2026-07-20",
+      "forward": false,
+      "live": {
+        "R": -0.287,
+        "status": "closed",
+        "exit_reason": "sma_break"
+      },
+      "shadow": {
+        "R": -0.287,
+        "status": "closed",
+        "exit_reason": "sma_break"
+      }
+    },
+    {
+      "ticker": "SIEMENS",
+      "entry_date": "2026-07-20",
+      "forward": false,
+      "live": {
+        "R": -0.35,
+        "status": "closed",
+        "exit_reason": "stop_part"
+      },
+      "shadow": {
+        "R": 0.763,
+        "status": "closed",
+        "exit_reason": "stop_part"
+      }
+    },
+    {
+      "ticker": "3MINDIA",
+      "entry_date": "2026-07-27",
+      "forward": false,
+      "live": {
+        "R": -0.574,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -0.574,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "GESHIP",
+      "entry_date": "2026-07-27",
+      "forward": false,
+      "live": {
+        "R": -1.456,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -1.456,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "GRAPHITE",
+      "entry_date": "2026-07-27",
+      "forward": false,
+      "live": {
+        "R": 1.393,
+        "status": "open"
+      },
+      "shadow": {
+        "R": 1.393,
+        "status": "open"
+      }
+    },
+    {
+      "ticker": "M&MFIN",
+      "entry_date": "2026-07-27",
+      "forward": false,
+      "live": {
+        "R": -0.776,
+        "status": "closed",
+        "exit_reason": "sma_break"
+      },
+      "shadow": {
+        "R": -0.134,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "TVSMOTOR",
+      "entry_date": "2026-07-27",
+      "forward": false,
+      "live": {
+        "R": 1.619,
+        "status": "open"
+      },
+      "shadow": {
+        "R": -0.078,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "GVT&D",
+      "entry_date": "2026-08-03",
+      "forward": false,
+      "live": {
+        "R": -0.957,
+        "status": "closed",
+        "exit_reason": "sma_break"
+      },
+      "shadow": {
+        "R": -0.957,
+        "status": "closed",
+        "exit_reason": "sma_break"
+      }
+    },
+    {
+      "ticker": "ENGINERSIN",
+      "entry_date": "2026-08-10",
+      "forward": false,
+      "live": {
+        "R": 2.661,
+        "status": "open"
+      },
+      "shadow": {
+        "R": 2.661,
+        "status": "open"
+      }
+    },
+    {
+      "ticker": "PTCIL",
+      "entry_date": "2026-08-10",
+      "forward": false,
+      "live": {
+        "R": 2.885,
+        "status": "open"
+      },
+      "shadow": {
+        "R": 2.885,
+        "status": "open"
+      }
+    },
+    {
+      "ticker": "UNIONBANK",
+      "entry_date": "2026-08-10",
+      "forward": false,
+      "live": {
+        "R": -1.195,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -1.195,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "HINDALCO",
+      "entry_date": "2026-08-11",
+      "forward": false,
+      "live": {
+        "R": -1.13,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -1.13,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "ADANIPORTS",
+      "entry_date": "2026-08-17",
+      "forward": false,
+      "live": {
+        "R": 3.31,
+        "status": "open"
+      },
+      "shadow": {
+        "R": 3.31,
+        "status": "open"
+      }
+    },
+    {
+      "ticker": "APLAPOLLO",
+      "entry_date": "2026-08-17",
+      "forward": false,
+      "live": {
+        "R": 0.718,
+        "status": "open"
+      },
+      "shadow": {
+        "R": -0.39,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "CCL",
+      "entry_date": "2026-08-17",
+      "forward": false,
+      "live": {
+        "R": -2.177,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -2.177,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "MCX",
+      "entry_date": "2026-08-17",
+      "forward": false,
+      "live": {
+        "R": 2.144,
+        "status": "open"
+      },
+      "shadow": {
+        "R": 2.144,
+        "status": "open"
+      }
+    },
+    {
+      "ticker": "IKS",
+      "entry_date": "2026-08-18",
+      "forward": false,
+      "live": {
+        "R": -1.08,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -1.08,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "CUB",
+      "entry_date": "2026-08-24",
+      "forward": false,
+      "live": null,
+      "shadow": {
+        "R": 0.704,
+        "status": "closed",
+        "exit_reason": "stop_part"
+      }
+    },
+    {
+      "ticker": "JSWSTEEL",
+      "entry_date": "2026-08-24",
+      "forward": false,
+      "live": {
+        "R": -1.366,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -1.366,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "PHOENIXLTD",
+      "entry_date": "2026-08-24",
+      "forward": false,
+      "live": {
+        "R": -0.83,
+        "status": "closed",
+        "exit_reason": "stop_part"
+      },
+      "shadow": {
+        "R": -0.588,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "SAIL",
+      "entry_date": "2026-08-24",
+      "forward": false,
+      "live": {
+        "R": 0.033,
+        "status": "closed",
+        "exit_reason": "stop_part"
+      },
+      "shadow": {
+        "R": 0.796,
+        "status": "closed",
+        "exit_reason": "stop_part"
+      }
+    },
+    {
+      "ticker": "HINDZINC",
+      "entry_date": "2026-08-31",
+      "forward": false,
+      "live": {
+        "R": -1.741,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -1.741,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "USHAMART",
+      "entry_date": "2026-08-31",
+      "forward": false,
+      "live": {
+        "R": -0.74,
+        "status": "closed",
+        "exit_reason": "stop_part"
+      },
+      "shadow": {
+        "R": 0.723,
+        "status": "closed",
+        "exit_reason": "stop_part"
+      }
+    },
+    {
+      "ticker": "ASTERDM",
+      "entry_date": "2026-09-07",
+      "forward": false,
+      "live": {
+        "R": -1.905,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -1.905,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "IDFCFIRSTB",
+      "entry_date": "2026-09-07",
+      "forward": false,
+      "live": {
+        "R": -1.459,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -1.459,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "ANGELONE",
+      "entry_date": "2026-09-15",
+      "forward": false,
+      "live": {
+        "R": -1.152,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -1.152,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "BANDHANBNK",
+      "entry_date": "2026-09-15",
+      "forward": false,
+      "live": {
+        "R": -1.252,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -1.252,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "CHOLAFIN",
+      "entry_date": "2026-09-15",
+      "forward": false,
+      "live": {
+        "R": -4.529,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -4.529,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "GESHIP",
+      "entry_date": "2026-09-15",
+      "forward": false,
+      "live": {
+        "R": 1.314,
+        "status": "open"
+      },
+      "shadow": {
+        "R": 1.314,
+        "status": "open"
+      }
+    },
+    {
+      "ticker": "ABCAPITAL",
+      "entry_date": "2026-09-21",
+      "forward": false,
+      "live": {
+        "R": -1.076,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -1.076,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "POWERINDIA",
+      "entry_date": "2026-09-21",
+      "forward": false,
+      "live": {
+        "R": -1.231,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -1.231,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "MANAPPURAM",
+      "entry_date": "2026-09-28",
+      "forward": false,
+      "live": {
+        "R": -1.145,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -1.145,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "OBEROIRLTY",
+      "entry_date": "2026-09-28",
+      "forward": false,
+      "live": {
+        "R": -1.56,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -1.56,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "PHOENIXLTD",
+      "entry_date": "2026-09-28",
+      "forward": false,
+      "live": null,
+      "shadow": {
+        "R": -2.299,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "STARHEALTH",
+      "entry_date": "2026-09-28",
+      "forward": false,
+      "live": {
+        "R": 0.47,
+        "status": "open"
+      },
+      "shadow": {
+        "R": 0.47,
+        "status": "open"
+      }
+    },
+    {
+      "ticker": "NUVAMA",
+      "entry_date": "2026-10-05",
+      "forward": false,
+      "live": {
+        "R": 1.787,
+        "status": "open"
+      },
+      "shadow": {
+        "R": 1.787,
+        "status": "open"
+      }
+    },
+    {
+      "ticker": "FEDERALBNK",
+      "entry_date": "2026-10-12",
+      "forward": false,
+      "live": {
+        "R": 0.517,
+        "status": "open"
+      },
+      "shadow": {
+        "R": 0.517,
+        "status": "open"
+      }
+    },
+    {
+      "ticker": "IIFL",
+      "entry_date": "2026-10-12",
+      "forward": false,
+      "live": {
+        "R": -1.94,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -1.94,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "TATATECH",
+      "entry_date": "2026-10-12",
+      "forward": false,
+      "live": {
+        "R": -0.527,
+        "status": "closed",
+        "exit_reason": "stop_part"
+      },
+      "shadow": {
+        "R": -0.527,
+        "status": "closed",
+        "exit_reason": "stop_part"
+      }
+    },
+    {
+      "ticker": "AARTIIND",
+      "entry_date": "2026-10-19",
+      "forward": false,
+      "live": {
+        "R": -1.952,
+        "status": "closed",
+        "exit_reason": "stop"
+      },
+      "shadow": {
+        "R": -1.952,
+        "status": "closed",
+        "exit_reason": "stop"
+      }
+    },
+    {
+      "ticker": "TECHM",
+      "entry_date": "2026-10-19",
+      "forward": false,
+      "live": {
+        "R": 0.483,
+        "status": "open"
+      },
+      "shadow": {
+        "R": 0.483,
+        "status": "open"
+      }
+    },
+    {
+      "ticker": "TVSMOTOR",
+      "entry_date": "2026-10-19",
+      "forward": false,
+      "live": null,
+      "shadow": {
+        "R": 1.413,
+        "status": "open"
+      }
+    },
+    {
+      "ticker": "APARINDS",
+      "entry_date": "2026-11-02",
+      "forward": false,
+      "live": {
+        "R": -0.724,
+        "status": "open"
+      },
+      "shadow": {
+        "R": -0.724,
+        "status": "open"
+      }
+    },
+    {
+      "ticker": "KARURVYSYA",
+      "entry_date": "2026-11-02",
+      "forward": false,
+      "live": {
+        "R": 0.743,
+        "status": "open"
+      },
+      "shadow": {
+        "R": 0.743,
+        "status": "open"
+      }
+    },
+    {
+      "ticker": "NAVINFLUOR",
+      "entry_date": "2026-11-02",
+      "forward": false,
+      "live": {
+        "R": 0.55,
+        "status": "open"
+      },
+      "shadow": {
+        "R": 0.55,
+        "status": "open"
+      }
+    },
+    {
+      "ticker": "ZYDUSLIFE",
+      "entry_date": "2026-11-05",
+      "forward": false,
+      "live": {
+        "R": -0.005,
+        "status": "open"
+      },
+      "shadow": {
+        "R": -0.005,
+        "status": "open"
+      }
+    }
+  ],
+  "_why": "Only trades entered on or after `effective` are forward evidence. Earlier ones are listed for context but the rule was chosen after seeing them. Open trades are marked at the last close."
+}
