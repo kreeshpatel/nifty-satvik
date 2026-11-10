@@ -1,6 +1,6 @@
 {
-  "generated_utc": "2026-11-09T10:47:10.132752+00:00",
-  "generated_ist": "2026-11-09 16:17",
+  "generated_utc": "2026-11-10T10:47:16.955654+00:00",
+  "generated_ist": "2026-11-10 16:17",
   "as_of": "2026-11-09",
   "model": "weekly-swing-0094-rank-P",
   "source": "signals_today_weekly.json",
@@ -21,9 +21,9 @@
       "buy_window_until": "2026-11-15",
       "buy_window_open": true,
       "window_basis": {
-        "compared_against": "2026-11-09",
+        "compared_against": "2026-11-10",
         "data_as_of": "2026-11-09",
-        "feed_behind": false
+        "feed_behind": true
       },
       "filled_today": true,
       "expired": false,
@@ -44,9 +44,9 @@
       "buy_window_until": "2026-11-15",
       "buy_window_open": true,
       "window_basis": {
-        "compared_against": "2026-11-09",
+        "compared_against": "2026-11-10",
         "data_as_of": "2026-11-09",
-        "feed_behind": false
+        "feed_behind": true
       },
       "filled_today": false,
       "expired": false,
@@ -67,9 +67,9 @@
       "buy_window_until": "2026-11-15",
       "buy_window_open": true,
       "window_basis": {
-        "compared_against": "2026-11-09",
+        "compared_against": "2026-11-10",
         "data_as_of": "2026-11-09",
-        "feed_behind": false
+        "feed_behind": true
       },
       "filled_today": false,
       "expired": false,
@@ -90,9 +90,9 @@
       "buy_window_until": "2026-11-15",
       "buy_window_open": true,
       "window_basis": {
-        "compared_against": "2026-11-09",
+        "compared_against": "2026-11-10",
         "data_as_of": "2026-11-09",
-        "feed_behind": false
+        "feed_behind": true
       },
       "filled_today": true,
       "expired": false,
@@ -113,9 +113,9 @@
       "buy_window_until": "2026-11-15",
       "buy_window_open": true,
       "window_basis": {
-        "compared_against": "2026-11-09",
+        "compared_against": "2026-11-10",
         "data_as_of": "2026-11-09",
-        "feed_behind": false
+        "feed_behind": true
       },
       "filled_today": false,
       "expired": false,
@@ -2028,7 +2028,7 @@
   "n_missed_unpriceable": 0,
   "missed_unpriceable": [],
   "scheduler_health": {
-    "checked_utc": "2026-11-09T10:47:10.134997+00:00",
+    "checked_utc": "2026-11-10T10:47:16.957563+00:00",
     "overall": "CONTRACT_BREACH",
     "source_of_truth": "actions-run-log",
     "jobs": [
@@ -2042,7 +2042,7 @@
         "last_fired_utc": "2026-10-03T14:14:57+00:00",
         "artifact_last_utc": "2026-11-08T00:00:00+00:00",
         "artifact_corroborates": false,
-        "age_days": 36.86,
+        "age_days": 37.86,
         "overdue_after_days": 9,
         "status": "OVERDUE"
       },
@@ -2052,11 +2052,11 @@
         "cadence": "weekday",
         "proof": "forward_accum_health.json",
         "source": "run-log",
-        "run_id": 42205194406,
-        "last_fired_utc": "2026-11-06T10:46:16+00:00",
-        "artifact_last_utc": "2026-11-06T10:47:04+00:00",
+        "run_id": 42603581745,
+        "last_fired_utc": "2026-11-09T10:46:24+00:00",
+        "artifact_last_utc": "2026-11-09T10:47:13+00:00",
         "artifact_corroborates": true,
-        "age_days": 3.0,
+        "age_days": 1.0,
         "overdue_after_days": 5,
         "status": "OK"
       },
@@ -2068,9 +2068,9 @@
         "source": "run-log",
         "run_id": 37128957384,
         "last_fired_utc": "2026-10-03T14:14:57+00:00",
-        "artifact_last_utc": "2026-11-09T10:46:32.307329+00:00",
+        "artifact_last_utc": "2026-11-10T10:46:47.347373+00:00",
         "artifact_corroborates": false,
-        "age_days": 36.86,
+        "age_days": 37.86,
         "overdue_after_days": 9,
         "status": "OVERDUE"
       },
@@ -2082,9 +2082,9 @@
         "source": "run-log",
         "run_id": 37128957384,
         "last_fired_utc": "2026-10-03T14:14:57+00:00",
-        "artifact_last_utc": "2026-11-09T10:46:32.290354+00:00",
+        "artifact_last_utc": "2026-11-10T10:46:47.337969+00:00",
         "artifact_corroborates": false,
-        "age_days": 36.86,
+        "age_days": 37.86,
         "overdue_after_days": 9,
         "status": "OVERDUE"
       },
@@ -2094,11 +2094,11 @@
         "cadence": "weekday",
         "proof": "intraday_scan",
         "source": "run-log",
-        "run_id": 42208188131,
-        "last_fired_utc": "2026-11-06T11:10:01+00:00",
-        "artifact_last_utc": "2026-11-09T10:46:32.300329+00:00",
+        "run_id": 42606826262,
+        "last_fired_utc": "2026-11-09T11:10:14+00:00",
+        "artifact_last_utc": "2026-11-10T10:46:47.342139+00:00",
         "artifact_corroborates": false,
-        "age_days": 2.98,
+        "age_days": 0.98,
         "overdue_after_days": 5,
         "status": "OK"
       },
@@ -2108,11 +2108,11 @@
         "cadence": "weekday",
         "proof": "paper_portfolio.json",
         "source": "run-log",
-        "run_id": 42222203214,
-        "last_fired_utc": "2026-11-06T13:01:52+00:00",
-        "artifact_last_utc": "2026-11-09T10:46:32.303329+00:00",
+        "run_id": 42622050857,
+        "last_fired_utc": "2026-11-09T13:02:58+00:00",
+        "artifact_last_utc": "2026-11-10T10:46:47.345140+00:00",
         "artifact_corroborates": false,
-        "age_days": 2.91,
+        "age_days": 0.91,
         "overdue_after_days": 5,
         "status": "OK"
       }
@@ -2121,11 +2121,11 @@
     "note": "Dead-man reconstruction produced by the daily monitor (the proven weekday heartbeat). Firing truth is the Actions run log; committed artifacts corroborate only. If THIS block's checked_utc is itself stale, the monitor has stopped and every downstream freshness claim is suspect.",
     "output_contracts": {
       "overall": "RED",
-      "checked_at": "2026-11-09T10:47:12.564463+00:00",
+      "checked_at": "2026-11-10T10:47:19.063040+00:00",
       "history": {
         "adequate": true,
         "shallow": false,
-        "n_commits": 1094,
+        "n_commits": 1097,
         "oldest_commit": "2026-06-29T03:34:14+05:30",
         "reaches_back_past_cadence": true
       },
@@ -2135,7 +2135,7 @@
           "status": "OK",
           "last_commit": "24ad2061",
           "committed_at": "2026-11-09T02:10:29Z",
-          "age_days": 0.36,
+          "age_days": 1.36,
           "missing_required": [],
           "missing_conditional": [],
           "n_paths_in_commit": 1
@@ -2145,29 +2145,27 @@
           "status": "OK",
           "last_commit": "fc783d8b",
           "committed_at": "2026-11-09T02:08:37Z",
-          "age_days": 0.36,
+          "age_days": 1.36,
           "missing_required": [],
           "missing_conditional": [],
           "n_paths_in_commit": 31
         },
         {
           "job": "forward-accumulators",
-          "status": "OK_WITH_WARN",
-          "last_commit": "695c6692",
-          "committed_at": "2026-11-06T10:47:08Z",
-          "age_days": 3.0,
+          "status": "OK",
+          "last_commit": "14853030",
+          "committed_at": "2026-11-09T10:47:16Z",
+          "age_days": 1.0,
           "missing_required": [],
-          "missing_conditional": [
-            "results/ratings_forward.csv"
-          ],
-          "n_paths_in_commit": 3
+          "missing_conditional": [],
+          "n_paths_in_commit": 4
         },
         {
           "job": "intraday-scan",
           "status": "OK",
-          "last_commit": "ed1beea5",
-          "committed_at": "2026-11-06T11:11:02Z",
-          "age_days": 2.98,
+          "last_commit": "90918f5f",
+          "committed_at": "2026-11-09T11:11:24Z",
+          "age_days": 0.98,
           "missing_required": [],
           "missing_conditional": [],
           "n_paths_in_commit": 1
@@ -2175,9 +2173,9 @@
         {
           "job": "forward-wall-log",
           "status": "CONTRACT_BREACH",
-          "last_commit": "aca1a23c",
-          "committed_at": "2026-11-06T13:03:55Z",
-          "age_days": 2.91,
+          "last_commit": "e2d3faa6",
+          "committed_at": "2026-11-09T13:04:55Z",
+          "age_days": 0.9,
           "missing_required": [],
           "missing_conditional": [
             "results/scheduler_health.json"
@@ -2186,10 +2184,9 @@
         }
       ],
       "breaches": [
-        "forward-wall-log: has stopped updating results/forward_wall_start.json (last written 88d ago, bound 20d)"
+        "forward-wall-log: has stopped updating results/forward_wall_start.json (last written 89d ago, bound 20d)"
       ],
       "warnings": [
-        "forward-accumulators: conditional artifact(s) not persisted: results/ratings_forward.csv",
         "forward-wall-log: conditional artifact(s) not persisted: results/scheduler_health.json"
       ],
       "indeterminate": [],
