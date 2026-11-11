@@ -1,36 +1,18 @@
 {
-  "generated_at": "2026-11-10",
-  "signals": [
-    {
-      "ticker": "LAURUSLABS",
-      "entry": 2455.23,
-      "stop": 2225.49,
-      "target": 3008.15,
-      "target_pct": 22.52,
-      "current_price": 2454.0,
-      "close": 2454.0,
-      "signal_date": "2026-11-09",
-      "hold_days": 63,
-      "grade": "B",
-      "tier": "signal",
-      "status": "ACTIVE",
-      "buy_window": "T+1..T+3 at open",
-      "indicative_close": 2454.0,
-      "indicative_entry": 2455.23
-    }
-  ],
+  "generated_at": "2026-11-11",
+  "signals": [],
   "regime": {
     "status": "UNKNOWN",
     "strength": 0,
     "vix": 0,
     "breadth": 0
   },
-  "n_positions": 14,
-  "cash": 72400.06,
+  "n_positions": 15,
+  "cash": 350.55,
   "kill_state": {
     "wr_last20": 40.0,
     "wr_breach": true,
-    "sharpe_30d": -2.278,
+    "sharpe_30d": -2.16,
     "sharpe_30d_breach": true,
     "mode": "observe"
   }
