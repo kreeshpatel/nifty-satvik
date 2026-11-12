@@ -9,7 +9,6 @@ import { toast } from 'sonner';
 import { searchStocks } from '@/services/kiteStock';
 import { AuthContext } from '@/context/AuthContext';
 import BrandLogo from './BrandLogo';
-import HeaderTicker from './HeaderTicker';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useUiScale } from '@/hooks/useUiScale';
 import { useOutstandingActions } from '@/hooks/queries/useExecution';
@@ -478,13 +477,9 @@ export function TopBar() {
     >
       {/* Logo lockup */}
       <BrandLogo to="/dashboard" size={30} wordSize={16} />
-
-      {/* Live index ticker — inline right after the brand (prototype layout).
-          min-width:0 lets the marquee shrink into the flexible column instead
-          of blowing out the grid. */}
-      <div className="nq-topbar-ticker" style={{ minWidth: 0, overflow: 'hidden' }}>
-        <HeaderTicker />
-      </div>
+      {/* Index levels moved to the shared TickerStrip under the bar (brief §11). Empty spacer
+          keeps the grid's flexible column. */}
+      <div aria-hidden style={{ minWidth: 0 }} />
 
       {/* Primary pill tabs — right-aligned (after the ticker), per the prototype. */}
       <nav

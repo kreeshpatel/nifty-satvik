@@ -33,7 +33,7 @@ export function PageShell({
   title,
   ambient = 'none',
   hero = false,
-  heroTone = 'brand',
+  heroTone = null,   // v7: no atmospheric hero band (brief §10); pass a tone explicitly to opt in
   heroHeight = 360,
   className,
   children,

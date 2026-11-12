@@ -89,3 +89,10 @@ html:root body :is(.grade-badge, .conv-pill, .act-chip, .pv3-tag-bull, .pv3-tag-
 @keyframes tk-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .tk-spin { animation: none; } }
 .tk-end { position: sticky; right: 0; background: var(--n1); z-index: 1; }
+
+/* Research tables (research.css): ruled rows, not floating boxes (brief §10) */
+html:root body .rs-table { gap: 0; }
+html:root body .rs-tr { border-radius: 0; border: 0; border-top: 1px solid var(--line); background: none; }
+html:root body .rs-tr:hover { background: var(--n2); border-color: var(--line); }
+html:root body .rs-th { white-space: nowrap; font-size: 12px; letter-spacing: 0; text-transform: none; color: var(--ink-3); }
+html:root body .rs-table > .ns-card { max-width: none; width: 100%; box-sizing: border-box; border: 0; border-top: 1px solid var(--line); border-radius: 0; background: none; padding: 16px; color: var(--ink-2); }
