@@ -96,3 +96,12 @@ html:root body .rs-tr { border-radius: 0; border: 0; border-top: 1px solid var(-
 html:root body .rs-tr:hover { background: var(--n2); border-color: var(--line); }
 html:root body .rs-th { white-space: nowrap; font-size: 12px; letter-spacing: 0; text-transform: none; color: var(--ink-3); }
 html:root body .rs-table > .ns-card { max-width: none; width: 100%; box-sizing: border-box; border: 0; border-top: 1px solid var(--line); border-radius: 0; background: none; padding: 16px; color: var(--ink-2); }
+
+/* v7 type scale for the shared hero number (KPICard on Admin/Backtest): 24px, not display size */
+html:root body .t-num-hero { font-size: 24px; line-height: 1.2; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Settings: flat panels, standard radius, underline-free nav */
+html:root body .settings-layout > * { border-radius: var(--r2); box-shadow: none; }
+html:root body .settings-layout [class*="rounded-"] { border-radius: var(--r2); }
+html:root body .settings-nav .settings-tab-btn[aria-selected="true"], html:root body .settings-nav .settings-tab-btn.active { background: var(--n2); border-color: var(--n4); color: var(--ink); }
+/* Admin tables and controls */
+html:root body [class*="admin"] table { font-variant-numeric: tabular-nums; }

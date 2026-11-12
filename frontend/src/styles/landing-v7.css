@@ -229,3 +229,19 @@
 .v7-yr td span { display: block; font-size: 12px; color: var(--ink-3); }
 .v7-yr td b { display: block; font-size: 14px; font-weight: 500; margin-top: 2px; }
 @media (max-width: 720px) { .v7-yr td { padding: 4px 6px; } .v7-yr td b { font-size: 12px; } }
+
+/* Legal & company pages (InfoPage) */
+.info7 { display: grid; grid-template-columns: 200px minmax(0, 720px); gap: 48px; padding-top: 48px; padding-bottom: 64px; }
+.info7-nav { display: grid; align-content: start; border-left: 1px solid var(--line); position: sticky; top: 72px; }
+.info7-nav a { font-size: 14px; color: var(--ink-3); padding: 8px 16px; border-left: 2px solid transparent; margin-left: -1px; }
+.info7-nav a:hover { color: var(--ink); }
+.info7-nav a[aria-current="page"] { color: var(--ink); border-left-color: var(--acc); }
+.info7-body h1 { font-size: 32px; font-weight: 600; letter-spacing: -0.03em; margin: 8px 0 24px; }
+.info7-body p:not(.v7-eyebrow) { font-size: 16px; line-height: 1.7; color: var(--ink-2); margin: 0 0 16px; }
+@media (max-width: 720px) {
+  .info7 { grid-template-columns: 1fr; gap: 24px; padding-top: 24px; }
+  .info7-nav { position: static; display: flex; flex-wrap: nowrap; overflow-x: auto; border-left: 0; border-bottom: 1px solid var(--line); scrollbar-width: none; }
+  .info7-nav a { border-left: 0; border-bottom: 2px solid transparent; margin: 0 0 -1px; padding: 8px 12px; white-space: nowrap; }
+  .info7-nav a[aria-current="page"] { border-bottom-color: var(--acc); }
+  .info7-body h1 { font-size: 24px; }
+}

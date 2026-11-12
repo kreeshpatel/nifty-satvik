@@ -103,7 +103,7 @@ export default function AdminV2() {
   if (user && !user.is_admin) return <Navigate to="/dashboard" replace />;
 
   return (
-    <PageShell title="Admin" heroTone="warn">
+    <PageShell title="Admin" heroTone={null}>
       <header style={{ paddingTop: 24, paddingBottom: 16 }}>
         <h1 className="t-title-1" style={{ margin: 0, color: 'var(--text-1)' }}>Admin</h1>
         <p className="t-ui-body" style={{ color: 'var(--text-2)', margin: '8px 0 0' }}>

@@ -1603,7 +1603,7 @@ export default function PortfolioV3({ initialMode } = {}) {
         <div className="pv3-row-head">
           <div>
             <div className="pv3-t-ui-micro">PORTFOLIO · MONITORING</div>
-            <div className="pg-head"><span className="pf-ic up" aria-hidden="true"><Briefcase /></span><h2 className="pv3-row-title">Portfolio</h2></div>
+            <div className="pg-head"><span className="pf-ic up" aria-hidden="true"><Briefcase /></span><h1 className="pv3-row-title">Portfolio · model paper book</h1></div>
             <div className="pv3-t-ui-footnote">
               {isPaper
                 ? "The model's paper book · a labeled reference, not your return"

@@ -100,7 +100,8 @@ export function PageShell({
               The in-page Header here was a holdover from the sidebar era — removed
               2026-05-21 so /dashboard, /signals etc don't render two stacked bars. */}
 
-          {title && <h1 className="sr-only">{title}</h1>}
+          {/* Pages render their own visible <h1>; a second hidden one made screen readers
+              announce two page titles (final-pass a11y sweep). `title` stays for callers. */}
 
           {hero && (
             <motion.div
