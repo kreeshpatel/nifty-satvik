@@ -6,11 +6,13 @@
  * first thing under the title — this is an in-sample backtest, not a track record of real money.
  */
 import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { useBhanushaliBacktest } from '@/hooks/queries/useBacktest';
 import LwChart from '@/components/charts/LwChart';
 import Spark from '@/components/charts/Spark';
 import { DISCLAIMER } from '@/lib/signalCopy';
+import { FALLBACK } from '@/lib/landingContent';
 import '@/styles/dashboard-v5.css';
 
 const MINUS = '−';
@@ -42,12 +44,22 @@ export default function TrackRecordV7() {
   const h = data?.headline ?? {};
   const meta = data?.meta ?? {};
 
-  const nav = useMemo(() => series(data?.equity_curve, 'nav'), [data?.equity_curve]);
+  // Portfolio growth curve: the committed 0094 simulation (8.11x, matches the 24.7% anchor), served by
+  // /api/landing-stats. NOT data.equity_curve — that is an R-compounded illustration that overstates
+  // the result (10.1x) by treating overlapping trades as sequential (docs/DATA_MAP.md §3).
+  const lsQ = useQuery({ queryKey: ['landing-stats'], queryFn: () => fetch('/api/landing-stats').then((r) => (r.ok ? r.json() : null)), staleTime: 60 * 60 * 1000 });
+  const growth = (lsQ.data?.equity_bt && lsQ.data.equity_bt.length ? lsQ.data.equity_bt : FALLBACK.equity_bt);
+  const toTime = (t) => { const v = String(t); return v.length === 7 ? `${v}-01` : v.slice(0, 10); };
+  const nav = useMemo(() => growth.filter((d) => d.s != null).map((d) => ({ time: toTime(d.t), value: Number(d.s) })), [growth]);
+  const bench = useMemo(() => growth.filter((d) => d.b != null).map((d) => ({ time: toTime(d.t), value: Number(d.b) })), [growth]);
   const cumR = useMemo(() => series(data?.cum_r_curve, 'cum_r'), [data?.cum_r_curve]);
   const dd = useMemo(() => { let pk = -Infinity; return nav.map((p) => { pk = Math.max(pk, p.value); return (p.value / pk - 1) * 100; }); }, [nav]);
-  const navChart = useMemo(() => [{ type: 'area', data: nav, color: '#20C4A0', title: 'NAV' }], [nav]);
+  const navChart = useMemo(() => [
+    { type: 'area', data: nav, color: '#20C4A0', title: 'Strategy' },
+    { type: 'line', data: bench, color: '#7A8494', width: 1, dashed: true, title: 'Nifty 500' },
+  ], [nav, bench]);
   const rChart = useMemo(() => [{ type: 'line', data: cumR, color: '#F0B429', title: 'Cum R' }], [cumR]);
-  const inrFormat = useMemo(() => ({ type: 'custom', formatter: (v) => `₹${(v / 1e5).toFixed(1)}L`, minMove: 1000 }), []);
+  const inrFormat = useMemo(() => ({ type: 'custom', formatter: (v) => `₹${v.toFixed(0)}`, minMove: 1 }), []);
 
   const reasons = useMemo(() => {
     const c = data?.exit_reasons ?? {};
@@ -90,8 +102,8 @@ export default function TrackRecordV7() {
 
           <div className="d7-grid">
             <div className="d7-main">
-              <Panel id="nav" title="Equity curve" meta={`₹${fmt(start / 1e5, 1)}L → ₹${fmt(end / 1e5, 1)}L · net of costs, before STCG`}>
-                <div className="d7-chart"><LwChart series={navChart} height={280} priceFormat={inrFormat} label="Backtest equity curve" /></div>
+              <Panel id="nav" title="Growth of ₹100" meta={`₹${fmt(start, 0)} → ₹${fmt(end, 0)} (${fmt(end / start, 2)}×) vs Nifty 500 · portfolio simulation, net of costs, before STCG`}>
+                <div className="d7-chart"><LwChart series={navChart} height={280} priceFormat={inrFormat} label="Backtest growth of 100, strategy versus Nifty 500" /></div>
               </Panel>
               <div className="d7-two">
                 <Panel id="cumr" title="Cumulative R" meta="sum of R-multiples, trade by trade">

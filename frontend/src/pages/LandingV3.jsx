@@ -79,7 +79,7 @@ export default function LandingV3() {
         backtest: { ...FALLBACK.backtest, ...(d.backtest || {}) },
         live: { ...FALLBACK.live, ...(d.live || {}) },
         weekly_swing: d.weekly_swing || null,
-        yearly_returns: Array.isArray(d.yearly_returns) && d.yearly_returns.length ? d.yearly_returns : FALLBACK.yearly_returns,
+        yearly_r: Array.isArray(d.yearly_r) && d.yearly_r.length ? d.yearly_r : FALLBACK.yearly_r,
         equity_bt: Array.isArray(d.equity_bt) && d.equity_bt.length ? d.equity_bt : FALLBACK.equity_bt,
       });
     }).catch(() => {});
@@ -99,7 +99,9 @@ export default function LandingV3() {
   const bVals = useMemo(() => eq.filter((d) => d.b != null).map((d) => Number(d.b)), [eq]);
   const rel = useMemo(() => eq.filter((d) => d.b != null).map((d) => Number(d.s) - Number(d.b)), [eq]);
   const dd = useMemo(() => { let pk = -Infinity; return sVals.map((v) => { pk = Math.max(pk, v); return (v / pk - 1) * 100; }); }, [sVals]);
-  const yr = useMemo(() => (stats.yearly_returns || []).map((y) => Number(y.net_pct)), [stats.yearly_returns]);
+  // Year-by-year in R, exact from the committed trade export (the % table was unverifiable — DATA_MAP §3).
+  const yrs = stats.yearly_r || FALLBACK.yearly_r;
+  const yr = useMemo(() => yrs.map((y) => Number(y.total_r)), [yrs]);
   const posYears = yr.filter((v) => v > 0).length;
   const { last: rescored } = rescoreTimes(new Date());
 
@@ -114,9 +116,9 @@ export default function LandingV3() {
   }, [eq]);
   const yearly = useMemo(() => [{
     type: 'histogram', lastValue: false,
-    data: (stats.yearly_returns || []).map((y) => ({ time: `${y.year}-07-01`, value: Number(y.net_pct), color: Number(y.net_pct) >= 0 ? '#20C4A0' : '#FF6B4A' })),
-  }], [stats.yearly_returns]);
-  const pctFormat = useMemo(() => ({ type: 'custom', formatter: (v) => `${v.toFixed(0)}%`, minMove: 1 }), []);
+    data: yrs.map((y) => ({ time: `${y.year}-07-01`, value: Number(y.total_r), color: Number(y.total_r) >= 0 ? '#20C4A0' : '#FF6B4A' })),
+  }], [yrs]);
+  const pctFormat = useMemo(() => ({ type: 'custom', formatter: (v) => `${v.toFixed(0)}R`, minMove: 1 }), []);
 
   const NAV = [['how', 'How it works'], ['record', 'Track record'], ['method', 'Methodology'], ['faq', 'FAQ']];
 
@@ -179,11 +181,11 @@ export default function LandingV3() {
                 <a href="/login" className="v7-link v7-cta-signin">Already invited? Sign in</a>
               </div>
 
-              <table className="v7-yr" aria-label="Calendar-year net returns, backtest">
-                <caption>Calendar-year net returns <span>backtest · * partial</span></caption>
+              <table className="v7-yr" aria-label="Result by exit year in R, backtest">
+                <caption>Result by exit year, in R <span>backtest · first and last years partial</span></caption>
                 <tbody>{[0, 1].map((row) => (
-                  <tr key={row}>{(stats.yearly_returns || []).slice(row * 5, row * 5 + 5).map((y) => (
-                    <td key={y.year}><span>{y.year}{y.partial ? '*' : ''}</span><b className={Number(y.net_pct) >= 0 ? 'v7-up' : 'v7-down'}>{signed(Number(y.net_pct), 1)}%</b></td>
+                  <tr key={row}>{yrs.slice(row * 5, row * 5 + 5).map((y) => (
+                    <td key={y.year}><span>{y.year} · {y.trades}t</span><b className={Number(y.total_r) >= 0 ? 'v7-up' : 'v7-down'}>{signed(Number(y.total_r), 1)}R</b></td>
                   ))}</tr>
                 ))}</tbody>
               </table>
@@ -241,7 +243,7 @@ export default function LandingV3() {
               <div><dt>CAGR, net</dt><dd data-num>~{num(bt.cagr_pct)}%</dd><Spark data={sVals} width={96} height={24} label="Strategy equity curve" /></div>
               <div><dt>vs Nifty 500</dt><dd data-num className="v7-up">{alpha != null ? `${signed(alpha)} pts` : '—'}</dd><Spark data={rel} width={96} height={24} label="Strategy minus benchmark" /></div>
               <div><dt>Nifty 500, same period</dt><dd data-num>₹{last && last.b != null ? num(last.b) : '—'}</dd><Spark data={bVals} width={96} height={24} tone="flat" label="Benchmark growth of ₹100" /></div>
-              <div><dt>Calendar years</dt><dd data-num>{posYears}<small> up · {yr.length - posYears} down</small></dd><Spark data={yr} width={96} height={24} bars label="Calendar-year returns" /></div>
+              <div><dt>Exit years</dt><dd data-num>{posYears}<small> positive · {yr.length - posYears} negative</small></dd><Spark data={yr} width={96} height={24} bars label="Total R by exit year" /></div>
               <div><dt>Max drawdown</dt><dd data-num className="v7-down">{num(bt.max_drawdown_pct)}%</dd><Spark data={dd} width={96} height={24} tone="down" label="Drawdown from peak" /></div>
             </dl>
           </div>
@@ -297,17 +299,19 @@ export default function LandingV3() {
                 <LwChart series={growth} height={240} label="Growth of ₹100, strategy versus Nifty 500, backtest" />
               </figure>
               <figure className="v7-panel">
-                <figcaption>Calendar-year returns <span>Net · first and last years partial</span></figcaption>
-                <LwChart series={yearly} height={240} priceFormat={pctFormat} label="Calendar-year net returns, backtest" />
+                <figcaption>Result by exit year <span>total R · first and last years partial</span></figcaption>
+                <LwChart series={yearly} height={240} priceFormat={pctFormat} label="Total R by exit year, backtest" />
               </figure>
-              <table className="v7-years" aria-label="Calendar-year net returns">
-                <thead><tr><th scope="col">Year</th>{(stats.yearly_returns || []).map((y) => <th scope="col" key={y.year}>{y.year}{y.partial ? '*' : ''}</th>)}</tr></thead>
-                <tbody><tr><th scope="row">Net</th>{(stats.yearly_returns || []).map((y) => (
-                  <td key={y.year} className={Number(y.net_pct) >= 0 ? 'v7-up' : 'v7-down'}>{signed(Number(y.net_pct), 1)}%</td>
-                ))}</tr></tbody>
+              <table className="v7-years" aria-label="Result by exit year">
+                <thead><tr><th scope="col">Year</th>{yrs.map((y) => <th scope="col" key={y.year}>{y.year}</th>)}</tr></thead>
+                <tbody>
+                  <tr><th scope="row">Trades</th>{yrs.map((y) => <td key={y.year}>{y.trades}</td>)}</tr>
+                  <tr><th scope="row">Win rate</th>{yrs.map((y) => <td key={y.year}>{num(y.win_rate)}%</td>)}</tr>
+                  <tr><th scope="row">Total R</th>{yrs.map((y) => <td key={y.year} className={Number(y.total_r) >= 0 ? 'v7-up' : 'v7-down'}>{signed(Number(y.total_r), 1)}</td>)}</tr>
+                </tbody>
               </table>
             </div>
-            <p className="v7-fine">Weekly-swing book, backtest {bt.period}, net of costs before 20% STCG, in-sample on the survivorship-corrected universe — Sharpe {num(bt.sharpe, 2)}, DSR {num(bt.dsr, 2)} (below the certification gate). Not indicative of future results; a handful of strong-trend years drive the total, with a &gt;40% peak-to-trough drawdown. No real capital has traded — the forward paper record since {live.since} is the real test. * partial year.</p>
+            <p className="v7-fine">Weekly-swing book, backtest {bt.period}, net of costs before 20% STCG, in-sample on the survivorship-corrected universe — Sharpe {num(bt.sharpe, 2)}, DSR {num(bt.dsr, 2)} (below the certification gate). Not indicative of future results; a handful of strong-trend years drive the total, with a &gt;40% peak-to-trough drawdown. No real capital has traded — the forward paper record since {live.since} is the real test. Year-by-year figures are R-multiples by exit year, computed directly from the committed trade export.</p>
           </div>
         </section>
 

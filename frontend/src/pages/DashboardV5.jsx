@@ -5,7 +5,8 @@
  * Data: the same hooks as before — no new endpoint.
  * Compliance: Nifty Satvik is NOT SEBI-registered; DISCLAIMER from @/lib/signalCopy.
  */
-import { useMemo, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
+import { AuthContext } from '@/context/AuthContext';
 import { Link } from 'react-router-dom';
 import { useSignals } from '@/hooks/queries/useSignals';
 import { useOverview } from '@/hooks/queries/useOverview';
@@ -75,7 +76,11 @@ function Loading({ rows = 3 }) { return <div aria-busy="true">{Array.from({ leng
 export default function DashboardV5() {
   const [card, setCard] = useState(null);
   const sq = useSignals({ model: 'bhanushali' });
-  const oq = useOverview();
+  // The paper book's metrics are OWNER-ONLY (docs/DATA_MAP.md §1): members don't request them
+  // and don't see the rows.
+  const { user } = useContext(AuthContext);
+  const isAdmin = !!user?.is_admin;
+  const oq = useOverview({ enabled: isAdmin });
   const actions = useOutstandingActions();
   const exec = useExecutionPositions();
 
@@ -239,8 +244,8 @@ export default function DashboardV5() {
             <dl className="d7-kv">
               <div><dt>Weekly scan</dt><dd className={stale ? 'warn' : 'up'}>{stale ? 'Stale' : gen ? 'Current' : '—'}</dd></div>
               <div><dt>Daily re-price</dt><dd className={cron.last_run_today ? 'up' : 'warn'}>{cron.last_run_today ? 'Ran today' : 'Pending'}</dd></div>
-              <div><dt>Win rate, paper</dt><dd data-num>{n(metrics.win_rate) != null ? `${Number(metrics.win_rate).toFixed(0)}%` : '—'}</dd></div>
-              <div><dt>Max drawdown, paper</dt><dd data-num className={tone(metrics.max_drawdown)}>{n(metrics.max_drawdown) != null ? `${MINUS}${Math.abs(metrics.max_drawdown).toFixed(1)}%` : '—'}</dd></div>
+              {isAdmin && <div><dt>Win rate, paper</dt><dd data-num>{n(metrics.win_rate) != null ? `${Number(metrics.win_rate).toFixed(0)}%` : '—'}</dd></div>}
+              {isAdmin && <div><dt>Max drawdown, paper</dt><dd data-num className={tone(metrics.max_drawdown)}>{n(metrics.max_drawdown) != null ? `${MINUS}${Math.abs(metrics.max_drawdown).toFixed(1)}%` : '—'}</dd></div>}
             </dl>
             <p className="d7-note">Forward paper record — not certified.</p>
           </Panel>

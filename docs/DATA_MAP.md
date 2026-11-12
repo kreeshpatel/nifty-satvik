@@ -47,23 +47,37 @@ see an admin-only panel rendered as an empty-looking real figure — hide it or 
   1,500 instead of 200 / 2,000, mispricing unrealised P&L on every re-entered position. Fixed to
   average-cost over shares still held; regression test added. Commit `f8a3712`.
 
-**Open — need the owner / a reproduction before anything changes** (published figures; the
-repo rule is reproduce-before-trust, so these were not edited)
-1. **Two different figures for the same backtest.** The website's `WEEKLY_SWING_TRACK` constant
-   says ₹10L → ₹81.15L (8.11×, CAGR 24.7%). Track record recomputes NAV from the trade export:
-   ₹10.05L → ₹101.7L (10.1×) — which over 2017–2026 implies roughly 28–29% CAGR, not 24.7%. One
-   of them is stale or uses different sizing; reproduce from the committed pipeline and publish
-   one number.
-2. **Website calendar-year returns may belong to a different model.** `YEARLY_RETURNS` in
-   `routers/landing_stats.py` is documented as *baseline_v1* returns *after* 20% STCG, but the
-   website labels them as the weekly-swing book *before* STCG. Either the data or the label is
-   wrong.
-3. **Missing price shows as zero P&L.** When a holding has no quote yet, the frontend prices it
-   at cost (`ledgerHoldingToRow`, Dashboard "Your positions"), so P&L reads 0.0% as if real. It
-   should say "no price yet".
-4. **Members see admin-only panels as blanks.** Dashboard "Model health" (win rate, max
-   drawdown) and Portfolio "Paper" are admin-only; members see "—". Decide: hide for members, or
-   label "owner only".
+**Resolved 2026-11-12 (owner: "re-run the numbers, hide owner-only panels")** — measurement only,
+no trial spent; method per `/plausibility-check` against the frozen-0094 anchor
+(`docs/references/plausibility_anchors.md` §6: CAGR 24.7%, MaxDD −42.4%, Sharpe ~1.132).
+
+1. **8.11× vs 10.1× — reconciled.** The website constant matches the anchor: 24.7% CAGR over the
+   export's window (2017-01-30 → 2026-06-29, 9.41 y) compounds to ≈8.0×, consistent with 8.11×.
+   The 10.1× was never a competing measurement: `/backtest/bhanushali` builds an R-compounded
+   illustration (each trade risks 2% of NAV, trades taken one after another), which overstates
+   the result by treating overlapping trades as sequential (implied ≈28.7% CAGR, ~4pp above the
+   anchor — "better than the anchor" was the defect signal). Fix: Track record now charts the
+   committed 0094 portfolio growth curve (`EQUITY_CURVE_BT`, 8.11×, vs Nifty 500); the endpoint
+   labels its curve `equity_curve_method: "r_compounded_sequential"` and keeps it only for API
+   compatibility.
+2. **Website calendar-year % — not reproducible, withdrawn.** The comment called them baseline_v1
+   after-STCG returns; they are not (baseline_v1's `daily_returns.csv` gives 2018 −4.7% vs the
+   site's +11.6%). They follow the 0094 curve's shape but differ from it by up to ~7pp and cannot
+   be reproduced without the pinned price data, so the website no longer shows them. Both pages
+   now show **trades, win rate and total R by exit year**, computed exactly from the committed
+   trade export by one shared helper (`yearly_breakdown`); the per-year R sums to the +122.7R
+   cumulative figure. `YEARLY_RETURNS` stays in the payload, marked deprecated, for old clients.
+3. **Owner-only panels hidden from members.** Portfolio's Paper view and Dashboard's paper win
+   rate / drawdown render only for admins, and members no longer request that data. Found on the
+   way: Portfolio's performance and risk strips read the paper book's metrics even in the
+   **Yours** view, so the model's Sharpe/drawdown appeared labelled as the user's. They now show
+   only in the Paper view.
+
+**Still open**
+- **Missing price shows as zero P&L** (`ledgerHoldingToRow`, Dashboard "Your positions"): to fix
+  in the Portfolio rebuild — show "no price yet" instead of pricing at cost.
+- **Exact calendar-year % for 0094**: needs a re-run of `scripts/run_bhanushali_weekly_rank.py`
+  on the pinned price data (not in this container) to export the daily equity series.
 
 ## 4. How the redesign uses this
 

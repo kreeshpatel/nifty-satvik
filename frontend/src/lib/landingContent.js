@@ -11,6 +11,20 @@ export const FALLBACK = {
     { year: '2022', net_pct: 34.8 }, { year: '2023', net_pct: 66.5 }, { year: '2024', net_pct: 9.9 },
     { year: '2025', net_pct: -13.0 }, { year: '2026', net_pct: 31.3, partial: true },
   ],
+  // Exact per-exit-year figures from research/exports/bhanushali_weekly_rank_0094_trades.csv
+  // (same helper as /api/backtest/bhanushali). Fallback only; the API serves the live copy.
+  yearly_r: [
+    { year: '2017', trades: 8, win_rate: 87.5, total_r: 6.49 },
+    { year: '2018', trades: 28, win_rate: 50.0, total_r: 13.43 },
+    { year: '2019', trades: 21, win_rate: 81.0, total_r: 16.58 },
+    { year: '2020', trades: 37, win_rate: 48.6, total_r: 8.68 },
+    { year: '2021', trades: 26, win_rate: 61.5, total_r: 17.61 },
+    { year: '2022', trades: 33, win_rate: 54.5, total_r: 14.76 },
+    { year: '2023', trades: 22, win_rate: 86.4, total_r: 21.84 },
+    { year: '2024', trades: 34, win_rate: 50.0, total_r: 12.23 },
+    { year: '2025', trades: 28, win_rate: 39.3, total_r: -7.57 },
+    { year: '2026', trades: 18, win_rate: 77.8, total_r: 18.65 },
+  ],
   equity_bt: [
     { t: '2017-01', s: 99.1,  b: 100.0 }, { t: '2018-01', s: 140.6, b: 109.3 },
     { t: '2019-01', s: 152.9, b: 102.8 }, { t: '2020-01', s: 210.4, b: 113.9 },
