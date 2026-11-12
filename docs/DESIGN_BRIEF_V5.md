@@ -255,3 +255,22 @@ machine, which is configured to suspend when idle to save cost (fly.toml, 2026-1
   once per focus.
 - Every signed-in page shows freshness in the ticker strip: when its data was last fetched,
   when the next publish is due, and a Refresh control that re-fetches everything now.
+
+## 13. Product definition (owner, 2026-11-12) — what the site is
+
+> "A website for the basic things Yahoo shows — everything about the company — plus one
+> additional thing: the recommendations we give. Users manually input the stocks they buy from
+> our recommendations to track them (optional). The research page only tracks the stocks we
+> have issued and their return after issue."
+
+**Page map this implies** (each page has one job; the data sources are in `docs/DATA_MAP.md`):
+
+| Page | Job | Data (already in the backend) |
+|---|---|---|
+| Home (dashboard) | Market today + this week's recommendations + a summary of what you track | index sparklines, `/api/signals`, your ledger |
+| Stock (`/stock/:symbol`) | Yahoo-style company page: quote, chart, key stats, profile, fundamentals, shareholding, peers, news — plus **our call on it**, if we issued one | `/api/yahoo/quote|historical|fundamentals|shareholding|peers|news`, `/api/signals` |
+| Research | **Only issued recommendations** and each one's return since issue (open and closed), with an aggregate | `/api/signals/history` (+ current `/api/signals`) — today split across Research and History; merge into one |
+| Portfolio | **Your** manually recorded buys/sells from our calls, priced at the daily close: holdings, P&L, realised trades. Optional — empty is a valid state | `/api/execution/*` (per user) |
+| This week | What to do this week: open buy windows, exits due on what you hold | signals + your ledger |
+
+Owner-only internals (the model's paper book) stay out of members' view (§DATA_MAP 1).

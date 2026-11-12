@@ -142,3 +142,15 @@
   .d7-panel:has(#trades-h) :is(th, td):nth-child(7) { display: none; }
 }
 .d7-panel:has(#exits-h) .d7-t tbody th { font-family: var(--sans); font-weight: 500; }
+
+/* Portfolio (v7) — empty-ledger onboarding */
+.d7-onboard { padding: 24px; max-width: 720px; }
+.d7-onboard h2 { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+.d7-onboard p { margin-top: 8px; color: var(--ink-2); font-size: 14px; line-height: 1.6; }
+.d7-onboard-cta { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+@media (max-width: 640px) {
+  .d7-panel:has(#hold-h) :is(th, td):nth-child(n+3):nth-child(-n+4),
+  .d7-panel:has(#hold-h) :is(th, td):nth-child(n+8),
+  .d7-panel:has(#closed-h) :is(th, td):nth-child(2), .d7-panel:has(#closed-h) :is(th, td):nth-child(3),
+  .d7-panel:has(#closed-h) :is(th, td):nth-child(7) { display: none; }
+}

@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 import { useSignals } from '@/hooks/queries/useSignals';
 import { useOverview } from '@/hooks/queries/useOverview';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
+import { useIndexSparklines } from '@/hooks/queries/useIndexSparklines';
 import { useExecutionPositions, useOutstandingActions } from '@/hooks/queries/useExecution';
 import { costBasisOf } from '@/lib/cards';
 import { DISCLAIMER } from '@/lib/signalCopy';
@@ -101,8 +102,13 @@ export default function DashboardV5() {
 
   const status = String(regime.status || '').toUpperCase();
   const regimeTone = status === 'BULL' ? 'up' : status === 'BEAR' ? 'down' : 'warn';
-  const gen = sq.data?.generated_at;
-  const stale = gen && Date.now() - new Date(gen).getTime() > 8 * 864e5;
+  // Real payload fields (checked against the live API, 2026-11-12): `scan_time` = weekly scan date,
+  // `monitor_generated_ist` = last daily re-price ("YYYY-MM-DD HH:MM", IST), cron_health.status.
+  const gen = sq.data?.monitor_generated_ist ? `${sq.data.monitor_generated_ist.replace(' ', 'T')}:00+05:30` : (sq.data?.scan_time || sq.data?.generated_at);
+  const stale = cron.status === 'STALE' || (gen && Date.now() - new Date(gen).getTime() > 8 * 864e5);
+  // The signals payload reports vix 0 when it has none; take India VIX from the index feed instead.
+  const idx = useIndexSparklines();
+  const vix = n(idx.data?.['INDIA VIX']?.ltp) ?? (n(regime.vix) || null);
   const missed = actions.data?.missed ?? 0;
   const due = actions.data?.exitsDue ?? 0;
   const today = new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
@@ -116,7 +122,7 @@ export default function DashboardV5() {
           <p className="d7-sub">{today} · Weekly recompute Sat 18:00 IST · Daily re-price on trading days</p>
         </div>
         <p className={`d7-fresh${stale ? ' warn' : ''}`} title={gen || ''}>
-          <span className="d7-dot" aria-hidden />{sq.isLoading ? 'Loading scan…' : gen ? `Scan ${ago(gen)}${stale ? ' · stale' : ''}` : 'Scan time unavailable'}
+          <span className="d7-dot" aria-hidden />{sq.isLoading ? 'Loading…' : gen ? `Re-priced ${ago(gen)}${sq.data?.scan_time ? ` · weekly scan ${new Date(sq.data.scan_time).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}` : ''}${stale ? ' · stale' : ''}` : 'Update time unavailable'}
         </p>
       </header>
 
@@ -136,7 +142,7 @@ export default function DashboardV5() {
         </div>
         <div><dt>Strength</dt><dd data-num>{n(regime.strength) ?? '—'}<small>/100</small></dd></div>
         <div><dt>Breadth</dt><dd data-num className={tone(regime.breadth)}>{n(regime.breadth) == null ? '—' : `${n(regime.breadth) > 0 ? '+' : ''}${String(regime.breadth).replace('-', MINUS)}`}</dd></div>
-        <div><dt>India VIX</dt><dd data-num>{n(regime.vix) ? n(regime.vix).toFixed(2) : '—'}</dd></div>
+        <div><dt>India VIX</dt><dd data-num>{vix != null ? vix.toFixed(2) : '—'}</dd></div>
         <div><dt>Fresh buys</dt><dd data-num>{sq.isLoading ? '—' : buys.length}</dd></div>
         <div><dt>To act</dt><dd data-num className={sells.length ? 'acc' : ''}>{sq.isLoading ? '—' : sells.length}</dd></div>
       </dl>
@@ -228,8 +234,10 @@ export default function DashboardV5() {
               <table className="d7-t d7-t-compact"><tbody>{mine.slice(0, 10).map((p) => {
                 const t = (p.ticker || '').toUpperCase();
                 const avg = Number(costBasisOf(p)?.avg) || 0;
-                const last = n(quotes.data?.[t]?.last_price) ?? avg;
-                const ch = avg ? ((last - avg) / avg) * 100 : null;
+                // quote, else the model's daily re-price of the same name; never cost (that read as 0.0%)
+                const modelPx = signals.find((s) => (s.ticker || '').toUpperCase() === t)?.current_price;
+                const last = n(quotes.data?.[t]?.last_price) ?? n(modelPx);
+                const ch = avg && last != null ? ((last - avg) / avg) * 100 : null;
                 return (
                   <tr key={p.signal_id || t}>
                     <th scope="row"><Link to={`/stock/${t}`}>{t}</Link><span className="d7-qty" data-num>{Number(p.remaining_qty)} @ {fmt(avg)}</span></th>
@@ -242,8 +250,8 @@ export default function DashboardV5() {
 
           <Panel id="health" title="Model health">
             <dl className="d7-kv">
-              <div><dt>Weekly scan</dt><dd className={stale ? 'warn' : 'up'}>{stale ? 'Stale' : gen ? 'Current' : '—'}</dd></div>
-              <div><dt>Daily re-price</dt><dd className={cron.last_run_today ? 'up' : 'warn'}>{cron.last_run_today ? 'Ran today' : 'Pending'}</dd></div>
+              <div><dt>Weekly scan</dt><dd data-num>{sq.data?.scan_time ? new Date(sq.data.scan_time).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—'}</dd></div>
+              <div><dt>Daily re-price</dt><dd className={cron.status === 'STALE' ? 'warn' : 'up'}>{cron.last_run_today ? 'Ran today' : cron.status === 'STALE' ? 'Stale' : 'Pending'}</dd></div>
               {isAdmin && <div><dt>Win rate, paper</dt><dd data-num>{n(metrics.win_rate) != null ? `${Number(metrics.win_rate).toFixed(0)}%` : '—'}</dd></div>}
               {isAdmin && <div><dt>Max drawdown, paper</dt><dd data-num className={tone(metrics.max_drawdown)}>{n(metrics.max_drawdown) != null ? `${MINUS}${Math.abs(metrics.max_drawdown).toFixed(1)}%` : '—'}</dd></div>}
             </dl>

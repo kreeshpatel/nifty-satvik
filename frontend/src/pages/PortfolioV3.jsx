@@ -26,6 +26,7 @@
 import { Briefcase } from 'lucide-react';
 import React, { useState, useMemo, useContext } from 'react';
 import { AuthContext } from '@/context/AuthContext';
+import { Navigate } from 'react-router-dom';
 import { useOverview } from '@/hooks/queries/useOverview';
 import { useNavHistory } from '@/hooks/queries/useNavHistory';
 import { usePaperHistory } from '@/hooks/queries/usePaperHistory';
@@ -1482,11 +1483,11 @@ function ActivityPanel({ holdings, trades, isLoading }) {
   );
 }
 
-export default function PortfolioV3() {
+export default function PortfolioV3({ initialMode } = {}) {
   // Two views: YOURS (the user's own self-reported holdings, from the Stage-4 execution ledger) and
   // PAPER (the model's ₹10L paper book, a labeled REFERENCE — not the user's return). Defaults to
   // Yours. No Kite (ADR 0011): the user executes on their own broker and reports fills.
-  const [mode, setMode] = useState('yours');
+  const [mode, setMode] = useState(initialMode || 'yours');
   const [ptab, setPtab] = useState('overview');   // sub-tab: overview | positions | closed | activity
   // The paper book is OWNER-ONLY (backend returns members an empty payload; docs/DATA_MAP.md §1).
   // Members never see the Paper view or its panels, and never request that data.
@@ -1583,6 +1584,9 @@ export default function PortfolioV3() {
   const isOverviewLoading = isPaper ? overviewQuery.isLoading : execQuery.isLoading;
   const isHoldingsLoading = isPaper ? paperQuery.isLoading : execQuery.isLoading;
   const closedLoading     = isPaper ? tradesQuery.isLoading : execQuery.isLoading;
+
+  // Owner-only route (/portfolio/paper): members go to their own portfolio.
+  if (initialMode === 'paper' && user && !isAdmin) return <Navigate to="/portfolio" replace />;
 
   return (
     <div className="pv3-page density-regular">

@@ -40,7 +40,8 @@ const StockDetailV2   = React.lazy(() => import('@/pages/StockDetailV2'));
 // is a second copy of a page nobody maintains that still ships in the bundle graph.
 const AdminV2         = React.lazy(() => import('@/pages/AdminV2'));
 const TrackRecordV7   = React.lazy(() => import('@/pages/TrackRecordV7'));
-const PortfolioV3     = React.lazy(() => import('@/pages/PortfolioV3'));
+const PortfolioV3     = React.lazy(() => import('@/pages/PortfolioV3'));   // owner-only paper book view
+const PortfolioV7     = React.lazy(() => import('@/pages/PortfolioV7'));
 const ThisWeek        = React.lazy(() => import('@/pages/ThisWeek'));
 const RecommendationHistory = React.lazy(() => import('@/pages/RecommendationHistory'));
 const SettingsV2      = React.lazy(() => import('@/pages/SettingsV2'));
@@ -249,7 +250,9 @@ function AnimatedRoutes() {
           {/* Portfolio RESURRECTED 2026-07-18 (Stage 5): a per-user self-report holdings page
               sourced from the execution ledger + owner quotes (ADR 0011), NOT Kite. Positions
               (the Kite-mirror page) stays stripped. */}
-          <Route path="/portfolio" element={<PageTransition><PortfolioV3 /></PageTransition>} />
+          <Route path="/portfolio" element={<PageTransition><PortfolioV7 /></PageTransition>} />
+          {/* Owner-only: the model's paper book (members are sent to their own portfolio). */}
+          <Route path="/portfolio/paper" element={<PageTransition><PortfolioV3 initialMode="paper" /></PageTransition>} />
           <Route path="/portfolio-v2" element={<Navigate to="/portfolio" replace />} />
           {/* The broker-mirror redirects (/positions /orders /funds /pnl /accounting /journal)
               were REMOVED 2026-08-27 with the dead Sidebar that was their only entry point. They

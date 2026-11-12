@@ -74,8 +74,13 @@ no trial spent; method per `/plausibility-check` against the frozen-0094 anchor
    only in the Paper view.
 
 **Still open**
-- **Missing price shows as zero P&L** (`ledgerHoldingToRow`, Dashboard "Your positions"): to fix
-  in the Portfolio rebuild — show "no price yet" instead of pricing at cost.
+- ~~Missing price shows as zero P&L~~ — fixed 2026-11-12 in the Portfolio rebuild and Dashboard:
+  price = owner's daily-close quote, else the model's own daily re-price of that call
+  (`current_price`), else "no price yet" and excluded from value and P&L. Never priced at cost.
+- **Wiring facts found against the real API** (not visible with mocks): signals carry no
+  `signal_id` (derived as `TICKER__signal_date`, `lib/signalId.js`); freshness fields are
+  `scan_time` and `monitor_generated_ist`; `regime.vix` is 0 when absent (India VIX now comes
+  from the index feed).
 - **Exact calendar-year % for 0094**: needs a re-run of `scripts/run_bhanushali_weekly_rank.py`
   on the pinned price data (not in this container) to export the daily equity series.
 
