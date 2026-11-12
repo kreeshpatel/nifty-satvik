@@ -66,7 +66,7 @@ export default function TickerStrip({ className = '' }) {
           );
         })}
         {!idx && !failed && <span className="tk-cell tk-muted">Loading index levels…</span>}
-        {failed && <span className="tk-cell tk-muted">Index levels unavailable</span>}
+        {(failed || (idx && items.length === 0)) && <span className="tk-cell tk-muted">Index levels unavailable</span>}
         <span className="tk-cell tk-muted tk-end">Prices: last session · delayed</span>
       </div>
     </div>

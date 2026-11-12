@@ -4,7 +4,8 @@
  * v7 rule is "no decorative squiggles" (docs/DESIGN_BRIEF_V5.md §10).
  *
  * series: [{ type: 'area' | 'line' | 'histogram', data: [{ time, value, color? }], color, title? }]
- * Colours read from the v7 tokens so the chart follows the theme.
+ * Colours read from the v7 tokens so the chart follows the theme. `fill` makes the chart take
+ * its container's height (min `height`), so a stretched panel has no empty band under the plot.
  */
 import { useEffect, useRef } from 'react';
 import { createChart, ColorType, CrosshairMode, LineStyle } from 'lightweight-charts';
@@ -15,15 +16,16 @@ const css = (name, fallback) => {
   return v || fallback;
 };
 
-export default function LwChart({ series = [], height = 280, label, priceFormat, timeVisible = false, className }) {
+export default function LwChart({ series = [], height = 280, fill = false, label, priceFormat, timeVisible = false, className }) {
   const box = useRef(null);
 
   useEffect(() => {
     const el = box.current;
     if (!el || !series.length) return undefined;
     const line = css('--line', '#20262E');
+    const h = () => (fill ? Math.max(height, el.clientHeight) : height);
     const chart = createChart(el, {
-      height,
+      height: h(),
       width: el.clientWidth,
       layout: { background: { type: ColorType.Solid, color: 'transparent' }, textColor: css('--ink-3', '#7A8494'),
         fontFamily: css('--mono', 'monospace'), fontSize: 11,
@@ -48,10 +50,10 @@ export default function LwChart({ series = [], height = 280, label, priceFormat,
       ser.setData(s.data);
     });
     chart.timeScale().fitContent();
-    const ro = new ResizeObserver(() => chart.applyOptions({ width: el.clientWidth }));
+    const ro = new ResizeObserver(() => chart.applyOptions({ width: el.clientWidth, height: h() }));
     ro.observe(el);
     return () => { ro.disconnect(); chart.remove(); };
-  }, [series, height, priceFormat, timeVisible]);
+  }, [series, height, fill, priceFormat, timeVisible]);
 
-  return <div ref={box} className={className} role="img" aria-label={label} style={{ height, width: '100%' }} />;
+  return <div ref={box} className={className} role="img" aria-label={label} style={{ height: fill ? '100%' : height, minHeight: height, width: '100%' }} />;
 }

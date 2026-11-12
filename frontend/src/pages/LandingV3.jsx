@@ -179,6 +179,15 @@ export default function LandingV3() {
                 <a href="/login" className="v7-link v7-cta-signin">Already invited? Sign in</a>
               </div>
 
+              <table className="v7-yr" aria-label="Calendar-year net returns, backtest">
+                <caption>Calendar-year net returns <span>backtest · * partial</span></caption>
+                <tbody>{[0, 1].map((row) => (
+                  <tr key={row}>{(stats.yearly_returns || []).slice(row * 5, row * 5 + 5).map((y) => (
+                    <td key={y.year}><span>{y.year}{y.partial ? '*' : ''}</span><b className={Number(y.net_pct) >= 0 ? 'v7-up' : 'v7-down'}>{signed(Number(y.net_pct), 1)}%</b></td>
+                  ))}</tr>
+                ))}</tbody>
+              </table>
+
               <dl className="v7-facts">
                 <div><dt>Universe</dt><dd>Nifty 500, large &amp; mid cap</dd></div>
                 <div><dt>Cadence</dt><dd>Weekly re-score · daily re-price</dd></div>
@@ -208,7 +217,7 @@ export default function LandingV3() {
                 <ul className="v7-legend" aria-hidden><li><i className="v7-key-s" />Strategy</li><li><i className="v7-key-b" />Nifty 500</li></ul>
               </div>
               <div className="v7-shot-chart">
-                <LwChart series={growth} height={230} label={`Growth of ₹100, ${bt.period}: strategy ₹${last ? num(last.s) : '—'} vs Nifty 500 ₹${last ? num(last.b) : '—'} (backtest, in-sample)`} />
+                <LwChart series={growth} height={220} fill label={`Growth of ₹100, ${bt.period}: strategy ₹${last ? num(last.s) : '—'} vs Nifty 500 ₹${last ? num(last.b) : '—'} (backtest, in-sample)`} />
               </div>
               <table className="v7-mini" aria-label="Sample research calls">
                 <caption>Research calls <span>Sample</span></caption>
@@ -240,8 +249,8 @@ export default function LandingV3() {
 
         <div className="v7-reg" role="note">
           <div className="v7-wrap v7-reg-in">
-            <span>Not SEBI-registered</span><span>Research &amp; decision support only</span><span>You place every order</span>
-            <span>Backtest in-sample, not certified</span><span>Forward paper record since <b data-num>{live.since}</b></span>
+            <span>Not SEBI-registered</span><span>Research only</span><span>You place every order</span>
+            <span>In-sample, not certified</span><span>Paper record since <b data-num>{live.since}</b></span>
           </div>
         </div>
 

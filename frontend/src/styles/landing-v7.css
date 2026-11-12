@@ -47,7 +47,7 @@
 .v7-kpis dd { font-size: 20px; font-weight: 500; margin-top: 4px; }
 .v7-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; }
 .v7-cta-signin { font-size: 12px; margin-left: 4px; }
-.v7-facts { display: grid; grid-template-columns: 1fr 1fr; margin-top: auto; padding-top: 16px; }
+.v7-facts { display: grid; grid-template-columns: 1fr 1fr; margin-top: 16px; }
 .v7-facts > div { padding: 8px 0; border-top: 1px solid var(--line); }
 .v7-facts > div:nth-child(odd) { padding-right: 12px; }
 .v7-facts dt { font-size: 12px; color: var(--ink-3); }
@@ -67,7 +67,7 @@
 .v7-key-s, .v7-key-b { display: inline-block; width: 12px; height: 2px; }
 .v7-key-s { background: var(--up); } .v7-key-b { background: var(--ink-3); }
 .v7-shot-chart { flex: 1 1 auto; min-height: 200px; padding: 0 8px 0 16px; display: flex; align-items: stretch; }
-.v7-shot-chart > div { flex: 1; }
+.v7-shot-chart > div { flex: 1; height: auto !important; }
 .v7-mini { width: 100%; border-collapse: collapse; font-size: 12px; }
 .v7-mini caption { text-align: left; padding: 8px 16px; font-family: var(--sans); font-size: 12px; font-weight: 500; color: var(--ink-2); border-top: 1px solid var(--line); }
 .v7-mini caption span { margin-left: 8px; padding: 0 4px; border: 1px solid var(--n4); border-radius: var(--r1); color: var(--ink-3); font-weight: 400; }
@@ -87,7 +87,7 @@
 .v7-figs-row svg { margin-bottom: 4px; }
 
 .v7-reg { border-bottom: 1px solid var(--line); background: var(--n0); }
-.v7-reg-in { display: flex; flex-wrap: wrap; gap: 0; font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .06em; }
+.v7-reg-in { display: flex; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; white-space: nowrap; gap: 0; font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .06em; }
 .v7-reg-in span { padding: 8px 16px; border-left: 1px solid var(--line); }
 .v7-reg-in span:first-child { padding-left: 0; border-left: 0; color: var(--acc); }
 .v7-reg-in b { color: var(--ink-2); font-weight: 500; }
@@ -220,3 +220,12 @@
   .v7-mcta.show { transform: none; }
   .v7-mcta > * { flex: 1; height: 44px; }
 }
+
+/* hero: calendar-year grid — real data that gives the copy column its weight */
+.v7-yr { width: 100%; margin-top: 16px; border-collapse: collapse; border: 1px solid var(--line); table-layout: fixed; }
+.v7-yr caption { text-align: left; font-size: 12px; color: var(--ink-3); padding-bottom: 8px; font-family: var(--sans); }
+.v7-yr caption span { color: var(--ink-4); margin-left: 8px; }
+.v7-yr td { padding: 8px 12px; border: 1px solid var(--line); font-family: var(--mono); }
+.v7-yr td span { display: block; font-size: 12px; color: var(--ink-3); }
+.v7-yr td b { display: block; font-size: 14px; font-weight: 500; margin-top: 2px; }
+@media (max-width: 720px) { .v7-yr td { padding: 4px 6px; } .v7-yr td b { font-size: 12px; } }

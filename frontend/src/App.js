@@ -13,6 +13,7 @@ import { queryClient } from '@/lib/queryClient';
 import { TopBar } from '@/components/layout/TopBar';
 import WatchlistRail from '@/components/layout/WatchlistRail';
 import MobileNav from '@/components/layout/MobileNav';
+import TickerStrip from '@/components/shared/TickerStrip';
 
 // Phase 8 polish: every page is code-split via React.lazy so the initial
 // bundle only carries the shell + auth + sidebar. Each route fetches its
@@ -134,6 +135,8 @@ function ProtectedAppLayout() {
         {/* WCAG 2.4.1 bypass block: keyboard users jump past the nav straight to the page. */}
         <a href="#main-content" className="skip-link">Skip to main content</a>
         <TopBar />
+        {/* Operational strip: real index levels + the model's re-score countdown (§11). */}
+        <TickerStrip />
         <div className="flex flex-1 min-w-0">
           <WatchlistRail />
           <main id="main-content" tabIndex={-1} className="flex-1 min-w-0 overflow-x-hidden relative z-10">
