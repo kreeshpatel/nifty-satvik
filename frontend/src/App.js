@@ -31,7 +31,7 @@ import InfoPage from '@/pages/InfoPage';
 // 2026-07-02, but a disclosure landmine one route change away. /landing-v1 still redirects to `/`.
 
 const DashboardV5     = React.lazy(() => import('@/pages/DashboardV5'));
-const SignalsV3       = React.lazy(() => import('@/pages/SignalsV3'));
+const ResearchV7      = React.lazy(() => import('@/pages/ResearchV7'));
 const BacktestV2      = React.lazy(() => import('@/pages/BacktestV2'));
 const StockDetailV2   = React.lazy(() => import('@/pages/StockDetailV2'));
 // AdminV2 is the canonical admin console (4-tab layout). The legacy Admin page and
@@ -43,7 +43,6 @@ const TrackRecordV7   = React.lazy(() => import('@/pages/TrackRecordV7'));
 const PortfolioV3     = React.lazy(() => import('@/pages/PortfolioV3'));   // owner-only paper book view
 const PortfolioV7     = React.lazy(() => import('@/pages/PortfolioV7'));
 const ThisWeek        = React.lazy(() => import('@/pages/ThisWeek'));
-const RecommendationHistory = React.lazy(() => import('@/pages/RecommendationHistory'));
 const SettingsV2      = React.lazy(() => import('@/pages/SettingsV2'));
 const PrimitivesShowcase = React.lazy(() => import('@/pages/_internal/Primitives'));
 const PreviewDashboard   = React.lazy(() => import('@/pages/_internal/PreviewDashboard'));
@@ -246,7 +245,9 @@ function AnimatedRoutes() {
           {/* The single "what to do this week" surface — consolidates the buys (Research),
               the exits (Portfolio's outstanding strip) and the monitor flags into one list. */}
           <Route path="/this-week" element={<PageTransition><ThisWeek /></PageTransition>} />
-          <Route path="/premove" element={<PageTransition><SignalsV3 /></PageTransition>} />
+          {/* Research = issued calls and their return since issue (brief §13). Replaces SignalsV3 + History. */}
+          <Route path="/premove" element={<PageTransition><ResearchV7 /></PageTransition>} />
+          <Route path="/research" element={<Navigate to="/premove" replace />} />
           {/* Portfolio RESURRECTED 2026-07-18 (Stage 5): a per-user self-report holdings page
               sourced from the execution ledger + owner quotes (ADR 0011), NOT Kite. Positions
               (the Kite-mirror page) stays stripped. */}
@@ -262,7 +263,7 @@ function AnimatedRoutes() {
           <Route path="/track-record" element={<PageTransition><TrackRecordV7 /></PageTransition>} />
           {/* Recommendation history: every posted weekly call and how it performed from the entry-week
               Monday open. Exited calls (target/stop/expired) live here, not on the live Research board. */}
-          <Route path="/history" element={<PageTransition><RecommendationHistory /></PageTransition>} />
+          <Route path="/history" element={<Navigate to="/premove" replace />} />
           <Route path="/backtest" element={<PageTransition><BacktestV2 /></PageTransition>} />
           <Route path="/settings" element={<PageTransition><SettingsV2 /></PageTransition>} />
           <Route path="/stock/:symbol" element={<PageTransition><StockDetailV2 /></PageTransition>} />

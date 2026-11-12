@@ -37,7 +37,7 @@ see an admin-only panel rendered as an empty-looking real figure — hide it or 
 | Track record | headline, equity, cum R, years, exits, trades | `/api/backtest/bhanushali` — **computed from** `research/exports/bhanushali_weekly_rank_0094_trades.csv` | shared | static |
 | Portfolio · Yours | holdings, realised P&L, actions | ledger + quotes + reconciliation | per user | focus |
 | Portfolio · Paper | NAV, curve, metrics, positions, trades | overview / nav-history / positions / trades | **admin only** | publish-aware |
-| History | every posted call and its outcome | `/api/signals/history` | shared | 15 min stale + focus |
+| Research (merged with History, 2026-11-12) | every issued call and its return since issue | `/api/signals/history` | shared | 15 min stale + focus |
 
 ## 3. Math findings
 
@@ -90,3 +90,19 @@ Each page is rebuilt against this table: one data source per panel, labelled sha
 owner-only, a freshness line, and no figure derived in the page that the backend already
 computes. Open items 1–2 are research/governance decisions for the owner; 3–4 are frontend fixes
 that ship with the Portfolio and Dashboard rebuild.
+
+## 5. Research page — what "return since issue" means (2026-11-12)
+
+The history payload carries two different results per call, and they can disagree in sign:
+- **Price return** (`return_pct`): exit price — or the latest daily close for an open call — versus
+  entry. What a reader means by "return since issue".
+- **Plan result** (`r_multiple`, `net_pnl`): the call's own outcome in R, *including* partial
+  profit-taking along the way. Example from the live record: BAJAJ-AUTO −0.44% on price but
+  +3.12R / +₹17,477 on the plan (it trimmed at higher prices before the final exit).
+
+The backend's `analytics.win_rate` (5.3% on 38 closed) counts plan results (r > 0); on price
+return 0 of 38 closed calls are positive. The page shows both, labelled. Closed calls skew to
+losers (stops exit within days, winners run for weeks), so the page always shows open, closed and
+all-calls figures together (live: all −2.5%, open +8.7%, closed −7.5%, 15 / 55 positive).
+`status` is `HIT_STOP` for every closed call whatever the exit, so outcomes are labelled from
+`exit_reason` (stop · stop_part · sma_break), not from `status`.
