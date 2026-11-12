@@ -39,7 +39,7 @@ const StockDetailV2   = React.lazy(() => import('@/pages/StockDetailV2'));
 // "emergency rollback", which git already is. An unrouted import is not a rollback, it
 // is a second copy of a page nobody maintains that still ships in the bundle graph.
 const AdminV2         = React.lazy(() => import('@/pages/AdminV2'));
-const TrackRecordV3   = React.lazy(() => import('@/pages/TrackRecordV3'));
+const TrackRecordV7   = React.lazy(() => import('@/pages/TrackRecordV7'));
 const PortfolioV3     = React.lazy(() => import('@/pages/PortfolioV3'));
 const ThisWeek        = React.lazy(() => import('@/pages/ThisWeek'));
 const RecommendationHistory = React.lazy(() => import('@/pages/RecommendationHistory'));
@@ -256,7 +256,7 @@ function AnimatedRoutes() {
               pointed at /premove, which is not what any of those words mean — a redirect that
               lands somewhere unrelated is worse than the catch-all, which sends an old bookmark
               home instead of to a page the user then has to make sense of. */}
-          <Route path="/track-record" element={<PageTransition><TrackRecordV3 /></PageTransition>} />
+          <Route path="/track-record" element={<PageTransition><TrackRecordV7 /></PageTransition>} />
           {/* Recommendation history: every posted weekly call and how it performed from the entry-week
               Monday open. Exited calls (target/stop/expired) live here, not on the live Research board. */}
           <Route path="/history" element={<PageTransition><RecommendationHistory /></PageTransition>} />
