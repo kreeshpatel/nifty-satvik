@@ -106,3 +106,19 @@ losers (stops exit within days, winners run for weeks), so the page always shows
 all-calls figures together (live: all −2.5%, open +8.7%, closed −7.5%, 15 / 55 positive).
 `status` is `HIT_STOP` for every closed call whatever the exit, so outcomes are labelled from
 `exit_reason` (stop · stop_part · sma_break), not from `status`.
+
+## 6. Company page (2026-11-12)
+
+Each panel fetches its own endpoint, so one provider failure degrades one panel: quote,
+historical, fundamentals, shareholding, peers, news (all `/api/yahoo/*`), plus our call from
+`/api/signals` + `/api/signals/history` matched by ticker. Quote refreshes every 5 min while NSE
+is open; fundamentals, peers and shareholding are cached for a day.
+
+**Dividend yield.** The provider's `dividendYield` field has changed units across versions
+(fraction vs percent; newer versions report 0.35 for a 0.35% yield). The page therefore computes
+yield as `dividend_rate / last_price × 100` and uses the provider field only as a fallback, read
+as a percent. The old page multiplied any value ≤ 1 by 100, which turned 0.21% into 21%.
+
+**Verification limit.** Yahoo is unreachable from the build container, so the full layout was
+checked with a fixture in the exact backend response shapes (`[date, o, h, l, c, v]` candles,
+fundamentals keys from `routers/yahoo_finance.py`); the outage state was checked for real.

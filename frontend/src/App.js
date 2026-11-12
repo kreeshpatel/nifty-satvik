@@ -33,7 +33,7 @@ import InfoPage from '@/pages/InfoPage';
 const DashboardV5     = React.lazy(() => import('@/pages/DashboardV5'));
 const ResearchV7      = React.lazy(() => import('@/pages/ResearchV7'));
 const BacktestV2      = React.lazy(() => import('@/pages/BacktestV2'));
-const StockDetailV2   = React.lazy(() => import('@/pages/StockDetailV2'));
+const StockV7         = React.lazy(() => import('@/pages/StockV7'));
 // AdminV2 is the canonical admin console (4-tab layout). The legacy Admin page and
 // TrackRecordV2 were DELETED 2026-08-27 — both had been unrouted for weeks, kept as
 // "emergency rollback", which git already is. An unrouted import is not a rollback, it
@@ -266,7 +266,7 @@ function AnimatedRoutes() {
           <Route path="/history" element={<Navigate to="/premove" replace />} />
           <Route path="/backtest" element={<PageTransition><BacktestV2 /></PageTransition>} />
           <Route path="/settings" element={<PageTransition><SettingsV2 /></PageTransition>} />
-          <Route path="/stock/:symbol" element={<PageTransition><StockDetailV2 /></PageTransition>} />
+          <Route path="/stock/:symbol" element={<PageTransition><StockV7 /></PageTransition>} />
           <Route path="/admin" element={<PageTransition><AdminV2 /></PageTransition>} />
         </Route>
 

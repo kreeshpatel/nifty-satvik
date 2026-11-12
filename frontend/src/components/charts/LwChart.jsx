@@ -3,7 +3,8 @@
  * library, already a dependency). Real chart component, real crosshair, real price scale — the
  * v7 rule is "no decorative squiggles" (docs/DESIGN_BRIEF_V5.md §10).
  *
- * series: [{ type: 'area' | 'line' | 'histogram', data: [{ time, value, color? }], color, title? }]
+ * series: [{ type: 'area' | 'line' | 'histogram' | 'candles' | 'volume', data, color, title? }]
+ *   candles: [{ time, open, high, low, close }] · volume: [{ time, value, color }]
  * Colours read from the v7 tokens so the chart follows the theme. `fill` makes the chart take
  * its container's height (min `height`), so a stretched panel has no empty band under the plot.
  */
@@ -44,7 +45,13 @@ export default function LwChart({ series = [], height = 280, fill = false, label
       const common = { priceLineVisible: false, lastValueVisible: s.lastValue !== false, title: s.title || '',
         ...(priceFormat ? { priceFormat } : {}) };
       let ser;
-      if (s.type === 'histogram') ser = chart.addHistogramSeries({ ...common, color: s.color, base: 0 });
+      if (s.type === 'candles') ser = chart.addCandlestickSeries({ ...common, upColor: css('--up', '#20C4A0'), downColor: css('--down', '#FF6B4A'),
+        borderVisible: false, wickUpColor: css('--up', '#20C4A0'), wickDownColor: css('--down', '#FF6B4A') });
+      else if (s.type === 'volume') {
+        // overlay histogram on its own scale in the bottom 20% of the pane
+        ser = chart.addHistogramSeries({ priceFormat: { type: 'volume' }, priceScaleId: 'vol', lastValueVisible: false, priceLineVisible: false });
+        chart.priceScale('vol').applyOptions({ scaleMargins: { top: 0.8, bottom: 0 }, visible: false });
+      } else if (s.type === 'histogram') ser = chart.addHistogramSeries({ ...common, color: s.color, base: 0 });
       else if (s.type === 'line') ser = chart.addLineSeries({ ...common, color: s.color, lineWidth: s.width || 2, lineStyle: s.dashed ? LineStyle.Dashed : LineStyle.Solid, crosshairMarkerRadius: 3 });
       else ser = chart.addAreaSeries({ ...common, lineColor: s.color, lineWidth: 2, topColor: s.top || 'rgba(32,196,160,.18)', bottomColor: 'rgba(32,196,160,0)', crosshairMarkerRadius: 3 });
       ser.setData(s.data);

@@ -169,3 +169,35 @@
   .d7-panel:has(#calls-h) :is(th, td):nth-child(5), .d7-panel:has(#calls-h) :is(th, td):nth-child(7),
   .d7-panel:has(#calls-h) :is(th, td):nth-child(9) { display: none; }
 }
+
+/* Company page (v7) */
+.s7-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; padding-bottom: 16px; }
+.s7-id h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; font-family: var(--mono); margin: 4px 0; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.s7-name { font-family: var(--sans); font-size: 16px; font-weight: 400; color: var(--ink-2); letter-spacing: 0; }
+.s7-px { text-align: right; }
+.s7-last { font-size: 32px; font-weight: 500; font-family: var(--mono); letter-spacing: -0.02em; line-height: 1.1; }
+.s7-chg { font-size: 16px; font-family: var(--mono); margin-top: 4px; }
+.s7-strip { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.s7-strip dd { font-size: 16px; }
+.s7-range { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.s7-range-l, .s7-range-h { font-family: var(--mono); color: var(--ink-2); }
+.s7-range-bar { position: relative; flex: 1; height: 4px; border-radius: 4px; background: var(--n3); min-width: 40px; }
+.s7-range-bar span { position: absolute; top: 50%; width: 2px; height: 12px; background: var(--acc); transform: translate(-1px, -50%); }
+.s7-three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.d7-t tr.s7-self { background: var(--acc-a); }
+.s7-news { list-style: none; margin: 0; padding: 4px 16px 8px; }
+.s7-news li { padding: 8px 0; border-top: 1px solid var(--line); display: grid; gap: 4px; }
+.s7-news li:first-child { border-top: 0; }
+.s7-news a { color: var(--ink); font-size: 14px; line-height: 1.4; }
+.s7-news a:hover { color: var(--acc); }
+.s7-news svg { margin-left: 4px; color: var(--ink-3); vertical-align: -1px; }
+.d7-kv dd.acc { color: var(--acc); }
+@media (max-width: 1180px) { .s7-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); } .s7-strip > div:nth-child(4) { border-left: 0; } .s7-strip > div:nth-child(n+4) { border-top: 1px solid var(--line); } .s7-three { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 640px) {
+  .s7-head { align-items: flex-start; } .s7-px { text-align: left; } .s7-last { font-size: 24px; }
+  .s7-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .s7-strip > div:nth-child(odd) { border-left: 0; } .s7-strip > div:nth-child(4) { border-left: 1px solid var(--line); }
+  .s7-strip > div:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .d7-panel:has(#chart-h) .d7-tools { flex-wrap: wrap; }
+  .d7-panel:has(#peers-h) :is(th, td):nth-child(n+5) { display: none; }
+}
