@@ -238,3 +238,20 @@ height. Short columns get real content, not vertical centring. Small operational
 | Sections | Full-width header row (title left, summary right) then content; 40px vertical padding; alternating n0/n1 |
 | Access + FAQ | One section, two columns (was two sparse sections) |
 | Closing CTA | One compact row, not a hero-sized block |
+
+## 12. Data refresh — publish-aware, not polling (2026-11-12)
+
+**Facts (from .github/workflows):** the data changes only at fixed times — weekday re-price
+16:15 IST, weekday scan 16:30 IST, weekly recompute Saturday 18:00 IST (13:00 UTC weekday job
+also exists). Between those, every request returns the same data.
+
+**Problem.** `useSignals` polled every 5 min all day; each open tab therefore woke the Fly
+machine, which is configured to suspend when idle to save cost (fly.toml, 2026-11-02).
+
+**Policy.**
+- `lib/schedule.js` knows the publish slots. Signal-type queries refetch ~2 min after the next
+  slot (a `refetchInterval` function), plus on window focus when stale. No fixed polling.
+- Index levels (ticker): every 5 min during NSE hours (Mon–Fri 09:15–15:30 IST), otherwise
+  once per focus.
+- Every signed-in page shows freshness in the ticker strip: when its data was last fetched,
+  when the next publish is due, and a Refresh control that re-fetches everything now.

@@ -78,4 +78,14 @@ html:root body :is(.grade-badge, .conv-pill, .act-chip, .pv3-tag-bull, .pv3-tag-
 .tk-live { width: 6px; height: 6px; border-radius: 50%; background: var(--up); box-shadow: 0 0 0 3px var(--up-a); }
 .tk-clock { min-width: 96px; }
 .tk-muted { color: var(--ink-4); }
-.tk-end { margin-left: auto; border-right: 0; border-left: 1px solid var(--line); }
+.tk-end { margin-left: auto; border-right: 0; border-left: 1px solid var(--line); color: var(--ink-3); }
+.tk-live.off { background: var(--ink-4); box-shadow: none; }
+.tk-clock { color: var(--ink-3); min-width: 0; }
+.tk-refresh { display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 8px; margin-left: 8px; border: 1px solid var(--n4); border-radius: var(--r1);
+  background: none; color: var(--ink-2); font: 500 12px var(--sans); cursor: pointer; }
+.tk-refresh:hover:not(:disabled) { color: var(--ink); background: var(--n2); }
+.tk-refresh:disabled { cursor: default; color: var(--ink-3); }
+.tk-spin { animation: tk-spin .8s linear infinite; }
+@keyframes tk-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .tk-spin { animation: none; } }
+.tk-end { position: sticky; right: 0; background: var(--n1); z-index: 1; }
