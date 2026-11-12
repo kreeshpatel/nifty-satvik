@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-11",
+  "generated_at": "2026-11-12",
   "signals": [],
   "regime": {
     "status": "UNKNOWN",
@@ -12,7 +12,7 @@
   "kill_state": {
     "wr_last20": 40.0,
     "wr_breach": true,
-    "sharpe_30d": -2.16,
+    "sharpe_30d": -1.507,
     "sharpe_30d_breach": true,
     "mode": "observe"
   }
