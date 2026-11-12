@@ -201,3 +201,37 @@
   .d7-panel:has(#chart-h) .d7-tools { flex-wrap: wrap; }
   .d7-panel:has(#peers-h) :is(th, td):nth-child(n+5) { display: none; }
 }
+
+/* This week (v7) — the page keeps its logic and ns-* markup; this maps it onto the panel register */
+.ns-page:has(.tw-stats) { max-width: 1440px; margin: 0 auto; padding: 24px 24px 48px; box-sizing: border-box; font-family: var(--sans); color: var(--ink); }
+.ns-page .d7-head { padding-bottom: 16px; }
+.ns-page .d7-head h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; margin: 0; }
+.tw-stats { grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(0, 2fr); }
+.tw-cad { font-size: 12px !important; font-weight: 400 !important; color: var(--ink-2); white-space: normal !important; line-height: 1.5; }
+html:root body .ns-page .ns-section { border: 1px solid var(--line); border-radius: var(--r2); background: var(--n1); margin: 0 0 16px; padding: 0; }
+html:root body .ns-page .ns-section-h { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; padding: 12px 16px; margin: 0; border-bottom: 1px solid var(--line); }
+html:root body .ns-page .ns-section-h h2 { font-size: 14px; font-weight: 600; margin: 0; display: inline-flex; align-items: center; gap: 8px; }
+html:root body .ns-page .ns-count { font-size: 12px; font-weight: 400; color: var(--ink-3); background: none; padding: 0; min-width: 0; }
+html:root body .ns-page .ns-count--alarm { color: var(--down); }
+html:root body .ns-page .ns-section .ns-row { padding: 12px 16px; border-bottom: 1px solid var(--line); }
+html:root body .ns-page .ns-section .ns-row:last-child { border-bottom: 0; }
+html:root body .ns-page .ns-sym { font-family: var(--mono); font-weight: 600; font-size: 14px; }
+html:root body .ns-page .ns-meta { font-size: 12px; color: var(--ink-3); }
+html:root body .ns-page .ns-meta b { color: var(--ink-2); font-weight: 500; font-family: var(--mono); }
+html:root body .ns-page .ns-card.tw-nothing, html:root body .ns-page > .ns-card { border: 1px solid var(--line); background: var(--n1); border-radius: var(--r2); padding: 16px; margin-bottom: 16px; }
+html:root body .ns-page .ns-dot { display: none; }
+
+/* onboarding dialog (components/shared/Onboarding.jsx) */
+.ob-dialog { background: var(--n1) !important; border: 1px solid var(--n4) !important; border-radius: var(--r2) !important; box-shadow: var(--overlay-shadow) !important; padding: 0 !important; }
+.ob { padding: 24px; font-family: var(--sans); color: var(--ink); }
+.ob-h { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 12px; }
+.ob-points { margin: 0 0 16px; padding-left: 18px; display: grid; gap: 8px; font-size: 14px; line-height: 1.5; color: var(--ink-2); }
+.ob-ack { width: 100%; }
+.ob-note { margin: 12px 0 0; font-size: 12px; color: var(--ink-3); line-height: 1.5; }
+
+@media (max-width: 900px) { .tw-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } .tw-stats-note { grid-column: 1 / -1; border-left: 0 !important; border-top: 1px solid var(--line); } }
+@media (max-width: 640px) {
+  .ns-page:has(.tw-stats) { padding: 16px 16px 96px; }
+  .tw-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tw-stats > div:nth-child(3) { border-left: 0; } .tw-stats > div:nth-child(n+3) { border-top: 1px solid var(--line); }
+}

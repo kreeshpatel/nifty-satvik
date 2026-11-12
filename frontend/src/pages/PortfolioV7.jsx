@@ -20,6 +20,7 @@ import useSignalHistory from '@/hooks/queries/useSignalHistory';
 import { costBasisOf } from '@/lib/cards';
 import { signalIdOf } from '@/lib/signalId';
 import ExecutionCaptureModal from '@/components/shared/ExecutionCaptureModal';
+import { useLessons } from '@/components/shared/Onboarding';
 import { DISCLAIMER } from '@/lib/signalCopy';
 import '@/styles/dashboard-v5.css';
 
@@ -62,6 +63,7 @@ export default function PortfolioV7() {
   const { user } = useContext(AuthContext);
   const isAdmin = !!user?.is_admin;
   const [capture, setCapture] = useState(null);
+  const onRecorded = useLessons();
   const ex = useExecutionPositions();
   const recon = useReconciliation();
   const sq = useSignals({ model: 'bhanushali' });
@@ -204,7 +206,8 @@ export default function PortfolioV7() {
       )}
 
       <footer className="d7-disc">{DISCLAIMER} Not SEBI-registered. These figures come only from the fills you record; we never connect to your broker.</footer>
-      <ExecutionCaptureModal open={!!capture} mode={capture?.mode} sig={capture?.sig} onClose={() => setCapture(null)} />
+      <ExecutionCaptureModal open={!!capture} mode={capture?.mode} sig={capture?.sig} onClose={() => setCapture(null)}
+        onRecorded={(res, ctx) => onRecorded(res, ctx, capture?.tranche)} />
     </div>
   );
 }

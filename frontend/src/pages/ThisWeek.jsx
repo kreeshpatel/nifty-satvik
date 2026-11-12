@@ -33,10 +33,12 @@ import { useReconciliation, useExecutionPositions, useRecordBuy } from '@/hooks/
 import { useSizerConfig, useSizingPrefs, useUpdateSizingPrefs } from '@/hooks/queries/useSizingPrefs';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import ExecutionCaptureModal from '@/components/shared/ExecutionCaptureModal';
+import { ColdStartDialog, useLessons } from '@/components/shared/Onboarding';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { DISCLAIMER } from '@/lib/signalCopy';
 import { sizePortfolio, SIZER_STATUS } from '@/lib/sizing';
 import '@/styles/this-week.css';
+import '@/styles/dashboard-v5.css';
 
 const IST_OFFSET_MIN = 330;
 const fmtNum = (n) => (n == null ? '—' : Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }));
@@ -137,6 +139,7 @@ function SizingControl({ capital, tier, tiers, capPct, open, onToggle }) {
 }
 
 export default function ThisWeek() {
+  const onRecorded = useLessons();   // one-time tips after first buy / first +2R partial (Stage 6c)
   const signalsQuery = useSignals({ model: 'bhanushali' });
   const reconQuery = useReconciliation();
   const execQuery = useExecutionPositions();
@@ -247,32 +250,22 @@ export default function ThisWeek() {
 
   return (
     <div className="ns-page">
-      <header className="tw-head">
+      <header className="d7-head">
         <div>
-          <div className="ns-kicker">THIS WEEK · WHAT TO DO</div>
-          <div className="pg-head"><span className="pf-ic" aria-hidden="true"><ListChecks /></span><h1 className="ns-title">This week</h1></div>
-          <p className="ns-sub">
-            Everything the model expects of you, in one place. Recording a fill clears its line.
-          </p>
-          {!loading && summary.length > 0 && (
-            <div className="tw-summary">
-              {summary.map((s2) => (
-                <span className={`ns-chip ${SUM_TONE[s2.k]}`} key={s2.k}>
-                  <b className="tnum">{s2.n}</b> {s2.label}
-                </span>
-              ))}
-            </div>
-          )}
+          <h1>This week</h1>
+          <p className="d7-sub">Everything the model expects of you, in one place. Recording a fill clears its line.</p>
         </div>
-        <div className="tw-cadence">
-          <div className="tw-cadence-row">Next scan · <b>{scan.when} 6:00 PM IST</b> <span>({scan.inWords})</span></div>
-          {/* The honest cadence: NOT "do nothing until Saturday". */}
-          <div className="tw-cadence-note">
-            The book is decided at the Saturday close. If a stop or your +2R limit triggers midweek,
-            act on the next market open — you don’t wait for the scan.
-          </div>
-        </div>
+        <p className="d7-fresh"><span className="d7-dot" aria-hidden />Next scan {scan.when}, 18:00 IST · {scan.inWords}</p>
       </header>
+
+      <dl className="d7-stats tw-stats" aria-label="This week at a glance">
+        {[['missed', 'Missed exits'], ['due', 'Exits due'], ['buy', 'Buys open'], ['hold', 'Holding']].map(([k, label]) => {
+          const it = summary.find((s2) => s2.k === k);
+          const v = it ? it.n : 0;
+          return <div key={k}><dt>{label}</dt><dd data-num className={v && k === 'missed' ? 'down' : v && k !== 'hold' ? 'acc' : ''}>{loading ? '—' : v}</dd></div>;
+        })}
+        <div className="tw-stats-note"><dt>Cadence</dt><dd className="tw-cad">Decided at the Saturday close. If a stop or your +2R limit triggers midweek, act at the next market open.</dd></div>
+      </dl>
 
       {loading && <div className="ns-card ns-prose">Loading this week’s actions…</div>}
 
@@ -512,7 +505,9 @@ export default function ThisWeek() {
         open={!!capture} mode={capture?.mode} sig={capture?.sig}
         sizerQty={capture?.sizerQty} tranche={capture?.tranche}
         onClose={() => setCapture(null)}
+        onRecorded={(res, ctx) => onRecorded(res, ctx, capture?.tranche)}
       />
+      <ColdStartDialog />
     </div>
   );
 }
