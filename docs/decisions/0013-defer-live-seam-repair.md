@@ -97,6 +97,27 @@ malformed `owner_status` fails closed rather than granting immunity.
 **Do not** widen `LIVE_WINDOW_WEEKS`, edit `owner_status`, or bypass the check to get a red scan
 green. Any of those is the decision being reversed without an ADR.
 
+## Amendment 2026-11-13 (owner decision): a known-seam escalation now quarantines the name, it no longer halts the scan
+
+The trigger above is unchanged as a *detector* and as a function: `assert_no_live_escalation` still raises
+when it is called, and `live_exposure` still reports every escalation. What changed is the consequence in the
+weekly cron. One name had been costing the whole week (scans 2026-10-10, 10-31, 11-07), and the owner decided
+on 2026-11-13 to split problems by whether they are KNOWN:
+
+- A **known** problem - a ticker flagged because of a *registered* seam, including this ADR's live-exposure
+  escalation (in-window and unaccepted, or on a held name) - is **quarantined for that scan and the scan
+  continues** (`nq.data.data_quarantine`). A name that is not held cannot signal; a held name keeps its
+  position, is not exited on suspect data and its card says to check the stop at the broker (`::error::`
+  line, `REVIEW_DATA_QUARANTINE`). The record, with each flagged name's class, is `results/data_quarantine.json`.
+- An **unknown** problem - a new, unregistered adjustment violation that survives a full-depth re-fetch - still
+  **halts** the scan as before. The systemic breaker (more than max(5, 2% of the universe) names, or a bad
+  Nifty-50 series) also still halts.
+
+So the pre-commitment "returns to the owner before the book acts again" is now met by the quarantine record, the
+red health finding and the held card, not by stopping the whole book. This does not widen the acceptance: an
+unaccepted in-window seam is still surfaced every week until it is repaired or accepted. Do **not** widen
+`LIVE_WINDOW_WEEKS` or edit `owner_status` to silence it.
+
 ## Revisit
 
 2026-10-01 quarterly review, jointly with the demerger convention and the 0025 re-anchor.

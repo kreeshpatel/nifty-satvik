@@ -696,6 +696,23 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
                           "or spin-off means you hold new shares and should NOT sell on this price; a genuine "
                           "fall means the normal stop applies. The book holds this position until it is "
                           "recorded either way.")
+        elif p.get("data_quarantine"):
+            # DATA QUARANTINE: the price series failed the data guards. The engine froze the position (no
+            # fill, no ratchet, no new exit decision); an exit ALREADY decided from good data is still
+            # surfaced. The stop cannot be judged on suspect prices, so the owner is told to check.
+            _pend = p["pending"]
+            rec["actionability"] = "EXIT_REQUIRED" if _pend is not None else "REVIEW_DATA_QUARANTINE"
+            rec["data_quarantine"] = {"since_last_good": p["data_quarantine"],
+                                      "reason": "price data failed the data-integrity guards"}   # main() fills the specific reason
+            rec["why"] = ("DATA SUSPECT - check whether your stop has been hit at your broker. This name's "
+                          "price data failed the data-integrity guards this week, so the book cannot judge "
+                          f"it: it holds the position and keeps the stop at {stop:,.2f}, its value at the last "
+                          f"good scan ({p['data_quarantine']}), and values it at its last good close.")
+            if _pend is not None:
+                rec["why"] += (f" An exit was ALREADY decided from good data ({_pend[1]}): carry it out at "
+                               "Monday's open as instructed.")
+                if str(_pend[1]).startswith("stop"):
+                    rec["status"] = "HIT_STOP"
         elif p["pending"] is not None:                        # Friday close said EXIT -> act Monday open
             act, reason = p["pending"]
             rec["actionability"] = "EXIT_REQUIRED"
@@ -786,6 +803,10 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
         if p.get("ca_notes"):
             # entry_price is re-based and the spun-off value is already in cash — say so on the row.
             paper_positions[t]["corporate_actions"] = p["ca_notes"]
+        if p.get("data_quarantine"):
+            # DATA QUARANTINE: held, frozen, never exited on suspect data; the stop is the last good one.
+            paper_positions[t]["data_quarantine"] = {"since_last_good": p["data_quarantine"],
+                                                     "reason": "price data failed the data-integrity guards"}
     curve = out_paper["curve"]
     nav = float(out_paper["equity"])
     peak = float(curve.cummax().iloc[-1]) if len(curve) else nav
@@ -813,6 +834,53 @@ MIN_CACHED_BARS = 300         # a name with fewer cached bars can't warm-up the 
 ADJ_JUMP = 0.005              # >0.5% shift on an overlapping close = a corporate action re-adjusted history
 
 
+# DATA QUARANTINE (prod-fix 2026-11-08). The adjustment guard is right every time, but it raised, and one
+# bad name (CONCORDBIO after a 2:1 split, TECHM, TRENT) cost the whole week: scans 10-10, 10-31 and 11-07.
+# ON: a name that fails the guards is self-healed by a full re-fetch and, if still bad, quarantined for
+# this scan (not held: no new signal; held: kept, frozen, never exited on suspect data). A SYSTEMIC
+# failure (> max(5, 2% of the universe) names, or a bad index series) still halts. OFF: the old
+# halt-on-first-violation behaviour, byte for byte.
+QUARANTINE_NOT_HALT = True
+DATA_QUARANTINE_FILE = "data_quarantine.json"
+
+
+def _quarantine_last_good(tickers, prior_record: dict | None, prev_generated: str | None, as_of) -> dict:
+    """{ticker: last-good date} - the boundary after which a quarantined name's data is suspect.
+
+    A name already quarantined in the record this scan found on disk KEEPS its recorded boundary: that
+    is the last date the data was good, and re-running the same week (or a second consecutive bad week)
+    must not advance it, or the suspect bars published by the first run would read as good. A new name
+    gets the last published scan, CLAMPED to the Friday before the data's own week, so a re-run that
+    follows a publish of this same week can never put the boundary inside the bad week.
+    """
+    as_of = pd.Timestamp(as_of)
+    clamp = as_of.normalize() - pd.Timedelta(days=int(as_of.weekday())) - pd.Timedelta(days=3)
+    persisted = {q["ticker"]: pd.Timestamp(q["last_good"]) for q in (prior_record or {}).get("quarantined", [])
+                 if isinstance(q, dict) and q.get("last_good")}
+    base = min(pd.Timestamp(prev_generated), clamp) if prev_generated else clamp
+    return {t: persisted.get(t, base) for t in tickers}
+
+
+def _mask_quarantined(P: dict, last_good: dict) -> dict:
+    """Make quarantined names unable to produce a NEW signal this scan. Mutates ``P``; returns counts.
+
+    ``last_good`` is {ticker: last-good date}. Clears the live ``last_signal`` and drops every entry window
+    dated after that date. Windows on or before it are the record and stay: a held position's entry is
+    among them, and the engine freezes that position rather than erasing it.
+    """
+    n_sig = n_win = 0
+    for t in set(last_good) & set(P):
+        s = P[t]
+        after = pd.Timestamp(last_good[t])
+        if s.get("last_signal") is not None:
+            s["last_signal"] = None
+            n_sig += 1
+        for e0 in [e for e in s["entry_win"] if pd.Timestamp(s["dates"][e]) > after]:
+            del s["entry_win"][e0]
+            n_win += 1
+    return {"signals_cleared": n_sig, "entry_windows_dropped": n_win}
+
+
 def _replace_readjusted(ohlcv: dict, full: dict) -> dict:
     """Swap in a re-adjusted ticker's clean full series WHOLESALE (2026-11-08).
 
@@ -829,7 +897,7 @@ def _replace_readjusted(ohlcv: dict, full: dict) -> dict:
     return out
 
 
-def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
+def _refresh_ohlcv(start: str, history_days: int, do_download: bool, quarantine_out: dict | None = None) -> dict:
     """Return the LIVE OHLCV cache, refreshed with recent bars unless --no-download.
 
     PER-TICKER incremental (2026-07-18): names already deep in the cache get a cheap ~25-day top-up;
@@ -846,6 +914,10 @@ def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
     discontinuity that silently poisons the 44-week SMA. We detect it on the overlap (old vs fresh
     close on a shared date) and re-fetch that ticker's full history clean. The monthly cache-key roll
     (workflow) bounds slow dividend-adjustment drift with a periodic clean rebuild.
+
+    DATA QUARANTINE (2026-11-08): pass a dict as ``quarantine_out`` and a name that fails the adjustment
+    guards is self-healed (full-depth re-fetch) and, if still bad, QUARANTINED into that dict instead of
+    halting the whole scan; only a systemic failure still raises. ``None`` keeps the strict legacy halt.
     """
     ohlcv = load_ohlcv_cache(OHLCV_CACHE) or {}
     # INGEST GUARD (2026-09-14 incident): a closed-market bar already sitting in the cache never feeds the scan.
@@ -912,7 +984,31 @@ def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
     # dividend scale, outside the 44w window, not held) instead of halting the weekly scan over the
     # recurring upstream re-adjustment. A dangerous seam (large / in-window / held) still halts.
     positions = load_book_positions()
-    rep = assert_no_new_seams(ohlcv, positions=positions, entry_dates=load_book_entry_dates())
+    entry_dates = load_book_entry_dates()
+    _qn: set = set()
+    if quarantine_out is not None:
+        from nq.data.data_quarantine import quarantine_or_halt
+
+        def _refetch_full(tickers: list) -> dict:
+            starts = [ohlcv[t].index.min().date().isoformat() for t in tickers if t in ohlcv and len(ohlcv[t])]
+            return download_ohlcv(tickers, start=min([hist_start] + starts), end=today)
+
+        ohlcv, qrec = quarantine_or_halt(ohlcv, positions, entry_dates, universe_size=len(universe),
+                                         refetch=_refetch_full)
+        quarantine_out.update(qrec)
+        print(f"data guards: {len(qrec['flagged'])} flagged | {len(qrec['healed'])} self-healed | "
+              f"{len(qrec['quarantined'])} QUARANTINED (systemic limit {qrec['systemic_limit']})", flush=True)
+        for q in qrec["quarantined"]:
+            print(f"::{'error' if q['held'] else 'warning'}::DATA QUARANTINE {q['ticker']} "
+                  f"({'HELD - CHECK YOUR STOP AT YOUR BROKER' if q['held'] else 'not held'}): "
+                  f"{q['reason']} -> {q['action']}", flush=True)
+        if qrec["healed"]:
+            print(f"  self-healed by full re-fetch: {qrec['healed']}", flush=True)
+            save_ohlcv_cache(ohlcv, OHLCV_CACHE)
+        _qn = {q["ticker"] for q in qrec["quarantined"]}
+    # A quarantined name is already recorded above; judge the rest so nothing else can slip past.
+    _ok = {t: df for t, df in ohlcv.items() if t not in _qn}
+    rep = assert_no_new_seams(_ok, positions=positions, entry_dates=entry_dates)
     print(f"adjustment guard: {rep.overall} | symbols {rep.symbols_checked} | "
           f"known seams {len(rep.seams)} | tolerated {len(rep.tolerated_seams)} | "
           f"indeterminate {len(rep.indeterminate)}", flush=True)
@@ -926,7 +1022,7 @@ def _refresh_ohlcv(start: str, history_days: int, do_download: bool) -> dict:
     # ESCALATION TRIGGER (ADR-0013, pre-committed 2026-08-06). Decision (b) deferred the live seam
     # repair to the 2026-10-01 review on a stated scope: one suppressed candidate, no open position.
     # This evaluates that scope every run and raises the moment it stops holding.
-    ex = assert_no_live_escalation(ohlcv, positions)
+    ex = assert_no_live_escalation(_ok, positions)
     print(f"  live exposure: {len(ex['in_window'])} seam(s) inside the 44w window "
           f"({[s['symbol'] for s in ex['in_window']]}), "
           f"{len(ex['accepted_live'])} owner-accepted, 0 on open positions", flush=True)
@@ -1292,8 +1388,15 @@ def main(argv=None) -> int:
     # LIVE data = data/ohlcv.pkl (self-refreshed here). NOT corrected_universe(): the backfill/alias
     # delisted names are a backtest-only survivorship tool, are not committed to the repo (would crash
     # the cron), and a forward book only ever trades currently-listed names. Empty -> valid empty book.
-    ohlcv = _refresh_ohlcv(args.start, args.history_days, not args.no_download)
+    qrec: dict | None = {} if QUARANTINE_NOT_HALT else None
+    ohlcv = _refresh_ohlcv(args.start, args.history_days, not args.no_download, quarantine_out=qrec)
     _refresh_nifty50(not args.no_download)               # CRS denominator (finding 0037)
+    if QUARANTINE_NOT_HALT and not args.no_download:
+        # The index is the denominator of EVERY name's CRS rank: a bad index series is systemic, never a
+        # per-name quarantine. Only checked on a live refresh (offline replays use the committed CSV).
+        from nq.data.data_quarantine import check_index_series
+        _ends = [df.index.max() for df in ohlcv.values() if df is not None and len(df)]
+        check_index_series(CRS.NIFTY50_CSV, as_of=max(_ends) if _ends else None)
     mem = load_membership()
     # LIVE strategy = 0093 + Nifty-50 with CRS-ranked fills (finding 0038; supersedes arbitrary fill).
     P = R94.prep_weekly_rank(ohlcv, **LIVE_PREP)
@@ -1306,6 +1409,20 @@ def main(argv=None) -> int:
     prep_kw = dict(LIVE_PREP, as_of=max((pd.Timestamp(s["dates"][-1]) for s in P.values()), default=None))
     # Grade-A only: trade the TOP-5-by-CRS signals of each week. Owner rule — never surface or buy
     # Grade B; there are always enough strong A names.
+    # DATA QUARANTINE: a name the guards set aside cannot signal this scan; a held one is frozen below.
+    # `after` is the last scan that published (the last good data); without one, a week before the data.
+    q_freeze: dict = {}
+    try:
+        _prior = json.loads((sd / DATA_QUARANTINE_FILE).read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001 - no record yet (or unreadable) -> the clamp alone decides
+        _prior = None
+    if qrec and qrec.get("quarantined"):
+        q_freeze = _quarantine_last_good([q["ticker"] for q in qrec["quarantined"]], _prior,
+                                         _previous_generated_at(sd), qrec["as_of"])
+        for q in qrec["quarantined"]:
+            q["last_good"] = str(q_freeze[q["ticker"]].date())     # persisted: a re-run must not advance it
+        _lg = {t: str(d.date()) for t, d in sorted(q_freeze.items())}
+        print(f"data quarantine: {_mask_quarantined(P, q_freeze)} last-good {_lg}", flush=True)
     _gen = max((pd.Timestamp(x["dates"][-1]) for x in P.values()), default=None)
     if _gen is not None:                                  # at-signal axes, before anything can halt the run
         _new = capture_signal_axes(P, mem, str(_gen.date()),
@@ -1320,6 +1437,8 @@ def main(argv=None) -> int:
     # prices contradict raises DemergerCliffMismatch and the run publishes nothing — fail closed.
     ca_events = R94.build_demerger_events(ohlcv, load_demerger_rows(), **prep_kw)
     ca_hold = dict(LIVE_CA_HOLD, ca_reviewed=load_ca_reviews())
+    if q_freeze:
+        ca_hold["quarantine"] = q_freeze       # engine: freeze positions in these names after last-good
     # ── ₹10L paper book — realistic capital sim (A-only), kept for the NAV/equity portfolio.
     led_paper: list = []
     # The CAPITAL book is the one whose holdings and management events are worth recording: it is the
@@ -1362,6 +1481,37 @@ def main(argv=None) -> int:
     envelope, sig_hist, analytics, portfolio, hist_df = build_envelopes(
         P, out_all, led_all, out_paper, generated_at, mem)
 
+    if qrec is not None:
+        # HEALED RESTATEMENTS (owner decision 2026-11-13): a name quarantined last scan that is clean now may
+        # rebuild its closed history differently. That is listed for the owner to approve, never declared here.
+        from nq.data.data_quarantine import RESTATEMENTS_FILE, pending_restatements, write_quarantine_record
+        try:
+            _prev_hist = json.loads((sd / "signals_history_weekly.json").read_text(encoding="utf-8"))
+        except Exception:  # noqa: BLE001
+            _prev_hist = []
+        try:
+            _declared = json.loads((sd / RESTATEMENTS_FILE).read_text(encoding="utf-8"))
+        except Exception:  # noqa: BLE001
+            _declared = {}
+        try:
+            from check_history_drift import is_rebase as _is_rebase
+        except Exception:  # noqa: BLE001
+            _is_rebase = None
+        _healed_now = ({q["ticker"] for q in (_prior or {}).get("quarantined", []) if isinstance(q, dict)}
+                       - {q["ticker"] for q in qrec["quarantined"]})
+        qrec["pending_restatements"] = pending_restatements(
+            _prev_hist, json.loads(json.dumps(sig_hist, default=str)), _healed_now, _declared,
+            carried=(_prior or {}).get("pending_restatements"), is_rebase=_is_rebase)
+        for _r in qrec["pending_restatements"]:
+            print(f"::error::HEALED DATA would RESTATE a closed trade - needs OWNER APPROVAL: {_r['trade']} "
+                  f"({_r['kind']}). {_r['approve']}", flush=True)
+        write_quarantine_record(sd / DATA_QUARANTINE_FILE, dict(qrec, as_of=generated_at))
+    # the specific guard reason, on the card and on the paper-book row
+    for _c in list(envelope["signals"]) + [dict(v, ticker=k) for k, v in portfolio["positions"].items()]:
+        if isinstance(_c, dict) and isinstance(_c.get("data_quarantine"), dict):
+            _q = next((q for q in (qrec or {}).get("quarantined", []) if q["ticker"] == _c.get("ticker")), None)
+            if _q:
+                _c["data_quarantine"]["reason"] = _q["reason"]
     (sd / "signals_today_weekly.json").write_text(json.dumps(envelope, indent=2, default=str), encoding="utf-8")
     (sd / "signals_history_weekly.json").write_text(json.dumps(sig_hist, indent=2, default=str), encoding="utf-8")
     (sd / "signal_analytics_weekly.json").write_text(json.dumps(analytics, indent=2, default=str), encoding="utf-8")
