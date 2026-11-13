@@ -50,12 +50,13 @@ SCANNER_WORKFLOW = "cron-bhanushali-scanner.yml"
 SIGNALS_FILE = ROOT / "results" / "signals_today_weekly.json"
 MAX_ATTEMPTS = 2
 
-# Weekend/other special sessions that config.NSE_HOLIDAYS (closures only) cannot express.
-# Diwali Muhurat is a ~1h evening session; Budget day falls on a Saturday/Sunday some years.
-# Add each year's special sessions here when the holiday calendar is loaded.
-SPECIAL_SESSIONS: dict[str, str] = {
-    "2026-11-08": "Diwali Muhurat (Sunday)",
-}
+# Weekend/other special sessions that config.NSE_HOLIDAYS (closures only) cannot express (Diwali
+# Muhurat, Budget weekends). Read from the ONE declared source, nq.data.trading_calendar, so a new
+# special session is added in one place and the watchdog, the checks and the ingest guard agree.
+from nq.data.trading_calendar import special_sessions as _special_sessions  # noqa: E402
+
+SPECIAL_SESSIONS: dict[str, str] = {d: "declared special session (nq.data.trading_calendar)"
+                                    for d in sorted(_special_sessions())}
 REGULAR_CLOSE_UTC = time(11, 0)      # 15:30 IST close + ~1h for vendor bars to settle
 SPECIAL_CLOSE_UTC = time(14, 30)     # Muhurat ends ~19:15 IST; allow settling time
 
