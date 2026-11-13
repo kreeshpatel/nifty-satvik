@@ -25,8 +25,8 @@
 .pv3-sep { color: var(--text-4); }
 
 .pv3-t-ui-micro {
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-3);
@@ -38,9 +38,9 @@
   letter-spacing: -0.01em;
 }
 .pv3-t-ui-footnote {
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--text-3);
-  margin-top: 3px;
+  margin-top: 4px;
 }
 .pv3-t-num-small {
   font-family: var(--font-mono);
@@ -51,11 +51,11 @@
 /* Kill-word badge */
 .pv3-kw {
   font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 600;
   letter-spacing: 0.06em;
-  padding: 3px 11px;
-  border-radius: 999px;
+  padding: 4px 12px;
+  border-radius: 4px;
   white-space: nowrap;
 }
 .kw-ok   { background: var(--bull-soft); color: var(--bull); }
@@ -94,10 +94,10 @@
   border: 0;
   color: var(--text-3);
   font-family: var(--font-mono);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 5px;
+  padding: 4px 8px;
+  border-radius: 4px;
   cursor: pointer;
   transition: background 120ms, color 120ms;
 }
@@ -111,7 +111,7 @@
    ROW / PAGE-HEAD
    ────────────────────────────────────────────────────────────────────── */
 .pv3-row {
-  margin: 0 16px 18px;
+  margin: 0 16px 16px;
 }
 .pv3-head-row { margin-bottom: 4px; }
 .pv3-row-head {
@@ -119,14 +119,14 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
-  padding-bottom: 14px;
+  padding-bottom: 16px;
 }
 .pv3-row-title {
   font-size: 26px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: -0.03em;
   color: var(--text-1);
-  margin: 6px 0 4px;
+  margin: 8px 0 4px;
 }
 
 /* ──────────────────────────────────────────────────────────────────────
@@ -135,13 +135,13 @@
 .pv3-row-data {
   display: grid;
   grid-template-columns: 1fr 320px;
-  gap: 14px;
+  gap: 16px;
   align-items: start;
 }
 .pv3-right-rail {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
 /* ──────────────────────────────────────────────────────────────────────
@@ -152,16 +152,16 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  margin: 14px 16px 20px;
+  margin: 16px 16px 20px;
   padding: 12px 20px;
   background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%);
   border: 1px solid var(--edge-1);
-  border-radius: 12px;
+  border-radius: 6px;
 }
 .pv3-regime-left {
   display: inline-flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   min-width: 0;
   flex-wrap: wrap;
 }
@@ -183,8 +183,8 @@
   50%       { opacity: 0.5; }
 }
 .pv3-regime-eyebrow {
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 600;
   letter-spacing: 0.14em;
   color: var(--text-3);
   text-transform: uppercase;
@@ -197,7 +197,7 @@
   color: var(--text-1);
   display: inline-flex;
   align-items: baseline;
-  gap: 9px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 .pv3-regime-statement em {
@@ -207,11 +207,11 @@
 .pv3-regime-right {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-shrink: 0;
 }
 .pv3-strength-label {
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-3);
@@ -222,13 +222,13 @@
 .pv3-connect-btn {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   padding: 8px 16px;
   background: var(--brand);
   color: var(--brand-fg);
   border: 1px solid var(--brand);
   border-radius: var(--r-chip, 6px);
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: opacity 120ms;
@@ -239,21 +239,21 @@
 .pv3-mode-toggle {
   display: inline-flex;
   gap: 2px;
-  padding: 3px;
+  padding: 4px;
   background: var(--surface-2, rgba(255,255,255,0.04));
   border: 1px solid var(--edge-1, rgba(255,255,255,0.08));
-  border-radius: 999px;
+  border-radius: 4px;
   flex-shrink: 0;
   align-self: flex-start;
 }
 .pv3-mode-btn {
-  padding: 6px 18px;
+  padding: 8px 16px;
   border: none;
   background: transparent;
   color: var(--text-2, #9aa3b2);
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
-  border-radius: 999px;
+  border-radius: 4px;
   cursor: pointer;
   transition: background 140ms, color 140ms;
 }
@@ -269,11 +269,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 14px 18px;
+  padding: 16px 16px;
   background: var(--surface-1, rgba(255,255,255,0.03));
   border: 1px solid var(--edge-1, rgba(255,255,255,0.08));
   border-radius: var(--r-card, 14px);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--text-2, #9aa3b2);
 }
 
@@ -288,7 +288,7 @@
   overflow: hidden;
 }
 .pv3-eqh-l {
-  padding: 24px 26px;
+  padding: 24px 24px;
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--edge-1);
@@ -301,7 +301,7 @@
   letter-spacing: -0.04em;
   color: var(--text-1);
   line-height: 1;
-  margin: 11px 0 12px;
+  margin: 12px 0 12px;
 }
 .pv3-eqh-delta {
   font-size: 12px;
@@ -318,9 +318,9 @@
 .pv3-tag {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  padding: 3px 9px;
+  padding: 4px 8px;
   border-radius: 6px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
 }
 .pv3-tag-bull { background: var(--bull-soft); color: var(--bull); }
@@ -328,7 +328,7 @@
 
 .pv3-eqh-kpis {
   margin-top: auto;
-  padding-top: 18px;
+  padding-top: 16px;
   display: flex;
   flex-direction: column;
 }
@@ -337,11 +337,11 @@
   grid-template-columns: 1fr auto auto;
   align-items: baseline;
   gap: 12px;
-  padding: 11px 0;
+  padding: 12px 0;
   border-top: 1px solid var(--edge-1);
 }
 .pv3-ek-l {
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--text-3);
   display: flex;
   align-items: center;
@@ -356,7 +356,7 @@
 }
 .pv3-ek-s {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--text-4);
   min-width: 56px;
   text-align: right;
@@ -364,19 +364,19 @@
 
 /* Right col: equity chart */
 .pv3-eqh-r {
-  padding: 18px 20px 12px;
+  padding: 16px 20px 12px;
   display: flex;
   flex-direction: column;
 }
 .pv3-eq-r-head {
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
 }
 .pv3-t-footnote {
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--text-3);
 }
 .pv3-eq-seg {
@@ -406,7 +406,7 @@
 }
 .pv3-eq-ax {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   fill: var(--text-4);
 }
 .pv3-eq-peak {
@@ -417,7 +417,7 @@
 }
 .pv3-eq-peak-l {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 12px;
   fill: var(--text-4);
   letter-spacing: 0.05em;
 }
@@ -442,8 +442,8 @@
   pointer-events: none;
   background: rgba(13,18,48,0.96);
   border: 1px solid var(--edge-2);
-  border-radius: 8px;
-  padding: 5px 10px;
+  border-radius: 6px;
+  padding: 4px 8px;
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -452,22 +452,22 @@
 }
 .pv3-eq-tip b {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-1);
   font-variant-numeric: tabular-nums;
 }
 .pv3-eq-tip span {
   font-family: var(--font-mono);
-  font-size: 10.5px;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
 .pv3-eq-xax {
   display: flex;
   justify-content: space-between;
-  padding: 5px 56px 0 4px;
+  padding: 4px 56px 0 4px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   color: var(--text-4);
 }
 .pv3-eq-xax span { flex: 1; text-align: center; }
@@ -480,19 +480,19 @@
 .pv3-perf-ribbon {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
+  gap: 8px;
 }
 .pv3-prc {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  padding: 14px 16px;
+  gap: 4px;
+  padding: 16px 16px;
   background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
   border: 1px solid var(--edge-1);
-  border-radius: 14px;
+  border-radius: 6px;
 }
 .pv3-prc-l {
-  font-size: 10.5px;
+  font-size: 12px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-3);
@@ -510,9 +510,9 @@
   align-self: flex-start;
   font-family: var(--font-mono);
   font-size: 8px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.06em;
-  padding: 2px 6px;
+  padding: 2px 8px;
   border-radius: 4px;
 }
 .pv3-src-live     { background: var(--bull-soft); color: var(--bull); }
@@ -526,7 +526,7 @@
   padding: var(--pad-card, 20px);
 }
 .pv3-partial-note {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 400;
   color: var(--text-4);
   font-family: var(--font-sans, system-ui);
@@ -539,14 +539,14 @@
   gap: 0;
 }
 .pv3-rc {
-  padding: 4px 18px;
+  padding: 4px 16px;
   border-left: 1px solid var(--edge-1);
   position: relative;
 }
 .pv3-rc:first-child { border-left: 0; padding-left: 2px; }
 .pv3-rc-name {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.03em;
   color: var(--text-3);
 }
@@ -557,7 +557,7 @@
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--text-1);
-  margin: 8px 0 10px;
+  margin: 8px 0 8px;
   line-height: 1;
 }
 .pv3-rc-soft .pv3-rc-val { color: var(--warn); }
@@ -565,14 +565,14 @@
 .pv3-rc-unknown .pv3-rc-val { color: var(--text-4); font-size: 20px; }
 .pv3-rc-bar {
   height: 5px;
-  border-radius: 999px;
+  border-radius: 4px;
   background: var(--surface-3);
   overflow: hidden;
 }
 .pv3-rc-bar span {
   display: block;
   height: 100%;
-  border-radius: 999px;
+  border-radius: 4px;
   background: var(--text-4);
 }
 .pv3-rc-ok   .pv3-rc-bar span { background: var(--bull); }
@@ -580,9 +580,9 @@
 .pv3-rc-hard .pv3-rc-bar span { background: var(--bear); }
 .pv3-rc-pct {
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 12px;
   color: var(--text-4);
-  margin-top: 6px;
+  margin-top: 8px;
 }
 .pv3-rc-pulse .pv3-rc-bar {
   animation: pv3RcPulse 2.2s ease-in-out infinite;
@@ -609,7 +609,7 @@
   align-items: stretch;
   gap: 8px;
   height: 140px;
-  padding: 6px 2px 0;
+  padding: 8px 2px 0;
 }
 .pv3-mp-baseline {
   position: absolute;
@@ -635,7 +635,7 @@
   position: absolute;
   left: 18%;
   right: 18%;
-  border-radius: 3px;
+  border-radius: 4px;
   min-height: 2px;
 }
 .pv3-mp-bar.b-up {
@@ -650,7 +650,7 @@
   font-family: var(--font-mono);
   font-size: 9.5px;
   color: var(--text-4);
-  margin-top: 7px;
+  margin-top: 8px;
 }
 
 /* ──────────────────────────────────────────────────────────────────────
@@ -666,7 +666,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 18px;
+  padding: 16px 16px;
   border-bottom: 1px solid var(--edge-1);
   gap: 16px;
 }
@@ -678,9 +678,9 @@
   background: transparent;
   border: 0;
   color: var(--text-3);
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 500;
-  padding: 5px 11px;
+  padding: 4px 12px;
   border-radius: 6px;
   cursor: pointer;
   transition: background 120ms, color 120ms;
@@ -695,10 +695,10 @@
   align-items: center;
 }
 .pv3-th {
-  padding: 10px 18px;
+  padding: 8px 16px;
   font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-4);
@@ -707,8 +707,8 @@
 }
 .pv3-th-r { text-align: right; }
 .pv3-td {
-  padding: 16px 18px;
-  font-size: 13px;
+  padding: 16px 16px;
+  font-size: 14px;
   color: var(--text-1);
   border-bottom: 1px solid var(--edge-1);
 }
@@ -718,22 +718,22 @@
 .pv3-td-name {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 12px;
 }
 .pv3-td-name-sym {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-1);
 }
 .pv3-td-name-full {
-  font-size: 10.5px;
+  font-size: 12px;
   color: var(--text-3);
   margin-top: 2px;
 }
 .pv3-holdings-empty {
-  padding: 28px 18px;
-  font-size: 12.5px;
+  padding: 28px 16px;
+  font-size: 12px;
   color: var(--text-4);
   text-align: center;
 }
@@ -749,7 +749,7 @@
 .pv3-logo-tile img { width: 100%; height: 100%; object-fit: contain; }
 .pv3-logo-mono {
   font-family: var(--font-mono);
-  font-weight: 700;
+  font-weight: 600;
   color: #fff;
   letter-spacing: -0.02em;
 }
@@ -768,7 +768,7 @@
   font-variant-numeric: tabular-nums;
 }
 .pv3-pnl-p {
-  font-size: 10.5px;
+  font-size: 12px;
   opacity: 0.82;
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
@@ -786,20 +786,20 @@
   width: 100%;
   max-width: 92px;
   height: 5px;
-  border-radius: 999px;
+  border-radius: 4px;
   background: var(--surface-3);
   overflow: hidden;
 }
 .pv3-al-mini span {
   display: block;
   height: 100%;
-  border-radius: 999px;
+  border-radius: 4px;
   background: var(--brand-hi, #4F8CFF);
   opacity: 0.7;
 }
 .pv3-al-n {
   color: var(--text-3);
-  font-size: 11px;
+  font-size: 12px;
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
@@ -808,10 +808,10 @@
 .pv3-spill {
   font-family: var(--font-mono);
   font-size: 9.5px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.04em;
-  padding: 4px 9px;
-  border-radius: 999px;
+  padding: 4px 8px;
+  border-radius: 4px;
   white-space: nowrap;
 }
 .pv3-sp-hold { background: var(--surface-3); color: var(--text-3); }
@@ -824,10 +824,10 @@
 .pv3-alloc-stack {
   display: flex;
   height: 16px;
-  border-radius: 8px;
+  border-radius: 6px;
   overflow: hidden;
   gap: 2px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 .pv3-alloc-stack span {
   display: block;
@@ -841,19 +841,19 @@
   display: grid;
   grid-template-columns: auto 1fr auto auto;
   align-items: center;
-  gap: 10px;
-  padding: 7px 0;
+  gap: 8px;
+  padding: 8px 0;
   border-bottom: 1px solid var(--edge-1);
 }
 .pv3-al-row:last-child { border-bottom: 0; }
 .pv3-al-dot {
   width: 9px;
   height: 9px;
-  border-radius: 3px;
+  border-radius: 4px;
   flex-shrink: 0;
 }
 .pv3-al-name {
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--text-2);
 }
 .pv3-al-pct {
@@ -876,23 +876,23 @@
   display: grid;
   grid-template-columns: auto auto auto 1fr auto;
   align-items: center;
-  gap: 10px;
-  padding: 9px 0;
+  gap: 8px;
+  padding: 8px 0;
   border-bottom: 1px solid var(--edge-1);
 }
 .pv3-cl-row:last-child { border-bottom: 0; }
 .pv3-cl-sym {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text-1);
 }
 .pv3-cl-rsn {
   font-family: var(--font-mono);
   font-size: 8.5px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.06em;
-  padding: 2px 6px;
+  padding: 2px 8px;
   border-radius: 4px;
 }
 .pv3-cl-rsn.won  { background: var(--bull-soft); color: var(--bull); }
@@ -911,20 +911,20 @@
    ────────────────────────────────────────────────────────────────────── */
 .pv3-foot {
   margin: 28px 16px 0;
-  padding-top: 18px;
+  padding-top: 16px;
   border-top: 1px solid var(--edge-1);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 .pv3-disclaimer {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-4);
   font-style: italic;
   max-width: 940px;
 }
 .pv3-foot-meta {
-  font-size: 10.5px;
+  font-size: 12px;
   color: var(--text-4);
   font-family: var(--font-mono);
 }
@@ -955,7 +955,7 @@
   }
   .pv3-risk-cells {
     grid-template-columns: repeat(2, 1fr);
-    gap: 14px 0;
+    gap: 16px 0;
   }
   .pv3-rc:nth-child(odd) { border-left: 0; padding-left: 2px; }
   /* Hide less important columns on tablet */
@@ -974,15 +974,15 @@
   .pv3-right-rail { grid-template-columns: 1fr; }
   .pv3-perf-ribbon { grid-template-columns: repeat(2, 1fr); }
   .pv3-eqh-eq { font-size: 38px; }
-  .pv3-row { margin: 0 10px 14px; }
+  .pv3-row { margin: 0 8px 16px; }
   .pv3-regime-strip {
-    margin: 10px 10px 14px;
+    margin: 8px 8px 16px;
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
-    padding: 12px 14px;
+    gap: 8px;
+    padding: 12px 16px;
   }
-  .pv3-regime-left { display: flex; flex-wrap: wrap; row-gap: 6px; }
+  .pv3-regime-left { display: flex; flex-wrap: wrap; row-gap: 8px; }
   .pv3-regime-statement { display: inline; }
   .pv3-regime-statement em { display: inline; }
   .pv3-regime-right { flex-wrap: wrap; }
@@ -995,17 +995,17 @@
   padding: 4px;
   background: var(--surface-1);
   border: 1px solid var(--edge-1);
-  border-radius: 10px;
+  border-radius: 6px;
   width: fit-content;
 }
 .pv3-subtab {
   background: transparent;
   border: 0;
   color: var(--text-3);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   padding: 8px 16px;
-  border-radius: 7px;
+  border-radius: 6px;
   cursor: pointer;
   transition: background 120ms, color 120ms;
 }
@@ -1019,15 +1019,15 @@
   background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015));
   border: 1px solid var(--edge-1);
   border-radius: var(--r-card, 12px);
-  padding: 16px 18px;
+  padding: 16px 16px;
 }
 .pv3-pstat-l {
   font-family: var(--font-mono);
-  font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.06em;
   text-transform: uppercase; color: var(--text-4); margin-bottom: 8px;
 }
 .pv3-pstat-v { font-size: 22px; font-weight: 600; color: var(--text-1); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
-.pv3-pstat-s { font-size: 11.5px; color: var(--text-3); margin-top: 4px; }
+.pv3-pstat-s { font-size: 12px; color: var(--text-3); margin-top: 4px; }
 
 /* ── Positions detail table (10 cols) + Closed trades table (9 cols) ── */
 .pv3-ptbl {
@@ -1058,15 +1058,15 @@
   display: grid;
   grid-template-columns: 52px 24px minmax(72px, 1fr) 1.5fr 1fr auto auto;
   align-items: center; gap: 12px;
-  padding: 12px 18px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--edge-1);
-  font-size: 13px;
+  font-size: 14px;
 }
 .pv3-act-row:last-child { border-bottom: 0; }
 .pv3-act-side {
   font-family: var(--font-mono);
-  font-size: 10px; font-weight: 700; letter-spacing: 0.05em;
-  padding: 3px 8px; border-radius: 5px; text-align: center;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.05em;
+  padding: 4px 8px; border-radius: 4px; text-align: center;
   border: 1px solid currentColor;
 }
 .pv3-act-side.buy { color: var(--bull); }
@@ -1074,18 +1074,18 @@
 .pv3-act-sym { font-family: var(--font-mono); font-weight: 600; color: var(--text-1); }
 .pv3-act-qty, .pv3-act-note { font-size: 12px; }
 .pv3-act-note { text-transform: capitalize; }
-.pv3-act-date { font-size: 11.5px; text-align: right; }
-.pv3-act-pnl { font-family: var(--font-mono); font-size: 12.5px; text-align: right; }
+.pv3-act-date { font-size: 12px; text-align: right; }
+.pv3-act-pnl { font-family: var(--font-mono); font-size: 12px; text-align: right; }
 
 /* ── Reconciliation action items (Stage 4b/5 — model plan vs the user's ledger) ── */
 .pv3-actions-strip {
-  padding: 14px 16px; border-radius: 12px;
+  padding: 16px 16px; border-radius: 6px;
   background: var(--surface-1, rgba(255,255,255,0.03));
   border: 1px solid var(--edge-1, rgba(255,255,255,0.08));
 }
 .pv3-actions-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
-.pv3-actions-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
-.pv3-action-item { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 8px; font-size: 12.5px; }
+.pv3-actions-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.pv3-action-item { display: grid; grid-template-columns: auto auto 1fr; align-items: center; gap: 8px; font-size: 12px; }
 .pv3-action-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 .pv3-action-sym { font-weight: 600; color: var(--text-1); font-variant-numeric: tabular-nums; }
 .pv3-action-msg { color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1106,7 +1106,7 @@
 }
 .pv3-stat {
   background: var(--surface-1);
-  padding: 12px 14px;
+  padding: 12px 16px;
   min-width: 0;
 }
 .pv3-paper-table {
@@ -1136,18 +1136,18 @@
 /* Recommendations pipeline (Paper ref) — layout + status badges from house tokens only. */
 .pv3-rec-table { grid-template-columns: minmax(120px, 1.6fr) repeat(5, minmax(0, 1fr)); }
 .pv3-rec-why {
-  padding: 0 18px 12px;
+  padding: 0 16px 12px;
   font-size: 12px;
   color: var(--text-4);
   border-bottom: 1px solid var(--edge-1);
 }
 .pv3-badge {
   display: inline-block;
-  padding: 3px 8px;
-  border-radius: 999px;
+  padding: 4px 8px;
+  border-radius: 4px;
   font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   border: 1px solid var(--edge-1);
@@ -1159,11 +1159,11 @@
 .pv3-badge-lapsed  { color: var(--text-4); }
 .pv3-badge-skipped { color: var(--bear); border-color: var(--bear); }
 .pv3-rec-toggle {
-  margin-top: 10px;
+  margin-top: 8px;
   background: none;
   border: 1px solid var(--edge-1);
-  border-radius: 8px;
-  padding: 6px 12px;
+  border-radius: 6px;
+  padding: 8px 12px;
   font-size: 12px;
   color: var(--text-3);
   cursor: pointer;

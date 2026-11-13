@@ -24,7 +24,7 @@ const fmt = (v, dp = 2) => { const x = n(v); if (x == null) return '—'; const 
 const pct = (v, dp = 1) => { const x = n(v); if (x == null) return '—'; if (Math.abs(x) < 0.5 * 10 ** -dp) return `${(0).toFixed(dp)}%`; return `${x > 0 ? '▲ +' : `▼ ${MINUS}`}${Math.abs(x).toFixed(dp)}%`; };
 const rr = (v) => { const x = n(v); if (x == null) return '—'; if (Math.abs(x) < 0.005) return '0.00R'; return `${x > 0 ? '+' : MINUS}${Math.abs(x).toFixed(2)}R`; };
 const tone = (v) => (n(v) == null || Math.abs(n(v)) < 0.05 ? '' : n(v) > 0 ? 'up' : 'down');
-const dmy = (d) => (d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' }) : '—');
+const dmy = (d) => (d ? new Date(d).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', year: '2-digit' }) : '—');
 const mean = (a) => (a.length ? a.reduce((s, v) => s + v, 0) / a.length : null);
 
 const OUTCOME = {

@@ -69,7 +69,7 @@ export default function StockLogo({ sym, size = 28, radius = 8, mono = false }) 
   if (idx >= sources.length) {
     return (
       <div style={{
-        ...base, background: tickerBg(sym), color: '#fff', fontWeight: 700,
+        ...base, background: tickerBg(sym), color: '#fff', fontWeight: 600,
         fontSize: Math.round(size * 0.36), letterSpacing: '0.02em',
         boxShadow: '0 2px 6px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.18)',
       }}>

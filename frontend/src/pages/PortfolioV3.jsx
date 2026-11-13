@@ -864,7 +864,7 @@ const HOLDING_STATUS_LABELS = {
 // use to hide columns on narrow screens.
 function fmtExDate(v) {
   const d = parseCalendarDate(v);
-  return d ? d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—';
+  return d ? d.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short' }) : '—';
 }
 
 const COST_BASIS_QUALIFIER = {
