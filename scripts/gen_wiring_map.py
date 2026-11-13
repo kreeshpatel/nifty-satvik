@@ -52,10 +52,14 @@ CONSUMERS: list[tuple[str, str]] = [
     ("recon", "dashboard/backend/services/reconciliation.py"),
     ("cards lib", "frontend/src/lib/cards.js"),
     ("This week", "frontend/src/pages/ThisWeek.jsx"),
-    ("Research", "frontend/src/pages/SignalsV3.jsx"),
-    ("Dashboard", "frontend/src/pages/DashboardV3.jsx"),
-    ("Portfolio", "frontend/src/pages/PortfolioV3.jsx"),
-    ("History", "frontend/src/pages/RecommendationHistory.jsx"),
+    # Routed pages after the v7 redesign (PR #179, see frontend/src/App.js). The old names (SignalsV3,
+    # DashboardV3, RecommendationHistory) no longer exist, so scanning them silently read nothing.
+    ("Research", "frontend/src/pages/ResearchV7.jsx"),
+    ("Dashboard", "frontend/src/pages/DashboardV5.jsx"),
+    ("Portfolio", "frontend/src/pages/PortfolioV7.jsx"),
+    ("Paper book", "frontend/src/pages/PortfolioV3.jsx"),
+    ("Stock", "frontend/src/pages/StockV7.jsx"),
+    ("History", "frontend/src/pages/TrackRecordV7.jsx"),
 ]
 
 # Pairs that are easy to read for one another. The map calls these out explicitly because
@@ -179,8 +183,11 @@ def consumer_tokens() -> dict[str, set[str]]:
     seen: dict[str, set[str]] = {}
     for label, rel in CONSUMERS:
         path = ROOT / rel
-        seen[label] = set(IDENT.findall(path.read_text(encoding="utf-8", errors="ignore"))) \
-            if path.exists() else set()
+        # A renamed or deleted page must fail here, not read as "consumes nothing": the v7 redesign
+        # (PR #179) deleted three listed pages and the map silently reported their fields as unread.
+        if not path.exists():
+            raise FileNotFoundError(f"wiring-map consumer '{label}' is missing: {rel}. Update CONSUMERS.")
+        seen[label] = set(IDENT.findall(path.read_text(encoding="utf-8", errors="ignore")))
     return seen
 
 

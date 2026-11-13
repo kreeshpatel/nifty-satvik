@@ -18,48 +18,48 @@ choice somebody made, not an oversight nobody noticed.
 
 Written by the weekly scanner (Saturday).
 
-| field | on cards | api | api-exec | recon | cards lib | This week | Research | Dashboard | Portfolio | History | read by |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| `actionability` | HIT_STOP,HIT_TARGET | ✓ | · | ✓ | · | ✓ | · | · | · | · | **3** |
-| `band_is_wide` | FRESH | · | · | · | · | · | · | · | · | · | **0** |
-| `band_width_pct` | FRESH | · | · | · | · | · | · | · | · | · | **0** |
-| `body_ratio` | FRESH | · | · | · | · | · | · | · | · | · | **0** |
-| `bought_date` | ACTIVE,HIT_STOP,HIT_TARGET | ✓ | · | ✓ | ✓ | ✓ | · | · | · | · | **4** |
-| `buy_window` | FRESH | · | · | · | · | · | · | · | · | · | **0** |
-| `buy_window_until` | FRESH | · | · | · | ✓ | · | · | · | · | · | **1** |
-| `buy_zone_high` | FRESH | · | · | · | · | ✓ | · | · | · | · | **1** |
-| `buy_zone_low` | FRESH | · | · | · | · | ✓ | · | · | · | · | **1** |
-| `close` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | ✓ | ✓ | ✓ | · | · | ✓ | · | **5** |
-| `corporate_actions` | ACTIVE | · | ✓ | · | ✓ | · | · | · | ✓ | · | **3** |
-| `crs_rank` | FRESH | · | · | · | · | · | · | · | · | · | **0** |
-| `current_price` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | · | · | ✓ | · | · | ✓ | · | **3** |
-| `entry` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | ✓ | ✓ | ✓ | · | · | ✓ | · | **5** |
-| `entry_high` | FRESH | · | · | · | · | ✓ | · | · | · | · | **1** |
-| `entry_low` | FRESH | · | · | · | · | ✓ | · | · | · | · | **1** |
-| `entry_week_open` | FRESH | · | · | · | · | · | · | · | · | · | **0** |
-| `exit_plan` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | · | · | · | · | ✓ | · | · | · | · | **1** |
-| `exit_stage` | ACTIVE,HIT_STOP,HIT_TARGET | · | · | · | · | · | · | · | · | · | **0** |
-| `ext_cap_pct` | FRESH | · | · | · | · | · | · | · | · | · | **0** |
-| `ext_pct_over_sma44` | FRESH | · | · | · | · | · | · | · | · | · | **0** |
-| `fill_price` | ACTIVE,HIT_STOP,HIT_TARGET | · | · | · | · | · | · | · | · | · | **0** |
-| `grade` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | · | · | · | · | · | · | · | · | · | **0** |
-| `hold_days` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | · | · | · | · | · | · | · | ✓ | · | **1** |
-| `no_chase_above` | FRESH | · | · | · | · | · | · | · | · | · | **0** |
-| `nq_position_id` | ACTIVE,HIT_STOP,HIT_TARGET | · | · | ✓ | · | · | · | · | · | · | **1** |
-| `pattern` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | · | ✓ | · | · | · | · | · | · | · | **1** |
-| `qty` | ACTIVE,HIT_STOP,HIT_TARGET | ✓ | ✓ | · | · | ✓ | · | · | ✓ | · | **4** |
-| `record_would_skip_as_extended` | FRESH | · | · | · | · | · | · | · | · | · | **0** |
-| `signal_conviction` | FRESH | · | · | · | · | · | · | · | · | · | **0** |
-| `signal_date` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | · | · | ✓ | ✓ | ✓ | · | · | ✓ | · | **4** |
-| `status` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | ✓ | · | ✓ | · | · | ✓ | · | **4** |
-| `stop` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | · | **6** |
-| `stop_week_low` | FRESH | · | · | · | · | · | · | · | · | · | **0** |
-| `target` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | · | **6** |
-| `ticker` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | ✓ | ✓ | · | ✓ | · | · | ✓ | · | **5** |
-| `tier` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | · | · | ✓ | · | · | · | · | **2** |
-| `why` | HIT_STOP,HIT_TARGET | ✓ | · | · | · | · | · | · | · | · | **1** |
+| field | on cards | api | api-exec | recon | cards lib | This week | Research | Dashboard | Portfolio | Paper book | Stock | History | read by |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `actionability` | HIT_STOP,HIT_TARGET | ✓ | · | ✓ | · | ✓ | · | · | · | · | · | · | **3** |
+| `band_is_wide` | FRESH | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `band_width_pct` | FRESH | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `body_ratio` | FRESH | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `bought_date` | ACTIVE,HIT_STOP,HIT_TARGET | ✓ | · | ✓ | ✓ | ✓ | · | · | · | · | · | · | **4** |
+| `buy_window` | FRESH | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `buy_window_until` | FRESH | · | · | · | ✓ | · | · | ✓ | · | · | · | · | **2** |
+| `buy_zone_high` | FRESH | · | · | · | · | ✓ | · | · | · | · | · | · | **1** |
+| `buy_zone_low` | FRESH | · | · | · | · | ✓ | · | · | · | · | · | · | **1** |
+| `close` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | · | **9** |
+| `corporate_actions` | ACTIVE | · | ✓ | · | ✓ | · | · | · | · | ✓ | · | · | **3** |
+| `crs_rank` | FRESH | · | · | · | · | · | · | ✓ | · | · | · | · | **1** |
+| `current_price` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | · | · | **6** |
+| `entry` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **10** |
+| `entry_high` | FRESH | · | · | · | · | ✓ | · | · | · | · | · | · | **1** |
+| `entry_low` | FRESH | · | · | · | · | ✓ | · | · | · | · | · | · | **1** |
+| `entry_week_open` | FRESH | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `exit_plan` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | · | · | · | · | ✓ | · | · | · | · | · | · | **1** |
+| `exit_stage` | ACTIVE,HIT_STOP,HIT_TARGET | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `ext_cap_pct` | FRESH | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `ext_pct_over_sma44` | FRESH | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `fill_price` | ACTIVE,HIT_STOP,HIT_TARGET | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `grade` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | · | · | · | · | · | · | ✓ | · | · | · | · | **1** |
+| `hold_days` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | · | · | · | · | · | ✓ | · | · | ✓ | · | · | **2** |
+| `no_chase_above` | FRESH | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `nq_position_id` | ACTIVE,HIT_STOP,HIT_TARGET | · | · | ✓ | · | · | · | · | · | · | · | · | **1** |
+| `pattern` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | · | ✓ | · | · | · | · | · | · | · | · | · | **1** |
+| `qty` | ACTIVE,HIT_STOP,HIT_TARGET | ✓ | ✓ | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **9** |
+| `record_would_skip_as_extended` | FRESH | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `signal_conviction` | FRESH | · | · | · | · | · | · | ✓ | · | · | · | · | **1** |
+| `signal_date` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | · | · | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | · | **6** |
+| `status` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **9** |
+| `stop` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **11** |
+| `stop_week_low` | FRESH | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `target` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **11** |
+| `ticker` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **10** |
+| `tier` | ACTIVE,FRESH,HIT_STOP,HIT_TARGET | ✓ | · | · | · | ✓ | · | · | · | · | · | · | **2** |
+| `why` | HIT_STOP,HIT_TARGET | ✓ | · | · | · | · | · | · | · | · | · | · | **1** |
 
-**Unread and UNDECLARED (15):** `band_is_wide`, `band_width_pct`, `body_ratio`, `buy_window`, `crs_rank`, `entry_week_open`, `exit_stage`, `ext_cap_pct`, `ext_pct_over_sma44`, `fill_price`, `grade`, `no_chase_above`, `record_would_skip_as_extended`, `signal_conviction`, `stop_week_low`.
+**Unread and UNDECLARED (12):** `band_is_wide`, `band_width_pct`, `body_ratio`, `buy_window`, `entry_week_open`, `exit_stage`, `ext_cap_pct`, `ext_pct_over_sma44`, `fill_price`, `no_chase_above`, `record_would_skip_as_extended`, `stop_week_low`.
 
 Each is a value the model computed and no surface shows, with no reason on
 record. Wire it, or add it to `INTENTIONALLY_UNREAD` in the generator with the
@@ -69,49 +69,49 @@ reason. `tests/test_wiring_map.py` fails while this list is non-empty.
 
 Written by the daily monitor (weekdays 16:15 IST).
 
-| field | on cards | api | api-exec | recon | cards lib | This week | Research | Dashboard | Portfolio | History | read by |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| `as_of` | buy,hold,missed_exits | ✓ | · | ✓ | · | · | · | · | · | · | **2** |
-| `buy_window_open` | buy | · | · | · | · | · | · | · | · | · | **0** |
-| `buy_window_until` | buy | · | · | · | ✓ | · | · | · | · | · | **1** |
-| `cause` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | **2** |
-| `current_price` | buy,hold | ✓ | · | · | · | ✓ | · | · | ✓ | · | **3** |
-| `dist_to_stop_pct` | hold | · | · | · | · | · | · | · | · | · | **0** |
-| `dist_to_target_pct` | hold | · | · | · | · | · | · | · | · | · | **0** |
-| `do` | missed_exits | · | · | ✓ | · | ✓ | · | · | ✓ | · | **3** |
-| `drift_pct` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | **2** |
-| `due_date` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | **2** |
-| `due_price` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | **2** |
-| `entry` | hold,missed_exits | ✓ | · | ✓ | ✓ | ✓ | · | · | ✓ | · | **5** |
-| `entry_high` | buy | · | · | · | · | ✓ | · | · | · | · | **1** |
-| `entry_low` | buy | · | · | · | · | ✓ | · | · | · | · | **1** |
-| `expired` | buy | ✓ | · | · | ✓ | · | · | · | ✓ | · | **3** |
-| `filled_on` | buy | · | · | · | · | · | · | · | · | · | **0** |
-| `filled_price` | buy | · | · | · | ✓ | · | · | · | · | · | **1** |
-| `filled_today` | buy | · | · | · | · | · | · | · | · | · | **0** |
-| `frozen_price` | buy,hold | · | · | · | · | · | · | · | · | · | **0** |
-| `implied_trail_sma20` | hold | · | · | · | · | · | · | · | · | · | **0** |
-| `kind` | buy,hold | · | · | · | ✓ | · | · | · | · | · | **1** |
-| `last_close` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | **2** |
-| `plan_tags` | hold | · | · | · | · | · | · | · | · | · | **0** |
-| `pnl_pct` | hold | · | · | · | · | · | · | · | · | · | **0** |
-| `r_at_exit` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | **2** |
-| `r_multiple` | hold | · | · | · | · | · | · | · | · | · | **0** |
-| `reason` | missed_exits | ✓ | · | ✓ | · | · | · | · | ✓ | · | **3** |
-| `severity` | missed_exits | · | · | ✓ | · | ✓ | · | · | ✓ | · | **3** |
-| `signal_date` | missed_exits | · | · | ✓ | ✓ | ✓ | · | · | ✓ | · | **4** |
-| `signal_id` | missed_exits | ✓ | ✓ | ✓ | · | ✓ | · | · | ✓ | · | **5** |
-| `sma20` | buy,hold | · | · | · | · | · | · | · | · | · | **0** |
-| `source` | missed_exits | ✓ | ✓ | · | · | · | · | · | ✓ | · | **3** |
-| `stop` | hold,missed_exits | ✓ | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | · | **6** |
-| `stop_breached` | hold | · | · | · | · | · | · | · | · | · | **0** |
-| `target` | hold | ✓ | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | · | **6** |
-| `target_reached` | hold | · | · | · | · | · | · | · | · | · | **0** |
-| `ticker` | buy,hold,missed_exits | ✓ | ✓ | ✓ | · | ✓ | · | · | ✓ | · | **5** |
-| `today_open` | buy | · | · | · | · | · | · | · | · | · | **0** |
-| `tranches` | hold | · | · | · | · | ✓ | · | · | · | · | **1** |
-| `window_basis` | buy | · | · | · | · | · | · | · | · | · | **0** |
-| `window_filled` | buy | · | · | · | · | · | · | · | · | · | **0** |
+| field | on cards | api | api-exec | recon | cards lib | This week | Research | Dashboard | Portfolio | Paper book | Stock | History | read by |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `as_of` | buy,hold,missed_exits | ✓ | · | ✓ | · | · | · | · | · | · | ✓ | · | **3** |
+| `buy_window_open` | buy | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `buy_window_until` | buy | · | · | · | ✓ | · | · | ✓ | · | · | · | · | **2** |
+| `cause` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | · | · | **2** |
+| `current_price` | buy,hold | ✓ | · | · | · | ✓ | ✓ | ✓ | ✓ | ✓ | · | · | **6** |
+| `dist_to_stop_pct` | hold | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `dist_to_target_pct` | hold | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `do` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | ✓ | · | · | **3** |
+| `drift_pct` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | · | · | **2** |
+| `due_date` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | · | · | **2** |
+| `due_price` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | · | · | **2** |
+| `entry` | hold,missed_exits | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **10** |
+| `entry_high` | buy | · | · | · | · | ✓ | · | · | · | · | · | · | **1** |
+| `entry_low` | buy | · | · | · | · | ✓ | · | · | · | · | · | · | **1** |
+| `expired` | buy | ✓ | · | · | ✓ | · | · | · | · | ✓ | · | · | **3** |
+| `filled_on` | buy | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `filled_price` | buy | · | · | · | ✓ | · | · | · | · | · | · | · | **1** |
+| `filled_today` | buy | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `frozen_price` | buy,hold | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `implied_trail_sma20` | hold | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `kind` | buy,hold | · | · | · | ✓ | · | · | ✓ | · | · | ✓ | · | **3** |
+| `last_close` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | · | · | **2** |
+| `plan_tags` | hold | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `pnl_pct` | hold | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `r_at_exit` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | · | · | · | **2** |
+| `r_multiple` | hold | · | · | · | · | · | ✓ | · | · | · | · | ✓ | **2** |
+| `reason` | missed_exits | ✓ | · | ✓ | · | · | · | ✓ | · | ✓ | · | ✓ | **5** |
+| `severity` | missed_exits | · | · | ✓ | · | ✓ | · | · | · | ✓ | · | · | **3** |
+| `signal_date` | missed_exits | · | · | ✓ | ✓ | ✓ | ✓ | · | · | ✓ | ✓ | · | **6** |
+| `signal_id` | missed_exits | ✓ | ✓ | ✓ | · | ✓ | · | ✓ | ✓ | ✓ | · | · | **7** |
+| `sma20` | buy,hold | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `source` | missed_exits | ✓ | ✓ | · | · | · | · | · | · | ✓ | · | · | **3** |
+| `stop` | hold,missed_exits | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **11** |
+| `stop_breached` | hold | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `target` | hold | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **11** |
+| `target_reached` | hold | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `ticker` | buy,hold,missed_exits | ✓ | ✓ | ✓ | · | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **10** |
+| `today_open` | buy | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `tranches` | hold | · | · | · | · | ✓ | · | · | · | · | · | · | **1** |
+| `window_basis` | buy | · | · | · | · | · | · | · | · | · | · | · | **0** |
+| `window_filled` | buy | · | · | · | · | · | · | · | · | · | · | · | **0** |
 
 **Unread by decision (5)**
 
@@ -121,7 +121,7 @@ Written by the daily monitor (weekdays 16:15 IST).
 - `today_open` — Engine input to window_filled. The reader-facing fact it supports — 'Filled Mon, 24 Aug at 1,298.00' — is already on the row, priced and dated.
 - `window_basis` — Provenance for `buy_window_open`, added with B-4 (2026-09-28): the date the window was compared against, the feed's own as-of, and whether the feed is behind. Deliberately not a surface field — a reader does not act on it, and printing a second date beside the window invites reading the FEED's date as the window's. It exists so that a window reading 'open' against today while the data is days stale is diagnosable from the artifact rather than from the operator's memory, which is the failure B-4 fixed.
 
-**Unread and UNDECLARED (11):** `buy_window_open`, `dist_to_stop_pct`, `dist_to_target_pct`, `filled_on`, `filled_today`, `frozen_price`, `pnl_pct`, `r_multiple`, `stop_breached`, `target_reached`, `window_filled`.
+**Unread and UNDECLARED (10):** `buy_window_open`, `dist_to_stop_pct`, `dist_to_target_pct`, `filled_on`, `filled_today`, `frozen_price`, `pnl_pct`, `stop_breached`, `target_reached`, `window_filled`.
 
 Each is a value the model computed and no surface shows, with no reason on
 record. Wire it, or add it to `INTENTIONALLY_UNREAD` in the generator with the
@@ -147,12 +147,12 @@ Parse them as LOCAL dates (`parseCalendarDate` in SignalsV3.jsx), never with a b
 
 | field | referenced by |
 |---|---|
-| `as_of` | api, recon |
+| `as_of` | api, recon, Stock |
 | `bought_date` | api, recon, cards lib, This week |
-| `buy_window_until` | cards lib |
+| `buy_window_until` | cards lib, Dashboard |
 | `due_date` | recon, This week |
 | `filled_on` | — none |
-| `signal_date` | recon, cards lib, This week, Portfolio |
+| `signal_date` | recon, cards lib, This week, Research, Paper book, Stock |
 
 ## How to use this
 
