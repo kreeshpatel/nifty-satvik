@@ -1,0 +1,83 @@
+name: cron-forward-record-shadow
+
+# ADR-0018 SHADOW MODE. After the real weekly scan has committed its record, run the append-only forward
+# record over the same week and report what it WOULD have published, without publishing anything:
+#
+#   * read-only by construction: `contents: read`, no git write, and the OHLCV cache is RESTORED but never
+#     saved (actions/cache/restore), so the scanner's cache is untouched;
+#   * every file the wrapped scan writes goes to $RUNNER_TEMP via --state-dir, never to results/;
+#   * the record is seeded from the PREVIOUS week's archived snapshot (results/archive/<as_of>/), exactly as
+#     the first live run would seed from the committed record;
+#   * scripts/forward_record_shadow.py diffs the shadow against what the live scan just committed, classifies
+#     every difference expected / unexpected, and writes the verdict (CLEAN / NOT CLEAN) to the step summary.
+#     The run goes red when it is NOT CLEAN. The shadow state, the report and the diff are uploaded as an
+#     artifact named forward-record-shadow-<as-of run id>.
+#
+# The switch-on decision (target Saturday 2026-12-05) is conditional on the 2026-11-14 and 2026-11-21 shadow
+# runs being CLEAN (ADR-0018). This workflow never changes the live book.
+on:
+  workflow_run:
+    workflows: ["cron-bhanushali-scanner"]
+    types: [completed]
+  workflow_dispatch:
+
+concurrency:
+  group: cron-forward-record-shadow
+  cancel-in-progress: false
+
+permissions:
+  contents: read                # cannot commit: the shadow never publishes
+
+jobs:
+  shadow:
+    name: forward-record shadow (read-only)
+    # Only after a scan that actually published. A scan that failed published nothing to compare against;
+    # dispatch manually once it has been re-run.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+    steps:
+      # main AFTER the scanner's push: it holds the record the live scan just committed and its archive.
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: OHLCV cache key
+        id: ohlcvkey
+        run: echo "month=$(date -u +%Y-%m)" >> "$GITHUB_OUTPUT"
+      # The newest cache of the month is the one the scanner saved at the end of its run. The exact key
+      # never matches, so the prefix restores the scanner's; restore-only, so nothing is saved back.
+      - name: Restore the scanner's OHLCV cache (restore only)
+        uses: actions/cache/restore@v4
+        with:
+          path: data/ohlcv.pkl
+          key: ohlcv-live-${{ steps.ohlcvkey.outputs.month }}-forward-record-shadow
+          restore-keys: |
+            ohlcv-live-${{ steps.ohlcvkey.outputs.month }}-
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      # Download stays ON, like the scanner: the Nifty-50 CRS denominator is refreshed each run and not
+      # committed, so a --no-download shadow could not see the scanner's data. Whether it did is not
+      # assumed: the parity check compares the shadow's own rebuild with the live commit byte for byte.
+      - name: Shadow run (writes only to RUNNER_TEMP)
+        run: |
+          python scripts/forward_record_shadow.py --out-dir "$RUNNER_TEMP/fr_shadow" \
+            --summary "$GITHUB_STEP_SUMMARY" -- --start 2026-07-04
+      - name: Upload the shadow state, report and diff
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: forward-record-shadow-${{ github.run_id }}
+          path: ${{ runner.temp }}/fr_shadow
+          retention-days: 90
+          if-no-files-found: warn

@@ -201,7 +201,8 @@ def quarantine_or_halt(ohlcv: dict, positions, entry_dates, *, universe_size: in
 
 
 _TRADE_FIELDS = ("entry", "close_price", "close_date", "r_multiple", "status", "exit_reason")
-RESTATEMENTS_FILE = "history_restatements.json"
+# The owner's single approval file for any change to the past (ADR-0018, 2026-11-13), relative to results/.
+RESTATEMENTS_FILE = "forward_record/amendments.json"
 
 
 def _closed(history) -> dict:
@@ -217,7 +218,7 @@ def pending_restatements(prev_history, new_history, healed, declared: dict | Non
     """Closed trades of a name that was quarantined and has now HEALED, whose rebuilt history differs from the
     last published one - flagged for OWNER APPROVAL, never declared here (owner decision 2026-11-13).
 
-    Declaring a restatement is the owner's act (an entry in ``results/history_restatements.json``); this only
+    Declaring a restatement is the owner's act (an entry in ``results/forward_record/amendments.json``); this only
     lists what needs one, with the exact key and old-vs-new, so the health report can say so. Entries carried
     from the previous record stay listed until the owner declares their key. ``is_rebase(changed)`` lets the
     caller skip routine dividend-scale re-basing, which the drift check already treats as a warning.

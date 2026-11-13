@@ -55,9 +55,27 @@ def test_only_the_last_entry_counts(tmp_path):
 
 
 def test_committed_declarations_cover_the_known_restatement():
-    d = json.loads((ROOT / "results" / "history_restatements.json").read_text(encoding="utf-8"))
-    for k in ("HINDZINC|2026-08-31", "BANDHANBNK|2026-09-14", "ZYDUSWELL|2026-08-31", "ABDL|2026-09-15"):
-        assert d[k].strip()
+    """The approvals moved into the forward record's amendments file (ADR-0018), verbatim."""
+    d = json.loads((ROOT / "results" / "forward_record" / "amendments.json").read_text(encoding="utf-8"))
+    for k in ("HINDZINC|2026-08-31", "BANDHANBNK|2026-09-14", "ZYDUSWELL|2026-08-31", "ABDL|2026-09-15",
+              "ANGELONE|2026-09-14", "CHOLAFIN|2026-09-14", "GESHIP|2026-09-14"):
+        assert d[k].strip() and d[k][:10] < "2026-11-13", "a migrated approval keeps its original date"
+
+
+def test_the_amendments_file_is_the_single_place_an_approval_lives():
+    import check_history_drift as T
+    assert T.DECLARED == ROOT / "results" / "forward_record" / "amendments.json"
+    assert not (ROOT / "results" / "history_restatements.json").exists(), "the legacy file was folded in"
+
+
+def test_a_legacy_file_is_read_for_one_release_then_ignored(tmp_path, capsys):
+    import check_history_drift as T
+    new, old = tmp_path / "amendments.json", tmp_path / "history_restatements.json"
+    new.write_text(json.dumps({"A|2026-01-05": "2026-11-13: new"}), encoding="utf-8")
+    old.write_text(json.dumps({"B|2026-01-05": "2026-10-01: old"}), encoding="utf-8")
+    assert set(T.load_approvals(new, old, today="2026-11-20")) == {"A|2026-01-05", "B|2026-01-05"}
+    assert "retired" in capsys.readouterr().out
+    assert set(T.load_approvals(new, old, today=T.LEGACY_UNTIL)) == {"A|2026-01-05"}
 
 
 def test_dividend_rebasing_is_a_warning_not_a_failure():

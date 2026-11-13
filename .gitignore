@@ -85,6 +85,11 @@ results/*
 !results/signal_axes_capture.jsonl
 # Weekly scan health report (scripts/scan_health.py), same `results/*` trap, whitelisted up front.
 !results/scan_health.json
+# The append-only forward record (ADR-0018): frozen ledger, weekly audit, drift log, amendments.
+# Whitelisted up front, before the record is switched on, so the first seeded ledger cannot be a
+# silent `git add` no-op.
+!results/forward_record/
+!results/forward_record/**
 # The intraday shadow-scan artifacts. FIFTH instance of the same trap, caught by
 # tests/test_workflow_output_paths.py on its first run (2026-08-05): the workflow declares
 # `git add results/intraday_scan/` but `results/*` above made it a silent no-op, so the

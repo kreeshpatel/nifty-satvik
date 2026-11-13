@@ -239,7 +239,7 @@ before concluding there is one.
 | card vs record | stop, target, tranches, ext flag | n/a | `tests/test_swing_card_record_parity.py` |
 | stale panel | the panel must advance | n/a | `_assert_data_advanced` (cron 954); `tests/test_stale_panel_guard.py` |
 | adjustment seams | guards in `_refresh_ohlcv` | n/a | `tests/test_adjustment_guard.py`, `tests/test_history_guard.py` |
-| history rewrites | restated or vanished trades | n/a | `scripts/check_history_drift.py` against `results/history_restatements.json`; `tests/test_history_drift_tripwire.py` |
+| history rewrites | restated or vanished trades | n/a | `scripts/check_history_drift.py` against `results/forward_record/amendments.json` (the single approval file, ADR-0018); `tests/test_history_drift_tripwire.py` |
 | holiday calendar | `config.NSE_HOLIDAYS` | n/a | `tests/test_calendar_coverage.py`, `tests/test_nse_calendar.py` |
 | demerger on a held name | B-prime events to all three books | n/a | `tests/test_cron_demerger_wiring.py`, `tests/test_ca_hold_guard.py` |
 | no retroactive entrants | `_mask_late_entrants` | n/a | `tests/test_no_retroactive_entrants.py` |
