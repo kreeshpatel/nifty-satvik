@@ -55,7 +55,7 @@ function nextScan(now = new Date()) {
   const hrs = Math.round((d - istNow) / 3600000);
   const inWords = hrs < 24 ? `in ${hrs} hour${hrs === 1 ? '' : 's'}`
     : `in ${Math.round(hrs / 24)} day${Math.round(hrs / 24) === 1 ? '' : 's'}`;
-  return { when: d.toLocaleDateString('en-IN', { weekday: 'long' }), inWords };
+  return { when: d.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', weekday: 'long' }), inWords };
 }
 
 // The band the record actually buys inside.

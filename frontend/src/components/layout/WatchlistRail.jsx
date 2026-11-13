@@ -296,7 +296,7 @@ export default function WatchlistRail() {
             {results.length === 0 ? (
               <div className="wlr-empty-sm">No match for “{q}”</div>
             ) : results.map((r) => (
-              <div key={r.symbol} className="wlr-sr" onClick={() => { openStock(r.symbol); setQ(''); }}>
+              <div key={r.symbol} className="wlr-sr" role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter") { openStock(r.symbol); setQ(""); } }} onClick={() => { openStock(r.symbol); setQ(""); }}>
                 <StockLogo sym={r.symbol} size={26} mono />
                 <div className="wlr-sr-l">
                   <div className="wlr-sr-s">{r.symbol}</div>
@@ -333,6 +333,7 @@ export default function WatchlistRail() {
               <div
                 className="wlr-row"
                 draggable
+                role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter") openStock(sym); }}
                 onClick={() => { if (dragged.current) return; openStock(sym); }}
                 onDragStart={onDragStart(i)}
                 onDragEnter={onDragEnter(i)}

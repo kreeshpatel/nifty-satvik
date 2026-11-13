@@ -25,7 +25,7 @@ const num = (v, dp = 0) => {
 };
 const signed = (v, dp = 0) => (v == null ? '—' : `${v > 0 ? '+' : ''}${num(v, dp)}`);
 const toTime = (t) => { const s = String(t); return s.length === 7 ? `${s}-01` : s.length === 4 ? `${s}-01-01` : s.slice(0, 10); };
-const istDate = (d) => d.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', weekday: 'short', day: 'numeric', month: 'short' });
+const istDate = (d) => d.toLocaleString('en-IN', {timeZone: 'Asia/Kolkata', weekday: 'short', day: 'numeric', month: 'short' });
 
 /* Product-shot rows — labelled "Sample" on screen; no live call is implied. */
 const SAMPLE = [

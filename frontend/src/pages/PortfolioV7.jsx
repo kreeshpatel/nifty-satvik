@@ -31,7 +31,7 @@ const inr = (v, dp = 0) => (n(v) == null ? '—' : `${n(v) < 0 ? MINUS : ''}₹$
 const sinr = (v, dp = 0) => (n(v) == null ? '—' : `${n(v) > 0 ? '+' : n(v) < 0 ? MINUS : ''}₹${fmt(Math.abs(n(v)), dp)}`);
 const pct = (v, dp = 1) => (n(v) == null ? '—' : `${n(v) > 0 ? '▲ +' : n(v) < 0 ? `▼ ${MINUS}` : ''}${Math.abs(n(v)).toFixed(dp)}%`);
 const tone = (v) => (n(v) == null || n(v) === 0 ? '' : n(v) > 0 ? 'up' : 'down');
-const dmy = (d) => (d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' }) : '—');
+const dmy = (d) => (d ? new Date(d).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', year: '2-digit' }) : '—');
 
 function Rail({ entry, stop, target, price }) {
   const e = n(entry), st = n(stop), t = n(target), p = n(price);

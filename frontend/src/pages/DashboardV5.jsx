@@ -111,7 +111,7 @@ export default function DashboardV5() {
   const vix = n(idx.data?.['INDIA VIX']?.ltp) ?? (n(regime.vix) || null);
   const missed = actions.data?.missed ?? 0;
   const due = actions.data?.exitsDue ?? 0;
-  const today = new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  const today = new Date().toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
   const strength = Math.max(0, Math.min(100, n(regime.strength) ?? 0));
 
   return (
@@ -122,7 +122,7 @@ export default function DashboardV5() {
           <p className="d7-sub">{today} · Weekly recompute Sat 18:00 IST · Daily re-price on trading days</p>
         </div>
         <p className={`d7-fresh${stale ? ' warn' : ''}`} title={gen || ''}>
-          <span className="d7-dot" aria-hidden />{sq.isLoading ? 'Loading…' : gen ? `Re-priced ${ago(gen)}${sq.data?.scan_time ? ` · weekly scan ${new Date(sq.data.scan_time).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}` : ''}${stale ? ' · stale' : ''}` : 'Update time unavailable'}
+          <span className="d7-dot" aria-hidden />{sq.isLoading ? 'Loading…' : gen ? `Re-priced ${ago(gen)}${sq.data?.scan_time ? ` · weekly scan ${new Date(sq.data.scan_time).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short' })}` : ''}${stale ? ' · stale' : ''}` : 'Update time unavailable'}
         </p>
       </header>
 
@@ -158,7 +158,7 @@ export default function DashboardV5() {
                   const kind = g.reason === 'stop' ? 'down' : 'up';
                   const since = n(s.entry) ? ((n(s.current_price) - n(s.entry)) / n(s.entry)) * 100 : null;
                   return (
-                    <tr key={sym(s)} onClick={() => setCard(s)}>
+                    <tr key={sym(s)} tabIndex={0} onClick={() => setCard(s)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setCard(s); } }}>
                       <th scope="row">{sym(s)}</th>
                       <td><span className={`d7-tag ${kind}`}>{n(g.partial_pct) != null ? `Trim ${g.partial_pct}%` : g.reason === 'stop' ? 'Exit · stop' : 'Exit'}</span></td>
                       <td className="d7-text">{g.headline || 'Exit recommended'}</td>
@@ -174,7 +174,7 @@ export default function DashboardV5() {
           </Panel>
 
           <Panel id="buys" title="Fresh buys" count={sq.isLoading ? null : buys.length}
-            meta={buys[0]?.buy_window_until ? `Buy at the open, through ${new Date(buys[0].buy_window_until).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}` : 'Buy at the open, inside the window'}
+            meta={buys[0]?.buy_window_until ? `Buy at the open, through ${new Date(buys[0].buy_window_until).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short' })}` : 'Buy at the open, inside the window'}
             action={<Link to="/premove" className="d7-link">All research →</Link>}>
             {sq.isLoading ? <Loading /> : buys.length === 0 ? <Empty>No fresh setups this week. The model stays silent when nothing clears the bar.</Empty> : (
               <div className="d7-tw"><table className="d7-t">
@@ -189,7 +189,7 @@ export default function DashboardV5() {
                   const rr = e && st && t && e > st ? (t - e) / (e - st) : null;
                   const low = s.signal_conviction === 'low';
                   return (
-                    <tr key={sym(s)} onClick={() => setCard(s)}>
+                    <tr key={sym(s)} tabIndex={0} onClick={() => setCard(s)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setCard(s); } }}>
                       <th scope="row">{sym(s)}{(s.grade || 'A')[0] !== 'A' && <span className="d7-flag">Grade {(s.grade || '')[0]}</span>}{low && <span className="d7-flag">Low conviction</span>}</th>
                       <td className="r" data-num>{fmt(e)}</td>
                       <td className="r down" data-num>{fmt(st)}</td>
@@ -212,7 +212,7 @@ export default function DashboardV5() {
                   const e = n(s.entry), p = n(s.current_price);
                   const ch = e && p ? ((p - e) / e) * 100 : null;
                   return (
-                    <tr key={sym(s)} onClick={() => setCard(s)}>
+                    <tr key={sym(s)} tabIndex={0} onClick={() => setCard(s)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setCard(s); } }}>
                       <th scope="row">{sym(s)}</th>
                       <td className="r" data-num>{fmt(e)}</td><td className="r" data-num>{fmt(p)}</td>
                       <td className={`r ${tone(ch)}`} data-num>{pct(ch)}</td>
@@ -250,7 +250,7 @@ export default function DashboardV5() {
 
           <Panel id="health" title="Model health">
             <dl className="d7-kv">
-              <div><dt>Weekly scan</dt><dd data-num>{sq.data?.scan_time ? new Date(sq.data.scan_time).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—'}</dd></div>
+              <div><dt>Weekly scan</dt><dd data-num>{sq.data?.scan_time ? new Date(sq.data.scan_time).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short' }) : '—'}</dd></div>
               <div><dt>Daily re-price</dt><dd className={cron.status === 'STALE' ? 'warn' : 'up'}>{cron.last_run_today ? 'Ran today' : cron.status === 'STALE' ? 'Stale' : 'Pending'}</dd></div>
               {isAdmin && <div><dt>Win rate, paper</dt><dd data-num>{n(metrics.win_rate) != null ? `${Number(metrics.win_rate).toFixed(0)}%` : '—'}</dd></div>}
               {isAdmin && <div><dt>Max drawdown, paper</dt><dd data-num className={tone(metrics.max_drawdown)}>{n(metrics.max_drawdown) != null ? `${MINUS}${Math.abs(metrics.max_drawdown).toFixed(1)}%` : '—'}</dd></div>}

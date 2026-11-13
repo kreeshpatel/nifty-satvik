@@ -21,7 +21,7 @@ const fmt = (v, dp = 2) => { const x = n(v); if (x == null) return '—'; const 
 const sgn = (v, dp = 2) => { const x = n(v); if (x == null) return '—'; return `${x > 0 ? '+' : x < 0 ? MINUS : ''}${Math.abs(x).toFixed(dp)}`; };
 const tone = (v) => (n(v) == null || n(v) === 0 ? '' : n(v) > 0 ? 'up' : 'down');
 const REASON = { time: 'Time exit', trail: 'Trailing stop', stop: 'Stop loss', target: 'Target', eos: 'End of sample' };
-const dmy = (d) => (d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: '2-digit' }) : '—');
+const dmy = (d) => (d ? new Date(d).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', year: '2-digit' }) : '—');
 
 /** lightweight-charts needs strictly ascending, unique times — keep the last value per day. */
 const series = (rows, key) => {
@@ -158,7 +158,7 @@ export default function TrackRecordV7() {
               ))}
               <Panel id="prov" title="Provenance">
                 <p className="d7-note">{meta.provenance || '—'}</p>
-                <p className="d7-note">Strategy {meta.strategy || '—'}. Data loaded {dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: false }) : '—'}; the backtest changes only when the model is re-run.</p>
+                <p className="d7-note">Strategy {meta.strategy || '—'}. Data loaded {dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: false }) : '—'}; the backtest changes only when the model is re-run.</p>
               </Panel>
             </aside>
           </div>
