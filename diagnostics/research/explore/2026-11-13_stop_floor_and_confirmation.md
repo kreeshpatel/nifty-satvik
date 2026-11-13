@@ -141,3 +141,30 @@ Same replay as `sim_base` (it reproduces the closed live record within about 1R)
 | confirm_2w | 23 | 32 | 1.10 | -10.50 | 3MINDIA, AARTIIND, ABCAPITAL, ANGELONE, APARINDS, ASTERDM, BIOCON, CANFINHOME, CCL, CHOLAFIN, ENGINERSIN, GESHIP, GLENMARK, GVT&D, HINDALCO, HINDZINC, IDFCFIRSTB, IKS, LINDEINDIA, LTF, MANAPPURAM, MRPL, NATCOPHARM, NESTLEIND, NLCINDIA, OBEROIRLTY, PHOENIXLTD, POWERINDIA, SIEMENS, STARHEALTH, TATATECH, ZYDUSLIFE |
 | confirm_3w | 25 | 30 | 1.80 | -11.90 | 3MINDIA, AARTIIND, ABCAPITAL, ANGELONE, APARINDS, ASTERDM, BIOCON, CANFINHOME, CCL, CHOLAFIN, GESHIP, GLENMARK, GVT&D, HINDALCO, HINDZINC, IDFCFIRSTB, IKS, LINDEINDIA, LTF, MANAPPURAM, MRPL, NATCOPHARM, NESTLEIND, NLCINDIA, OBEROIRLTY, PHOENIXLTD, POWERINDIA, STARHEALTH, TATATECH, ZYDUSLIFE |
 
+## Addendum (same day): 20 paths on widening to a minimum % stop
+
+Owner request. Same 20 paired paths and reading rule as every ensemble. Reproduce with
+`python pipelines/diagnostics/explore_ensemble_widen_stop.py 20` → `2026-11-13_ensemble_widen_stop.json`.
+Live band (medians): Sharpe 1.25, MaxDD −37.5%.
+
+| widen stops tighter than | ΔSharpe median [p5, p95] | paths better | ΔMaxDD pp median [p5, p95] (+ = shallower) | ΔCAGR pp median | reading |
+|---|---|---|---|---|---|
+| 6% | +0.04 [−0.13, +0.52] | 12/20 | −0.8 [−5.5, +12.6] | −1.2 | inside path noise |
+| 7% | +0.21 [−0.07, +0.51] | 18/20 | −2.4 [−6.6, +3.6] | +7.7 | inside path noise (narrow miss) |
+| 8% | **+0.37 [+0.12, +0.70]** | **20/20** | +3.1 [−3.8, +16.1] | +8.6 | **Sharpe robustly better**; drawdown inside noise |
+
+**This updates verdict 2b from "mixed" to "promising at 8%, with caveats".**
+
+- The effect grows steadily with the level (6% < 7% < 8%), which is the opposite of the spike seen with the first
+  target at +1R. 9% and 10% have not been run on 20 paths, so where it tops out is unknown.
+- Per trade it is roughly neutral: total R 639 against 650 at 8%, average R per closed trade +0.68 against +0.62, and
+  9 big winners lost. The gain is in the capital book. A wider stop means a smaller position for the same 2% risk, so
+  more seats get funded. That is the same funding channel as h5, and h5-30 failed on unseen data (finding 0151).
+- With the live 10% cap, an 8% floor squeezes every stop into an 8–10% band. In effect this is a near-fixed stop
+  distance.
+- This is the 16th stop-floor setting looked at today, so some of the +0.37 is selection.
+- On the 55 live trades, widening to 2.0 × ATR or 1.5 × ATR ended at −15.7R / −14.4R against −18.9R. The % version was
+  not replayed live.
+
+It is train-window evidence only. A live change would need a pre-registration; the sealed slice has already been read
+for sizing and cap questions by 0151.
