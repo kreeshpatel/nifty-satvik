@@ -155,7 +155,7 @@ def check_history_drift(runner: Callable = _run_script) -> CheckResult:
     """RED, always. The weekly history is rebuilt from inception; a restated or vanished CLOSED trade means
     the published record of the past changed. This is a governance tripwire: only its surfacing moved."""
     name = "history-drift"
-    desc = "closed-trade history unchanged unless declared"
+    desc = "closed-trade history unchanged unless approved in results/forward_record/amendments.json"
     code, out = runner(["scripts/check_history_drift.py"])
     _echo(out)
     if code not in (0, 1):
@@ -312,7 +312,7 @@ def issue_body(f: Finding, check: str, as_of: str | None) -> str:
             f"(`scripts/scan_health.py`), last seen at scan as-of `{as_of}`.\n\n{f.message}\n\n"
             f"This issue is opened and updated automatically, one per problem key, and closes itself "
             f"when the condition clears. Resolve it by acting on the finding (declare a measurement "
-            f"loss, fix the capture, or declare a history restatement), not by closing it by hand.\n")
+            f"loss, fix the capture, or approve a history restatement in results/forward_record/amendments.json), not by closing it by hand.\n")
 
 
 def parse_marker(body: str, kind: str) -> str | None:

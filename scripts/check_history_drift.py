@@ -5,8 +5,14 @@ comparing the rebuilt weekly history with the previous snapshot. A trade that wa
 VANISHED (closed or still open), means the past was rewritten by the rebuild-from-inception design -
 the 2026-10-16 scan did exactly that (ZYDUSWELL displaced HINDZINC, ABDL displaced BANDHANBNK) and it
 sat in the log unread. This reads the LAST entry and exits 1 (``::error::``) on any restated /
-vanished / vanished_open trade not declared in ``results/history_restatements.json``
+vanished / vanished_open trade not approved in ``results/forward_record/amendments.json``
 (``{"<TICKER|date>": "dated reason"}``) - the route for an expected, deliberate restatement.
+
+2026-11-13 (owner, ADR-0018): the amendments file is the SINGLE place a change to the past is approved.
+It replaced ``results/history_restatements.json``, whose entries moved into it verbatim. Until the
+forward record is switched on, an entry here approves a restatement the rebuild already made; once it is
+on, the same entry is what lets the rebuild's version of a trade replace the frozen one. A copy left at the
+legacy path is still read, with a warning, until 2026-12-05 (one release) and then ignored.
 
 ``appeared`` (newly closed trades) is the normal way a history grows and never fails the check.
 Read-only: it writes nothing.
@@ -20,7 +26,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DRIFT_LOG = ROOT / "results" / "archive" / "drift_log.jsonl"
-DECLARED = ROOT / "results" / "history_restatements.json"
+DECLARED = ROOT / "results" / "forward_record" / "amendments.json"
+LEGACY_DECLARED = ROOT / "results" / "history_restatements.json"     # read until 2026-12-05, then ignored
+LEGACY_UNTIL = "2026-12-05"
 QUARANTINE = ROOT / "results" / "data_quarantine.json"
 
 
@@ -79,6 +87,28 @@ def undeclared(entry: dict, declared: dict) -> list[tuple[str, str]]:
     return [(kind, key) for kind, key in found if not str(declared.get(key, "")).strip()]
 
 
+def _shown(p: Path) -> str:
+    try:
+        return Path(p).resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return str(p)
+
+
+def load_approvals(path: Path = DECLARED, legacy: Path = LEGACY_DECLARED, today: str | None = None) -> dict:
+    """{trade key: dated reason} from the amendments file, plus - for one release - the legacy file."""
+    from datetime import date
+    approvals = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    if legacy.exists() and legacy.resolve() != Path(path).resolve():
+        if (today or date.today().isoformat()) < LEGACY_UNTIL:
+            print(f"::warning::{legacy.name} is retired (ADR-0018): move its entries into "
+                  f"results/forward_record/amendments.json - it is ignored from {LEGACY_UNTIL}")
+            approvals = {**json.loads(legacy.read_text(encoding="utf-8")), **approvals}
+        else:
+            print(f"::warning::{legacy.name} is retired and IGNORED (ADR-0018) - approvals live in "
+                  "results/forward_record/amendments.json")
+    return approvals
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--log", type=Path, default=DRIFT_LOG)
@@ -89,7 +119,7 @@ def main(argv: list[str] | None = None) -> int:
     if entry is None:
         print(f"history drift: no entries in {a.log} - nothing to check")
         return 0
-    declared = json.loads(a.declared.read_text(encoding="utf-8")) if a.declared.exists() else {}
+    declared = load_approvals(a.declared)
     bad = undeclared(entry, declared)
     asof = entry.get("as_of") or entry.get("cur_snapshot")
     for key in rebased(entry):
@@ -107,9 +137,9 @@ def main(argv: list[str] | None = None) -> int:
         if key in pend:
             extra = (f" PENDING OWNER APPROVAL: quarantined data for {pend[key].get('ticker')} healed and "
                      f"restated this trade; to approve add \"{key}\": \"<date> <reason>\" to "
-                     f"results/history_restatements.json (the scan never declares it itself).")
+                     f"{_shown(DECLARED)} (the scan never declares it itself).")
         print(f"::error::history changed undeclared ({kind}): {key} at as_of {asof} - declare it in "
-              f"{a.declared.name} with a dated reason if deliberate, otherwise find what rewrote the past{extra}")
+              f"{_shown(DECLARED)} with a dated reason if deliberate, otherwise find what rewrote the past{extra}")
     return 1
 
 

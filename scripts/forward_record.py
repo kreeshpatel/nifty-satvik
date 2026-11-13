@@ -151,7 +151,8 @@ def load_amendments(state_dir: Path) -> dict:
     return {k: str(v) for k, v in raw.items() if str(v).strip()}
 
 
-def seed(pub: dict, as_of: str, exit_rule: dict, *, seeded_from: str, r3: dict | None = None) -> dict:
+def seed(pub: dict, as_of: str, exit_rule: dict, *, seeded_from: str, r3: dict | None = None,
+         preapproved: dict | None = None) -> dict:
     """The first frozen state, taken from a PUBLISHED record (the committed files), verbatim.
 
     Every open trade is pinned to `exit_rule` (the live rule when the record is seeded). `r3` is the
@@ -172,7 +173,11 @@ def seed(pub: dict, as_of: str, exit_rule: dict, *, seeded_from: str, r3: dict |
              "nav": pub["nav"]}
     return {"schema": SCHEMA, "seeded_from": seeded_from, "seeded_as_of": as_of,
             "exit_rules": {fp: exit_rule}, "current_rule": fp,
-            "state": state, "parent": None, "amendments_applied": []}
+            "state": state, "parent": None,
+            # Approvals that exist when the record is seeded were granted to the rebuild that produced the
+            # committed record, which already reflects them: they are spent, not pending.
+            "amendments_applied": [{"key": k, "reason": v, "as_of": "pre-seed"}
+                                   for k, v in sorted((preapproved or {}).items())]}
 
 
 def pinned_rules(ledger: dict, as_of: str) -> dict[str, dict]:
@@ -439,7 +444,7 @@ def run(state_dir: Path, as_of: str, current_rule: dict, current: dict, rebuild_
         else:
             seed_as_of = pub["envelope"].get("generated_at")
         ledger = seed(pub, seed_as_of, current_rule, seeded_from=f"committed record as of {seed_as_of}",
-                      r3=current["r3"])
+                      r3=current["r3"], preapproved=load_amendments(state_dir))
         print(f"forward record: SEEDED from the committed record as of {seed_as_of} "
               f"({len(ledger['state']['closed'])} closed, {len(ledger['state']['open'])} open)", flush=True)
     rebuilds = {exit_rule_fp(current_rule): current}
@@ -493,7 +498,7 @@ def tracker_rebuilder(P, mem, tracker_kwargs: dict, out_paper: dict, generated_a
     return _rebuild
 
 
-def cron_main(argv=None) -> int:
+def cron_main(argv=None, *, raw_dir: Path | None = None, amendments_dir: Path | None = None) -> int:
     """`run_bhanushali_cron.main` with the forward record ON, without editing the production file.
 
     The cron is run unmodified. Two seams are observed: the FIRST uncapped grade-A `R94.backtest` call
@@ -519,6 +524,14 @@ def cron_main(argv=None) -> int:
         _P, _mem, kw, _led = cap["tracker"]
         cap["published"] = True
         sd = Path(cap["state_dir"])
+        if raw_dir is not None:              # shadow: keep the unmerged rebuild for the parity check
+            e, h, an, pf, hdf = outs
+            write_published(dict(envelope=e, sig_hist=h, analytics=an, portfolio=pf, hist_df=hdf), Path(raw_dir))
+        if amendments_dir is not None and not (record_dir(sd) / AMENDMENTS_NAME).exists():
+            src = record_dir(Path(amendments_dir)) / AMENDMENTS_NAME
+            if src.exists():                     # shadow: the committed approvals, copied into the temp state
+                record_dir(sd).mkdir(parents=True, exist_ok=True)
+                (record_dir(sd) / AMENDMENTS_NAME).write_bytes(src.read_bytes())
         return publish_scan(sd, generated_at, outs, ledger,
                             tracker_rebuilder(_P, _mem, kw, out_paper, generated_at))
 

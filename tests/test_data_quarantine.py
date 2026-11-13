@@ -448,7 +448,7 @@ def test_a_healed_names_restated_trade_is_flagged_not_declared():
     assert [r["trade"] for r in out] == ["BBB|2026-08-31"]
     r = out[0]
     assert r["kind"] == "restated" and r["old"]["entry"] == 100.0 and r["new"]["entry"] == 50.0
-    assert r["ticker"] == "BBB" and 'history_restatements.json' in r["approve"] and '"BBB|2026-08-31"' in r["approve"]
+    assert r["ticker"] == "BBB" and 'results/forward_record/amendments.json' in r["approve"] and '"BBB|2026-08-31"' in r["approve"]
 
 
 def test_only_healed_names_are_listed_and_unchanged_history_is_silent():
@@ -485,7 +485,7 @@ def test_the_drift_check_names_the_key_and_how_to_approve(tmp_path, capsys):
     q.write_text(_j.dumps({"pending_restatements": [{"ticker": "BBB", "trade": "BBB|2026-08-31"}]}))
     rc = D.main(["--log", str(log), "--declared", str(tmp_path / "none.json"), "--quarantine", str(q)])
     out = capsys.readouterr().out
-    assert rc == 1 and "PENDING OWNER APPROVAL" in out and '"BBB|2026-08-31"' in out and "history_restatements.json" in out
+    assert rc == 1 and "PENDING OWNER APPROVAL" in out and '"BBB|2026-08-31"' in out and "forward_record/amendments.json" in out
 
 
 def test_scan_health_shows_quarantine_and_pending_restatement(tmp_path):
@@ -496,11 +496,11 @@ def test_scan_health_shows_quarantine_and_pending_restatement(tmp_path):
         "quarantined": [{"ticker": "HHH", "held": True, "class": "known_seam", "reason": "r"},
                         {"ticker": "UUU", "held": False, "class": "known_seam", "reason": "r"}],
         "pending_restatements": [{"ticker": "BBB", "trade": "BBB|2026-08-31", "kind": "restated",
-                                  "approve": 'To approve, add "BBB|2026-08-31" to results/history_restatements.json.'}]}))
+                                  "approve": 'To approve, add "BBB|2026-08-31" to results/forward_record/amendments.json.'}]}))
     r = H.check_data_quarantine(path=rec)
     sev = {f.key: f.severity for f in r.findings}
     assert sev == {"data-quarantine:held:HHH": "RED", "data-quarantine:excluded:UUU": "AMBER",
                    "data-quarantine:pending-restatement:BBB|2026-08-31": "AMBER"}
     assert r.status == "RED" and "check at your broker" in r.findings[0].message
-    assert any("OWNER APPROVAL" in f.message and "history_restatements.json" in f.message for f in r.findings)
+    assert any("OWNER APPROVAL" in f.message and "forward_record/amendments.json" in f.message for f in r.findings)
     assert H.check_data_quarantine(path=tmp_path / "absent.json").status == "GREEN"
