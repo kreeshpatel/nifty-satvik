@@ -6,6 +6,8 @@
    Tokens defined here override anything redefined below in :root. */
 @import './styles/tokens.css';
 @import './styles/typography.css';
+@import './styles/tokens-v5.css';   /* v5 Ledger layer — docs/DESIGN_BRIEF_V5.md */
+@import './styles/pages-v6.css';    /* v6.1 page kit — §9 */
 
 /* Legacy Apple Liquid Glass — being retired page-by-page through Phase 1+ of
    ~/.claude/plans/we-need-to-highly-streamed-bengio.md. Do NOT add new usages. */
@@ -33,7 +35,7 @@
 @layer base {
   :root {
     /* Design-system bridge vars — Navy gradient page + blue glass */
-    --bg-main: #07091c;
+    --bg-main: #070a16;
     --bg-gradient-start: #0a0e22;
     --bg-surface: rgba(255, 255, 255, 0.04);
     --bg-surface-2: rgba(255, 255, 255, 0.07);
@@ -110,13 +112,12 @@
     border-color: rgba(255, 255, 255, 0.06);
   }
   html, body {
-    /* DM Sans everywhere by default (locked 2026-04-25). Legacy pages that
-       used `font-sans`/`font-heading` Tailwind classes resolved to Geist
-       — those classes now resolve to DM Sans via tailwind.config.js. */
+    /* Inter (v7, docs/DESIGN_BRIEF_V5.md §10). Body text uses normal figures: Inter's tabular
+       feature also widens punctuation (hyphens read as "re - scores"). Tabular figures are
+       applied where they belong — .tnum / .tabular-nums / [data-num] / tables. */
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    font-variant-numeric: tabular-nums;
   }
   code, kbd, pre, samp {
     font-family: var(--font-mono);
@@ -345,3 +346,13 @@
   .text-fierce-cyan { color: var(--apple-teal); }
   .text-fierce-amber { color: var(--apple-orange); }
 }
+
+/* Skip link — off-screen until keyboard-focused (WCAG 2.4.1). */
+.skip-link {
+  position: fixed; left: 12px; top: -48px; z-index: 1000;
+  padding: 10px 14px; border-radius: 8px;
+  background: var(--brand); color: var(--brand-fg); font-weight: 600; font-size: 13px;
+  transition: top var(--dur-hover) var(--ease-out-cubic);
+}
+.skip-link:focus { top: 12px; }
+#main-content:focus { outline: none; }

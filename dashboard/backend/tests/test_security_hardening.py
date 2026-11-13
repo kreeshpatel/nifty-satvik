@@ -58,3 +58,16 @@ def test_approve_blocks_alias_duplicate_user(client: TestClient, make_user: Any,
     resp = client.post(f"/api/admin/access-requests/{rid}/approve",
                        json={"password": "Str0ng-Enough-Pass-2026"}, cookies=auth_cookies(admin))
     assert resp.status_code == 409 and "alias match" in resp.json()["detail"]
+
+
+def test_security_headers_enforced(client: TestClient) -> None:
+    """CSP is ENFORCED (not report-only), no inline script in production, and the API
+    response is never cacheable — the 2026-11-05 hardening must not silently regress."""
+    r = client.get("/health")
+    csp = r.headers.get("content-security-policy", "")
+    assert "default-src 'self'" in csp and "frame-ancestors 'none'" in csp
+    assert "content-security-policy-report-only" not in r.headers
+    assert r.headers.get("cross-origin-opener-policy") == "same-origin"
+    assert r.headers.get("x-xss-protection") == "0"
+    api = client.get("/api/health")
+    assert api.headers.get("cache-control") == "no-store"

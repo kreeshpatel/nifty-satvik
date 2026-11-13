@@ -78,6 +78,14 @@ KNOWN_INCOMPLETE: dict[tuple[str, str], str] = {
         "A retroactive signal: the name entered the live scan on 2026-10-16 (ADR-0017) and the from-inception rebuild placed its past signal in a past week, where it was archived ACTIVE without ever having been a FRESH card. The 2026-10-19 prod-fix masks such windows; this row stays in the immutable 2026-10-16 archive and is declared rather than deleted.",
     ("ABDL", "2026-09-15"):
         "A retroactive signal: the name entered the live scan on 2026-10-16 (ADR-0017) and the from-inception rebuild placed its past signal in a past week, where it was archived ACTIVE without ever having been a FRESH card. The 2026-10-19 prod-fix masks such windows; this row stays in the immutable 2026-10-16 archive and is declared rather than deleted.",
+    ("APARINDS", "2026-11-02"):
+        "Its FRESH state fell between the 2026-10-31 and 2026-11-07 Saturday scans, both of which halted (11-07 on the CONCORDBIO split seam, fixed in #171), so it was first archived on 2026-11-08 already ACTIVE and its axes were never recorded. Lost with those weeks; not backfilled, for the reason given for PHOENIXLTD above.",
+    ("KARURVYSYA", "2026-11-02"):
+        "Its FRESH state fell between the 2026-10-31 and 2026-11-07 Saturday scans, both of which halted (11-07 on the CONCORDBIO split seam, fixed in #171), so it was first archived on 2026-11-08 already ACTIVE and its axes were never recorded. Lost with those weeks; not backfilled, for the reason given for PHOENIXLTD above.",
+    ("NAVINFLUOR", "2026-11-02"):
+        "Its FRESH state fell between the 2026-10-31 and 2026-11-07 Saturday scans, both of which halted (11-07 on the CONCORDBIO split seam, fixed in #171), so it was first archived on 2026-11-08 already ACTIVE and its axes were never recorded. Lost with those weeks; not backfilled, for the reason given for PHOENIXLTD above.",
+    ("ZYDUSLIFE", "2026-11-05"):
+        "Its FRESH state fell between the 2026-10-31 and 2026-11-07 Saturday scans, both of which halted (11-07 on the CONCORDBIO split seam, fixed in #171), so it was first archived on 2026-11-08 already ACTIVE and its axes were never recorded. Lost with those weeks; not backfilled, for the reason given for PHOENIXLTD above.",
 }
 
 

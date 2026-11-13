@@ -166,7 +166,7 @@ export default function PaperRefRecord() {
     if (!data?.as_of) return null;
     const dt = new Date(data.as_of);
     return Number.isNaN(dt.getTime()) ? String(data.as_of) : dt.toLocaleString('en-IN', {
-      dateStyle: 'medium', timeStyle: 'short',
+timeZone: 'Asia/Kolkata',       dateStyle: 'medium', timeStyle: 'short',
     });
   }, [data]);
 
