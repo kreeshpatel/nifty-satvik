@@ -140,6 +140,12 @@ jobs:
       - name: Print trade status (open trades and buy cards)
         continue-on-error: true
         run: python scripts/print_trade_status.py
+      # Strategy lifecycle (ADR-0020): append this week's row to the forward records in forward/records/.
+      # It runs on the OHLCV cache the scan just refreshed, writes only its own files, always exits 0,
+      # and is continue-on-error on top of that, so it can never block or change the scan.
+      - name: Strategy lifecycle - forward records (ADR-0020)
+        continue-on-error: true
+        run: python pipelines/lifecycle/update_records.py
       # ── SCAN HEALTH (replaces four separate red-on-failure steps, 2026-11-09) ─────────────────────────
       # Signal-quality axes, watched-book loggers, history drift and calendar coverage used to be four
       # chained post-commit steps: the first failure SKIPPED the rest, and an amber condition (a side book
@@ -201,6 +207,9 @@ jobs:
           # scripts/run_zoo_shadow_book.py is still committable; opt() never fails.
           opt results/zoo_shadow_book.json
           opt results/scan_health.json   # weekly health report (scripts/scan_health.py); reporting only
+          opt forward/records                 # ADR-0020 weekly forward records (append-only)
+          opt forward/lifecycle               # stage log and weekly status log (append-only)
+          opt diagnostics/research/benchmarks/tri/nifty_midcap150_momentum_50_tri.csv   # benchmark TRI top-up
           if git commit -m "chore(weekly): Saturday weekly-swing paper state $(date -u +%F)"; then
             # --autostash: the OHLCV download leaves UNSTAGED cache changes that abort a plain
             # `git pull --rebase`, which silently swallowed the push as "nothing to push" and dropped

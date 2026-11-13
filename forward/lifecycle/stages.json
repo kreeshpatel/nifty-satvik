@@ -1,0 +1,14 @@
+[
+ {
+  "strategy": "live_swing",
+  "stage": "LIVE (pre-lifecycle)",
+  "from": "2026-07-06",
+  "note": "existing live book; predates ADR-0020. Its capital and stage are an owner decision listed in the ADR."
+ },
+ {
+  "strategy": "long_horizon",
+  "stage": "PAPER",
+  "from": "2026-08-12",
+  "note": "forward-wall base arm and paper book; its current status when ADR-0020 was proposed."
+ }
+]
