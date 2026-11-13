@@ -22,7 +22,9 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import run_bhanushali_cron as C  # noqa: E402
 
-TODAY = str(pd.Timestamp.today().date())
+from nq.data.trading_calendar import today_ist  # noqa: E402
+
+TODAY = str(today_ist())   # the guard's own clock (IST); the runner/dev-box local date can be a day behind
 
 
 # --------------------------------------------------------------------------- the guard
@@ -105,3 +107,18 @@ def test_the_guard_is_wired_into_the_run():
     src = (ROOT / "scripts" / "run_bhanushali_cron.py").read_text(encoding="utf-8")
     assert "_assert_data_advanced(_previous_generated_at(sd), generated_at" in src, \
         "the guard exists but nothing calls it"
+
+
+# --------------------------------------------------------------------------- the IST clock (2026-11)
+def test_the_guard_reads_the_exchange_clock_not_the_runner_local_date(monkeypatch):
+    """Regression: `_assert_data_advanced` compared against `pd.Timestamp.today()` (runner-local date,
+    a day BEHIND IST for part of every IST morning on a US-zoned box). Pinning IST Monday over a panel that
+    stands still at Friday's session must raise: one regular session has closed. The old code read the
+    local clock, which this patch cannot reach, so it did not."""
+    import datetime as _dt
+    import nq.data.trading_calendar as _tc
+    monkeypatch.setattr(_tc, "today_ist", lambda: _dt.date(2026, 11, 9))      # Monday, IST
+    with pytest.raises(C.StaleDataError):
+        C._assert_data_advanced("2026-11-06", "2026-11-06")
+    monkeypatch.setattr(_tc, "today_ist", lambda: _dt.date(2026, 11, 8))      # Muhurat Sunday: no regular session
+    C._assert_data_advanced("2026-11-06", "2026-11-06")

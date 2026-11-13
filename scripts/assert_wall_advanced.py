@@ -39,7 +39,8 @@ sys.path.insert(0, str(ROOT))
 
 import pandas as pd  # noqa: E402
 
-from config import NSE_HOLIDAYS, RESULTS_DIR, assert_calendar_covers  # noqa: E402
+from config import NSE_HOLIDAYS, RESULTS_DIR  # noqa: E402,F401  (NSE_HOLIDAYS: re-exported for callers/tests)
+from nq.data.trading_calendar import covered_through, is_covered, sessions_between, today_ist  # noqa: E402
 
 
 class WallStalledError(RuntimeError):
@@ -48,12 +49,9 @@ class WallStalledError(RuntimeError):
 
 def sessions_after(day: str, upto: str) -> int:
     """NSE sessions strictly after ``day`` and up to ``upto``. Weekend- and holiday-aware."""
-    lo, hi = pd.Timestamp(day), pd.Timestamp(upto)
-    if hi <= lo:
-        return 0
-    hol = set(NSE_HOLIDAYS)
-    return sum(1 for d in pd.bdate_range(lo + pd.Timedelta(days=1), hi)
-               if d.date().isoformat() not in hol)
+    # REGULAR sessions: the wall logs one row per regular session. A Muhurat/Budget special session is not
+    # a row it owes, so it must not count as "elapsed" (nor may a holiday-listed Muhurat weekday).
+    return len(sessions_between(day, upto, regular=True))
 
 
 def last_wall_date(path: Path) -> str | None:
@@ -71,10 +69,15 @@ def check(state_dir: Path, today: str, *, allow_stale: bool = False) -> str:
     last = last_wall_date(wall)
     if last is None:
         return f"no wall rows yet at {wall} — cold start, nothing to advance from"
-    # Only the upper bound matters and only the calendar can answer it; past its coverage the
-    # session count would be a guess, and this file exists to stop guesses being published.
-    assert_calendar_covers(today, what="the forward-wall staleness check")
     elapsed = sessions_after(last, today)
+    if not is_covered(today):
+        # Past the published calendar an unlisted holiday reads as a session. This is a CHECK, not a
+        # write to the chain, so it degrades instead of crashing the run (it used to raise): a single
+        # elapsed "session" is indistinguishable from an unknown holiday and is tolerated; two or more
+        # is a real hole under any calendar and still stops the job.
+        print(f"::warning::NSE holiday calendar ends {covered_through()}; staleness check is running on "
+              f"weekdays only (tolerating 1 unexplained session). Load the next year's holidays.")
+        elapsed = elapsed - 1 if elapsed == 1 else elapsed
     if elapsed <= 0:
         return f"wall at {last}; no NSE session has closed since — nothing to advance to"
     if allow_stale:
@@ -98,7 +101,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--today", default=None, help="override today (tests/replay); default: today")
     ap.add_argument("--allow-stale", action="store_true", help="deliberate offline replay")
     args = ap.parse_args(argv)
-    today = args.today or str(pd.Timestamp.today().date())
+    today = args.today or str(today_ist())
     try:
         print(f"wall freshness: {check(Path(args.state_dir), today, allow_stale=args.allow_stale)}")
     except WallStalledError as exc:

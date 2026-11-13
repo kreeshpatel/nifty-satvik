@@ -106,11 +106,20 @@ def test_a_gap_marker_row_still_counts_as_a_logged_session(tmp_path):
 
 
 # --------------------------------------------------------------------------- the calendar bound
-def test_it_refuses_past_the_published_calendar(tmp_path):
-    """`sessions_after` counts business days minus published holidays. Past the calendar's coverage
-    that count is a guess, and this file exists to stop guesses reaching a pre-registered record."""
-    from config import CalendarCoverageError, NSE_HOLIDAYS_COVERED_THROUGH
+def test_past_the_published_calendar_it_degrades_instead_of_crashing(tmp_path, capsys):
+    """Past ``NSE_HOLIDAYS_COVERED_THROUGH`` an unlisted holiday reads as a session. This is a check, not a
+    write to the chain, so it must not crash the run: one unexplained session is tolerated, a real hole
+    (two or more) still stops the job, and either way it says the calendar ran out."""
+    from config import NSE_HOLIDAYS_COVERED_THROUGH
     import pandas as pd
-    beyond = (pd.Timestamp(NSE_HOLIDAYS_COVERED_THROUGH) + pd.Timedelta(days=1)).date().isoformat()
-    with pytest.raises(CalendarCoverageError):
-        W.check(_wall(tmp_path, "2026-08-21"), beyond)
+    first = pd.Timestamp(NSE_HOLIDAYS_COVERED_THROUGH) + pd.Timedelta(days=1)
+    while first.weekday() >= 5:
+        first += pd.Timedelta(days=1)
+    last = (first - pd.Timedelta(days=1))
+    while last.weekday() >= 5:
+        last -= pd.Timedelta(days=1)
+    wall = _wall(tmp_path, last.date().isoformat())
+    assert "nothing to advance to" in W.check(wall, first.date().isoformat())
+    assert "calendar ends" in capsys.readouterr().out
+    with pytest.raises(W.WallStalledError):
+        W.check(wall, (first + pd.Timedelta(days=7)).date().isoformat())

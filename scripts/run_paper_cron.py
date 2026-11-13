@@ -132,7 +132,10 @@ def _issue_date(prev_dates: dict[str, str], tkr: str, end: str,
         return end
     import pandas as pd
     try:
-        age_bdays = max(0, len(pd.bdate_range(issued, end)) - 1)
+        # regular sessions strictly after `issued` up to `end` — holiday-aware (a bare bdate_range counted
+        # exchange holidays as buy-window days and closed the window early)
+        from nq.data.trading_calendar import sessions_between
+        age_bdays = len(sessions_between(issued, end, regular=True))
     except Exception:
         return end
     return end if age_bdays > window else issued
@@ -165,7 +168,8 @@ def main(argv: list[str] | None = None) -> int:
 
     cfg = load_frozen_cfg()
     universe = build_universe(args.mode)
-    end = args.end or date.today().isoformat()
+    from nq.data.trading_calendar import today_ist
+    end = args.end or today_ist().isoformat()
     cache = Path(args.cache) if args.cache else OHLCV_CACHE
     hist_start = (pd.to_datetime(args.start) - pd.Timedelta(days=args.history_days)).date().isoformat()
 
@@ -208,6 +212,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"::warning::OHLCV top-up returned 0 of {len(universe)} names through {end} "
                   f"— the cache did not advance; downstream panel/wall will not move", flush=True)
         ohlcv = merge_ohlcv(ohlcv, fresh) if ohlcv else fresh
+        from nq.data.trading_calendar import filter_ohlcv_non_session
+        ohlcv, _ = filter_ohlcv_non_session(ohlcv, label="paper cron")   # ingest guard (2026-09-14 incident)
         save_ohlcv_cache(ohlcv, cache)
     if not ohlcv:
         print("ERROR: no OHLCV (empty cache and --no-download)", flush=True)
