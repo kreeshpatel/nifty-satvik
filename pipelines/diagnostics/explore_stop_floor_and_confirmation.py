@@ -355,7 +355,7 @@ def main() -> int:
 
     OUT_JSON.write_text(json.dumps(res, indent=2, default=str) + "\n", encoding="utf-8")
     OUT_MD.write_text("\n".join(md) + "\n", encoding="utf-8")
-    print("\n".join(md))
+    sys.stdout.buffer.write(("\n".join(md) + "\n").encode("utf-8"))   # the console may not be UTF-8
     return 0
 
 
