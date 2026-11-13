@@ -7,7 +7,9 @@ scan and the 2026-11-07 scan (CONCORDBIO, a 2:1 split): one stock each, a whole 
 This module turns "the guard found a problem on NAME X" into three escalating responses:
 
 1. SELF-HEAL  - a full-depth re-fetch of just that ticker, then re-check it.
-2. QUARANTINE - if it still fails, the name is set aside for this scan only. A name that is not held is
+2. QUARANTINE - if it still fails AND the problem is KNOWN (a registered seam / the ADR-0013 live-exposure
+   escalation; owner decision 2026-11-13), the name is set aside for this scan only. An UNKNOWN problem (a new,
+   unregistered violation that survives the re-fetch) still HALTS the scan as before. A name that is not held is
    excluded from new signals; a held name keeps its position, is NOT exited on suspect data and has its
    stop frozen at the last good value (the engine's ``quarantine`` hook). The record lands in
    ``results/data_quarantine.json``.
@@ -28,7 +30,7 @@ from typing import Callable
 import pandas as pd
 
 from nq.data.adjustment_guard import (
-    evaluate_new_seams, live_exposure,
+    assert_no_new_seams, evaluate_new_seams, live_exposure,
 )
 
 # Systemic breaker. A real vendor outage corrupts many names at once; a split or a re-adjustment hits
@@ -82,6 +84,15 @@ def check_index_series(csv_path, as_of=None) -> None:
                                       f"price data ({pd.Timestamp(as_of).date()})")
 
 
+KNOWN = "known_seam"          # flagged by the registry: a REGISTERED seam (ADR-0013 live-exposure escalation)
+UNKNOWN = "unknown"           # a new, unregistered violation of the adjustment-monotonicity guard
+
+
+def offender_class(d: dict) -> str:
+    """UNKNOWN if any finding on the name is an unregistered violation, else KNOWN."""
+    return UNKNOWN if "adjustment_monotonicity" in d["kinds"] else KNOWN
+
+
 def find_offenders(ohlcv: dict, positions, entry_dates=None, *, ref=None, known: dict | None = None,
                    as_of=None) -> dict[str, dict]:
     """{ticker: {"reasons": [...], "kinds": [...], "seams": [...]}} for every name the guards reject.
@@ -130,7 +141,8 @@ def quarantine_or_halt(ohlcv: dict, positions, entry_dates, *, universe_size: in
     limit = systemic_limit(universe_size)
     offenders = find_offenders(ohlcv, held, entry_dates, **kw)
     record = {"as_of": str(pd.Timestamp(as_of).date()), "systemic_limit": limit,
-              "universe_size": int(universe_size), "flagged": sorted(offenders), "healed": [],
+              "universe_size": int(universe_size), "flagged": sorted(offenders),
+              "flagged_class": {t: offender_class(d) for t, d in sorted(offenders.items())}, "healed": [],
               "quarantined": [], "refetch_rejected_too_short": []}
 
     def _halt(names, when):
@@ -169,14 +181,74 @@ def quarantine_or_halt(ohlcv: dict, positions, entry_dates, *, universe_size: in
 
     if len(offenders) > limit:
         _halt(offenders, "after self-heal")
+    # OWNER DECISION 2026-11-13: a KNOWN problem (a registered seam; the ADR-0013 escalation) is quarantined
+    # and the scan continues. An UNKNOWN one - a new, unregistered violation that survived the full-depth
+    # re-fetch - still HALTS exactly as before: nobody has diagnosed it, so the book does not trade around it.
+    unknown = sorted(t for t, d in offenders.items() if offender_class(d) == UNKNOWN)
+    if unknown:
+        assert_no_new_seams({t: ohlcv[t] for t in unknown}, ref, known=known, positions=list(held),
+                            as_of=as_of, entry_dates=entry_dates)      # raises ADJUSTMENT MONOTONICITY VIOLATED
+        raise ValueError(f"UNKNOWN DATA PROBLEM survived the full re-fetch: {unknown}")   # unreachable guard
     for t, d in sorted(offenders.items()):
         is_held = t in held
         record["quarantined"].append({
-            "ticker": t, "held": is_held, "kinds": sorted(set(d["kinds"])), "reason": "; ".join(d["reasons"]),
+            "ticker": t, "held": is_held, "class": offender_class(d),
+            "kinds": sorted(set(d["kinds"])), "reason": "; ".join(d["reasons"]),
             "self_heal_attempted": t in attempted,
             "action": "position_kept_stop_frozen_no_exit" if is_held else "excluded_from_new_signals",
         })
     return ohlcv, record
+
+
+_TRADE_FIELDS = ("entry", "close_price", "close_date", "r_multiple", "status", "exit_reason")
+RESTATEMENTS_FILE = "history_restatements.json"
+
+
+def _closed(history) -> dict:
+    out = {}
+    for h in history if isinstance(history, list) else []:
+        if isinstance(h, dict) and h.get("status") != "ACTIVE":
+            out[f"{h.get('ticker')}|{h.get('signal_date')}"] = (str(h.get("ticker")), {f: h.get(f) for f in _TRADE_FIELDS})
+    return out
+
+
+def pending_restatements(prev_history, new_history, healed, declared: dict | None = None, *,
+                         carried=None, is_rebase=None) -> list[dict]:
+    """Closed trades of a name that was quarantined and has now HEALED, whose rebuilt history differs from the
+    last published one - flagged for OWNER APPROVAL, never declared here (owner decision 2026-11-13).
+
+    Declaring a restatement is the owner's act (an entry in ``results/history_restatements.json``); this only
+    lists what needs one, with the exact key and old-vs-new, so the health report can say so. Entries carried
+    from the previous record stay listed until the owner declares their key. ``is_rebase(changed)`` lets the
+    caller skip routine dividend-scale re-basing, which the drift check already treats as a warning.
+    """
+    healed = {str(t) for t in (healed or ())}
+    declared = declared or {}
+    prev, new = _closed(prev_history), _closed(new_history)
+    out: dict[str, dict] = {}
+    for k in sorted(prev):
+        tk, old = prev[k]
+        if tk not in healed:
+            continue
+        if k not in new:
+            out[k] = {"ticker": tk, "trade": k, "kind": "vanished", "old": old, "new": None}
+            continue
+        cur = new[k][1]
+        moved = {f: [old[f], cur[f]] for f in _TRADE_FIELDS if old[f] != cur[f]}
+        if moved and not (is_rebase and is_rebase(moved)):
+            out[k] = {"ticker": tk, "trade": k, "kind": "restated", "old": old, "new": cur, "changed": moved}
+    for c in carried or []:
+        if isinstance(c, dict) and c.get("trade") and c["trade"] not in out:
+            out[c["trade"]] = c
+    res = []
+    for k, e in sorted(out.items()):
+        if str(declared.get(k, "")).strip():
+            continue                                    # the owner approved it: no longer pending
+        e = dict(e)
+        e["approve"] = (f'To approve, add "{k}": "<date> <reason>" to results/{RESTATEMENTS_FILE}. '
+                        "Until then the history-drift check stays RED; the scan never declares it itself.")
+        res.append(e)
+    return res
 
 
 def write_quarantine_record(path, record: dict) -> None:

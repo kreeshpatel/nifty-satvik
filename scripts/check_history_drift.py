@@ -21,6 +21,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DRIFT_LOG = ROOT / "results" / "archive" / "drift_log.jsonl"
 DECLARED = ROOT / "results" / "history_restatements.json"
+QUARANTINE = ROOT / "results" / "data_quarantine.json"
 
 
 def last_entry(path: Path) -> dict | None:
@@ -82,6 +83,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--log", type=Path, default=DRIFT_LOG)
     ap.add_argument("--declared", type=Path, default=DECLARED)
+    ap.add_argument("--quarantine", type=Path, default=QUARANTINE)
     a = ap.parse_args(argv)
     entry = last_entry(a.log)
     if entry is None:
@@ -96,9 +98,18 @@ def main(argv: list[str] | None = None) -> int:
         print(f"history drift: as_of {asof} - no undeclared restated/vanished trades "
               f"({entry.get('n_appeared', 0)} appeared, which is normal)")
         return 0
+    try:
+        pend = {r["trade"]: r for r in json.loads(a.quarantine.read_text(encoding="utf-8")).get("pending_restatements") or []}
+    except Exception:                                   # noqa: BLE001 - no record: no pending list
+        pend = {}
     for kind, key in bad:
+        extra = ""
+        if key in pend:
+            extra = (f" PENDING OWNER APPROVAL: quarantined data for {pend[key].get('ticker')} healed and "
+                     f"restated this trade; to approve add \"{key}\": \"<date> <reason>\" to "
+                     f"results/history_restatements.json (the scan never declares it itself).")
         print(f"::error::history changed undeclared ({kind}): {key} at as_of {asof} - declare it in "
-              f"{a.declared.name} with a dated reason if deliberate, otherwise find what rewrote the past")
+              f"{a.declared.name} with a dated reason if deliberate, otherwise find what rewrote the past{extra}")
     return 1
 
 

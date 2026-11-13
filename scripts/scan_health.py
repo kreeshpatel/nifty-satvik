@@ -190,10 +190,44 @@ def check_calendar(runner: Callable = _run_script) -> CheckResult:
     return CheckResult(name, desc, _worst(fs), True, code, fs)
 
 
+def check_data_quarantine(runner: Callable = _run_script, path: Path | None = None) -> CheckResult:
+    """Names the data guards set aside this scan, and healed restatements awaiting owner approval.
+
+    A quarantined HELD name is RED (its stop cannot be judged on suspect data: check it at the broker); an
+    unheld one is AMBER (excluded from new signals). A pending restatement is AMBER here with the exact key
+    to approve; the history-drift check holds the matching RED until the owner declares it."""
+    name = "data-quarantine"
+    desc = "no name quarantined on suspect data; no healed restatement awaiting approval"
+    p = path or ROOT / "results" / "data_quarantine.json"
+    try:
+        rec = json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
+    except Exception as exc:                          # noqa: BLE001 - an unreadable record proves nothing
+        f = Finding(f"check-crashed:{name}", AMBER, f"could not read {p.name}: {exc}")
+        return CheckResult(name, desc, AMBER, False, None, [f])
+    fs: list[Finding] = []
+    for q in rec.get("quarantined") or []:
+        t = q.get("ticker")
+        if q.get("held"):
+            fs.append(Finding(f"{name}:held:{t}", RED,
+                              f"{t} is HELD and its data is quarantined ({q.get('class')}): {q.get('reason')}. "
+                              "The book froze the position; check at your broker whether your stop has been hit."))
+        else:
+            fs.append(Finding(f"{name}:excluded:{t}", AMBER,
+                              f"{t} is excluded from new signals this scan ({q.get('class')}): {q.get('reason')}."))
+    for r in rec.get("pending_restatements") or []:
+        fs.append(Finding(f"{name}:pending-restatement:{r.get('trade')}", AMBER,
+                          f"healed data for {r.get('ticker')} would restate closed trade {r.get('trade')} "
+                          f"({r.get('kind')}): needs OWNER APPROVAL. {r.get('approve')}"))
+    for f in fs:
+        print(f"{f.severity}: {f.message}")
+    return CheckResult(name, desc, _worst(fs), True, 1 if fs else 0, fs)
+
+
 CHECKS: list[tuple[str, Callable[[], CheckResult]]] = [
     ("signal-quality-axes", check_signal_quality),
     ("watched-book-loggers", check_loggers),
     ("history-drift", check_history_drift),
+    ("data-quarantine", check_data_quarantine),
     ("calendar-coverage", check_calendar),
 ]
 

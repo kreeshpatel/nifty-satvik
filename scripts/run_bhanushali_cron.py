@@ -1412,11 +1412,11 @@ def main(argv=None) -> int:
     # DATA QUARANTINE: a name the guards set aside cannot signal this scan; a held one is frozen below.
     # `after` is the last scan that published (the last good data); without one, a week before the data.
     q_freeze: dict = {}
+    try:
+        _prior = json.loads((sd / DATA_QUARANTINE_FILE).read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001 - no record yet (or unreadable) -> the clamp alone decides
+        _prior = None
     if qrec and qrec.get("quarantined"):
-        try:
-            _prior = json.loads((sd / DATA_QUARANTINE_FILE).read_text(encoding="utf-8"))
-        except Exception:  # noqa: BLE001 - no record yet (or unreadable) -> the clamp alone decides
-            _prior = None
         q_freeze = _quarantine_last_good([q["ticker"] for q in qrec["quarantined"]], _prior,
                                          _previous_generated_at(sd), qrec["as_of"])
         for q in qrec["quarantined"]:
@@ -1477,13 +1477,35 @@ def main(argv=None) -> int:
     last = max((pd.Timestamp(s["dates"][-1]) for s in P.values()), default=pd.Timestamp(args.start))
     generated_at = str(last.date())
     _assert_data_advanced(_previous_generated_at(sd), generated_at, allow_stale=args.allow_stale)
-    if qrec is not None:
-        from nq.data.data_quarantine import write_quarantine_record
-        write_quarantine_record(sd / DATA_QUARANTINE_FILE, dict(qrec, as_of=generated_at))
 
     envelope, sig_hist, analytics, portfolio, hist_df = build_envelopes(
         P, out_all, led_all, out_paper, generated_at, mem)
 
+    if qrec is not None:
+        # HEALED RESTATEMENTS (owner decision 2026-11-13): a name quarantined last scan that is clean now may
+        # rebuild its closed history differently. That is listed for the owner to approve, never declared here.
+        from nq.data.data_quarantine import RESTATEMENTS_FILE, pending_restatements, write_quarantine_record
+        try:
+            _prev_hist = json.loads((sd / "signals_history_weekly.json").read_text(encoding="utf-8"))
+        except Exception:  # noqa: BLE001
+            _prev_hist = []
+        try:
+            _declared = json.loads((sd / RESTATEMENTS_FILE).read_text(encoding="utf-8"))
+        except Exception:  # noqa: BLE001
+            _declared = {}
+        try:
+            from check_history_drift import is_rebase as _is_rebase
+        except Exception:  # noqa: BLE001
+            _is_rebase = None
+        _healed_now = ({q["ticker"] for q in (_prior or {}).get("quarantined", []) if isinstance(q, dict)}
+                       - {q["ticker"] for q in qrec["quarantined"]})
+        qrec["pending_restatements"] = pending_restatements(
+            _prev_hist, json.loads(json.dumps(sig_hist, default=str)), _healed_now, _declared,
+            carried=(_prior or {}).get("pending_restatements"), is_rebase=_is_rebase)
+        for _r in qrec["pending_restatements"]:
+            print(f"::error::HEALED DATA would RESTATE a closed trade - needs OWNER APPROVAL: {_r['trade']} "
+                  f"({_r['kind']}). {_r['approve']}", flush=True)
+        write_quarantine_record(sd / DATA_QUARANTINE_FILE, dict(qrec, as_of=generated_at))
     # the specific guard reason, on the card and on the paper-book row
     for _c in list(envelope["signals"]) + [dict(v, ticker=k) for k, v in portfolio["positions"].items()]:
         if isinstance(_c, dict) and isinstance(_c.get("data_quarantine"), dict):

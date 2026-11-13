@@ -49,10 +49,17 @@ def _split_broken() -> pd.DataFrame:
     return pd.DataFrame({"Close": c})
 
 
-def _run(cache, held=(), refetch=None, universe=None, ref=None):
+def _registry(cache) -> dict:
+    """A registered (KNOWN) seam for every name whose series carries the x4 step, dated inside the live window."""
+    return {(t, str(PROBES[2].date())): {"factor": 4.0, "cause": "test", "provenance": "test"}
+            for t, df in cache.items() if (df["Close"] < 50).any()}
+
+
+def _run(cache, held=(), refetch=None, universe=None, ref=None, register=True):
+    """register=True: the bad names are KNOWN (registered) seams; False: UNKNOWN (unregistered) violations."""
     ref = _ref(list(cache)) if ref is None else ref
     return quarantine_or_halt(cache, list(held), {}, universe_size=universe or len(cache),
-                              refetch=refetch, ref=ref, known={})
+                              refetch=refetch, ref=ref, known=_registry(cache) if register else {})
 
 
 # ── thresholds ──────────────────────────────────────────────────────────────────────────────────────
@@ -68,7 +75,7 @@ def test_a_single_bad_name_is_quarantined_and_the_rest_is_untouched():
     assert [q["ticker"] for q in rec["quarantined"]] == ["BBB"]
     q = rec["quarantined"][0]
     assert q["held"] is False and q["action"] == "excluded_from_new_signals"
-    assert "adjustment factor fell x4" in q["reason"]
+    assert "registered seam" in q["reason"]
     assert out["AAA"] is cache["AAA"] and out["CCC"] is cache["CCC"]
 
 
@@ -87,7 +94,7 @@ def test_self_heal_by_full_refetch_clears_a_split():
         asked.append(list(tickers))
         return {"BBB": _clean()}                              # the vendor's clean, fully re-adjusted history
 
-    out, rec = _run(cache, refetch=refetch)
+    out, rec = _run(cache, refetch=refetch, register=False)
     assert asked == [["BBB"]], "only the offending name is re-fetched"
     assert rec["healed"] == ["BBB"] and rec["quarantined"] == []
     assert out["BBB"]["Close"].eq(100.0).all()                # the healed series replaced the broken one
@@ -173,9 +180,10 @@ def wired(tmp_path, monkeypatch):
     state = {"cache": {}, "full": {}, "held": []}
     ref_path = tmp_path / "ref.parquet"
 
-    def setup(cache, full=None, held=()):
+    def setup(cache, full=None, held=(), known=False):
         state.update(cache=cache, full=full or {}, held=list(held))
         _ref(list(cache)).to_parquet(ref_path)
+        monkeypatch.setattr(AG, "KNOWN_SEAMS", _registry(cache) if known else {})
 
     def fake_download(tickers, start=None, end=None, min_bars=50, **_):
         if min_bars == 1:                                      # the 25-day top-up: nothing new
@@ -197,7 +205,7 @@ def wired(tmp_path, monkeypatch):
 
 
 def test_refresh_quarantines_one_name_and_the_scan_proceeds(wired):
-    wired({"AAA": _clean(), "BBB": _split_broken(), "CCC": _clean()}, full={"BBB": _split_broken()})
+    wired({"AAA": _clean(), "BBB": _split_broken(), "CCC": _clean()}, full={"BBB": _split_broken()}, known=True)
     q: dict = {}
     out = C._refresh_ohlcv("2025-01-01", 520, True, quarantine_out=q)
     assert set(out) == {"AAA", "BBB", "CCC"}
@@ -220,7 +228,7 @@ def test_refresh_without_the_flag_still_halts_on_one_name(wired):
 
 def test_refresh_halts_on_a_systemic_failure(wired):
     cache = {f"S{i}": _split_broken() for i in range(6)}
-    wired(cache, full={})
+    wired(cache, full={}, known=True)
     with pytest.raises(SystemicDataFailure):
         C._refresh_ohlcv("2025-01-01", 520, True, quarantine_out={})
 
@@ -313,7 +321,7 @@ def test_a_short_refetch_never_replaces_deep_history():
 
 def test_a_full_depth_refetch_is_still_accepted():
     cache = {"AAA": _clean(), "BBB": _split_broken()}
-    out, rec = _run(cache, refetch=lambda t: {"BBB": _clean().iloc[-int(len(BARS) * 0.95):]})
+    out, rec = _run(cache, refetch=lambda t: {"BBB": _clean().iloc[-int(len(BARS) * 0.95):]}, register=False)
     assert rec["healed"] == ["BBB"] and rec["refetch_rejected_too_short"] == []
 
 
@@ -376,3 +384,123 @@ def test_an_exit_already_pending_from_good_data_survives_the_freeze(fix):
     p = out["open_positions"]["INDIG"]
     assert p["data_quarantine"] == str(friday.date())
     assert p["pending"] is not None, "the exit decided from good data must stay queued so the card can say so"
+
+
+# ── owner decision 2026-11-13: KNOWN problems quarantine, UNKNOWN problems halt ───────────────────────
+def test_a_known_seam_is_quarantined_and_its_class_is_recorded():
+    cache = {"AAA": _clean(), "BBB": _split_broken()}
+    _, rec = _run(cache)
+    assert rec["flagged_class"] == {"BBB": "known_seam"}
+    assert [(q["ticker"], q["class"]) for q in rec["quarantined"]] == [("BBB", "known_seam")]
+    assert "live_seam_escalation" in rec["quarantined"][0]["kinds"]
+
+
+def test_an_unknown_violation_that_survives_the_refetch_halts_the_scan():
+    cache = {"AAA": _clean(), "BBB": _split_broken()}
+    with pytest.raises(ValueError, match="ADJUSTMENT MONOTONICITY VIOLATED") as ei:
+        _run(cache, refetch=lambda t: {"BBB": _split_broken()}, register=False)
+    assert not isinstance(ei.value, SystemicDataFailure), "one unknown name is a diagnosis, not an outage"
+    assert "BBB" in str(ei.value)
+
+
+def test_an_unknown_violation_with_no_refetch_halts_too():
+    with pytest.raises(ValueError, match="ADJUSTMENT MONOTONICITY VIOLATED"):
+        _run({"AAA": _clean(), "BBB": _split_broken()}, register=False)
+
+
+def test_a_name_with_both_a_known_and_an_unknown_finding_halts():
+    cache = {"AAA": _clean(), "BBB": _split_broken()}
+    known = {("BBB", str(PROBES[3].date())): {"factor": 2.0, "cause": "test", "provenance": "test"}}   # other seam
+    with pytest.raises(ValueError, match="ADJUSTMENT MONOTONICITY VIOLATED"):
+        quarantine_or_halt(cache, [], {}, universe_size=2, refetch=None, ref=_ref(list(cache)), known=known)
+
+
+def test_a_known_and_an_unknown_name_together_halt_on_the_unknown_one():
+    cache = {"AAA": _clean(), "KKK": _split_broken(), "UUU": _split_broken()}
+    known = {("KKK", str(PROBES[2].date())): {"factor": 4.0, "cause": "test", "provenance": "test"}}
+    with pytest.raises(ValueError, match="UUU"):
+        quarantine_or_halt(cache, [], {}, universe_size=3, refetch=None, ref=_ref(list(cache)), known=known)
+
+
+def test_refresh_halts_on_an_unknown_violation_that_survives_the_refetch(wired):
+    wired({"AAA": _clean(), "BBB": _split_broken()}, full={"BBB": _split_broken()}, known=False)
+    with pytest.raises(ValueError, match="ADJUSTMENT MONOTONICITY VIOLATED"):
+        C._refresh_ohlcv("2025-01-01", 520, True, quarantine_out={})
+
+
+def test_the_adr_records_the_owner_decision():
+    adr = (ROOT / "docs" / "decisions" / "0013-defer-live-seam-repair.md").read_text(encoding="utf-8")
+    assert "Amendment 2026-11-13 (owner decision)" in adr and "quarantines the name" in adr
+
+
+# ── owner decision 2026-11-13: a healed restatement is FLAGGED for approval, never declared ───────────
+def _hist(entry=100.0, r=2.0, extra=()):
+    rows = [{"ticker": "BBB", "signal_date": "2026-08-31", "status": "CLOSED", "entry": entry,
+             "close_price": entry * 1.2, "close_date": "2026-09-30", "r_multiple": r, "exit_reason": "sma_break"},
+            {"ticker": "AAA", "signal_date": "2026-08-31", "status": "CLOSED", "entry": 50.0,
+             "close_price": 55.0, "close_date": "2026-09-30", "r_multiple": 1.0, "exit_reason": "sma_break"}]
+    return rows + list(extra)
+
+
+def test_a_healed_names_restated_trade_is_flagged_not_declared():
+    from nq.data.data_quarantine import pending_restatements
+    out = pending_restatements(_hist(), _hist(entry=50.0, r=3.1), {"BBB"}, {})
+    assert [r["trade"] for r in out] == ["BBB|2026-08-31"]
+    r = out[0]
+    assert r["kind"] == "restated" and r["old"]["entry"] == 100.0 and r["new"]["entry"] == 50.0
+    assert r["ticker"] == "BBB" and 'history_restatements.json' in r["approve"] and '"BBB|2026-08-31"' in r["approve"]
+
+
+def test_only_healed_names_are_listed_and_unchanged_history_is_silent():
+    from nq.data.data_quarantine import pending_restatements
+    assert pending_restatements(_hist(), _hist(), {"BBB"}, {}) == []
+    assert pending_restatements(_hist(), _hist(entry=50.0), set(), {}) == []        # not a healed name
+    vanished = pending_restatements(_hist(), [h for h in _hist() if h["ticker"] != "BBB"], {"BBB"}, {})
+    assert [(r["kind"], r["new"]) for r in vanished] == [("vanished", None)]
+
+
+def test_a_declared_restatement_stops_being_pending_and_pending_carries_forward():
+    from nq.data.data_quarantine import pending_restatements
+    carried = pending_restatements(_hist(), _hist(entry=50.0), {"BBB"}, {})
+    again = pending_restatements(_hist(), _hist(), set(), {}, carried=carried)       # healed, history now stable
+    assert [r["trade"] for r in again] == ["BBB|2026-08-31"], "stays listed until the owner declares it"
+    done = pending_restatements(_hist(), _hist(), set(), {"BBB|2026-08-31": "2026-11-13 owner approved"},
+                                carried=carried)
+    assert done == []
+
+
+def test_the_declared_file_is_never_written_by_the_scan():
+    src = (ROOT / "scripts" / "run_bhanushali_cron.py").read_text(encoding="utf-8")
+    assert "RESTATEMENTS_FILE).read_text" in src          # read only: the owner declares, the scan never does
+    assert "RESTATEMENTS_FILE).write_text" not in src
+
+
+def test_the_drift_check_names_the_key_and_how_to_approve(tmp_path, capsys):
+    import json as _j
+    import check_history_drift as D
+    log = tmp_path / "drift.jsonl"
+    log.write_text(_j.dumps({"as_of": "2026-11-13", "restated": [{"trade": "BBB|2026-08-31",
+                    "changed": {"entry": [100.0, 50.0]}}], "vanished": [], "vanished_open": []}) + "\n")
+    q = tmp_path / "q.json"
+    q.write_text(_j.dumps({"pending_restatements": [{"ticker": "BBB", "trade": "BBB|2026-08-31"}]}))
+    rc = D.main(["--log", str(log), "--declared", str(tmp_path / "none.json"), "--quarantine", str(q)])
+    out = capsys.readouterr().out
+    assert rc == 1 and "PENDING OWNER APPROVAL" in out and '"BBB|2026-08-31"' in out and "history_restatements.json" in out
+
+
+def test_scan_health_shows_quarantine_and_pending_restatement(tmp_path):
+    import json as _j
+    import scan_health as H
+    rec = tmp_path / "q.json"
+    rec.write_text(_j.dumps({
+        "quarantined": [{"ticker": "HHH", "held": True, "class": "known_seam", "reason": "r"},
+                        {"ticker": "UUU", "held": False, "class": "known_seam", "reason": "r"}],
+        "pending_restatements": [{"ticker": "BBB", "trade": "BBB|2026-08-31", "kind": "restated",
+                                  "approve": 'To approve, add "BBB|2026-08-31" to results/history_restatements.json.'}]}))
+    r = H.check_data_quarantine(path=rec)
+    sev = {f.key: f.severity for f in r.findings}
+    assert sev == {"data-quarantine:held:HHH": "RED", "data-quarantine:excluded:UUU": "AMBER",
+                   "data-quarantine:pending-restatement:BBB|2026-08-31": "AMBER"}
+    assert r.status == "RED" and "check at your broker" in r.findings[0].message
+    assert any("OWNER APPROVAL" in f.message and "history_restatements.json" in f.message for f in r.findings)
+    assert H.check_data_quarantine(path=tmp_path / "absent.json").status == "GREEN"

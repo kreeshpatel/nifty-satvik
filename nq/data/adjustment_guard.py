@@ -467,7 +467,10 @@ def assert_no_live_escalation(ohlcv: dict, positions=(), *, as_of=None,
                               known: dict | None = None) -> dict:
     """Raise when the pre-committed escalation condition fires.
 
-    Raising halts the weekly scan, and that is the intended consequence rather than a side effect.
+    Raising halts the weekly scan. AMENDED 2026-11-13 (owner decision, ADR-0013 amendment): this function
+    still raises when called, but the weekly cron no longer lets a KNOWN-seam escalation halt the whole scan -
+    ``nq.data.data_quarantine`` quarantines the flagged name for the scan and the scan continues; only an
+    UNKNOWN violation or a systemic failure still halts. The pre-commitment below remains the detector.
     Decision (b) accepted running on a known-wrong input for ONE name that the book cannot buy; the
     trigger fires precisely when that premise stops holding, and the pre-commitment says it returns
     to the owner before the book acts again — not after.
