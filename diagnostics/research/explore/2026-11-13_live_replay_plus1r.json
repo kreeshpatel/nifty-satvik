@@ -1,0 +1,162 @@
+{
+  "tier": "EXPLORE",
+  "n_trades": 55,
+  "last_bar": "2026-11-11",
+  "arms": {
+    "live": {
+      "sum_R_all_marked": -20.8,
+      "sum_R_closed": -46.4,
+      "n_closed": 39,
+      "n_full_stop": 29,
+      "n_open": 16,
+      "no_data": 0
+    },
+    "breakeven_at_1R": {
+      "sum_R_all_marked": -19.1,
+      "sum_R_closed": -40.2,
+      "n_closed": 42,
+      "n_full_stop": 35,
+      "n_open": 13,
+      "no_data": 0
+    },
+    "stop_-0.5R_at_1R": {
+      "sum_R_all_marked": -19.9,
+      "sum_R_closed": -45.5,
+      "n_closed": 39,
+      "n_full_stop": 33,
+      "n_open": 16,
+      "no_data": 0
+    },
+    "partial_20pct_at_1R": {
+      "sum_R_all_marked": -20.3,
+      "sum_R_closed": -43.9,
+      "n_closed": 39,
+      "n_full_stop": 23,
+      "n_open": 16,
+      "no_data": 0
+    },
+    "first_40pct_at_1R": {
+      "sum_R_all_marked": -19.8,
+      "sum_R_closed": -41.3,
+      "n_closed": 39,
+      "n_full_stop": 23,
+      "n_open": 16,
+      "no_data": 0
+    },
+    "trail_1R_behind_after_1R": {
+      "sum_R_all_marked": -22.5,
+      "sum_R_closed": -29.2,
+      "n_closed": 48,
+      "n_full_stop": 35,
+      "n_open": 7,
+      "no_data": 0
+    },
+    "trail_1.5R_behind_after_1.5R": {
+      "sum_R_all_marked": -20.6,
+      "sum_R_closed": -36.2,
+      "n_closed": 44,
+      "n_full_stop": 30,
+      "n_open": 11,
+      "no_data": 0
+    },
+    "breakeven_at_1R|intraweek_peak": {
+      "sum_R_all_marked": -14.5,
+      "sum_R_closed": -34.0,
+      "n_closed": 43,
+      "n_full_stop": 36,
+      "n_open": 12,
+      "no_data": 0
+    },
+    "stop_-0.5R_at_1R|intraweek_peak": {
+      "sum_R_all_marked": -17.0,
+      "sum_R_closed": -41.9,
+      "n_closed": 39,
+      "n_full_stop": 33,
+      "n_open": 16,
+      "no_data": 0
+    },
+    "trail_1R_behind_after_1R|intraweek_peak": {
+      "sum_R_all_marked": -15.5,
+      "sum_R_closed": -20.6,
+      "n_closed": 49,
+      "n_full_stop": 36,
+      "n_open": 6,
+      "no_data": 0
+    },
+    "trail_1.5R_behind_after_1.5R|intraweek_peak": {
+      "sum_R_all_marked": -17.6,
+      "sum_R_closed": -31.6,
+      "n_closed": 45,
+      "n_full_stop": 33,
+      "n_open": 10,
+      "no_data": 0
+    }
+  },
+  "validation": {
+    "recorded_closed_sum_R": -46.6,
+    "simulated_same_trades_sum_R": -45.7,
+    "trades_off_by_gt_0.25R": [
+      {
+        "tkr": "NLCINDIA",
+        "sig": "2026-07-13",
+        "R_rec": -1.97,
+        "R": -0.9855350698380231,
+        "reason": "stop"
+      },
+      {
+        "tkr": "GESHIP",
+        "sig": "2026-07-27",
+        "R_rec": -1.46,
+        "R": -0.9576274848796505,
+        "reason": "stop"
+      },
+      {
+        "tkr": "CCL",
+        "sig": "2026-08-17",
+        "R_rec": -2.18,
+        "R": -2.447200204410579,
+        "reason": "stop"
+      },
+      {
+        "tkr": "OBEROIRLTY",
+        "sig": "2026-09-28",
+        "R_rec": -1.56,
+        "R": -1.018910066986383,
+        "reason": "stop"
+      },
+      {
+        "tkr": "SAIL",
+        "sig": "2026-08-24",
+        "R_rec": 0.03,
+        "R": -0.34311429749224476,
+        "reason": "stop_part"
+      }
+    ]
+  },
+  "round_trip_live": {
+    "closed": 55,
+    "full_stops": 27,
+    "round_trip_mfe_close": {
+      "count": 1,
+      "share_of_full_stops_pct": 3.7,
+      "sum_R": -1.2,
+      "mean_R": -1.2,
+      "giveback_from_peak_R": 2.4
+    },
+    "round_trip_mfe_high": {
+      "count": 6,
+      "share_of_full_stops_pct": 22.2,
+      "sum_R": -8.2,
+      "mean_R": -1.37,
+      "giveback_from_peak_R": 16.0
+    },
+    "big_winners_R_ge_2": {
+      "count": 6,
+      "sum_R": 19.2,
+      "low_back_to_+0.25R_after_+1R": 4,
+      "friday_close_at_or_below_entry_after_+1R": 1,
+      "friday_close_at_or_below_-0.5R_after_+1R": 0
+    },
+    "note": "big winners include open trades marked at the last close"
+  }
+}
