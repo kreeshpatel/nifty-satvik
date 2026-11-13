@@ -1,0 +1,1096 @@
+{
+  "note": "A = train 2019..2024-06; B not opened (owner, 2026-11-13); C = live since 2026-07-06",
+  "earnings_known_until": "2026-07-24",
+  "breadth_C_note": "live breadth: PIT Nifty-500 members (nifty500_membership_v2) with Yahoo prices, 496 names with enough history",
+  "headline": [
+    {
+      "dataset": "A",
+      "n": 525,
+      "n_closed": 441,
+      "n_open": 84,
+      "win_pct": 42.9,
+      "avg_win_R": 3.14,
+      "avg_loss_R": -1.26,
+      "avg_R_closed": 0.621,
+      "total_R": 650.2,
+      "runner_pct": 32.2,
+      "hold_wk_winners": 42.2,
+      "hold_wk_losers": 7.9,
+      "full_stop_pct_closed": 44.4,
+      "acct_sharpe": 1.02,
+      "acct_cagr_pct": 20.5,
+      "acct_maxdd_pct": -40.1,
+      "acct_window": "2019-01-01..2024-06-28"
+    },
+    {
+      "dataset": "C",
+      "n": 55,
+      "n_closed": 38,
+      "n_open": 17,
+      "win_pct": 5.3,
+      "avg_win_R": 1.57,
+      "avg_loss_R": -1.38,
+      "avg_R_closed": -1.226,
+      "total_R": -17.3,
+      "runner_pct": 14.5,
+      "hold_wk_winners": 10.5,
+      "hold_wk_losers": 5.1,
+      "full_stop_pct_closed": 71.1,
+      "acct_sharpe": -1.03,
+      "acct_cagr_pct": -17.3,
+      "acct_maxdd_pct": -13.9,
+      "acct_window": "2026-07-06..2026-11-08"
+    }
+  ],
+  "regime": {
+    "nifty_vs_40w": [
+      {
+        "dataset": "A",
+        "bucket": "above",
+        "n": 388,
+        "n_closed": 310,
+        "n_open": 78,
+        "win_pct": 36.8,
+        "avg_win_R": 2.68,
+        "avg_loss_R": -1.28,
+        "avg_R_closed": 0.174,
+        "total_R": 378.9,
+        "runner_pct": 30.2,
+        "hold_wk_winners": 36.9,
+        "hold_wk_losers": 8.3,
+        "full_stop_pct_closed": 51.3
+      },
+      {
+        "dataset": "A",
+        "bucket": "below",
+        "n": 137,
+        "n_closed": 131,
+        "n_open": 6,
+        "win_pct": 57.3,
+        "avg_win_R": 3.83,
+        "avg_loss_R": -1.21,
+        "avg_R_closed": 1.678,
+        "total_R": 271.3,
+        "runner_pct": 38.0,
+        "hold_wk_winners": 50.3,
+        "hold_wk_losers": 6.5,
+        "full_stop_pct_closed": 28.2
+      },
+      {
+        "dataset": "C",
+        "bucket": "below",
+        "n": 55,
+        "n_closed": 38,
+        "n_open": 17,
+        "win_pct": 5.3,
+        "avg_win_R": 1.57,
+        "avg_loss_R": -1.38,
+        "avg_R_closed": -1.226,
+        "total_R": -17.3,
+        "runner_pct": 14.5,
+        "hold_wk_winners": 10.5,
+        "hold_wk_losers": 5.1,
+        "full_stop_pct_closed": 71.1
+      }
+    ],
+    "sma40_slope": [
+      {
+        "dataset": "A",
+        "bucket": "falling",
+        "n": 120,
+        "n_closed": 116,
+        "n_open": 4,
+        "win_pct": 56.9,
+        "avg_win_R": 4.37,
+        "avg_loss_R": -1.33,
+        "avg_R_closed": 1.917,
+        "total_R": 261.6,
+        "runner_pct": 41.7,
+        "hold_wk_winners": 57.8,
+        "hold_wk_losers": 5.9,
+        "full_stop_pct_closed": 33.6
+      },
+      {
+        "dataset": "A",
+        "bucket": "rising",
+        "n": 405,
+        "n_closed": 325,
+        "n_open": 80,
+        "win_pct": 37.8,
+        "avg_win_R": 2.47,
+        "avg_loss_R": -1.25,
+        "avg_R_closed": 0.159,
+        "total_R": 388.6,
+        "runner_pct": 29.4,
+        "hold_wk_winners": 33.8,
+        "hold_wk_losers": 8.4,
+        "full_stop_pct_closed": 48.3
+      },
+      {
+        "dataset": "C",
+        "bucket": "falling",
+        "n": 55,
+        "n_closed": 38,
+        "n_open": 17,
+        "win_pct": 5.3,
+        "avg_win_R": 1.57,
+        "avg_loss_R": -1.38,
+        "avg_R_closed": -1.226,
+        "total_R": -17.3,
+        "runner_pct": 14.5,
+        "hold_wk_winners": 10.5,
+        "hold_wk_losers": 5.1,
+        "full_stop_pct_closed": 71.1
+      }
+    ],
+    "ret13_bucket": [
+      {
+        "dataset": "A",
+        "bucket": "-5..0%",
+        "n": 97,
+        "n_closed": 87,
+        "n_open": 10,
+        "win_pct": 40.2,
+        "avg_win_R": 1.89,
+        "avg_loss_R": -1.25,
+        "avg_R_closed": 0.014,
+        "total_R": 56.5,
+        "runner_pct": 29.9,
+        "hold_wk_winners": 33.3,
+        "hold_wk_losers": 7.7,
+        "full_stop_pct_closed": 46.0
+      },
+      {
+        "dataset": "A",
+        "bucket": "0..+5%",
+        "n": 127,
+        "n_closed": 93,
+        "n_open": 34,
+        "win_pct": 38.7,
+        "avg_win_R": 2.1,
+        "avg_loss_R": -1.32,
+        "avg_R_closed": 0.001,
+        "total_R": 116.4,
+        "runner_pct": 29.9,
+        "hold_wk_winners": 34.3,
+        "hold_wk_losers": 7.6,
+        "full_stop_pct_closed": 48.4
+      },
+      {
+        "dataset": "A",
+        "bucket": "<-5%",
+        "n": 84,
+        "n_closed": 76,
+        "n_open": 8,
+        "win_pct": 61.8,
+        "avg_win_R": 4.72,
+        "avg_loss_R": -1.43,
+        "avg_R_closed": 2.373,
+        "total_R": 249.6,
+        "runner_pct": 45.2,
+        "hold_wk_winners": 51.9,
+        "hold_wk_losers": 4.6,
+        "full_stop_pct_closed": 28.9
+      },
+      {
+        "dataset": "A",
+        "bucket": ">+5%",
+        "n": 217,
+        "n_closed": 185,
+        "n_open": 32,
+        "win_pct": 38.4,
+        "avg_win_R": 3.23,
+        "avg_loss_R": -1.2,
+        "avg_R_closed": 0.499,
+        "total_R": 227.8,
+        "runner_pct": 29.5,
+        "hold_wk_winners": 44.2,
+        "hold_wk_losers": 9.0,
+        "full_stop_pct_closed": 48.1
+      },
+      {
+        "dataset": "C",
+        "bucket": "-5..0%",
+        "n": 20,
+        "n_closed": 15,
+        "n_open": 5,
+        "win_pct": 0.0,
+        "avg_win_R": null,
+        "avg_loss_R": -1.39,
+        "avg_R_closed": -1.389,
+        "total_R": -14.6,
+        "runner_pct": 5.0,
+        "hold_wk_winners": null,
+        "hold_wk_losers": 4.1,
+        "full_stop_pct_closed": 80.0
+      },
+      {
+        "dataset": "C",
+        "bucket": "0..+5%",
+        "n": 22,
+        "n_closed": 17,
+        "n_open": 5,
+        "win_pct": 11.8,
+        "avg_win_R": 1.57,
+        "avg_loss_R": -1.43,
+        "avg_R_closed": -1.073,
+        "total_R": -2.9,
+        "runner_pct": 22.7,
+        "hold_wk_winners": 10.5,
+        "hold_wk_losers": 5.1,
+        "full_stop_pct_closed": 64.7
+      },
+      {
+        "dataset": "C",
+        "bucket": "<-5%",
+        "n": 8,
+        "n_closed": 2,
+        "n_open": 6,
+        "win_pct": 0.0,
+        "avg_win_R": null,
+        "avg_loss_R": -1.23,
+        "avg_R_closed": -1.235,
+        "total_R": 3.2,
+        "runner_pct": 12.5,
+        "hold_wk_winners": null,
+        "hold_wk_losers": 2.0,
+        "full_stop_pct_closed": 50.0
+      },
+      {
+        "dataset": "C",
+        "bucket": ">+5%",
+        "n": 5,
+        "n_closed": 4,
+        "n_open": 1,
+        "win_pct": 0.0,
+        "avg_win_R": null,
+        "avg_loss_R": -1.26,
+        "avg_R_closed": -1.258,
+        "total_R": -3.0,
+        "runner_pct": 20.0,
+        "hold_wk_winners": null,
+        "hold_wk_losers": 10.2,
+        "full_stop_pct_closed": 75.0
+      }
+    ],
+    "breadth_bucket": [
+      {
+        "dataset": "A",
+        "bucket": "40-60%",
+        "n": 87,
+        "n_closed": 75,
+        "n_open": 12,
+        "win_pct": 40.0,
+        "avg_win_R": 2.96,
+        "avg_loss_R": -1.43,
+        "avg_R_closed": 0.323,
+        "total_R": 107.7,
+        "runner_pct": 36.8,
+        "hold_wk_winners": 48.5,
+        "hold_wk_losers": 6.7,
+        "full_stop_pct_closed": 49.3
+      },
+      {
+        "dataset": "A",
+        "bucket": "<40%",
+        "n": 90,
+        "n_closed": 85,
+        "n_open": 5,
+        "win_pct": 55.3,
+        "avg_win_R": 4.07,
+        "avg_loss_R": -1.23,
+        "avg_R_closed": 1.701,
+        "total_R": 190.6,
+        "runner_pct": 38.9,
+        "hold_wk_winners": 53.7,
+        "hold_wk_losers": 4.8,
+        "full_stop_pct_closed": 34.1
+      },
+      {
+        "dataset": "A",
+        "bucket": ">60%",
+        "n": 245,
+        "n_closed": 178,
+        "n_open": 67,
+        "win_pct": 38.8,
+        "avg_win_R": 2.61,
+        "avg_loss_R": -1.16,
+        "avg_R_closed": 0.299,
+        "total_R": 300.0,
+        "runner_pct": 34.7,
+        "hold_wk_winners": 38.3,
+        "hold_wk_losers": 8.3,
+        "full_stop_pct_closed": 49.4
+      },
+      {
+        "dataset": "A",
+        "bucket": "nan",
+        "n": 103,
+        "n_closed": 103,
+        "n_open": 0,
+        "win_pct": 41.7,
+        "avg_win_R": 3.08,
+        "avg_loss_R": -1.34,
+        "avg_R_closed": 0.504,
+        "total_R": 51.9,
+        "runner_pct": 16.5,
+        "hold_wk_winners": 31.6,
+        "hold_wk_losers": 10.1,
+        "full_stop_pct_closed": 40.8
+      },
+      {
+        "dataset": "C",
+        "bucket": "40-60%",
+        "n": 14,
+        "n_closed": 10,
+        "n_open": 4,
+        "win_pct": 0.0,
+        "avg_win_R": null,
+        "avg_loss_R": -1.64,
+        "avg_R_closed": -1.637,
+        "total_R": -11.6,
+        "runner_pct": 7.1,
+        "hold_wk_winners": null,
+        "hold_wk_losers": 2.2,
+        "full_stop_pct_closed": 90.0
+      },
+      {
+        "dataset": "C",
+        "bucket": "<40%",
+        "n": 5,
+        "n_closed": 0,
+        "n_open": 5,
+        "win_pct": null,
+        "avg_win_R": null,
+        "avg_loss_R": null,
+        "avg_R_closed": null,
+        "total_R": 3.3,
+        "runner_pct": 0.0,
+        "hold_wk_winners": null,
+        "hold_wk_losers": null,
+        "full_stop_pct_closed": null
+      },
+      {
+        "dataset": "C",
+        "bucket": ">60%",
+        "n": 36,
+        "n_closed": 28,
+        "n_open": 8,
+        "win_pct": 7.1,
+        "avg_win_R": 1.57,
+        "avg_loss_R": -1.28,
+        "avg_R_closed": -1.079,
+        "total_R": -8.9,
+        "runner_pct": 19.4,
+        "hold_wk_winners": 10.5,
+        "hold_wk_losers": 6.2,
+        "full_stop_pct_closed": 64.3
+      }
+    ],
+    "vix_bucket": [
+      {
+        "dataset": "A",
+        "bucket": "15-20",
+        "n": 188,
+        "n_closed": 178,
+        "n_open": 10,
+        "win_pct": 36.0,
+        "avg_win_R": 2.88,
+        "avg_loss_R": -1.23,
+        "avg_R_closed": 0.246,
+        "total_R": 94.8,
+        "runner_pct": 19.7,
+        "hold_wk_winners": 37.8,
+        "hold_wk_losers": 8.6,
+        "full_stop_pct_closed": 50.0
+      },
+      {
+        "dataset": "A",
+        "bucket": "<15",
+        "n": 206,
+        "n_closed": 141,
+        "n_open": 65,
+        "win_pct": 37.6,
+        "avg_win_R": 1.89,
+        "avg_loss_R": -1.27,
+        "avg_R_closed": -0.082,
+        "total_R": 274.2,
+        "runner_pct": 35.9,
+        "hold_wk_winners": 29.9,
+        "hold_wk_losers": 8.0,
+        "full_stop_pct_closed": 49.6
+      },
+      {
+        "dataset": "A",
+        "bucket": ">20",
+        "n": 131,
+        "n_closed": 122,
+        "n_open": 9,
+        "win_pct": 59.0,
+        "avg_win_R": 4.27,
+        "avg_loss_R": -1.32,
+        "avg_R_closed": 1.981,
+        "total_R": 281.2,
+        "runner_pct": 44.3,
+        "hold_wk_winners": 55.2,
+        "hold_wk_losers": 6.2,
+        "full_stop_pct_closed": 30.3
+      },
+      {
+        "dataset": "C",
+        "bucket": "15-20",
+        "n": 4,
+        "n_closed": 0,
+        "n_open": 4,
+        "win_pct": null,
+        "avg_win_R": null,
+        "avg_loss_R": null,
+        "avg_R_closed": null,
+        "total_R": 1.9,
+        "runner_pct": 0.0,
+        "hold_wk_winners": null,
+        "hold_wk_losers": null,
+        "full_stop_pct_closed": null
+      },
+      {
+        "dataset": "C",
+        "bucket": "<15",
+        "n": 51,
+        "n_closed": 38,
+        "n_open": 13,
+        "win_pct": 5.3,
+        "avg_win_R": 1.57,
+        "avg_loss_R": -1.38,
+        "avg_R_closed": -1.226,
+        "total_R": -19.2,
+        "runner_pct": 15.7,
+        "hold_wk_winners": 10.5,
+        "hold_wk_losers": 5.1,
+        "full_stop_pct_closed": 71.1
+      }
+    ]
+  },
+  "anatomy": {
+    "peak_R_of_full_stops": [
+      {
+        "dataset": "A",
+        "basis": "mfe_close",
+        "n_full_stops": 196,
+        "peak <0R": 108,
+        "peak 0-0.5R": 47,
+        "peak 0.5-1R": 30,
+        "peak 1-1.5R": 7,
+        "peak 1.5-2R": 4,
+        "peak >=2R": 0
+      },
+      {
+        "dataset": "A",
+        "basis": "mfe_high",
+        "n_full_stops": 196,
+        "peak <0R": 4,
+        "peak 0-0.5R": 95,
+        "peak 0.5-1R": 49,
+        "peak 1-1.5R": 35,
+        "peak 1.5-2R": 12,
+        "peak >=2R": 1
+      },
+      {
+        "dataset": "C",
+        "basis": "mfe_close",
+        "n_full_stops": 27,
+        "peak <0R": 20,
+        "peak 0-0.5R": 4,
+        "peak 0.5-1R": 2,
+        "peak 1-1.5R": 1,
+        "peak 1.5-2R": 0,
+        "peak >=2R": 0
+      },
+      {
+        "dataset": "C",
+        "basis": "mfe_high",
+        "n_full_stops": 27,
+        "peak <0R": 1,
+        "peak 0-0.5R": 15,
+        "peak 0.5-1R": 5,
+        "peak 1-1.5R": 5,
+        "peak 1.5-2R": 1,
+        "peak >=2R": 0
+      }
+    ],
+    "failed_immediately": [
+      {
+        "dataset": "A",
+        "losers": 252,
+        "never_above_0.5R_intraweek_pct": 40.5,
+        "never_above_0.5R_friday_pct": 65.9
+      },
+      {
+        "dataset": "C",
+        "losers": 36,
+        "never_above_0.5R_intraweek_pct": 47.2,
+        "never_above_0.5R_friday_pct": 75.0
+      }
+    ],
+    "winners_vs_losers": [
+      {
+        "feature": "dist_52w_high_pct",
+        "A_win_median": -9.15,
+        "A_loss_median": -8.61,
+        "A_p": 0.153,
+        "C_win_median": -11.4,
+        "C_loss_median": -8.71,
+        "C_p": null,
+        "clear_in_A_same_sign_in_C": false
+      },
+      {
+        "feature": "pullback_depth_pct",
+        "A_win_median": 13.78,
+        "A_loss_median": 12.04,
+        "A_p": 0.038,
+        "C_win_median": 14.16,
+        "C_loss_median": 11.91,
+        "C_p": null,
+        "clear_in_A_same_sign_in_C": true
+      },
+      {
+        "feature": "ext_40w_pct",
+        "A_win_median": 12.9,
+        "A_loss_median": 12.04,
+        "A_p": 0.069,
+        "C_win_median": 7.24,
+        "C_loss_median": 9.89,
+        "C_p": null,
+        "clear_in_A_same_sign_in_C": false
+      },
+      {
+        "feature": "vol_vs_20d",
+        "A_win_median": 1.41,
+        "A_loss_median": 1.43,
+        "A_p": 0.687,
+        "C_win_median": 0.7,
+        "C_loss_median": 1.21,
+        "C_p": null,
+        "clear_in_A_same_sign_in_C": false
+      },
+      {
+        "feature": "stop_pct",
+        "A_win_median": 9.27,
+        "A_loss_median": 7.8,
+        "A_p": 0.009,
+        "C_win_median": 2.74,
+        "C_loss_median": 5.44,
+        "C_p": null,
+        "clear_in_A_same_sign_in_C": false
+      },
+      {
+        "feature": "beta",
+        "A_win_median": 0.77,
+        "A_loss_median": 0.82,
+        "A_p": 0.14,
+        "C_win_median": 0.94,
+        "C_loss_median": 1.09,
+        "C_p": null,
+        "clear_in_A_same_sign_in_C": false
+      },
+      {
+        "feature": "rs6m_pct",
+        "A_win_median": 15.02,
+        "A_loss_median": 11.43,
+        "A_p": 0.007,
+        "C_win_median": 13.94,
+        "C_loss_median": 21.05,
+        "C_p": null,
+        "clear_in_A_same_sign_in_C": false
+      },
+      {
+        "feature": "traded_value_cr",
+        "A_win_median": 17.11,
+        "A_loss_median": 17.07,
+        "A_p": 0.475,
+        "C_win_median": 306.02,
+        "C_loss_median": 128.01,
+        "C_p": null,
+        "clear_in_A_same_sign_in_C": false
+      },
+      {
+        "feature": "results_4w (share, A)",
+        "A_win_median": 13.2,
+        "A_loss_median": 17.1
+      },
+      {
+        "feature": "results_4w (share, C)",
+        "C_win_median": 100.0,
+        "C_loss_median": 20.0
+      }
+    ]
+  },
+  "sector": [
+    {
+      "dataset": "A",
+      "sector": "Others",
+      "n": 72,
+      "n_closed": 68,
+      "win_pct": 30.9,
+      "avg_R_closed": -0.037,
+      "total_R": 17.2
+    },
+    {
+      "dataset": "A",
+      "sector": "Consumer",
+      "n": 62,
+      "n_closed": 50,
+      "win_pct": 34.0,
+      "avg_R_closed": 0.5,
+      "total_R": 71.1
+    },
+    {
+      "dataset": "A",
+      "sector": "Pharma",
+      "n": 48,
+      "n_closed": 41,
+      "win_pct": 65.9,
+      "avg_R_closed": 2.539,
+      "total_R": 124.3
+    },
+    {
+      "dataset": "A",
+      "sector": "Finance_NBFC",
+      "n": 42,
+      "n_closed": 38,
+      "win_pct": 44.7,
+      "avg_R_closed": 0.173,
+      "total_R": 18.6
+    },
+    {
+      "dataset": "A",
+      "sector": "Industrials",
+      "n": 42,
+      "n_closed": 28,
+      "win_pct": 50.0,
+      "avg_R_closed": 1.352,
+      "total_R": 98.1
+    },
+    {
+      "dataset": "A",
+      "sector": "Chemicals",
+      "n": 38,
+      "n_closed": 35,
+      "win_pct": 45.7,
+      "avg_R_closed": 1.021,
+      "total_R": 46.4
+    },
+    {
+      "dataset": "A",
+      "sector": "Energy",
+      "n": 37,
+      "n_closed": 31,
+      "win_pct": 38.7,
+      "avg_R_closed": 0.471,
+      "total_R": 56.0
+    },
+    {
+      "dataset": "A",
+      "sector": "Infrastructure",
+      "n": 35,
+      "n_closed": 26,
+      "win_pct": 38.5,
+      "avg_R_closed": -0.169,
+      "total_R": 58.6
+    },
+    {
+      "dataset": "A",
+      "sector": "FMCG",
+      "n": 29,
+      "n_closed": 24,
+      "win_pct": 58.3,
+      "avg_R_closed": 1.109,
+      "total_R": 44.3
+    },
+    {
+      "dataset": "A",
+      "sector": "Banking",
+      "n": 28,
+      "n_closed": 22,
+      "win_pct": 27.3,
+      "avg_R_closed": -0.205,
+      "total_R": 27.7
+    },
+    {
+      "dataset": "A",
+      "sector": "IT",
+      "n": 27,
+      "n_closed": 22,
+      "win_pct": 50.0,
+      "avg_R_closed": 0.444,
+      "total_R": 22.2
+    },
+    {
+      "dataset": "A",
+      "sector": "Metals",
+      "n": 19,
+      "n_closed": 18,
+      "win_pct": 44.4,
+      "avg_R_closed": 0.288,
+      "total_R": 6.8
+    },
+    {
+      "dataset": "A",
+      "sector": "Auto",
+      "n": 18,
+      "n_closed": 13,
+      "win_pct": 38.5,
+      "avg_R_closed": 0.517,
+      "total_R": 32.9
+    },
+    {
+      "dataset": "A",
+      "sector": "Diversified",
+      "n": 8,
+      "n_closed": 7,
+      "win_pct": 57.1,
+      "avg_R_closed": 0.561,
+      "total_R": 8.2
+    },
+    {
+      "dataset": "A",
+      "sector": "Cement",
+      "n": 7,
+      "n_closed": 7,
+      "win_pct": 42.9,
+      "avg_R_closed": 0.932,
+      "total_R": 6.5
+    },
+    {
+      "dataset": "A",
+      "sector": "Paints",
+      "n": 5,
+      "n_closed": 5,
+      "win_pct": 40.0,
+      "avg_R_closed": 0.622,
+      "total_R": 3.1
+    },
+    {
+      "dataset": "A",
+      "sector": "Telecom",
+      "n": 5,
+      "n_closed": 3,
+      "win_pct": 33.3,
+      "avg_R_closed": 0.129,
+      "total_R": 8.8
+    },
+    {
+      "dataset": "A",
+      "sector": "Media",
+      "n": 2,
+      "n_closed": 2,
+      "win_pct": 0.0,
+      "avg_R_closed": -1.727,
+      "total_R": -3.5
+    },
+    {
+      "dataset": "A",
+      "sector": "Realty",
+      "n": 1,
+      "n_closed": 1,
+      "win_pct": 100.0,
+      "avg_R_closed": 2.713,
+      "total_R": 2.7
+    },
+    {
+      "dataset": "C",
+      "sector": "Finance_NBFC",
+      "n": 11,
+      "n_closed": 8,
+      "win_pct": 0.0,
+      "avg_R_closed": -1.928,
+      "total_R": -10.7
+    },
+    {
+      "dataset": "C",
+      "sector": "Banking",
+      "n": 7,
+      "n_closed": 4,
+      "win_pct": 0.0,
+      "avg_R_closed": -1.21,
+      "total_R": 0.7
+    },
+    {
+      "dataset": "C",
+      "sector": "Metals",
+      "n": 7,
+      "n_closed": 5,
+      "win_pct": 20.0,
+      "avg_R_closed": -0.99,
+      "total_R": -0.4
+    },
+    {
+      "dataset": "C",
+      "sector": "Pharma",
+      "n": 6,
+      "n_closed": 5,
+      "win_pct": 0.0,
+      "avg_R_closed": -1.206,
+      "total_R": -6.1
+    },
+    {
+      "dataset": "C",
+      "sector": "Industrials",
+      "n": 5,
+      "n_closed": 2,
+      "win_pct": 0.0,
+      "avg_R_closed": -1.095,
+      "total_R": 3.9
+    },
+    {
+      "dataset": "C",
+      "sector": "Infrastructure",
+      "n": 5,
+      "n_closed": 4,
+      "win_pct": 0.0,
+      "avg_R_closed": -1.105,
+      "total_R": -2.8
+    },
+    {
+      "dataset": "C",
+      "sector": "Chemicals",
+      "n": 3,
+      "n_closed": 2,
+      "win_pct": 0.0,
+      "avg_R_closed": -2.135,
+      "total_R": -2.6
+    },
+    {
+      "dataset": "C",
+      "sector": "Energy",
+      "n": 3,
+      "n_closed": 2,
+      "win_pct": 0.0,
+      "avg_R_closed": -1.13,
+      "total_R": 1.2
+    },
+    {
+      "dataset": "C",
+      "sector": "Auto",
+      "n": 2,
+      "n_closed": 1,
+      "win_pct": 100.0,
+      "avg_R_closed": 3.12,
+      "total_R": 4.8
+    },
+    {
+      "dataset": "C",
+      "sector": "FMCG",
+      "n": 2,
+      "n_closed": 2,
+      "win_pct": 0.0,
+      "avg_R_closed": -1.69,
+      "total_R": -3.4
+    },
+    {
+      "dataset": "C",
+      "sector": "IT",
+      "n": 2,
+      "n_closed": 1,
+      "win_pct": 0.0,
+      "avg_R_closed": -0.53,
+      "total_R": -0.4
+    },
+    {
+      "dataset": "C",
+      "sector": "Diversified",
+      "n": 1,
+      "n_closed": 1,
+      "win_pct": 0.0,
+      "avg_R_closed": -0.57,
+      "total_R": -0.6
+    },
+    {
+      "dataset": "C",
+      "sector": "Realty",
+      "n": 1,
+      "n_closed": 1,
+      "win_pct": 0.0,
+      "avg_R_closed": -0.83,
+      "total_R": -0.8
+    }
+  ],
+  "A_vs_C_features": [
+    {
+      "dataset": "A",
+      "trades_per_signal_week": 2.24,
+      "dist_52w_high_pct": -10.18,
+      "pullback_depth_pct": 14.58,
+      "ext_40w_pct": 12.52,
+      "vol_vs_20d": 2.33,
+      "stop_pct": 7.8,
+      "beta": 0.83,
+      "rs6m_pct": 14.5,
+      "traded_value_cr": 57.96
+    },
+    {
+      "dataset": "C",
+      "trades_per_signal_week": 3.24,
+      "dist_52w_high_pct": -9.95,
+      "pullback_depth_pct": 14.14,
+      "ext_40w_pct": 10.01,
+      "vol_vs_20d": 1.66,
+      "stop_pct": 5.95,
+      "beta": 1.06,
+      "rs6m_pct": 21.98,
+      "traded_value_cr": 152.74
+    }
+  ],
+  "stop_slippage": [
+    {
+      "dataset": "A",
+      "full_stops": 196,
+      "mean_exit_vs_stop_R": -0.43,
+      "median_exit_vs_stop_R": -0.23,
+      "worst_exit_vs_stop_R": -5.47,
+      "share_worse_than_-0.5R_beyond_stop": 28.1
+    },
+    {
+      "dataset": "C",
+      "full_stops": 27,
+      "mean_exit_vs_stop_R": -0.64,
+      "median_exit_vs_stop_R": -0.37,
+      "worst_exit_vs_stop_R": -3.53,
+      "share_worse_than_-0.5R_beyond_stop": 44.4
+    }
+  ],
+  "B_price_integrity": {
+    "members_seen": 637,
+    "members_with_no_bars": [],
+    "series_ending_before_2026-06": [
+      "AKZOINDIA",
+      "GSPL",
+      "INFIBEAM",
+      "ISEC",
+      "LTIM",
+      "PEL",
+      "SWANENERGY",
+      "TATAMOTORS",
+      "TATAMTRDVR",
+      "TV18BRDCST"
+    ],
+    "one_day_moves_over_40pct": [
+      "SKFINDIA 2025-10-15 55%",
+      "QUESS 2025-04-15 51%",
+      "TMPV 2025-10-14 40%",
+      "VEDL 2026-04-30 65%",
+      "RAYMOND 2025-05-14 65%",
+      "ABFRL 2025-05-22 67%",
+      "BCG 2025-07-14 102%",
+      "ALLCARGO 2025-11-12 65%"
+    ],
+    "of_which_registered_demerger_tickers": [
+      "ABFRL",
+      "RAYMOND",
+      "SKFINDIA",
+      "VEDL"
+    ]
+  },
+  "C_concentration": {
+    "open_by_sector": {
+      "Banking": 3,
+      "Industrials": 3,
+      "Finance_NBFC": 3,
+      "Metals": 2,
+      "Auto": 1,
+      "Energy": 1,
+      "Infrastructure": 1,
+      "IT": 1,
+      "Chemicals": 1,
+      "Pharma": 1
+    },
+    "mean_pairwise_corr_60d": 0.12,
+    "pairs_above_0.6": []
+  },
+  "regime_responses_A": [
+    {
+      "rule": "live",
+      "entries_at_full": 525,
+      "entries_skipped": 0,
+      "entries_half": 0,
+      "total_R_sized": 650.2,
+      "avg_R_closed_sized": 0.621,
+      "acct_sharpe": 1.02,
+      "acct_cagr_pct": 20.5,
+      "acct_maxdd_pct": -40.1,
+      "big_winners_skipped": 0,
+      "big_winners_halved": 0
+    },
+    {
+      "rule": "skip_below_40w",
+      "entries_at_full": 388,
+      "entries_skipped": 137,
+      "entries_half": 0,
+      "total_R_sized": 378.9,
+      "avg_R_closed_sized": 0.123,
+      "acct_sharpe": 0.92,
+      "acct_cagr_pct": 21.4,
+      "acct_maxdd_pct": -26.6,
+      "big_winners_skipped": 52,
+      "big_winners_halved": 0
+    },
+    {
+      "rule": "half_below_40w",
+      "entries_at_full": 388,
+      "entries_skipped": 0,
+      "entries_half": 137,
+      "total_R_sized": 514.6,
+      "avg_R_closed_sized": 0.372,
+      "acct_sharpe": 1.23,
+      "acct_cagr_pct": 25.7,
+      "acct_maxdd_pct": -39.5,
+      "big_winners_skipped": 0,
+      "big_winners_halved": 52
+    },
+    {
+      "rule": "skip_40w_falling",
+      "entries_at_full": 405,
+      "entries_skipped": 120,
+      "entries_half": 0,
+      "total_R_sized": 388.6,
+      "avg_R_closed_sized": 0.117,
+      "acct_sharpe": 0.66,
+      "acct_cagr_pct": 9.8,
+      "acct_maxdd_pct": -25.2,
+      "big_winners_skipped": 50,
+      "big_winners_halved": 0
+    },
+    {
+      "rule": "skip_breadth_lt_40",
+      "entries_at_full": 339,
+      "entries_skipped": 186,
+      "entries_half": 0,
+      "total_R_sized": 406.5,
+      "avg_R_closed_sized": 0.173,
+      "acct_sharpe": 0.96,
+      "acct_cagr_pct": 15.1,
+      "acct_maxdd_pct": -26.2,
+      "big_winners_skipped": 52,
+      "big_winners_halved": 0
+    }
+  ],
+  "regime_states_C": [
+    {
+      "live trades in state": "nifty_vs_40w = below",
+      "n": 55,
+      "their_total_R": -17.3,
+      "of_all_live": 55
+    },
+    {
+      "live trades in state": "sma40_slope = falling",
+      "n": 55,
+      "their_total_R": -17.3,
+      "of_all_live": 55
+    },
+    {
+      "live trades in state": "breadth_bucket = <40%",
+      "n": 5,
+      "their_total_R": 3.3,
+      "of_all_live": 55
+    }
+  ]
+}
