@@ -40,9 +40,11 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 RESULTS = ROOT / "results"
 
 # Loggers that must advance every scan, with the field that proves they did.
@@ -73,6 +75,11 @@ def check(as_of: str | None = None) -> list[str]:
     problems: list[str] = []
     if not as_of:
         return ["no results/signals_today_weekly.json — cannot tell which week this is"]
+    # The scan's as-of may be a SPECIAL session (Diwali Muhurat Sunday 2026-11-08, Budget Saturday): a real
+    # bar, but the watched books advance on REGULAR sessions only (their NAV legs are intersected). The
+    # bar they must have reached is therefore the last regular session on or before the scan's as-of.
+    from nq.data.trading_calendar import last_session
+    required = str(last_session(as_of, regular=True))
 
     for name, why in JSON_LOGGERS.items():
         p = RESULTS / name
@@ -85,9 +92,9 @@ def check(as_of: str | None = None) -> list[str]:
             problems.append(f"{name} is unreadable ({exc}) — {why}")
             continue
         logged = str(payload.get("asof") or "")
-        if logged < str(as_of):
+        if logged < required:
             problems.append(
-                f"{name} last logged {logged or 'never'} but the scan is {as_of} — this week is missing "
+                f"{name} last logged {logged or 'never'} but the scan is {as_of} (last regular session {required}) — this week is missing "
                 f"from {why}. n_points={payload.get('n_points')}")
 
     for name, why in AS_OF_COLUMN_LOGGERS.items():
@@ -109,8 +116,8 @@ def check(as_of: str | None = None) -> list[str]:
         stamps.discard(None)
         # EMPTY IS LEGITIMATE and must not be a failure: a week with no management event is a real
         # week. What is not legitimate is a file whose newest stamp is older than this scan.
-        if stamps and max(stamps) < str(as_of):
-            problems.append(f"{name} last stamped {max(stamps)} but the scan is {as_of} — {why}")
+        if stamps and max(stamps) < required:
+            problems.append(f"{name} last stamped {max(stamps)} but the scan is {as_of} (last regular session {required}) — {why}")
 
     p = RESULTS / CSV_LOGGER
     if not p.is_file():

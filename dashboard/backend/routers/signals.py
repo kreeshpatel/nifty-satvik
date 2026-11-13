@@ -8,7 +8,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 import requests
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
@@ -429,10 +429,14 @@ def get_signals(
     #   age >  48h                  → STALE (multiple days behind)
     now_utc = datetime.utcnow()
     today_utc_str = now_utc.strftime("%Y-%m-%d")
-    is_trading_day = now_utc.weekday() < 5
+    # The exchange's day is the IST date, not the UTC one: between 18:30 and 24:00 UTC they differ, and a
+    # Friday-evening UTC read would otherwise call the Saturday that has already begun in IST a trading day.
+    _ist = now_utc + timedelta(hours=5, minutes=30)
+    today_ist_str = _ist.strftime("%Y-%m-%d")
+    is_trading_day = _ist.weekday() < 5
     try:
         from config import NSE_HOLIDAYS
-        if today_utc_str in NSE_HOLIDAYS:
+        if today_ist_str in NSE_HOLIDAYS:
             is_trading_day = False
     except Exception:
         pass

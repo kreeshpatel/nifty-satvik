@@ -1072,8 +1072,15 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     # never been measured on the live exit. Once MFE (peak high, initial risk) reaches
                     # lockin_mfe R, the stop rises to entry + lockin_at R and fires on the SAME weekly-close
                     # convention as the base stop. Absent key => 0.0 => byte-identical. Research lever only.
+                    # RATCHET PEAK (2026-11-13 explore): `pk` above is the max of week-END-session highs, so a
+                    # week that touched +1R mid-week and closed lower never arms the ratchet. A trader moving a
+                    # stop sees the week's full high. ratchet_peak="week_high" arms the lockin/ladder from the
+                    # max weekly high instead. Read only by the two ratchets below. Absent key => byte-identical.
+                    _mfe_rk = _mfe_r
+                    if scaled_exit.get("ratchet_peak") == "week_high" and _wk is not None and p["risk0"] > 0:
+                        _mfe_rk = (max(p.get("pk_wh", 0.0), _wk[0], p["pk"]) - p["en"]) / p["risk0"]
                     _lk = scaled_exit.get("lockin_mfe", 0.0)
-                    if _lk and _mfe_r >= _lk:
+                    if _lk and _mfe_rk >= _lk:
                         _sb = p["stop"]
                         p["stop"] = max(p["stop"], p["en"] + scaled_exit.get("lockin_at", 1.5) * p["risk0"])
                         if p["stop"] != _sb:
@@ -1083,7 +1090,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                     # ((1.0, 0.0), (2.0, 1.0)) = breakeven once +1R, entry +1R once +2R. Same peak and
                     # weekly-close trigger as the single ratchet above. Absent key => byte-identical.
                     for _lm, _la in scaled_exit.get("lockin_ladder", ()):
-                        if _mfe_r >= _lm:
+                        if _mfe_rk >= _lm:
                             _sb = p["stop"]
                             p["stop"] = max(p["stop"], p["en"] + _la * p["risk0"])
                             if p["stop"] != _sb:
