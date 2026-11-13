@@ -147,3 +147,68 @@ export function costBasisOf(pos) {
 export function isRebased(cost) {
   return !!cost && cost.basis !== 'none' && Math.abs(cost.avg - cost.rawAvg) >= 0.005;
 }
+
+/**
+ * cardStatus — the trade-management facts for one weekly card, restored after the v7 redesign
+ * (PR #179) deleted SignalsV3.jsx, the only page that showed them (owner request 2026-11-13).
+ * Pure: reads the card and its `monitor` block (results/weekly_monitor.json, overlaid by the API)
+ * and returns display-ready facts. It never recomputes a level the producer already wrote.
+ *
+ *   kind        'hold' for an open model trade (status ACTIVE), 'buy' for a fresh card
+ *   chips       [{label, tone}] — stop hit, +2R reached, near stop, window filled / not yet
+ *   stop        the stop the engine is using now (the card's `stop`)
+ *   fill        fill price: the monitor's mid-week fill, else `fill_price`, else `entry_week_open`
+ *   distToStopPct / distToTargetPct / pnlPct / rNow   from the daily monitor
+ *   nextStep    the stop-management instruction: a queued exit first, else the next open tranche's
+ *               own `do` text from `exit_plan`, else the runner rule
+ *   window      {text, until, state, noChaseAbove} for a buy card
+ */
+export function cardStatus(card) {
+  const s = card || {};
+  const m = s.monitor || {};
+  const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
+  const kind = (s.status || '').toUpperCase() === 'ACTIVE' || m.kind === 'hold' ? 'hold' : 'buy';
+  const chips = [];
+  if (m.stop_breached) chips.push({ label: 'Stop hit, exit at the next open', tone: 'bear' });
+  if (m.target_reached) chips.push({ label: '+2R reached', tone: 'bull' });
+  const distToStopPct = num(m.dist_to_stop_pct);
+  if (kind === 'hold' && !m.stop_breached && distToStopPct != null && distToStopPct <= 2) {
+    chips.push({ label: 'Near stop', tone: 'warn' });
+  }
+  const fill = num(m.filled_price) ?? num(s.fill_price) ?? num(s.entry_week_open);
+
+  let nextStep = null;
+  if (kind === 'hold') {
+    const stage = s.exit_stage || {};
+    const pend = stage.pending_exit;
+    const tranches = s.exit_plan?.tranches ?? [];
+    const done = (t) => (t.type === 'target' ? !!stage.target_booked
+      : t.type === 'pattern' ? !!stage.pattern_booked
+      : t.type === 'runner' ? stage.runner_open === false : false);
+    if (pend) {
+      const what = pend.kind === 'full' ? 'all remaining shares' : `the ${pend.reason || 'next'} tranche`;
+      nextStep = `Sell ${what} at the next open${pend.reason ? ` (${pend.reason})` : ''}.`;
+    } else {
+      const next = tranches.find((t) => !done(t));
+      nextStep = next?.do ?? null;
+    }
+  }
+
+  let window = null;
+  if (kind === 'buy') {
+    let state = null;
+    if (m.window_filled) state = { label: `Filled ${m.filled_on || ''}${num(m.filled_price) != null ? ` at ${m.filled_price}` : ''}`.trim(), tone: 'bull' };
+    else if (m.expired) state = { label: 'Window closed, no fill', tone: 'muted' };
+    else if (m.buy_window_open && m.filled_today === false) state = { label: 'No open inside the band yet', tone: 'warn' };
+    window = { text: s.buy_window || null, until: s.buy_window_until || m.buy_window_until || null, state,
+               noChaseAbove: num(s.no_chase_above) };
+    if (state && state.tone !== 'muted') chips.push(state);
+  }
+
+  return {
+    kind, chips, stop: num(s.stop), fill,
+    distToStopPct, distToTargetPct: num(m.dist_to_target_pct), pnlPct: num(m.pnl_pct), rNow: num(m.r_multiple),
+    nextStep, window,
+    fractionLeft: num(s.exit_stage?.fraction_remaining),
+  };
+}

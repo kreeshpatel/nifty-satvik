@@ -24,6 +24,7 @@
  *   data.portfolio      — paper portfolio snapshot
  *   data.sizing_capital — capital used by cron for position sizing
  */
+import { untilNextPublish } from '@/lib/schedule';
 import { useQuery } from '@tanstack/react-query';
 import { fetchSignals } from '@/services/api';
 
@@ -38,7 +39,9 @@ export function useSignals({ model = 'bhanushali', ...options } = {}) {
     queryFn: () => fetchSignals(model),
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
-    refetchInterval: 5 * 60 * 1000,
+    // Publish-aware (lib/schedule.js, brief §12): wake ~2 min after the next cron publish
+    // instead of polling every 5 min, which kept the scale-to-zero backend awake all day.
+    refetchInterval: () => untilNextPublish(),
     refetchIntervalInBackground: false,  // don't burn requests while tab is hidden
     ...options,
   });

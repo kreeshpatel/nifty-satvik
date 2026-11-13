@@ -154,6 +154,7 @@ def position_state(events: list[ExecutionEvent], stop: float | None = None,
     realized = 0.0        # Rs realized across all sells
     sold_basis = 0.0      # cost basis of the sold shares (for realized %)
     raw_buy_cost = 0.0    # what the reader actually paid, before any demerger re-base
+    raw_cost = 0.0        # un-rebased cost of the CURRENT shares (what the broker shows)
     phase = 0             # how many ex-dates have been crossed so far
     applied = 1.0         # product of the ratios actually applied (none, if nothing was held)
     by_price = False      # was any fill dated by its price rather than its record date?
@@ -183,20 +184,30 @@ def position_state(events: list[ExecutionEvent], stop: float | None = None,
             total_buy_qty += e.qty
             total_buy_cost += e.qty * e.price
             raw_buy_cost += e.qty * e.price
+            raw_cost += e.qty * e.price
         else:  # SELL
             avg = (cost / shares) if shares > 0 else (total_buy_cost / total_buy_qty if total_buy_qty else 0.0)
             realized += e.qty * (e.price - avg)
             sold_basis += e.qty * avg
             total_sold_qty += e.qty
             reduce = min(e.qty, shares)
+            if shares > 0:
+                raw_cost -= (raw_cost / shares) * reduce
             cost -= avg * reduce
             shares = max(0, shares - reduce)
 
     cross(len(dem))                                  # ex-dates after the last recorded fill
 
     remaining = total_buy_qty - total_sold_qty
-    avg_buy = (total_buy_cost / total_buy_qty) if total_buy_qty else None
-    raw_avg_buy = (raw_buy_cost / total_buy_qty) if total_buy_qty else None
+    # Average cost of the shares STILL HELD (what a broker shows). Using the all-time average was
+    # wrong after a full exit and re-entry: buy 10@100, sell 10, buy 10@200 reported 150, so open
+    # P&L was mispriced (2026-11-12 audit). A closed position keeps its all-time average for display.
+    if shares > 0:
+        avg_buy = cost / shares
+        raw_avg_buy = raw_cost / shares
+    else:
+        avg_buy = (total_buy_cost / total_buy_qty) if total_buy_qty else None
+        raw_avg_buy = (raw_buy_cost / total_buy_qty) if total_buy_qty else None
     status = "EMPTY" if total_buy_qty == 0 else ("OPEN" if remaining > 0 else "CLOSED")
     realized_pct = round(realized / sold_basis * 100, 2) if sold_basis > 0 else None
 
@@ -223,7 +234,7 @@ def position_state(events: list[ExecutionEvent], stop: float | None = None,
         "realized_pnl": round(realized, 2),
         "realized_pnl_pct": realized_pct,
         "realized_r": realized_r,
-        "cost_basis_remaining": round((avg_buy or 0.0) * max(0, remaining), 2) if avg_buy else None,
+        "cost_basis_remaining": round(cost, 2) if shares > 0 else (0.0 if avg_buy else None),
         "status": status,
         "n_events": len(eff),
     }

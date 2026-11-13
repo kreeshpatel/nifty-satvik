@@ -133,6 +133,12 @@ jobs:
         # the hash-chained ledger itself refuses any corrupt append.
         run: python scripts/run_prediction_producer.py
           || echo "::warning::prediction producer FAILED (exit $?) - no forecasts this week"
+      # Owner request 2026-11-13: print stop hit, +2R reached, the next exit, fill, distance to stop and
+      # the buy window for every open trade and buy card, on the run page, until This Week shows them
+      # again (PR #181). Read-only and non-blocking.
+      - name: Print trade status (open trades and buy cards)
+        continue-on-error: true
+        run: python scripts/print_trade_status.py
       - name: Commit weekly paper state
         run: |
           # Author with the owner's GitHub-matched email so Vercel (auto-deploys main) doesn't

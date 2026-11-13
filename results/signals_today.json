@@ -1,53 +1,18 @@
 {
-  "generated_at": "2026-11-06",
-  "signals": [
-    {
-      "ticker": "WELCORP",
-      "entry": 2206.0,
-      "stop": 1725.84,
-      "target": 2702.79,
-      "target_pct": 22.52,
-      "current_price": 2204.9,
-      "close": 2204.9,
-      "signal_date": "2026-11-06",
-      "hold_days": 63,
-      "grade": "B",
-      "tier": "signal",
-      "status": "FRESH",
-      "buy_window": "T+1..T+3 at open",
-      "indicative_close": 2204.9,
-      "indicative_entry": 2206.0
-    },
-    {
-      "ticker": "SAILIFE",
-      "entry": 1785.99,
-      "stop": 1582.79,
-      "target": 2188.19,
-      "target_pct": 22.52,
-      "current_price": 1785.1,
-      "close": 1785.1,
-      "signal_date": "2026-11-06",
-      "hold_days": 63,
-      "grade": "B",
-      "tier": "signal",
-      "status": "FRESH",
-      "buy_window": "T+1..T+3 at open",
-      "indicative_close": 1785.1,
-      "indicative_entry": 1785.99
-    }
-  ],
+  "generated_at": "2026-11-12",
+  "signals": [],
   "regime": {
     "status": "UNKNOWN",
     "strength": 0,
     "vix": 0,
     "breadth": 0
   },
-  "n_positions": 13,
-  "cash": 189875.81,
+  "n_positions": 15,
+  "cash": 350.55,
   "kill_state": {
     "wr_last20": 40.0,
     "wr_breach": true,
-    "sharpe_30d": -3.496,
+    "sharpe_30d": -1.507,
     "sharpe_30d_breach": true,
     "mode": "observe"
   }
