@@ -415,6 +415,50 @@ def _buy_guidance(entry: float, lo: float, hi: float, wo, wc) -> dict:
     return out
 
 
+def capture_signal_axes(P, mem, generated_at, source, path=None, now=None):
+    """Append the three producer-side quality axes of every LIVE signal to the write-once capture log.
+
+    Independent of the Saturday archive: runs right after the panel is built, BEFORE any engine
+    backtest, so a run that later halts (e.g. an ADR-0013 seam escalation) has still logged them.
+
+    Same value as the FRESH card, by construction. For each name this applies build_envelopes'
+    own membership filter and its own helpers to the same `last_signal`: body_ratio /
+    signal_conviction come from `_buy_guidance(..., *_sig_week_oc(s, fri_idx))` (signal-week
+    open/close/high/low, all fixed once the signal Friday has closed), crs_rank is
+    `round(ls["rank"], 4)`, the rank stored when the signal was generated. None of these inputs
+    moves after the signal week, so a later run of this function reads the same at-signal numbers.
+
+    Retroactive signals are NOT captured: only a signal whose entry window is still open at
+    `generated_at` (buy_window_until >= as-of date) is live. A from-inception rebuild placing a
+    past signal in a past week (ADR-0017) is therefore excluded; prereg forbids backfill.
+
+    Returns the records newly written (key already logged -> untouched).
+    """
+    import signal_axes_capture as SAC
+    from nq.data.membership import ticker_in_index_on
+    as_of = pd.Timestamp(generated_at).normalize()
+    recs = []
+    for t, s in P.items():
+        ls = s.get("last_signal")
+        if not ls:
+            continue
+        fri = pd.Timestamp(s["dates"][ls["fri_idx"]])
+        if mem is not None and not ticker_in_index_on(t, fri.date(), mem):
+            continue
+        if (fri + pd.Timedelta(days=7)).normalize() < as_of:
+            continue                                           # entry window closed: retroactive/stale
+        lo, hi = ls["lo"], ls["hi"]
+        g = _buy_guidance((lo + hi) / 2.0, lo, hi, *_sig_week_oc(s, ls["fri_idx"]))
+        if "body_ratio" not in g:                              # no signal-week o/c: nothing to record
+            continue
+        recs.append({"ticker": t, "signal_date": str(fri.date()),
+                     "body_ratio": g["body_ratio"], "signal_conviction": g["signal_conviction"],
+                     "crs_rank": round(float(ls.get("rank", 0.0)), 4),
+                     "as_of": str(as_of.date()), "source": source,
+                     "captured_at": now or SAC.now_utc()})
+    return SAC.append_write_once(path or SAC.capture_path(RESULTS_DIR), recs)
+
+
 def _ext_flags(entry: float, sma44: float) -> dict:
     """Extension vs the signal-week 44w SMA + whether the RECORD would refuse this fill.
 
@@ -1333,6 +1377,9 @@ def main(argv=None) -> int:
     ap.add_argument("--state-dir", default=str(RESULTS_DIR))
     ap.add_argument("--no-download", action="store_true", help="use the cache as-is (test/offline)")
     ap.add_argument("--history-days", type=int, default=520, help="calendar days of history before inception for the 44-week-SMA warmup")
+    ap.add_argument("--capture-axes-only", action="store_true",
+                    help="refresh data, log the live signals' quality axes to the write-once capture "
+                         "log, and exit (no engine run, nothing else written) - for a daily/retry job")
     ap.add_argument("--allow-stale", action="store_true",
                     help="publish even if the panel did not advance (deliberate offline replay)")
     args = ap.parse_args(argv)
@@ -1376,6 +1423,14 @@ def main(argv=None) -> int:
             q["last_good"] = str(q_freeze[q["ticker"]].date())     # persisted: a re-run must not advance it
         _lg = {t: str(d.date()) for t, d in sorted(q_freeze.items())}
         print(f"data quarantine: {_mask_quarantined(P, q_freeze)} last-good {_lg}", flush=True)
+    _gen = max((pd.Timestamp(x["dates"][-1]) for x in P.values()), default=None)
+    if _gen is not None:                                  # at-signal axes, before anything can halt the run
+        _new = capture_signal_axes(P, mem, str(_gen.date()),
+                                   "capture_only" if args.capture_axes_only else "weekly_scan",
+                                   path=sd / "signal_axes_capture.jsonl")
+        print(f"signal-axes capture: {len(_new)} new signal(s) logged", flush=True)
+    if args.capture_axes_only:
+        return 0
     a_set = R94.grade_a_entries(P)
     # B′ (LIVE CORPORATE ACTIONS above): the same events reach all three books, so the paper book, the
     # signal ledger and the watched arm cannot disagree about a demerged holding. A registered ratio the

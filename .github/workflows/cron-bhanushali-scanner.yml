@@ -20,6 +20,7 @@ concurrency:
 
 permissions:
   contents: write               # commits the weekly paper state back to the repo
+  issues: write                 # scripts/scan_health.py opens/updates/closes one issue per problem key
 
 jobs:
   weekly:
@@ -139,6 +140,27 @@ jobs:
       - name: Print trade status (open trades and buy cards)
         continue-on-error: true
         run: python scripts/print_trade_status.py
+      # ── SCAN HEALTH (replaces four separate red-on-failure steps, 2026-11-09) ─────────────────────────
+      # Signal-quality axes, watched-book loggers, history drift and calendar coverage used to be four
+      # chained post-commit steps: the first failure SKIPPED the rest, and an amber condition (a side book
+      # a day behind, a declarable measurement loss) looked identical to "the live cards are wrong".
+      # scripts/scan_health.py runs ALL of them, none able to skip another, and classifies each finding:
+      #   RED    live cards / paper book wrong or unpublished, or a closed trade's history restated
+      #   AMBER  forward-evidence or bookkeeping decision -> run stays green, ONE issue per problem key
+      #   GREEN  nothing to report
+      # Every check's own logic is unchanged (history drift and the signal-quality freeze keep their exact
+      # thresholds); only how their outcomes are surfaced moved. It reads artifacts the producers above
+      # already wrote, so it does not depend on the commit - it sits BEFORE the commit only so that
+      # results/scan_health.json is published with the week. `continue-on-error` is the same guarantee the
+      # old post-commit placement gave: a health finding can never withhold the live book. The RED verdict
+      # is enforced by the read-only gate step AFTER the commit.
+      - name: Scan health (all checks; RED recorded, AMBER files an issue)
+        id: health
+        if: ${{ !cancelled() }}
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/scan_health.py
       - name: Commit weekly paper state
         run: |
           # Author with the owner's GitHub-matched email so Vercel (auto-deploys main) doesn't
@@ -161,6 +183,7 @@ jobs:
           need results/base_swing_forward.json   # prereg_swing §4 comparator; §3 forbids backfilling a missed week
           opt results/shadow_exit_forward.json   # shadow exit (breakeven at +1R), forward from 2026-11-09; never traded
           opt results/data_quarantine.json       # data guards: names quarantined this scan (empty list = none); reporting only
+          opt results/signal_axes_capture.jsonl  # write-once at-signal quality axes; survives a failed scan's archive gap
           opt results/cards_archive.jsonl
           need results/brain/position_log.csv.gz        # the capital book's holdings; unrecoverable if missed
           need results/brain/management_events.jsonl    # tranches/ratchets/halts; a snapshot cannot rebuild them
@@ -177,6 +200,7 @@ jobs:
           # longer produced weekly. The opt() stays so a deliberate manual re-run of
           # scripts/run_zoo_shadow_book.py is still committable; opt() never fails.
           opt results/zoo_shadow_book.json
+          opt results/scan_health.json   # weekly health report (scripts/scan_health.py); reporting only
           if git commit -m "chore(weekly): Saturday weekly-swing paper state $(date -u +%F)"; then
             # --autostash: the OHLCV download leaves UNSTAGED cache changes that abort a plain
             # `git pull --rebase`, which silently swallowed the push as "nothing to push" and dropped
@@ -191,34 +215,10 @@ jobs:
           else
             echo "no state change"
           fi
-      # AFTER the commit on purpose. The signal-quality axes are recorded on FRESH cards only, and
-      # this archive is written weekly, so a signal that goes FRESH -> ACTIVE between two Saturdays
-      # loses them permanently (PHOENIXLTD 2026-08-24 was the first). Raw coverage counts could not
-      # show it: `body_ratio: 15/37` reads the same whether the nulls are the documented pre-schema
-      # rows or a hole that opened this week.
-      #
-      # Placed after the publish so a research-collector defect never withholds the LIVE book, and
-      # run as its own step so it goes RED rather than joining the collector's non-fatal warning —
-      # which is the treatment that let this sit unnoticed. Declared losses in KNOWN_INCOMPLETE stay
-      # green; only a NEW one fires.
-      - name: Signal-quality axes must not go missing undeclared
-        run: python scripts/collect_signal_quality_forward.py --validate
-      # AFTER the commit for the same reason as the step above, and it exists for a failure that is
-      # already on the record: run_blend_paper.py crashed every Saturday from inception while its step
-      # was non-fatal, so the cron stayed green and blend_hybrid_paper.json sat at n_points 0 for about
-      # seven weeks. The producers keep their warnings — making one fatal would abort BEFORE the commit
-      # and withhold the live book over a side-book defect. This proves the watched books actually
-      # advanced to this scan's as-of, and goes RED when one did not.
-      - name: Watched-book loggers must have logged this week
-        run: python scripts/check_weekly_loggers.py
-      # AFTER the commit, read-only. The weekly history is rebuilt from inception every scan, so a
-      # universe or logic change can rewrite the past (2026-10-16: ZYDUSWELL displaced HINDZINC, ABDL
-      # displaced BANDHANBNK) and the drift log recorded it with nobody reading it. This fails RED on any
-      # restated / vanished trade in the latest drift entry that results/history_restatements.json does
-      # not declare. Newly closed trades ("appeared") are normal and never fail it.
-      - name: History must not change undeclared
-        run: python scripts/check_history_drift.py
-      # Read-only, after the commit: turns red from 30 days before the NSE holiday calendar runs out, so the
-      # next year is loaded in December instead of the engine guessing at holiday-shortened weeks.
-      - name: Holiday calendar must not be about to run out
-        run: python scripts/check_calendar_coverage.py
+      # Read-only gate, AFTER the publish: the week is already committed and pushed, so a RED verdict can
+      # no longer cost it. Fails the run (red X) only for RED findings; AMBER never reaches here.
+      - name: Fail the run on RED scan health
+        if: ${{ !cancelled() && steps.health.outcome == 'failure' }}
+        run: |
+          echo "::error::scan health is RED - see the Scan health step summary and results/scan_health.json"
+          exit 1

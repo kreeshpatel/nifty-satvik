@@ -38,4 +38,8 @@ def test_week_closed_at_warns_past_the_calendar_and_keeps_its_answer():
 
 def test_the_check_runs_after_the_weekly_commit_and_is_read_only():
     wf = (ROOT / ".github" / "workflows" / "cron-bhanushali-scanner.yml").read_text(encoding="utf-8")
-    assert wf.index("check_calendar_coverage.py") > wf.index("- name: Commit weekly paper state")
+    # Since 2026-11-09 the check runs inside scripts/scan_health.py (one runner for every post-commit
+    # check). The runner is continue-on-error and its RED verdict is enforced by a read-only gate
+    # AFTER the commit.
+    assert wf.index("- name: Fail the run on RED scan health") > wf.index("- name: Commit weekly paper state")
+    assert "check_calendar_coverage.py" in (ROOT / "scripts" / "scan_health.py").read_text(encoding="utf-8")

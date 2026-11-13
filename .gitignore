@@ -81,6 +81,10 @@ results/*
 !results/shadow_exit_forward.json
 # Per-scan DATA QUARANTINE record (prod-fix 2026-11-08): which names the data guards set aside this week and why.
 !results/data_quarantine.json
+# At-signal quality-axes capture (write-once), 2026-11-09: same `results/*` trap, whitelisted up front.
+!results/signal_axes_capture.jsonl
+# Weekly scan health report (scripts/scan_health.py), same `results/*` trap, whitelisted up front.
+!results/scan_health.json
 # The intraday shadow-scan artifacts. FIFTH instance of the same trap, caught by
 # tests/test_workflow_output_paths.py on its first run (2026-08-05): the workflow declares
 # `git add results/intraday_scan/` but `results/*` above made it a silent no-op, so the
