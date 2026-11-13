@@ -1,0 +1,78 @@
+{
+  "prev_snapshot": "2026-10-23",
+  "cur_snapshot": "2026-11-08",
+  "closed_prev": 32,
+  "closed_cur": 38,
+  "closed_delta": 6,
+  "nav_prev": 910416.78,
+  "nav_cur": 960294.0,
+  "nav_delta": 49877.22,
+  "n_restated": 2,
+  "restated": [
+    {
+      "trade": "HINDZINC|2026-08-31",
+      "changed": {
+        "close_price": [
+          576.45,
+          574.95
+        ],
+        "close_date": [
+          "2026-09-14",
+          "2026-09-15"
+        ],
+        "r_multiple": [
+          -1.65,
+          -1.74
+        ]
+      }
+    },
+    {
+      "trade": "OBEROIRLTY|2026-09-28",
+      "changed": {
+        "entry": [
+          1854.9,
+          1852.62
+        ],
+        "r_multiple": [
+          -1.58,
+          -1.56
+        ]
+      }
+    }
+  ],
+  "n_vanished": 3,
+  "vanished": [
+    "ANGELONE|2026-09-14",
+    "BANDHANBNK|2026-09-14",
+    "CHOLAFIN|2026-09-14"
+  ],
+  "n_appeared": 9,
+  "appeared": [
+    "AARTIIND|2026-10-19",
+    "ANGELONE|2026-09-15",
+    "BANDHANBNK|2026-09-15",
+    "CHOLAFIN|2026-09-15",
+    "IIFL|2026-10-12",
+    "SAIL|2026-08-24",
+    "SIEMENS|2026-07-20",
+    "TATATECH|2026-10-12",
+    "USHAMART|2026-08-31"
+  ],
+  "n_vanished_open": 1,
+  "vanished_open": [
+    "GESHIP|2026-09-14"
+  ],
+  "inputs_changed": [
+    "nifty50_csv_sha256",
+    "ohlcv_cache_sha256",
+    "ohlcv_last_bar",
+    "ohlcv_n_rows"
+  ],
+  "clean": false,
+  "as_of": "2026-11-08",
+  "prev_as_of": "2026-10-23",
+  "gap_days": 16,
+  "backfilled": true,
+  "logged_utc": "2026-11-09T02:07:53.954344+00:00",
+  "is_baseline": false
+}

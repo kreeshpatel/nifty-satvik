@@ -1,0 +1,1118 @@
+{
+  "generated_at": "2026-11-08",
+  "model": "weekly-swing-0094-rank-P",
+  "signals": [
+    {
+      "ticker": "KALYANKJIL",
+      "entry": 592.0,
+      "stop": 532.8,
+      "stop_week_low": 494.3,
+      "target": 710.4,
+      "ext_pct_over_sma44": 27.09,
+      "ext_cap_pct": 20.0,
+      "record_would_skip_as_extended": true,
+      "entry_low": 494.3,
+      "entry_high": 603.35,
+      "buy_zone_low": 592.0,
+      "buy_zone_high": 603.35,
+      "no_chase_above": 609.76,
+      "band_width_pct": 18.4,
+      "band_is_wide": true,
+      "body_ratio": 0.862,
+      "signal_conviction": "normal",
+      "entry_week_open": null,
+      "current_price": 592.0,
+      "close": 592.0,
+      "signal_date": "2026-11-08",
+      "buy_window_until": "2026-11-15",
+      "hold_days": 65,
+      "crs_rank": 0.2023,
+      "grade": "A",
+      "tier": "signal",
+      "status": "FRESH",
+      "buy_window": "buy Mon\u2013Fri this week, at the open inside the band [low, high] \u2014 fund strongest CRS rank first",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 710.4,
+            "do": "Sell 40% at Rs 710.40 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 740.0,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 740.00 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 465.83,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 465.83)."
+          }
+        ]
+      }
+    },
+    {
+      "ticker": "FINCABLES",
+      "entry": 1309.0,
+      "stop": 1178.1,
+      "stop_week_low": 1076.0,
+      "target": 1570.8,
+      "ext_pct_over_sma44": 24.94,
+      "ext_cap_pct": 20.0,
+      "record_would_skip_as_extended": true,
+      "entry_low": 1076.0,
+      "entry_high": 1309.2,
+      "buy_zone_low": 1309.0,
+      "buy_zone_high": 1309.2,
+      "no_chase_above": 1348.27,
+      "band_width_pct": 17.8,
+      "band_is_wide": true,
+      "body_ratio": 0.738,
+      "signal_conviction": "normal",
+      "entry_week_open": null,
+      "current_price": 1309.0,
+      "close": 1309.0,
+      "signal_date": "2026-11-08",
+      "buy_window_until": "2026-11-15",
+      "hold_days": 65,
+      "crs_rank": 0.1567,
+      "grade": "A",
+      "tier": "signal",
+      "status": "FRESH",
+      "buy_window": "buy Mon\u2013Fri this week, at the open inside the band [low, high] \u2014 fund strongest CRS rank first",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 1570.8,
+            "do": "Sell 40% at Rs 1,570.80 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 1636.25,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 1,636.25 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 1047.73,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 1,047.73)."
+          }
+        ]
+      }
+    },
+    {
+      "ticker": "IIFL",
+      "entry": 629.75,
+      "stop": 566.77,
+      "stop_week_low": 520.3,
+      "target": 755.71,
+      "ext_pct_over_sma44": 16.78,
+      "ext_cap_pct": 20.0,
+      "record_would_skip_as_extended": false,
+      "entry_low": 520.3,
+      "entry_high": 631.45,
+      "buy_zone_low": 629.75,
+      "buy_zone_high": 631.45,
+      "no_chase_above": 648.64,
+      "band_width_pct": 17.6,
+      "band_is_wide": true,
+      "body_ratio": 0.951,
+      "signal_conviction": "normal",
+      "entry_week_open": null,
+      "current_price": 629.75,
+      "close": 629.75,
+      "signal_date": "2026-11-08",
+      "buy_window_until": "2026-11-15",
+      "hold_days": 65,
+      "crs_rank": 0.1238,
+      "grade": "A",
+      "tier": "signal",
+      "status": "FRESH",
+      "buy_window": "buy Mon\u2013Fri this week, at the open inside the band [low, high] \u2014 fund strongest CRS rank first",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 755.71,
+            "do": "Sell 40% at Rs 755.71 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 787.2,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 787.20 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 539.25,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 539.25)."
+          }
+        ]
+      }
+    },
+    {
+      "ticker": "BALRAMCHIN",
+      "entry": 669.25,
+      "stop": 602.33,
+      "stop_week_low": 580.7,
+      "target": 803.09,
+      "ext_pct_over_sma44": 20.35,
+      "ext_cap_pct": 20.0,
+      "record_would_skip_as_extended": true,
+      "entry_low": 580.7,
+      "entry_high": 691.4,
+      "buy_zone_low": 669.25,
+      "buy_zone_high": 689.33,
+      "no_chase_above": 689.33,
+      "band_width_pct": 16.5,
+      "band_is_wide": true,
+      "body_ratio": 0.698,
+      "signal_conviction": "normal",
+      "entry_week_open": null,
+      "current_price": 669.25,
+      "close": 669.25,
+      "signal_date": "2026-11-08",
+      "buy_window_until": "2026-11-15",
+      "hold_days": 65,
+      "crs_rank": 0.1202,
+      "grade": "A",
+      "tier": "signal",
+      "status": "FRESH",
+      "buy_window": "buy Mon\u2013Fri this week, at the open inside the band [low, high] \u2014 fund strongest CRS rank first",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 803.09,
+            "do": "Sell 40% at Rs 803.09 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 836.55,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 836.55 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 556.09,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 556.09)."
+          }
+        ]
+      }
+    },
+    {
+      "ticker": "ACE",
+      "entry": 1160.6,
+      "stop": 1044.54,
+      "stop_week_low": 982.15,
+      "target": 1392.72,
+      "ext_pct_over_sma44": 18.64,
+      "ext_cap_pct": 20.0,
+      "record_would_skip_as_extended": false,
+      "entry_low": 982.15,
+      "entry_high": 1183.0,
+      "buy_zone_low": 1160.6,
+      "buy_zone_high": 1183.0,
+      "no_chase_above": 1195.42,
+      "band_width_pct": 17.3,
+      "band_is_wide": true,
+      "body_ratio": 0.839,
+      "signal_conviction": "normal",
+      "entry_week_open": null,
+      "current_price": 1160.6,
+      "close": 1160.6,
+      "signal_date": "2026-11-08",
+      "buy_window_until": "2026-11-15",
+      "hold_days": 65,
+      "crs_rank": 0.1174,
+      "grade": "A",
+      "tier": "signal",
+      "status": "FRESH",
+      "buy_window": "buy Mon\u2013Fri this week, at the open inside the band [low, high] \u2014 fund strongest CRS rank first",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 1392.72,
+            "do": "Sell 40% at Rs 1,392.72 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 1450.75,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 1,450.75 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 978.29,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 978.29)."
+          }
+        ]
+      }
+    },
+    {
+      "ticker": "CUB",
+      "entry": 210.03,
+      "stop": 197.35,
+      "target": 235.39,
+      "current_price": 219.37,
+      "close": 219.37,
+      "signal_date": "2026-07-06",
+      "bought_date": "2026-07-06",
+      "qty": 190.45,
+      "fill_price": 210.03,
+      "nq_position_id": "CUB__2026-07-06",
+      "grade": "A",
+      "hold_days": 65,
+      "tier": "signal",
+      "status": "ACTIVE",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 235.39,
+            "do": "Sell 40% at Rs 235.39 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 241.74,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 241.74 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 207.37,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 207.37)."
+          }
+        ]
+      },
+      "exit_stage": {
+        "target_booked": true,
+        "pattern_booked": true,
+        "runner_open": true,
+        "fraction_remaining": 0.2,
+        "fraction_sold": 0.8,
+        "pending_exit": null
+      }
+    },
+    {
+      "ticker": "TVSMOTOR",
+      "entry": 3905.0,
+      "stop": 3550.1,
+      "target": 4614.8,
+      "current_price": 4479.6,
+      "close": 4479.6,
+      "signal_date": "2026-07-27",
+      "bought_date": "2026-07-27",
+      "qty": 51.22,
+      "fill_price": 3905.0,
+      "nq_position_id": "TVSMOTOR__2026-07-27",
+      "grade": "A",
+      "hold_days": 65,
+      "tier": "signal",
+      "status": "ACTIVE",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 4614.8,
+            "do": "Sell 40% at Rs 4,614.80 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 4792.25,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 4,792.25 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 3798.58,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 3,798.58)."
+          }
+        ]
+      },
+      "exit_stage": {
+        "target_booked": false,
+        "pattern_booked": false,
+        "runner_open": true,
+        "fraction_remaining": 1.0,
+        "fraction_sold": 0.0,
+        "pending_exit": null
+      }
+    },
+    {
+      "ticker": "GRAPHITE",
+      "entry": 675.8,
+      "stop": 618.6,
+      "target": 790.2,
+      "current_price": 732.3,
+      "close": 732.3,
+      "signal_date": "2026-07-27",
+      "bought_date": "2026-07-27",
+      "qty": 177.57,
+      "fill_price": 675.8,
+      "nq_position_id": "GRAPHITE__2026-07-27",
+      "grade": "A",
+      "hold_days": 65,
+      "tier": "signal",
+      "status": "ACTIVE",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 790.2,
+            "do": "Sell 40% at Rs 790.20 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 818.8,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 818.80 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 687.53,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 687.53)."
+          }
+        ]
+      },
+      "exit_stage": {
+        "target_booked": true,
+        "pattern_booked": false,
+        "runner_open": true,
+        "fraction_remaining": 0.6,
+        "fraction_sold": 0.4,
+        "pending_exit": null
+      }
+    },
+    {
+      "ticker": "ENGINERSIN",
+      "entry": 238.64,
+      "stop": 220.56,
+      "target": 274.78,
+      "current_price": 294.7,
+      "close": 294.7,
+      "signal_date": "2026-08-10",
+      "bought_date": "2026-08-10",
+      "qty": 502.86,
+      "fill_price": 238.64,
+      "nq_position_id": "ENGINERSIN__2026-08-10",
+      "grade": "A",
+      "hold_days": 65,
+      "tier": "signal",
+      "status": "ACTIVE",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 274.78,
+            "do": "Sell 40% at Rs 274.78 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 283.81,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 283.81 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 232.57,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 232.57)."
+          }
+        ]
+      },
+      "exit_stage": {
+        "target_booked": true,
+        "pattern_booked": false,
+        "runner_open": true,
+        "fraction_remaining": 0.6,
+        "fraction_sold": 0.4,
+        "pending_exit": null
+      }
+    },
+    {
+      "ticker": "PTCIL",
+      "entry": 19299.0,
+      "stop": 17776.0,
+      "target": 22345.0,
+      "current_price": 24415.0,
+      "close": 24415.0,
+      "signal_date": "2026-08-10",
+      "bought_date": "2026-08-10",
+      "qty": 2.07,
+      "fill_price": 19299.0,
+      "nq_position_id": "PTCIL__2026-08-10",
+      "grade": "A",
+      "hold_days": 65,
+      "tier": "signal",
+      "status": "ACTIVE",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 22345.0,
+            "do": "Sell 40% at Rs 22,345.00 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 23106.5,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 23,106.50 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 18907.66,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 18,907.66)."
+          }
+        ]
+      },
+      "exit_stage": {
+        "target_booked": true,
+        "pattern_booked": true,
+        "runner_open": true,
+        "fraction_remaining": 0.2,
+        "fraction_sold": 0.8,
+        "pending_exit": null
+      }
+    },
+    {
+      "ticker": "MCX",
+      "entry": 2905.98,
+      "stop": 2615.38,
+      "target": 3487.18,
+      "current_price": 3557.0,
+      "close": 3557.0,
+      "signal_date": "2026-08-17",
+      "bought_date": "2026-08-17",
+      "qty": 41.29,
+      "fill_price": 2905.98,
+      "nq_position_id": "MCX__2026-08-17",
+      "grade": "A",
+      "hold_days": 65,
+      "tier": "signal",
+      "status": "ACTIVE",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 3487.18,
+            "do": "Sell 40% at Rs 3,487.18 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 3632.47,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 3,632.47 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 2835.0,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 2,835.00)."
+          }
+        ]
+      },
+      "exit_stage": {
+        "target_booked": true,
+        "pattern_booked": false,
+        "runner_open": true,
+        "fraction_remaining": 0.6,
+        "fraction_sold": 0.4,
+        "pending_exit": null
+      }
+    },
+    {
+      "ticker": "APLAPOLLO",
+      "entry": 2084.97,
+      "stop": 1944.21,
+      "target": 2366.48,
+      "current_price": 2186.0,
+      "close": 2186.0,
+      "signal_date": "2026-08-17",
+      "bought_date": "2026-08-17",
+      "qty": 95.92,
+      "fill_price": 2084.97,
+      "nq_position_id": "APLAPOLLO__2026-08-17",
+      "grade": "A",
+      "hold_days": 65,
+      "tier": "signal",
+      "status": "ACTIVE",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 2366.48,
+            "do": "Sell 40% at Rs 2,366.48 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 2436.86,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 2,436.86 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 2012.08,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 2,012.08)."
+          }
+        ]
+      },
+      "exit_stage": {
+        "target_booked": false,
+        "pattern_booked": false,
+        "runner_open": true,
+        "fraction_remaining": 1.0,
+        "fraction_sold": 0.0,
+        "pending_exit": null
+      }
+    },
+    {
+      "ticker": "ADANIPORTS",
+      "entry": 1700.0,
+      "stop": 1640.4,
+      "target": 1819.2,
+      "current_price": 1949.3,
+      "close": 1949.3,
+      "signal_date": "2026-08-17",
+      "bought_date": "2026-08-17",
+      "qty": 70.59,
+      "fill_price": 1700.0,
+      "nq_position_id": "ADANIPORTS__2026-08-17",
+      "grade": "A",
+      "hold_days": 65,
+      "tier": "signal",
+      "status": "ACTIVE",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 1819.2,
+            "do": "Sell 40% at Rs 1,819.20 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 1849.0,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 1,849.00 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 1654.89,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 1,654.89)."
+          }
+        ]
+      },
+      "exit_stage": {
+        "target_booked": true,
+        "pattern_booked": false,
+        "runner_open": true,
+        "fraction_remaining": 0.6,
+        "fraction_sold": 0.4,
+        "pending_exit": null
+      }
+    },
+    {
+      "ticker": "GESHIP",
+      "entry": 1415.0,
+      "stop": 1352.0,
+      "target": 1541.0,
+      "current_price": 1469.0,
+      "close": 1469.0,
+      "signal_date": "2026-09-15",
+      "bought_date": "2026-09-15",
+      "qty": 84.81,
+      "fill_price": 1415.0,
+      "nq_position_id": "GESHIP__2026-09-15",
+      "grade": "A",
+      "hold_days": 65,
+      "tier": "signal",
+      "status": "ACTIVE",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 1541.0,
+            "do": "Sell 40% at Rs 1,541.00 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 1572.5,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 1,572.50 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 1389.08,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 1,389.08)."
+          }
+        ]
+      },
+      "exit_stage": {
+        "target_booked": true,
+        "pattern_booked": false,
+        "runner_open": true,
+        "fraction_remaining": 0.6,
+        "fraction_sold": 0.4,
+        "pending_exit": null
+      }
+    },
+    {
+      "ticker": "STARHEALTH",
+      "entry": 550.8,
+      "stop": 513.0,
+      "target": 626.4,
+      "current_price": 568.55,
+      "close": 568.55,
+      "signal_date": "2026-09-28",
+      "bought_date": "2026-09-28",
+      "qty": 363.11,
+      "fill_price": 550.8,
+      "nq_position_id": "STARHEALTH__2026-09-28",
+      "grade": "A",
+      "hold_days": 65,
+      "tier": "signal",
+      "status": "ACTIVE",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 626.4,
+            "do": "Sell 40% at Rs 626.40 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 645.3,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 645.30 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 522.0,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 522.00)."
+          }
+        ]
+      },
+      "exit_stage": {
+        "target_booked": false,
+        "pattern_booked": false,
+        "runner_open": true,
+        "fraction_remaining": 1.0,
+        "fraction_sold": 0.0,
+        "pending_exit": null
+      }
+    },
+    {
+      "ticker": "NUVAMA",
+      "entry": 1709.4,
+      "stop": 1605.1,
+      "target": 1918.0,
+      "current_price": 1881.0,
+      "close": 1881.0,
+      "signal_date": "2026-10-05",
+      "bought_date": "2026-10-05",
+      "qty": 70.2,
+      "fill_price": 1709.4,
+      "nq_position_id": "NUVAMA__2026-10-05",
+      "grade": "A",
+      "hold_days": 65,
+      "tier": "signal",
+      "status": "ACTIVE",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 1918.0,
+            "do": "Sell 40% at Rs 1,918.00 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 1970.15,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 1,970.15 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 1553.15,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 1,553.15)."
+          }
+        ]
+      },
+      "exit_stage": {
+        "target_booked": true,
+        "pattern_booked": false,
+        "runner_open": true,
+        "fraction_remaining": 0.6,
+        "fraction_sold": 0.4,
+        "pending_exit": null
+      }
+    },
+    {
+      "ticker": "FEDERALBNK",
+      "entry": 330.0,
+      "stop": 317.05,
+      "target": 355.9,
+      "current_price": 336.7,
+      "close": 336.7,
+      "signal_date": "2026-10-12",
+      "bought_date": "2026-10-12",
+      "qty": 606.06,
+      "fill_price": 330.0,
+      "nq_position_id": "FEDERALBNK__2026-10-12",
+      "grade": "A",
+      "hold_days": 65,
+      "tier": "signal",
+      "status": "ACTIVE",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 355.9,
+            "do": "Sell 40% at Rs 355.90 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 362.38,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 362.38 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 310.12,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 310.12)."
+          }
+        ]
+      },
+      "exit_stage": {
+        "target_booked": false,
+        "pattern_booked": false,
+        "runner_open": true,
+        "fraction_remaining": 1.0,
+        "fraction_sold": 0.0,
+        "pending_exit": null
+      }
+    },
+    {
+      "ticker": "TECHM",
+      "entry": 1745.57,
+      "stop": 1571.01,
+      "target": 2094.68,
+      "current_price": 1829.9,
+      "close": 1829.9,
+      "signal_date": "2026-10-19",
+      "bought_date": "2026-10-19",
+      "qty": 114.58,
+      "fill_price": 1745.57,
+      "nq_position_id": "TECHM__2026-10-19",
+      "grade": "A",
+      "hold_days": 65,
+      "tier": "signal",
+      "status": "ACTIVE",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 2094.68,
+            "do": "Sell 40% at Rs 2,094.68 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 2181.96,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 2,181.96 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 1500.21,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 1,500.21)."
+          }
+        ]
+      },
+      "exit_stage": {
+        "target_booked": false,
+        "pattern_booked": false,
+        "runner_open": true,
+        "fraction_remaining": 1.0,
+        "fraction_sold": 0.0,
+        "pending_exit": null
+      }
+    },
+    {
+      "ticker": "NAVINFLUOR",
+      "entry": 8592.17,
+      "stop": 7732.95,
+      "target": 10310.6,
+      "current_price": 9065.0,
+      "close": 9065.0,
+      "signal_date": "2026-11-02",
+      "bought_date": "2026-11-02",
+      "qty": 23.28,
+      "fill_price": 8592.17,
+      "nq_position_id": "NAVINFLUOR__2026-11-02",
+      "grade": "A",
+      "hold_days": 65,
+      "tier": "signal",
+      "status": "ACTIVE",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 10310.6,
+            "do": "Sell 40% at Rs 10,310.60 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 10740.21,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 10,740.21 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 7249.49,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 7,249.49)."
+          }
+        ]
+      },
+      "exit_stage": {
+        "target_booked": false,
+        "pattern_booked": false,
+        "runner_open": true,
+        "fraction_remaining": 1.0,
+        "fraction_sold": 0.0,
+        "pending_exit": null
+      }
+    },
+    {
+      "ticker": "KARURVYSYA",
+      "entry": 353.0,
+      "stop": 326.1,
+      "target": 406.8,
+      "current_price": 373.0,
+      "close": 373.0,
+      "signal_date": "2026-11-02",
+      "bought_date": "2026-11-02",
+      "qty": 566.57,
+      "fill_price": 353.0,
+      "nq_position_id": "KARURVYSYA__2026-11-02",
+      "grade": "A",
+      "hold_days": 65,
+      "tier": "signal",
+      "status": "ACTIVE",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 406.8,
+            "do": "Sell 40% at Rs 406.80 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 420.25,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 420.25 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 308.87,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 308.87)."
+          }
+        ]
+      },
+      "exit_stage": {
+        "target_booked": false,
+        "pattern_booked": false,
+        "runner_open": true,
+        "fraction_remaining": 1.0,
+        "fraction_sold": 0.0,
+        "pending_exit": null
+      }
+    },
+    {
+      "ticker": "APARINDS",
+      "entry": 15710.0,
+      "stop": 14139.0,
+      "target": 18852.0,
+      "current_price": 14573.0,
+      "close": 14573.0,
+      "signal_date": "2026-11-02",
+      "bought_date": "2026-11-02",
+      "qty": 12.73,
+      "fill_price": 15710.0,
+      "nq_position_id": "APARINDS__2026-11-02",
+      "grade": "A",
+      "hold_days": 65,
+      "tier": "signal",
+      "status": "ACTIVE",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 18852.0,
+            "do": "Sell 40% at Rs 18,852.00 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 19637.5,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 19,637.50 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 13293.13,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 13,293.13)."
+          }
+        ]
+      },
+      "exit_stage": {
+        "target_booked": false,
+        "pattern_booked": false,
+        "runner_open": true,
+        "fraction_remaining": 1.0,
+        "fraction_sold": 0.0,
+        "pending_exit": null
+      }
+    },
+    {
+      "ticker": "ZYDUSLIFE",
+      "entry": 1200.0,
+      "stop": 1093.5,
+      "target": 1413.0,
+      "current_price": 1199.5,
+      "close": 1199.5,
+      "signal_date": "2026-11-05",
+      "bought_date": "2026-11-05",
+      "qty": 166.67,
+      "fill_price": 1200.0,
+      "nq_position_id": "ZYDUSLIFE__2026-11-05",
+      "grade": "A",
+      "hold_days": 65,
+      "tier": "signal",
+      "status": "ACTIVE",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 1413.0,
+            "do": "Sell 40% at Rs 1,413.00 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 1466.25,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 1,466.25 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 1034.07,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 1,034.07)."
+          }
+        ]
+      },
+      "exit_stage": {
+        "target_booked": false,
+        "pattern_booked": false,
+        "runner_open": true,
+        "fraction_remaining": 1.0,
+        "fraction_sold": 0.0,
+        "pending_exit": null
+      }
+    }
+  ],
+  "regime": {
+    "status": "BULL",
+    "strength": 85,
+    "vix": 0,
+    "breadth": 187
+  },
+  "n_positions": 17,
+  "cash": 180902.33,
+  "note": "forward-watch, modeled fills \u2014 0094 weekly swing (0093-N50 signals, CRS-ranked fills; UNDERPOWERED DSR 0.89, not certified)"
+}
