@@ -6,7 +6,7 @@ Part 2 runs the +1R management arms on the current live rules (uncapped per-trad
 single path). Path robustness is in explore_ensemble_plus1r_arms.py. No screen row, no n_trials change.
 PIT membership, prices cut at 2024-06-30 and asserted.
 
-    python pipelines/diagnostics/explore_plus1r_arms.py
+    python pipelines/diagnostics/explore_plus1r_arms.py [plus1r|tp1_sweep]
 """
 from __future__ import annotations
 
@@ -48,6 +48,10 @@ ARMS = {
 # default peak is the max of week-END-session highs, which understates how often a +1R rule would arm in practice.
 ARMS_WH = {f"{k}|week_high": {**v, "ratchet_peak": "week_high"} for k, v in ARMS.items()
            if any(x in v for x in ("lockin_mfe", "lockin_ladder"))}
+
+# First-tranche level sweep (owner 2026-11-13): the 40% first target at +1.0 / +1.25 / +1.5R instead of +2R.
+ARMS_TP1 = {f"first_40pct_at_{x}R": dict(tp1_r=x) for x in (1.0, 1.25, 1.5)}
+SETS = {"plus1r": None, "tp1_sweep": ARMS_TP1}
 
 
 def path_stats(led: pd.DataFrame, bars: dict) -> pd.DataFrame:
@@ -109,7 +113,10 @@ def main() -> int:
     ev = R94.build_demerger_events(cut, load_demerger_rows(), **LIVE_PREP)
     mem, A = load_membership(), R94.grade_a_entries(P)
     res: dict = {"tier": "EXPLORE", "window": [G.START, G.CUT], "arms_def": {k: str(v) for k, v in ARMS.items()}, "arms": {}}
-    for name, extra in {**ARMS, **ARMS_WH}.items():
+    which = sys.argv[1] if len(sys.argv) > 1 else "plus1r"
+    arms = {**ARMS, **ARMS_WH} if which == "plus1r" else {"live": {}, **SETS[which]}
+    out_path = OUT if which == "plus1r" else OUT.with_name(f"2026-11-13_{which}.json")
+    for name, extra in arms.items():
         exit_cfg = {**LIVE_EXIT, "scaled_exit": {**LIVE_EXIT["scaled_exit"], **extra}}
         for book, unc in (("uncapped", True), ("capped", False)):
             led: list = []
@@ -129,7 +136,7 @@ def main() -> int:
             res["arms"].setdefault(name, {})[book] = row
             print(name, book, row, flush=True)
     print(json.dumps(res["round_trip_history"], indent=1))
-    OUT.write_text(json.dumps(res, indent=2, default=str) + "\n", encoding="utf-8")
+    out_path.write_text(json.dumps(res, indent=2, default=str) + "\n", encoding="utf-8")
     return 0
 
 

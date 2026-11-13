@@ -88,3 +88,25 @@ masters are unchanged.
 - **Cheapest next tests:** the first-tranche level as a short sweep (+1.0 / +1.25 / +1.5R) on the 20 paths, to tell
   whether +1R is a plateau or a spike; and the first-tranche rule combined with h5, since they act through the same
   channel and may not add.
+
+## Addendum: first-tranche level sweep (owner request, same day)
+
+Same 20 paired paths and reading rule. The 40% first target is moved from +2R to each level, and everything else
+stays live. Reproduce with `python pipelines/diagnostics/explore_ensemble_plus1r_arms.py 20 tp1_sweep` →
+`2026-11-13_ensemble_plus1r_arms_tp1_sweep.json`; per-trade and capped single path with
+`python pipelines/diagnostics/explore_plus1r_arms.py tp1_sweep` → `2026-11-13_tp1_sweep.json`.
+
+| first 40% at | uncapped ΣR (live 650) | 20-path ΔSharpe median [p5, p95] | paths better | ΔMaxDD pp median [p5, p95] | ΔCAGR pp median | live replay ΔR |
+|---|---|---|---|---|---|---|
+| +1.0R | 609 | +0.22 [+0.004, +0.34] | 95% | +1.2 [−6.2, +10.9] | +5.4 | +0.8 |
+| +1.25R | 620 | +0.06 [−0.24, +0.36] | 55% | +1.1 [−15.9, +12.8] | +0.2 | −0.5 |
+| +1.5R | 625 | +0.08 [−0.17, +0.23] | 60% | +1.5 [+0.2, +10.7] | +1.4 | −1.5 |
+
+The live replay was re-run on prices to 2026-11-12; its base is −20.2R.
+
+**Reading: +1R is a spike, not a plateau.** Moving the target a quarter-R either side drops the gain from +0.22 to
++0.06–0.08 and puts it inside path noise. A real effect of taking money off the table earlier should fade smoothly as
+the level rises; this one falls off a cliff between +1.0R and +1.25R. Combined with the marginal p5 (+0.004), the +1R
+arm is best read as a fit to this path set. It does not earn a pre-registration on this evidence. +1.5R's drawdown band
+sits just above zero, which is one band out of many read here and is not a lead. h5 remains the only candidate that
+holds in every ensemble run so far.

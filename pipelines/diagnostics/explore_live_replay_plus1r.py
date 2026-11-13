@@ -23,7 +23,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT / "scripts"), str(ROOT / "pipelines" / "diagnostics")]
-from explore_plus1r_arms import ARMS, path_stats, summarise  # noqa: E402
+from explore_plus1r_arms import ARMS, ARMS_TP1, path_stats, summarise  # noqa: E402
 
 OUT = ROOT / "diagnostics" / "research" / "explore" / "2026-11-13_live_replay_plus1r.json"
 LIVE_SE = dict(tp1_r=2.0, tp1_frac=0.40, tp2_r=3.0, tp2_frac=0.0, pattern_frac=0.40, pattern_arm_r=2.5,
@@ -117,7 +117,7 @@ def main() -> int:
     bars = {x: raw[f"{x}.NS"].dropna(subset=["Close"]) for x in tick if f"{x}.NS" in raw.columns.get_level_values(0)}
     res: dict = {"tier": "EXPLORE", "n_trades": len(trades), "last_bar": str(max(b.index.max() for b in bars.values()).date()),
                  "arms": {}, "validation": {}}
-    variants = {**ARMS, **{f"{k}|intraweek_peak": {**v, "peak_all_days": True} for k, v in ARMS.items()
+    variants = {**ARMS, **{k: v for k, v in ARMS_TP1.items() if k not in ARMS}, **{f"{k}|intraweek_peak": {**v, "peak_all_days": True} for k, v in ARMS.items()
                            if any(x in v for x in ("lockin_mfe", "lockin_ladder"))}}
     for name, extra in variants.items():
         se = {**LIVE_SE, **extra}

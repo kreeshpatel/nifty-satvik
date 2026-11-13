@@ -1,0 +1,119 @@
+{
+  "tier": "EXPLORE",
+  "window": [
+    "2019-01-01",
+    "2024-06-30"
+  ],
+  "arms_def": {
+    "live": "{}",
+    "breakeven_at_1R": "{'lockin_mfe': 1.0, 'lockin_at': 0.0}",
+    "stop_-0.5R_at_1R": "{'lockin_mfe': 1.0, 'lockin_at': -0.5}",
+    "partial_20pct_at_1R": "{'tp1_r': 1.0, 'tp1_frac': 0.2, 'tp2_r': 2.0, 'tp2_frac': 0.2}",
+    "first_40pct_at_1R": "{'tp1_r': 1.0}",
+    "trail_1R_behind_after_1R": "{'lockin_ladder': ((1.0, 0.0), (2.0, 1.0), (3.0, 2.0), (4.0, 3.0), (5.0, 4.0), (6.0, 5.0), (7.0, 6.0), (8.0, 7.0), (9.0, 8.0), (10.0, 9.0), (11.0, 10.0), (12.0, 11.0))}",
+    "trail_1.5R_behind_after_1.5R": "{'lockin_ladder': ((1.5, 0.0), (2.5, 1.0), (3.5, 2.0), (4.5, 3.0), (5.5, 4.0), (6.5, 5.0), (7.5, 6.0), (8.5, 7.0), (9.5, 8.0), (10.5, 9.0), (11.5, 10.0))}"
+  },
+  "arms": {
+    "live": {
+      "uncapped": {
+        "n": 441,
+        "win_pct": 42.9,
+        "mean_R": 0.621,
+        "sum_R_incl_open": 650.2,
+        "full_stop_pct": 44.4
+      },
+      "capped": {
+        "n": 67,
+        "win_pct": 41.8,
+        "mean_R": 0.877,
+        "sum_R_incl_open": 99.3,
+        "full_stop_pct": 41.8,
+        "cagr_pct": 20.5,
+        "sharpe": 1.025,
+        "maxdd_pct": -40.1
+      }
+    },
+    "first_40pct_at_1.0R": {
+      "uncapped": {
+        "n": 441,
+        "win_pct": 44.0,
+        "mean_R": 0.594,
+        "sum_R_incl_open": 609.3,
+        "full_stop_pct": 33.6
+      },
+      "capped": {
+        "n": 74,
+        "win_pct": 47.3,
+        "mean_R": 1.075,
+        "sum_R_incl_open": 132.9,
+        "full_stop_pct": 28.4,
+        "cagr_pct": 28.4,
+        "sharpe": 1.403,
+        "maxdd_pct": -33.3
+      }
+    },
+    "first_40pct_at_1.25R": {
+      "uncapped": {
+        "n": 441,
+        "win_pct": 45.6,
+        "mean_R": 0.603,
+        "sum_R_incl_open": 620.2,
+        "full_stop_pct": 37.6
+      },
+      "capped": {
+        "n": 62,
+        "win_pct": 43.5,
+        "mean_R": 1.227,
+        "sum_R_incl_open": 131.7,
+        "full_stop_pct": 33.9,
+        "cagr_pct": 31.3,
+        "sharpe": 1.363,
+        "maxdd_pct": -42.3
+      }
+    },
+    "first_40pct_at_1.5R": {
+      "uncapped": {
+        "n": 441,
+        "win_pct": 44.7,
+        "mean_R": 0.598,
+        "sum_R_incl_open": 625.4,
+        "full_stop_pct": 41.5
+      },
+      "capped": {
+        "n": 66,
+        "win_pct": 43.9,
+        "mean_R": 0.966,
+        "sum_R_incl_open": 119.0,
+        "full_stop_pct": 42.4,
+        "cagr_pct": 25.0,
+        "sharpe": 1.236,
+        "maxdd_pct": -38.1
+      }
+    }
+  },
+  "round_trip_history": {
+    "closed": 441,
+    "full_stops": 196,
+    "round_trip_mfe_close": {
+      "count": 11,
+      "share_of_full_stops_pct": 5.6,
+      "sum_R": -19.2,
+      "mean_R": -1.75,
+      "giveback_from_peak_R": 34.2
+    },
+    "round_trip_mfe_high": {
+      "count": 48,
+      "share_of_full_stops_pct": 24.5,
+      "sum_R": -73.3,
+      "mean_R": -1.53,
+      "giveback_from_peak_R": 140.8
+    },
+    "big_winners_R_ge_2": {
+      "count": 101,
+      "sum_R": 496.8,
+      "low_back_to_+0.25R_after_+1R": 57,
+      "friday_close_at_or_below_entry_after_+1R": 19,
+      "friday_close_at_or_below_-0.5R_after_+1R": 5
+    }
+  }
+}

@@ -6,7 +6,7 @@ the 95th percentile is < 0, otherwise inside path noise. Read for Sharpe and for
 pre-registered trial', never adoption. No screen row, no n_trials change. Same draws as every ensemble
 (nq.lab.ensemble), PIT membership, prices cut at 2024-06-30.
 
-    python pipelines/diagnostics/explore_ensemble_plus1r_arms.py [n_paths] [week_high]
+    python pipelines/diagnostics/explore_ensemble_plus1r_arms.py [n_paths] [week_high|tp1_sweep]
 """
 from __future__ import annotations
 
@@ -21,14 +21,16 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT / "scripts"), str(ROOT / "pipelines" / "diagnostics")]
 from nq.lab import ensemble as E  # noqa: E402
 from nq.lab import runs as L  # noqa: E402
-from explore_plus1r_arms import ARMS, ARMS_WH  # noqa: E402
+from explore_plus1r_arms import ARMS, ARMS_TP1, ARMS_WH  # noqa: E402
 
 N = int(sys.argv[1]) if len(sys.argv) > 1 else 20
-WEEK_HIGH = len(sys.argv) > 2 and sys.argv[2] == "week_high"      # second run: the ratchet arms on the week's high
-if WEEK_HIGH:
+SET = sys.argv[2] if len(sys.argv) > 2 else ""                     # "", "week_high" or "tp1_sweep"
+if SET == "week_high":
     ARMS = {"live": {}, **ARMS_WH}
+elif SET == "tp1_sweep":
+    ARMS = {"live": {}, **ARMS_TP1}
 OUT = ROOT / "diagnostics" / "research" / "explore" / (
-    "2026-11-13_ensemble_plus1r_arms_week_high.json" if WEEK_HIGH else "2026-11-13_ensemble_plus1r_arms.json")
+    f"2026-11-13_ensemble_plus1r_arms_{SET}.json" if SET else "2026-11-13_ensemble_plus1r_arms.json")
 
 
 def _verdict(v) -> str:
