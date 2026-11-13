@@ -11,7 +11,7 @@
  *   6. Danger zone     — bear tone, sign-out as a text link
  */
 import React, { useContext, useEffect, useState } from 'react';
-import { LogOut, User as UserIcon, Plug, Bell, Palette, ShieldCheck, Loader2 } from 'lucide-react';
+import { LogOut, User as UserIcon, Plug, Bell, Palette, ShieldCheck, Loader2, Settings2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { QRCodeSVG } from 'qrcode.react';
 import { PageShell } from '@/components/shared/PageShell';
@@ -44,7 +44,7 @@ export default function SettingsV2() {
   return (
     <PageShell title="Settings" heroTone={null}>
       <div style={{ paddingTop: 24, paddingBottom: 24 }}>
-        <h1 className="t-title-1" style={{ margin: 0, fontSize: 28, fontWeight: 600, color: 'var(--text-1)' }}>Settings</h1>
+        <div className="pg-head"><span className="pf-ic" aria-hidden="true"><Settings2 /></span><h1 className="t-title-1" style={{ margin: 0, color: 'var(--text-1)' }}>Settings</h1></div>
       </div>
 
       {/* 2-Col Layout: 200px sidebar | flex-1 form — stacks on mobile */}
@@ -84,10 +84,10 @@ export default function SettingsV2() {
 
         {/* RIGHT: Form panel — glass card */}
         <div style={{
-          background: 'rgba(255,255,255,0.04)',
+          background: 'var(--n1)',
           border: '1px solid var(--edge-1)',
-          borderRadius: 18,
-          padding: 26,
+          borderRadius: 'var(--r2)',
+          padding: 24,
         }}>
 
           {/* ACCOUNT */}
@@ -501,6 +501,8 @@ function MfaPanel() {
 // ══════════════════════════════════════════════════════════════
 
 function FormField({ label, value, defaultValue, disabled, onChange }) {
+  // label ↔ input association so screen readers name the field (final-pass a11y sweep)
+  const fid = `ff-${String(label).toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
   // Two modes: controlled (parent passes value + onChange) vs uncontrolled
   // (use defaultValue + internal state). Read-only profile fields use
   // controlled mode with no onChange; Risk caps uses controlled mode with
@@ -514,7 +516,7 @@ function FormField({ label, value, defaultValue, disabled, onChange }) {
   };
   return (
     <div>
-      <label style={{
+      <label htmlFor={fid} style={{
         fontFamily: 'var(--font-mono)',
         fontSize: 10,
         letterSpacing: '0.1em',
@@ -525,6 +527,7 @@ function FormField({ label, value, defaultValue, disabled, onChange }) {
         fontWeight: 600,
       }}>{label}</label>
       <input
+        id={fid}
         type="text"
         value={val}
         onChange={handleChange}

@@ -44,7 +44,9 @@ const TICKER_DOMAINS = {
 export function tickerBg(sym) {
   let h = 0;
   for (const ch of (sym || '')) h = (h + ch.charCodeAt(0) * 13) % 360;
-  return `linear-gradient(135deg, hsl(${h} 70% 56%) 0%, hsl(${(h + 38) % 360} 60% 42%) 100%)`;
+  // v7 (brief §10): neutral tiles — colour is reserved for signal, not identity.
+  void h;
+  return 'var(--n3)';
 }
 
 export default function StockLogo({ sym, size = 28, radius = 8, mono = false }) {

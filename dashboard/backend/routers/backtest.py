@@ -375,6 +375,27 @@ def _load_bhanushali_trades() -> list[dict]:
     return trades
 
 
+def yearly_breakdown(trades: list[dict]) -> list[dict]:
+    """Per-exit-year trades, win rate, total and average R — computed exactly from the committed
+    0094 trade export. Shared by /backtest/bhanushali and /landing-stats so the two pages cannot
+    publish different year-by-year figures (docs/DATA_MAP.md, audit 2026-11-12)."""
+    by_year: dict[str, list[dict]] = {}
+    for t in trades:
+        by_year.setdefault(t["exit_date"][:4], []).append(t)
+    out = []
+    for yr in sorted(by_year):
+        yts = by_year[yr]
+        wins = sum(1 for t in yts if t["r_multiple"] > 0)
+        out.append({
+            "year": yr,
+            "trades": len(yts),
+            "win_rate": round(wins / len(yts) * 100, 1) if yts else 0,
+            "total_r": round(sum(t["r_multiple"] for t in yts), 2),
+            "avg_r": round(sum(t["r_multiple"] for t in yts) / len(yts), 2) if yts else 0,
+        })
+    return out
+
+
 @router.get("/backtest/bhanushali")
 def bhanushali_backtest(user: User = Depends(get_current_user)):
     cfg = fetch_github_json(_BHANUSHALI_CONFIG) or {}
@@ -398,22 +419,7 @@ def bhanushali_backtest(user: User = Depends(get_current_user)):
         equity_curve.append({"date": t["exit_date"], "nav": round(nav, 2)})
         cum_r_curve.append({"date": t["exit_date"], "cum_r": round(cum_r, 3)})
 
-    # Yearly breakdown
-    by_year: dict[str, list[dict]] = {}
-    for t in trades:
-        yr = t["exit_date"][:4]
-        by_year.setdefault(yr, []).append(t)
-    yearly = []
-    for yr in sorted(by_year.keys()):
-        yts = by_year[yr]
-        wins = sum(1 for t in yts if t["r_multiple"] > 0)
-        yearly.append({
-            "year": yr,
-            "trades": len(yts),
-            "win_rate": round(wins / len(yts) * 100, 1) if yts else 0,
-            "total_r": round(sum(t["r_multiple"] for t in yts), 2),
-            "avg_r": round(sum(t["r_multiple"] for t in yts) / len(yts), 2) if yts else 0,
-        })
+    yearly = yearly_breakdown(trades)
 
     # Exit-reason breakdown
     reason_counts: dict[str, int] = {}
@@ -441,7 +447,11 @@ def bhanushali_backtest(user: User = Depends(get_current_user)):
             "ci_low": stats.get("ci_low"),
             "total_trades": len(trades),
         },
+        # R-compounded illustration (sequential 2%-risk convention, see above) — NOT the portfolio
+        # simulation behind the 24.7% headline; the frontend shows the portfolio curve from
+        # /landing-stats (EQUITY_CURVE_BT, 8.11x) instead. Kept for API compatibility.
         "equity_curve": equity_curve,
+        "equity_curve_method": "r_compounded_sequential",
         "cum_r_curve": cum_r_curve,
         "yearly": yearly,
         "exit_reasons": reason_counts,

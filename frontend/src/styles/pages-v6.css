@@ -1,0 +1,107 @@
+/* ================================================================
+   PAGE KIT v7 (2026-11-05) — docs/DESIGN_BRIEF_V5.md §10.
+   Every app page, one register: 1px dividers and tone shifts (no shadows, no gradients),
+   radius 4/6, spacing on the 4/8 scale, Inter for text and JetBrains Mono for figures.
+   `html:root body` outranks the per-page stylesheets that load later in lazy chunks.
+   ================================================================ */
+
+/* panels */
+html:root body :is(.ri-card, .pv3-card, .ns-card, .pv3-risk-card, .pv3-eq-hero, .db-chart-card, .rh-stat, .pv3-pstat,
+  .pv3-eqh-kpi, .pv3-regime-strip, .pv3-actions-strip, .pv3-pnl-strip, .settings-layout > :last-child, .metric-strip,
+  [class*="glass-card"], .glass) {
+  background: var(--n1); border: 1px solid var(--line); border-radius: var(--r2); box-shadow: none;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+
+/* list rows (This week): a ruled list, not floating cards */
+html:root body .ns-row { background: transparent; border: 0; border-bottom: 1px solid var(--line); border-radius: 0; box-shadow: none; padding: 12px 0; transform: none; }
+html:root body .ns-row:hover { background: var(--n1); }
+html:root body .ns-row--alarm { box-shadow: inset 2px 0 0 var(--down); padding-left: 12px; }
+html:root body .ns-btn { border-radius: var(--r1); height: 32px; font-weight: 500; font-size: 14px; background: transparent; border: 1px solid var(--n4); color: var(--ink); box-shadow: none; }
+html:root body .ns-btn:hover { background: var(--n2); }
+html:root body .ns-btn--primary { background: var(--acc); color: var(--acc-ink); border-color: var(--acc); }
+
+/* titles and heads */
+html:root body :is(.ns-title, .t-title-1, .ri-title, .page-title) { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.25; }
+html:root body :is(.ns-section-h, .ri-card-h, .pv3-card-head, .ri-head, .t-title-2, .pv3-row-title) { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+html:root body :is(.ns-section-sub, .t-ui-footnote) { color: var(--ink-3); font-size: 12px; }
+.pg-head { display: flex; align-items: center; gap: 12px; }
+.pg-head .pf-ic { display: none; }
+
+/* tabs and segmented controls: underline tabs, TradingView/Kite style */
+html:root body :is(.pv3-subtabs, .pv3-stocks-table-tabs, .grade-filter) {
+  display: flex; gap: 24px; padding: 0; border-radius: 0; background: none; border: 0; border-bottom: 1px solid var(--line);
+}
+html:root body :is(.pv3-subtab, .pv3-ttab, .gf-btn) {
+  height: 40px; padding: 0; border-radius: 0; background: none; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px;
+  font-size: 14px; font-weight: 500; color: var(--ink-3); box-shadow: none;
+}
+html:root body :is(.pv3-subtab.active, .pv3-ttab.active, .gf-btn.on) { color: var(--ink); border-bottom-color: var(--acc); background: none; box-shadow: none; }
+html:root body :is(.pv3-eq-seg, .seg) { display: inline-flex; gap: 0; padding: 0; border: 1px solid var(--n4); border-radius: var(--r1); background: none; overflow: hidden; }
+html:root body :is(.pv3-eq-seg button, .seg button) { height: 28px; padding: 0 12px; border-radius: 0; font-size: 12px; font-weight: 500; color: var(--ink-3); background: none; box-shadow: none; }
+html:root body :is(.pv3-eq-seg button.active, .pv3-eq-seg button.on, .seg button.on) { background: var(--n3); color: var(--ink); box-shadow: none; }
+html:root body .settings-tab-btn { border-radius: var(--r1); height: 32px; font-weight: 500; font-size: 14px; }
+
+/* tables */
+html:root body :is(.rs-table, .ri-table, .pv3-stocks-table) { border-radius: var(--r2); overflow: hidden; background: var(--n1); border: 1px solid var(--line); box-shadow: none; }
+html:root body :is(.ri-thead, .rs-head, .pv3-stocks-table-head, .pv3-row-head) {
+  background: var(--n1); border-bottom: 1px solid var(--line); font-size: 12px; font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--ink-3);
+}
+html:root body :is(.ri-row, .pv3-row) { min-height: 40px; border-color: var(--line); transition: background .1s; }
+html:root body :is(.ri-row, .pv3-row):hover { background: var(--n2); }
+html:root body :is(.ri-cell, .pv3-td, .rs-c, .rs-r) { font-variant-numeric: tabular-nums; }
+
+/* chips: flat, small, square-ish */
+html:root body :is(.grade-badge, .conv-pill, .act-chip, .pv3-tag-bull, .pv3-tag-bear, .ns-chip--warn, .ns-chip--alarm, .ns-count--alarm) {
+  border-radius: var(--r1); font-weight: 500; font-size: 12px; box-shadow: none;
+}
+
+@media (max-width: 640px) {
+  html:root body :is(.ns-title, .t-title-1, .ri-title, .page-title) { font-size: 20px; }
+  html:root body .ns-row { display: flex; flex-direction: row; align-items: center; gap: 12px; padding: 12px 0; }
+  html:root body .ns-row .ns-row-l { flex: 1 1 auto; min-width: 0; }
+  html:root body .ns-row .ns-row-l > div { min-width: 0; }
+  html:root body .ns-row .ns-row-r { flex: 0 0 auto; width: auto; display: flex; align-items: center; gap: 8px; margin: 0; }
+  html:root body .ns-row .ns-num--hint { display: none; }
+  html:root body .ns-row .ns-row-r .ns-num { font-size: 12px; }
+}
+
+/* ── Ticker strip (components/shared/TickerStrip.jsx) — real index levels + model schedule ── */
+.tk { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--n1); overflow-x: auto; scrollbar-width: none; }
+.tk::-webkit-scrollbar { display: none; }
+.tk-in { display: flex; align-items: stretch; min-width: max-content; height: 32px; font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+.tk-cell { display: inline-flex; align-items: center; gap: 8px; padding: 0 16px; border-right: 1px solid var(--line); white-space: nowrap; }
+.tk-cell b { color: var(--ink); font-weight: 500; }
+.tk-name { color: var(--ink-2); font-family: var(--sans); }
+.tk-up { color: var(--up); } .tk-down { color: var(--down); }
+.tk-status { font-family: var(--sans); text-transform: uppercase; letter-spacing: .06em; }
+.tk-live { width: 6px; height: 6px; border-radius: 50%; background: var(--up); box-shadow: 0 0 0 3px var(--up-a); }
+.tk-clock { min-width: 96px; }
+.tk-muted { color: var(--ink-4); }
+.tk-end { margin-left: auto; border-right: 0; border-left: 1px solid var(--line); color: var(--ink-3); }
+.tk-live.off { background: var(--ink-4); box-shadow: none; }
+.tk-clock { color: var(--ink-3); min-width: 0; }
+.tk-refresh { display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 8px; margin-left: 8px; border: 1px solid var(--n4); border-radius: var(--r1);
+  background: none; color: var(--ink-2); font: 500 12px var(--sans); cursor: pointer; }
+.tk-refresh:hover:not(:disabled) { color: var(--ink); background: var(--n2); }
+.tk-refresh:disabled { cursor: default; color: var(--ink-3); }
+.tk-spin { animation: tk-spin .8s linear infinite; }
+@keyframes tk-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .tk-spin { animation: none; } }
+.tk-end { position: sticky; right: 0; background: var(--n1); z-index: 1; }
+
+/* Research tables (research.css): ruled rows, not floating boxes (brief §10) */
+html:root body .rs-table { gap: 0; }
+html:root body .rs-tr { border-radius: 0; border: 0; border-top: 1px solid var(--line); background: none; }
+html:root body .rs-tr:hover { background: var(--n2); border-color: var(--line); }
+html:root body .rs-th { white-space: nowrap; font-size: 12px; letter-spacing: 0; text-transform: none; color: var(--ink-3); }
+html:root body .rs-table > .ns-card { max-width: none; width: 100%; box-sizing: border-box; border: 0; border-top: 1px solid var(--line); border-radius: 0; background: none; padding: 16px; color: var(--ink-2); }
+
+/* v7 type scale for the shared hero number (KPICard on Admin/Backtest): 24px, not display size */
+html:root body .t-num-hero { font-size: 24px; line-height: 1.2; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Settings: flat panels, standard radius, underline-free nav */
+html:root body .settings-layout > * { border-radius: var(--r2); box-shadow: none; }
+html:root body .settings-layout [class*="rounded-"] { border-radius: var(--r2); }
+html:root body .settings-nav .settings-tab-btn[aria-selected="true"], html:root body .settings-nav .settings-tab-btn.active { background: var(--n2); border-color: var(--n4); color: var(--ink); }
+/* Admin tables and controls */
+html:root body [class*="admin"] table { font-variant-numeric: tabular-nums; }

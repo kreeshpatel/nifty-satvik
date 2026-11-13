@@ -11,9 +11,9 @@ module.exports = {
         // DM Sans EVERYWHERE (locked 2026-04-25 per user). Tabular numerals
         // are produced by DM Sans's `tnum` OpenType feature, applied globally
         // to .font-mono / .tabular-nums / numeric inputs in typography.css.
-        sans:    ['"DM Sans"', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
-        heading: ['"DM Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        mono:    ['"DM Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans:    ['"Inter Variable"', 'Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
+        heading: ['"Inter Variable"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono:    ['"JetBrains Mono Variable"', '"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
       borderRadius: {
         lg: 'var(--radius)',
