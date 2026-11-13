@@ -1,6 +1,6 @@
 # 0151 — h5-30: the live exit with three caps off and a 30% per-name cap (CONFIRM)
 
-**Status: PRE-REGISTERED, awaiting the owner's final sign-off (§9) before the counter increments.**
+**Status: PRE-REGISTERED and SIGNED (2026-11-13). Next: the counter increment (C1), then checks C2–C4, then the run.**
 **Amended 2026-11-13 (before any sealed number), by the owner:** one arm; the arm switched from h5 (notional cap
 off) to **h5-30** (notional cap at 30%); P5 at 30%. The train-window result for h5-30 is in §3 and was shown to the owner
 before signing.
@@ -157,8 +157,8 @@ Shown to the owner before signing (train window only, nothing sealed read):
 - its unperturbed concentration: 97 positions, the largest 30.5% of equity at the entry day's close and 32.5% on any
   day, against live's 22.0% and 27.9%.
 
-Still open, and the sealed slice is not opened until it is signed:
-- [ ] **Final sign-off on this plan as written, and on spending sealed open S4.** It cannot be undone.
+Final sign-off:
+- [x] **Final sign-off on this plan as written, and on spending sealed open S4.** Signed by the owner in chat on 2026-11-13 ("sign 0151"), after seeing the h5-30 train result.
 
 ## 10. Reproduction
 
