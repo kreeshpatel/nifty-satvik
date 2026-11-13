@@ -73,3 +73,10 @@ def test_missing_envelope_counts_as_unpublished():
 def test_friday_before_close_targets_prior_week():
     d = run("2026-11-13T09:00", "2026-11-06")
     assert (d.action, d.target_session) == ("noop", "2026-11-06")
+
+
+def test_special_sessions_come_from_the_shared_calendar():
+    """One declared source: the watchdog must agree with nq.data.trading_calendar."""
+    import scan_watchdog as W
+    from nq.data.trading_calendar import special_sessions
+    assert set(W.SPECIAL_SESSIONS) == set(special_sessions())
