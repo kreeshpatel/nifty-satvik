@@ -91,12 +91,12 @@ export function MonthlyHeatmap({ data, className }) {
                 width: 56,
                 textAlign: 'left',
                 fontFamily: 'var(--font-sans)',
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 600,
                 letterSpacing: '0.06em',
                 textTransform: 'uppercase',
                 color: 'var(--text-3)',
-                padding: '4px 6px',
+                padding: '4px 8px',
               }}
             >
               Year
@@ -106,7 +106,7 @@ export function MonthlyHeatmap({ data, className }) {
                 key={m}
                 style={{
                   fontFamily: 'var(--font-sans)',
-                  fontSize: 11,
+                  fontSize: 12,
                   fontWeight: 500,
                   color: 'var(--text-3)',
                   textAlign: 'center',
@@ -119,13 +119,13 @@ export function MonthlyHeatmap({ data, className }) {
             <th
               style={{
                 fontFamily: 'var(--font-sans)',
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: 600,
                 letterSpacing: '0.06em',
                 textTransform: 'uppercase',
                 color: 'var(--text-3)',
                 textAlign: 'right',
-                padding: '4px 6px',
+                padding: '4px 8px',
               }}
             >
               YTD
@@ -144,7 +144,7 @@ export function MonthlyHeatmap({ data, className }) {
                     fontSize: 12,
                     fontWeight: 600,
                     color: 'var(--text-2)',
-                    padding: '0 6px',
+                    padding: '0 8px',
                   }}
                 >
                   {year}
@@ -162,7 +162,7 @@ export function MonthlyHeatmap({ data, className }) {
                         height: 32,
                         borderRadius: 4,
                         textAlign: 'center',
-                        fontSize: 11,
+                        fontSize: 12,
                         fontVariantNumeric: 'tabular-nums',
                         cursor: 'default',
                       }}
@@ -179,7 +179,7 @@ export function MonthlyHeatmap({ data, className }) {
                     fontWeight: 600,
                     color: ytd > 0 ? 'var(--bull)' : ytd < 0 ? 'var(--bear)' : 'var(--text-3)',
                     textAlign: 'right',
-                    padding: '0 6px',
+                    padding: '0 8px',
                   }}
                 >
                   {fmtPct(ytd, 1)}

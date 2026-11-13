@@ -29,10 +29,10 @@ const GRADE_THEME = {
 function Stat({ k, v, tone }) {
   return (
     <div>
-      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>{k}</div>
+      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>{k}</div>
       <div
         style={{
-          fontSize: 18, fontWeight: 700, marginTop: 4, fontVariantNumeric: 'tabular-nums',
+          fontSize: 20, fontWeight: 600, marginTop: 4, fontVariantNumeric: 'tabular-nums',
           color: tone === 'bear' ? '#FF9EB0' : tone === 'bull' ? '#8CF0BE' : '#fff',
         }}
       >
@@ -71,31 +71,31 @@ export default function TradeCardModal({ sig, open, onOpenChange }) {
                      srTitle={sig ? `${sig.sym || sig.ticker} — trade card` : 'Trade card'}>
         <div
           style={{
-            position: 'relative', overflow: 'hidden', borderRadius: 20, padding: '22px 24px 24px',
+            position: 'relative', overflow: 'hidden', borderRadius: 6, padding: '24px 24px 24px',
             background: GRADE_THEME[grade] || GRADE_THEME.B,
             boxShadow: '0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.14)',
           }}
         >
           <div style={{ position: 'absolute', right: -40, top: -40, width: 220, height: 220, borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,255,255,0.22), transparent 68%)' }} />
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.85)' }}>
+            <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.85)' }}>
               Trade card
             </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
               <StockLogo sym={sym} size={38} radius={10} />
               <div style={{ minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <h3 style={{ fontSize: 19, fontWeight: 700, color: '#fff', letterSpacing: '-0.01em', margin: 0 }}>{sym}</h3>
+                  <h3 style={{ fontSize: 19, fontWeight: 600, color: '#fff', letterSpacing: '-0.01em', margin: 0 }}>{sym}</h3>
                   <span
                     style={{
-                      fontSize: 11, fontWeight: 700, padding: '2px 7px', borderRadius: 6,
+                      fontSize: 12, fontWeight: 600, padding: '2px 8px', borderRadius: 6,
                       background: 'rgba(255,255,255,0.18)', color: '#fff',
                     }}
                   >
                     Grade {grade}
                   </span>
                 </div>
-                <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.78)', marginTop: 2 }}>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.78)', marginTop: 2 }}>
                   {name !== sym ? `${name} · ` : ''}{sector}
                 </div>
               </div>
@@ -105,7 +105,7 @@ export default function TradeCardModal({ sig, open, onOpenChange }) {
               {conv.label}{upsidePct != null ? ` · potential ${fmtPct(upsidePct, 1)} to target` : ''}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px 12px', marginTop: 18 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px 12px', marginTop: 16 }}>
               <Stat k="Entry" v={fmtINR(entry)} />
               <Stat k="Stop" v={fmtINR(stop)} tone="bear" />
               <Stat k="Target" v={fmtINR(target)} tone="bull" />
@@ -114,13 +114,13 @@ export default function TradeCardModal({ sig, open, onOpenChange }) {
               <Stat k="Upside" v={upsidePct != null ? fmtPct(upsidePct, 1) : '—'} tone="bull" />
             </div>
 
-            <div style={{ display: 'flex', gap: 10, marginTop: 22 }}>
+            <div style={{ display: 'flex', gap: 8, marginTop: 24 }}>
               <button
                 type="button"
                 onClick={goDetails}
                 style={{
-                  flex: 1, padding: '11px 0', borderRadius: 10, border: 'none', cursor: 'pointer',
-                  background: '#fff', color: '#1a1a2e', fontSize: 14, fontWeight: 700,
+                  flex: 1, padding: '12px 0', borderRadius: 6, border: 'none', cursor: 'pointer',
+                  background: '#fff', color: '#1a1a2e', fontSize: 14, fontWeight: 600,
                 }}
               >
                 View {sym} levels →

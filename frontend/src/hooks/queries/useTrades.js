@@ -14,9 +14,10 @@ import { fetchTrades, fetchTradeStats } from '@/services/api';
 export const TRADES_QUERY_KEY = ['trades'];
 export const TRADE_STATS_QUERY_KEY = ['trades', 'stats'];
 
-export function useTrades({ perPage = 50, ticker, start, end, exitReason } = {}) {
+export function useTrades({ perPage = 50, ticker, start, end, exitReason, enabled = true } = {}) {
   const key = [...TRADES_QUERY_KEY, { perPage, ticker, start, end, exitReason }];
   return useInfiniteQuery({
+    enabled,
     queryKey: key,
     queryFn: ({ pageParam = 1 }) =>
       fetchTrades({

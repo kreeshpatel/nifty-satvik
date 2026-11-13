@@ -33,7 +33,7 @@ export function PageShell({
   title,
   ambient = 'none',
   hero = false,
-  heroTone = 'brand',
+  heroTone = null,   // v7: no atmospheric hero band (brief §10); pass a tone explicitly to opt in
   heroHeight = 360,
   className,
   children,
@@ -100,7 +100,8 @@ export function PageShell({
               The in-page Header here was a holdover from the sidebar era — removed
               2026-05-21 so /dashboard, /signals etc don't render two stacked bars. */}
 
-          {title && <h1 className="sr-only">{title}</h1>}
+          {/* Pages render their own visible <h1>; a second hidden one made screen readers
+              announce two page titles (final-pass a11y sweep). `title` stays for callers. */}
 
           {hero && (
             <motion.div
@@ -130,7 +131,7 @@ export function PageShell({
                   {DISCLAIMER}
                 </div>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-4)', marginTop: 6 }}>
-                  SEBI Research Analyst · Model-generated signals · Research output only · NSE data delayed 15 min · v2026.06
+                  Not SEBI-registered · Model-generated research output · Prices are daily closes
                 </div>
               </div>
             )}

@@ -44,7 +44,9 @@ const TICKER_DOMAINS = {
 export function tickerBg(sym) {
   let h = 0;
   for (const ch of (sym || '')) h = (h + ch.charCodeAt(0) * 13) % 360;
-  return `linear-gradient(135deg, hsl(${h} 70% 56%) 0%, hsl(${(h + 38) % 360} 60% 42%) 100%)`;
+  // v7 (brief §10): neutral tiles — colour is reserved for signal, not identity.
+  void h;
+  return 'var(--n3)';
 }
 
 export default function StockLogo({ sym, size = 28, radius = 8, mono = false }) {
@@ -67,7 +69,7 @@ export default function StockLogo({ sym, size = 28, radius = 8, mono = false }) 
   if (idx >= sources.length) {
     return (
       <div style={{
-        ...base, background: tickerBg(sym), color: '#fff', fontWeight: 700,
+        ...base, background: tickerBg(sym), color: '#fff', fontWeight: 600,
         fontSize: Math.round(size * 0.36), letterSpacing: '0.02em',
         boxShadow: '0 2px 6px rgba(0,0,0,0.30), inset 0 1px 0 rgba(255,255,255,0.18)',
       }}>

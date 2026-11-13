@@ -657,10 +657,6 @@ export const initWebSocket = async ({ onPortfolioUpdate, onTick, onOrderUpdate }
       order_update: onOrderUpdate,
     };
 
-    ws.onopen = () => {
-      console.log('WebSocket connected');
-    };
-
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
@@ -675,9 +671,7 @@ export const initWebSocket = async ({ onPortfolioUpdate, onTick, onOrderUpdate }
       console.error('WebSocket error:', error);
     };
 
-    ws.onclose = () => {
-      console.log('WebSocket disconnected');
-    };
+    ws.onclose = () => {};
 
     return ws;
   } catch (err) {

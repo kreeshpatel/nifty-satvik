@@ -15,6 +15,7 @@
  * Cache: 60s stale (per plan §6.1). Refetch on window focus — a returning
  * user sees fresh P&L the moment they tab back in.
  */
+import { untilNextPublish } from '@/lib/schedule';
 import { useQuery } from '@tanstack/react-query';
 import { fetchOverview } from '@/services/api';
 
@@ -27,6 +28,8 @@ export function useOverview(options = {}) {
     staleTime: 60 * 1000,
     gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: true,
+    refetchInterval: () => untilNextPublish(),   // the paper book re-prices at publish (brief §12)
+    refetchIntervalInBackground: false,
     ...options,
   });
 }

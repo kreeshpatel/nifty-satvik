@@ -7,9 +7,9 @@
  * or a claim we can't stand behind.
  */
 import { useParams, Link, Navigate } from 'react-router-dom';
-import brandLogo from '@/assets/brand/nifty-satvik-logo.png';
+import BrandMark from '@/components/brand/BrandMark';
 import { DISCLAIMER } from '@/lib/signalCopy';
-import '@/styles/landing-v2.css';
+import '@/styles/landing-v7.css';
 
 const PAGES = {
   disclaimer: {
@@ -92,40 +92,35 @@ export default function InfoPage() {
   if (!page) return <Navigate to="/" replace />;   // unknown slug → home (same as the catch-all)
 
   return (
-    <div data-page-ctx="landing">
-      <header className="alm-mast">
-        <div className="alm-mast-inner">
-          <Link className="alm-brand" to="/">
-            <span className="alm-brand-mark"><img src={brandLogo} alt="Nifty Satvik" /></span>
-            <span className="alm-brand-name">Nifty Satvik<span>Systematic Signals</span></span>
-          </Link>
-          <Link to="/" className="alm-btn alm-btn-ghost alm-btn-sm">&larr; Back to home</Link>
+    <div className="v7">
+      <a href="#main" className="skip-link">Skip to main content</a>
+      <header className="v7-nav">
+        <div className="v7-wrap v7-nav-in">
+          <Link className="v7-brand" to="/" aria-label="Nifty Satvik home"><BrandMark size={24} /><span>Nifty Satvik</span></Link>
+          <div className="v7-nav-cta" style={{ marginLeft: 'auto' }}>
+            <Link to="/login" className="v7-link">Sign in</Link>
+            <Link to="/" className="pf-btn-2 v7-btn-sm">Home</Link>
+          </div>
         </div>
       </header>
 
-      <section className="alm-section">
-        <div className="alm-wrap" style={{ maxWidth: 760 }}>
-          <div className="tp-eyebrow">{page.kicker}</div>
-          <h1 className="tp-title" style={{ margin: '8px 0 0' }}>{page.title}</h1>
-          <div className="info-prose">
-            {page.body.map((p, i) => <p key={i}>{p}</p>)}
-          </div>
+      <main id="main" className="v7-wrap info7">
+        <nav className="info7-nav" aria-label="Legal and company pages">
+          {Object.entries(PAGES).map(([s, p]) => (
+            <Link key={s} to={`/${s}`} aria-current={s === slug ? 'page' : undefined}>{p.title}</Link>
+          ))}
+        </nav>
+        <article className="info7-body">
+          <p className="v7-eyebrow">{page.kicker}</p>
+          <h1>{page.title}</h1>
+          {page.body.map((para, i) => <p key={i}>{para}</p>)}
+        </article>
+      </main>
 
-          <div className="info-links">
-            {Object.entries(PAGES).map(([s, p]) => (
-              <Link key={s} to={`/${s}`} className={`info-link${s === slug ? ' on' : ''}`}>{p.title}</Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <footer className="alm-foot">
-        <div className="alm-wrap">
-          <div className="alm-foot-rule">
-            <span>© 2026 Nifty Satvik</span>
-            <span>Made in Ahmedabad, India</span>
-          </div>
-          <p className="alm-foot-disc">{DISCLAIMER}</p>
+      <footer className="v7-foot">
+        <div className="v7-wrap">
+          <div className="v7-foot-base"><span>© {new Date().getFullYear()} Nifty Satvik · Made in Ahmedabad, India</span><span>Not SEBI-registered</span></div>
+          <p className="v7-fine">{DISCLAIMER}</p>
         </div>
       </footer>
     </div>
