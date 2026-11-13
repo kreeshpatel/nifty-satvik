@@ -1,5 +1,10 @@
 /* ================================================================
-   NIFTYQUANT DESIGN TOKENS (v3 — Blue Glass on Navy, locked 2026-05-21)
+   NIFTYQUANT DESIGN TOKENS (v4 — Institutional, 2026-11-05; evolves v3 Blue Glass)
+   v4 keeps the v3 palette and roles but quiets it toward Linear / Stripe / Bloomberg:
+   deeper near-neutral ground, glows at ~half strength, tighter radii, solid-leaning
+   glass. Every page inherits it through these tokens; no per-page change needed.
+   ----------------------------------------------------------------
+   (v3 — Blue Glass on Navy, locked 2026-05-21)
    Apple-style blue-glass on deep navy gradient.
 
    Single brand color = blue gradient #2C5BFF → #4F8CFF → #7B5BFF.
@@ -19,18 +24,18 @@
   --brand-grad:       linear-gradient(135deg, #2C5BFF 0%, #4F8CFF 50%, #7B5BFF 100%);
 
   /* ──────────── SURFACES — navy gradient page, glass cards ──────────── */
-  --surface-0:        #07091c;                       /* page base */
-  --surface-1:        rgba(255, 255, 255, 0.04);     /* glass card resting */
+  --surface-0:        #070a16;                       /* page base */
+  --surface-1:        rgba(255, 255, 255, 0.035);     /* glass card resting */
   --surface-2:        rgba(255, 255, 255, 0.07);     /* nested / hover glass */
   --surface-3:        rgba(255, 255, 255, 0.10);     /* input / chip */
-  --surface-modal:    rgba(20, 26, 64, 0.95);        /* modal */
+  --surface-modal:    rgba(14, 19, 40, 0.97);        /* modal */
 
   /* Solid surfaces (for areas where translucent glass can't be used —
      dropdowns, popovers over data tables, etc.) */
-  --surface-solid-0:  #07091c;
-  --surface-solid-1:  #0d1230;
-  --surface-solid-2:  #131a40;
-  --surface-solid-3:  #1a2150;
+  --surface-solid-0:  #070a16;
+  --surface-solid-1:  #0d1126;
+  --surface-solid-2:  #131932;
+  --surface-solid-3:  #1a213f;
 
   /* ──────────── EDGES — cool hairline borders ──────────── */
   --edge-1:           rgba(255, 255, 255, 0.07);
@@ -41,7 +46,7 @@
   /* ──────────── TEXT — cool blue-tinted neutrals ──────────── */
   --text-1:           #F1F5FF;                       /* primary */
   --text-2:           #B8C0DA;                       /* secondary */
-  --text-3:           #7A82A5;                       /* tertiary */
+  --text-3:           #8189AB;                       /* v4: +contrast, 5.6:1 on ground (AA) */                       /* tertiary */
   --text-4:           #4A537A;                       /* disabled, separator */
 
   /* ──────────── SEMANTIC P&L — brighter for navy bg ──────────── */
@@ -104,9 +109,9 @@
   --track-label:      0.09em;                        /* uppercase kickers only */
 
   /* ──────────── RADIUS — larger on glass, capped at 22 ──────────── */
-  --r-chip:           6px;                           /* chips, buttons, inputs */
-  --r-card:           18px;                          /* glass cards */
-  --r-panel:          22px;                          /* drawers, hero cards */
+  --r-chip:           8px;                           /* chips, buttons, inputs */
+  --r-card:           14px;                          /* glass cards */
+  --r-panel:          18px;                          /* drawers, hero cards */
 
   /* ──────────── SHADOW — plain black depth + brand glow on featured ──────────── */
   --shadow-sm:        0 1px 2px rgba(0, 0, 0, 0.25);
@@ -141,13 +146,13 @@
   --ease-bloom:       cubic-bezier(0.16, 1, 0.3, 1);
 
   /* ──────────── GLOW STACK — brand blue glows for featured surfaces ──────────── */
-  --glow-brand-strong: rgba(79, 140, 255, 0.55);
-  --glow-brand:        rgba(79, 140, 255, 0.32);
-  --glow-brand-soft:   rgba(79, 140, 255, 0.18);
-  --glow-brand-whisp:  rgba(79, 140, 255, 0.08);
+  --glow-brand-strong: rgba(79, 140, 255, 0.34);
+  --glow-brand:        rgba(79, 140, 255, 0.18);
+  --glow-brand-soft:   rgba(79, 140, 255, 0.10);
+  --glow-brand-whisp:  rgba(79, 140, 255, 0.05);
 
-  --glow-violet:       rgba(123, 91, 255, 0.32);
-  --glow-violet-soft:  rgba(123, 91, 255, 0.14);
+  --glow-violet:       rgba(123, 91, 255, 0.16);
+  --glow-violet-soft:  rgba(123, 91, 255, 0.07);
 
   --glow-bull:         rgba(63, 221, 138, 0.32);
   --glow-bull-soft:    rgba(63, 221, 138, 0.12);
@@ -199,9 +204,9 @@
 
   /* ──────────── PAGE BACKGROUND — navy gradient with corner glows ──────────── */
   --page-bg:
-    radial-gradient(ellipse 80vw 60vh at 70% -10%, rgba(79, 140, 255, 0.16) 0%, transparent 55%),
-    radial-gradient(ellipse 60vw 40vh at -10% 110%, rgba(123, 91, 255, 0.10) 0%, transparent 55%),
-    linear-gradient(180deg, #0a0e22 0%, #07091c 100%);
+    radial-gradient(ellipse 80vw 60vh at 70% -10%, rgba(79, 140, 255, 0.09) 0%, transparent 55%),
+    radial-gradient(ellipse 60vw 40vh at -10% 110%, rgba(123, 91, 255, 0.05) 0%, transparent 55%),
+    linear-gradient(180deg, #090d1c 0%, #070a16 100%);
 
   /* ──────────── LEGACY COMPAT — remap old vars to new tokens ──────────── */
   --bg-main-v2:               var(--surface-0);
@@ -218,8 +223,8 @@
     --pad-card-lg:  18px;
     --gutter:       12px;
     --gutter-loose: 16px;
-    --r-card:       14px;
-    --r-panel:      16px;
+    --r-card:       12px;
+    --r-panel:      14px;
   }
 }
 

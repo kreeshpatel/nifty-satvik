@@ -643,5 +643,35 @@
     "net_pct": -12.31,
     "net_pnl": -10191.11,
     "hold_days": 10
+  },
+  {
+    "ticker": "SAILIFE",
+    "entry_date": "2026-10-06",
+    "exit_date": "2026-11-09",
+    "entry": 1520.76,
+    "exit": 1862.3,
+    "qty": 68,
+    "days_held": 23,
+    "reason": "target",
+    "return_pct": 22.46,
+    "pnl": 22925.9,
+    "net_pct": 22.46,
+    "net_pnl": 22925.9,
+    "hold_days": 23
+  },
+  {
+    "ticker": "LAURUSLABS",
+    "entry_date": "2026-10-26",
+    "exit_date": "2026-11-09",
+    "entry": 1960.98,
+    "exit": 2401.39,
+    "qty": 41,
+    "days_held": 10,
+    "reason": "target",
+    "return_pct": 22.46,
+    "pnl": 17824.35,
+    "net_pct": 22.46,
+    "net_pnl": 17824.35,
+    "hold_days": 10
   }
 ]

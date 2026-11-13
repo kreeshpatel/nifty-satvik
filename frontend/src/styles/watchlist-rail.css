@@ -16,7 +16,7 @@
   z-index: 20;
 }
 .wlr::-webkit-scrollbar { width: 8px; }
-.wlr::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 8px; }
+.wlr::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 6px; }
 
 /* hidden on tablet/mobile — pages go full-width */
 @media (max-width: 1024px) {
@@ -35,10 +35,10 @@
   width: 28px; height: 28px;
   display: grid; place-items: center;
   border: 1px solid var(--edge-1);
-  border-radius: 8px;
+  border-radius: 6px;
   background: var(--surface-1);
   color: var(--text-2);
-  font-size: 15px; line-height: 1;
+  font-size: 16px; line-height: 1;
   cursor: pointer;
 }
 .wlr-expand:hover,
@@ -46,17 +46,17 @@
 
 .wlr-head {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 2px 6px 10px;
+  padding: 2px 8px 8px;
 }
 .wlr-title {
-  font-size: 13px; font-weight: 700; letter-spacing: 0.02em; color: var(--text-1);
+  font-size: 14px; font-weight: 600; letter-spacing: 0.02em; color: var(--text-1);
 }
 
 /* top-level view tabs — Watchlist · Signals · Held (prototype .rail-tabs) */
 .wlr-viewtabs { display: flex; gap: 16px; align-items: center; }
 .wlr-vtab {
-  background: none; border: 0; padding: 2px 0 7px; cursor: pointer;
-  font-family: var(--font-sans); font-size: 13px; font-weight: 600;
+  background: none; border: 0; padding: 2px 0 8px; cursor: pointer;
+  font-family: var(--font-sans); font-size: 14px; font-weight: 600;
   color: var(--text-3); border-bottom: 2px solid transparent;
   transition: color 160ms, border-color 160ms;
 }
@@ -65,14 +65,14 @@
 
 /* two-list switch — small numbered boxes (1 = seeded core, 2 = user's own) */
 .wlr-tabs {
-  display: flex; gap: 6px; margin: 0 2px 10px;
+  display: flex; gap: 8px; margin: 0 2px 8px;
 }
 .wlr-tab {
   width: 30px; height: 28px; padding: 0; cursor: pointer;
   display: grid; place-items: center;
-  border-radius: 8px; border: 1px solid var(--edge-1);
+  border-radius: 6px; border: 1px solid var(--edge-1);
   background: var(--surface-1);
-  font-family: var(--font-sans); font-size: 12.5px; font-weight: 700;
+  font-family: var(--font-sans); font-size: 12px; font-weight: 600;
   color: var(--text-3);
   transition: background-color 160ms, border-color 160ms, color 160ms, box-shadow 160ms, transform 160ms, opacity 160ms;
 }
@@ -87,13 +87,13 @@
 .wlr-searchwrap { position: relative; margin: 0 2px 8px; }
 .wlr-search {
   display: flex; align-items: center; gap: 8px;
-  padding: 8px 11px; border-radius: 9px;
+  padding: 8px 12px; border-radius: 6px;
   background: var(--surface-1); border: 1px solid var(--edge-1);
 }
 .wlr-search svg { width: 14px; height: 14px; stroke: var(--text-3); fill: none; stroke-width: 2; flex-shrink: 0; }
 .wlr-search input {
   flex: 1; min-width: 0; background: none; border: none; outline: none;
-  color: var(--text-2); font-size: 12.5px; font-family: inherit;
+  color: var(--text-2); font-size: 12px; font-family: inherit;
 }
 .wlr-clear { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 12px; padding: 0 2px; }
 
@@ -101,24 +101,24 @@
   position: absolute; left: 0; right: 0; top: calc(100% + 5px); z-index: 45;
   max-height: 340px; overflow-y: auto;
   background: var(--surface-solid-1, #0d1230);
-  border: 1px solid var(--edge-2); border-radius: 12px;
+  border: 1px solid var(--edge-2); border-radius: 6px;
   box-shadow: var(--shadow-glass-lg, 0 14px 40px rgba(0,0,0,0.4)); padding: 4px;
 }
 .wlr-sr {
-  display: flex; align-items: center; gap: 10px;
-  padding: 8px 10px; border-radius: 8px; cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 8px; border-radius: 6px; cursor: pointer;
 }
 .wlr-sr:hover { background: var(--surface-2); }
 .wlr-sr-l { flex: 1; min-width: 0; }
-.wlr-sr-s { font-size: 12.5px; font-weight: 600; color: var(--text-1); }
+.wlr-sr-s { font-size: 12px; font-weight: 600; color: var(--text-1); }
 .wlr-sr-e {
-  font-size: 10px; color: var(--text-3); margin-top: 1px;
+  font-size: 12px; color: var(--text-3); margin-top: 1px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .wlr-empty-sm { padding: 12px; font-size: 12px; color: var(--text-3); text-align: center; }
 .wlr-bm {
   width: 28px; height: 28px; flex-shrink: 0; cursor: pointer;
-  display: grid; place-items: center; border-radius: 7px;
+  display: grid; place-items: center; border-radius: 6px;
   border: 1px solid var(--edge-1); background: var(--surface-1);
 }
 .wlr-bm svg { width: 14px; height: 14px; stroke: var(--text-3); fill: none; stroke-width: 2; }
@@ -127,36 +127,36 @@
 
 /* empty state */
 .wlr-empty {
-  padding: 28px 14px; text-align: center; color: var(--text-2);
-  font-size: 13px; line-height: 1.5;
+  padding: 28px 16px; text-align: center; color: var(--text-2);
+  font-size: 14px; line-height: 1.5;
 }
-.wlr-empty span { display: block; margin-top: 6px; color: var(--text-3); font-size: 12px; }
+.wlr-empty span { display: block; margin-top: 8px; color: var(--text-3); font-size: 12px; }
 
 /* rows */
 .wlr-list { display: flex; flex-direction: column; }
 .wlr-row {
   position: relative;
-  display: flex; align-items: center; gap: 9px;
-  padding: 9px 10px; border-radius: 8px; cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 8px; border-radius: 6px; cursor: pointer;
   transition: background 130ms ease;
 }
 .wlr-row:hover { background: var(--surface-1); }
 .wlr-l { min-width: 0; flex: 1; }
-.wlr-s { font-size: 12.5px; font-weight: 600; color: var(--text-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.wlr-flag { display: inline-block; width: 5px; height: 5px; border-radius: 50%; margin-left: 6px; vertical-align: middle; }
-.wlr-e { font-size: 10px; color: var(--text-3); margin-top: 1px; }
+.wlr-s { font-size: 12px; font-weight: 600; color: var(--text-1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wlr-flag { display: inline-block; width: 5px; height: 5px; border-radius: 50%; margin-left: 8px; vertical-align: middle; }
+.wlr-e { font-size: 12px; color: var(--text-3); margin-top: 1px; }
 .wlr-r { text-align: right; flex-shrink: 0; }
-.wlr-p { font-size: 12.5px; font-weight: 600; color: var(--text-1); }
-.wlr-c { font-size: 10.5px; font-weight: 600; margin-top: 1px; }
+.wlr-p { font-size: 12px; font-weight: 600; color: var(--text-1); }
+.wlr-c { font-size: 12px; font-weight: 600; margin-top: 1px; }
 
 /* hover actions replace the price block */
-.wlr-actions { display: none; align-items: center; gap: 3px; flex-shrink: 0; }
+.wlr-actions { display: none; align-items: center; gap: 4px; flex-shrink: 0; }
 .wlr-row:hover .wlr-actions { display: flex; }
 .wlr-row:hover .wlr-r { display: none; }
 .wla {
   width: 23px; height: 23px; border-radius: 6px;
   display: grid; place-items: center;
-  font-size: 11.5px; font-weight: 800; cursor: pointer;
+  font-size: 12px; font-weight: 600; cursor: pointer;
   background: var(--surface-2); border: 1px solid var(--edge-1); color: var(--text-2);
 }
 .wla:hover { background: var(--surface-3); }
@@ -168,16 +168,16 @@
 .wla.s:hover { background: var(--bear-soft); }
 
 /* inline depth ladder */
-.wlr-depth { padding: 6px 10px 10px; margin: -2px 2px 4px; border-radius: 8px; background: rgba(255,255,255,0.02); }
+.wlr-depth { padding: 8px 8px 8px; margin: -2px 2px 4px; border-radius: 6px; background: rgba(255,255,255,0.02); }
 .wlr-depth-h, .wlr-depth-r { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 2px; }
 .wlr-depth-h {
-  font-size: 9px; text-transform: uppercase; letter-spacing: 0.03em;
+  font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em;
   color: var(--text-4); font-weight: 600; padding: 0 2px 4px;
 }
 .wlr-depth-h span:nth-child(3), .wlr-depth-h span:nth-child(4) { text-align: right; }
-.wlr-depth-r { font-size: 10.5px; font-weight: 600; padding: 2px; }
+.wlr-depth-r { font-size: 12px; font-weight: 600; padding: 2px; }
 .wlr-depth-r .q { color: var(--text-2); }
 .wlr-depth-r .bp { color: var(--bull); }
 .wlr-depth-r .sp { color: var(--bear); text-align: right; }
 .wlr-depth-r .q.r { text-align: right; }
-.wlr-depth-empty { font-size: 11px; color: var(--text-3); text-align: center; padding: 8px; }
+.wlr-depth-empty { font-size: 12px; color: var(--text-3); text-align: center; padding: 8px; }

@@ -89,7 +89,13 @@ if not os.getenv("GITHUB_TOKEN"):
 
 
 from ratelimit import limiter  # keyed on the real client IP behind Fly (netutil.client_ip)
-app = FastAPI(title="NiftyQuant Dashboard", version="2.0.0")
+# Interactive API docs are a map of every endpoint for an attacker; serve them only in dev.
+app = FastAPI(
+    title="NiftyQuant Dashboard", version="2.0.0",
+    docs_url=None if _IS_PRODUCTION else "/docs",
+    redoc_url=None if _IS_PRODUCTION else "/redoc",
+    openapi_url=None if _IS_PRODUCTION else "/openapi.json",
+)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, lambda req, exc: JSONResponse(
     status_code=429, content={"detail": "Too many requests. Please slow down."}
@@ -151,32 +157,41 @@ app.add_middleware(
 
 # ── Security Headers Middleware ───────────────────────
 
-# CSP for backend-served HTML (FastAPI /docs, /redoc, /). The SPA is hosted
-# on Vercel — the *real* CSP for the dashboard is set in frontend/vercel.json.
-# Running in Report-Only mode for one week so we can observe violations
-# (especially Recharts inline-style violations) before promoting to enforcing.
-_CSP_REPORT_ONLY = (
+# CSP for backend-served HTML (/terminal static page; /docs in dev only). The SPA is hosted
+# on Vercel — its CSP lives in frontend/vercel.json. ENFORCED in production: no inline
+# script anywhere, so an injected <script> cannot run. Dev keeps 'unsafe-inline' because
+# FastAPI's /docs page is built from inline scripts and is only served in dev.
+_CSP = (
     "default-src 'self'; "
-    "script-src 'self' 'unsafe-inline'; "  # FastAPI /docs needs inline scripts
-    "style-src 'self' 'unsafe-inline'; "
+    + ("script-src 'self'; " if _IS_PRODUCTION else "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; ")
+    + "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; "
+    "font-src 'self' https://fonts.gstatic.com data:; "
     "img-src 'self' data: https:; "
     "connect-src 'self'; "
     "frame-ancestors 'none'; "
     "base-uri 'self'; "
-    "form-action 'self'"
+    "form-action 'self'; "
+    "object-src 'none'"
 )
 
 
 @app.middleware("http")
 async def security_headers(request: Request, call_next):
     response = await call_next(request)
-    response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["X-Frame-Options"] = "DENY"
-    response.headers["X-XSS-Protection"] = "1; mode=block"
-    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
-    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
-    response.headers["Content-Security-Policy-Report-Only"] = _CSP_REPORT_ONLY
+    h = response.headers
+    h["X-Content-Type-Options"] = "nosniff"
+    h["X-Frame-Options"] = "DENY"
+    # X-XSS-Protection is deprecated and can introduce XSS in old engines; "0" is the
+    # OWASP-recommended value now that CSP does the job.
+    h["X-XSS-Protection"] = "0"
+    h["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    h["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    h["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+    h["Cross-Origin-Opener-Policy"] = "same-origin"
+    h["Content-Security-Policy"] = _CSP
+    # Authenticated JSON must never sit in a shared cache.
+    if request.url.path.startswith("/api/") and "cache-control" not in h:
+        h["Cache-Control"] = "no-store"
     return response
 
 

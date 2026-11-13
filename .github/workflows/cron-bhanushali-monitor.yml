@@ -63,6 +63,12 @@ jobs:
         # results/forward_accum_health.json stops appearing in the daily commit.
         run: python scripts/run_forward_accumulators.py
           || echo "::warning::forward accumulators FAILED (exit $?) — health file will go stale; output contract will flag it"
+      # Owner request 2026-11-13: print stop hit, +2R reached, the next exit, fill, distance to stop and
+      # the buy window for every open trade and buy card, on the run page, until This Week shows them
+      # again (PR #181). Read-only and non-blocking.
+      - name: Print trade status (open trades and buy cards)
+        continue-on-error: true
+        run: python scripts/print_trade_status.py
       - name: Commit monitor state
         run: |
           # Author with the owner's GitHub-matched email so Vercel (auto-deploys main) doesn't

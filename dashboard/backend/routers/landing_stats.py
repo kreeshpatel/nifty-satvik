@@ -81,9 +81,12 @@ WEEKLY_SWING_TRACK = {
              "Sharpe 1.13, DSR 0.894 (not certified); before 20% STCG; no real capital has traded",
 }
 
-# Net calendar-year returns of baseline_v1, reproduced from the pinned equity curve
-# (research/exports/daily_returns.csv, equity_net year-end over year-end; dataset-pin-20260701).
-# NET = after brokerage/STT/slippage + 20% STCG. These are frozen, published research
+# DEPRECATED (audit 2026-11-12, docs/DATA_MAP.md): this comment used to say these are baseline_v1
+# returns from research/exports/daily_returns.csv after STCG. They are not — baseline_v1's file
+# gives 2018 -4.7% where this says +11.6%; the values follow the 0094 curve's shape but differ from
+# it by up to ~7pp and cannot be reproduced without the pinned price data. Kept in the payload for
+# old clients only; the website now shows `yearly_r` (exact, from the committed trade export).
+# Original note: NET = after brokerage/STT/slippage + 20% STCG. These are frozen, published research
 # results — aggregate performance only, no signal/parameter — so they live as constants like
 # BASELINE_V1. 2017 (Sep inception) and 2026 (through Jun) are PARTIAL years, flagged so the
 # chart can mark them. The shape is deliberately honest: two strong-trend years carry the
@@ -219,6 +222,17 @@ def _weekly_swing_block() -> dict | None:
         return None
 
 
+def _yearly_r() -> list[dict]:
+    """Per-exit-year trades / win rate / total R from the committed 0094 trade export — the same
+    helper /backtest/bhanushali uses, so the two pages publish identical year-by-year figures."""
+    try:
+        from routers.backtest import _load_bhanushali_trades, yearly_breakdown
+        return yearly_breakdown(_load_bhanushali_trades())
+    except Exception as e:  # never break the public landing payload over this block
+        logger.warning("landing yearly_r unavailable: %s", e)
+        return []
+
+
 def _compute_stats() -> dict:
     """
     Read trade_log.csv from GitHub and compute aggregate stats.
@@ -250,7 +264,8 @@ def _compute_stats() -> dict:
         "closed_signals_recent": [],
         "sector_heatmap_30d": [],
         "backtest": dict(WEEKLY_SWING_TRACK),   # the marketed weekly-swing book (0094) — the record shown
-        "yearly_returns": list(YEARLY_RETURNS),   # net calendar-year bars — frozen
+        "yearly_returns": list(YEARLY_RETURNS),   # DEPRECATED — unverifiable, see the comment on YEARLY_RETURNS
+        "yearly_r": _yearly_r(),                  # exact, from the committed 0094 trade export
         "equity_bt": list(EQUITY_CURVE_BT),       # growth-of-100 strategy vs Nifty500 — frozen
         "live": None,
         "weekly_swing": None,

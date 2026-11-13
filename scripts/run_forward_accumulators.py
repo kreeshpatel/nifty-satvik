@@ -146,7 +146,8 @@ def main() -> int:
             h["last_fetch_ts"] = fetch_ts
             h["rows_added_last_run"] = added
             ldd = h.get("last_data_date")
-            stale = bool(ldd and len(pd.bdate_range(ldd, pd.Timestamp.today())) - 1 > STALE_SESSIONS)
+            from nq.data.trading_calendar import sessions_between, today_ist
+            stale = bool(ldd and len(sessions_between(ldd, today_ist(), regular=True)) > STALE_SESSIONS)
             h["stale"] = stale
             health[name] = h
             flag = "  *** STALENESS ALARM ***" if stale else ""

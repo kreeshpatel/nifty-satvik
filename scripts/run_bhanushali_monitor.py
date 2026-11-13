@@ -406,6 +406,8 @@ def _refresh(tickers: list[str], do_download: bool) -> dict:
     try:
         fresh = download_ohlcv(tickers, start=dl_start, end=date.today().isoformat())
         ohlcv = merge_ohlcv(ohlcv, fresh) if ohlcv else fresh
+        from nq.data.trading_calendar import filter_ohlcv_non_session
+        ohlcv, _ = filter_ohlcv_non_session(ohlcv, label="monitor")   # ingest guard (2026-09-14 incident)
         save_ohlcv_cache(ohlcv, OHLCV_CACHE)
         print(f"refreshed {len(fresh)}/{len(tickers)} tickers from {dl_start}", flush=True)
     except Exception as exc:  # noqa: BLE001 — never lose the cache over a fetch hiccup

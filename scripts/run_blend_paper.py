@@ -33,6 +33,7 @@ from nq.data.fundamentals import load_fund_store  # noqa: E402
 from nq.data.membership import load_membership  # noqa: E402
 from nq.data.ohlcv import OHLCV_CACHE, load_ohlcv_cache  # noqa: E402
 from nq.engine.panel import compose_ranked_panel  # noqa: E402
+from nq.data.trading_calendar import is_regular_session, today_ist  # noqa: E402
 from nq.runner.research import run_backtest  # noqa: E402
 
 OUT = RESULTS_DIR / "blend_hybrid_paper.json"
@@ -50,7 +51,7 @@ def _lowvol_nav(start: str) -> pd.Series:
                     for t, g in ohlcv.items()], ignore_index=True)
     lv = panel.merge(rv, on=["date", "ticker"], how="left").copy()
     lv["trend_rank"] = (-lv["rvol"]).groupby(lv["date"]).rank(pct=True)
-    return run_backtest(lv, cfg, start=start, end=str(pd.Timestamp.today().date()))["equity_curve"]
+    return run_backtest(lv, cfg, start=start, end=str(today_ist()))["equity_curve"]
 
 
 def _curve_to_series(curve) -> pd.Series:
@@ -87,6 +88,14 @@ def main() -> int:
     if len(lvnav):
         lvnav = lvnav[lvnav.index >= pd.Timestamp(args.start)]
     swing.index = pd.to_datetime(swing.index)
+    # REGULAR sessions only, on BOTH legs, before they are intersected. A weekend special session (Diwali
+    # Muhurat Sunday 2026-11-08: Yahoo serves a real bar, the scan's as-of becomes that Sunday) can land in
+    # one leg's NAV and not the other; the blend then silently stops at the last session both share. Doing
+    # the cut explicitly makes the blend's as-of the last REGULAR session on purpose, which is also what
+    # scripts/check_weekly_loggers.py now requires of it.
+    swing = swing[[is_regular_session(d) for d in swing.index]]
+    if len(lvnav):
+        lvnav = lvnav[[is_regular_session(d) for d in lvnav.index]]
 
     idx = (swing.index.intersection(lvnav.index) if (len(swing) and len(lvnav))
            else pd.DatetimeIndex([]))

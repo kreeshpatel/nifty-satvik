@@ -37,12 +37,12 @@ export function GlassTabs({
       role="tablist"
       onKeyDown={onKeyDown}
       className={cn(
-        'inline-flex items-center gap-1 p-1 rounded-full',
+        'inline-flex items-center gap-0 p-0 rounded',
         className
       )}
       style={{
-        background: 'rgba(255, 255, 255, 0.035)',
-        border: '1px solid rgba(255, 255, 255, 0.05)',
+        background: 'transparent',
+        border: '1px solid var(--n4)',   /* v7 segmented control: ruled, no pill (brief §10) */
       }}
     >
       {normalized.map(({ key, label }) => {
@@ -55,19 +55,19 @@ export function GlassTabs({
             tabIndex={isActive ? 0 : -1}
             onClick={() => onChange(key)}
             className={cn(
-              'relative rounded-full font-semibold transition-colors duration-200 whitespace-nowrap',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#22DD88]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0F172A]',
+              'relative rounded-none font-medium transition-colors duration-200 whitespace-nowrap',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F0B429] focus-visible:ring-offset-0',
               'inline-flex items-center',
               sizing,
-              isActive ? 'text-[#0F172A]' : 'text-nq-text-muted hover:text-nq-text-primary'
+              isActive ? 'text-[#E6E9EE]' : 'text-[#7A8494] hover:text-[#E6E9EE]'
             )}
           >
             {isActive && (
               <motion.span
                 layoutId={layoutId}
-                className="absolute inset-0 rounded-full"
+                className="absolute inset-0"
                 style={{
-                  background: '#22DD88',
+                  background: 'var(--n3)', boxShadow: 'inset 0 -2px 0 var(--acc)',
                 }}
                 transition={{
                   type: 'spring',

@@ -45,3 +45,27 @@ def test_one_step_ladder_equals_single_ratchet(world):
 
 def test_ladder_changes_something(world):
     assert _run(world, lockin_ladder=((1.0, 0.0), (2.0, 1.0))) != _run(world)
+
+
+# ratchet_peak (2026-11-13): arm the ratchets from the week's full high, not week-end-session highs
+def test_ratchet_peak_absent_or_default_is_byte_identical(world):
+    base = _run(world, lockin_mfe=1.0, lockin_at=0.0)
+    assert base == _run(world, lockin_mfe=1.0, lockin_at=0.0, ratchet_peak="week_end")
+
+
+def test_ratchet_peak_alone_changes_nothing(world):
+    """With no ratchet configured the peak definition is never read."""
+    assert _run(world, ratchet_peak="week_high") == _run(world)
+
+
+def test_week_high_peak_arms_at_least_as_often(world):
+    """The week's high is >= its last session's high, so the ratchet fires at least as often (by event count)."""
+    R94, P, kw, live_exit = world
+
+    def fired(**se):
+        ev: list = []
+        R94.backtest(P, None, ledger=[], event_log=ev, **kw,
+                     **{**live_exit, "scaled_exit": {**live_exit["scaled_exit"], **se}})
+        return sum(1 for e in ev if e.get("event_type") == "stop_ratchet")
+
+    assert fired(lockin_mfe=1.0, lockin_at=0.0, ratchet_peak="week_high") >= fired(lockin_mfe=1.0, lockin_at=0.0) > 0

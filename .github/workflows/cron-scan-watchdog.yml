@@ -1,0 +1,33 @@
+name: cron-scan-watchdog
+
+# Safety net for cron-bhanushali-scanner. If the latest completed trading week's scan is not published
+# (results/signals_today_weekly.json generated_at < that week's last NSE session), re-dispatch the scanner.
+# Bounded: scripts/scan_watchdog.py allows at most 2 dispatched scanner runs per week and never dispatches
+# while one is queued/running, so it cannot loop. Read-only on the repo; only needs actions: write.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 3 * * 0-5"      # Sun-Fri 03:30 UTC (09:00 IST), before NSE open at 03:45 UTC
+    - cron: "0 15 * * 0"        # Sunday 15:00 UTC: after a Diwali Muhurat Sunday session
+
+concurrency:
+  group: cron-scan-watchdog
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  watchdog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Decide and, if the week is unpublished, re-dispatch the scanner
+        run: python scripts/scan_watchdog.py
