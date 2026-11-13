@@ -11,7 +11,7 @@
  *   6. Danger zone     — bear tone, sign-out as a text link
  */
 import React, { useContext, useEffect, useState } from 'react';
-import { LogOut, User as UserIcon, Plug, Bell, Palette, ShieldCheck, Loader2 } from 'lucide-react';
+import { LogOut, User as UserIcon, Plug, Bell, Palette, ShieldCheck, Loader2, Settings2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { QRCodeSVG } from 'qrcode.react';
 import { PageShell } from '@/components/shared/PageShell';
@@ -44,11 +44,11 @@ export default function SettingsV2() {
   return (
     <PageShell title="Settings" heroTone={null}>
       <div style={{ paddingTop: 24, paddingBottom: 24 }}>
-        <h1 className="t-title-1" style={{ margin: 0, fontSize: 28, fontWeight: 600, color: 'var(--text-1)' }}>Settings</h1>
+        <div className="pg-head"><span className="pf-ic" aria-hidden="true"><Settings2 /></span><h1 className="t-title-1" style={{ margin: 0, color: 'var(--text-1)' }}>Settings</h1></div>
       </div>
 
       {/* 2-Col Layout: 200px sidebar | flex-1 form — stacks on mobile */}
-      <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: 22 }} className="settings-layout">
+      <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: 24 }} className="settings-layout">
 
         {/* LEFT: Sidebar nav — horizontal scroll on mobile */}
         <nav className="settings-nav" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -65,12 +65,12 @@ export default function SettingsV2() {
               className="settings-tab-btn"
               style={{
                 textAlign: 'left',
-                padding: '10px 14px',
+                padding: '8px 16px',
                 background: activeTab === tab.id ? 'var(--brand-soft)' : 'transparent',
                 color: activeTab === tab.id ? 'var(--text-1)' : 'var(--text-3)',
                 border: activeTab === tab.id ? '1px solid var(--brand-edge)' : 'none',
-                borderRadius: 8,
-                fontSize: 13,
+                borderRadius: 6,
+                fontSize: 14,
                 fontWeight: activeTab === tab.id ? 500 : 400,
                 cursor: 'pointer',
                 transition: 'all 120ms',
@@ -84,21 +84,21 @@ export default function SettingsV2() {
 
         {/* RIGHT: Form panel — glass card */}
         <div style={{
-          background: 'rgba(255,255,255,0.04)',
+          background: 'var(--n1)',
           border: '1px solid var(--edge-1)',
-          borderRadius: 18,
-          padding: 26,
+          borderRadius: 'var(--r2)',
+          padding: 24,
         }}>
 
           {/* ACCOUNT */}
           {activeTab === 'account' && (
             <div>
-              <h2 style={{ fontSize: 18, fontWeight: 600, color: 'var(--text-1)', margin: '0 0 22px' }}>Account</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: 'var(--text-1)', margin: '0 0 24px' }}>Account</h2>
               <div style={{ display: 'grid', gap: 16, maxWidth: 480 }}>
                 <FormField label="Name" value={user?.name || '—'} disabled />
                 <FormField label="Email" value={user?.email || '—'} disabled />
                 <FormField label="Role" value={user?.is_admin ? 'ADMIN' : 'MEMBER'} disabled />
-                <div style={{ color: 'var(--text-3)', fontSize: 12, marginTop: 6 }}>
+                <div style={{ color: 'var(--text-3)', fontSize: 12, marginTop: 8 }}>
                   Profile fields are read-only. Email and name changes require admin support — drop a note via Settings → Notifications.
                 </div>
               </div>
@@ -108,8 +108,8 @@ export default function SettingsV2() {
           {/* NOTIFICATIONS */}
           {activeTab === 'notifications' && (
             <div>
-              <h2 style={{ fontSize: 18, fontWeight: 600, color: 'var(--text-1)', margin: '0 0 22px' }}>Notifications</h2>
-              <div style={{ display: 'grid', gap: 14 }}>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: 'var(--text-1)', margin: '0 0 24px' }}>Notifications</h2>
+              <div style={{ display: 'grid', gap: 16 }}>
                 <NotifToggleField
                   label="Signal fired"
                   description="Email me when a fresh signal lands after the 4:15 PM IST scan."
@@ -132,7 +132,7 @@ export default function SettingsV2() {
               <div style={{
                 color: 'var(--text-3)',
                 fontSize: 12,
-                marginTop: 14,
+                marginTop: 16,
                 paddingTop: 12,
                 borderTop: '1px solid var(--edge-1)',
               }}>
@@ -149,7 +149,7 @@ export default function SettingsV2() {
           {/* SECURITY */}
           {activeTab === 'security' && (
             <div>
-              <h2 style={{ fontSize: 18, fontWeight: 600, color: 'var(--text-1)', margin: '0 0 22px' }}>Security</h2>
+              <h2 style={{ fontSize: 20, fontWeight: 600, color: 'var(--text-1)', margin: '0 0 24px' }}>Security</h2>
               <MfaPanel />
             </div>
           )}
@@ -159,7 +159,7 @@ export default function SettingsV2() {
 
       {/* Danger zone — sign out */}
       <div style={{ marginTop: 32 }}>
-        <h2 className="t-title-2 flex items-baseline" style={{ margin: 0, color: 'var(--text-1)', fontSize: 18, fontWeight: 600 }}>
+        <h2 className="t-title-2 flex items-baseline" style={{ margin: 0, color: 'var(--text-1)', fontSize: 20, fontWeight: 600 }}>
           <span
             aria-hidden="true"
             style={{
@@ -184,7 +184,7 @@ export default function SettingsV2() {
             onClick={logout}
             className="t-ui-callout inline-flex items-center"
             style={{
-              gap: 6,
+              gap: 8,
               background: 'transparent',
               border: 'none',
               color: 'var(--bear)',
@@ -194,7 +194,7 @@ export default function SettingsV2() {
               textDecoration: 'underline',
               textUnderlineOffset: 3,
               textDecorationColor: 'oklch(66% 0.21 25 / 0.4)',
-              fontSize: 13,
+              fontSize: 14,
             }}
           >
             <LogOut size={13} strokeWidth={1.75} />
@@ -279,14 +279,14 @@ function MfaPanel() {
 
   if (status.enabled === null) {
     return (
-      <div className="t-ui-footnote" style={{ padding: '14px 20px', color: 'var(--text-3)' }}>
+      <div className="t-ui-footnote" style={{ padding: '16px 20px', color: 'var(--text-3)' }}>
         Loading…
       </div>
     );
   }
 
   return (
-    <div style={{ padding: '14px 20px' }}>
+    <div style={{ padding: '16px 20px' }}>
       <div className="flex items-center justify-between" style={{ marginBottom: status.enabled || mode === 'idle' ? 12 : 0, gap: 12 }}>
         <span className="t-ui-callout" style={{ color: 'var(--text-3)' }}>Two-factor auth</span>
         {status.enabled
@@ -302,7 +302,7 @@ function MfaPanel() {
           disabled={busy}
           className="t-ui-callout"
           style={{
-            padding: '9px 16px',
+            padding: '8px 16px',
             background: 'transparent',
             color: 'var(--brand-hi)',
             border: '1px solid var(--brand-edge)',
@@ -320,7 +320,7 @@ function MfaPanel() {
           onClick={() => setMode('disabling')}
           className="t-ui-callout"
           style={{
-            padding: '9px 16px',
+            padding: '8px 16px',
             background: 'transparent',
             color: 'var(--text-2)',
             border: '1px solid var(--edge-2)',
@@ -342,24 +342,24 @@ function MfaPanel() {
             background: 'var(--surface-2)',
             border: '1px solid var(--edge-1)',
             borderRadius: 'var(--r-card)',
-            display: 'flex', flexDirection: 'column', gap: 14,
+            display: 'flex', flexDirection: 'column', gap: 16,
           }}
         >
           <div className="t-ui-body" style={{ color: 'var(--text-2)' }}>
             Scan this QR code with Google Authenticator, Authy, or 1Password, then enter the 6-digit code below to confirm.
           </div>
           <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-            <div style={{ background: '#fff', padding: 10, borderRadius: 8, lineHeight: 0 }}>
+            <div style={{ background: '#fff', padding: 8, borderRadius: 6, lineHeight: 0 }}>
               <QRCodeSVG value={setupData.otpauth_uri} size={148} level="M" />
             </div>
             <div style={{ minWidth: 0, flex: 1 }}>
-              <div className="t-ui-micro" style={{ color: 'var(--text-3)', marginBottom: 6 }}>
+              <div className="t-ui-micro" style={{ color: 'var(--text-3)', marginBottom: 8 }}>
                 Or enter manually
               </div>
               <code
                 className="t-num-body"
                 style={{
-                  display: 'block', padding: '6px 10px',
+                  display: 'block', padding: '8px 8px',
                   background: 'var(--surface-3)', borderRadius: 'var(--r-chip)',
                   wordBreak: 'break-all',
                   border: '1px solid var(--edge-1)',
@@ -380,7 +380,7 @@ function MfaPanel() {
             value={verifyCode}
             onChange={(e) => setVerifyCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
             style={{
-              padding: '10px 14px', fontSize: 16,
+              padding: '8px 16px', fontSize: 16,
               background: 'var(--surface-3)',
               border: '1px solid var(--edge-1)',
               color: 'var(--text-1)',
@@ -396,13 +396,13 @@ function MfaPanel() {
               disabled={busy || verifyCode.length !== 6}
               className="t-ui-callout"
               style={{
-                padding: '9px 16px',
+                padding: '8px 16px',
                 background: 'var(--brand)', color: 'var(--brand-fg)',
                 border: 'none', borderRadius: 'var(--r-chip)',
                 fontWeight: 600,
                 cursor: busy ? 'not-allowed' : 'pointer',
                 opacity: busy || verifyCode.length !== 6 ? 0.6 : 1,
-                display: 'inline-flex', alignItems: 'center', gap: 6,
+                display: 'inline-flex', alignItems: 'center', gap: 8,
               }}
             >
               {busy && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
@@ -414,7 +414,7 @@ function MfaPanel() {
               disabled={busy}
               className="t-ui-callout"
               style={{
-                padding: '9px 16px',
+                padding: '8px 16px',
                 background: 'transparent', color: 'var(--text-2)',
                 border: '1px solid var(--edge-1)', borderRadius: 'var(--r-chip)',
                 fontWeight: 500, cursor: 'pointer',
@@ -450,7 +450,7 @@ function MfaPanel() {
             onChange={(e) => setDisablePassword(e.target.value)}
             className="t-ui-body"
             style={{
-              padding: '10px 14px',
+              padding: '8px 16px',
               background: 'var(--surface-3)',
               border: '1px solid var(--edge-1)',
               color: 'var(--text-1)',
@@ -465,7 +465,7 @@ function MfaPanel() {
               disabled={busy || !disablePassword}
               className="t-ui-callout"
               style={{
-                padding: '9px 16px',
+                padding: '8px 16px',
                 background: 'transparent', color: 'var(--bear)',
                 border: '1px solid var(--bear)', borderRadius: 'var(--r-chip)',
                 fontWeight: 600,
@@ -481,7 +481,7 @@ function MfaPanel() {
               disabled={busy}
               className="t-ui-callout"
               style={{
-                padding: '9px 16px',
+                padding: '8px 16px',
                 background: 'transparent', color: 'var(--text-2)',
                 border: '1px solid var(--edge-1)', borderRadius: 'var(--r-chip)',
                 fontWeight: 500, cursor: 'pointer',
@@ -501,6 +501,8 @@ function MfaPanel() {
 // ══════════════════════════════════════════════════════════════
 
 function FormField({ label, value, defaultValue, disabled, onChange }) {
+  // label ↔ input association so screen readers name the field (final-pass a11y sweep)
+  const fid = `ff-${String(label).toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
   // Two modes: controlled (parent passes value + onChange) vs uncontrolled
   // (use defaultValue + internal state). Read-only profile fields use
   // controlled mode with no onChange; Risk caps uses controlled mode with
@@ -514,17 +516,18 @@ function FormField({ label, value, defaultValue, disabled, onChange }) {
   };
   return (
     <div>
-      <label style={{
+      <label htmlFor={fid} style={{
         fontFamily: 'var(--font-mono)',
-        fontSize: 10,
+        fontSize: 12,
         letterSpacing: '0.1em',
         textTransform: 'uppercase',
         color: 'var(--text-3)',
         display: 'block',
-        marginBottom: 6,
+        marginBottom: 8,
         fontWeight: 600,
       }}>{label}</label>
       <input
+        id={fid}
         type="text"
         value={val}
         onChange={handleChange}
@@ -535,7 +538,7 @@ function FormField({ label, value, defaultValue, disabled, onChange }) {
           padding: '0 12px',
           background: 'rgba(255,255,255,0.04)',
           border: '1px solid var(--edge-1)',
-          borderRadius: 10,
+          borderRadius: 6,
           color: 'var(--text-1)',
           fontSize: 14,
           fontFamily: 'inherit',
@@ -554,11 +557,11 @@ function NotifToggleField({ label, description, checked, onChange }) {
       justifyContent: 'space-between',
       alignItems: 'flex-start',
       gap: 12,
-      paddingBottom: 14,
+      paddingBottom: 16,
       borderBottom: '1px solid var(--edge-1)',
     }}>
       <div>
-        <div style={{ color: 'var(--text-1)', fontSize: 13, fontWeight: 500 }}>{label}</div>
+        <div style={{ color: 'var(--text-1)', fontSize: 14, fontWeight: 500 }}>{label}</div>
         {description && (
           <p style={{ color: 'var(--text-3)', margin: '4px 0 0', maxWidth: '60ch', fontSize: 12 }}>
             {description}
@@ -581,7 +584,7 @@ function Toggle({ checked, onChange }) {
         position: 'relative',
         width: 40,
         height: 22,
-        borderRadius: 9999,
+        borderRadius: 4,
         background: checked ? 'var(--brand)' : 'var(--surface-3)',
         border: `1px solid ${checked ? 'var(--brand)' : 'var(--edge-1)'}`,
         cursor: 'pointer',
@@ -597,7 +600,7 @@ function Toggle({ checked, onChange }) {
           left: checked ? 20 : 2,
           width: 16,
           height: 16,
-          borderRadius: 9999,
+          borderRadius: 4,
           background: checked ? 'var(--brand-fg)' : 'var(--text-2)',
           transition: 'left var(--dur-hover) var(--ease-out-cubic)',
         }}
@@ -644,12 +647,12 @@ function RiskCapsPanel() {
 
   return (
     <div>
-      <h2 style={{ fontSize: 18, fontWeight: 600, color: 'var(--text-1)', margin: '0 0 22px' }}>Risk caps</h2>
+      <h2 style={{ fontSize: 20, fontWeight: 600, color: 'var(--text-1)', margin: '0 0 24px' }}>Risk caps</h2>
       <div style={{ display: 'grid', gap: 16, maxWidth: 480 }}>
         <FormField label="Max position %" value={draft.maxPositionPct} onChange={onField('maxPositionPct')} />
         <FormField label="Max sector exposure %" value={draft.maxSectorPct} onChange={onField('maxSectorPct')} />
         <FormField label="Daily loss limit %" value={draft.dailyLossPct} onChange={onField('dailyLossPct')} />
-        <div style={{ display: 'flex', gap: 10, marginTop: 6 }}>
+        <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
           <button
             type="button"
             onClick={handleSave}
@@ -658,9 +661,9 @@ function RiskCapsPanel() {
               background: 'var(--brand-grad)',
               color: 'white',
               border: 'none',
-              padding: '10px 22px',
-              borderRadius: 999,
-              fontSize: 13,
+              padding: '8px 24px',
+              borderRadius: 4,
+              fontSize: 14,
               fontWeight: 600,
               boxShadow: '0 6px 18px rgba(79,140,255,0.4)',
               cursor: dirty ? 'pointer' : 'not-allowed',
@@ -677,9 +680,9 @@ function RiskCapsPanel() {
               background: 'rgba(255,255,255,0.04)',
               color: 'var(--text-2)',
               border: '1px solid var(--edge-1)',
-              padding: '10px 22px',
-              borderRadius: 999,
-              fontSize: 13,
+              padding: '8px 24px',
+              borderRadius: 4,
+              fontSize: 14,
               cursor: dirty ? 'pointer' : 'not-allowed',
               opacity: dirty ? 1 : 0.5,
             }}

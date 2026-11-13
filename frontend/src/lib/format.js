@@ -11,12 +11,13 @@
  * fmtINR(-1875) → "-₹1,875"
  */
 export const fmtINR = (v) => {
-  if (v == null || isNaN(v)) return "₹0";
+  // Missing is "—", never ₹0: a zero reads as a real value (DATA_MAP §3).
+  if (v == null || v === "" || isNaN(v)) return "—";
   const abs = Math.abs(v);
-  const sign = v < 0 ? "-" : "";
+  const sign = v < 0 && abs >= 0.5 ? "-" : "";
   if (abs >= 10000000) return `${sign}₹${(abs / 10000000).toFixed(2)} Cr`;
-  if (abs >= 100000) return `${sign}₹${(abs / 100000).toFixed(2)}L`;
-  return `${sign}₹${abs.toLocaleString("en-IN")}`;
+  if (abs >= 100000) return `${sign}₹${(abs / 100000).toFixed(2)} L`;
+  return `${sign}₹${abs.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
 };
 
 /**
@@ -24,7 +25,7 @@ export const fmtINR = (v) => {
  * fmtPrice(24867.5) → "₹24,867.50"
  */
 export const fmtPrice = (v) => {
-  if (v == null || isNaN(v)) return "₹0";
+  if (v == null || v === "" || isNaN(v)) return "—";
   return `₹${Number(v).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
@@ -34,9 +35,10 @@ export const fmtPrice = (v) => {
  * fmtPct(-1.8) → "-1.80%"
  */
 export const fmtPct = (v, decimals = 2) => {
-  if (v == null || isNaN(v)) return "0.00%";
-  const num = Number(v);
-  return `${num >= 0 ? "+" : ""}${num.toFixed(decimals)}%`;
+  if (v == null || v === "" || isNaN(v)) return "—";
+  // round first so -0.004 prints "0.00%", not "-0.00%"
+  const num = Number(Number(v).toFixed(decimals)) || 0;
+  return `${num > 0 ? "+" : ""}${num.toFixed(decimals)}%`;
 };
 
 /**
@@ -95,5 +97,5 @@ export const fmtRelTime = (dateInput) => {
   if (diffHr < 24) return `${diffHr}h ago`;
   if (diffDay === 1) return "Yesterday";
   if (diffDay < 7) return `${diffDay}d ago`;
-  return date.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+  return date.toLocaleDateString("en-IN", { timeZone: 'Asia/Kolkata', day: "numeric", month: "short" });
 };

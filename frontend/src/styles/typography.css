@@ -11,7 +11,7 @@
      - Libre Caslon Display           — display serif
      - JetBrains Mono                 — tabular mono
 
-   DM Sans is loaded directly from Google Fonts in index.html with both
+   SUPERSEDED 2026-11-05 by v7 (docs/DESIGN_BRIEF_V5.md §10): Inter + JetBrains Mono, self-hosted via @fontsource-variable (index.js). The font-family values here are fallbacks; tokens-v5.css sets --font-* with both
    weight (400-700) and optical-size (9-40) variable axes — opsz lets the
    browser auto-tune the letterform between text and display sizes.
 
@@ -30,12 +30,12 @@
      Caslon Display) caused the regime statement and page titles to read as
      a different font, which the user did not want. */
   --font-display:
-    'DM Sans',
+    'Inter Variable', 'Inter',
     ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
     'Helvetica Neue', Arial, sans-serif;
 
   --font-sans:
-    'DM Sans',
+    'Inter Variable', 'Inter',
     ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
     'Helvetica Neue', Arial, sans-serif;
 
@@ -44,7 +44,7 @@
      so DM Sans still produces aligned columns for prices and percentages
      — proportional in normal text, tabular when needed. */
   --font-mono:
-    'DM Sans',
+    'Inter Variable', 'Inter',
     ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
     'Helvetica Neue', Arial, sans-serif;
 }
