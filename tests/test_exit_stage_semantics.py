@@ -135,12 +135,14 @@ def test_the_frontend_reads_the_new_keys_and_not_the_old():
     """The rename is only safe because there is exactly one consumer. Assert it moved with the
     producer — a half-applied rename silently falls back to `undefined`, i.e. 'nothing booked',
     which is the same class of wrong answer in the other direction."""
-    src = (ROOT / "frontend" / "src" / "pages" / "SignalsV3.jsx").read_text(encoding="utf-8")
+    # The consumer moved: the v7 redesign (PR #179) deleted SignalsV3.jsx, and the exit-stage read now
+    # lives in cardStatus (frontend/src/lib/cards.js), which This Week renders.
+    src = (ROOT / "frontend" / "src" / "lib" / "cards.js").read_text(encoding="utf-8")
     for gone in ("target_40_booked", "pattern_40_booked", "runner_20_open"):
-        assert gone not in src, f"SignalsV3 still reads the removed key {gone}"
+        assert gone not in src, f"cards.js still reads the removed key {gone}"
     for needed in ("stage.target_booked", "stage.pattern_booked", "stage.runner_open",
                    "stage.pending_exit"):
-        assert needed in src, f"SignalsV3 does not read {needed}"
+        assert needed in src, f"cards.js does not read {needed}"
 
 
 def test_the_producer_emits_no_stale_key():
