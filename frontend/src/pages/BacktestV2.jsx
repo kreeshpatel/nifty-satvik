@@ -148,7 +148,7 @@ export default function BacktestV2() {
           className="t-prose"
           style={{
             fontFamily: 'var(--font-display)',
-            fontSize: 18,
+            fontSize: 20,
             lineHeight: 1.45,
             fontStyle: 'italic',
             color: 'var(--text-2)',
@@ -546,7 +546,7 @@ function ComparePanel({ liveQuery, histQuery }) {
           <ComposedChart data={merged} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
             <XAxis
               dataKey="day"
-              tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.48)', fontFamily: 'var(--font-mono)' }}
+              tick={{ fontSize: 12, fill: 'rgba(255,255,255,0.48)', fontFamily: 'var(--font-mono)' }}
               axisLine={{ stroke: 'var(--edge-1)' }}
               tickLine={false}
               minTickGap={40}
@@ -555,12 +555,12 @@ function ComparePanel({ liveQuery, histQuery }) {
                 position: 'insideBottom',
                 offset: -2,
                 fill: 'rgba(255,255,255,0.4)',
-                fontSize: 10,
+                fontSize: 12,
                 fontFamily: 'var(--font-sans)',
               }}
             />
             <YAxis
-              tick={{ fontSize: 10, fill: 'rgba(255,255,255,0.48)', fontFamily: 'var(--font-mono)' }}
+              tick={{ fontSize: 12, fill: 'rgba(255,255,255,0.48)', fontFamily: 'var(--font-mono)' }}
               axisLine={false}
               tickLine={false}
               width={56}
@@ -655,7 +655,7 @@ function RunLocalPanel() {
         }}
       >
         <div>
-          <label className="t-ui-micro" style={{ color: 'var(--text-3)', display: 'block', marginBottom: 6 }}>
+          <label className="t-ui-micro" style={{ color: 'var(--text-3)', display: 'block', marginBottom: 8 }}>
             START
           </label>
           <input
@@ -668,7 +668,7 @@ function RunLocalPanel() {
               background: 'var(--surface-3)',
               border: '1px solid var(--edge-1)',
               borderRadius: 'var(--r-chip)',
-              padding: '10px 12px',
+              padding: '8px 12px',
               color: 'var(--text-1)',
               outline: 'none',
               fontFamily: 'var(--font-mono)',
@@ -678,7 +678,7 @@ function RunLocalPanel() {
           />
         </div>
         <div>
-          <label className="t-ui-micro" style={{ color: 'var(--text-3)', display: 'block', marginBottom: 6 }}>
+          <label className="t-ui-micro" style={{ color: 'var(--text-3)', display: 'block', marginBottom: 8 }}>
             END
           </label>
           <input
@@ -691,7 +691,7 @@ function RunLocalPanel() {
               background: 'var(--surface-3)',
               border: '1px solid var(--edge-1)',
               borderRadius: 'var(--r-chip)',
-              padding: '10px 12px',
+              padding: '8px 12px',
               color: 'var(--text-1)',
               outline: 'none',
               fontFamily: 'var(--font-mono)',
@@ -706,7 +706,7 @@ function RunLocalPanel() {
           disabled={running}
           className="t-ui-callout"
           style={{
-            padding: '10px 18px',
+            padding: '8px 16px',
             background: running ? 'var(--surface-3)' : 'var(--brand)',
             color: running ? 'var(--text-3)' : 'var(--brand-fg)',
             border: `1px solid ${running ? 'var(--edge-1)' : 'var(--brand)'}`,
@@ -715,7 +715,7 @@ function RunLocalPanel() {
             fontWeight: 600,
             display: 'inline-flex',
             alignItems: 'center',
-            gap: 6,
+            gap: 8,
           }}
         >
           {running ? <Loader2 size={14} strokeWidth={1.75} className="animate-spin" /> : <Play size={14} strokeWidth={1.75} />}
@@ -816,7 +816,7 @@ function TabStrip({ tabs, active, onChange }) {
                 style={{
                   color: isActive ? 'var(--text-3)' : 'var(--text-4)',
                   fontFamily: 'var(--font-mono)',
-                  fontSize: 10,
+                  fontSize: 12,
                 }}
               >
                 {t.note}
@@ -838,7 +838,7 @@ function SectionHeader({ tone = 'muted', title, subtitle }) {
   const t = TONE[tone] || TONE.muted;
   return (
     <div style={{ marginBottom: 12 }}>
-      <div className="flex items-baseline" style={{ gap: 10 }}>
+      <div className="flex items-baseline" style={{ gap: 8 }}>
         <h2 className="t-title-2 flex items-baseline" style={{ margin: 0, color: 'var(--text-1)' }}>
           <span
             aria-hidden="true"
@@ -850,8 +850,8 @@ function SectionHeader({ tone = 'muted', title, subtitle }) {
               background: t.dot,
               boxShadow: `0 0 0 3px ${t.halo}`,
               flexShrink: 0,
-              marginRight: 10,
-              marginLeft: 3,
+              marginRight: 8,
+              marginLeft: 4,
               transform: 'translateY(-2px)',
             }}
           />
@@ -872,7 +872,7 @@ function SectionHeader({ tone = 'muted', title, subtitle }) {
 
 function Meta({ label, value }) {
   return (
-    <span className="flex items-baseline" style={{ gap: 6 }}>
+    <span className="flex items-baseline" style={{ gap: 8 }}>
       <span className="t-ui-footnote" style={{ color: 'var(--text-3)' }}>{label}</span>
       <span className="t-num-small" style={{ color: 'var(--text-1)' }}>{value}</span>
     </span>

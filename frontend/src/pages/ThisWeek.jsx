@@ -37,6 +37,7 @@ import { ColdStartDialog, useLessons } from '@/components/shared/Onboarding';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { DISCLAIMER } from '@/lib/signalCopy';
 import { sizePortfolio, SIZER_STATUS } from '@/lib/sizing';
+import { cardStatus } from '@/lib/cards';
 import '@/styles/this-week.css';
 import '@/styles/dashboard-v5.css';
 
@@ -55,7 +56,7 @@ function nextScan(now = new Date()) {
   const hrs = Math.round((d - istNow) / 3600000);
   const inWords = hrs < 24 ? `in ${hrs} hour${hrs === 1 ? '' : 's'}`
     : `in ${Math.round(hrs / 24)} day${Math.round(hrs / 24) === 1 ? '' : 's'}`;
-  return { when: d.toLocaleDateString('en-IN', { weekday: 'long' }), inWords };
+  return { when: d.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', weekday: 'long' }), inWords };
 }
 
 // The band the record actually buys inside.
@@ -153,6 +154,12 @@ export default function ThisWeek() {
   const [bulkBusy, setBulkBusy] = useState(false);
 
   const rawSignals = useMemo(() => signalsQuery.data?.signals ?? [], [signalsQuery.data]);
+  // The model's own book, held trades first, then this week's buy cards. Shown whether or not you
+  // recorded the fill, because the stop, the +2R limit and the next exit are the model's plan
+  // (restored 2026-11-13: the v7 redesign had removed the only page that showed them).
+  const modelCards = useMemo(() => rawSignals
+    .map((s) => ({ s, st: cardStatus(s) }))
+    .sort((a, b) => (a.st.kind === b.st.kind ? 0 : a.st.kind === 'hold' ? -1 : 1)), [rawSignals]);
   const items = reconQuery.data?.items ?? [];
   const positions = useMemo(() => execQuery.data ?? [], [execQuery.data]);
   const openPositions = useMemo(
@@ -416,6 +423,12 @@ export default function ThisWeek() {
                         : <>near <b className="tnum">{fmtNum(s.entry)}</b></>}
                       {' '}· stop <b className="tnum">{fmtNum(s.stop)}</b>
                     </div>
+                    {(() => { const w = cardStatus(s).window; return w && (w.text || w.until || w.state) ? (
+                      <div className="ns-meta">
+                        {w.state && <span className={`ns-tag num-${w.state.tone}`}>{w.state.label}</span>}{' '}
+                        {w.text}{w.until ? <> · window closes <b className="tnum">{w.until}</b></> : null}
+                        {w.noChaseAbove != null && <> · do not chase above <b className="tnum">{fmtNum(w.noChaseAbove)}</b></>}
+                      </div>) : null; })()}
                   </div>
                 </div>
                 <div className="ns-row-r">
@@ -434,6 +447,50 @@ export default function ThisWeek() {
                   >
                     Record buy
                   </button>
+                </div>
+              </div>
+            );
+          })}
+        </section>
+      )}
+
+      {/* ── MODEL BOOK STATUS: every card the model holds or is buying, with the daily monitor's
+           flags. This is the model's plan, independent of what you have recorded. ── */}
+      {modelCards.length > 0 && (
+        <section className="ns-section" aria-labelledby="tw-model-h">
+          <div className="ns-section-h">
+            <h2 id="tw-model-h">Model book status <span className="ns-count">{modelCards.length}</span></h2>
+            <span className="ns-section-sub">
+              Stops, targets and the next exit for every model trade{signalsQuery.data?.monitor_as_of ? `, as of ${signalsQuery.data.monitor_as_of}` : ''}
+            </span>
+          </div>
+          {modelCards.map(({ s, st }) => {
+            const sym = (s.ticker || '').toUpperCase();
+            const alarm = st.chips.some((c) => c.tone === 'bear');
+            return (
+              <div className={`ns-row${alarm ? ' ns-row--alarm' : ''}`} key={`model-${signalIdOf(s)}`}>
+                <div className="ns-row-l">
+                  <span className={`ns-dot num-${alarm ? 'bear' : st.kind === 'hold' ? 'muted' : 'info'}`} />
+                  <div>
+                    <div className="ns-sym">
+                      {sym}
+                      <span className="ns-tag">{st.kind === 'hold' ? 'open' : 'buy this week'}</span>
+                      {st.chips.map((c) => <span key={c.label} className={`ns-tag num-${c.tone}`}>{c.label}</span>)}
+                    </div>
+                    <div className="ns-meta">
+                      stop <b className="tnum">{fmtNum(st.stop)}</b>
+                      {st.fill != null && <> · fill <b className="tnum">{fmtNum(st.fill)}</b></>}
+                      {st.distToStopPct != null && <> · <span className="tnum">{st.distToStopPct.toFixed(1)}%</span> to stop</>}
+                      {st.distToTargetPct != null && st.kind === 'hold' && <> · <span className="tnum">{st.distToTargetPct.toFixed(1)}%</span> to +2R</>}
+                      {st.pnlPct != null && <> · <span className={`tnum ${st.pnlPct < 0 ? 'num-bear' : 'num-bull'}`}>{st.pnlPct > 0 ? '+' : ''}{st.pnlPct.toFixed(1)}%</span></>}
+                      {st.rNow != null && <> (<span className="tnum">{st.rNow.toFixed(2)}R</span>)</>}
+                      {st.fractionLeft != null && st.fractionLeft < 1 && <> · <span className="tnum">{Math.round(st.fractionLeft * 100)}%</span> still held</>}
+                    </div>
+                    {st.kind === 'hold' && st.nextStep && <div className="ns-meta ns-meta--do">{st.nextStep}</div>}
+                    {st.kind === 'buy' && st.window && (st.window.text || st.window.until) && (
+                      <div className="ns-meta">{st.window.text}{st.window.until ? <> · window closes <b className="tnum">{st.window.until}</b></> : null}{st.window.noChaseAbove != null && <> · do not chase above <b className="tnum">{fmtNum(st.window.noChaseAbove)}</b></>}</div>
+                    )}
+                  </div>
                 </div>
               </div>
             );

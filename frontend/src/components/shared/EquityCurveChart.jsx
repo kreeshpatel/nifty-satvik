@@ -54,13 +54,13 @@ function CrosshairTooltip({ active, payload, benchmarkKey }) {
         WebkitBackdropFilter: 'blur(12px)',
         border: '1px solid var(--edge-2)',
         borderRadius: 'var(--r-chip)',
-        padding: '10px 12px',
+        padding: '8px 12px',
         boxShadow: 'var(--shadow-lg)',
         fontFamily: 'var(--font-sans)',
         minWidth: 160,
       }}
     >
-      <div className="t-ui-micro" style={{ color: 'var(--text-3)', marginBottom: 6 }}>
+      <div className="t-ui-micro" style={{ color: 'var(--text-3)', marginBottom: 8 }}>
         {d.date}
       </div>
       {primary && (
@@ -129,7 +129,7 @@ export function EquityCurveChart({
         <XAxis
           dataKey="date"
           tick={{
-            fontSize: 10,
+            fontSize: 12,
             fill: 'rgba(255,255,255,0.48)',
             fontFamily: 'var(--font-mono)',
           }}
@@ -139,7 +139,7 @@ export function EquityCurveChart({
         />
         <YAxis
           tick={{
-            fontSize: 10,
+            fontSize: 12,
             fill: 'rgba(255,255,255,0.48)',
             fontFamily: 'var(--font-mono)',
           }}
@@ -181,7 +181,7 @@ export function EquityCurveChart({
             x={highlight}
             stroke="var(--brand)"
             strokeDasharray="2 3"
-            label={{ value: 'today', position: 'top', fill: 'var(--brand-hi)', fontSize: 10 }}
+            label={{ value: 'today', position: 'top', fill: 'var(--brand-hi)', fontSize: 12 }}
           />
         )}
       </AreaChart>

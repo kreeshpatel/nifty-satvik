@@ -52,10 +52,14 @@ CONSUMERS: list[tuple[str, str]] = [
     ("recon", "dashboard/backend/services/reconciliation.py"),
     ("cards lib", "frontend/src/lib/cards.js"),
     ("This week", "frontend/src/pages/ThisWeek.jsx"),
-    ("Research", "frontend/src/pages/SignalsV3.jsx"),
-    ("Dashboard", "frontend/src/pages/DashboardV3.jsx"),
-    ("Portfolio", "frontend/src/pages/PortfolioV3.jsx"),
-    ("History", "frontend/src/pages/RecommendationHistory.jsx"),
+    # Routed pages after the v7 redesign (PR #179, see frontend/src/App.js). The old names (SignalsV3,
+    # DashboardV3, RecommendationHistory) no longer exist, so scanning them silently read nothing.
+    ("Research", "frontend/src/pages/ResearchV7.jsx"),
+    ("Dashboard", "frontend/src/pages/DashboardV5.jsx"),
+    ("Portfolio", "frontend/src/pages/PortfolioV7.jsx"),
+    ("Paper book", "frontend/src/pages/PortfolioV3.jsx"),
+    ("Stock", "frontend/src/pages/StockV7.jsx"),
+    ("History", "frontend/src/pages/TrackRecordV7.jsx"),
 ]
 
 # Pairs that are easy to read for one another. The map calls these out explicitly because
@@ -87,6 +91,22 @@ ALIAS_HAZARDS: list[tuple[str, str, str]] = [
 #
 # "Engine-internal" is a legitimate answer. "Nobody looked" is not, and is what this prevents.
 INTENTIONALLY_UNREAD: dict[str, str] = {
+    "band_is_wide":
+        "Shown by the deleted SignalsV3 page as an informational chip or row; the v7 redesign (PR #179) dropped it. On 2026-11-13 the owner restored only the trade-management fields (stop hit, +2R reached, next exit, fill, distance to stop, buy window, no-chase ceiling) to This Week. This one stays unread pending the owner's product call.",
+    "band_width_pct":
+        "Shown by the deleted SignalsV3 page as an informational chip or row; the v7 redesign (PR #179) dropped it. On 2026-11-13 the owner restored only the trade-management fields (stop hit, +2R reached, next exit, fill, distance to stop, buy window, no-chase ceiling) to This Week. This one stays unread pending the owner's product call.",
+    "body_ratio":
+        "Shown by the deleted SignalsV3 page as an informational chip or row; the v7 redesign (PR #179) dropped it. On 2026-11-13 the owner restored only the trade-management fields (stop hit, +2R reached, next exit, fill, distance to stop, buy window, no-chase ceiling) to This Week. This one stays unread pending the owner's product call.",
+    "ext_cap_pct":
+        "Shown by the deleted SignalsV3 page as an informational chip or row; the v7 redesign (PR #179) dropped it. On 2026-11-13 the owner restored only the trade-management fields (stop hit, +2R reached, next exit, fill, distance to stop, buy window, no-chase ceiling) to This Week. This one stays unread pending the owner's product call.",
+    "ext_pct_over_sma44":
+        "Shown by the deleted SignalsV3 page as an informational chip or row; the v7 redesign (PR #179) dropped it. On 2026-11-13 the owner restored only the trade-management fields (stop hit, +2R reached, next exit, fill, distance to stop, buy window, no-chase ceiling) to This Week. This one stays unread pending the owner's product call.",
+    "record_would_skip_as_extended":
+        "Shown by the deleted SignalsV3 page as an informational chip or row; the v7 redesign (PR #179) dropped it. On 2026-11-13 the owner restored only the trade-management fields (stop hit, +2R reached, next exit, fill, distance to stop, buy window, no-chase ceiling) to This Week. This one stays unread pending the owner's product call.",
+    "stop_week_low":
+        "Shown by the deleted SignalsV3 page as an informational chip or row; the v7 redesign (PR #179) dropped it. On 2026-11-13 the owner restored only the trade-management fields (stop hit, +2R reached, next exit, fill, distance to stop, buy window, no-chase ceiling) to This Week. This one stays unread pending the owner's product call.",
+    "frozen_price":
+        "Shown by the deleted SignalsV3 page as an informational chip or row; the v7 redesign (PR #179) dropped it. On 2026-11-13 the owner restored only the trade-management fields (stop hit, +2R reached, next exit, fill, distance to stop, buy window, no-chase ceiling) to This Week. This one stays unread pending the owner's product call.",
     "plan_tags":
         "A second, LOSSIER phrasing of `exit_plan.tranches[].do`, which CasePanel already prints "
         "verbatim. The tag reads 'Hold 20% runner to the 44w-SMA 897.65'; the `do` reads 'Exit "
@@ -179,8 +199,11 @@ def consumer_tokens() -> dict[str, set[str]]:
     seen: dict[str, set[str]] = {}
     for label, rel in CONSUMERS:
         path = ROOT / rel
-        seen[label] = set(IDENT.findall(path.read_text(encoding="utf-8", errors="ignore"))) \
-            if path.exists() else set()
+        # A renamed or deleted page must fail here, not read as "consumes nothing": the v7 redesign
+        # (PR #179) deleted three listed pages and the map silently reported their fields as unread.
+        if not path.exists():
+            raise FileNotFoundError(f"wiring-map consumer '{label}' is missing: {rel}. Update CONSUMERS.")
+        seen[label] = set(IDENT.findall(path.read_text(encoding="utf-8", errors="ignore")))
     return seen
 
 

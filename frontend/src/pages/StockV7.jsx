@@ -39,7 +39,7 @@ const inrBig = (v) => {
 const ratio = (v, dp = 2) => (n(v) == null ? '—' : fmt(v, dp));
 const frac = (v) => (n(v) == null ? '—' : `${fmt(n(v) * 100, 2)}%`);      // provider gives 0.123 = 12.3%
 const vol = (v) => { const x = n(v); if (x == null) return '—'; return x >= 1e7 ? `${fmt(x / 1e7, 2)} Cr` : x >= 1e5 ? `${fmt(x / 1e5, 2)} L` : fmt(x, 0); };
-const dmy = (d) => (d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '—');
+const dmy = (d) => (d ? new Date(d).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', year: 'numeric' }) : '—');
 
 const PERIODS = [['1M', '1d', '1mo'], ['6M', '1d', '6mo'], ['1Y', '1d', '1y'], ['5Y', '1wk', '5y'], ['Max', '1mo', 'max']];
 
@@ -140,7 +140,7 @@ export default function StockV7() {
             <>
               <p className="s7-last" data-num>₹{fmt(last)}</p>
               <p className={`s7-chg ${tone(q.change)}`} data-num>{q.change != null ? `${n(q.change) > 0 ? '+' : n(q.change) < 0 ? MINUS : ''}${fmt(Math.abs(n(q.change)))}` : '—'} ({pct(q.change_pct)})</p>
-              <p className="d7-sub2">{q.as_of ? `As of ${new Date(q.as_of).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false })} IST` : 'Last session'} · delayed</p>
+              <p className="d7-sub2">{q.as_of ? `As of ${new Date(q.as_of).toLocaleString('en-IN', {timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false })} IST` : 'Last session'} · delayed</p>
             </>
           )}
         </div>
