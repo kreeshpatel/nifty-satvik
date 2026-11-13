@@ -106,7 +106,7 @@ export function issuedDateLabel(signalDate, daysSince) {
   if (!signalDate) return '';
   const d = new Date(signalDate);
   if (isNaN(d.getTime())) return signalDate;
-  const datePart = d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+  const datePart = d.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', weekday: 'short', day: 'numeric', month: 'short' });
   const n = Number(daysSince ?? 0);
   const relPart = n === 0 ? 'today' : n === 1 ? '1d ago' : `${n}d ago`;
   return `${datePart} · ${relPart}`;

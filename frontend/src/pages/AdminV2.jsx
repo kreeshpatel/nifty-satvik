@@ -103,7 +103,7 @@ export default function AdminV2() {
   if (user && !user.is_admin) return <Navigate to="/dashboard" replace />;
 
   return (
-    <PageShell title="Admin" heroTone="warn">
+    <PageShell title="Admin" heroTone={null}>
       <header style={{ paddingTop: 24, paddingBottom: 16 }}>
         <h1 className="t-title-1" style={{ margin: 0, color: 'var(--text-1)' }}>Admin</h1>
         <p className="t-ui-body" style={{ color: 'var(--text-2)', margin: '8px 0 0' }}>
@@ -224,7 +224,7 @@ function HeroStrip({ health, loading }) {
 function formatExpiry(iso) {
   try {
     const d = new Date(iso);
-    return `expires ${d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}`;
+    return `expires ${d.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' })}`;
   } catch {
     return 'expiry unknown';
   }
@@ -298,14 +298,14 @@ function UsersTab() {
               flex: 1,
               background: 'transparent',
               border: 'none',
-              padding: '10px 0',
+              padding: '8px 0',
               color: 'var(--text-1)',
               outline: 'none',
               fontFamily: 'var(--font-sans)',
             }}
           />
         </div>
-        <div className="flex items-center" style={{ gap: 6 }}>
+        <div className="flex items-center" style={{ gap: 8 }}>
           {[
             { v: 'ALL',       label: 'All' },
             { v: 'ACTIVE',    label: 'Active' },
@@ -341,7 +341,7 @@ function UsersTab() {
           onClick={() => setShowCreate(true)}
           className="t-ui-callout"
           style={{
-            padding: '8px 14px',
+            padding: '8px 16px',
             background: 'var(--brand)',
             color: 'var(--brand-fg)',
             border: '1px solid var(--brand)',
@@ -350,7 +350,7 @@ function UsersTab() {
             fontWeight: 600,
             display: 'inline-flex',
             alignItems: 'center',
-            gap: 6,
+            gap: 8,
             whiteSpace: 'nowrap',
           }}
         >
@@ -476,12 +476,12 @@ function CreateUserPanel({ open, onOpenChange, onCreate, pending }) {
     background: 'var(--surface-2)',
     border: '1px solid var(--edge-1)',
     borderRadius: 'var(--r-chip)',
-    padding: '10px 12px',
+    padding: '8px 12px',
     color: 'var(--text-1)',
     outline: 'none',
     fontFamily: 'var(--font-sans)',
   };
-  const labelStyle = { color: 'var(--text-3)', display: 'block', marginBottom: 6 };
+  const labelStyle = { color: 'var(--text-3)', display: 'block', marginBottom: 8 };
 
   return (
     <SidePanel open={open} onOpenChange={onOpenChange} title="Create user">
@@ -524,7 +524,7 @@ function CreateUserPanel({ open, onOpenChange, onCreate, pending }) {
           className="t-ui-callout"
           style={{
             marginTop: 4,
-            padding: '11px 18px',
+            padding: '12px 16px',
             background: canSubmit ? 'var(--brand)' : 'var(--surface-3)',
             color: canSubmit ? 'var(--brand-fg)' : 'var(--text-3)',
             border: `1px solid ${canSubmit ? 'var(--brand)' : 'var(--edge-1)'}`,
@@ -649,7 +649,7 @@ function AccessRequestsTab() {
 
   return (
     <div style={{ marginTop: 16 }}>
-      <div className="flex items-center" style={{ gap: 6, marginBottom: 16 }}>
+      <div className="flex items-center" style={{ gap: 8, marginBottom: 16 }}>
         {[
           { v: 'pending',  label: 'Pending' },
           { v: 'approved', label: 'Approved' },
@@ -664,7 +664,7 @@ function AccessRequestsTab() {
               onClick={() => setStatus(p.v)}
               className="t-ui-callout"
               style={{
-                padding: '8px 14px',
+                padding: '8px 16px',
                 background: active ? 'var(--brand-soft)' : 'transparent',
                 color: active ? 'var(--brand-hi)' : 'var(--text-2)',
                 border: `1px solid ${active ? 'var(--brand-edge)' : 'var(--edge-1)'}`,
@@ -748,7 +748,7 @@ function AccessRequestCard({ request, onApprove, onReject, onDelete, busy }) {
 
       {request.trading_experience && (
         <div className="t-ui-footnote" style={{ color: 'var(--text-2)', marginTop: 12 }}>
-          <span className="t-ui-micro" style={{ color: 'var(--text-3)', marginRight: 6 }}>EXPERIENCE</span>
+          <span className="t-ui-micro" style={{ color: 'var(--text-3)', marginRight: 8 }}>EXPERIENCE</span>
           {request.trading_experience}
         </div>
       )}
@@ -768,13 +768,13 @@ function AccessRequestCard({ request, onApprove, onReject, onDelete, busy }) {
         </p>
       )}
 
-      <div className="t-ui-footnote" style={{ color: 'var(--text-4)', marginTop: 14 }}>
+      <div className="t-ui-footnote" style={{ color: 'var(--text-4)', marginTop: 16 }}>
         Submitted {request.created_at ? fmtRelTime(new Date(request.created_at)) : '—'}
         {request.ip_address ? ` · ${request.ip_address}` : ''}
       </div>
 
       {status === 'pending' && (
-        <div className="flex" style={{ gap: 8, marginTop: 14 }}>
+        <div className="flex" style={{ gap: 8, marginTop: 16 }}>
           <button
             type="button"
             disabled={busy}
@@ -782,7 +782,7 @@ function AccessRequestCard({ request, onApprove, onReject, onDelete, busy }) {
             className="t-ui-callout"
             style={{
               flex: 1,
-              padding: '8px 14px',
+              padding: '8px 16px',
               background: busy ? 'var(--surface-3)' : 'var(--brand)',
               color: busy ? 'var(--text-3)' : 'var(--brand-fg)',
               border: `1px solid ${busy ? 'var(--edge-1)' : 'var(--brand)'}`,
@@ -799,7 +799,7 @@ function AccessRequestCard({ request, onApprove, onReject, onDelete, busy }) {
             onClick={onReject}
             className="t-ui-callout"
             style={{
-              padding: '8px 14px',
+              padding: '8px 16px',
               background: 'transparent',
               color: 'var(--text-2)',
               border: '1px solid var(--edge-1)',
@@ -886,7 +886,7 @@ function SystemTab({ health }) {
               disabled={kiteRefresh.isPending}
               className="t-ui-callout"
               style={{
-                padding: '6px 12px',
+                padding: '8px 12px',
                 background: 'transparent',
                 color: 'var(--brand-hi)',
                 border: '1px solid var(--brand-edge)',
@@ -894,7 +894,7 @@ function SystemTab({ health }) {
                 cursor: kiteRefresh.isPending ? 'wait' : 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: 6,
+                gap: 8,
                 fontWeight: 600,
               }}
             >
@@ -1033,7 +1033,7 @@ function OperationsTab() {
 
       <div
         style={{
-          padding: '14px 18px',
+          padding: '16px 16px',
           background: 'var(--info-soft)',
           border: '1px solid oklch(78% 0.11 230 / 0.32)',
           borderRadius: 'var(--r-chip)',
@@ -1059,7 +1059,7 @@ function OperationCard({ icon, title, description, ctaLabel, onClick, disabled, 
         boxShadow: 'var(--shadow-sm)',
       }}
     >
-      <div className="flex items-start" style={{ gap: 14 }}>
+      <div className="flex items-start" style={{ gap: 16 }}>
         <div
           className="flex items-center justify-center flex-shrink-0"
           style={{
@@ -1074,7 +1074,7 @@ function OperationCard({ icon, title, description, ctaLabel, onClick, disabled, 
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="t-title-2" style={{ margin: 0, color: 'var(--text-1)' }}>{title}</h3>
-          <p className="t-ui-body" style={{ color: 'var(--text-2)', margin: '6px 0 0', maxWidth: '70ch' }}>
+          <p className="t-ui-body" style={{ color: 'var(--text-2)', margin: '8px 0 0', maxWidth: '70ch' }}>
             {description}
           </p>
           {warning && (
@@ -1099,7 +1099,7 @@ function OperationCard({ icon, title, description, ctaLabel, onClick, disabled, 
                 border: '1px solid var(--edge-1)',
                 borderRadius: 'var(--r-chip)',
                 fontFamily: 'var(--font-mono)',
-                fontSize: 11,
+                fontSize: 12,
                 color: 'var(--text-2)',
                 overflowX: 'auto',
                 maxHeight: 200,
@@ -1115,7 +1115,7 @@ function OperationCard({ icon, title, description, ctaLabel, onClick, disabled, 
           disabled={disabled}
           className="t-ui-callout"
           style={{
-            padding: '10px 18px',
+            padding: '8px 16px',
             background: disabled ? 'var(--surface-3)' : 'var(--brand)',
             color: disabled ? 'var(--text-3)' : 'var(--brand-fg)',
             border: `1px solid ${disabled ? 'var(--edge-1)' : 'var(--brand)'}`,
@@ -1179,7 +1179,7 @@ function Definition({ label, value }) {
     <div
       className="flex items-baseline justify-between"
       style={{
-        padding: '10px 0',
+        padding: '8px 0',
         borderBottom: '1px solid var(--edge-1)',
         gap: 12,
       }}
@@ -1211,18 +1211,18 @@ function DetailCard({ title, icon, tone, actions, children }) {
       <header
         className="flex items-center justify-between"
         style={{
-          padding: '14px 18px',
+          padding: '16px 16px',
           borderBottom: '1px solid var(--edge-1)',
           gap: 12,
         }}
       >
-        <div className="flex items-center" style={{ gap: 10 }}>
+        <div className="flex items-center" style={{ gap: 8 }}>
           <span style={{ color: accent }}>{icon}</span>
           <h3 className="t-title-2" style={{ margin: 0, color: 'var(--text-1)' }}>{title}</h3>
         </div>
         {actions}
       </header>
-      <div style={{ padding: '8px 18px 14px' }}>{children}</div>
+      <div style={{ padding: '8px 16px 16px' }}>{children}</div>
     </div>
   );
 }
@@ -1251,7 +1251,7 @@ function ActionButton({ icon, label, hint, onClick, disabled, destructive }) {
         className="t-ui-callout"
         style={{
           width: '100%',
-          padding: '10px 14px',
+          padding: '8px 16px',
           background: 'transparent',
           color: destructive ? 'var(--bear)' : 'var(--text-1)',
           border: `1px solid ${destructive ? 'var(--bear)' : 'var(--edge-2)'}`,

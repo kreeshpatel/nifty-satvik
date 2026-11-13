@@ -9,7 +9,6 @@ import { toast } from 'sonner';
 import { searchStocks } from '@/services/kiteStock';
 import { AuthContext } from '@/context/AuthContext';
 import BrandLogo from './BrandLogo';
-import HeaderTicker from './HeaderTicker';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useUiScale } from '@/hooks/useUiScale';
 import { useOutstandingActions } from '@/hooks/queries/useExecution';
@@ -75,14 +74,14 @@ function ActionBadge({ compact = false }) {
       style={{
         minWidth: compact ? 20 : 17,
         height: compact ? 20 : 17,
-        padding: '0 5px',
+        padding: '0 4px',
         marginLeft: 2,
         display: 'inline-flex',
         alignItems: 'center',
         justifyContent: 'center',
-        borderRadius: 999,
-        fontSize: compact ? 11 : 10,
-        fontWeight: 700,
+        borderRadius: 4,
+        fontSize: 12,
+        fontWeight: 600,
         fontVariantNumeric: 'tabular-nums',
         lineHeight: 1,
         color: alarm ? 'var(--bear)' : 'var(--brand-hi)',
@@ -130,7 +129,7 @@ export function TopBar() {
     </button>
   );
   const scaleRow = (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 8px', fontSize: 13, color: 'var(--text-2)' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 8px', fontSize: 14, color: 'var(--text-2)' }}>
       <span>Display size</span>
       <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
         {scaleBtn('Zoom out', uiScale.dec, uiScale.canDec)}
@@ -201,7 +200,7 @@ export function TopBar() {
             alignItems: 'center',
             gap: 8,
             padding: '0 12px',
-            background: 'rgba(10, 14, 34, 0.72)',
+            background: 'rgba(10, 12, 16, 0.92)',
             backdropFilter: 'blur(28px) saturate(160%)',
             WebkitBackdropFilter: 'blur(28px) saturate(160%)',
             borderBottom: '1px solid var(--edge-1)',
@@ -252,8 +251,8 @@ export function TopBar() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" sideOffset={8} className="min-w-[220px]">
               <DropdownMenuLabel className="font-normal">
-                <div style={{ fontSize: 13, color: 'var(--text-1)' }}>{user?.name || 'You'}</div>
-                <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 2 }}>{user?.email}</div>
+                <div style={{ fontSize: 14, color: 'var(--text-1)' }}>{user?.name || 'You'}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>{user?.email}</div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               {ACCOUNT_LINKS.map((l) => {
@@ -294,7 +293,7 @@ export function TopBar() {
             style={{
               position: 'sticky', top: 56, zIndex: 49,
               padding: 12,
-              background: 'rgba(10, 14, 34, 0.92)',
+              background: 'rgba(10, 12, 16, 0.96)',
               borderBottom: '1px solid var(--edge-1)',
               backdropFilter: 'blur(20px)',
               WebkitBackdropFilter: 'blur(20px)',
@@ -303,10 +302,10 @@ export function TopBar() {
             <div
               style={{
                 display: 'flex', alignItems: 'center', gap: 8,
-                height: 44, padding: '0 14px',
+                height: 44, padding: '0 16px',
                 background: 'rgba(255,255,255,0.06)',
                 border: '1px solid var(--edge-2)',
-                borderRadius: 999,
+                borderRadius: 4,
               }}
             >
               <Search size={16} style={{ color: 'var(--text-3)' }} />
@@ -341,8 +340,8 @@ export function TopBar() {
                   marginTop: 8,
                   background: 'var(--surface-modal)',
                   border: '1px solid var(--edge-2)',
-                  borderRadius: 12,
-                  padding: 6,
+                  borderRadius: 6,
+                  padding: 8,
                   maxHeight: 320,
                   overflowY: 'auto',
                 }}
@@ -356,8 +355,8 @@ export function TopBar() {
                       display: 'grid',
                       gridTemplateColumns: '1fr auto',
                       gap: 8,
-                      padding: '12px 10px',
-                      borderRadius: 8,
+                      padding: '12px 8px',
+                      borderRadius: 6,
                       background: i === selectedIdx ? 'rgba(79,140,255,0.14)' : 'transparent',
                       border: 'none',
                       color: 'var(--text-1)',
@@ -367,7 +366,7 @@ export function TopBar() {
                     }}
                   >
                     <span style={{ color: 'var(--text-1)', fontWeight: 500 }}>{r.symbol}</span>
-                    <span style={{ color: 'var(--text-3)', fontSize: 11 }}>{r.exchange || 'NSE'}</span>
+                    <span style={{ color: 'var(--text-3)', fontSize: 12 }}>{r.exchange || 'NSE'}</span>
                   </button>
                 ))}
               </div>
@@ -402,7 +401,7 @@ export function TopBar() {
               <div
                 style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '14px 16px',
+                  padding: '16px 16px',
                   borderBottom: '1px solid var(--edge-1)',
                 }}
               >
@@ -433,8 +432,8 @@ export function TopBar() {
                         display: 'flex',
                         alignItems: 'center',
                         gap: 12,
-                        padding: '12px 14px',
-                        borderRadius: 10,
+                        padding: '12px 16px',
+                        borderRadius: 6,
                         fontSize: 14,
                         fontWeight: active ? 600 : 500,
                         textDecoration: 'none',
@@ -468,23 +467,19 @@ export function TopBar() {
         display: 'grid',
         gridTemplateColumns: 'auto 1fr auto auto auto auto',
         alignItems: 'center',
-        gap: 14,
+        gap: 16,
         padding: '0 20px',
-        background: 'rgba(10, 14, 34, 0.55)',
-        backdropFilter: 'blur(28px) saturate(160%)',
-        WebkitBackdropFilter: 'blur(28px) saturate(160%)',
+        background: 'rgba(10, 12, 16, 0.92)',
+        backdropFilter: 'saturate(140%) blur(12px)',
+        WebkitBackdropFilter: 'saturate(140%) blur(12px)',
         borderBottom: '1px solid var(--edge-1)',
       }}
     >
       {/* Logo lockup */}
       <BrandLogo to="/dashboard" size={30} wordSize={16} />
-
-      {/* Live index ticker — inline right after the brand (prototype layout).
-          min-width:0 lets the marquee shrink into the flexible column instead
-          of blowing out the grid. */}
-      <div className="nq-topbar-ticker" style={{ minWidth: 0, overflow: 'hidden' }}>
-        <HeaderTicker />
-      </div>
+      {/* Index levels moved to the shared TickerStrip under the bar (brief §11). Empty spacer
+          keeps the grid's flexible column. */}
+      <div aria-hidden style={{ minWidth: 0 }} />
 
       {/* Primary pill tabs — right-aligned (after the ticker), per the prototype. */}
       <nav
@@ -492,10 +487,10 @@ export function TopBar() {
         style={{
           display: 'inline-flex',
           gap: 2,
-          padding: 4,
-          background: 'rgba(255,255,255,0.04)',
-          border: '1px solid var(--edge-1)',
-          borderRadius: 999,
+          padding: 0,
+          background: 'transparent',
+          border: 'none',
+          borderRadius: 0,
           overflowX: 'auto',
           maxWidth: '100%',
         }}
@@ -508,23 +503,22 @@ export function TopBar() {
               key={t.to}
               to={t.to}
               className="nq-tab"
+              aria-current={active ? 'page' : undefined}
               style={{
-                padding: '6px 14px',
-                height: 30,
-                borderRadius: 999,
+                padding: '0 12px',
+                height: 32,
+                borderRadius: 6,
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: 6,
+                gap: 8,
                 fontFamily: 'var(--font-sans)',
-                fontSize: 12.5,
-                fontWeight: 500,
+                fontSize: 14,
+                fontWeight: active ? 500 : 500,
                 textDecoration: 'none',
-                background: active ? 'rgba(79,140,255,0.18)' : 'transparent',
-                color: active ? 'var(--text-1)' : 'var(--text-3)',
-                boxShadow: active
-                  ? '0 4px 12px rgba(79,140,255,0.18), inset 0 0 0 1px rgba(79,140,255,0.36)'
-                  : 'none',
-                transition: 'all 200ms',
+                background: active ? 'var(--l-s2)' : 'transparent',
+                color: active ? 'var(--text-1)' : 'var(--text-2)',
+                boxShadow: active ? 'inset 0 0 0 1px var(--l-line-2)' : 'none',
+                transition: 'background 150ms, color 150ms',
               }}
             >
               <Icon size={13} />
@@ -542,6 +536,7 @@ export function TopBar() {
           points users at the live signal scan time. */}
       <button
         title="Notifications"
+        aria-label="Notifications"
         type="button"
         onClick={() => {
           // No broker link (ADR 0011) — surface the scan cadence, never a "reconnect to place
@@ -564,8 +559,8 @@ export function TopBar() {
           transition: 'all 200ms',
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background = 'rgba(79,140,255,0.18)';
-          e.currentTarget.style.borderColor = 'rgba(79,140,255,0.36)';
+          e.currentTarget.style.background = 'var(--l-s2)';
+          e.currentTarget.style.borderColor = 'var(--l-line-2)';
           e.currentTarget.style.color = 'var(--text-1)';
         }}
         onMouseLeave={(e) => {
@@ -574,7 +569,7 @@ export function TopBar() {
           e.currentTarget.style.color = 'var(--text-2)';
         }}
       >
-        <Bell size={16} />
+        <Bell size={16} aria-hidden />
       </button>
 
       {/* User pill */}
@@ -586,11 +581,11 @@ export function TopBar() {
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: 10,
-              padding: '4px 14px 4px 4px',
+              gap: 8,
+              padding: '4px 16px 4px 4px',
               background: 'rgba(255,255,255,0.04)',
               border: '1px solid var(--edge-1)',
-              borderRadius: 999,
+              borderRadius: 4,
               color: 'var(--text-1)',
               cursor: 'pointer',
               fontFamily: 'var(--font-sans)',
@@ -611,10 +606,10 @@ export function TopBar() {
               <User size={14} />
             </span>
             <div className="nq-topbar-user-meta" style={{ textAlign: 'left' }}>
-              <div style={{ fontSize: 13, color: 'var(--text-1)', fontWeight: 500, lineHeight: 1.1 }}>
+              <div style={{ fontSize: 14, color: 'var(--text-1)', fontWeight: 500, lineHeight: 1.1 }}>
                 {user?.name?.split(' ')[0] || 'You'}
               </div>
-              <div style={{ fontSize: 10, color: 'var(--text-3)', marginTop: 2 }}>
+              <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>
                 {isAdmin ? 'Admin' : 'Member'} · Pro
               </div>
             </div>
@@ -622,8 +617,8 @@ export function TopBar() {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" sideOffset={8} className="min-w-[200px]">
           <DropdownMenuLabel className="font-normal">
-            <div style={{ fontSize: 13, color: 'var(--text-1)' }}>{user?.name || 'You'}</div>
-            <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 2 }}>{user?.email}</div>
+            <div style={{ fontSize: 14, color: 'var(--text-1)' }}>{user?.name || 'You'}</div>
+            <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>{user?.email}</div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           {ACCOUNT_LINKS.map((l) => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import logo from '@/assets/brand/nifty-satvik-logo.png';
+import BrandMark from '@/components/brand/BrandMark';
 
 /**
  * Nifty Satvik brand lockup — the real logo mark + wordmark.
@@ -24,13 +24,7 @@ export default function BrandLogo({
   const gap = size >= 30 ? 10 : 8;
   const inner = (
     <>
-      <img
-        src={logo}
-        alt="Nifty Satvik"
-        width={size}
-        height={size}
-        style={{ width: size, height: size, objectFit: 'contain', display: 'block', flexShrink: 0 }}
-      />
+      <BrandMark size={size} title={showWord ? undefined : 'Nifty Satvik'} />
       {showWord && (
         <span
           style={{
@@ -42,7 +36,7 @@ export default function BrandLogo({
             whiteSpace: 'nowrap',
           }}
         >
-          Nifty <span style={{ color: 'var(--brand)' }}>Satvik</span>
+          Nifty Satvik
         </span>
       )}
     </>

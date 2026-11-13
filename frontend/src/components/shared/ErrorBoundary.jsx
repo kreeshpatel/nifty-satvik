@@ -52,7 +52,7 @@ export class ErrorBoundary extends React.Component {
           fontFamily: 'var(--font-sans)',
         }}
       >
-        <div className="flex items-start" style={{ gap: 14, marginBottom: 16 }}>
+        <div className="flex items-start" style={{ gap: 16, marginBottom: 16 }}>
           <div
             style={{
               width: 36, height: 36, flexShrink: 0,
@@ -71,7 +71,7 @@ export class ErrorBoundary extends React.Component {
             <h2 className="t-title-2" style={{ margin: 0, color: 'var(--text-1)' }}>
               Something broke on this page
             </h2>
-            <p className="t-ui-body" style={{ color: 'var(--text-2)', margin: '6px 0 0' }}>
+            <p className="t-ui-body" style={{ color: 'var(--text-2)', margin: '8px 0 0' }}>
               The component crashed mid-render. Reloading usually clears it. If it keeps
               happening, the message + stack below tells us exactly where to look.
             </p>
@@ -80,7 +80,7 @@ export class ErrorBoundary extends React.Component {
 
         <pre
           style={{
-            padding: 14,
+            padding: 16,
             background: 'var(--surface-2)',
             border: '1px solid var(--edge-1)',
             borderRadius: 'var(--r-chip)',
@@ -107,13 +107,13 @@ export class ErrorBoundary extends React.Component {
             </summary>
             <pre
               style={{
-                padding: 14,
+                padding: 16,
                 marginTop: 8,
                 background: 'var(--surface-2)',
                 border: '1px solid var(--edge-1)',
                 borderRadius: 'var(--r-chip)',
                 fontFamily: 'var(--font-mono)',
-                fontSize: 11,
+                fontSize: 12,
                 color: 'var(--text-3)',
                 whiteSpace: 'pre-wrap',
                 wordBreak: 'break-word',
@@ -132,7 +132,7 @@ export class ErrorBoundary extends React.Component {
             onClick={() => window.location.reload()}
             className="t-ui-callout"
             style={{
-              padding: '10px 18px',
+              padding: '8px 16px',
               background: 'var(--brand)',
               color: 'var(--brand-fg)',
               border: '1px solid var(--brand)',
@@ -141,7 +141,7 @@ export class ErrorBoundary extends React.Component {
               fontWeight: 600,
               display: 'inline-flex',
               alignItems: 'center',
-              gap: 6,
+              gap: 8,
             }}
           >
             <RefreshCcw size={14} strokeWidth={1.75} /> Reload page
@@ -151,7 +151,7 @@ export class ErrorBoundary extends React.Component {
             onClick={this.reset}
             className="t-ui-callout"
             style={{
-              padding: '10px 18px',
+              padding: '8px 16px',
               background: 'transparent',
               color: 'var(--text-2)',
               border: '1px solid var(--edge-2)',
