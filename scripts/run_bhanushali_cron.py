@@ -654,14 +654,21 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
                           "recorded either way.")
         elif p.get("data_quarantine"):
             # DATA QUARANTINE: the price series failed the data guards. The engine froze the position (no
-            # exit, stop unchanged since the last good scan); the card says so and stops issuing orders.
-            rec["actionability"] = "REVIEW_DATA_QUARANTINE"
+            # fill, no ratchet, no new exit decision); an exit ALREADY decided from good data is still
+            # surfaced. The stop cannot be judged on suspect prices, so the owner is told to check.
+            _pend = p["pending"]
+            rec["actionability"] = "EXIT_REQUIRED" if _pend is not None else "REVIEW_DATA_QUARANTINE"
             rec["data_quarantine"] = {"since_last_good": p["data_quarantine"],
                                       "reason": "price data failed the data-integrity guards"}   # main() fills the specific reason
-            rec["why"] = ("This name's price data failed the data-integrity guards this week, so the book "
-                          f"froze it: no exit is issued on suspect data and the stop stays at {stop:,.2f}, "
-                          f"its value at the last good scan ({p['data_quarantine']}). Check the live price "
-                          "on your broker; the normal stop still applies to you.")
+            rec["why"] = ("DATA SUSPECT - check whether your stop has been hit at your broker. This name's "
+                          "price data failed the data-integrity guards this week, so the book cannot judge "
+                          f"it: it holds the position and keeps the stop at {stop:,.2f}, its value at the last "
+                          f"good scan ({p['data_quarantine']}), and values it at its last good close.")
+            if _pend is not None:
+                rec["why"] += (f" An exit was ALREADY decided from good data ({_pend[1]}): carry it out at "
+                               "Monday's open as instructed.")
+                if str(_pend[1]).startswith("stop"):
+                    rec["status"] = "HIT_STOP"
         elif p["pending"] is not None:                        # Friday close said EXIT -> act Monday open
             act, reason = p["pending"]
             rec["actionability"] = "EXIT_REQUIRED"
@@ -793,20 +800,38 @@ QUARANTINE_NOT_HALT = True
 DATA_QUARANTINE_FILE = "data_quarantine.json"
 
 
-def _mask_quarantined(P: dict, names, after) -> dict:
+def _quarantine_last_good(tickers, prior_record: dict | None, prev_generated: str | None, as_of) -> dict:
+    """{ticker: last-good date} - the boundary after which a quarantined name's data is suspect.
+
+    A name already quarantined in the record this scan found on disk KEEPS its recorded boundary: that
+    is the last date the data was good, and re-running the same week (or a second consecutive bad week)
+    must not advance it, or the suspect bars published by the first run would read as good. A new name
+    gets the last published scan, CLAMPED to the Friday before the data's own week, so a re-run that
+    follows a publish of this same week can never put the boundary inside the bad week.
+    """
+    as_of = pd.Timestamp(as_of)
+    clamp = as_of.normalize() - pd.Timedelta(days=int(as_of.weekday())) - pd.Timedelta(days=3)
+    persisted = {q["ticker"]: pd.Timestamp(q["last_good"]) for q in (prior_record or {}).get("quarantined", [])
+                 if isinstance(q, dict) and q.get("last_good")}
+    base = min(pd.Timestamp(prev_generated), clamp) if prev_generated else clamp
+    return {t: persisted.get(t, base) for t in tickers}
+
+
+def _mask_quarantined(P: dict, last_good: dict) -> dict:
     """Make quarantined names unable to produce a NEW signal this scan. Mutates ``P``; returns counts.
 
-    Clears the live ``last_signal`` and drops every entry window dated after ``after`` (the last scan
-    that published, i.e. the last good data). Windows on or before it are the record and stay: a held
-    position's entry is among them, and the engine freezes that position rather than erasing it.
+    ``last_good`` is {ticker: last-good date}. Clears the live ``last_signal`` and drops every entry window
+    dated after that date. Windows on or before it are the record and stay: a held position's entry is
+    among them, and the engine freezes that position rather than erasing it.
     """
     n_sig = n_win = 0
-    for t in set(names) & set(P):
+    for t in set(last_good) & set(P):
         s = P[t]
+        after = pd.Timestamp(last_good[t])
         if s.get("last_signal") is not None:
             s["last_signal"] = None
             n_sig += 1
-        for e0 in [e for e in s["entry_win"] if pd.Timestamp(s["dates"][e]) > pd.Timestamp(after)]:
+        for e0 in [e for e in s["entry_win"] if pd.Timestamp(s["dates"][e]) > after]:
             del s["entry_win"][e0]
             n_win += 1
     return {"signals_cleared": n_sig, "entry_windows_dropped": n_win}
@@ -930,7 +955,8 @@ def _refresh_ohlcv(start: str, history_days: int, do_download: bool, quarantine_
         print(f"data guards: {len(qrec['flagged'])} flagged | {len(qrec['healed'])} self-healed | "
               f"{len(qrec['quarantined'])} QUARANTINED (systemic limit {qrec['systemic_limit']})", flush=True)
         for q in qrec["quarantined"]:
-            print(f"::warning::DATA QUARANTINE {q['ticker']} ({'HELD' if q['held'] else 'not held'}): "
+            print(f"::{'error' if q['held'] else 'warning'}::DATA QUARANTINE {q['ticker']} "
+                  f"({'HELD - CHECK YOUR STOP AT YOUR BROKER' if q['held'] else 'not held'}): "
                   f"{q['reason']} -> {q['action']}", flush=True)
         if qrec["healed"]:
             print(f"  self-healed by full re-fetch: {qrec['healed']}", flush=True)
@@ -1340,11 +1366,16 @@ def main(argv=None) -> int:
     # `after` is the last scan that published (the last good data); without one, a week before the data.
     q_freeze: dict = {}
     if qrec and qrec.get("quarantined"):
-        _prev = _previous_generated_at(sd)
-        _after = pd.Timestamp(_prev) if _prev else pd.Timestamp(qrec["as_of"]) - pd.Timedelta(days=7)
-        q_freeze = {q["ticker"]: _after for q in qrec["quarantined"]}
-        print(f"data quarantine: {_mask_quarantined(P, q_freeze, _after)} for {sorted(q_freeze)} "
-              f"(last good scan {_after.date()})", flush=True)
+        try:
+            _prior = json.loads((sd / DATA_QUARANTINE_FILE).read_text(encoding="utf-8"))
+        except Exception:  # noqa: BLE001 - no record yet (or unreadable) -> the clamp alone decides
+            _prior = None
+        q_freeze = _quarantine_last_good([q["ticker"] for q in qrec["quarantined"]], _prior,
+                                         _previous_generated_at(sd), qrec["as_of"])
+        for q in qrec["quarantined"]:
+            q["last_good"] = str(q_freeze[q["ticker"]].date())     # persisted: a re-run must not advance it
+        _lg = {t: str(d.date()) for t, d in sorted(q_freeze.items())}
+        print(f"data quarantine: {_mask_quarantined(P, q_freeze)} last-good {_lg}", flush=True)
     a_set = R94.grade_a_entries(P)
     # B′ (LIVE CORPORATE ACTIONS above): the same events reach all three books, so the paper book, the
     # signal ledger and the watched arm cannot disagree about a demerged holding. A registered ratio the

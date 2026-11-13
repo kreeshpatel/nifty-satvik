@@ -43,6 +43,11 @@ INDEX_MAX_DAILY_MOVE = 0.20
 INDEX_MAX_LAG_DAYS = 14
 INDEX_MIN_ROWS = 250
 
+# A re-fetch replaces a series only if it is at least this fraction as DEEP (bars) as the one it replaces.
+# A throttled or truncated vendor answer is short and would otherwise swap deep history for a stub that
+# happens to pass the seam check; the original is kept and the name quarantined instead.
+REFETCH_MIN_DEPTH_FRAC = 0.90
+
 
 class SystemicDataFailure(ValueError):
     """Too many names (or the index) are bad at once: a data outage, not a per-name defect. Halts the scan."""
@@ -126,7 +131,7 @@ def quarantine_or_halt(ohlcv: dict, positions, entry_dates, *, universe_size: in
     offenders = find_offenders(ohlcv, held, entry_dates, **kw)
     record = {"as_of": str(pd.Timestamp(as_of).date()), "systemic_limit": limit,
               "universe_size": int(universe_size), "flagged": sorted(offenders), "healed": [],
-              "quarantined": []}
+              "quarantined": [], "refetch_rejected_too_short": []}
 
     def _halt(names, when):
         raise SystemicDataFailure(
@@ -148,11 +153,18 @@ def quarantine_or_halt(ohlcv: dict, positions, entry_dates, *, universe_size: in
             fresh = {}
         attempted = set(offenders)
         ohlcv = dict(ohlcv)
+        short: list = []
         for t, df in fresh.items():
-            if t in offenders and df is not None and len(df):
-                ohlcv[t] = df              # a re-fetched series is kept even if it still fails: it is the better one
+            if t not in offenders or df is None or not len(df):
+                continue
+            old_n = len(ohlcv[t]) if ohlcv.get(t) is not None else 0
+            if len(df) < REFETCH_MIN_DEPTH_FRAC * old_n:
+                short.append(t)            # throttled/truncated re-fetch: never replace deep history with it
+                continue
+            ohlcv[t] = df                  # a re-fetched series is kept even if it still fails: it is the better one
         recheck = find_offenders({t: ohlcv[t] for t in offenders}, held, entry_dates, **kw)
         record["healed"] = sorted(t for t in offenders if t not in recheck)
+        record["refetch_rejected_too_short"] = sorted(short)
         offenders = recheck
 
     if len(offenders) > limit:

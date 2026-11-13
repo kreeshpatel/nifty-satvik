@@ -191,6 +191,7 @@ def wired(tmp_path, monkeypatch):
     monkeypatch.setattr(AG, "load_book_positions", lambda *_a, **_k: list(state["held"]))
     monkeypatch.setattr(AG, "load_book_entry_dates", lambda *_a, **_k: {})
     monkeypatch.setattr(AG, "KNOWN_SEAMS", {})
+    monkeypatch.setattr("nq.data.trading_calendar.filter_ohlcv_non_session", lambda o, **_k: (o, None))  # synthetic bars
     monkeypatch.setattr("nq.data.history_guard.open_tickers", lambda *_a, **_k: set())   # not the real book
     return setup
 
@@ -294,7 +295,84 @@ def test_mask_quarantined_clears_the_live_signal_and_only_the_new_windows():
     P = {"X": {"dates": list(d), "last_signal": {"rank": 0.1},
                "entry_win": {0: ("w0",), 1: ("w1",), 2: ("w2",)}},
          "Y": {"dates": list(d), "last_signal": {"rank": 0.2}, "entry_win": {2: ("y",)}}}
-    n = C._mask_quarantined(P, {"X"}, pd.Timestamp("2026-11-02"))
+    n = C._mask_quarantined(P, {"X": pd.Timestamp("2026-11-02")})
     assert n == {"signals_cleared": 1, "entry_windows_dropped": 1}
     assert P["X"]["last_signal"] is None and sorted(P["X"]["entry_win"]) == [0, 1]   # history kept
     assert P["Y"]["last_signal"] is not None and P["Y"]["entry_win"] == {2: ("y",)}
+
+
+# ── review fixes (2026-11-12) ──────────────────────────────────────────────────────────────────────
+def test_a_short_refetch_never_replaces_deep_history():
+    cache = {"AAA": _clean(), "BBB": _split_broken()}
+    stub = _clean().iloc[-40:]                                # throttled: 40 bars, passes the seam check
+    out, rec = _run(cache, refetch=lambda t: {"BBB": stub})
+    assert out["BBB"] is cache["BBB"], "the original deep series must be kept"
+    assert rec["healed"] == [] and rec["refetch_rejected_too_short"] == ["BBB"]
+    assert [q["ticker"] for q in rec["quarantined"]] == ["BBB"]
+
+
+def test_a_full_depth_refetch_is_still_accepted():
+    cache = {"AAA": _clean(), "BBB": _split_broken()}
+    out, rec = _run(cache, refetch=lambda t: {"BBB": _clean().iloc[-int(len(BARS) * 0.95):]})
+    assert rec["healed"] == ["BBB"] and rec["refetch_rejected_too_short"] == []
+
+
+def test_a_same_week_rerun_keeps_the_recorded_last_good_date():
+    as_of = "2026-11-06"                                       # Friday; this week's last bar
+    prior = {"quarantined": [{"ticker": "X", "last_good": "2026-10-30"}]}
+    # run 1 published this week, so the previous scan IS this week's bar: nothing would be frozen
+    got = C._quarantine_last_good(["X", "Y"], prior, "2026-11-06", as_of)
+    assert got["X"] == pd.Timestamp("2026-10-30"), "persisted boundary wins"
+    assert got["Y"] == pd.Timestamp("2026-10-30"), "a new name is clamped to the previous Friday"
+
+
+def test_a_new_name_uses_the_last_published_scan_when_it_is_earlier():
+    got = C._quarantine_last_good(["X"], None, "2026-10-23", "2026-11-06")
+    assert got["X"] == pd.Timestamp("2026-10-23")
+    assert C._quarantine_last_good(["X"], None, None, "2026-11-06")["X"] == pd.Timestamp("2026-10-30")
+
+
+def test_a_rerun_after_publish_still_freezes(fix):
+    ohlcv, index = fix
+    t0 = _trade(_bt(ohlcv, index)[0])
+    good = pd.Timestamp(t0["entry_date"]) + pd.Timedelta(days=12)
+    prior = {"quarantined": [{"ticker": "INDIG", "last_good": str(good.date())}]}
+    bound = C._quarantine_last_good(["INDIG"], prior, "2018-08-17", "2018-08-17")["INDIG"]
+    assert bound == good
+    _, out = _bt(ohlcv, index, quarantine={"INDIG": bound})
+    assert out["open_positions"]["INDIG"]["data_quarantine"] == str(good.date())
+
+
+def test_a_frozen_position_is_marked_at_its_last_good_close_not_the_suspect_one(fix):
+    ohlcv, index = fix
+    t0 = _trade(_bt(ohlcv, index)[0])
+    good = pd.Timestamp(t0["entry_date"]) + pd.Timedelta(days=12)
+    bad = dict(ohlcv)
+    df = ohlcv["INDIG"].copy()
+    df.loc[df.index > good, ["Open", "High", "Low", "Close"]] *= 0.5   # an unadjusted 2:1 split
+    bad["INDIG"] = df
+    last_good_close = float(ohlcv["INDIG"].loc[ohlcv["INDIG"].index <= good, "Close"].iloc[-1])
+    entry = float(t0["entry"])
+
+    plog: list = []
+    _bt(bad, index, quarantine={"INDIG": good}, position_log=plog)
+    frozen = [r for r in plog if r["tkr"] == "INDIG" and abs(r["entry"] - entry) < 0.01 and r["date"] > good]
+    assert frozen, "the position must still be logged after the last good date"
+    assert all(r["mark_px"] == pytest.approx(last_good_close) for r in frozen), \
+        "NAV must carry the frozen position at its last good close"
+
+    plog2: list = []
+    _bt(bad, index, position_log=plog2)                                  # unquarantined: marks the suspect close
+    assert any(r["tkr"] == "INDIG" and r["date"] > good and r["mark_px"] < 0.6 * last_good_close for r in plog2)
+
+
+def test_an_exit_already_pending_from_good_data_survives_the_freeze(fix):
+    ohlcv, index = fix
+    t0 = _trade(_bt(ohlcv, index)[0])
+    exit_day = pd.Timestamp(t0["exit_date"])                            # Monday open fill of a Friday decision
+    friday = ohlcv["INDIG"].index[ohlcv["INDIG"].index < exit_day][-1]
+    led, out = _bt(ohlcv, index, quarantine={"INDIG": friday})
+    assert not any(r["tkr"] == "INDIG" and str(r["entry_date"])[:10] == "2017-12-18" for r in led)
+    p = out["open_positions"]["INDIG"]
+    assert p["data_quarantine"] == str(friday.date())
+    assert p["pending"] is not None, "the exit decided from good data must stay queued so the card can say so"

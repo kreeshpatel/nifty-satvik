@@ -707,7 +707,9 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
     A position in a quarantined ticker is FROZEN on every session AFTER its last-good date - no fill, no
     tranche, no ratchet, no exit - because the price series behind it failed the data guards (see
     nq.data.data_quarantine). Its stop and levels stay at their last good values, and it carries
-    `data_quarantine` (the last-good date) for the card. Sessions on or before that date run as normal.
+    `data_quarantine` (the last-good date) for the card, and is marked to market at its last GOOD close
+    (`q_mark`), not the suspect one. An exit already pending from good data is not cleared. Sessions on or
+    before the last-good date run as normal.
 
     min_rr_at_fill (research lever, 2026-11-02; None = OFF => byte-identical): skip an in_range fill whose
     reward:risk AT THE FILL is below this. R:R = (target - fill) / (fill - stop), where `target` is the +tp1_r
@@ -824,7 +826,13 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
             p["last_mark"] = float(s["c"][i])      # last TRADED close (the B-1 stale-exit price)
             if quarantine and t in quarantine and d > quarantine[t]:
                 p["data_quarantine"] = str(pd.Timestamp(quarantine[t]).date())
-                continue                            # suspect data: keep the position, move nothing
+                if "q_mark" not in p:               # NAV carries it at its last GOOD close, never the suspect one
+                    _gi = max((k for k, dd in enumerate(s["dates"]) if pd.Timestamp(dd) <= pd.Timestamp(quarantine[t])),
+                              default=None)
+                    p["q_mark"] = float(s["c"][_gi]) if _gi is not None else float(p["en"])
+                continue                            # suspect data: keep the position, move nothing; a pending
+                                                    # exit decided from GOOD data is left untouched, so it is
+                                                    # still surfaced on the card (the fill price is not booked)
             # CORPORATE-ACTION HOLD: the OPEN gap is checked before any pending fill (a demerger re-bases
             # at the open, and a queued exit filling there would book the carved-out value as a loss);
             # the CLOSE move is checked after the day's fills. Both use only prices known at that point.
@@ -1395,7 +1403,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
         # NAV mark for a name with no bar today. B-1: the frozen behaviour marks it at ENTRY price
         # (carrying a suspended holding at cost, flattering NAV); with the stale gate ON it marks to
         # the LAST TRADED close. Gate OFF => `p["en"]` exactly => byte-identical.
-        _marks = {t: (P[t]["c"][didx[t][d]] if d in didx[t] else _absent_mark(p))
+        _marks = {t: (p["q_mark"] if "q_mark" in p and "data_quarantine" in p
+                      else P[t]["c"][didx[t][d]] if d in didx[t] else _absent_mark(p))
                   for t, p in op.items()}
         mtm = sum(p["sh"] * _marks[t] for t, p in op.items())
         eq = cash + mtm
