@@ -160,6 +160,7 @@ jobs:
           need results/portfolio_history_weekly.csv
           need results/base_swing_forward.json   # prereg_swing §4 comparator; §3 forbids backfilling a missed week
           opt results/shadow_exit_forward.json   # shadow exit (breakeven at +1R), forward from 2026-11-09; never traded
+          opt results/signal_axes_capture.jsonl  # write-once at-signal quality axes; survives a failed scan's archive gap
           opt results/cards_archive.jsonl
           need results/brain/position_log.csv.gz        # the capital book's holdings; unrecoverable if missed
           need results/brain/management_events.jsonl    # tranches/ratchets/halts; a snapshot cannot rebuild them

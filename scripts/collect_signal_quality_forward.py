@@ -179,7 +179,30 @@ def _first_fresh_flags() -> dict[tuple[str, str], dict]:
             else:
                 anchor = sd
                 episodes[(t, anchor)] = dict(rows[(t, sd)])
+    _fill_from_capture(episodes)
     return episodes
+
+
+def _fill_from_capture(episodes: dict[tuple[str, str], dict]) -> None:
+    """Fill axes the archive lacks from the write-once at-signal capture log.
+
+    Archive values always win; the capture only supplies a null. A capture matches an episode when
+    it is the same ticker within EPISODE_DAYS of the episode's anchor date (the same collapse rule
+    as above), the earliest such capture first."""
+    import signal_axes_capture as SAC
+    cap = SAC.load_capture(SAC.capture_path(RESULTS_DIR))
+    if not cap:
+        return
+    by_t: dict[str, list[tuple[str, dict]]] = {}
+    for (t, sd), rec in sorted(cap.items(), key=lambda kv: kv[0][1]):
+        by_t.setdefault(t, []).append((sd, rec))
+    for (t, anchor), tgt in episodes.items():
+        for sd, rec in by_t.get(t, []):
+            if abs((pd.Timestamp(sd) - pd.Timestamp(anchor)).days) > EPISODE_DAYS:
+                continue
+            for f in SAC.CAPTURE_FIELDS:
+                if tgt.get(f) is None and rec.get(f) is not None:
+                    tgt[f] = rec[f]
 
 
 def _outcomes() -> dict[str, list[tuple[str, dict]]]:
