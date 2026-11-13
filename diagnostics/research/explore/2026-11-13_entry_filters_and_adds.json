@@ -1,0 +1,141 @@
+{
+  "tier": "EXPLORE",
+  "window": [
+    "2019-01-01",
+    "2024-06-30"
+  ],
+  "big_winner_def": "uncapped live trade with R >= +2.0",
+  "live_big_winners": {
+    "count": 169,
+    "sum_R": 861.2
+  },
+  "arms": {
+    "live": {
+      "uncapped": {
+        "n_closed": 441,
+        "n_open_at_cut": 84,
+        "mean_R_closed": 0.621,
+        "total_R_incl_open": 650.2,
+        "win_pct_closed": 42.9,
+        "worst_R_drawdown": -60.0
+      },
+      "capped": {
+        "sharpe": 1.025,
+        "maxdd_pct": -40.1,
+        "cagr_pct": 20.5
+      },
+      "big_winners_skipped": 0
+    },
+    "b1_midcap_breadth_lt_40": {
+      "uncapped": {
+        "n_closed": 359,
+        "n_open_at_cut": 82,
+        "mean_R_closed": 0.336,
+        "total_R_incl_open": 466.4,
+        "win_pct_closed": 40.4,
+        "worst_R_drawdown": -57.4
+      },
+      "capped": {
+        "sharpe": 0.997,
+        "maxdd_pct": -26.7,
+        "cagr_pct": 16.9
+      },
+      "signals_removed": 381,
+      "signals_total": 1524,
+      "big_winners_skipped": 30,
+      "big_winner_R_skipped": 185.6
+    },
+    "b2_below_own_40w": {
+      "uncapped": {
+        "n_closed": 441,
+        "n_open_at_cut": 84,
+        "mean_R_closed": 0.621,
+        "total_R_incl_open": 650.2,
+        "win_pct_closed": 42.9,
+        "worst_R_drawdown": -60.0
+      },
+      "capped": {
+        "sharpe": 1.025,
+        "maxdd_pct": -40.1,
+        "cagr_pct": 20.5
+      },
+      "signals_removed": 0,
+      "signals_total": 1524,
+      "big_winners_skipped": 0,
+      "big_winner_R_skipped": 0.0
+    },
+    "b3_weak_6m_rs": {
+      "uncapped": {
+        "n_closed": 395,
+        "n_open_at_cut": 72,
+        "mean_R_closed": 0.658,
+        "total_R_incl_open": 609.2,
+        "win_pct_closed": 42.8,
+        "worst_R_drawdown": -74.6
+      },
+      "capped": {
+        "sharpe": 1.067,
+        "maxdd_pct": -35.1,
+        "cagr_pct": 20.9
+      },
+      "signals_removed": 223,
+      "signals_total": 1524,
+      "big_winners_skipped": 10,
+      "big_winner_R_skipped": 38.1
+    },
+    "b4_results_within_4w": {
+      "uncapped": {
+        "n_closed": 391,
+        "n_open_at_cut": 78,
+        "mean_R_closed": 0.677,
+        "total_R_incl_open": 601.8,
+        "win_pct_closed": 44.2,
+        "worst_R_drawdown": -63.0
+      },
+      "capped": {
+        "sharpe": 1.275,
+        "maxdd_pct": -31.2,
+        "cagr_pct": 25.6
+      },
+      "signals_removed": 159,
+      "signals_total": 1524,
+      "big_winners_skipped": 20,
+      "big_winner_R_skipped": 107.1
+    },
+    "c_half_size_below_40w": {
+      "uncapped_size_weighted": {
+        "n_closed": 441,
+        "n_open_at_cut": 84,
+        "mean_R_closed": 0.372,
+        "total_R_incl_open": 514.6,
+        "win_pct_closed": 42.9,
+        "worst_R_drawdown": -58.3
+      },
+      "capped": {
+        "sharpe": 1.228,
+        "maxdd_pct": -39.5,
+        "cagr_pct": 25.7
+      },
+      "share_of_entries_at_half": 0.261,
+      "big_winners_skipped": 0,
+      "big_winners_at_half_size": 52,
+      "big_winner_R_given_up": 152.5
+    },
+    "a_add_unit_at_1R": {
+      "uncapped": {
+        "n_closed": 441,
+        "n_open_at_cut": 84,
+        "mean_R_closed": 0.821,
+        "total_R_incl_open": 851.4,
+        "win_pct_closed": 42.9,
+        "worst_R_drawdown": -86.2
+      },
+      "capped": "not measured (needs an engine lever)",
+      "adds_taken": 309,
+      "add_unit_mean_R": 0.651,
+      "big_winners_skipped": 0,
+      "add_R_on_big_winners": 270.8,
+      "add_R_on_the_rest": -69.6
+    }
+  }
+}
