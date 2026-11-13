@@ -22,7 +22,7 @@ export const TIER = {
 };
 
 const fmtShort = (d) => !d ? '' :
-  new Date(d).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase();
+  new Date(d).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase();
 const daysLeft = (until, now = new Date()) =>
   !until ? null : Math.max(0, Math.ceil((new Date(until) - now) / 86400000));
 

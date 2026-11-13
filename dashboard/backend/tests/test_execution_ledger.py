@@ -234,3 +234,28 @@ def test_no_corporate_action_leaves_every_figure_exactly_as_before() -> None:
     assert before == ledger.position_state(plain, stop=90.0, corporate_actions=[])
     assert before == ledger.position_state(plain, stop=90.0, corporate_actions=None)
     assert before["cost_basis"] == "none" and before["raw_avg_buy_price"] == 100.0
+
+
+def test_reentry_average_tracks_shares_still_held() -> None:
+    """Audit 2026-11-12: after a full exit and a re-entry, the open position's average and cost
+    basis must reflect only the shares still held (broker average), not the all-time buys."""
+    from types import SimpleNamespace as N
+    from datetime import datetime
+    import services.execution_ledger as L
+
+    def ev(i, side, qty, price):
+        t = datetime(2026, 1, i)
+        return N(id=i, side=side, qty=qty, price=price, executed_at=t, created_at=t, corrects_event_id=None,
+                 signal_id="X", ticker="X", tranche=None, fill_source="manual", note=None)
+
+    r = L.position_state([ev(1, L.BUY, 10, 100.0), ev(2, L.SELL, 10, 110.0), ev(3, L.BUY, 10, 200.0)])
+    assert r["remaining_qty"] == 10
+    assert r["avg_buy_price"] == 200.0
+    assert r["raw_avg_buy_price"] == 200.0
+    assert r["cost_basis_remaining"] == 2000.0
+    assert r["realized_pnl"] == 100.0
+
+    # partial sell keeps the average (average-cost accounting)
+    r = L.position_state([ev(1, L.BUY, 10, 100.0), ev(2, L.BUY, 10, 120.0), ev(3, L.SELL, 5, 130.0)])
+    assert r["avg_buy_price"] == 110.0 and r["remaining_qty"] == 15 and r["cost_basis_remaining"] == 1650.0
+    assert r["realized_pnl"] == 100.0

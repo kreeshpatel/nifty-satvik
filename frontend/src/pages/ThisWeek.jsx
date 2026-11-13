@@ -24,6 +24,7 @@
  * breach midweek. So the header states the next scan AND that a midweek trigger is acted on at the
  * next open, matching the engine (weekly-close decision, next-open execution).
  */
+import { ListChecks } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -32,10 +33,13 @@ import { useReconciliation, useExecutionPositions, useRecordBuy } from '@/hooks/
 import { useSizerConfig, useSizingPrefs, useUpdateSizingPrefs } from '@/hooks/queries/useSizingPrefs';
 import { useQuoteBatch } from '@/hooks/queries/useQuoteBatch';
 import ExecutionCaptureModal from '@/components/shared/ExecutionCaptureModal';
+import { ColdStartDialog, useLessons } from '@/components/shared/Onboarding';
 import { EmptyState } from '@/components/shared/EmptyState';
 import { DISCLAIMER } from '@/lib/signalCopy';
 import { sizePortfolio, SIZER_STATUS } from '@/lib/sizing';
+import { cardStatus } from '@/lib/cards';
 import '@/styles/this-week.css';
+import '@/styles/dashboard-v5.css';
 
 const IST_OFFSET_MIN = 330;
 const fmtNum = (n) => (n == null ? '—' : Number(n).toLocaleString('en-IN', { maximumFractionDigits: 2 }));
@@ -52,7 +56,7 @@ function nextScan(now = new Date()) {
   const hrs = Math.round((d - istNow) / 3600000);
   const inWords = hrs < 24 ? `in ${hrs} hour${hrs === 1 ? '' : 's'}`
     : `in ${Math.round(hrs / 24)} day${Math.round(hrs / 24) === 1 ? '' : 's'}`;
-  return { when: d.toLocaleDateString('en-IN', { weekday: 'long' }), inWords };
+  return { when: d.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', weekday: 'long' }), inWords };
 }
 
 // The band the record actually buys inside.
@@ -136,6 +140,7 @@ function SizingControl({ capital, tier, tiers, capPct, open, onToggle }) {
 }
 
 export default function ThisWeek() {
+  const onRecorded = useLessons();   // one-time tips after first buy / first +2R partial (Stage 6c)
   const signalsQuery = useSignals({ model: 'bhanushali' });
   const reconQuery = useReconciliation();
   const execQuery = useExecutionPositions();
@@ -149,6 +154,12 @@ export default function ThisWeek() {
   const [bulkBusy, setBulkBusy] = useState(false);
 
   const rawSignals = useMemo(() => signalsQuery.data?.signals ?? [], [signalsQuery.data]);
+  // The model's own book, held trades first, then this week's buy cards. Shown whether or not you
+  // recorded the fill, because the stop, the +2R limit and the next exit are the model's plan
+  // (restored 2026-11-13: the v7 redesign had removed the only page that showed them).
+  const modelCards = useMemo(() => rawSignals
+    .map((s) => ({ s, st: cardStatus(s) }))
+    .sort((a, b) => (a.st.kind === b.st.kind ? 0 : a.st.kind === 'hold' ? -1 : 1)), [rawSignals]);
   const items = reconQuery.data?.items ?? [];
   const positions = useMemo(() => execQuery.data ?? [], [execQuery.data]);
   const openPositions = useMemo(
@@ -246,32 +257,22 @@ export default function ThisWeek() {
 
   return (
     <div className="ns-page">
-      <header className="tw-head">
+      <header className="d7-head">
         <div>
-          <div className="ns-kicker">THIS WEEK · WHAT TO DO</div>
-          <h1 className="ns-title">This week</h1>
-          <p className="ns-sub">
-            Everything the model expects of you, in one place. Recording a fill clears its line.
-          </p>
-          {!loading && summary.length > 0 && (
-            <div className="tw-summary">
-              {summary.map((s2) => (
-                <span className={`ns-chip ${SUM_TONE[s2.k]}`} key={s2.k}>
-                  <b className="tnum">{s2.n}</b> {s2.label}
-                </span>
-              ))}
-            </div>
-          )}
+          <h1>This week</h1>
+          <p className="d7-sub">Everything the model expects of you, in one place. Recording a fill clears its line.</p>
         </div>
-        <div className="tw-cadence">
-          <div className="tw-cadence-row">Next scan · <b>{scan.when} 6:00 PM IST</b> <span>({scan.inWords})</span></div>
-          {/* The honest cadence: NOT "do nothing until Saturday". */}
-          <div className="tw-cadence-note">
-            The book is decided at the Saturday close. If a stop or your +2R limit triggers midweek,
-            act on the next market open — you don’t wait for the scan.
-          </div>
-        </div>
+        <p className="d7-fresh"><span className="d7-dot" aria-hidden />Next scan {scan.when}, 18:00 IST · {scan.inWords}</p>
       </header>
+
+      <dl className="d7-stats tw-stats" aria-label="This week at a glance">
+        {[['missed', 'Missed exits'], ['due', 'Exits due'], ['buy', 'Buys open'], ['hold', 'Holding']].map(([k, label]) => {
+          const it = summary.find((s2) => s2.k === k);
+          const v = it ? it.n : 0;
+          return <div key={k}><dt>{label}</dt><dd data-num className={v && k === 'missed' ? 'down' : v && k !== 'hold' ? 'acc' : ''}>{loading ? '—' : v}</dd></div>;
+        })}
+        <div className="tw-stats-note"><dt>Cadence</dt><dd className="tw-cad">Decided at the Saturday close. If a stop or your +2R limit triggers midweek, act at the next market open.</dd></div>
+      </dl>
 
       {loading && <div className="ns-card ns-prose">Loading this week’s actions…</div>}
 
@@ -422,10 +423,16 @@ export default function ThisWeek() {
                         : <>near <b className="tnum">{fmtNum(s.entry)}</b></>}
                       {' '}· stop <b className="tnum">{fmtNum(s.stop)}</b>
                     </div>
+                    {(() => { const w = cardStatus(s).window; return w && (w.text || w.until || w.state) ? (
+                      <div className="ns-meta">
+                        {w.state && <span className={`ns-tag num-${w.state.tone}`}>{w.state.label}</span>}{' '}
+                        {w.text}{w.until ? <> · window closes <b className="tnum">{w.until}</b></> : null}
+                        {w.noChaseAbove != null && <> · do not chase above <b className="tnum">{fmtNum(w.noChaseAbove)}</b></>}
+                      </div>) : null; })()}
                   </div>
                 </div>
                 <div className="ns-row-r">
-                  <span className="ns-num">
+                  <span className={`ns-num${!row?.status && !capital ? ' ns-num--hint' : ''}`}>
                     {row?.status === SIZER_STATUS.FUNDED ? `${row.qty} sh · ${money0(row.cost)}`
                       : row?.status === SIZER_STATUS.OUT_OF_RANGE ? 'above buy range'
                       : row?.status === SIZER_STATUS.NOT_FUNDED ? 'no cash left'
@@ -440,6 +447,50 @@ export default function ThisWeek() {
                   >
                     Record buy
                   </button>
+                </div>
+              </div>
+            );
+          })}
+        </section>
+      )}
+
+      {/* ── MODEL BOOK STATUS: every card the model holds or is buying, with the daily monitor's
+           flags. This is the model's plan, independent of what you have recorded. ── */}
+      {modelCards.length > 0 && (
+        <section className="ns-section" aria-labelledby="tw-model-h">
+          <div className="ns-section-h">
+            <h2 id="tw-model-h">Model book status <span className="ns-count">{modelCards.length}</span></h2>
+            <span className="ns-section-sub">
+              Stops, targets and the next exit for every model trade{signalsQuery.data?.monitor_as_of ? `, as of ${signalsQuery.data.monitor_as_of}` : ''}
+            </span>
+          </div>
+          {modelCards.map(({ s, st }) => {
+            const sym = (s.ticker || '').toUpperCase();
+            const alarm = st.chips.some((c) => c.tone === 'bear');
+            return (
+              <div className={`ns-row${alarm ? ' ns-row--alarm' : ''}`} key={`model-${signalIdOf(s)}`}>
+                <div className="ns-row-l">
+                  <span className={`ns-dot num-${alarm ? 'bear' : st.kind === 'hold' ? 'muted' : 'info'}`} />
+                  <div>
+                    <div className="ns-sym">
+                      {sym}
+                      <span className="ns-tag">{st.kind === 'hold' ? 'open' : 'buy this week'}</span>
+                      {st.chips.map((c) => <span key={c.label} className={`ns-tag num-${c.tone}`}>{c.label}</span>)}
+                    </div>
+                    <div className="ns-meta">
+                      stop <b className="tnum">{fmtNum(st.stop)}</b>
+                      {st.fill != null && <> · fill <b className="tnum">{fmtNum(st.fill)}</b></>}
+                      {st.distToStopPct != null && <> · <span className="tnum">{st.distToStopPct.toFixed(1)}%</span> to stop</>}
+                      {st.distToTargetPct != null && st.kind === 'hold' && <> · <span className="tnum">{st.distToTargetPct.toFixed(1)}%</span> to +2R</>}
+                      {st.pnlPct != null && <> · <span className={`tnum ${st.pnlPct < 0 ? 'num-bear' : 'num-bull'}`}>{st.pnlPct > 0 ? '+' : ''}{st.pnlPct.toFixed(1)}%</span></>}
+                      {st.rNow != null && <> (<span className="tnum">{st.rNow.toFixed(2)}R</span>)</>}
+                      {st.fractionLeft != null && st.fractionLeft < 1 && <> · <span className="tnum">{Math.round(st.fractionLeft * 100)}%</span> still held</>}
+                    </div>
+                    {st.kind === 'hold' && st.nextStep && <div className="ns-meta ns-meta--do">{st.nextStep}</div>}
+                    {st.kind === 'buy' && st.window && (st.window.text || st.window.until) && (
+                      <div className="ns-meta">{st.window.text}{st.window.until ? <> · window closes <b className="tnum">{st.window.until}</b></> : null}{st.window.noChaseAbove != null && <> · do not chase above <b className="tnum">{fmtNum(st.window.noChaseAbove)}</b></>}</div>
+                    )}
+                  </div>
                 </div>
               </div>
             );
@@ -511,7 +562,9 @@ export default function ThisWeek() {
         open={!!capture} mode={capture?.mode} sig={capture?.sig}
         sizerQty={capture?.sizerQty} tranche={capture?.tranche}
         onClose={() => setCapture(null)}
+        onRecorded={(res, ctx) => onRecorded(res, ctx, capture?.tranche)}
       />
+      <ColdStartDialog />
     </div>
   );
 }

@@ -6,7 +6,7 @@
 .pd2-root {
     position: relative;
     min-height: 100vh;
-    background: radial-gradient(ellipse 80% 60% at 50% 20%, #0d1230 0%, #07091c 50%, #04061a 100%);
+    background: radial-gradient(ellipse 80% 60% at 50% 20%, #0d1230 0%, #070a16 50%, #04061a 100%);
     color: var(--text-1, #F1F5FF);
     font-family: "DM Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     overflow: hidden;
@@ -1642,7 +1642,7 @@
 .pd2-field-input:focus { border-color: rgba(79,140,255,0.45); }
 .pd2-field-readonly { color: var(--text-2); cursor: default; }
 .pd2-select { cursor: pointer; }
-.pd2-select option { background: #07091c; }
+.pd2-select option { background: #070a16; }
 
 .pd2-chip-group { display: flex; gap: 8px; flex-wrap: wrap; }
 .pd2-chip-wrap  { flex-wrap: wrap; }
@@ -1688,7 +1688,7 @@
     height: 16px;
     border-radius: 50%;
     background: var(--brand-hi, #6DA1FF);
-    border: 2px solid #07091c;
+    border: 2px solid #070a16;
     box-shadow: 0 0 6px rgba(79,140,255,0.5);
 }
 .pd2-slider::-moz-range-thumb {
@@ -1696,7 +1696,7 @@
     height: 16px;
     border-radius: 50%;
     background: var(--brand-hi, #6DA1FF);
-    border: 2px solid #07091c;
+    border: 2px solid #070a16;
 }
 .pd2-slider-val {
     font-size: 13px;

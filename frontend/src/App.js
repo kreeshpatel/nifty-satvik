@@ -13,6 +13,7 @@ import { queryClient } from '@/lib/queryClient';
 import { TopBar } from '@/components/layout/TopBar';
 import WatchlistRail from '@/components/layout/WatchlistRail';
 import MobileNav from '@/components/layout/MobileNav';
+import TickerStrip from '@/components/shared/TickerStrip';
 
 // Phase 8 polish: every page is code-split via React.lazy so the initial
 // bundle only carries the shell + auth + sidebar. Each route fetches its
@@ -22,26 +23,26 @@ import MobileNav from '@/components/layout/MobileNav';
 // Login + Landing stay eager — they're the entry points and any lazy
 // Suspense flicker on first paint reads as broken.
 import Login from '@/pages/Login';
-import LandingV2 from '@/pages/LandingV2';
+import LandingV3 from '@/pages/LandingV3';
 import InfoPage from '@/pages/InfoPage';
 // NOTE: the legacy `Landing` page + its exclusive components were DELETED 2026-07-18. They carried
 // fabricated stats, a pricing block contradicting the invite-only positioning, and the RETIRED-v1
 // strategy in plain text (Features.jsx named the old LightGBM model / feature count). Unrouted since
 // 2026-07-02, but a disclosure landmine one route change away. /landing-v1 still redirects to `/`.
 
-const DashboardV3     = React.lazy(() => import('@/pages/DashboardV3'));
-const SignalsV3       = React.lazy(() => import('@/pages/SignalsV3'));
+const DashboardV5     = React.lazy(() => import('@/pages/DashboardV5'));
+const ResearchV7      = React.lazy(() => import('@/pages/ResearchV7'));
 const BacktestV2      = React.lazy(() => import('@/pages/BacktestV2'));
-const StockDetailV2   = React.lazy(() => import('@/pages/StockDetailV2'));
+const StockV7         = React.lazy(() => import('@/pages/StockV7'));
 // AdminV2 is the canonical admin console (4-tab layout). The legacy Admin page and
 // TrackRecordV2 were DELETED 2026-08-27 — both had been unrouted for weeks, kept as
 // "emergency rollback", which git already is. An unrouted import is not a rollback, it
 // is a second copy of a page nobody maintains that still ships in the bundle graph.
 const AdminV2         = React.lazy(() => import('@/pages/AdminV2'));
-const TrackRecordV3   = React.lazy(() => import('@/pages/TrackRecordV3'));
-const PortfolioV3     = React.lazy(() => import('@/pages/PortfolioV3'));
+const TrackRecordV7   = React.lazy(() => import('@/pages/TrackRecordV7'));
+const PortfolioV3     = React.lazy(() => import('@/pages/PortfolioV3'));   // owner-only paper book view
+const PortfolioV7     = React.lazy(() => import('@/pages/PortfolioV7'));
 const ThisWeek        = React.lazy(() => import('@/pages/ThisWeek'));
-const RecommendationHistory = React.lazy(() => import('@/pages/RecommendationHistory'));
 const SettingsV2      = React.lazy(() => import('@/pages/SettingsV2'));
 const PrimitivesShowcase = React.lazy(() => import('@/pages/_internal/Primitives'));
 const PreviewDashboard   = React.lazy(() => import('@/pages/_internal/PreviewDashboard'));
@@ -131,10 +132,14 @@ function ProtectedAppLayout() {
   return (
     <KiteContext.Provider value={kiteValue}>
       <div data-page-ctx="dashboard" className="min-h-screen flex flex-col">
+        {/* WCAG 2.4.1 bypass block: keyboard users jump past the nav straight to the page. */}
+        <a href="#main-content" className="skip-link">Skip to main content</a>
         <TopBar />
+        {/* Operational strip: real index levels + the model's re-score countdown (§11). */}
+        <TickerStrip />
         <div className="flex flex-1 min-w-0">
           <WatchlistRail />
-          <main className="flex-1 min-w-0 overflow-x-hidden relative z-10">
+          <main id="main-content" tabIndex={-1} className="flex-1 min-w-0 overflow-x-hidden relative z-10">
             <Outlet />
           </main>
         </div>
@@ -211,9 +216,9 @@ function AnimatedRoutes() {
       <Suspense fallback={<RouteFallback />}>
       <Routes location={location} key={location.pathname}>
         {/* Public routes — landing page always shown at / */}
-        {/* LandingV2 is the single live landing; /landing-v1 (legacy) redirects here — it
+        {/* LandingV3 (design v5, 2026-11-05) is the single live landing; /landing-v1 (legacy) redirects here — it
             carried fabricated stats + a contradictory pricing block. Roll back via git. */}
-        <Route path="/" element={<PageTransition><LandingV2 /></PageTransition>} />
+        <Route path="/" element={<PageTransition><LandingV3 /></PageTransition>} />
         <Route path="/landing-v1" element={<Navigate to="/" replace />} />
         <Route path="/login" element={<PageTransition><LoginGuard /></PageTransition>} />
         <Route path="/forgot-password" element={<PageTransition><ForgotPassword /></PageTransition>} />
@@ -222,36 +227,46 @@ function AnimatedRoutes() {
         {/* Internal — Phase 1 primitive library QA page. Not linked from nav.
             Unauthenticated so design review doesn't require a login. Remove
             before Phase 2 ship if this becomes a security concern. */}
+        {/* Dev-only since 2026-11-05: unauthenticated pages that expose internal UI/layout have
+            no business on the public origin. Production builds drop both routes (and their chunks). */}
+        {process.env.NODE_ENV !== 'production' && (
         <Route path="/_primitives" element={<PageTransition><PrimitivesShowcase /></PageTransition>} />
+        )}
         {/* fxreplay-inspired dashboard prototype. Public, no auth gate.
             Lives at /preview-dashboard — separate from /dashboard so
             the redesign doesn't affect paying users. */}
+        {process.env.NODE_ENV !== 'production' && (
         <Route path="/preview-dashboard" element={<PageTransition><PreviewDashboard /></PageTransition>} />
+        )}
 
         {/* Authenticated app — wrapped with sidebar + KiteContext */}
         <Route element={<ProtectedAppLayout />}>
-          <Route path="/dashboard" element={<PageTransition><DashboardV3 /></PageTransition>} />
+          <Route path="/dashboard" element={<PageTransition><DashboardV5 /></PageTransition>} />
           {/* The single "what to do this week" surface — consolidates the buys (Research),
               the exits (Portfolio's outstanding strip) and the monitor flags into one list. */}
           <Route path="/this-week" element={<PageTransition><ThisWeek /></PageTransition>} />
-          <Route path="/premove" element={<PageTransition><SignalsV3 /></PageTransition>} />
+          {/* Research = issued calls and their return since issue (brief §13). Replaces SignalsV3 + History. */}
+          <Route path="/premove" element={<PageTransition><ResearchV7 /></PageTransition>} />
+          <Route path="/research" element={<Navigate to="/premove" replace />} />
           {/* Portfolio RESURRECTED 2026-07-18 (Stage 5): a per-user self-report holdings page
               sourced from the execution ledger + owner quotes (ADR 0011), NOT Kite. Positions
               (the Kite-mirror page) stays stripped. */}
-          <Route path="/portfolio" element={<PageTransition><PortfolioV3 /></PageTransition>} />
+          <Route path="/portfolio" element={<PageTransition><PortfolioV7 /></PageTransition>} />
+          {/* Owner-only: the model's paper book (members are sent to their own portfolio). */}
+          <Route path="/portfolio/paper" element={<PageTransition><PortfolioV3 initialMode="paper" /></PageTransition>} />
           <Route path="/portfolio-v2" element={<Navigate to="/portfolio" replace />} />
           {/* The broker-mirror redirects (/positions /orders /funds /pnl /accounting /journal)
               were REMOVED 2026-08-27 with the dead Sidebar that was their only entry point. They
               pointed at /premove, which is not what any of those words mean — a redirect that
               lands somewhere unrelated is worse than the catch-all, which sends an old bookmark
               home instead of to a page the user then has to make sense of. */}
-          <Route path="/track-record" element={<PageTransition><TrackRecordV3 /></PageTransition>} />
+          <Route path="/track-record" element={<PageTransition><TrackRecordV7 /></PageTransition>} />
           {/* Recommendation history: every posted weekly call and how it performed from the entry-week
               Monday open. Exited calls (target/stop/expired) live here, not on the live Research board. */}
-          <Route path="/history" element={<PageTransition><RecommendationHistory /></PageTransition>} />
+          <Route path="/history" element={<Navigate to="/premove" replace />} />
           <Route path="/backtest" element={<PageTransition><BacktestV2 /></PageTransition>} />
           <Route path="/settings" element={<PageTransition><SettingsV2 /></PageTransition>} />
-          <Route path="/stock/:symbol" element={<PageTransition><StockDetailV2 /></PageTransition>} />
+          <Route path="/stock/:symbol" element={<PageTransition><StockV7 /></PageTransition>} />
           <Route path="/admin" element={<PageTransition><AdminV2 /></PageTransition>} />
         </Route>
 

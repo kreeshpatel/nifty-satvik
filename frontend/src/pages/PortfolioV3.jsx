@@ -23,7 +23,10 @@
  * DISCLAIMER footer sourced from @/lib/signalCopy.
  */
 
-import React, { useState, useMemo } from 'react';
+import { Briefcase } from 'lucide-react';
+import React, { useState, useMemo, useContext } from 'react';
+import { AuthContext } from '@/context/AuthContext';
+import { Navigate } from 'react-router-dom';
 import { useOverview } from '@/hooks/queries/useOverview';
 import { useNavHistory } from '@/hooks/queries/useNavHistory';
 import { usePaperHistory } from '@/hooks/queries/usePaperHistory';
@@ -861,7 +864,7 @@ const HOLDING_STATUS_LABELS = {
 // use to hide columns on narrow screens.
 function fmtExDate(v) {
   const d = parseCalendarDate(v);
-  return d ? d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '—';
+  return d ? d.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata', day: 'numeric', month: 'short' }) : '—';
 }
 
 const COST_BASIS_QUALIFIER = {
@@ -1480,21 +1483,25 @@ function ActivityPanel({ holdings, trades, isLoading }) {
   );
 }
 
-export default function PortfolioV3() {
+export default function PortfolioV3({ initialMode } = {}) {
   // Two views: YOURS (the user's own self-reported holdings, from the Stage-4 execution ledger) and
   // PAPER (the model's ₹10L paper book, a labeled REFERENCE — not the user's return). Defaults to
   // Yours. No Kite (ADR 0011): the user executes on their own broker and reports fills.
-  const [mode, setMode] = useState('yours');
+  const [mode, setMode] = useState(initialMode || 'yours');
   const [ptab, setPtab] = useState('overview');   // sub-tab: overview | positions | closed | activity
-  const isPaper = mode === 'paper';
+  // The paper book is OWNER-ONLY (backend returns members an empty payload; docs/DATA_MAP.md §1).
+  // Members never see the Paper view or its panels, and never request that data.
+  const { user } = useContext(AuthContext);
+  const isAdmin = !!user?.is_admin;
+  const isPaper = isAdmin && mode === 'paper';
 
-  const overviewQuery   = useOverview();
-  const navHistoryQuery = useNavHistory();          // model NAV (only surfaced in the Paper reference view)
-  const paperHistoryQuery = usePaperHistory();      // ₹10L paper-broker ledger (Paper reference view)
-  const paperQuery      = usePaperPositions();      // the model's paper positions (Paper reference view)
+  const overviewQuery   = useOverview({ enabled: isAdmin });
+  const navHistoryQuery = useNavHistory({ enabled: isAdmin });     // model NAV (Paper view only)
+  const paperHistoryQuery = usePaperHistory({ enabled: isAdmin }); // ₹10L paper-broker ledger (Paper view)
+  const paperQuery      = usePaperPositions({ enabled: isAdmin }); // the model's paper positions (Paper view)
   const execQuery       = useExecutionPositions();  // the user's OWN durable positions (Yours view)
   const reconQuery      = useReconciliation({ enabled: !isPaper });  // outstanding model-vs-ledger items
-  const tradesQuery     = useTrades({ perPage: 50 });
+  const tradesQuery     = useTrades({ perPage: 50, enabled: isAdmin });   // the model's trade log (Paper view)
   const signalsQuery    = useSignals();
 
   // Stable references so the view useMemo below doesn't recompute every render.
@@ -1578,6 +1585,9 @@ export default function PortfolioV3() {
   const isHoldingsLoading = isPaper ? paperQuery.isLoading : execQuery.isLoading;
   const closedLoading     = isPaper ? tradesQuery.isLoading : execQuery.isLoading;
 
+  // Owner-only route (/portfolio/paper): members go to their own portfolio.
+  if (initialMode === 'paper' && user && !isAdmin) return <Navigate to="/portfolio" replace />;
+
   return (
     <div className="pv3-page density-regular">
 
@@ -1593,13 +1603,14 @@ export default function PortfolioV3() {
         <div className="pv3-row-head">
           <div>
             <div className="pv3-t-ui-micro">PORTFOLIO · MONITORING</div>
-            <h2 className="pv3-row-title">Portfolio</h2>
+            <div className="pg-head"><span className="pf-ic up" aria-hidden="true"><Briefcase /></span><h1 className="pv3-row-title">Portfolio · model paper book</h1></div>
             <div className="pv3-t-ui-footnote">
               {isPaper
                 ? "The model's paper book · a labeled reference, not your return"
                 : 'Your holdings · from what you reported, priced live · no broker link'}
             </div>
           </div>
+          {isAdmin && (
           <div className="pv3-mode-toggle" role="tablist" aria-label="Portfolio view">
             <button
               role="tab"
@@ -1618,6 +1629,7 @@ export default function PortfolioV3() {
               Paper (ref)
             </button>
           </div>
+          )}
         </div>
       </section>
 
@@ -1670,12 +1682,18 @@ export default function PortfolioV3() {
               isLoading={isOverviewLoading}
             />
           </section>
+          {/* Performance + risk read the PAPER book's metrics (useOverview) — showing them in the Yours
+              view labelled the model's numbers as the user's (audit 2026-11-12). Paper view only. */}
+          {isPaper && (
           <section className="pv3-row">
             <PerfRibbon metrics={metrics} portfolio={view.portfolio} isLoading={isOverviewLoading} />
           </section>
+          )}
+          {isPaper && (
           <section className="pv3-row">
             <RiskRibbon portfolio={view.portfolio} metrics={metrics} isLoading={isOverviewLoading} />
           </section>
+          )}
           <section className="pv3-row">
             <AllocCard holdings={activeHoldings} cash={cash} totalEquity={totalEquity} isPaper={isPaper} isLoading={isHoldingsLoading} />
           </section>
@@ -1719,7 +1737,7 @@ export default function PortfolioV3() {
       <footer className="pv3-foot">
         <div className="pv3-disclaimer">{DISCLAIMER}</div>
         <div className="pv3-foot-meta">
-          SEBI Research Analyst · Model-generated signals · Research output only · v2026.06
+          Not SEBI-registered · Model-generated research output · Prices are daily closes
         </div>
       </footer>
     </div>

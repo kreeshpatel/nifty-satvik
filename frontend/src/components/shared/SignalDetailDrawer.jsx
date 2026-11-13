@@ -181,7 +181,7 @@ function fmtDate(d) {
   if (!d) return null;
   try {
     return new Date(d).toLocaleDateString('en-IN', {
-      weekday: 'short',
+timeZone: 'Asia/Kolkata',       weekday: 'short',
       day: 'numeric',
       month: 'short',
     });

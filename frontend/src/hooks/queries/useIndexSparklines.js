@@ -14,6 +14,7 @@
  * this gives a lively-enough dashboard; off-hours the request settles and
  * the cache takes over.
  */
+import { isMarketOpen } from '@/lib/schedule';
 import { useQuery } from '@tanstack/react-query';
 import { yahooIndexSparklines } from '@/services/api';
 
@@ -25,6 +26,8 @@ export function useIndexSparklines(options = {}) {
     queryFn: yahooIndexSparklines,
     staleTime: 60 * 1000,
     gcTime: 10 * 60 * 1000,
+    // Index levels move only during the NSE session; poll then, otherwise refresh on focus.
+    refetchInterval: () => (isMarketOpen() ? 5 * 60 * 1000 : false),
     refetchIntervalInBackground: false,
     ...options,
   });
