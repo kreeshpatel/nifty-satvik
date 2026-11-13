@@ -1,0 +1,606 @@
+{
+  "tier": "EXPLORE",
+  "window_A": [
+    "2019-01-01",
+    "2024-06-30"
+  ],
+  "crosstab": [
+    {
+      "cell": "above | VIX <15 | breadth >60%",
+      "n_closed": 86,
+      "avg_R_closed": -0.03,
+      "total_R_closed": -2.3,
+      "runner_pct": 41.0,
+      "n_open_at_cut": 58,
+      "open_R_marked": 235.0,
+      "by_year (n:R)": "2020:2:-2.9 2021:18:+0.4 2022:8:-2.6 2023:47:+13.6 2024:11:-10.8",
+      "top_year": 2023,
+      "top_year_share_of_R": -5.87
+    },
+    {
+      "cell": "above | VIX 15-20 | breadth >60%",
+      "n_closed": 60,
+      "avg_R_closed": -0.41,
+      "total_R_closed": -24.8,
+      "runner_pct": 15.6,
+      "n_open_at_cut": 4,
+      "open_R_marked": 6.7,
+      "by_year (n:R)": "2020:10:-7.9 2021:26:-1.8 2022:18:-9.1 2023:1:-0.8 2024:5:-5.2",
+      "top_year": 2022,
+      "top_year_share_of_R": 0.37
+    },
+    {
+      "cell": "below | VIX >20 | breadth <40%",
+      "n_closed": 55,
+      "avg_R_closed": 2.49,
+      "total_R_closed": 136.8,
+      "runner_pct": 46.6,
+      "n_open_at_cut": 3,
+      "open_R_marked": 29.1,
+      "by_year (n:R)": "2020:39:+123.4 2022:16:+13.3",
+      "top_year": 2020,
+      "top_year_share_of_R": 0.9
+    },
+    {
+      "cell": "above | VIX >20 | breadth >60%",
+      "n_closed": 32,
+      "avg_R_closed": 2.51,
+      "total_R_closed": 80.4,
+      "runner_pct": 43.2,
+      "n_open_at_cut": 5,
+      "open_R_marked": 5.1,
+      "by_year (n:R)": "2020:18:+56.6 2021:14:+23.7",
+      "top_year": 2020,
+      "top_year_share_of_R": 0.7
+    },
+    {
+      "cell": "above | VIX 15-20 | breadth 40-60%",
+      "n_closed": 29,
+      "avg_R_closed": 0.12,
+      "total_R_closed": 3.4,
+      "runner_pct": 21.2,
+      "n_open_at_cut": 4,
+      "open_R_marked": 27.3,
+      "by_year (n:R)": "2021:2:+1.7 2022:26:+3.2 2023:1:-1.6",
+      "top_year": 2022,
+      "top_year_share_of_R": 0.96
+    },
+    {
+      "cell": "below | VIX 15-20 | breadth <40%",
+      "n_closed": 21,
+      "avg_R_closed": 0.44,
+      "total_R_closed": 9.2,
+      "runner_pct": 30.4,
+      "n_open_at_cut": 2,
+      "open_R_marked": 16.9,
+      "by_year (n:R)": "2019:8:+4.3 2022:11:+0.5 2023:2:+4.4",
+      "top_year": 2023,
+      "top_year_share_of_R": 0.47
+    },
+    {
+      "cell": "above | VIX >20 | breadth 40-60%",
+      "n_closed": 15,
+      "avg_R_closed": -0.0,
+      "total_R_closed": -0.0,
+      "runner_pct": 37.5,
+      "n_open_at_cut": 1,
+      "open_R_marked": 5.3,
+      "by_year (n:R)": "2020:6:+4.9 2022:9:-4.9",
+      "top_year": 2022,
+      "top_year_share_of_R": 133.19
+    },
+    {
+      "cell": "below | VIX >20 | breadth 40-60%",
+      "n_closed": 14,
+      "avg_R_closed": 1.41,
+      "total_R_closed": 19.8,
+      "runner_pct": 57.1,
+      "n_open_at_cut": 0,
+      "open_R_marked": 0.0,
+      "by_year (n:R)": "2020:14:+19.8",
+      "top_year": 2020,
+      "top_year_share_of_R": 1.0
+    },
+    {
+      "cell": "above | VIX 15-20 | breadth <40%",
+      "n_closed": 8,
+      "avg_R_closed": -1.3,
+      "total_R_closed": -10.4,
+      "runner_pct": 0.0,
+      "n_open_at_cut": 0,
+      "open_R_marked": 0.0,
+      "by_year (n:R)": "2019:8:-10.4",
+      "top_year": 2019,
+      "top_year_share_of_R": 1.0
+    },
+    {
+      "cell": "above | VIX <15 | breadth 40-60%",
+      "n_closed": 8,
+      "avg_R_closed": 0.15,
+      "total_R_closed": 1.2,
+      "runner_pct": 57.1,
+      "n_open_at_cut": 6,
+      "open_R_marked": 45.5,
+      "by_year (n:R)": "2023:8:+1.2",
+      "top_year": 2023,
+      "top_year_share_of_R": 1.0
+    },
+    {
+      "cell": "below | VIX <15 | breadth 40-60%",
+      "n_closed": 6,
+      "avg_R_closed": 0.48,
+      "total_R_closed": 2.9,
+      "runner_pct": 42.9,
+      "n_open_at_cut": 1,
+      "open_R_marked": 5.4,
+      "by_year (n:R)": "2023:6:+2.9",
+      "top_year": 2023,
+      "top_year_share_of_R": 1.0
+    },
+    {
+      "cell": "below | VIX 15-20 | breadth 40-60%",
+      "n_closed": 3,
+      "avg_R_closed": -0.99,
+      "total_R_closed": -3.0,
+      "runner_pct": 0.0,
+      "n_open_at_cut": 0,
+      "open_R_marked": 0.0,
+      "by_year (n:R)": "2019:3:-3.0",
+      "top_year": 2019,
+      "top_year_share_of_R": 1.0
+    },
+    {
+      "cell": "above | VIX >20 | breadth <40%",
+      "n_closed": 1,
+      "avg_R_closed": 8.95,
+      "total_R_closed": 8.9,
+      "runner_pct": 100.0,
+      "n_open_at_cut": 0,
+      "open_R_marked": 0.0,
+      "by_year (n:R)": "2022:1:+8.9",
+      "top_year": 2022,
+      "top_year_share_of_R": 1.0
+    }
+  ],
+  "stop_floor": [
+    {
+      "arm": "live",
+      "n_closed": 441,
+      "n_open_at_cut": 84,
+      "avg_R_closed": 0.621,
+      "total_R_closed": 273.9,
+      "total_R_open_marked": 376.3,
+      "runner_pct": 32.2,
+      "full_stop_pct_closed": 44.4,
+      "mean_slip_beyond_stop_R": -0.43,
+      "big_winners_lost": 0,
+      "immediate_failures_avoided": 0,
+      "capped_sharpe": 1.025,
+      "capped_maxdd_pct": -40.1,
+      "capped_cagr_pct": 20.5
+    },
+    {
+      "arm": "skip_pct_6",
+      "n_closed": 349,
+      "n_open_at_cut": 77,
+      "avg_R_closed": 0.903,
+      "total_R_closed": 315.3,
+      "total_R_open_marked": 318.0,
+      "runner_pct": 35.7,
+      "full_stop_pct_closed": 41.5,
+      "mean_slip_beyond_stop_R": -0.35,
+      "big_winners_lost": 28,
+      "immediate_failures_avoided": 32,
+      "capped_sharpe": 1.263,
+      "capped_maxdd_pct": -28.5,
+      "capped_cagr_pct": 23.9
+    },
+    {
+      "arm": "skip_pct_7",
+      "n_closed": 318,
+      "n_open_at_cut": 68,
+      "avg_R_closed": 0.971,
+      "total_R_closed": 308.8,
+      "total_R_open_marked": 274.4,
+      "runner_pct": 36.8,
+      "full_stop_pct_closed": 41.2,
+      "mean_slip_beyond_stop_R": -0.34,
+      "big_winners_lost": 45,
+      "immediate_failures_avoided": 41,
+      "capped_sharpe": 1.474,
+      "capped_maxdd_pct": -30.1,
+      "capped_cagr_pct": 31.5
+    },
+    {
+      "arm": "skip_pct_8",
+      "n_closed": 279,
+      "n_open_at_cut": 62,
+      "avg_R_closed": 0.941,
+      "total_R_closed": 262.6,
+      "total_R_open_marked": 235.4,
+      "runner_pct": 37.0,
+      "full_stop_pct_closed": 38.7,
+      "mean_slip_beyond_stop_R": -0.34,
+      "big_winners_lost": 66,
+      "immediate_failures_avoided": 55,
+      "capped_sharpe": 0.79,
+      "capped_maxdd_pct": -30.0,
+      "capped_cagr_pct": 13.8
+    },
+    {
+      "arm": "skip_pct_9",
+      "n_closed": 239,
+      "n_open_at_cut": 54,
+      "avg_R_closed": 1.019,
+      "total_R_closed": 243.4,
+      "total_R_open_marked": 181.1,
+      "runner_pct": 36.5,
+      "full_stop_pct_closed": 36.8,
+      "mean_slip_beyond_stop_R": -0.36,
+      "big_winners_lost": 86,
+      "immediate_failures_avoided": 66,
+      "capped_sharpe": 1.209,
+      "capped_maxdd_pct": -33.4,
+      "capped_cagr_pct": 23.6
+    },
+    {
+      "arm": "skip_atr_1.0",
+      "n_closed": 429,
+      "n_open_at_cut": 84,
+      "avg_R_closed": 0.581,
+      "total_R_closed": 249.1,
+      "total_R_open_marked": 376.3,
+      "runner_pct": 32.6,
+      "full_stop_pct_closed": 44.5,
+      "mean_slip_beyond_stop_R": -0.4,
+      "big_winners_lost": 4,
+      "immediate_failures_avoided": 6,
+      "capped_sharpe": 1.23,
+      "capped_maxdd_pct": -30.1,
+      "capped_cagr_pct": 24.6
+    },
+    {
+      "arm": "skip_atr_1.5",
+      "n_closed": 383,
+      "n_open_at_cut": 83,
+      "avg_R_closed": 0.654,
+      "total_R_closed": 250.4,
+      "total_R_open_marked": 356.9,
+      "runner_pct": 33.7,
+      "full_stop_pct_closed": 43.6,
+      "mean_slip_beyond_stop_R": -0.36,
+      "big_winners_lost": 25,
+      "immediate_failures_avoided": 24,
+      "capped_sharpe": 1.591,
+      "capped_maxdd_pct": -35.3,
+      "capped_cagr_pct": 39.1
+    },
+    {
+      "arm": "skip_atr_2.0",
+      "n_closed": 287,
+      "n_open_at_cut": 78,
+      "avg_R_closed": 0.586,
+      "total_R_closed": 168.3,
+      "total_R_open_marked": 340.6,
+      "runner_pct": 35.3,
+      "full_stop_pct_closed": 44.3,
+      "mean_slip_beyond_stop_R": -0.38,
+      "big_winners_lost": 62,
+      "immediate_failures_avoided": 49,
+      "capped_sharpe": 1.15,
+      "capped_maxdd_pct": -22.9,
+      "capped_cagr_pct": 19.3
+    },
+    {
+      "arm": "widen_pct_6",
+      "n_closed": 431,
+      "n_open_at_cut": 86,
+      "avg_R_closed": 0.688,
+      "total_R_closed": 296.6,
+      "total_R_open_marked": 373.6,
+      "runner_pct": 33.7,
+      "full_stop_pct_closed": 42.5,
+      "mean_slip_beyond_stop_R": -0.38,
+      "big_winners_lost": 3,
+      "immediate_failures_avoided": 1,
+      "capped_sharpe": 1.556,
+      "capped_maxdd_pct": -39.9,
+      "capped_cagr_pct": 37.1
+    },
+    {
+      "arm": "widen_pct_7",
+      "n_closed": 427,
+      "n_open_at_cut": 86,
+      "avg_R_closed": 0.704,
+      "total_R_closed": 300.5,
+      "total_R_open_marked": 359.4,
+      "runner_pct": 33.9,
+      "full_stop_pct_closed": 40.5,
+      "mean_slip_beyond_stop_R": -0.36,
+      "big_winners_lost": 4,
+      "immediate_failures_avoided": 2,
+      "capped_sharpe": 1.546,
+      "capped_maxdd_pct": -40.7,
+      "capped_cagr_pct": 37.5
+    },
+    {
+      "arm": "widen_pct_8",
+      "n_closed": 425,
+      "n_open_at_cut": 88,
+      "avg_R_closed": 0.676,
+      "total_R_closed": 287.3,
+      "total_R_open_marked": 351.7,
+      "runner_pct": 33.3,
+      "full_stop_pct_closed": 37.9,
+      "mean_slip_beyond_stop_R": -0.39,
+      "big_winners_lost": 9,
+      "immediate_failures_avoided": 2,
+      "capped_sharpe": 1.445,
+      "capped_maxdd_pct": -45.1,
+      "capped_cagr_pct": 35.2
+    },
+    {
+      "arm": "widen_pct_9",
+      "n_closed": 424,
+      "n_open_at_cut": 88,
+      "avg_R_closed": 0.646,
+      "total_R_closed": 274.0,
+      "total_R_open_marked": 334.1,
+      "runner_pct": 32.8,
+      "full_stop_pct_closed": 36.3,
+      "mean_slip_beyond_stop_R": -0.36,
+      "big_winners_lost": 13,
+      "immediate_failures_avoided": 2,
+      "capped_sharpe": 1.493,
+      "capped_maxdd_pct": -41.5,
+      "capped_cagr_pct": 34.3
+    },
+    {
+      "arm": "widen_atr_1.0",
+      "n_closed": 442,
+      "n_open_at_cut": 84,
+      "avg_R_closed": 0.599,
+      "total_R_closed": 264.6,
+      "total_R_open_marked": 376.3,
+      "runner_pct": 32.1,
+      "full_stop_pct_closed": 44.3,
+      "mean_slip_beyond_stop_R": -0.41,
+      "big_winners_lost": 0,
+      "immediate_failures_avoided": 0,
+      "capped_sharpe": 1.083,
+      "capped_maxdd_pct": -40.0,
+      "capped_cagr_pct": 21.2
+    },
+    {
+      "arm": "widen_atr_1.5",
+      "n_closed": 437,
+      "n_open_at_cut": 85,
+      "avg_R_closed": 0.606,
+      "total_R_closed": 265.0,
+      "total_R_open_marked": 382.2,
+      "runner_pct": 32.8,
+      "full_stop_pct_closed": 43.7,
+      "mean_slip_beyond_stop_R": -0.38,
+      "big_winners_lost": 2,
+      "immediate_failures_avoided": 1,
+      "capped_sharpe": 1.334,
+      "capped_maxdd_pct": -43.2,
+      "capped_cagr_pct": 30.8
+    },
+    {
+      "arm": "widen_atr_2.0",
+      "n_closed": 430,
+      "n_open_at_cut": 87,
+      "avg_R_closed": 0.586,
+      "total_R_closed": 251.9,
+      "total_R_open_marked": 375.6,
+      "runner_pct": 32.7,
+      "full_stop_pct_closed": 40.5,
+      "mean_slip_beyond_stop_R": -0.41,
+      "big_winners_lost": 7,
+      "immediate_failures_avoided": 2,
+      "capped_sharpe": 1.831,
+      "capped_maxdd_pct": -31.2,
+      "capped_cagr_pct": 41.2
+    }
+  ],
+  "stop_floor_ensemble": {
+    "best_single_path": "widen_atr_2.0",
+    "arms": [
+      {
+        "arm": "widen_atr_1.5",
+        "dSharpe": {
+          "median": -0.015,
+          "p5": -0.193,
+          "p95": 0.341
+        },
+        "paths_better": 9,
+        "dMaxDD_pp": {
+          "median": -1.793,
+          "p5": -9.03,
+          "p95": 14.011
+        },
+        "verdict": "inside path noise"
+      },
+      {
+        "arm": "widen_atr_2.0",
+        "dSharpe": {
+          "median": 0.025,
+          "p5": -0.192,
+          "p95": 0.822
+        },
+        "paths_better": 11,
+        "dMaxDD_pp": {
+          "median": -3.312,
+          "p5": -6.754,
+          "p95": 8.829
+        },
+        "verdict": "inside path noise"
+      }
+    ],
+    "live_band": {
+      "sharpe": {
+        "median": 1.253,
+        "p5": 1.031,
+        "p95": 1.412
+      },
+      "maxdd": {
+        "median": -0.375,
+        "p5": -0.477,
+        "p95": -0.332
+      }
+    }
+  },
+  "confirmation": [
+    {
+      "arm": "sim_base",
+      "taken": 525,
+      "dropped": 0,
+      "n_closed": 441,
+      "avg_R_closed": 0.622,
+      "total_R_closed": 274.1,
+      "total_R_open_marked": 376.3,
+      "runner_pct": 32.2,
+      "full_stop_pct_closed": 44.2,
+      "mean_slip_beyond_stop_R": -0.43,
+      "big_winners_lost": 0,
+      "immediate_failures_avoided": 0
+    },
+    {
+      "arm": "confirm_1w",
+      "taken": 144,
+      "dropped": 381,
+      "n_closed": 109,
+      "avg_R_closed": 0.518,
+      "total_R_closed": 56.4,
+      "total_R_open_marked": 124.3,
+      "runner_pct": 38.2,
+      "full_stop_pct_closed": 23.9,
+      "mean_slip_beyond_stop_R": -0.3,
+      "big_winners_lost": 114,
+      "immediate_failures_avoided": 99
+    },
+    {
+      "arm": "confirm_2w",
+      "taken": 221,
+      "dropped": 304,
+      "n_closed": 175,
+      "avg_R_closed": 0.529,
+      "total_R_closed": 92.6,
+      "total_R_open_marked": 161.1,
+      "runner_pct": 36.2,
+      "full_stop_pct_closed": 26.9,
+      "mean_slip_beyond_stop_R": -0.33,
+      "big_winners_lost": 90,
+      "immediate_failures_avoided": 99
+    },
+    {
+      "arm": "confirm_3w",
+      "taken": 272,
+      "dropped": 253,
+      "n_closed": 216,
+      "avg_R_closed": 0.619,
+      "total_R_closed": 133.6,
+      "total_R_open_marked": 184.8,
+      "runner_pct": 34.6,
+      "full_stop_pct_closed": 25.9,
+      "mean_slip_beyond_stop_R": -0.33,
+      "big_winners_lost": 76,
+      "immediate_failures_avoided": 99
+    }
+  ],
+  "sim_base_vs_engine": {
+    "sim_total_R": 650.4,
+    "engine_total_R": 650.2,
+    "corr": 0.999
+  },
+  "stop_decomposition": [
+    {
+      "dataset": "A",
+      "n": 525,
+      "median_stop_pct": 8.55,
+      "median_week_range_pct": 10.36,
+      "median_entry_pos_in_week_range": 0.77,
+      "median_atr20_pct": 3.45,
+      "median_stop_in_atr20": 2.15,
+      "share_capped_at_10pct": 38.5
+    },
+    {
+      "dataset": "C",
+      "n": 55,
+      "median_stop_pct": 5.88,
+      "median_week_range_pct": 7.74,
+      "median_entry_pos_in_week_range": 0.8,
+      "median_atr20_pct": 2.85,
+      "median_stop_in_atr20": 1.94,
+      "share_capped_at_10pct": 5.5
+    }
+  ],
+  "engine_commits_touching_stop_or_entry": [
+    "a1d3c7d 2026-11-03 prod-fix(engine): gated stop-ladder lever, plus the giveback solution map and 20-path ensemble",
+    "7843757 2026-11-02 prod-fix(engine): add two gated research fill levers, default off, goldens byte-identical",
+    "636d8c3 2026-11-02 prod-fix(engine): cfg-gated entry_size_scale_by_week lever on the weekly backtest",
+    "66d1475 2026-08-09 prod-fix(swing): pin the certification trial count so the run of record stops re-basing itself",
+    "ef80eb9 2026-07-26 research(swing): exit/entry lever exhaustion + per-year methodology + decision-memo layer",
+    "4b70a60 2026-07-17 research: the candle's size IS the edge \u00e2\u20ac\u201d a cheap stop can only be bought with a small move",
+    "949a8a7 2026-07-17 research: a real stop order caps every loss and makes the drawdown worse",
+    "2e2c463 2026-07-17 feat: ATR stop lever + frozen pre-registration for the owner rule-faithful variant",
+    "88670ae 2026-07-17 feat: rule-faithful entry levers from the owner's chart review (all default OFF, untested)",
+    "994c89a 2026-07-16 fix: box/S-R detectors corrupted the stops of touch trades",
+    "ee412ed 2026-07-15 research: Phase-3 sizing \u00e2\u20ac\u201d 2% risk is optimal; maxpos/sleeve/vol-target all fail robustly",
+    "c3756df 2026-07-15 research: exit on the FIXED Phase-1 entry (origin-aware) \u00e2\u20ac\u201d deep-near-SMA is a SIZING lever, not a filter",
+    "b3ebfe7 2026-07-15 research: Phase-1 entry \u00e2\u20ac\u201d box-breakout setup (captures GAIL) + full entry-timing chart audit",
+    "ddcd3ac 2026-07-15 research: Phase-1 ENTRY exhausted \u00e2\u20ac\u201d near-SMA validated per-trade, portfolio-negative every way",
+    "094d52e 2026-07-06 feat(research): pre-registered trial 0094 \u00e2\u20ac\u201d CRS-strength fill ranking; program-record result, probe-verified, shipped to the live weekly cron"
+  ],
+  "live_replay": [
+    {
+      "arm": "sim_base",
+      "taken": 55,
+      "skipped_or_dropped": 0,
+      "total_R_all_marked": -18.9,
+      "total_R_closed": -46.6,
+      "skipped": ""
+    },
+    {
+      "arm": "widen_atr_2.0",
+      "taken": 55,
+      "skipped_or_dropped": 0,
+      "total_R_all_marked": -15.7,
+      "total_R_closed": -42.4,
+      "skipped": ""
+    },
+    {
+      "arm": "widen_atr_1.5",
+      "taken": 55,
+      "skipped_or_dropped": 0,
+      "total_R_all_marked": -14.4,
+      "total_R_closed": -42.1,
+      "skipped": ""
+    },
+    {
+      "arm": "confirm_1w",
+      "taken": 19,
+      "skipped_or_dropped": 36,
+      "total_R_all_marked": -2.8,
+      "total_R_closed": -9.3,
+      "skipped": "3MINDIA, AARTIIND, ABCAPITAL, ADANIPORTS, ANGELONE, APARINDS, ASTERDM, BANDHANBNK, BIOCON, CANFINHOME, CCL, CHOLAFIN, ENGINERSIN, GESHIP, GLENMARK, GRAPHITE, GVT&D, HINDALCO, HINDZINC, IDFCFIRSTB, IKS, LINDEINDIA, LTF, MANAPPURAM, MRPL, NATCOPHARM, NESTLEIND, NLCINDIA, OBEROIRLTY, PHOENIXLTD, POWERINDIA, PTCIL, SIEMENS, STARHEALTH, TATATECH, ZYDUSLIFE"
+    },
+    {
+      "arm": "confirm_2w",
+      "taken": 23,
+      "skipped_or_dropped": 32,
+      "total_R_all_marked": 1.1,
+      "total_R_closed": -10.5,
+      "skipped": "3MINDIA, AARTIIND, ABCAPITAL, ANGELONE, APARINDS, ASTERDM, BIOCON, CANFINHOME, CCL, CHOLAFIN, ENGINERSIN, GESHIP, GLENMARK, GVT&D, HINDALCO, HINDZINC, IDFCFIRSTB, IKS, LINDEINDIA, LTF, MANAPPURAM, MRPL, NATCOPHARM, NESTLEIND, NLCINDIA, OBEROIRLTY, PHOENIXLTD, POWERINDIA, SIEMENS, STARHEALTH, TATATECH, ZYDUSLIFE"
+    },
+    {
+      "arm": "confirm_3w",
+      "taken": 25,
+      "skipped_or_dropped": 30,
+      "total_R_all_marked": 1.8,
+      "total_R_closed": -11.9,
+      "skipped": "3MINDIA, AARTIIND, ABCAPITAL, ANGELONE, APARINDS, ASTERDM, BIOCON, CANFINHOME, CCL, CHOLAFIN, GESHIP, GLENMARK, GVT&D, HINDALCO, HINDZINC, IDFCFIRSTB, IKS, LINDEINDIA, LTF, MANAPPURAM, MRPL, NATCOPHARM, NESTLEIND, NLCINDIA, OBEROIRLTY, PHOENIXLTD, POWERINDIA, STARHEALTH, TATATECH, ZYDUSLIFE"
+    }
+  ]
+}
