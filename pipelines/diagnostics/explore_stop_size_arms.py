@@ -5,7 +5,7 @@ Writes diagnostics/research/explore/2026-11-12_stop_size_arms.json. No screen ro
 import sys,json
 from pathlib import Path
 import pandas as pd
-ROOT=Path(r"C:\nifty-satvik"); sys.path[:0]=[str(ROOT),str(ROOT/"pipelines"/"diagnostics"),str(ROOT/"scripts")]
+ROOT=Path(__file__).resolve().parents[2]; sys.path[:0]=[str(ROOT),str(ROOT/"pipelines"/"diagnostics"),str(ROOT/"scripts")]
 import diag_giveback_ratchet_0148 as G, run_bhanushali_weekly_rank as R94
 from run_bhanushali_cron import LIVE_DISCIPLINE, LIVE_EXIT, LIVE_PREP, LIVE_STALENESS, load_demerger_rows
 from run_bhanushali_path1 import corrected_universe
