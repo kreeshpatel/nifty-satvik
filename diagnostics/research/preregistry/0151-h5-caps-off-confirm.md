@@ -1,6 +1,8 @@
 # 0151 — h5: the live exit with the four entry and sizing caps off (CONFIRM)
 
-**Status: PRE-REGISTERED, awaiting owner sign-off (§9) before the counter increments.**
+**Status: PRE-REGISTERED, awaiting the owner's final sign-off (§9) before the counter increments.**
+**Amended 2026-11-13 (before any sealed number):** one arm confirmed; P5 changed from 60% to 30%; the train-window
+concentration measurement is disclosed in §9.
 **Tier:** 3 · CONFIRM (`docs/PROCESS_TIERS.md`): a cap and grading change to the live book.
 **Written:** 2026-11-13, before any sealed-slice number for h5 exists.
 **Counter:** `n_trials` 2 → 3 and `family_level_count` 2 → 3 (one arm). The increment is a separate commit, made after
@@ -87,14 +89,14 @@ extra run of each book with zero cost jitter and start 2019-01-01.
 | outcome | condition, fixed now | what happens |
 |---|---|---|
 | **STOP (no read)** | **G0** fails: before the sealed slice is read, the same script on the train slice 2019-03-01..2024-06-30 gives a median paired ΔSharpe outside **+0.27 ± 0.10** | harness drift; the sealed read is not spent, and the cause is found first |
-| **PROMOTE** | **all of**: **P1** median ΔSharpe > 0 **and** ≥ 15 of 20 paths > 0; **P2** median ΔMaxDD ≥ −5.0pp (h5 at most 5pp deeper); **P3** on the unperturbed run, ΔSharpe is not negative on **both** halves (2024-07-01..2025-06-30 and 2025-07-01..2026-06-30, each a continuous slice); **P4** on the unperturbed run, h5's sealed-slice net P&L minus its single largest winning trade's net P&L still exceeds live's sealed-slice net P&L; **P5** on the unperturbed run, no h5 position exceeds **60%** of equity at entry | evidence for adoption at the 2027-01-01 review; red-team before any write-up; adoption only through §7 |
+| **PROMOTE** | **all of**: **P1** median ΔSharpe > 0 **and** ≥ 15 of 20 paths > 0; **P2** median ΔMaxDD ≥ −5.0pp (h5 at most 5pp deeper); **P3** on the unperturbed run, ΔSharpe is not negative on **both** halves (2024-07-01..2025-06-30 and 2025-07-01..2026-06-30, each a continuous slice); **P4** on the unperturbed run, h5's sealed-slice net P&L minus its single largest winning trade's net P&L still exceeds live's sealed-slice net P&L; **P5** on the unperturbed run, no h5 position exceeds **30%** of equity at entry (weight = `notional / equity` on the position's first `position_log` row) | evidence for adoption at the 2027-01-01 review; red-team before any write-up; adoption only through §7 |
 | **UNDERPOWERED** | median ΔSharpe > 0 and P2, P4 and P5 hold, but P1's 15-of-20 or P3 fails | record; adopt nothing; offer h5 as a forward-logged comparator (needs a §2 swap in `forward/prereg_swing.md`) |
 | **KILL** | median ΔSharpe ≤ 0, **or** P2, P4 or P5 fails | registry row; h5 is not retuned or re-run on the sealed slice |
 
 Reported regardless of outcome: each book's sealed Sharpe, CAGR, MaxDD and trade count bands; the per-half numbers;
 the largest position weight; h5's share of sealed P&L from positions above 20% of equity; per-trade mean R
-(degenerate-stop rule applied). P5's 60% limit is fixed now because h5 sizes by risk alone: at 2% risk, a 4% stop
-means 50% of equity in one name.
+(degenerate-stop rule applied). P5's 30% limit was set by the owner on 2026-11-13 (amending the drafted 60%) because h5
+sizes by risk alone: at 2% risk, a 4% stop means 50% of equity in one name.
 
 ## 6. What would make this wrong
 
@@ -127,11 +129,21 @@ means 50% of equity in one name.
 
 ## 9. Owner sign-off (required before C1)
 
-- [ ] Spend sealed open S4 on h5. It cannot be undone.
-- [ ] Test the four switches as one bundle (h5 as registered), accepting that the grading leg overlaps
-      `forward/prereg_swing.md` §4. The alternative is a second arm that keeps the Grade-A gate (+1 trial,
-      `n_trials` 2 → 4), registered here before the run.
-- [ ] The P5 concentration limit of 60% of equity in one name is acceptable as a pass bar.
+Decided by the owner on 2026-11-13, before any sealed number:
+- [x] **One arm:** h5 exactly as registered in §2 (all four switches off together). No Grade-A-gate variant.
+      `n_trials` 2 → 3.
+- [x] **P5 concentration bar: 30%** of equity in one name at entry (amended from the drafted 60%).
+
+Still open, and the sealed slice is not opened until it is signed:
+- [ ] **Final sign-off on this plan as written, and on spending sealed open S4.** It cannot be undone.
+
+**Disclosed before the read: P5 will probably bind.** Measured on the train window only (2019-01-01..2024-06-30,
+unperturbed run, nothing sealed read), h5 opened **4 of 87 positions above 30%** of equity at entry, the largest at
+**49.2%**. The live book's largest was 22.0%, with none above 30%. At that rate (about 4.6% of positions), a sealed slice
+of about 30 positions has roughly a 3-in-4 chance of containing at least one, so h5 as registered is likely to KILL on
+P5 whatever its Sharpe. The owner may, before signing, replace the arm with **h5 capped at 30% notional**
+(`max_notional_pct = 0.30`, the other three switches off). That is still one arm, and it turns P5 from a likely
+failure into a rule the book obeys by construction.
 
 ## 10. Reproduction
 
