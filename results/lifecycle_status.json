@@ -99,5 +99,10 @@
       "provisional": true,
       "triggers": []
     }
-  ]
+  ],
+  "execution_tracking_error": {
+    "n_fills_matched": 0,
+    "fills_source": null,
+    "note": "no fills export present; the app's execution ledger held 0 fills on 2026-11-13"
+  }
 }

@@ -115,3 +115,19 @@ def test_vol_target_caps_exposure_at_one_and_uses_only_the_past():
     assert expo.max() <= 1.0 and (expo.iloc[:20] == 1.0).all()
     a2 = a.copy(); a2.iloc[-1] = 0.5                                   # changing today's return cannot change today's exposure
     assert C.vol_target_blend(a2, b)[1].iloc[-1] == expo.iloc[-1]
+
+
+# ------------------------------------------------------------------ execution tracking error
+def test_tracking_error_signs_and_units():
+    model = {"A__2026-11-02": {"entry": 100.0, "stop": 90.0, "exit": 120.0}}
+    fills = [{"signal_id": "A__2026-11-02", "side": "BUY", "qty": 10, "price": 101.0},     # paid 1% more: +100 bps, +0.1R
+             {"signal_id": "A__2026-11-02", "side": "SELL", "qty": 10, "price": 118.8},    # sold 1% lower: +100 bps, +0.12R
+             {"signal_id": "UNKNOWN__x", "side": "BUY", "qty": 1, "price": 5.0}]           # no model trade: ignored
+    out = C.tracking_error(fills, model)
+    assert out["n_fills_matched"] == 2
+    assert out["buy_mean_bps"] == 100.0 and out["sell_mean_bps"] == 100.0
+    assert abs(out["mean_slippage_R"] - 0.11) < 1e-9
+
+
+def test_tracking_error_with_no_fills_says_so():
+    assert C.tracking_error([], {})["n_fills_matched"] == 0
