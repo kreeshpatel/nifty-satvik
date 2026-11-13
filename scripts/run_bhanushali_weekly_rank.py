@@ -826,6 +826,24 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                           reason=f'ca_hold_open_{p["ca_hold"]["move_pct"]}pct')
             if "ca_hold" in p:
                 continue
+            # ADD ON STRENGTH fill (see the scaled-exit weekly block): buy add_frac of the ORIGINAL rupee
+            # risk at this open, against the current stop, inside the live per-name notional cap and the
+            # cash on hand. The added shares join sh0, so later tranches sell them in proportion. The
+            # ledger's plan R keeps the original unit; NAV and net_pnl carry the add. Off => never set.
+            if p.pop("pending_add", False) and p["pending"] is None:
+                _apx = float(s["o"][i])
+                if _apx > p["stop"]:
+                    _ash = scaled_exit.get("add_frac", 0.5) * p["sh0"] * p["risk0"] / (_apx - p["stop"])
+                    if max_notional_pct is not None:
+                        _ash = min(_ash, max(0.0, (_EQ0 if uncapped else eq) * max_notional_pct / _apx - p["sh"]))
+                    if whole_shares:
+                        _ash = float(math.floor(_ash + 1e-9))
+                    _acost = _ash * _apx * (1 + _cost_leg(p["adv"], _ash * _apx, cost_off))
+                    if _ash > 0 and (uncapped or _acost <= cash):
+                        cash -= _acost
+                        p["sh"] += _ash; p["sh0"] += _ash
+                        p["cash_out"] += _acost; p["stt"] += _ash * _apx * STT_PCT
+                        _emit(t, p, "add", date=d, price=_apx, fraction=_ash, reason="add_at_r")
             if p["pending"] is not None:
                 act, rs = p["pending"]
                 px = s["o"][i]
@@ -1081,6 +1099,15 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                         _sm = s.get("wsma_at", {}).get(i, float("nan"))
                         if _sm == _sm and wc < _sm * (1.0 - _buf):
                             p["pending"] = ("full", "sma_break")
+                    # ADD ON STRENGTH (2026-11-13 explore): once a Friday close is at or above entry +
+                    # add_at_r R, with no exit queued and no tranche booked yet, queue ONE add for the next
+                    # open. Sized at add_frac of the original rupee risk; filled below. Absent key =>
+                    # byte-identical. Research lever only.
+                    _ar = scaled_exit.get("add_at_r", 0.0)
+                    if (_ar and p["pending"] is None and not p.get("add_done") and not p["t1_done"]
+                            and not p.get("pt_done") and wc >= p["en"] + _ar * p["risk0"]):
+                        p["pending_add"] = True
+                        p["add_done"] = True
                     if _wk is not None:
                         p["pk_wh"] = max(p.get("pk_wh", 0.0), _wk[0])
                     continue
