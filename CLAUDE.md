@@ -87,6 +87,7 @@ plausible. The anchors are reproducible (`/plausibility-check`); a recollection 
 | report or believe a number | [`/plausibility-check`](skills/plausibility-check/SKILL.md) + [`docs/references/plausibility_anchors.md`](docs/references/plausibility_anchors.md) |
 | trust a backtest at all | [`skills/leakage-audit`](skills/leakage-audit/SKILL.md), [`skills/backtest-rigor`](skills/backtest-rigor/SKILL.md) |
 | change a value or a formula | [`skills/repo-map`](skills/repo-map/SKILL.md) — blast radius and single source of truth |
+| judge a live or paper strategy, promote, fund, change or retire one | [`skills/strategy-lifecycle`](skills/strategy-lifecycle/SKILL.md) — stages, weekly status against frozen bands, **no forward verdict before 26 weeks**, changes only at quarterly reviews |
 | record a result | [`skills/research-log`](skills/research-log/SKILL.md), then `/verdict` |
 | move the pinned anchor | `/re-anchor` — governance class, owner decision |
 | freeze a study or blind evidence | `/seal` |

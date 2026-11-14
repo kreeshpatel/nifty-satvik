@@ -29,6 +29,9 @@ triggers:
   - paper portfolio
 ---
 
+> **Lifecycle (ADR-0020, 2026-11).** Stages, promotion, weekly status and retirement now live in [`strategy-lifecycle`](../strategy-lifecycle/SKILL.md). This skill keeps fill realism, the paper broker and kill-switch mechanics. Where its "≥30 closed trades / ~2 months" paper gate conflicts with the lifecycle's 26-week minimum, the stricter rule applies until the owner amends one of them.
+
+
 # Portfolio Simulation — Backtest-to-Real-Capital Bridge
 
 This skill governs everything between "the backtest looks good" and "real money

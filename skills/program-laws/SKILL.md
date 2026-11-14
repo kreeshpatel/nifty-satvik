@@ -255,6 +255,7 @@ for the review; never promote them in-sample, never relitigate them toward a pas
 | **Leaks inflate** | A result WORSE than base is not a leak. A too-good result is guilty until cleared (`skills/leakage-audit`). |
 | **Trust 63d/≥2019 only** | Old v1 7–14d kills do not transfer to the long-horizon horizon. |
 | **The 44-week line is a SMA, never an EMA** | Owner-mandated; live R94 conformant. |
+| **No verdict on forward data before 26 weeks; RED triggers review, not kill** | The standard error of a 3-month Sharpe estimate is about 2, so a short forward record cannot tell a good strategy from a bad one. Weekly status is read against frozen bands; RED opens a three-question review; retirement needs two consecutive monthly REDs after week 26, or the 1.25× drawdown breaker (`skills/strategy-lifecycle`, ADR-0020). |
 | **Engine invariant** | Any overlay is cfg-gated so the golden master stays byte-identical when off; full suite green before push. |
 
 ---
