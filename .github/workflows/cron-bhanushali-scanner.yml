@@ -143,9 +143,11 @@ jobs:
       # Strategy lifecycle (ADR-0020): append this week's row to the forward records in forward/records/.
       # It runs on the OHLCV cache the scan just refreshed, writes only its own files, always exits 0,
       # and is continue-on-error on top of that, so it can never block or change the scan.
-      - name: Strategy lifecycle - forward records (ADR-0020)
+      - name: Strategy lifecycle - forward records and weekly status (ADR-0020)
         continue-on-error: true
-        run: python pipelines/lifecycle/update_records.py
+        run: |
+          python pipelines/lifecycle/update_records.py
+          python pipelines/lifecycle/weekly_status.py || echo "::warning::lifecycle status not written"
       # ── SCAN HEALTH (replaces four separate red-on-failure steps, 2026-11-09) ─────────────────────────
       # Signal-quality axes, watched-book loggers, history drift and calendar coverage used to be four
       # chained post-commit steps: the first failure SKIPPED the rest, and an amber condition (a side book
@@ -209,6 +211,7 @@ jobs:
           opt results/scan_health.json   # weekly health report (scripts/scan_health.py); reporting only
           opt forward/records                 # ADR-0020 weekly forward records (append-only)
           opt forward/lifecycle               # stage log and weekly status log (append-only)
+          opt results/lifecycle_status.json   # weekly GREEN/AMBER/RED per strategy; reporting only
           opt diagnostics/research/benchmarks/tri/nifty_midcap150_momentum_50_tri.csv   # benchmark TRI top-up
           if git commit -m "chore(weekly): Saturday weekly-swing paper state $(date -u +%F)"; then
             # --autostash: the OHLCV download leaves UNSTAGED cache changes that abort a plain

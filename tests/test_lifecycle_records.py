@@ -60,6 +60,6 @@ def test_dry_run_writes_nothing(tmp_path):
 def test_the_scan_step_cannot_block_the_scan():
     wf = (ROOT / ".github" / "workflows" / "cron-bhanushali-scanner.yml").read_text(encoding="utf-8")
     i = wf.index("Strategy lifecycle - forward records")
-    block = wf[i:i + 300]
+    block = wf[i:i + 400]
     assert "continue-on-error: true" in block
     assert wf.index("Strategy lifecycle - forward records") < wf.index("- name: Commit weekly paper state")

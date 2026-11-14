@@ -85,6 +85,8 @@ results/*
 !results/signal_axes_capture.jsonl
 # Weekly scan health report (scripts/scan_health.py), same `results/*` trap, whitelisted up front.
 !results/scan_health.json
+# Weekly strategy-lifecycle status (pipelines/lifecycle/weekly_status.py, ADR-0020), same `results/*` trap.
+!results/lifecycle_status.json
 # The append-only forward record (ADR-0018): frozen ledger, weekly audit, drift log, amendments.
 # Whitelisted up front, before the record is switched on, so the first seeded ledger cannot be a
 # silent `git add` no-op.
