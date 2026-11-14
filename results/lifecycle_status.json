@@ -9,34 +9,34 @@
       "stage": "LIVE (pre-lifecycle)",
       "stage_from": "2026-07-06",
       "bands_file": "live_swing_bands_2026-11-13.json",
-      "weeks": 19,
+      "weeks": 20,
       "record_from": "2026-07-10",
-      "record_to": "2026-11-08",
-      "cum_return_pct": -3.97,
+      "record_to": "2026-11-13",
+      "cum_return_pct": -1.84,
       "drawdown_depth_pct": 12.65,
-      "weeks_in_stage": 19,
+      "weeks_in_stage": 20,
       "benchmark": {
         "name": "Nifty Midcap150 Momentum 50 TRI",
-        "return_pct": -0.99,
-        "strategy_same_dates_pct": -6.69,
+        "return_pct": 1.8,
+        "strategy_same_dates_pct": -4.62,
         "from": "2026-07-10",
-        "to": "2026-11-08",
+        "to": "2026-11-13",
         "trails_benchmark_52w": null
       },
-      "horizon_weeks": 13,
+      "horizon_weeks": 26,
       "band_return_pct": {
-        "p5": -12.83,
-        "p25": -1.27,
-        "p50": 6.07,
-        "p75": 13.98,
-        "p95": 27.68
+        "p5": -15.95,
+        "p25": 0.29,
+        "p50": 11.11,
+        "p75": 24.44,
+        "p95": 47.61
       },
-      "band_drawdown_p95_pct": 20.3,
+      "band_drawdown_p95_pct": 33.51,
       "drawdown_breaker_pct": 50.14,
       "percentile": "5th-25th",
       "status": "AMBER",
       "reasons": [
-        "return -4.0% is between the 5th (-12.8%) and 25th (-1.3%) percentile"
+        "return -1.8% is between the 5th (-15.9%) and 25th (0.3%) percentile"
       ],
       "provisional": true,
       "triggers": []
@@ -44,24 +44,24 @@
     {
       "strategy": "xsec_momentum_0001",
       "label": "Cross-sectional momentum (0001)",
-      "stage": "RESEARCH",
-      "stage_from": null,
+      "stage": "PAPER",
+      "stage_from": "2026-11-13",
       "bands_file": "xsec_momentum_0001_bands_2026-11-13.json",
       "weeks": 0,
       "status": "NEW",
       "provisional": true,
-      "note": "record not started"
+      "note": "no forward weeks yet"
     },
     {
       "strategy": "blend_70_30_vt15",
       "label": "70/30 momentum/swing, 15% vol target",
-      "stage": "RESEARCH",
-      "stage_from": null,
+      "stage": "PAPER",
+      "stage_from": "2026-11-13",
       "bands_file": "blend_70_30_vt15_bands_2026-11-13.json",
       "weeks": 0,
       "status": "NEW",
       "provisional": true,
-      "note": "record not started"
+      "note": "no forward weeks yet"
     },
     {
       "strategy": "long_horizon",

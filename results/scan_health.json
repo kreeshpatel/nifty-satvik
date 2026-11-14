@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-11-14T12:35:46Z",
+  "scan_as_of": "2026-11-13",
+  "status": "AMBER",
+  "counts": {
+    "red": 0,
+    "amber": 1,
+    "checks_green": 4,
+    "checks_total": 5
+  },
+  "checks": [
+    {
+      "name": "signal-quality-axes",
+      "description": "forward signal-quality axes recorded at signal time",
+      "status": "AMBER",
+      "ok": true,
+      "exit_code": 1,
+      "duration_s": 0.96,
+      "findings": [
+        {
+          "key": "signal-quality-axes:PHOENIXLTD|2026-11-09",
+          "severity": "AMBER",
+          "message": "PHOENIXLTD 2026-11-09 is missing body_ratio, signal_conviction, crs_rank and is not declared. The producer records the axes on FRESH cards only, so a signal first archived as ACTIVE has lost them permanently \u2014 they cannot be backfilled without violating prereg_signal_quality.md \u00a71 (axes frozen AT SIGNAL). Fix the capture, or add it to KNOWN_INCOMPLETE with the reason and accept the lost measurement."
+        }
+      ]
+    },
+    {
+      "name": "watched-book-loggers",
+      "description": "side-book + capital-book streams advanced to this scan",
+      "status": "GREEN",
+      "ok": true,
+      "exit_code": 0,
+      "duration_s": 0.3,
+      "findings": []
+    },
+    {
+      "name": "history-drift",
+      "description": "closed-trade history unchanged unless approved in results/forward_record/amendments.json",
+      "status": "GREEN",
+      "ok": true,
+      "exit_code": 0,
+      "duration_s": 0.04,
+      "findings": []
+    },
+    {
+      "name": "data-quarantine",
+      "description": "no name quarantined on suspect data; no healed restatement awaiting approval",
+      "status": "GREEN",
+      "ok": true,
+      "exit_code": 0,
+      "duration_s": 0.0,
+      "findings": []
+    },
+    {
+      "name": "calendar-coverage",
+      "description": "NSE holiday calendar has runway",
+      "status": "GREEN",
+      "ok": true,
+      "exit_code": 0,
+      "duration_s": 0.39,
+      "findings": []
+    }
+  ],
+  "issues": {
+    "enabled": true,
+    "actions": [
+      {
+        "action": "create",
+        "key": "signal-quality-axes:PHOENIXLTD|2026-11-09",
+        "ok": true
+      }
+    ]
+  }
+}

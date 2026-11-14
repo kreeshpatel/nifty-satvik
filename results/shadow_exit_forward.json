@@ -3,26 +3,26 @@
   "status": "SHADOW \u2014 computed beside the live book, never traded, never shown on a card",
   "authority": "diagnostics/research/explore/2026-11-03_giveback_solution_map.md; decided at a review, not here",
   "effective": "2026-11-09",
-  "as_of": "2026-11-08",
+  "as_of": "2026-11-13",
   "forward": {
-    "n_trades": 0,
-    "live_sum_R": 0,
-    "shadow_sum_R": 0,
-    "shadow_minus_live_R": 0
+    "n_trades": 3,
+    "live_sum_R": 0.68,
+    "shadow_sum_R": 0.68,
+    "shadow_minus_live_R": 0.0
   },
   "reconstructed_before_effective": {
     "n_trades": 55,
-    "live_sum_R": -25.18,
-    "shadow_sum_R": -23.16,
-    "shadow_minus_live_R": 2.01
+    "live_sum_R": -19.95,
+    "shadow_sum_R": -18.78,
+    "shadow_minus_live_R": 1.16
   },
   "paper_book": {
     "live": {
-      "equity": 960294.0,
+      "equity": 981567.91,
       "maxdd_pct": -13.895
     },
     "shadow": {
-      "equity": 1021331.65,
+      "equity": 1044090.96,
       "maxdd_pct": -10.263
     }
   },
@@ -32,7 +32,7 @@
       "entry_date": "2026-07-06",
       "forward": false,
       "live": {
-        "R": 1.493,
+        "R": 1.698,
         "status": "open"
       },
       "shadow": {
@@ -271,11 +271,11 @@
       "entry_date": "2026-07-27",
       "forward": false,
       "live": {
-        "R": 1.393,
+        "R": 2.102,
         "status": "open"
       },
       "shadow": {
-        "R": 1.393,
+        "R": 2.102,
         "status": "open"
       }
     },
@@ -299,7 +299,7 @@
       "entry_date": "2026-07-27",
       "forward": false,
       "live": {
-        "R": 1.619,
+        "R": 1.797,
         "status": "open"
       },
       "shadow": {
@@ -328,11 +328,11 @@
       "entry_date": "2026-08-10",
       "forward": false,
       "live": {
-        "R": 2.661,
+        "R": 3.251,
         "status": "open"
       },
       "shadow": {
-        "R": 2.661,
+        "R": 3.251,
         "status": "open"
       }
     },
@@ -341,11 +341,11 @@
       "entry_date": "2026-08-10",
       "forward": false,
       "live": {
-        "R": 2.885,
+        "R": 2.879,
         "status": "open"
       },
       "shadow": {
-        "R": 2.885,
+        "R": 2.879,
         "status": "open"
       }
     },
@@ -384,11 +384,11 @@
       "entry_date": "2026-08-17",
       "forward": false,
       "live": {
-        "R": 3.31,
+        "R": 2.847,
         "status": "open"
       },
       "shadow": {
-        "R": 3.31,
+        "R": 2.847,
         "status": "open"
       }
     },
@@ -397,7 +397,7 @@
       "entry_date": "2026-08-17",
       "forward": false,
       "live": {
-        "R": 0.718,
+        "R": 1.184,
         "status": "open"
       },
       "shadow": {
@@ -426,11 +426,11 @@
       "entry_date": "2026-08-17",
       "forward": false,
       "live": {
-        "R": 2.144,
+        "R": 2.481,
         "status": "open"
       },
       "shadow": {
-        "R": 2.144,
+        "R": 2.481,
         "status": "open"
       }
     },
@@ -615,11 +615,11 @@
       "entry_date": "2026-09-15",
       "forward": false,
       "live": {
-        "R": 1.314,
+        "R": 1.926,
         "status": "open"
       },
       "shadow": {
-        "R": 1.314,
+        "R": 1.926,
         "status": "open"
       }
     },
@@ -699,11 +699,11 @@
       "entry_date": "2026-09-28",
       "forward": false,
       "live": {
-        "R": 0.47,
+        "R": 0.585,
         "status": "open"
       },
       "shadow": {
-        "R": 0.47,
+        "R": 0.585,
         "status": "open"
       }
     },
@@ -712,11 +712,11 @@
       "entry_date": "2026-10-05",
       "forward": false,
       "live": {
-        "R": 1.787,
+        "R": 1.596,
         "status": "open"
       },
       "shadow": {
-        "R": 1.787,
+        "R": 1.596,
         "status": "open"
       }
     },
@@ -725,11 +725,11 @@
       "entry_date": "2026-10-12",
       "forward": false,
       "live": {
-        "R": 0.517,
+        "R": 2.234,
         "status": "open"
       },
       "shadow": {
-        "R": 0.517,
+        "R": 2.234,
         "status": "open"
       }
     },
@@ -783,11 +783,11 @@
       "entry_date": "2026-10-19",
       "forward": false,
       "live": {
-        "R": 0.483,
+        "R": 0.106,
         "status": "open"
       },
       "shadow": {
-        "R": 0.483,
+        "R": 0.106,
         "status": "open"
       }
     },
@@ -797,7 +797,7 @@
       "forward": false,
       "live": null,
       "shadow": {
-        "R": 1.413,
+        "R": 1.469,
         "status": "open"
       }
     },
@@ -806,12 +806,14 @@
       "entry_date": "2026-11-02",
       "forward": false,
       "live": {
-        "R": -0.724,
-        "status": "open"
+        "R": -0.707,
+        "status": "closed",
+        "exit_reason": "stop"
       },
       "shadow": {
-        "R": -0.724,
-        "status": "open"
+        "R": -0.707,
+        "status": "closed",
+        "exit_reason": "stop"
       }
     },
     {
@@ -819,11 +821,11 @@
       "entry_date": "2026-11-02",
       "forward": false,
       "live": {
-        "R": 0.743,
+        "R": 1.061,
         "status": "open"
       },
       "shadow": {
-        "R": 0.743,
+        "R": 1.061,
         "status": "open"
       }
     },
@@ -832,11 +834,11 @@
       "entry_date": "2026-11-02",
       "forward": false,
       "live": {
-        "R": 0.55,
+        "R": 1.641,
         "status": "open"
       },
       "shadow": {
-        "R": 0.55,
+        "R": 1.641,
         "status": "open"
       }
     },
@@ -845,11 +847,50 @@
       "entry_date": "2026-11-05",
       "forward": false,
       "live": {
-        "R": -0.005,
+        "R": -0.095,
         "status": "open"
       },
       "shadow": {
-        "R": -0.005,
+        "R": -0.095,
+        "status": "open"
+      }
+    },
+    {
+      "ticker": "ACE",
+      "entry_date": "2026-11-09",
+      "forward": true,
+      "live": {
+        "R": 0.167,
+        "status": "open"
+      },
+      "shadow": {
+        "R": 0.167,
+        "status": "open"
+      }
+    },
+    {
+      "ticker": "PHOENIXLTD",
+      "entry_date": "2026-11-09",
+      "forward": true,
+      "live": {
+        "R": 0.576,
+        "status": "open"
+      },
+      "shadow": {
+        "R": 0.576,
+        "status": "open"
+      }
+    },
+    {
+      "ticker": "BALRAMCHIN",
+      "entry_date": "2026-11-11",
+      "forward": true,
+      "live": {
+        "R": -0.064,
+        "status": "open"
+      },
+      "shadow": {
+        "R": -0.064,
         "status": "open"
       }
     }

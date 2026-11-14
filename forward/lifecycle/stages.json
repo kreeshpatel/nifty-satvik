@@ -10,5 +10,17 @@
   "stage": "PAPER",
   "from": "2026-08-12",
   "note": "forward-wall base arm and paper book; its current status when ADR-0020 was proposed."
+ },
+ {
+  "strategy": "xsec_momentum_0001",
+  "stage": "PAPER",
+  "from": "2026-11-13",
+  "note": "paper record started by pipelines/lifecycle/update_records.py (ADR-0020)"
+ },
+ {
+  "strategy": "blend_70_30_vt15",
+  "stage": "PAPER",
+  "from": "2026-11-13",
+  "note": "paper record started by pipelines/lifecycle/update_records.py (ADR-0020)"
  }
 ]
