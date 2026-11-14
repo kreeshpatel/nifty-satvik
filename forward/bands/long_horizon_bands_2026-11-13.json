@@ -1,0 +1,215 @@
+{
+  "strategy": "long_horizon",
+  "built": "2026-11-13",
+  "frozen": true,
+  "worst_backtest_drawdown_pct": -46.26,
+  "drawdown_breaker_pct": -57.83,
+  "method": {
+    "ensemble_paths": 20,
+    "ensemble": "every overlapping window of every path, pooled",
+    "bootstrap": "stationary block bootstrap, mean block 8 weeks, 5000 draws",
+    "band": "the wider of the two, percentile by percentile (pipelines/lifecycle/core.py::wider)",
+    "drawdown_sign": "depth as a positive percentage"
+  },
+  "meta": {
+    "window": [
+      "2017-09-14",
+      "2026-06-29"
+    ],
+    "paths": "start date only; the engine has no cost hook, so this ensemble is narrower than the others"
+  },
+  "horizons": {
+    "13": {
+      "cum_return_pct": {
+        "ensemble": {
+          "p5": -19.82,
+          "p25": -5.34,
+          "p50": 4.42,
+          "p75": 14.83,
+          "p95": 29.54
+        },
+        "bootstrap": {
+          "p5": -19.1,
+          "p25": -4.7,
+          "p50": 4.25,
+          "p75": 13.11,
+          "p95": 27.4
+        },
+        "band": {
+          "p5": -19.82,
+          "p25": -5.34,
+          "p50": 4.25,
+          "p75": 14.83,
+          "p95": 29.54
+        }
+      },
+      "drawdown_depth_pct": {
+        "ensemble": {
+          "p5": 1.92,
+          "p25": 5.34,
+          "p50": 7.32,
+          "p75": 12.18,
+          "p95": 26.36
+        },
+        "bootstrap": {
+          "p5": 1.92,
+          "p25": 5.66,
+          "p50": 7.77,
+          "p75": 12.3,
+          "p95": 24.47
+        },
+        "band": {
+          "p5": 1.92,
+          "p25": 5.34,
+          "p50": 7.77,
+          "p75": 12.3,
+          "p95": 26.36
+        }
+      }
+    },
+    "26": {
+      "cum_return_pct": {
+        "ensemble": {
+          "p5": -22.47,
+          "p25": -5.11,
+          "p50": 4.46,
+          "p75": 25.51,
+          "p95": 51.19
+        },
+        "bootstrap": {
+          "p5": -23.91,
+          "p25": -6.02,
+          "p50": 7.42,
+          "p75": 22.19,
+          "p95": 45.41
+        },
+        "band": {
+          "p5": -23.91,
+          "p25": -6.02,
+          "p50": 4.46,
+          "p75": 25.51,
+          "p95": 51.19
+        }
+      },
+      "drawdown_depth_pct": {
+        "ensemble": {
+          "p5": 4.72,
+          "p25": 7.38,
+          "p50": 11.89,
+          "p75": 23.06,
+          "p95": 36.36
+        },
+        "bootstrap": {
+          "p5": 5.34,
+          "p25": 7.87,
+          "p50": 12.26,
+          "p75": 19.69,
+          "p95": 33.45
+        },
+        "band": {
+          "p5": 4.72,
+          "p25": 7.38,
+          "p50": 12.26,
+          "p75": 23.06,
+          "p95": 36.36
+        }
+      }
+    },
+    "52": {
+      "cum_return_pct": {
+        "ensemble": {
+          "p5": -20.25,
+          "p25": -5.37,
+          "p50": 7.24,
+          "p75": 47.03,
+          "p95": 97.58
+        },
+        "bootstrap": {
+          "p5": -27.9,
+          "p25": -4.33,
+          "p50": 15.19,
+          "p75": 37.4,
+          "p95": 78.63
+        },
+        "band": {
+          "p5": -27.9,
+          "p25": -5.37,
+          "p50": 7.24,
+          "p75": 47.03,
+          "p95": 97.58
+        }
+      },
+      "drawdown_depth_pct": {
+        "ensemble": {
+          "p5": 7.32,
+          "p25": 13.5,
+          "p50": 23.06,
+          "p75": 32.73,
+          "p95": 43.02
+        },
+        "bootstrap": {
+          "p5": 7.53,
+          "p25": 12.59,
+          "p50": 19.19,
+          "p75": 28.11,
+          "p95": 40.77
+        },
+        "band": {
+          "p5": 7.32,
+          "p25": 12.59,
+          "p50": 23.06,
+          "p75": 32.73,
+          "p95": 43.02
+        }
+      }
+    },
+    "104": {
+      "cum_return_pct": {
+        "ensemble": {
+          "p5": -14.49,
+          "p25": 14.6,
+          "p50": 52.51,
+          "p75": 84.06,
+          "p95": 132.06
+        },
+        "bootstrap": {
+          "p5": -30.69,
+          "p25": 0.21,
+          "p50": 29.59,
+          "p75": 70.29,
+          "p95": 144.78
+        },
+        "band": {
+          "p5": -30.69,
+          "p25": 0.21,
+          "p50": 29.59,
+          "p75": 84.06,
+          "p95": 144.78
+        }
+      },
+      "drawdown_depth_pct": {
+        "ensemble": {
+          "p5": 15.14,
+          "p25": 29.26,
+          "p50": 33.86,
+          "p75": 40.28,
+          "p95": 45.61
+        },
+        "bootstrap": {
+          "p5": 12.6,
+          "p25": 20.33,
+          "p50": 28.01,
+          "p75": 36.36,
+          "p95": 49.46
+        },
+        "band": {
+          "p5": 12.6,
+          "p25": 20.33,
+          "p50": 33.86,
+          "p75": 40.28,
+          "p95": 49.46
+        }
+      }
+    }
+  }
+}
