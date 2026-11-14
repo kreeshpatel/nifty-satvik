@@ -36,11 +36,17 @@ changes and amendments.
 |---|---|---|---|
 | **RESEARCH** | none | an idea | a pre-registered validation that passes (`/pre-register`, `/verdict`), frozen bands built, a forward record started → PAPER. A KILL verdict ends it |
 | **PAPER** | none (paper record only) | validation passed; bands frozen; record running | promotion to PILOT (§2), or retirement (§4) |
-| **PILOT** | 10% of the intended capital | §2 | promotion to SCALE, demotion to PAPER, or retirement |
-| **SCALE** | 25% | §2 | promotion to FULL, demotion to PILOT, or retirement |
-| **FULL** | 100% | §2 | demotion to SCALE, or retirement |
+| **PILOT** | 10% of system capital: ₹2,00,000 | §2 | promotion to SCALE, demotion to PAPER, or retirement |
+| **SCALE** | 25%: ₹5,00,000 | §2 | promotion to FULL, demotion to PILOT, or retirement |
+| **FULL** | 100%: ₹20,00,000 | §2 | demotion to SCALE, or retirement |
 
 Moves are one stage at a time, in either direction, and each is a dated line in `forward/lifecycle/stages.json`.
+
+**System capital (owner, 2026-11-14).** The target system is the 70/30 momentum/swing blend with the 15% volatility target, and
+the stage percentages apply to its total capital of **₹20,00,000**. Momentum 0001 is tracked as a component of that
+system. While momentum is in PAPER, core capital sits in a Nifty Midcap150 Momentum 50 index fund, bought by the owner in
+three equal monthly parts. The live swing joined the ladder at **PILOT** on that date, with no capital change before its
+26-week mark.
 
 ## 2. Promotion
 
@@ -48,6 +54,8 @@ Moves are one stage at a time, in either direction, and each is a dated line in 
   last 8 weeks**.
 - **PILOT → SCALE** and **SCALE → FULL:** at least **13 weeks** at the current stage, AMBER or better, and **execution
   tracking error under 1% a quarter** (real fills against the model's prices, from the app's execution ledger).
+  The scan reads fills **for tracking error only, never for a model decision**: no signal, size, stop or exit may
+  depend on a fill.
 - Promotion is the owner's decision at a quarterly review. Meeting the criteria makes a strategy eligible; it does not
   promote it.
 
@@ -112,8 +120,8 @@ questions) is not research and is not frozen.
 ## What this does not replace
 
 - [`portfolio-simulation`](../portfolio-simulation/SKILL.md): fill realism, the paper broker and kill-switch mechanics.
-  Its "≥30 closed trades and about 2 months" paper gate and `forward/prereg_swing.md` §3 predate this model. Until
-  the owner amends them, **the stricter rule applies**: 26 weeks.
+  Its older paper gate (30 closed trades and about 2 months) was **replaced by the 26-week gate** on 2026-11-14 (owner
+  decision, ADR-0020).
 - [`/verdict`](../verdict/SKILL.md), [`/seal`](../seal/SKILL.md), [`/pre-register`](../pre-register/SKILL.md): how a
   validation or a retirement is adjudicated and frozen.
 - The mechanical halts in `forward/prereg.md` §4 and `forward/prereg_swing.md` §5 stay in force.

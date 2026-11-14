@@ -10,5 +10,11 @@
   "stage": "PAPER",
   "from": "2026-08-12",
   "note": "forward-wall base arm and paper book; its current status when ADR-0020 was proposed."
+ },
+ {
+  "strategy": "live_swing",
+  "stage": "PILOT",
+  "from": "2026-11-14",
+  "note": "owner decision 5, ADR-0020: the live swing joins the ladder at PILOT. No capital change and no additions before its 26-week mark; capital decided at the January 2027 review."
  }
 ]

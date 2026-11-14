@@ -71,3 +71,28 @@ def test_paper_at_26_weeks_and_green_is_flagged_as_eligible(world):
 def test_the_table_fits_one_row_per_strategy(world):
     rows = [W.one(s) for s in W.STRATEGIES]
     assert W.table(rows).count("\n| ") == len(W.STRATEGIES) + 1
+
+
+# ------------------------------------------------------------------ fills: tracking error only (owner rule, 2026-11-14)
+def test_no_model_or_record_code_can_see_the_fills():
+    """The scan may read fills for tracking error ONLY. The engine, the scan and the record builder must not mention them."""
+    for rel in ("scripts/run_bhanushali_cron.py", "scripts/run_bhanushali_weekly_rank.py", "scripts/run_bhanushali_monitor.py",
+                "pipelines/lifecycle/update_records.py", "pipelines/lifecycle/build_bands.py", "nq/engine/rebalance_book.py",
+                "nq/engine/portfolio.py"):
+        src = (ROOT / rel).read_text(encoding="utf-8")
+        for word in ("LIFECYCLE_FILLS_DB_URL", "execution_events", "fills_from_db"):
+            assert word not in src, f"{rel} mentions {word}: fills are for tracking error only"
+
+
+def test_the_published_report_carries_aggregates_only(world, monkeypatch):
+    monkeypatch.setattr(W, "fills_from_db", lambda: [{"signal_id": "A__2026-11-02", "side": "BUY", "qty": 7, "price": 123.45}])
+    out = W.execution()
+    blob = json.dumps(out)
+    assert "123.45" not in blob and "A__2026-11-02" not in blob
+    assert out["fills_source"] == "app database (read-only)" and out["n_fills_read"] == 1
+
+
+def test_without_database_access_the_report_says_so(world, monkeypatch):
+    monkeypatch.delenv("LIFECYCLE_FILLS_DB_URL", raising=False)
+    monkeypatch.setattr(W, "FILLS", world / "missing.json")
+    assert "no read access" in W.execution()["note"]
