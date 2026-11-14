@@ -6,15 +6,15 @@
     {
       "strategy": "live_swing",
       "label": "Live swing (Grade A)",
-      "stage": "LIVE (pre-lifecycle)",
-      "stage_from": "2026-07-06",
+      "stage": "PILOT",
+      "stage_from": "2026-11-14",
       "bands_file": "live_swing_bands_2026-11-13.json",
       "weeks": 19,
       "record_from": "2026-07-10",
       "record_to": "2026-11-08",
       "cum_return_pct": -3.97,
       "drawdown_depth_pct": 12.65,
-      "weeks_in_stage": 19,
+      "weeks_in_stage": 0,
       "benchmark": {
         "name": "Nifty Midcap150 Momentum 50 TRI",
         "return_pct": -0.99,
@@ -103,6 +103,6 @@
   "execution_tracking_error": {
     "n_fills_matched": 0,
     "fills_source": null,
-    "note": "no fills export present; the app's execution ledger held 0 fills on 2026-11-13"
+    "note": "the scan has no read access to the app's fills yet (repository secret LIFECYCLE_FILLS_DB_URL not set)"
   }
 }

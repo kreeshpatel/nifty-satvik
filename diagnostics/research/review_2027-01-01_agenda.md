@@ -15,3 +15,9 @@ Each row cites the evidence file, never a remembered number. Standing counts are
 Closed for this review (measured, did not help): tighter, daily, trailing and partial-at-+1R exits (2026-11-12, 2026-11-13);
 the first-tranche level (+1R was a spike); adding a unit at +1R (no effect under the live caps); midcap breadth and
 own-40-week filters (dropped by the owner).
+
+## Added 2026-11-14 (ADR-0020 owner decisions)
+
+- **Live swing capital.** No change and no additions before its 26-week mark (early January 2027). Decide its capital here. It is at PILOT; PILOT is nominally ₹2,00,000 of the ₹20,00,000 system capital.
+- **First lifecycle verdict date for the swing.** Its record reaches 26 weeks in early January 2027; before that its status is provisional.
+- **Index-fund purchases.** Core capital goes into a Nifty Midcap150 Momentum 50 index fund in three equal monthly parts while momentum is in PAPER; confirm the amount and that the parts were bought.

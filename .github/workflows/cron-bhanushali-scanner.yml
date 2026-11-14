@@ -145,6 +145,9 @@ jobs:
       # and is continue-on-error on top of that, so it can never block or change the scan.
       - name: Strategy lifecycle - forward records and weekly status (ADR-0020)
         continue-on-error: true
+        env:
+          # Read-only connection to the app's execution ledger. Used for tracking error ONLY, never by the model.
+          LIFECYCLE_FILLS_DB_URL: ${{ secrets.LIFECYCLE_FILLS_DB_URL }}
         run: |
           python pipelines/lifecycle/update_records.py
           python pipelines/lifecycle/weekly_status.py || echo "::warning::lifecycle status not written"
