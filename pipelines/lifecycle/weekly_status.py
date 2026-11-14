@@ -25,6 +25,7 @@ BANDS = ROOT / "forward" / "bands"
 STAGES = ROOT / "forward" / "lifecycle" / "stages.json"
 STATUS_LOG = ROOT / "forward" / "lifecycle" / "status_log.csv"
 OUT = ROOT / "results" / "lifecycle_status.json"
+FILLS = ROOT / "results" / "execution_fills_export.json"     # optional export of the app's execution_events table
 STRATEGIES = {"live_swing": "Live swing (Grade A)", "xsec_momentum_0001": "Cross-sectional momentum (0001)",
               "blend_70_30_vt15": "70/30 momentum/swing, 15% vol target", "long_horizon": "Long-horizon trend"}
 
@@ -112,6 +113,27 @@ def one(strategy: str) -> dict:
     return out
 
 
+def execution() -> dict:
+    """Tracking error of real fills against the model, when an export of the app's fills is present."""
+    if not FILLS.exists():
+        return {"n_fills_matched": 0, "fills_source": None,
+                "note": "no fills export present; the app's execution ledger held 0 fills on 2026-11-13"}
+    fills = json.loads(FILLS.read_text(encoding="utf-8"))
+    hist = json.loads((ROOT / "results" / "signals_history_weekly.json").read_text(encoding="utf-8"))
+    hist = hist if isinstance(hist, list) else hist.get("signals", [])
+    stops = {}
+    arch = ROOT / "results" / "cards_archive.jsonl"
+    if arch.exists():
+        for ln in arch.read_text(encoding="utf-8").splitlines():
+            if ln.strip():
+                c = json.loads(ln)
+                if c.get("stop"):
+                    stops.setdefault(f"{c['ticker']}__{c['signal_date']}", c["stop"])
+    model = {f"{h['ticker']}__{h['signal_date']}": {"entry": h.get("entry"), "stop": stops.get(f"{h['ticker']}__{h['signal_date']}"),
+                                                     "exit": h.get("close_price") if h.get("status") != "ACTIVE" else None} for h in hist}
+    return C.tracking_error(fills, model) | {"fills_source": FILLS.name, "n_fills_in_export": len(fills)}
+
+
 def table(rows: list[dict]) -> str:
     t = ["## Strategy lifecycle — weekly status (ADR-0020)", "",
          "| strategy | stage | weeks | return | drawdown | vs band (horizon) | status | benchmark, same dates | trigger |", "|---|---|---|---|---|---|---|---|---|"]
@@ -132,8 +154,9 @@ def main() -> int:
     rows = [one(s) for s in STRATEGIES]
     asof = max((r.get("record_to") or "" for r in rows), default="")
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps({"as_of": asof, "rules": "skills/strategy-lifecycle/SKILL.md", "benchmark": C.BENCHMARK, "strategies": rows},
-                              indent=2) + "\n", encoding="utf-8")
+    ex = execution()
+    OUT.write_text(json.dumps({"as_of": asof, "rules": "skills/strategy-lifecycle/SKILL.md", "benchmark": C.BENCHMARK, "strategies": rows,
+                               "execution_tracking_error": ex}, indent=2) + "\n", encoding="utf-8")
     # append-only status log: one line per strategy per record week
     seen = set()
     if STATUS_LOG.exists():
@@ -145,7 +168,9 @@ def main() -> int:
         for r in rows:
             if r.get("record_to") and (r["record_to"], r["strategy"]) not in seen and r.get("status") in ("GREEN", "AMBER", "RED"):
                 fh.write(f"{r['record_to']},{r['strategy']},{r['status']},{r['weeks']}\n")
-    text = table(rows)
+    text = table(rows) + "\n**Execution tracking error (real fills vs model):** " + (
+        f"{ex['n_fills_matched']} fills matched, mean slippage {ex['mean_slippage_bps']} bps / {ex['mean_slippage_R']}R"
+        if ex.get("n_fills_matched") else ex.get("note", "not measurable")) + "\n"
     sys.stdout.buffer.write(text.encode("utf-8"))
     if os.environ.get("GITHUB_STEP_SUMMARY"):
         with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as fh:

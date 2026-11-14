@@ -212,3 +212,35 @@ def vol_target_blend(r_a: pd.Series, r_b: pd.Series, w_a: float = 0.70, target: 
     vol = r.rolling(lookback).std().shift(1) * np.sqrt(252)
     expo = (target / vol).clip(upper=1.0).fillna(1.0)
     return expo * r + (1 - expo) * (cash_rate / 252), expo
+
+
+# --------------------------------------------------------------------------------------------- execution
+def tracking_error(fills: Sequence[Mapping], model: Mapping[str, Mapping]) -> dict:
+    """Real fills against the model's prices (ADR-0020, Part F).
+
+    `fills`: rows with signal_id, side (BUY / SELL), qty, price. `model`: signal_id -> {entry, stop, exit}.
+    Slippage is signed so that POSITIVE is worse for the trader: a buy above the model entry, a sell below the model
+    exit. Reported in basis points of the model price and in R (the model's entry minus its stop)."""
+    rows = []
+    for f in fills:
+        m = model.get(str(f.get("signal_id")))
+        side = str(f.get("side", "")).upper()
+        ref = (m or {}).get("entry" if side == "BUY" else "exit")
+        if not m or not ref or side not in ("BUY", "SELL"):
+            continue
+        px, q = float(f["price"]), float(f.get("qty") or 0)
+        adverse = (px - float(ref)) if side == "BUY" else (float(ref) - px)
+        risk = float(m["entry"]) - float(m["stop"]) if m.get("entry") and m.get("stop") else float("nan")
+        rows.append({"side": side, "qty": q, "bps": adverse / float(ref) * 1e4, "R": adverse / risk if risk and risk > 0 else float("nan"),
+                     "notional": q * float(ref)})
+    if not rows:
+        return {"n_fills_matched": 0, "note": "no real fills recorded, so tracking error cannot be measured"}
+    d = pd.DataFrame(rows)
+    w = d["notional"] / d["notional"].sum() if d["notional"].sum() > 0 else 1 / len(d)
+    out = {"n_fills_matched": int(len(d)), "mean_slippage_bps": round(float((d["bps"] * w).sum()), 1),
+           "mean_slippage_R": round(float(d["R"].mean()), 3), "worst_slippage_bps": round(float(d["bps"].max()), 1)}
+    for side in ("BUY", "SELL"):
+        g = d[d["side"] == side]
+        if len(g):
+            out[f"{side.lower()}_mean_bps"] = round(float(g["bps"].mean()), 1)
+    return out

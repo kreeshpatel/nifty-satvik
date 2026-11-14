@@ -44,6 +44,10 @@ export default function ExecutionCaptureModal({
 
   const [qty, setQty] = useState('');
   const [price, setPrice] = useState('');
+  // The day the fill actually happened (owner request 2026-11-13): needed to compare a real fill with the
+  // model's price for that day, and to enter past fills. Defaults to today, in local time.
+  const todayStr = () => { const d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); };
+  const [fillDate, setFillDate] = useState(todayStr());
   // Stage 6: co-instructed resting orders (buy mode). Instruct-only (ADR 0011) — the checkbox
   // records what the user says they did; unticked never blocks the save.
   const [restingPlaced, setRestingPlaced] = useState(false);
@@ -117,12 +121,14 @@ export default function ExecutionCaptureModal({
     if (isSell) {
       recordSell.mutate(
         { signal_id: signalId, qty: qtyNum, price: priceNum, tranche: tranche || 'manual',
+          executed_at: fillDate ? `${fillDate}T00:00:00` : undefined,
           day_low: dayRange?.low, day_high: dayRange?.high },
         { onSuccess: done },
       );
     } else {
       recordBuy.mutate(
         { signal_id: signalId, ticker: sig.sym, qty: qtyNum, price: priceNum,
+          executed_at: fillDate ? `${fillDate}T00:00:00` : undefined,
           note: restingLevels ? `resting orders placed: ${restingPlaced ? 'yes' : 'no'}` : undefined },
         { onSuccess: done },
       );
@@ -159,6 +165,13 @@ export default function ExecutionCaptureModal({
               <input
                 type="number" min="0" step="0.05" inputMode="decimal" className="ecm-input tnum"
                 value={price} onChange={(e) => setPrice(e.target.value)}
+              />
+            </label>
+            <label className="ecm-field">
+              <span>Fill date</span>
+              <input
+                type="date" className="ecm-input tnum" max={todayStr()}
+                value={fillDate} onChange={(e) => setFillDate(e.target.value)}
               />
             </label>
           </div>

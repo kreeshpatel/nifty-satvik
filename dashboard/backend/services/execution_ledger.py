@@ -52,6 +52,12 @@ def record_event(
     tr = (tranche or "").strip().lower() or None
     if tr is not None and tr not in _TRANCHES:
         tr = "manual"
+    if isinstance(executed_at, str):                 # the popup sends the fill date as an ISO string
+        from datetime import datetime as _dt
+        try:
+            executed_at = _dt.fromisoformat(executed_at.strip().replace("Z", "+00:00")).replace(tzinfo=None)
+        except ValueError:
+            raise ValueError(f"executed_at must be an ISO date or datetime (got {executed_at!r})") from None
     row = ExecutionEvent(
         user_id=user_id, signal_id=signal_id, ticker=(ticker or "").upper(),
         side=side, qty=int(qty), price=float(price), tranche=tr,
