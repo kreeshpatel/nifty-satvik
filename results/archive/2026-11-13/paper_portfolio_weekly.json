@@ -1,0 +1,74 @@
+{
+  "cash": 180902.33,
+  "peak_value": 1057592.22,
+  "total_value": 981567.91,
+  "n_positions": 5,
+  "total_trades": 39,
+  "positions": {
+    "CUB": {
+      "entry_date": "2026-07-06",
+      "entry_price": 210.03,
+      "shares": 190.45,
+      "position_size": 40000.0,
+      "atr_stop": 197.35,
+      "target": 235.39,
+      "current_price": 232.4,
+      "current_value": 44259.86,
+      "unrealised_pnl": 4259.86,
+      "unrealised_pnl_pct": 10.65,
+      "days_held": 95
+    },
+    "MCX": {
+      "entry_date": "2026-08-17",
+      "entry_price": 2905.98,
+      "shares": 41.39,
+      "position_size": 120292.14,
+      "atr_stop": 2615.38,
+      "target": 3487.18,
+      "current_price": 3720.0,
+      "current_value": 153988.25,
+      "unrealised_pnl": 33696.12,
+      "unrealised_pnl_pct": 28.01,
+      "days_held": 65
+    },
+    "APLAPOLLO": {
+      "entry_date": "2026-08-17",
+      "entry_price": 2084.97,
+      "shares": 96.16,
+      "position_size": 200486.89,
+      "atr_stop": 1944.21,
+      "target": 2366.48,
+      "current_price": 2251.6,
+      "current_value": 216509.92,
+      "unrealised_pnl": 16023.02,
+      "unrealised_pnl_pct": 7.99,
+      "days_held": 65
+    },
+    "TECHM": {
+      "entry_date": "2026-10-19",
+      "entry_price": 1745.57,
+      "shares": 109.48,
+      "position_size": 191106.74,
+      "atr_stop": 1571.01,
+      "target": 2094.68,
+      "current_price": 1764.0,
+      "current_value": 193124.84,
+      "unrealised_pnl": 2018.1,
+      "unrealised_pnl_pct": 1.06,
+      "days_held": 20
+    },
+    "FEDERALBNK": {
+      "entry_date": "2026-10-26",
+      "entry_price": 341.0,
+      "shares": 534.1,
+      "position_size": 182127.45,
+      "atr_stop": 321.35,
+      "target": 380.3,
+      "current_price": 360.95,
+      "current_value": 192782.71,
+      "unrealised_pnl": 10655.26,
+      "unrealised_pnl_pct": 5.85,
+      "days_held": 15
+    }
+  }
+}
