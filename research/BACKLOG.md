@@ -10,65 +10,66 @@ in the last column.
 | 2026-11-13 | Half size when the Nifty is below its 40-week SMA (live swing) | +0.22 Sharpe, inside noise; parked for the January review | already on the 2027-01-01 agenda | |
 | 2026-11-13 | Skip signals with results due within 4 weeks (live swing) | drawdown robustly shallower, no Sharpe gain; parked for the January review | already on the 2027-01-01 agenda | |
 | 2026-11-13 | Weak-market mean-reversion sleeve | untested; draft amendment unsigned (`forward/drafts/2026-11-13_amendment_mr_sleeve_DRAFT.md`) | owner signature, then paper logging | |
-| 2026-11-17 | **News sentiment, market-level and per-signal, forward-only** (spec below) | the live losses came in a weak-but-calm market (VIX < 15, midcap breadth > 60%), which no price feature we have separates from a good one; sentiment is the one input the programme has never recorded | start recording; judge at 26 weeks against the pre-committed test below. Needs owner approval under the freeze | |
+| 2026-11-17 | **News sentiment, market-level only, forward-only** (spec below) — **APPROVED 2026-11-17, first reading the next Saturday scan** | the live losses came in a weak-but-calm market (VIX < 15, midcap breadth > 60%), which no price feature we have separates from a good one; sentiment is the one input the programme has never recorded | start recording; judge at 26 weeks against the pre-committed test below. Needs owner approval under the freeze | |
 | 2026-11-17 | **FII / DII net flows as a market-stress signal** (spec below) | foreign and domestic institutional flows are the one market-stress series we can get point-in-time and backtest honestly, unlike sentiment | descriptive run on 2019..2024-06 only, EXPLORE tier, no trial. Needs owner approval under the freeze | |
 
 ---
 
-## Spec — news sentiment, forward-only (logged 2026-11-17, not approved)
+## Spec — news sentiment, market-level only, forward-only (logged 2026-11-17, **approved 2026-11-17**)
+
+**Owner decision 2026-11-17: the market-level reading is approved and starts with the next Saturday scan, frozen with
+each scan and changing nothing. The per-signal reading is dropped from the spec** — Law I is the reason (five
+instruments have already failed to see entry quality before entry), and dropping it also removes most of the cost and
+all of the per-company point-in-time risk.
 
 **Why forward-only.** Sentiment cannot be reconstructed point-in-time: a model reading today's archive of a 2021 article
 sees everything that happened afterwards. `long_horizon/charter.md` §4 already fixes the rule — anything that cannot be
 rebuilt point-in-time is **forward-only**, excluded from every backtest, judged on the forward record. So this spec
 records data and decides nothing. It is not a trial and spends no multiplicity.
 
-**What would be recorded, every Saturday scan, after the cards are built:**
+**What is recorded, every Saturday scan, after the cards are built — one row a week, market level only:**
 
-| reading | definition |
+| field | definition |
 |---|---|
-| `market_sentiment` | one score in −1..+1 for the Indian market over the last 7 days, from headlines only |
-| `market_stress_tags` | zero or more of: policy, rates, currency, global, earnings-season, liquidity, scandal |
-| `signal_sentiment` | per FRESH card: one score in −1..+1 for that company over the last 30 days |
-| `signal_tags` | per FRESH card: results, order-win, downgrade, upgrade, regulatory, promoter, none |
-| `confidence` | per reading: low / medium / high |
-| `as_of`, `model`, `prompt_hash`, `n_articles` | provenance, so a later change of model or prompt is visible |
+| `sentiment` | one score in −1..+1 for the Indian market over the last 7 days, from headlines only |
+| `stress_tags` | zero or more of: policy, rates, currency, global, earnings-season, liquidity, scandal |
+| `confidence` | low / medium / high |
+| `summary` | one or two sentences, for a human reading the row later |
+| `as_of`, `series_id`, `model`, `prompt_sha`, `n_headlines`, `sources` | provenance, so a later change of model or prompt is visible |
 
 **Rules that make it evidence rather than decoration**
-1. **It changes nothing.** No signal, rank, size, stop or exit may read these fields. A test pins that, as with the
-   execution fills (`tests/test_lifecycle_status.py`).
-2. **Frozen at signal.** The reading is written once, with the FRESH card, and never rewritten, like the quality axes
-   (`prereg_signal_quality.md` §1).
-3. **Headlines only, dated.** Only articles published on or before the signal Friday, with their dates recorded. No
-   article may be fetched later and backdated.
-4. **The prompt and model are frozen** at the start and hashed into every row. Changing either starts a new series.
-5. Stored append-only in `results/sentiment_forward.jsonl`, whitelisted and listed in the output contract.
+1. **It changes nothing.** No signal, rank, size, stop or exit may read these fields.
+   `tests/test_market_sentiment.py::test_no_decision_code_reads_the_sentiment_file` pins that.
+2. **Frozen at the scan.** The reading is written once, with that week's cards, and never rewritten, like the quality
+   axes (`prereg_signal_quality.md` §1).
+3. **Headlines only, dated.** Only material published on or before the scan date, and the prompt forbids reasoning
+   about anything after `as_of`, forecasts and recommendations.
+4. **The prompt and model are frozen** at the start and hashed into every row (`PROMPT_SHA`, `SERIES_ID="market-v1"`).
+   Changing either starts a new series rather than continuing this one.
+5. Stored append-only in `results/sentiment_forward.jsonl`, whitelisted and listed in the output contract. The step is
+   non-blocking: no sentiment failure may ever fail a scan.
 
-**Cost per scan.** About 21 cards a week, of which roughly 3 to 5 are FRESH, plus one market reading. That is about 5
-model calls a week, each a page of headlines: roughly **₹15–40 a week**, or **₹800–2,000 a year**, at current Claude
-pricing. The scan already makes one call per card for the sealed judge, so the plumbing and the API key exist.
-A headline source is needed; the owner has mentioned GitHub repositories carrying news-sentiment data, and those links
-are needed before this can be specified further (see "open" below).
+**Source.** The reading is produced by the scan itself through the Anthropic web-search tool, the same plumbing the
+sealed judge already uses, so no third-party dataset and no external repository is required. The two GitHub
+repositories the owner supplied were checked and neither carries Indian news-sentiment data (day-trader-skill is US
+tooling over Yahoo / SEC EDGAR / Nasdaq; PKScreener carries FII and mutual-fund *shareholding*, not news).
+
+**Cost per scan.** One call a week with a short search: roughly **₹5–10 a week**, under **₹500 a year**.
 
 **The test, fixed in advance, read at 26 weeks (not before):**
-- **Market reading:** split the weeks into sentiment quartiles at the signal Friday. The pass is a **monotone** relation
-  between the quartile and the mean R of trades entered in those weeks, **and** a top-minus-bottom quartile gap of at
-  least **0.5R per trade** with a bootstrap confidence interval that excludes zero.
-- **Per-signal reading:** mean R of trades whose signal sentiment is positive minus mean R of the rest, over at least
-  **40 closed trades**, with the same interval test.
-- **Either result at or below zero, or inside the interval, is a KILL for that reading.** No retune, no second prompt.
-- **Prior that must be beaten:** five instruments have already failed to see entry quality before entry
-  (`program-laws` Law I), and two real population effects died at the funding margin (0119 delivery −1.29R/yr; 0121
-  earnings −15.72R/yr). **The market-level reading is the part with a real prior in its favour**, because the live
-  losses sit in a market state (weak but calm) that no price feature separates; the per-signal reading is the part Law
-  I predicts will fail.
+- Split the weeks into sentiment quartiles at the signal Friday. The pass is a **monotone** relation between the
+  quartile and the mean R of trades entered in those weeks, **and** a top-minus-bottom quartile gap of at least
+  **0.5R per trade** with a bootstrap confidence interval that excludes zero.
+- **A result at or below zero, or inside the interval, is a KILL.** No retune, no second prompt.
+- **Prior.** Five instruments have already failed to see entry quality before entry (`program-laws` Law I), and two
+  real population effects died at the funding margin (0119 delivery −1.29R/yr; 0121 earnings −15.72R/yr). The
+  market-level reading is the part with a real prior in its favour, because the live losses sit in a market state
+  (weak but calm) that no price feature we have separates from a good one.
 
-**Open, needed from the owner:** the GitHub repository links for the news-sentiment data. They have been mentioned but
-are not in this session's view. Only the **data** would be used, never code from those repositories executed here, and
-the point-in-time question (was each article's text available on its stated date?) has to be answered before the
-series can start.
+**Implementation:** `nq/research/market_sentiment.py`, `scripts/run_market_sentiment.py`, wired into
+`.github/workflows/cron-bhanushali-scanner.yml` as a non-blocking step (PR #203).
 
 ---
-
 ## Spec — FII / DII net flows (logged 2026-11-17, not approved)
 
 **Why this one is different from sentiment:** NSE publishes daily foreign (FII) and domestic (DII) institutional cash

@@ -1,6 +1,33 @@
 # 0152 — Widen a stop tighter than 8% of entry to 8% (CONFIRM)
 
-**Status: PRE-REGISTERED, awaiting the owner's signature. Nothing has been run on sealed slice B for this question.**
+**Status: WITHDRAWN 2026-11-17, unrun and unsigned. Nothing was ever run on sealed slice B for this question: the
+sealed open was not spent, `n_trials` was not incremented, and the standing counts are unchanged (screens 24 · sealed
+opens 4 · n_trials 3).**
+
+**Why it was withdrawn.** Before signing, the owner asked for an exploratory decomposition on dataset A of where the
++0.37 train-window gain comes from, with the rule fixed in advance: *if the stop effect at fixed position sizes is
+inside noise, record 0152 as withdrawn with that reason.* The decomposition
+(`diagnostics/research/explore/2026-11-17_widen_stop_decomposition.md`, 20 paired paths) found:
+
+- **The stop level alone is inside path noise:** median ΔSharpe **+0.20 [p5 −0.20, p95 +0.32]**, better on **15 of 20**
+  paths, and it makes drawdown **3.6pp deeper**. The reading rule (robust iff p5 > 0) is not met.
+- **The target distance alone contributes nothing:** +0.01 [−0.17, +0.24], 10 of 20 paths.
+- The full rule's +0.37 is therefore an **interaction** of two levers, neither of which stands alone.
+
+**And §3's funding-channel claim below is wrong, which is recorded here rather than quietly fixed.** With 2% risk per
+trade, the 10% stop cap and the 20% per-name notional cap, risk sizing always asks for at least 20% of equity, so the
+notional cap binds on essentially every live position (median weight at entry 0.200, 55% exactly at the cap). A wider
+stop does **not** shrink the position and does not fund extra seats; measured, the widened book opens **fewer**
+positions (67 against 77), not more. The sentence in §3 beginning "The funding channel" and the sentence in §2
+beginning "Risk sizing then divides by the wider distance" are both false as written, and the §5 bar P4 was written
+to catch a mechanism that does not exist.
+
+Nothing is adopted and no other floor level is opened on the back of this. Re-opening would need a reason to believe
+the interaction is structural rather than a product of this window — not a different floor number, which is the same
+search with a new value.
+
+*Everything below is the pre-registration as written on 2026-11-17, left unaltered as the record of what was
+proposed.*
 **Tier:** 3 · CONFIRM (`docs/PROCESS_TIERS.md`): a change to how the live book sets its stop and therefore its size.
 **Written:** 2026-11-17, before any sealed-slice number for this rule exists.
 **Counter:** `n_trials` 3 → 4 and `family_level_count` 3 → 4 (one arm). The increment is a separate commit, made after
