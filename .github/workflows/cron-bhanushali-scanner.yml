@@ -143,6 +143,13 @@ jobs:
       # Strategy lifecycle (ADR-0020): append this week's row to the forward records in forward/records/.
       # It runs on the OHLCV cache the scan just refreshed, writes only its own files, always exits 0,
       # and is continue-on-error on top of that, so it can never block or change the scan.
+      # Market-level news sentiment, forward-only (owner approval 2026-11-17). It decides NOTHING: no signal,
+      # size, stop or exit reads it, and tests/test_market_sentiment.py pins that. One row a week, append-only.
+      - name: Market sentiment (forward-only; decides nothing)
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scripts/run_market_sentiment.py
       - name: Strategy lifecycle - forward records and weekly status (ADR-0020)
         continue-on-error: true
         env:
@@ -215,6 +222,7 @@ jobs:
           opt forward/records                 # ADR-0020 weekly forward records (append-only)
           opt forward/lifecycle               # stage log and weekly status log (append-only)
           opt results/lifecycle_status.json   # weekly GREEN/AMBER/RED per strategy; reporting only
+          opt results/sentiment_forward.jsonl   # weekly market-sentiment reading; research only
           opt diagnostics/research/benchmarks/tri/nifty_midcap150_momentum_50_tri.csv   # benchmark TRI top-up
           if git commit -m "chore(weekly): Saturday weekly-swing paper state $(date -u +%F)"; then
             # --autostash: the OHLCV download leaves UNSTAGED cache changes that abort a plain
