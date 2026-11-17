@@ -634,6 +634,7 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
              lockin_mfe: float = 0.0, lockin_at: float = 1.0,
              chand_pct: float = 0.0, chand_after_r: float = 0.0,
              soft_stop_pct: float = 0.0, stop_widen_pct: float = 0.0, disaster_floor_pct: float = 0.0,
+             min_stop_pct: float = 0.0, min_stop_atr20: float = 0.0, min_stop_mode: str = "skip",
              lh_arm_r: float = 0.0, lh_n: int = 2, no_time_cap: bool = False,
              trendhold_pct: float = 0.0, blowoff_arm_r: float = 0.0, blowoff_third: float = 0.34,
              wk20_trail_pct: float | None = None,
@@ -1347,6 +1348,23 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
             # and shrinks size -> KILL (Sharpe 1.132->0.785). 0.0 (default) => byte-identical to 0094.
             if stop_widen_pct:
                 st = en - (en - st) * (1.0 + stop_widen_pct)
+            # MINIMUM STOP DISTANCE (2026-11-13 explore): a floor on entry-to-stop distance, as a share of the
+            # entry (min_stop_pct) and/or a multiple of the DAILY 20-session ATR before the fill (min_stop_atr20).
+            # "skip" drops a fill whose stop is tighter than the floor; "widen" moves the stop down to the floor
+            # (size then shrinks, since risk sizing divides by the wider distance). Both 0 => byte-identical.
+            if min_stop_pct or min_stop_atr20:
+                _floor = min_stop_pct * en
+                if min_stop_atr20 and i >= 21:
+                    _h = np.asarray(s["h"][i - 20:i], dtype=float)
+                    _l = np.asarray(s["l"][i - 20:i], dtype=float)
+                    _pc = np.asarray(s["c"][i - 21:i - 1], dtype=float)
+                    _tr = np.maximum(_h - _l, np.maximum(np.abs(_h - _pc), np.abs(_l - _pc)))
+                    _floor = max(_floor, min_stop_atr20 * float(_tr.mean()))
+                if en - st < _floor:
+                    if min_stop_mode == "widen":
+                        st = en - _floor
+                    else:
+                        continue
             if en > st:
                 sh = sizing_eq * _risk / (en - st)
                 # OWNER 2026-07-16: hard cap on capital per name. Risk-sizing alone puts 2%/5% = 40% of the
