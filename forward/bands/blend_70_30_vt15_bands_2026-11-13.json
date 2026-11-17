@@ -1,0 +1,216 @@
+{
+  "strategy": "blend_70_30_vt15",
+  "built": "2026-11-13",
+  "frozen": true,
+  "worst_backtest_drawdown_pct": -22.85,
+  "drawdown_breaker_pct": -28.57,
+  "method": {
+    "ensemble_paths": 20,
+    "ensemble": "every overlapping window of every path, pooled",
+    "bootstrap": "stationary block bootstrap, mean block 8 weeks, 5000 draws",
+    "band": "the wider of the two, percentile by percentile (pipelines/lifecycle/core.py::wider)",
+    "drawdown_sign": "depth as a positive percentage"
+  },
+  "meta": {
+    "window": [
+      "2019-03-01",
+      "2024-06-28"
+    ],
+    "definition": "70% momentum 0001 / 30% live swing, daily fixed weights, 15% volatility target on 20-session realised vol, exposure capped at 1.0, rest in cash at 6% a year",
+    "paths": "momentum path i paired with swing path i"
+  },
+  "horizons": {
+    "13": {
+      "cum_return_pct": {
+        "ensemble": {
+          "p5": -8.95,
+          "p25": -1.17,
+          "p50": 7.97,
+          "p75": 14.87,
+          "p95": 22.39
+        },
+        "bootstrap": {
+          "p5": -9.36,
+          "p25": 0.92,
+          "p50": 7.36,
+          "p75": 13.71,
+          "p95": 21.66
+        },
+        "band": {
+          "p5": -9.36,
+          "p25": -1.17,
+          "p50": 7.36,
+          "p75": 14.87,
+          "p95": 22.39
+        }
+      },
+      "drawdown_depth_pct": {
+        "ensemble": {
+          "p5": 1.11,
+          "p25": 2.4,
+          "p50": 3.78,
+          "p75": 7.24,
+          "p95": 13.87
+        },
+        "bootstrap": {
+          "p5": 1.1,
+          "p25": 2.44,
+          "p50": 3.77,
+          "p75": 6.95,
+          "p95": 13.28
+        },
+        "band": {
+          "p5": 1.1,
+          "p25": 2.4,
+          "p50": 3.78,
+          "p75": 7.24,
+          "p95": 13.87
+        }
+      }
+    },
+    "26": {
+      "cum_return_pct": {
+        "ensemble": {
+          "p5": -6.66,
+          "p25": 1.73,
+          "p50": 16.19,
+          "p75": 28.48,
+          "p95": 40.17
+        },
+        "bootstrap": {
+          "p5": -8.83,
+          "p25": 4.02,
+          "p50": 14.62,
+          "p75": 24.61,
+          "p95": 38.26
+        },
+        "band": {
+          "p5": -8.83,
+          "p25": 1.73,
+          "p50": 14.62,
+          "p75": 28.48,
+          "p95": 40.17
+        }
+      },
+      "drawdown_depth_pct": {
+        "ensemble": {
+          "p5": 2.45,
+          "p25": 3.73,
+          "p50": 6.54,
+          "p75": 12.07,
+          "p95": 20.78
+        },
+        "bootstrap": {
+          "p5": 2.44,
+          "p25": 3.79,
+          "p50": 6.63,
+          "p75": 11.34,
+          "p95": 21.06
+        },
+        "band": {
+          "p5": 2.44,
+          "p25": 3.73,
+          "p50": 6.63,
+          "p75": 12.07,
+          "p95": 21.06
+        }
+      }
+    },
+    "52": {
+      "cum_return_pct": {
+        "ensemble": {
+          "p5": -3.04,
+          "p25": 7.72,
+          "p50": 29.59,
+          "p75": 56.02,
+          "p95": 87.55
+        },
+        "bootstrap": {
+          "p5": -5.73,
+          "p25": 13.23,
+          "p50": 29.77,
+          "p75": 47.09,
+          "p95": 71.39
+        },
+        "band": {
+          "p5": -5.73,
+          "p25": 7.72,
+          "p50": 29.59,
+          "p75": 56.02,
+          "p95": 87.55
+        }
+      },
+      "drawdown_depth_pct": {
+        "ensemble": {
+          "p5": 3.29,
+          "p25": 6.42,
+          "p50": 12.66,
+          "p75": 17.96,
+          "p95": 21.33
+        },
+        "bootstrap": {
+          "p5": 3.34,
+          "p25": 6.63,
+          "p50": 10.91,
+          "p75": 14.7,
+          "p95": 22.85
+        },
+        "band": {
+          "p5": 3.29,
+          "p25": 6.42,
+          "p50": 12.66,
+          "p75": 17.96,
+          "p95": 22.85
+        }
+      }
+    },
+    "104": {
+      "cum_return_pct": {
+        "ensemble": {
+          "p5": 26.51,
+          "p25": 37.98,
+          "p50": 77.31,
+          "p75": 107.18,
+          "p95": 141.74
+        },
+        "bootstrap": {
+          "p5": 7.34,
+          "p25": 39.99,
+          "p50": 66.6,
+          "p75": 99.26,
+          "p95": 153.88
+        },
+        "band": {
+          "p5": 7.34,
+          "p25": 37.98,
+          "p50": 66.6,
+          "p75": 107.18,
+          "p95": 153.88
+        }
+      },
+      "drawdown_depth_pct": {
+        "ensemble": {
+          "p5": 12.51,
+          "p25": 16.83,
+          "p50": 17.81,
+          "p75": 20.34,
+          "p95": 21.71
+        },
+        "bootstrap": {
+          "p5": 6.35,
+          "p25": 11.29,
+          "p50": 13.85,
+          "p75": 21.09,
+          "p95": 27.61
+        },
+        "band": {
+          "p5": 6.35,
+          "p25": 11.29,
+          "p50": 17.81,
+          "p75": 21.09,
+          "p95": 27.61
+        }
+      }
+    }
+  }
+}

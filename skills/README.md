@@ -31,6 +31,7 @@ Each skill is a `SKILL.md` with frontmatter (`name`, `description` with trigger 
 | [indian-market-execution](indian-market-execution/SKILL.md) | NSE mechanics — STT, circuit limits, F&O, T+1, settlement, SEBI language | algo_ai_skill `indian-algo-trading` (Apache-2.0) |
 | [kite-execution](kite-execution/SKILL.md) | Kite (Zerodha) auth, fills, session expiry, order edge cases | project (audit-grounded) |
 | [portfolio-simulation](portfolio-simulation/SKILL.md) | paper gate, fill realism, kill-switch triggers, live-vs-backtest divergences — before any real rupee | project (Stage E→F) |
+| [strategy-lifecycle](strategy-lifecycle/SKILL.md) | **any question about how a strategy is doing live, or about promoting, funding, changing or killing one** — stages, weekly GREEN/AMBER/RED against frozen bands, the 26-week minimum, quarterly change control, the benchmark rule, the research freeze | project (ADR-0020) |
 | [research-log](research-log/SKILL.md) | recording a finding — where it goes (registry / changelog / ADR / findings) | project |
 
 ## Ritual commands (`/name` — you invoke these, Claude does not)

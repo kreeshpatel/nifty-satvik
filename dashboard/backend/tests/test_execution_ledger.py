@@ -259,3 +259,33 @@ def test_reentry_average_tracks_shares_still_held() -> None:
     r = L.position_state([ev(1, L.BUY, 10, 100.0), ev(2, L.BUY, 10, 120.0), ev(3, L.SELL, 5, 130.0)])
     assert r["avg_buy_price"] == 110.0 and r["remaining_qty"] == 15 and r["cost_basis_remaining"] == 1650.0
     assert r["realized_pnl"] == 100.0
+
+
+def test_record_event_accepts_the_fill_date_as_an_iso_string() -> None:
+    """The popup sends `executed_at` as a string (2026-11-13). It must reach the DateTime column as a datetime,
+    and a malformed date must be refused rather than stored."""
+    import pytest
+
+    class _Db:
+        def __init__(self):
+            self.rows = []
+
+        def add(self, row):
+            self.rows.append(row)
+
+        def commit(self):
+            pass
+
+        def refresh(self, row):
+            pass
+
+    db = _Db()
+    ledger.record_event(db, user_id=1, signal_id="A__2026-11-02", ticker="A", side="BUY", qty=10, price=100.0,
+                        executed_at="2026-11-13T00:00:00")
+    assert db.rows[0].executed_at == datetime(2026, 11, 13)
+    ledger.record_event(db, user_id=1, signal_id="A__2026-11-02", ticker="A", side="SELL", qty=5, price=110.0,
+                        executed_at="2026-11-14")
+    assert db.rows[1].executed_at == datetime(2026, 11, 14)
+    with pytest.raises(ValueError):
+        ledger.record_event(db, user_id=1, signal_id="A__2026-11-02", ticker="A", side="BUY", qty=1, price=1.0,
+                            executed_at="yesterday")

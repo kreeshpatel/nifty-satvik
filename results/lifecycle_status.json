@@ -1,0 +1,108 @@
+{
+  "as_of": "2026-11-13",
+  "rules": "skills/strategy-lifecycle/SKILL.md",
+  "benchmark": "Nifty Midcap150 Momentum 50 TRI",
+  "strategies": [
+    {
+      "strategy": "live_swing",
+      "label": "Live swing (Grade A)",
+      "stage": "PILOT",
+      "stage_from": "2026-11-14",
+      "bands_file": "live_swing_bands_2026-11-13.json",
+      "weeks": 20,
+      "record_from": "2026-07-10",
+      "record_to": "2026-11-13",
+      "cum_return_pct": -1.84,
+      "drawdown_depth_pct": 12.65,
+      "weeks_in_stage": 0,
+      "benchmark": {
+        "name": "Nifty Midcap150 Momentum 50 TRI",
+        "return_pct": 1.8,
+        "strategy_same_dates_pct": -4.62,
+        "from": "2026-07-10",
+        "to": "2026-11-13",
+        "trails_benchmark_52w": null
+      },
+      "horizon_weeks": 26,
+      "band_return_pct": {
+        "p5": -15.95,
+        "p25": 0.29,
+        "p50": 11.11,
+        "p75": 24.44,
+        "p95": 47.61
+      },
+      "band_drawdown_p95_pct": 33.51,
+      "drawdown_breaker_pct": 50.14,
+      "percentile": "5th-25th",
+      "status": "AMBER",
+      "reasons": [
+        "return -1.8% is between the 5th (-15.9%) and 25th (0.3%) percentile"
+      ],
+      "provisional": true,
+      "triggers": []
+    },
+    {
+      "strategy": "xsec_momentum_0001",
+      "label": "Cross-sectional momentum (0001)",
+      "stage": "PAPER",
+      "stage_from": "2026-11-13",
+      "bands_file": "xsec_momentum_0001_bands_2026-11-13.json",
+      "weeks": 0,
+      "status": "NEW",
+      "provisional": true,
+      "note": "no forward weeks yet"
+    },
+    {
+      "strategy": "blend_70_30_vt15",
+      "label": "70/30 momentum/swing, 15% vol target",
+      "stage": "PAPER",
+      "stage_from": "2026-11-13",
+      "bands_file": "blend_70_30_vt15_bands_2026-11-13.json",
+      "weeks": 0,
+      "status": "NEW",
+      "provisional": true,
+      "note": "no forward weeks yet"
+    },
+    {
+      "strategy": "long_horizon",
+      "label": "Long-horizon trend",
+      "stage": "PAPER",
+      "stage_from": "2026-08-12",
+      "bands_file": "long_horizon_bands_2026-11-13.json",
+      "weeks": 13,
+      "record_from": "2026-08-14",
+      "record_to": "2026-11-13",
+      "cum_return_pct": -0.73,
+      "drawdown_depth_pct": 11.52,
+      "weeks_in_stage": 13,
+      "benchmark": {
+        "name": "Nifty Midcap150 Momentum 50 TRI",
+        "return_pct": -0.06,
+        "strategy_same_dates_pct": -1.56,
+        "from": "2026-08-14",
+        "to": "2026-11-13",
+        "trails_benchmark_52w": null
+      },
+      "horizon_weeks": 13,
+      "band_return_pct": {
+        "p5": -19.82,
+        "p25": -5.34,
+        "p50": 4.25,
+        "p75": 14.83,
+        "p95": 29.54
+      },
+      "band_drawdown_p95_pct": 26.36,
+      "drawdown_breaker_pct": 57.83,
+      "percentile": "25th-50th",
+      "status": "GREEN",
+      "reasons": [],
+      "provisional": true,
+      "triggers": []
+    }
+  ],
+  "execution_tracking_error": {
+    "n_fills_matched": 0,
+    "fills_source": null,
+    "note": "the scan has no read access to the app's fills yet (repository secret LIFECYCLE_FILLS_DB_URL not set)"
+  }
+}

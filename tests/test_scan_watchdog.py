@@ -80,3 +80,11 @@ def test_special_sessions_come_from_the_shared_calendar():
     import scan_watchdog as W
     from nq.data.trading_calendar import special_sessions
     assert set(W.SPECIAL_SESSIONS) == set(special_sessions())
+
+
+def test_the_watchdog_workflow_installs_its_dependencies():
+    """scan_watchdog imports pandas through nq.data.trading_calendar. Without an install step the job crashes
+    before it can check the week, which is what happened on 2026-11-15 and 2026-11-16."""
+    wf = (Path(__file__).resolve().parent.parent / ".github" / "workflows" / "cron-scan-watchdog.yml").read_text(encoding="utf-8")
+    assert "pip install -e" in wf
+    assert wf.index("pip install -e") < wf.index("run: python scripts/scan_watchdog.py")

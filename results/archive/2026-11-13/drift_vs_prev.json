@@ -1,0 +1,61 @@
+{
+  "prev_snapshot": "2026-11-08",
+  "cur_snapshot": "2026-11-13",
+  "closed_prev": 38,
+  "closed_cur": 39,
+  "closed_delta": 1,
+  "nav_prev": 960294.0,
+  "nav_cur": 981567.91,
+  "nav_delta": 21273.91,
+  "n_restated": 2,
+  "restated": [
+    {
+      "trade": "GESHIP|2026-07-27",
+      "changed": {
+        "entry": [
+          1423.68,
+          1409.54
+        ],
+        "close_price": [
+          1281.1,
+          1268.37
+        ]
+      }
+    },
+    {
+      "trade": "NLCINDIA|2026-07-13",
+      "changed": {
+        "entry": [
+          309.71,
+          307.84
+        ],
+        "close_price": [
+          275.74,
+          274.08
+        ]
+      }
+    }
+  ],
+  "n_vanished": 0,
+  "vanished": [],
+  "n_appeared": 1,
+  "appeared": [
+    "APARINDS|2026-11-02"
+  ],
+  "n_vanished_open": 0,
+  "vanished_open": [],
+  "inputs_changed": [
+    "nifty50_csv_sha256",
+    "ohlcv_cache_sha256",
+    "ohlcv_last_bar",
+    "ohlcv_n_names",
+    "ohlcv_n_rows"
+  ],
+  "clean": false,
+  "as_of": "2026-11-13",
+  "prev_as_of": "2026-11-08",
+  "gap_days": 5,
+  "backfilled": false,
+  "logged_utc": "2026-11-14T12:34:29.652958+00:00",
+  "is_baseline": false
+}
