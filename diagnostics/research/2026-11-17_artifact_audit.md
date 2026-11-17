@@ -38,6 +38,24 @@ eliminated) or **not checked**.
 | | | power: a null on 467 trades in 24 cells | **disclosed** — stated as "not demonstrable on this sample", not "absent" |
 | | | survivorship / PIT in the positioning series | **ruled out** — each day's file is read at its own publication date; nothing is backfilled |
 
+## Corrected and actioned 2026-11-17 (owner instruction, PR #207)
+
+- **Correction to this file.** The #191 and #204 rows filed the 650.2R / 260.44R disagreement under "open trades
+  counted at the cutoff". **That was wrong.** The reconciliation
+  ([`2026-11-17_total_r_convention_reconciliation.md`](2026-11-17_total_r_convention_reconciliation.md)) shows the
+  whole **389.751R** gap is **one trade** — `VMART` 2019-05-06, ₹0.05 initial risk, dropped by the diagnostics
+  path's 0.5% stop filter. Open positions are marked identically in both ledgers and identically to live
+  (`scripts/run_bhanushali_cron.py:1213-1226`). The separate observation that 84 of 525 trades are marked at the
+  cut inside the anchor stands; it is simply not the cause of that gap.
+- **Artifact 1 (open trades at the cutoff): now priced, not fixed.** Both conventions are published for the
+  uncapped book — closed-only **+273.929R** / marked-at-cut **+650.191R** (filtered), **−115.822R** / **+260.440R**
+  (unfiltered) — and `docs/references/plausibility_anchors.md` §6b now states every anchor's convention.
+- **Artifact 2 (trade-level dependence): fixed where it was flagged.** `nq.lab.stats.cluster_bootstrap_mean`
+  resamples whole entry weeks; every per-trade bucket table in the FII/DII study now carries a clustered interval
+  and its week count. 15 of 32 cells exclude zero and the bucket ordering is not established — the null is
+  unchanged and better supported.
+
+Both were applied only where this audit flagged them. Every other **not checked** row above is still not checked.
 ## Pattern worth naming
 
 Two artifacts recur and neither has ever been checked in this programme's swing work:
