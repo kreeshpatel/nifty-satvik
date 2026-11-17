@@ -94,6 +94,46 @@ Both stop directions are KILLed (tighten 0105, widen 0106), and the entry side i
 perturbation of frozen 0094 deflates. **A new swing variant that beats ~1.13 in-sample is a defect
 signal, not a discovery**, unless it comes with a mechanism the registry has not already killed.
 
+### 6b. Total R on the swing book — **state the convention, always** (added 2026-11-17)
+
+A total-R figure is meaningless without three labels: **which book** (capped ₹10L or uncapped), **which trade
+accounting** (closed-only, or open positions marked at the cut), and **which population filter**. The published
+**650.2R** anchor is one of eight possible numbers on the same run, and the gap between two of them is **390R**.
+
+Source: [`diagnostics/research/2026-11-17_total_r_convention_reconciliation.md`](../../diagnostics/research/2026-11-17_total_r_convention_reconciliation.md)
+· window 2019-01-01..2024-06-28 · uncapped book · PIT membership.
+
+| population | trades | closed | marked `eos` | total R, **closed-only** | total R, **marked-at-cut** |
+|---|---|---|---|---|---|
+| filtered: initial stop ≥ 0.5% of entry (the published anchor's path) | 525 | 441 | 84 | **+273.929** | **+650.191** |
+| unfiltered: the raw engine ledger | 526 | 442 | 84 | **−115.822** | **+260.440** |
+
+- **The published "650.2R / 525 trades" is the filtered, marked-at-cut cell.** It reproduces exactly against
+  `diag_loss_diagnosis_2026_11.build_A().run(uncapped=True)` and **not at all** against
+  `nq.lab.runs.replay({"start": "2019-01-01", "uncapped": True})`, which returns 260.440R.
+- **The entire 389.751R difference is one trade**: `VMART` entered 2019-05-06 with a ₹0.05 initial risk (0.0074% of
+  entry). It lost ₹8,041 — and that is reported as −389.8R. The 0.5% filter
+  (`pipelines/diagnostics/diag_loss_diagnosis_2026_11.py:204`) drops it; the engine and the **live** tracker do not.
+- **Open positions are not the difference.** Both ledgers force-close them at the last bar
+  (`scripts/run_bhanushali_weekly_rank.py:1464-1479`), which is also what live does
+  (`scripts/run_bhanushali_cron.py:1213-1226`).
+- **Rule:** quote total R **both ways** — closed-only and marked-at-cut — and name the population filter. A total-R
+  comparison between two studies that do not state these is not a comparison.
+
+### Convention of every anchor on this page
+
+| anchor | convention it is quoted under |
+|---|---|
+| `baseline_v1` 0.667 / 15.46% / −46.26% | long-horizon book, **gross** of tax, NAV-based; trades 1,279 counted at close; window 2017-01-01..2026-06-30 |
+| `baseline_v0` (§2) | superseded pin; quoted only as the cautionary contrast |
+| frozen 0094 ~1.132 / 24.7% / −42.4% | swing book, **capped ₹10L**, NAV-based, calendar annualisation; not a total-R figure |
+| 0001 momentum 21.73% / 1.130 / −37.17% | cloud **run of record**, calendar-annualised, survivor-biased universe (§7); **not reproducible in-process** — quote it, do not claim to have reproduced it |
+| live A total R 650.2 / 525 trades | uncapped swing book, **filtered** (stop ≥ 0.5%), **marked-at-cut**; closed-only is +273.929 — see §6b |
+| Nifty Midcap150 Momentum 50 TRI 33.8% | TRI, **net of a 0.4% fee assumption**, 2019-03-01..2024-06-28 |
+
+NAV-based figures (Sharpe, CAGR, MaxDD) are unaffected by the total-R conventions above: they price the book, not
+the per-trade R basis.
+
 ## 7. Known bias, unpriced
 
 The pinned `data/ohlcv.pkl` is **survivor-only**: 103 of 813 PIT members are missing. Finding 0025
