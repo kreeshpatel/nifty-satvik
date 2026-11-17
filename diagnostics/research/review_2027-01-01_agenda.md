@@ -21,3 +21,28 @@ own-40-week filters (dropped by the owner).
 - **Live swing capital.** No change and no additions before its 26-week mark (early January 2027). Decide its capital here. It is at PILOT; PILOT is nominally ₹2,00,000 of the ₹20,00,000 system capital.
 - **First lifecycle verdict date for the swing.** Its record reaches 26 weeks in early January 2027; before that its status is provisional.
 - **Index-fund purchases.** Core capital goes into a Nifty Midcap150 Momentum 50 index fund in three equal monthly parts while momentum is in PAPER; confirm the amount and that the parts were bought.
+
+## Added 2026-11-17 (owner)
+
+- **Sizing: the 20% notional cap binds on ~55% of positions, so the 2% risk rule rarely decides size; review whether
+  per-trade rupee risk should be made consistent.** Measured on the train window while decomposing the widen-to-8%
+  rule (`explore/2026-11-17_widen_stop_decomposition.md`, §"sizing_fact" in the JSON): median weight at entry
+  **0.200**, with **55%** of positions sitting exactly at the per-name notional cap. With 2% risk, the 10% stop cap
+  and the 20% notional cap, risk sizing always asks for at least 20% of equity, so the notional cap is the binding
+  constraint on most fills and the stop distance does not set the position size. Two consequences for the review:
+  rupee risk per trade varies with the stop (a 5% stop risks half what a 10% stop risks, for the same rupees
+  committed), and **no stop-width lever can change position size** — which is why 0152's funding premise was wrong.
+  Nothing is proposed here; the question for the review is whether per-trade rupee risk should be equalised, and at
+  what cost in concentration.
+
+### Measured 2026-11-17, closed, no action asked
+
+- **Widen tight stops to 8%** — pre-registration 0152 **WITHDRAWN unrun**. The stop level alone is inside path noise
+  (+0.20 [−0.20, +0.32], 15/20 paths, drawdown 3.6pp deeper); the full rule's +0.37 is an interaction of two levers,
+  neither robust alone (`explore/2026-11-17_widen_stop_decomposition.md`).
+- **FII/DII institutional positioning** — descriptive null; no monotone relation in any of eight features, levels are
+  largely the trend state already in hand, and it does not separate the weak-but-calm state
+  (`explore/2026-11-17_fii_dii_positioning.md`).
+- **IC decay of the two rankers** — neither decays inside a year, so no half-life is estimable; the swing ranker peaks
+  near 39 weeks and momentum near 26. Weekly re-ranking is not too slow, and "re-rank more often" is a direct negative
+  (`explore/2026-11-17_ic_decay_halflife.md`).

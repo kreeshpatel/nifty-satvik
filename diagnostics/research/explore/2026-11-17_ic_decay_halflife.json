@@ -1,0 +1,202 @@
+{
+  "tier": "EXPLORE",
+  "window": "2019-01-01..2024-06-30",
+  "cut_asserted": true,
+  "horizons_weeks": [
+    1,
+    2,
+    4,
+    8,
+    13,
+    26,
+    39,
+    52
+  ],
+  "universe": "PIT Nifty-500 members at each Friday (the live swing universe), min 50 names in a cross-section",
+  "bootstrap": {
+    "kind": "moving block over weeks",
+    "block_weeks": 13,
+    "resamples": 2000,
+    "seed": 20261117
+  },
+  "rankers": {
+    "crs_dist (live swing ranker, 0094)": {
+      "per_horizon": [
+        {
+          "h_weeks": 1,
+          "mean_ic": 0.0222,
+          "ci95": [
+            0.0028,
+            0.044
+          ],
+          "pct_weeks_positive": 58.0,
+          "n_weeks": 286
+        },
+        {
+          "h_weeks": 2,
+          "mean_ic": 0.031,
+          "ci95": [
+            0.0067,
+            0.0568
+          ],
+          "pct_weeks_positive": 60.0,
+          "n_weeks": 285
+        },
+        {
+          "h_weeks": 4,
+          "mean_ic": 0.0424,
+          "ci95": [
+            0.0103,
+            0.0765
+          ],
+          "pct_weeks_positive": 62.9,
+          "n_weeks": 283
+        },
+        {
+          "h_weeks": 8,
+          "mean_ic": 0.0581,
+          "ci95": [
+            0.0182,
+            0.1018
+          ],
+          "pct_weeks_positive": 67.4,
+          "n_weeks": 279
+        },
+        {
+          "h_weeks": 13,
+          "mean_ic": 0.0786,
+          "ci95": [
+            0.0314,
+            0.1241
+          ],
+          "pct_weeks_positive": 73.4,
+          "n_weeks": 274
+        },
+        {
+          "h_weeks": 26,
+          "mean_ic": 0.1216,
+          "ci95": [
+            0.0582,
+            0.1714
+          ],
+          "pct_weeks_positive": 85.1,
+          "n_weeks": 261
+        },
+        {
+          "h_weeks": 39,
+          "mean_ic": 0.1254,
+          "ci95": [
+            0.0531,
+            0.1746
+          ],
+          "pct_weeks_positive": 85.9,
+          "n_weeks": 248
+        },
+        {
+          "h_weeks": 52,
+          "mean_ic": 0.1026,
+          "ci95": [
+            0.0375,
+            0.1499
+          ],
+          "pct_weeks_positive": 83.4,
+          "n_weeks": 235
+        }
+      ],
+      "half_life_weeks": null,
+      "half_life_ci95": null,
+      "resamples_that_decayed_pct": 0.5,
+      "ic_1w_over_ic_26w": 0.22,
+      "median_cross_section": 498
+    },
+    "sma200_slope_63 (momentum ranker, 0001)": {
+      "per_horizon": [
+        {
+          "h_weeks": 1,
+          "mean_ic": 0.0412,
+          "ci95": [
+            0.02,
+            0.0645
+          ],
+          "pct_weeks_positive": 61.2,
+          "n_weeks": 286
+        },
+        {
+          "h_weeks": 2,
+          "mean_ic": 0.05,
+          "ci95": [
+            0.0207,
+            0.0792
+          ],
+          "pct_weeks_positive": 61.4,
+          "n_weeks": 285
+        },
+        {
+          "h_weeks": 4,
+          "mean_ic": 0.0614,
+          "ci95": [
+            0.0213,
+            0.1018
+          ],
+          "pct_weeks_positive": 66.4,
+          "n_weeks": 283
+        },
+        {
+          "h_weeks": 8,
+          "mean_ic": 0.0784,
+          "ci95": [
+            0.0282,
+            0.1324
+          ],
+          "pct_weeks_positive": 74.6,
+          "n_weeks": 279
+        },
+        {
+          "h_weeks": 13,
+          "mean_ic": 0.098,
+          "ci95": [
+            0.0354,
+            0.1579
+          ],
+          "pct_weeks_positive": 76.6,
+          "n_weeks": 274
+        },
+        {
+          "h_weeks": 26,
+          "mean_ic": 0.1205,
+          "ci95": [
+            0.0449,
+            0.1851
+          ],
+          "pct_weeks_positive": 75.9,
+          "n_weeks": 261
+        },
+        {
+          "h_weeks": 39,
+          "mean_ic": 0.0959,
+          "ci95": [
+            0.0143,
+            0.1615
+          ],
+          "pct_weeks_positive": 72.6,
+          "n_weeks": 248
+        },
+        {
+          "h_weeks": 52,
+          "mean_ic": 0.0572,
+          "ci95": [
+            -0.0221,
+            0.125
+          ],
+          "pct_weeks_positive": 63.8,
+          "n_weeks": 235
+        }
+      ],
+      "half_life_weeks": null,
+      "half_life_ci95": null,
+      "resamples_that_decayed_pct": 32.3,
+      "ic_1w_over_ic_26w": 0.72,
+      "median_cross_section": 498
+    }
+  }
+}
