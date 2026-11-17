@@ -84,6 +84,8 @@ KNOWN_INCOMPLETE: dict[tuple[str, str], str] = {
         "Its FRESH state fell between the 2026-10-31 and 2026-11-07 Saturday scans, both of which halted (11-07 on the CONCORDBIO split seam, fixed in #171), so it was first archived on 2026-11-08 already ACTIVE and its axes were never recorded. Lost with those weeks; not backfilled, for the reason given for PHOENIXLTD above.",
     ("NAVINFLUOR", "2026-11-02"):
         "Its FRESH state fell between the 2026-10-31 and 2026-11-07 Saturday scans, both of which halted (11-07 on the CONCORDBIO split seam, fixed in #171), so it was first archived on 2026-11-08 already ACTIVE and its axes were never recorded. Lost with those weeks; not backfilled, for the reason given for PHOENIXLTD above.",
+    ("PHOENIXLTD", "2026-11-09"):
+        "Its FRESH state fell between the 2026-11-07 Saturday scan (which halted on the CONCORDBIO split seam) and the 2026-11-14 scan, so it was first archived on 2026-11-14 already ACTIVE and its axes were never recorded. Lost with that gap; not backfilled, for the reason given for PHOENIXLTD above. Raised automatically as scan-health issue #200.",
     ("ZYDUSLIFE", "2026-11-05"):
         "Its FRESH state fell between the 2026-10-31 and 2026-11-07 Saturday scans, both of which halted (11-07 on the CONCORDBIO split seam, fixed in #171), so it was first archived on 2026-11-08 already ACTIVE and its axes were never recorded. Lost with those weeks; not backfilled, for the reason given for PHOENIXLTD above.",
 }

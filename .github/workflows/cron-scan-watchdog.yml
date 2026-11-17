@@ -29,5 +29,12 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
+      # scan_watchdog imports nq.data.trading_calendar for the declared special sessions (PR #189), which needs
+      # pandas. Without an install step the job died with ModuleNotFoundError on 2026-11-15 and 2026-11-16 and
+      # never checked whether the week was published.
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
       - name: Decide and, if the week is unpublished, re-dispatch the scanner
         run: python scripts/scan_watchdog.py
