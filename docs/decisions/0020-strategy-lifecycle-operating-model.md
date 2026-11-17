@@ -1,6 +1,6 @@
 # ADR-0020 — Strategy-lifecycle operating model
 
-**Date:** 2026-11-13 · **Status:** PROPOSED · **Decider:** owner
+**Date:** 2026-11-13 · **Status:** ACCEPTED 2026-11-14 · **Decider:** owner
 **Class:** infrastructure and process. No live trading rule, engine or sealed data is touched. Zero trials, zero
 screens. Standing counts unchanged: screens 24 · sealed opens 4 · n_trials 3.
 
@@ -69,9 +69,9 @@ fill against model price, in basis points and in R) once fills exist. See
 
 | strategy | stage | since | forward record | status on 2026-11-13 |
 |---|---|---|---|---|
-| Live swing (Grade A) | **existing live** (predates this model) | 2026-07-06 | `forward/records/live_swing.csv`, 19 weeks | AMBER, provisional: −4.0%, between the 5th and 25th percentile of its 13-week band |
-| Cross-sectional momentum (0001) | **PAPER** from its first record date | first Saturday scan after merge | `forward/records/xsec_momentum_0001.csv` | none yet |
-| 70/30 momentum/swing, 15% vol target | **PAPER** from its first record date | first Saturday scan after merge | `forward/records/blend_70_30_vt15.csv` | none yet |
+| Live swing (Grade A) | **PILOT** from 2026-11-14 (owner decision 5); live since 2026-07-06 | 2026-07-06 | `forward/records/live_swing.csv`, 19 weeks | AMBER, provisional: −4.0%, between the 5th and 25th percentile of its 13-week band |
+| Cross-sectional momentum (0001), a component of the system | **PAPER** from its first record date | first Saturday scan after merge | `forward/records/xsec_momentum_0001.csv` | none yet |
+| 70/30 momentum/swing, 15% vol target (**the target system**, ₹20,00,000) | **PAPER** from its first record date | first Saturday scan after merge | `forward/records/blend_70_30_vt15.csv` | none yet |
 | Long-horizon trend | **PAPER** (forward-wall base arm) | 2026-08-12 | `forward/records/long_horizon.csv`, 13 weeks | GREEN, provisional: −0.7% |
 
 The earliest date any of these can receive a forward verdict is 26 weeks after its record started: the live swing in
@@ -85,31 +85,43 @@ The January agenda is `diagnostics/research/review_2027-01-01_agenda.md`.
 
 ## Research freeze
 
-In force from the date this ADR is accepted, because momentum, the blend and long-horizon are in PAPER. The backlog
+In force from 2026-11-14, because momentum, the blend and long-horizon are in PAPER. The backlog
 starts with the four ideas parked on 2026-11-13 (`research/BACKLOG.md`). Measurement of what is already running is not
 frozen.
 
-## Decisions needed from owner
+## Owner decisions (accepted 2026-11-14)
 
-1. **Capital per stage.** The rupee amount that "intended capital" means for each strategy, so that PILOT (10%) and
-   SCALE (25%) are concrete numbers.
-2. **Where core capital sits while momentum is in PAPER.** Whether it is held in a Nifty Midcap150 Momentum 50 index
-   fund (the benchmark, and the nearest investable equivalent) until momentum earns a PILOT.
-3. **The swing's capital.** Whether the live swing's capital is reduced while it is AMBER and before its 26-week mark,
-   or left as it is until its first verdict date.
-4. **The older paper gate.** `skills/portfolio-simulation` and `forward/prereg_swing.md` §3 allow real capital after 30
-   closed trades and about 2 months. This model says 26 weeks. The skill applies the stricter rule until one of the two
-   is amended by the owner.
-5. **Whether the live swing is placed on the stage ladder** (for example as PILOT or SCALE) or stays "existing live"
-   outside it.
-6. **Fill entry.** Whether the 55 live trades' real fills are entered into the app, so tracking error can be measured.
+1. **Target system and capital.** The target system is the **70/30 momentum/swing blend with the 15% volatility
+   target**. Stage percentages apply to **total system capital of ₹20,00,000**: PILOT is ₹2,00,000, SCALE ₹5,00,000,
+   FULL ₹20,00,000. Momentum 0001 is tracked as a **component** of that system, with its own record and bands, not as
+   a separately funded strategy.
+2. **Core capital while momentum is in PAPER.** Core capital goes into a **Nifty Midcap150 Momentum 50 index fund**,
+   bought in **three equal monthly parts**. The owner places these purchases; nothing in this repo trades.
+3. **The swing's capital.** **No change and no additions** before the swing's 26-week mark. The decision is taken at
+   the January 2027 review.
+4. **Paper gate.** The **26-week paper gate replaces** the older gate of 30 closed trades and about 2 months
+   (`skills/portfolio-simulation`, `forward/prereg_swing.md` §3).
+5. **The live swing's stage.** The live swing **joins the ladder at PILOT** from 2026-11-14.
+6. **Real fills.** Yes. The Saturday scan reads recorded fills **for tracking error only, never for a model
+   decision**: no signal, size, stop or exit may depend on a fill.
+
+**Deferred:** the This Week section for the weekly status.
+
+**Open points these decisions leave, for the January 2027 review**
+- The swing is at PILOT with its capital unchanged (decision 3), while PILOT is nominally ₹2,00,000 of system capital
+  (decision 1). Whether the swing's capital is brought to that figure is part of the January decision.
+- The rupee amount of "core capital" for the index-fund purchases (decision 2) is the owner's to set.
+- The scan can only read fills once it has read access to the app's database: a read-only connection string stored as
+  the repository secret `LIFECYCLE_FILLS_DB_URL`. Until then the report says tracking error is not measurable. Only
+  aggregates are published; individual fills are never written to this public repository.
 
 ## Consequences
 
 - "Is it working?" has one answer, from one file, on one schedule.
 - Nothing can be promoted, demoted or retired on a few weeks of results.
 - Rule changes slow to at most four a year per strategy.
-- The price is patience: momentum cannot receive capital under this model before about mid-May 2027.
+- The price is patience: the target system cannot move from PAPER to PILOT before about mid-May 2027, 26 weeks after its
+  first record. Until then core capital sits in the benchmark index fund (decision 2).
 
 ## What this does not change
 

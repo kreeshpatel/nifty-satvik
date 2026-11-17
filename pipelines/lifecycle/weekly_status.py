@@ -113,12 +113,36 @@ def one(strategy: str) -> dict:
     return out
 
 
+def fills_from_db() -> list[dict] | None:
+    """The app's recorded fills, read-only, when the scan has been given `LIFECYCLE_FILLS_DB_URL`.
+
+    Owner rule (ADR-0020, 2026-11-14): fills are read for TRACKING ERROR ONLY, never for a model decision. Nothing in the
+    scan, the engine or the records imports this function. Individual fills are never written to the repository, which
+    is public: only the aggregates from `core.tracking_error` are published."""
+    url = os.environ.get("LIFECYCLE_FILLS_DB_URL", "").strip()
+    if not url:
+        return None
+    from sqlalchemy import create_engine, text
+    eng = create_engine(url, pool_pre_ping=True, connect_args={"connect_timeout": 10} if url.startswith("postgres") else {})
+    with eng.connect() as c:
+        rows = c.execute(text("SELECT id, signal_id, side, qty, price, corrects_event_id FROM execution_events ORDER BY id")).mappings().all()
+    superseded = {r["corrects_event_id"] for r in rows if r["corrects_event_id"]}
+    return [{"signal_id": r["signal_id"], "side": r["side"], "qty": r["qty"], "price": r["price"]} for r in rows if r["id"] not in superseded]
+
+
 def execution() -> dict:
-    """Tracking error of real fills against the model, when an export of the app's fills is present."""
-    if not FILLS.exists():
+    """Tracking error of real fills against the model. Aggregates only."""
+    fills, source = None, None
+    try:
+        fills = fills_from_db()
+        source = "app database (read-only)" if fills is not None else None
+    except Exception as exc:                                                  # noqa: BLE001 — never block the report
+        return {"n_fills_matched": 0, "fills_source": None, "note": f"fills could not be read ({type(exc).__name__})"}
+    if fills is None and FILLS.exists():
+        fills, source = json.loads(FILLS.read_text(encoding="utf-8")), FILLS.name
+    if fills is None:
         return {"n_fills_matched": 0, "fills_source": None,
-                "note": "no fills export present; the app's execution ledger held 0 fills on 2026-11-13"}
-    fills = json.loads(FILLS.read_text(encoding="utf-8"))
+                "note": "the scan has no read access to the app's fills yet (repository secret LIFECYCLE_FILLS_DB_URL not set)"}
     hist = json.loads((ROOT / "results" / "signals_history_weekly.json").read_text(encoding="utf-8"))
     hist = hist if isinstance(hist, list) else hist.get("signals", [])
     stops = {}
@@ -131,7 +155,7 @@ def execution() -> dict:
                     stops.setdefault(f"{c['ticker']}__{c['signal_date']}", c["stop"])
     model = {f"{h['ticker']}__{h['signal_date']}": {"entry": h.get("entry"), "stop": stops.get(f"{h['ticker']}__{h['signal_date']}"),
                                                      "exit": h.get("close_price") if h.get("status") != "ACTIVE" else None} for h in hist}
-    return C.tracking_error(fills, model) | {"fills_source": FILLS.name, "n_fills_in_export": len(fills)}
+    return C.tracking_error(fills, model) | {"fills_source": source, "n_fills_read": len(fills)}
 
 
 def table(rows: list[dict]) -> str:

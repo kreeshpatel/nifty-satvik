@@ -357,3 +357,22 @@ The words "cannot separate" in this section's title mean *under the current fund
 Changing §4's decision rule so that it can decide, for example by comparing uncapped per-trade
 outcomes or by changing the funding cap, is a **live-rule change** for a quarterly review. Stating that
 §4 is undecidable under the current funding cap is a clarification; making it decidable is not.
+
+---
+
+## Amendment 2026-11-14 — the 26-week paper gate replaces §3's gate; the live swing joins the lifecycle ladder (owner, ADR-0020)
+
+**Owner decisions, 2026-11-14, recorded in `docs/decisions/0020-strategy-lifecycle-operating-model.md`.**
+
+1. **§3's capital phase gate is replaced.** §3 allowed a move to small real capital after "≥ 30 closed trades AND ~2
+   months of paper". The gate is now the strategy-lifecycle gate: **at least 26 weeks of record, a status of AMBER or
+   better at week 26, and no RED in the last 8 weeks** (`skills/strategy-lifecycle/SKILL.md` §2). No forward verdict of
+   any kind is taken before 26 weeks, except the drawdown breaker.
+2. **The live swing joins the ladder at PILOT** from 2026-11-14. **Its capital does not change and nothing is added** before
+   its 26-week mark (early January 2027). Its capital is decided at the January 2027 review.
+3. **The target system** is the 70/30 momentum/swing blend with the 15% volatility target, on total system capital of
+   ₹20,00,000. This book is its 30% component.
+
+**What this amendment does not change:** the swing's rules, grading, caps and exit; §4's A-only versus base-swing
+decision and its date; §5's mechanical halt; §6's integrity commitments. It tightens the gate (26 weeks is longer than 2
+months), which §4's "tighten-only" rule permits.

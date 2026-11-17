@@ -4,7 +4,7 @@ description: >
   Real-world portfolio simulation — the backtest-to-real-capital bridge for the
   long-horizon strategy. Use before touching any paper-trading ledger, NAV file,
   kill-switch, or execution fill model. Covers the pre-committed paper gate
-  (>=30 closed trades / ~2 months), fill realism, live-vs-backtest divergences
+  (26 weeks of paper record, ADR-0020; it replaced the older 30-trade / 2-month gate), fill realism, live-vs-backtest divergences
   (gap-down stop fills, day-aging, two equity curves), kill-switch triggers,
   and what to verify before committing any real rupee.
 
@@ -29,7 +29,10 @@ triggers:
   - paper portfolio
 ---
 
-> **Lifecycle (ADR-0020, 2026-11).** Stages, promotion, weekly status and retirement now live in [`strategy-lifecycle`](../strategy-lifecycle/SKILL.md). This skill keeps fill realism, the paper broker and kill-switch mechanics. Where its "≥30 closed trades / ~2 months" paper gate conflicts with the lifecycle's 26-week minimum, the stricter rule applies until the owner amends one of them.
+> **Lifecycle (ADR-0020, accepted 2026-11-14).** Stages, promotion, weekly status and retirement live in
+> [`strategy-lifecycle`](../strategy-lifecycle/SKILL.md). This skill keeps fill realism, the paper broker and kill-switch
+> mechanics. **The paper gate is now 26 weeks of paper record.** Wherever this file still says "≥30 closed trades" or
+> "about 2 months", read 26 weeks: the owner replaced that gate on 2026-11-14.
 
 
 # Portfolio Simulation — Backtest-to-Real-Capital Bridge
