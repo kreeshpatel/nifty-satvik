@@ -1350,8 +1350,19 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                 st = en - (en - st) * (1.0 + stop_widen_pct)
             # MINIMUM STOP DISTANCE (2026-11-13 explore): a floor on entry-to-stop distance, as a share of the
             # entry (min_stop_pct) and/or a multiple of the DAILY 20-session ATR before the fill (min_stop_atr20).
-            # "skip" drops a fill whose stop is tighter than the floor; "widen" moves the stop down to the floor
-            # (size then shrinks, since risk sizing divides by the wider distance). Both 0 => byte-identical.
+            # Modes (all cfg-gated; both floors 0 => byte-identical):
+            #   "skip"             drop the fill when the stop is tighter than the floor
+            #   "widen"            move the stop to the floor. R is then measured on the wider distance, so the
+            #                      +2R / +2.5R tranche levels move out too — a stop change AND a target change
+            #   "stop_only"        (2026-11-17 decomposition) move the stop to the floor but keep risk0, and so
+            #                      every target and every R, exactly as live => the STOP LEVEL alone
+            #   "risk_basis_only"  leave the stop where it is and measure R on the floor distance => the TARGET
+            #                      DISTANCE alone
+            # Note on sizing: with 2% risk, max_risk_pct 0.10 and max_notional_pct 0.20, risk sizing always asks
+            # for at least 20% of equity, so the notional cap binds on essentially every live position (measured
+            # 2026-11-17: median weight 0.200). A wider stop therefore does NOT shrink the position. The two
+            # decomposition modes are research-only and are never set live.
+            _r0 = 0.0        # a risk basis that differs from (entry - stop): the decomposition modes only
             if min_stop_pct or min_stop_atr20:
                 _floor = min_stop_pct * en
                 if min_stop_atr20 and i >= 21:
@@ -1363,6 +1374,10 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                 if en - st < _floor:
                     if min_stop_mode == "widen":
                         st = en - _floor
+                    elif min_stop_mode == "stop_only":
+                        _r0, st = en - st, en - _floor
+                    elif min_stop_mode == "risk_basis_only":
+                        _r0 = _floor
                     else:
                         continue
             if en > st:
@@ -1388,7 +1403,8 @@ def backtest(P, mem, *, cost_off: bool = False, ledger: list | None = None,
                 notion = sh * en * (1 + _cost_leg(s["adv20"][i], sh * en, cost_off))
                 if (uncapped or notion <= cash) and sh > 0:   # uncapped: fill EVERY signal (ledger mode)
                     cash -= notion
-                    op[t] = dict(en=en, stop=st, risk0=en - st, tp2=en + 2 * (en - st), sh=sh, sh0=sh,
+                    _risk0 = _r0 or (en - st)      # the R basis: every target, ratchet and R reads this
+                    op[t] = dict(en=en, stop=st, risk0=_risk0, tp2=en + 2 * _risk0, sh=sh, sh0=sh,
                                  weeks=0, adv=s["adv20"][i], half_done=False, trail=st, pending=None,
                                  stt=sh * en * STT_PCT, cash_out=notion, proceeds=0.0,
                                  origin=int(o_.get("origin", 0)),   # CONTEXT-ROUTER: per-branch exit lookup
