@@ -56,6 +56,11 @@ import run_bhanushali_weekly_rank as R94  # noqa: E402  — LIVE strategy: 0093-
 
 INCEPTION_DEFAULT = "2026-07-04"
 TARGET_R = 2                     # config P books its first tranche at +2R -> the displayed target
+# DEGENERATE-STOP GUARD (owner amendment 2026-11-17). A signal whose initial stop sits inside this fraction of
+# the entry is a DATA ERROR, not a trade, and is refused. Not a fitted parameter: the only occurrence in 5.5
+# years sits at 0.0074% and the next-smallest stop distance is 1.161%, so any value from ~0.01% to ~1.1%
+# behaves identically. 0.005 matches the research-side filter so there is one number, not two.
+MIN_STOP_DISTANCE = 0.005
 HOLD_DAYS_DISPLAY = 65          # CARD HINT ONLY — it bounds NOTHING. Under the live config-P exit there is
                                 # no time cap and no 52-week backstop (the P2 exit's backstop went away with
                                 # the P swap; constitution B-2/G6), so realised holds are unbounded above.
@@ -572,6 +577,7 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
     from nq.data.membership import ticker_in_index_on
     ev_cal = _event_calendar()
     signals = []
+    degenerate: list[dict] = []        # signals refused by the degenerate-stop guard, for scan_health
     for t, s in P.items():
         ls = s.get("last_signal")
         if not ls:
@@ -588,7 +594,16 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
         # surfaced (stop_week_low) because it is the taught rule's reference.
         sma_sig = _sma44_now(P, t)
         stop = round(_record_stop(entry, lo), 2)
-        if entry <= stop:
+        # DEGENERATE-STOP GUARD (owner amendment 2026-11-17, forward/amendments/). A stop sitting inside
+        # MIN_STOP_DISTANCE of the entry is a DATA ERROR, not a trade: it prices a position off a risk basis of a
+        # few paise, so a normal rupee loss books as a three-figure R and the sizing arithmetic is meaningless.
+        # It has happened once in 5.5 years (VMART 2019-05-06, Rs 0.05 basis, -389.751R on a -Rs 8,041 loss) and
+        # never live. Such a signal is NOT TAKEN, and it is surfaced RED by scan_health so the bad bar gets fixed
+        # rather than silently absorbed. entry <= stop is the same failure and is caught by the same test.
+        if entry - stop < MIN_STOP_DISTANCE * entry:
+            degenerate.append({"ticker": t, "signal_date": str(fri.date()), "entry": entry, "stop": stop,
+                               "stop_distance_pct": round((entry - stop) / entry * 100, 4),
+                               "signal_week_low": round(float(lo), 2)})
             continue
         signals.append({
             "ticker": t, "entry": entry, "stop": stop,
@@ -827,9 +842,14 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
         "n_positions": len(positions), "cash": round(float(out_paper["cash"]), 2),
         "note": "forward-watch, modeled fills — 0094 weekly swing (0093-N50 signals, CRS-ranked fills; UNDERPOWERED DSR 0.89, not certified)",
     }
+    if degenerate:
+        # OMITTED when empty, so an envelope from a clean scan is byte-identical to one built without the
+        # guard. Present only when the guard actually refused a signal (owner amendment 2026-11-17).
+        envelope["degenerate_stops"] = degenerate
     return envelope, sig_hist, analytics, portfolio, hist_df
 
 
+DEGENERATE_STOPS_FILE = "degenerate_stops.json"   # written only when the guard refuses a signal
 MIN_CACHED_BARS = 300         # a name with fewer cached bars can't warm-up the 44w SMA -> full download
 ADJ_JUMP = 0.005              # >0.5% shift on an overlapping close = a corporate action re-adjusted history
 
@@ -1512,6 +1532,18 @@ def main(argv=None) -> int:
             _q = next((q for q in (qrec or {}).get("quarantined", []) if q["ticker"] == _c.get("ticker")), None)
             if _q:
                 _c["data_quarantine"]["reason"] = _q["reason"]
+    # Degenerate-stop guard: publish the refusal list ONLY when there is one, and clear a stale list when the
+    # condition has gone. A clean scan therefore writes nothing and leaves the published set byte-identical.
+    _degen = sd / DEGENERATE_STOPS_FILE
+    if envelope.get("degenerate_stops"):
+        _degen.write_text(json.dumps({"as_of": generated_at, "threshold_pct": MIN_STOP_DISTANCE * 100,
+                                      "refused": envelope["degenerate_stops"]}, indent=2, default=str),
+                          encoding="utf-8")
+        for _d in envelope["degenerate_stops"]:
+            print(f"::error::DEGENERATE STOP (data error, signal refused): {_d['ticker']} {_d['signal_date']} "
+                  f"entry {_d['entry']} stop {_d['stop']} ({_d['stop_distance_pct']}% apart)", flush=True)
+    elif _degen.exists():
+        _degen.unlink()
     (sd / "signals_today_weekly.json").write_text(json.dumps(envelope, indent=2, default=str), encoding="utf-8")
     (sd / "signals_history_weekly.json").write_text(json.dumps(sig_hist, indent=2, default=str), encoding="utf-8")
     (sd / "signal_analytics_weekly.json").write_text(json.dumps(analytics, indent=2, default=str), encoding="utf-8")

@@ -223,11 +223,42 @@ def check_data_quarantine(runner: Callable = _run_script, path: Path | None = No
     return CheckResult(name, desc, _worst(fs), True, 1 if fs else 0, fs)
 
 
+def check_degenerate_stops(runner: Callable = _run_script, path: Path | None = None) -> CheckResult:
+    """Signals the scan REFUSED because their initial stop sits inside 0.5% of entry (owner amendment 2026-11-17).
+
+    RED, not amber: a sub-0.5% stop on a weekly-swing signal means the signal week's low is effectively the entry,
+    which only happens when the price history is wrong - a bad tick, a mis-adjusted corporate action, a stale or
+    duplicated bar. The signal was not taken, so no money is at risk this week; the red is there so the bad bar
+    gets FIXED rather than silently absorbed by the guard every week. The file exists only when the guard fired."""
+    name = "degenerate-stop"
+    desc = "no signal refused for a degenerate stop (stop inside 0.5% of entry)"
+    p = path or ROOT / "results" / "degenerate_stops.json"
+    if not p.exists():
+        return CheckResult(name, desc, GREEN, True, 0, [])
+    try:
+        rec = json.loads(p.read_text(encoding="utf-8"))
+    except Exception as exc:                          # noqa: BLE001 - an unreadable record proves nothing
+        f = Finding(f"check-crashed:{name}", AMBER, f"could not read {p.name}: {exc}")
+        return CheckResult(name, desc, AMBER, False, None, [f])
+    fs: list[Finding] = []
+    for d in rec.get("refused") or []:
+        fs.append(Finding(f"{name}:{d.get('ticker')}|{d.get('signal_date')}", RED,
+                          f"{d.get('ticker')} {d.get('signal_date')} was REFUSED as a data error: entry "
+                          f"{d.get('entry')}, stop {d.get('stop')} - {d.get('stop_distance_pct')}% apart, inside the "
+                          f"{rec.get('threshold_pct')}% floor (signal-week low {d.get('signal_week_low')}). An R "
+                          "measured on that basis is meaningless, so the signal was not taken. Check the price "
+                          "history for a bad tick, a mis-adjusted corporate action or a duplicated bar, fix the "
+                          "data, and the signal returns on the next scan."))
+    for f in fs:
+        print(f"{f.severity}: {f.message}")
+    return CheckResult(name, desc, _worst(fs), True, 1 if fs else 0, fs)
+
 CHECKS: list[tuple[str, Callable[[], CheckResult]]] = [
     ("signal-quality-axes", check_signal_quality),
     ("watched-book-loggers", check_loggers),
     ("history-drift", check_history_drift),
     ("data-quarantine", check_data_quarantine),
+    ("degenerate-stop", check_degenerate_stops),
     ("calendar-coverage", check_calendar),
 ]
 
