@@ -1,5 +1,40 @@
 # nifty-satvik
 
+## Mission and verification
+
+**Mission.** Build an investment system that, after costs and Indian capital-gains tax, beats the Nifty Midcap150
+Momentum 50 TRI on risk-adjusted return over rolling 3-year windows, with a worst drawdown no deeper than −25%,
+proven by a forward record rather than a backtest, and needing no more than about 1 hour a week of owner time. The
+target system is the 70/30 momentum/swing blend at a 15% volatility target, with total system capital of
+₹20,00,000: PILOT ₹2,00,000, SCALE ₹5,00,000, FULL ₹20,00,000. Promotion between stages needs 26 weeks on paper. If
+no strategy meets this goal, core capital goes into the index fund.
+
+**Every task must say in one line how it moves the system toward this goal. If it doesn't, say so and ask before
+starting.**
+
+**Verification rules — they bind every report.** Procedure and worked examples:
+[`skills/verify-before-report`](skills/verify-before-report/SKILL.md).
+
+1. **Method before result.** Every study states, before its results: the exact formula for each metric (with
+   `file:line`), the data window, the universe, and how overlapping or dependent samples are handled.
+2. **Artifact check.** Before any conclusion, list at least **3 ways the result could be an artifact of the method
+   rather than a property of the market** (e.g. cumulative vs marginal returns, overlapping windows, survivorship,
+   look-ahead, cap or sizing binding, single path, open trades counted at cutoff). For each one, say whether it was
+   ruled out and how.
+3. **Independent re-derivation.** Any number that drives a decision (a verdict, a pass mark, a change to live or to
+   capital) is recomputed by a **fresh sub-agent that has only the spec, not the original code**. Report both numbers.
+   If they differ by more than **5% relative**, stop and reconcile before reporting.
+4. **Anchors.** Every study reproduces one known published number first (e.g. live A = **650.2R (filtered,
+   marked-at-cut)**, 0001 = **21.73% / 1.130**). If it doesn't match, stop.
+5. **No silent scope changes.** Horizons, settings or windows added after seeing results are listed as **"added after
+   first look"**, with the reason, and they count toward multiplicity.
+6. **Label every claim** in a final message as **[measured]** (with artifact path), **[inferred]** or **[assumed]**.
+   No unlabelled facts.
+7. **Corrections are loud.** When a later finding overturns an earlier claim, the final message opens with
+   **"Correction:"**, naming the claim, the PR and what replaces it.
+8. **Owner decisions are listed separately at the end**, each with the options and the evidence for each. Do not
+   merge, sign or change capital without the owner's explicit word naming the item.
+
 ## Dependency map maintenance
 
 After editing any `nq/**` module or root `config.py`, regenerate the import map and
