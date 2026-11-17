@@ -371,3 +371,39 @@ def exclude_degenerate_stops(ledger: pd.DataFrame, *, min_risk_frac: float = MIN
     large |R| on a normal stop is a real fat-tail winner and dropping it would bias the mean down."""
     f = r_sanity_flags(ledger, min_risk_frac=min_risk_frac)
     return ledger.loc[~f["degenerate_stop"].to_numpy()].copy()
+
+
+def cluster_bootstrap_mean(values: Sequence[float], clusters: Sequence[Any], *, n_boot: int = 2000,
+                           seed: int = 20261117, alpha: float = 0.05) -> dict[str, Any]:
+    """Mean of ``values`` with a confidence interval that respects clustering (owner mandate 2026-11-17).
+
+    Trades entered in the same week share a market, a regime reading and often a sector, so they are not
+    independent observations. An ordinary interval over trades treats them as if they were and comes out far too
+    narrow. This resamples **whole clusters** with replacement — the standard cluster bootstrap — so the interval
+    widens with the number of distinct weeks rather than the number of trades.
+
+    ``clusters`` is any hashable label per observation (here: the entry week). Returns the point mean, the
+    percentile interval, the number of observations and the number of distinct clusters. The interval is ``None``
+    when fewer than two clusters carry data, because a one-cluster sample cannot speak to between-week variation.
+
+    >>> r = cluster_bootstrap_mean([1.0, 1.0, -1.0, -1.0], ["w1", "w1", "w2", "w2"], n_boot=200)
+    >>> r["n"], r["n_clusters"], round(r["mean"], 6)
+    (4, 2, 0.0)
+    """
+    v = np.asarray(list(values), dtype=float)
+    c = np.asarray(list(clusters), dtype=object)
+    ok = ~np.isnan(v)
+    v, c = v[ok], c[ok]
+    if not len(v):
+        return {"mean": _nan(), "ci95": None, "n": 0, "n_clusters": 0}
+    labels = pd.unique(c)
+    groups = [v[c == k] for k in labels]
+    out = {"mean": float(v.mean()), "n": int(len(v)), "n_clusters": int(len(labels)), "ci95": None,
+           "n_boot": int(n_boot), "method": "cluster bootstrap, whole clusters resampled with replacement"}
+    if len(labels) < 2:
+        return out
+    rng = np.random.default_rng(seed)
+    idx = rng.integers(0, len(groups), size=(n_boot, len(groups)))
+    draws = np.array([float(np.concatenate([groups[j] for j in row]).mean()) for row in idx])
+    out["ci95"] = [float(np.percentile(draws, alpha / 2 * 100)), float(np.percentile(draws, (1 - alpha / 2) * 100))]
+    return out

@@ -40,6 +40,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT / "scripts"), str(ROOT / "pipelines" / "diagnostics")]
 import diag_giveback_ratchet_0148 as G  # noqa: E402
 import diag_loss_diagnosis_2026_11 as D  # noqa: E402
+from nq.lab.stats import cluster_bootstrap_mean  # noqa: E402
 
 OI = ROOT / "data" / "nse_participant_oi.csv"
 OUT_MD = ROOT / "diagnostics" / "research" / "explore" / "2026-11-17_fii_dii_positioning.md"
@@ -80,6 +81,23 @@ def at_friday(d: pd.DataFrame, fridays: pd.Series) -> pd.DataFrame:
     return out
 
 
+def clustered(g: pd.DataFrame) -> dict:
+    """Mean R over closed trades with an interval clustered on the ENTRY WEEK (audit 2026-11-17).
+
+    Trades entered in the same week share a market, a regime state and one flow reading, so an interval over trades
+    would treat dependent observations as independent and come out far too narrow. The cluster bootstrap in
+    nq.lab.stats resamples whole entry weeks instead.
+    """
+    c = g[g.closed]
+    r = cluster_bootstrap_mean(c.R.values, c.entry_week.values)
+    return {"mean_R_ci95": None if r["ci95"] is None else [round(r["ci95"][0], 3), round(r["ci95"][1], 3)],
+            "n_entry_weeks": r["n_clusters"]}
+
+
+def ci_txt(r: dict) -> str:
+    return "—" if r.get("mean_R_ci95") is None else f"[{r['mean_R_ci95'][0]:+.2f}, {r['mean_R_ci95'][1]:+.2f}]"
+
+
 def bucket_rows(dd: pd.DataFrame, col: str) -> list[dict]:
     rows = []
     for b in ZL:
@@ -88,6 +106,7 @@ def bucket_rows(dd: pd.DataFrame, col: str) -> list[dict]:
             continue
         m = D.trade_metrics(g)
         rows.append({"bucket": b, "n": m["n"], "n_closed": m["n_closed"], "mean_R": m["avg_R_closed"],
+                     **clustered(g),
                      "total_R": m["total_R"], "runner_pct": m["runner_pct"], "full_stop_pct": m["full_stop_pct_closed"],
                      "win_pct": m["win_pct"]})
     return rows
@@ -104,6 +123,7 @@ def main() -> int:
     d["closed"] = d.reason != "eos"
     d["signal_friday"] = [D.signal_friday(x) for x in d.entry_date]
     d["year"] = d.entry_date.dt.year
+    d["entry_week"] = d.signal_friday.astype(str)   # the cluster: one market week, one flow reading
 
     macro = pd.read_parquet(ROOT / "data" / "macro_pit.parquet")
     vix = macro.set_index(pd.to_datetime(macro["date"]))["vix_level"].dropna()
@@ -152,8 +172,10 @@ def main() -> int:
         rows = bucket_rows(d, f"b_{f}")
         res["by_bucket"][f] = rows
         md += [f"**{f}** — z over the trailing 252 sessions", "",
-               D.md_table(rows, ["bucket", "n", "n_closed", "mean_R", "total_R", "runner_pct", "full_stop_pct", "win_pct"],
-                          ["z bucket", "trades", "closed", "mean R", "total R", "runner %", "stop-out %", "win %"]), ""]
+               D.md_table([{**r, "ci": ci_txt(r)} for r in rows],
+                          ["bucket", "n", "n_closed", "mean_R", "ci", "n_entry_weeks", "total_R", "full_stop_pct", "win_pct"],
+                          ["z bucket", "trades", "closed", "mean R", "95% CI (clustered on entry week)", "weeks",
+                           "total R", "stop-out %", "win %"]), ""]
 
     # ---- the headline feature crossed with the regime state from the loss diagnosis
     key = "fii_idx_net"
@@ -168,12 +190,13 @@ def main() -> int:
                 if len(g) < 5:
                     continue
                 m = D.trade_metrics(g)
-                rows.append({"state": v, "bucket": b, "n": m["n"], "mean_R": m["avg_R_closed"],
+                rows.append({"state": v, "bucket": b, "n": m["n"], "mean_R": m["avg_R_closed"], **clustered(g),
                              "total_R": m["total_R"], "full_stop_pct": m["full_stop_pct_closed"]})
         res["by_bucket_and_regime"][dim] = rows
         md += [f"**{dim}** (cells with fewer than 5 trades are dropped)", "",
-               D.md_table(rows, ["state", "bucket", "n", "mean_R", "total_R", "full_stop_pct"],
-                          [dim, "z bucket", "trades", "mean R", "total R", "stop-out %"]), ""]
+               D.md_table([{**r, "ci": ci_txt(r)} for r in rows],
+                          ["state", "bucket", "n", "mean_R", "ci", "n_entry_weeks", "total_R", "full_stop_pct"],
+                          [dim, "z bucket", "trades", "mean R", "95% CI (clustered)", "weeks", "total R", "stop-out %"]), ""]
 
     # ---- by year
     rows = []
@@ -183,11 +206,12 @@ def main() -> int:
             if len(g) < 5:
                 continue
             m = D.trade_metrics(g)
-            rows.append({"year": int(y), "bucket": b, "n": m["n"], "mean_R": m["avg_R_closed"], "total_R": m["total_R"]})
+            rows.append({"year": int(y), "bucket": b, "n": m["n"], "mean_R": m["avg_R_closed"], **clustered(g),
+                         "total_R": m["total_R"]})
     res["by_year"][key] = rows
     md += ["## By year, so one episode is visible", "",
-           D.md_table(rows, ["year", "bucket", "n", "mean_R", "total_R"],
-                      ["year", "z bucket", "trades", "mean R", "total R"]), ""]
+           D.md_table([{**r, "ci": ci_txt(r)} for r in rows], ["year", "bucket", "n", "mean_R", "ci", "total_R"],
+                      ["year", "z bucket", "trades", "mean R", "95% CI (clustered)", "total R"]), ""]
 
     # ---- is it the same information as what we already have?
     wk = pd.DataFrame(index=reg.index)

@@ -1,0 +1,74 @@
+{
+  "window": "2019-01-01..2024-06-28 (prices cut 2024-06-30, asserted by nq.lab.runs)",
+  "ledger_A": {
+    "path": "diag_loss_diagnosis_2026_11.build_A().run(uncapped=True)",
+    "extra_filter": "(entry - stop0) / entry >= 0.005, diag_loss_diagnosis_2026_11.py:204",
+    "n_trades": 525,
+    "n_closed": 441,
+    "n_eos_marked_at_cut": 84,
+    "total_R_closed_only": 273.929,
+    "total_R_marked_at_cut": 650.191,
+    "net_pnl_closed_only": 4689601.45,
+    "net_pnl_marked_at_cut": 10288984.75
+  },
+  "ledger_B": {
+    "path": "nq.lab.runs.replay({\"start\": \"2019-01-01\", \"uncapped\": True})[\"ledger\"]",
+    "extra_filter": null,
+    "n_trades": 526,
+    "n_closed": 442,
+    "n_eos_marked_at_cut": 84,
+    "total_R_closed_only": -115.822,
+    "total_R_marked_at_cut": 260.44,
+    "net_pnl_closed_only": 4681560.73,
+    "net_pnl_marked_at_cut": 10280944.03
+  },
+  "join": {
+    "on": [
+      "tkr",
+      "entry_date"
+    ],
+    "both": 525,
+    "only_A": 0,
+    "only_B": 1
+  },
+  "gap_total_R_marked_at_cut": 389.751,
+  "tolerance": 0.05,
+  "trades_differing": [
+    {
+      "tkr": "VMART",
+      "entry_date": "2019-05-06",
+      "in_A": false,
+      "in_B": true,
+      "stop_distance_pct": 0.0074,
+      "risk0_rupees": 0.05,
+      "A": {
+        "reason": null,
+        "exit_date": null,
+        "exit_px": null,
+        "R": null
+      },
+      "B": {
+        "reason": "stop_part",
+        "exit_date": "2019-05-13",
+        "exit_px": 644.24,
+        "R": -389.751
+      },
+      "net_pnl_rupees": -8040.72,
+      "dR": 389.751
+    }
+  ],
+  "buckets": {
+    "degenerate risk basis: initial stop inside 0.5% of entry, dropped by A's filter": {
+      "n_trades": 1,
+      "dR_total": 389.751
+    }
+  },
+  "explained_total": 389.751,
+  "residual_after_buckets": -0.0,
+  "buckets_add_up_exactly": true,
+  "open_position_valuation": {
+    "engine": "every open position is force-closed at the last bar with reason 'eos', scripts/run_bhanushali_weekly_rank.py:1464-1479 \u2014 identical in both ledgers",
+    "live": "scripts/run_bhanushali_cron.py:1213-1226 (_trade_r): closed trades at their booked R, open positions marked at the last close as realized_r + frac_left * (cur - entry) / risk0",
+    "conclusion": "mark-at-cut is what live does; the two ledgers do not differ on it"
+  }
+}
