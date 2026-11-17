@@ -245,6 +245,9 @@ def main() -> int:
             "cumulative_NOT_A_DECAY_MEASURE": summarise(t["cumulative"], rng),
             "marginal": summarise(t["marginal"], rng, fit=True),
             "marginal_4w_nonoverlapping": summarise(m4_pooled, rng, hs=H4, fit=True),
+            "marginal_common_fridays": summarise(
+                t["marginal"].dropna(axis=0, how="any"), rng, fit=True),
+            "marginal_4w_common_fridays": summarise(m4_pooled.dropna(axis=0, how="any"), rng, hs=H4, fit=True),
             "marginal_4w_offsets": {h: {o: round(float(s.mean()), 4) for o, s in t["marginal_4w"][h].items()} for h in H4},
         }
         print(name, "marginal:", [(r["h_weeks"], r["mean_ic"]) for r in res["rankers"][name]["marginal"]["per_horizon"]])

@@ -105,6 +105,8 @@ Half-lives: `crs_dist` **59.0 weeks** [8.4, 232.2], 86.2% of resamples decayed; 
 | 4 | **look-ahead** | **ruled out by construction.** The rank at *t* uses only closes up to *t*; the return window starts at *t+h−1* ≥ *t*. The 200-day SMA slope and the 40-week CRS mean are both backward windows. |
 | 5 | **the exponential model itself** — the curve is a **plateau then a fall**, not an exponential | **not ruled out, and it is the main caveat.** Fitting `e^(−λh)` across a flat region plus a drop gives a half-life that describes neither part. The confidence intervals say so: [11, 256] weeks for the swing ranker. The **shape** is the finding; the single half-life number is a weak summary of it. |
 | 6 | **single window** — one 2019–2024 history containing one crash and one long trend | **not checked.** No sub-period split was run, and 2020 is inside the sample. |
+| 6b | **different Friday set per horizon** — a Friday is dropped when *t+h* passes the cut, so the 52-week column ends a year earlier than the one-week column | **ruled out**, after the independent re-derivation flagged it. Every horizon recomputed on the 235 Fridays common to all: the shape and both half-lives are unchanged (34.4 vs 32.4 weeks; 21.6 vs 21.6). |
+| 6c | **the anchor's own convention** — 650.2R includes 84 positions open at the cut | **not ruled out, and now explicit.** The anchor reproduces exactly against the path that produced it and not at all against `nq.lab.runs.replay` (526 trades, R sum 260.44, all force-closed). Nothing in this study depends on it beyond rule 4, but every total-R comparison in the programme does. |
 | 7 | **cross-section composition** — IC is computed over ~498 names, while the book trades 5 | **not checked.** An IC over the whole index says nothing directly about the top-5 slice the book actually buys. |
 | 8 | **ranker scale/ties** — Spearman on a near-continuous score | **ruled out as immaterial.** Both scores are continuous; ties are negligible at 498 names. |
 
@@ -125,11 +127,62 @@ Half-lives: `crs_dist` **59.0 weeks** [8.4, 232.2], 86.2% of resamples decayed; 
 
 Nothing is proposed and nothing is adopted. Any rule built on this would need its own pre-registration and trial.
 
-## Rule 3 — independent re-derivation
+## Rule 3 — independent re-derivation (fresh sub-agent, specification only)
 
-See the `rederivation` block in the JSON and the summary table in the PR: marginal IC at h = 1, 13 and 26 recomputed
-by a fresh sub-agent from the written specification alone, with the implementation files withheld.
+A `blind-replica` sub-agent recomputed the one-week marginal IC at h = 1, 13 and 26 from the written specification
+alone, with both implementation files and all of their outputs withheld. Its script:
+`pipelines/diagnostics/replica_marginal_ic_blind.py`.
 
+| ranker | h | this study | independent re-derivation | relative difference |
+|---|---|---|---|---|
+| `crs_dist` | 1 | +0.0222 | +0.0222 | 0.0% |
+| `crs_dist` | 13 | +0.0364 | +0.0364 | 0.0% |
+| `crs_dist` | 26 | +0.0319 | +0.0319 | 0.0% |
+| `sma200_slope_63` | 1 | +0.0412 | +0.0411 | 0.2% |
+| `sma200_slope_63` | 13 | +0.0412 | +0.0413 | 0.2% |
+| `sma200_slope_63` | 26 | +0.0260 | +0.0262 | 0.8% |
+
+All six inside the 5% bar, so no reconciliation was required. The replica's sensitivity sweep found that none of the
+spec's genuine ambiguities (Nifty forward-fill, `min_periods` on the 40-week mean, requiring a close at *t*) moves
+any value beyond the fourth decimal.
+
+**Two things the replica found that this study had not, both carried into the record:**
+
+1. **The 650.2R anchor is convention-dependent, and the anchor table does not say which convention it uses.**
+   Reproducing it through the loss-diagnosis path gives 650.2R over 525 trades exactly, as above. Reproducing an
+   uncapped book through `nq.lab.runs.replay` instead gives **526 trades and a ledger R sum of 260.44, with every
+   position force-closed at the last bar** — while the published A row is 525 trades of which **84 are still open**
+   at 2024-06-28. The two numbers are not a disagreement about the market; they are two trade-accounting
+   conventions, one of which marks open runners at the cut and one of which does not. [inferred] The replica's
+   arithmetic — 441 closed × 0.621 mean R ≈ 274R realised, leaving ≈376R across 84 open positions — is consistent
+   with 650.2 being realised R **plus** mark-to-market on open positions, but that reconstruction was not verified
+   and is not asserted here. **Consequence: the anchor is reproducible only against the path that produced it, and
+   `docs/references/plausibility_anchors.md` should state the convention.** This is the audit's "open trades at the
+   cutoff" artifact sitting inside the anchor itself.
+2. **Each horizon was measured on a different set of Fridays** (286 / 285 / 283 / 279 / 274 / 261 / 248 / 235), because
+   a Friday is dropped when *t+h* passes the cut. The 52-week column therefore ends in mid-2023 while the one-week
+   column runs to mid-2024, so the fall at 39 and 52 weeks could have been sample composition rather than decay.
+   **Checked, and it was not** — see the next section.
+
+## The same Friday set at every horizon (added after the re-derivation flagged it)
+
+Every horizon restricted to the **235 Fridays usable at h = 52**, so the composition is identical across the row.
+
+| horizon | `crs_dist` marginal | `sma200_slope_63` marginal | `crs_dist` 4w-block | `sma200_slope_63` 4w-block |
+|---|---|---|---|---|
+| 1w | +0.0208 ~ | +0.0409 | — | — |
+| 2w | +0.0331 | +0.0409 | — | — |
+| 4w | +0.0316 | +0.0401 | +0.0370 | +0.0571 |
+| 8w | +0.0357 | +0.0400 | +0.0423 | +0.0539 |
+| 13w | +0.0365 | +0.0402 | +0.0515 | +0.0590 |
+| 26w | +0.0317 | +0.0224 ~ | +0.0517 | +0.0300 ~ |
+| 39w * | +0.0196 ~ | +0.0131 ~ | +0.0267 ~ | +0.0060 ~ |
+| 52w * | +0.0082 ~ | +0.0085 ~ | −0.0036 ~ | −0.0033 ~ |
+
+`~` = the 95% block-bootstrap band includes zero. Half-lives on the common set: `crs_dist` **34.4 weeks**
+[11.7, 245.5] (against 32.4 on the full set) and `sma200_slope_63` **21.6 weeks** [8.1, 85.0] (against 21.6); on the
+4-week blocks, 80.2 and 11.0 weeks. **The plateau-then-fall shape and both half-lives survive the composition check
+essentially unchanged**, so the fall at 39 and 52 weeks is not an artefact of which Fridays each horizon could use.
 ## Limitations
 
 One window (2019-01-01..2024-06-30), one universe (PIT Nifty-500, median 498 names), so the momentum ranker's IC
