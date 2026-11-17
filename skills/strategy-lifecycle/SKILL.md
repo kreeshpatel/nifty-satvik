@@ -86,6 +86,36 @@ Outcomes:
 - Retirement is a pre-registered verdict under the current harness like any other KILL (CLAUDE.md, owner amendment
   2026-08-08).
 
+## 4b. The system-level drawdown bar — it belongs to the combined book, not to any component
+
+Owner decision 2026-11-17, from the mission in `CLAUDE.md`: the system must hold a **worst drawdown no deeper than
+−25%**.
+
+**That bar is a test of the combined book — the 70/30 momentum/swing blend at the 15% volatility target — and of
+nothing else.** Components are judged **only** against their own frozen bands (§3).
+
+| what | bar |
+|---|---|
+| combined book (the 70/30 blend) | worst drawdown no deeper than **−25%** |
+| each component (live swing, momentum 0001, long-horizon) | **its own frozen band** in `forward/bands/`, nothing else |
+
+**A future session must not retire, demote or resize a component because the component breached −25%.** The
+components' own backtest worst drawdowns are already deeper than the system bar and were accepted as such when the
+bands were frozen — live swing **−40.1%**, momentum 0001 **−37.2%**, long-horizon **−46.3%**, against the blend's
+**−22.9%** (`forward/bands/*_bands_2026-11-13.json`, PR #194). The blend is inside the bar **because** it is a
+blend at a volatility target; reading the system bar onto a component would retire a book for doing exactly what
+it was funded to do.
+
+**What a breach does mean.** A combined-book drawdown past −25% triggers an **immediate review**, not an automatic
+retirement — the same three questions as §4, run at the system level, plus: which component carried the drawdown,
+did the volatility target behave as specified, and did the blend's correlation assumption hold. The review may
+demote, resize or retire; it may also conclude that nothing is broken. **There is no automatic action attached to
+this bar.**
+
+The per-strategy **drawdown breaker** in §4 (1.25× the backtest worst drawdown) is unchanged and remains a
+component-level trigger. The two are different tests with different owners: the breaker asks "is this strategy
+behaving like itself?", the −25% bar asks "is the system still the thing the owner agreed to fund?".
+
 ## 5. Minimum horizon: no forward verdict before 26 weeks
 
 No verdict of any kind (promote, demote, retire, "it is broken", "it is working") comes from fewer than 26 weeks of
