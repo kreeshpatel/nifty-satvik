@@ -1,0 +1,666 @@
+{
+  "tier": "EXPLORE",
+  "window": "2019-01-01..2024-06-30",
+  "cut_asserted": true,
+  "horizons_weeks": [
+    1,
+    2,
+    4,
+    8,
+    13,
+    26,
+    39,
+    52
+  ],
+  "added_after_first_look": [
+    39,
+    52
+  ],
+  "bootstrap": {
+    "kind": "moving block over Fridays",
+    "block_weeks": 13,
+    "resamples": 2000,
+    "seed": 20261117
+  },
+  "supersedes": "2026-11-17_ic_decay_halflife.md (cumulative returns; withdrawn as a decay measure)",
+  "rule4_anchor": {
+    "anchor": "live A uncapped total R / trades",
+    "expected": [
+      650.2,
+      525
+    ],
+    "reproduced": [
+      650.2,
+      525
+    ],
+    "match": true,
+    "quoted_not_reproduced": {
+      "0001 run of record": "21.73% CAGR / 1.130 Sharpe / -37.17% MaxDD",
+      "why": "cloud run of record; not reproducible in this process"
+    }
+  },
+  "universe": {
+    "rule": "PIT Nifty-500 at each Friday",
+    "median_cross_section": 498,
+    "fridays": 287,
+    "min_names": 50
+  },
+  "rankers": {
+    "crs_dist (live swing ranker, 0094)": {
+      "cumulative_NOT_A_DECAY_MEASURE": {
+        "per_horizon": [
+          {
+            "h_weeks": 1,
+            "added_after_first_look": false,
+            "mean_ic": 0.0222,
+            "ci95": [
+              0.0028,
+              0.044
+            ],
+            "pct_weeks_positive": 58.0,
+            "n_obs": 286
+          },
+          {
+            "h_weeks": 2,
+            "added_after_first_look": false,
+            "mean_ic": 0.031,
+            "ci95": [
+              0.0067,
+              0.0568
+            ],
+            "pct_weeks_positive": 60.0,
+            "n_obs": 285
+          },
+          {
+            "h_weeks": 4,
+            "added_after_first_look": false,
+            "mean_ic": 0.0424,
+            "ci95": [
+              0.0103,
+              0.0765
+            ],
+            "pct_weeks_positive": 62.9,
+            "n_obs": 283
+          },
+          {
+            "h_weeks": 8,
+            "added_after_first_look": false,
+            "mean_ic": 0.0581,
+            "ci95": [
+              0.0182,
+              0.1018
+            ],
+            "pct_weeks_positive": 67.4,
+            "n_obs": 279
+          },
+          {
+            "h_weeks": 13,
+            "added_after_first_look": false,
+            "mean_ic": 0.0786,
+            "ci95": [
+              0.0314,
+              0.1241
+            ],
+            "pct_weeks_positive": 73.4,
+            "n_obs": 274
+          },
+          {
+            "h_weeks": 26,
+            "added_after_first_look": false,
+            "mean_ic": 0.1216,
+            "ci95": [
+              0.0582,
+              0.1714
+            ],
+            "pct_weeks_positive": 85.1,
+            "n_obs": 261
+          },
+          {
+            "h_weeks": 39,
+            "added_after_first_look": true,
+            "mean_ic": 0.1254,
+            "ci95": [
+              0.0531,
+              0.1746
+            ],
+            "pct_weeks_positive": 85.9,
+            "n_obs": 248
+          },
+          {
+            "h_weeks": 52,
+            "added_after_first_look": true,
+            "mean_ic": 0.1026,
+            "ci95": [
+              0.0375,
+              0.1499
+            ],
+            "pct_weeks_positive": 83.4,
+            "n_obs": 235
+          }
+        ]
+      },
+      "marginal": {
+        "per_horizon": [
+          {
+            "h_weeks": 1,
+            "added_after_first_look": false,
+            "mean_ic": 0.0222,
+            "ci95": [
+              0.0039,
+              0.0439
+            ],
+            "pct_weeks_positive": 58.0,
+            "n_obs": 286
+          },
+          {
+            "h_weeks": 2,
+            "added_after_first_look": false,
+            "mean_ic": 0.0327,
+            "ci95": [
+              0.016,
+              0.0527
+            ],
+            "pct_weeks_positive": 61.1,
+            "n_obs": 285
+          },
+          {
+            "h_weeks": 4,
+            "added_after_first_look": false,
+            "mean_ic": 0.033,
+            "ci95": [
+              0.0167,
+              0.0539
+            ],
+            "pct_weeks_positive": 62.2,
+            "n_obs": 283
+          },
+          {
+            "h_weeks": 8,
+            "added_after_first_look": false,
+            "mean_ic": 0.0354,
+            "ci95": [
+              0.018,
+              0.0546
+            ],
+            "pct_weeks_positive": 61.3,
+            "n_obs": 279
+          },
+          {
+            "h_weeks": 13,
+            "added_after_first_look": false,
+            "mean_ic": 0.0364,
+            "ci95": [
+              0.0155,
+              0.0525
+            ],
+            "pct_weeks_positive": 63.1,
+            "n_obs": 274
+          },
+          {
+            "h_weeks": 26,
+            "added_after_first_look": false,
+            "mean_ic": 0.0319,
+            "ci95": [
+              0.011,
+              0.0491
+            ],
+            "pct_weeks_positive": 64.8,
+            "n_obs": 261
+          },
+          {
+            "h_weeks": 39,
+            "added_after_first_look": true,
+            "mean_ic": 0.018,
+            "ci95": [
+              -0.0005,
+              0.0342
+            ],
+            "pct_weeks_positive": 60.1,
+            "n_obs": 248
+          },
+          {
+            "h_weeks": 52,
+            "added_after_first_look": true,
+            "mean_ic": 0.0082,
+            "ci95": [
+              -0.0115,
+              0.0271
+            ],
+            "pct_weeks_positive": 53.6,
+            "n_obs": 235
+          }
+        ],
+        "half_life_weeks": 32.36,
+        "half_life_ci95": [
+          11.38,
+          255.88
+        ],
+        "resamples_that_decayed_pct": 89.7,
+        "not_estimable_reason": null
+      },
+      "marginal_4w_nonoverlapping": {
+        "per_horizon": [
+          {
+            "h_weeks": 4,
+            "added_after_first_look": false,
+            "mean_ic": 0.0424,
+            "ci95": [
+              0.0108,
+              0.0767
+            ],
+            "pct_weeks_positive": 62.9,
+            "n_obs": 283
+          },
+          {
+            "h_weeks": 8,
+            "added_after_first_look": false,
+            "mean_ic": 0.0462,
+            "ci95": [
+              0.0203,
+              0.0828
+            ],
+            "pct_weeks_positive": 62.7,
+            "n_obs": 279
+          },
+          {
+            "h_weeks": 13,
+            "added_after_first_look": false,
+            "mean_ic": 0.055,
+            "ci95": [
+              0.0201,
+              0.0882
+            ],
+            "pct_weeks_positive": 67.5,
+            "n_obs": 274
+          },
+          {
+            "h_weeks": 26,
+            "added_after_first_look": false,
+            "mean_ic": 0.0525,
+            "ci95": [
+              0.0153,
+              0.0803
+            ],
+            "pct_weeks_positive": 65.1,
+            "n_obs": 261
+          },
+          {
+            "h_weeks": 39,
+            "added_after_first_look": true,
+            "mean_ic": 0.0273,
+            "ci95": [
+              -0.0102,
+              0.0574
+            ],
+            "pct_weeks_positive": 62.9,
+            "n_obs": 248
+          },
+          {
+            "h_weeks": 52,
+            "added_after_first_look": true,
+            "mean_ic": -0.0036,
+            "ci95": [
+              -0.0379,
+              0.03
+            ],
+            "pct_weeks_positive": 46.8,
+            "n_obs": 235
+          }
+        ],
+        "half_life_weeks": 59.01,
+        "half_life_ci95": [
+          8.44,
+          232.19
+        ],
+        "resamples_that_decayed_pct": 86.2,
+        "not_estimable_reason": null
+      },
+      "marginal_4w_offsets": {
+        "4": {
+          "0": 0.0423,
+          "1": 0.041,
+          "2": 0.0445,
+          "3": 0.0418
+        },
+        "8": {
+          "0": 0.0437,
+          "1": 0.0437,
+          "2": 0.0444,
+          "3": 0.0533
+        },
+        "13": {
+          "0": 0.054,
+          "1": 0.0546,
+          "2": 0.0598,
+          "3": 0.0516
+        },
+        "26": {
+          "0": 0.0493,
+          "1": 0.0591,
+          "2": 0.0516,
+          "3": 0.0503
+        },
+        "39": {
+          "0": 0.0276,
+          "1": 0.0302,
+          "2": 0.0287,
+          "3": 0.0225
+        },
+        "52": {
+          "0": -0.0049,
+          "1": -0.0016,
+          "2": -0.0048,
+          "3": -0.003
+        }
+      }
+    },
+    "sma200_slope_63 (momentum ranker, 0001)": {
+      "cumulative_NOT_A_DECAY_MEASURE": {
+        "per_horizon": [
+          {
+            "h_weeks": 1,
+            "added_after_first_look": false,
+            "mean_ic": 0.0412,
+            "ci95": [
+              0.0191,
+              0.0643
+            ],
+            "pct_weeks_positive": 61.2,
+            "n_obs": 286
+          },
+          {
+            "h_weeks": 2,
+            "added_after_first_look": false,
+            "mean_ic": 0.05,
+            "ci95": [
+              0.0215,
+              0.0791
+            ],
+            "pct_weeks_positive": 61.4,
+            "n_obs": 285
+          },
+          {
+            "h_weeks": 4,
+            "added_after_first_look": false,
+            "mean_ic": 0.0614,
+            "ci95": [
+              0.0203,
+              0.1005
+            ],
+            "pct_weeks_positive": 66.4,
+            "n_obs": 283
+          },
+          {
+            "h_weeks": 8,
+            "added_after_first_look": false,
+            "mean_ic": 0.0784,
+            "ci95": [
+              0.027,
+              0.1313
+            ],
+            "pct_weeks_positive": 74.6,
+            "n_obs": 279
+          },
+          {
+            "h_weeks": 13,
+            "added_after_first_look": false,
+            "mean_ic": 0.098,
+            "ci95": [
+              0.0365,
+              0.1556
+            ],
+            "pct_weeks_positive": 76.6,
+            "n_obs": 274
+          },
+          {
+            "h_weeks": 26,
+            "added_after_first_look": false,
+            "mean_ic": 0.1205,
+            "ci95": [
+              0.0454,
+              0.1812
+            ],
+            "pct_weeks_positive": 75.9,
+            "n_obs": 261
+          },
+          {
+            "h_weeks": 39,
+            "added_after_first_look": true,
+            "mean_ic": 0.0959,
+            "ci95": [
+              0.0121,
+              0.158
+            ],
+            "pct_weeks_positive": 72.6,
+            "n_obs": 248
+          },
+          {
+            "h_weeks": 52,
+            "added_after_first_look": true,
+            "mean_ic": 0.0572,
+            "ci95": [
+              -0.0232,
+              0.1261
+            ],
+            "pct_weeks_positive": 63.8,
+            "n_obs": 235
+          }
+        ]
+      },
+      "marginal": {
+        "per_horizon": [
+          {
+            "h_weeks": 1,
+            "added_after_first_look": false,
+            "mean_ic": 0.0412,
+            "ci95": [
+              0.0201,
+              0.0631
+            ],
+            "pct_weeks_positive": 61.2,
+            "n_obs": 286
+          },
+          {
+            "h_weeks": 2,
+            "added_after_first_look": false,
+            "mean_ic": 0.0409,
+            "ci95": [
+              0.0195,
+              0.0627
+            ],
+            "pct_weeks_positive": 63.5,
+            "n_obs": 285
+          },
+          {
+            "h_weeks": 4,
+            "added_after_first_look": false,
+            "mean_ic": 0.0402,
+            "ci95": [
+              0.0201,
+              0.0636
+            ],
+            "pct_weeks_positive": 63.6,
+            "n_obs": 283
+          },
+          {
+            "h_weeks": 8,
+            "added_after_first_look": false,
+            "mean_ic": 0.0405,
+            "ci95": [
+              0.0194,
+              0.0656
+            ],
+            "pct_weeks_positive": 63.4,
+            "n_obs": 279
+          },
+          {
+            "h_weeks": 13,
+            "added_after_first_look": false,
+            "mean_ic": 0.0412,
+            "ci95": [
+              0.0158,
+              0.0631
+            ],
+            "pct_weeks_positive": 63.5,
+            "n_obs": 274
+          },
+          {
+            "h_weeks": 26,
+            "added_after_first_look": false,
+            "mean_ic": 0.026,
+            "ci95": [
+              0.0016,
+              0.043
+            ],
+            "pct_weeks_positive": 59.0,
+            "n_obs": 261
+          },
+          {
+            "h_weeks": 39,
+            "added_after_first_look": true,
+            "mean_ic": 0.0128,
+            "ci95": [
+              -0.0087,
+              0.031
+            ],
+            "pct_weeks_positive": 54.4,
+            "n_obs": 248
+          },
+          {
+            "h_weeks": 52,
+            "added_after_first_look": true,
+            "mean_ic": 0.0085,
+            "ci95": [
+              -0.0121,
+              0.0263
+            ],
+            "pct_weeks_positive": 51.5,
+            "n_obs": 235
+          }
+        ],
+        "half_life_weeks": 21.62,
+        "half_life_ci95": [
+          9.0,
+          71.71
+        ],
+        "resamples_that_decayed_pct": 98.9,
+        "not_estimable_reason": null
+      },
+      "marginal_4w_nonoverlapping": {
+        "per_horizon": [
+          {
+            "h_weeks": 4,
+            "added_after_first_look": false,
+            "mean_ic": 0.0614,
+            "ci95": [
+              0.0243,
+              0.1004
+            ],
+            "pct_weeks_positive": 66.4,
+            "n_obs": 283
+          },
+          {
+            "h_weeks": 8,
+            "added_after_first_look": false,
+            "mean_ic": 0.0589,
+            "ci95": [
+              0.0247,
+              0.101
+            ],
+            "pct_weeks_positive": 66.3,
+            "n_obs": 279
+          },
+          {
+            "h_weeks": 13,
+            "added_after_first_look": false,
+            "mean_ic": 0.0639,
+            "ci95": [
+              0.0228,
+              0.1004
+            ],
+            "pct_weeks_positive": 67.2,
+            "n_obs": 274
+          },
+          {
+            "h_weeks": 26,
+            "added_after_first_look": false,
+            "mean_ic": 0.0378,
+            "ci95": [
+              -0.0079,
+              0.0704
+            ],
+            "pct_weeks_positive": 62.5,
+            "n_obs": 261
+          },
+          {
+            "h_weeks": 39,
+            "added_after_first_look": true,
+            "mean_ic": 0.0082,
+            "ci95": [
+              -0.0313,
+              0.0407
+            ],
+            "pct_weeks_positive": 54.4,
+            "n_obs": 248
+          },
+          {
+            "h_weeks": 52,
+            "added_after_first_look": true,
+            "mean_ic": -0.0033,
+            "ci95": [
+              -0.0399,
+              0.0288
+            ],
+            "pct_weeks_positive": 49.8,
+            "n_obs": 235
+          }
+        ],
+        "half_life_weeks": 12.43,
+        "half_life_ci95": [
+          5.85,
+          83.12
+        ],
+        "resamples_that_decayed_pct": 96.0,
+        "not_estimable_reason": null
+      },
+      "marginal_4w_offsets": {
+        "4": {
+          "0": 0.0633,
+          "1": 0.0601,
+          "2": 0.058,
+          "3": 0.0645
+        },
+        "8": {
+          "0": 0.0601,
+          "1": 0.0574,
+          "2": 0.0542,
+          "3": 0.0639
+        },
+        "13": {
+          "0": 0.0641,
+          "1": 0.0599,
+          "2": 0.0678,
+          "3": 0.064
+        },
+        "26": {
+          "0": 0.0383,
+          "1": 0.0406,
+          "2": 0.0353,
+          "3": 0.0368
+        },
+        "39": {
+          "0": 0.0079,
+          "1": 0.0128,
+          "2": 0.0088,
+          "3": 0.0032
+        },
+        "52": {
+          "0": 0.002,
+          "1": -0.0021,
+          "2": -0.006,
+          "3": -0.007
+        }
+      }
+    }
+  }
+}

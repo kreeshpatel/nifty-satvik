@@ -43,6 +43,8 @@ own-40-week filters (dropped by the owner).
 - **FII/DII institutional positioning** — descriptive null; no monotone relation in any of eight features, levels are
   largely the trend state already in hand, and it does not separate the weak-but-calm state
   (`explore/2026-11-17_fii_dii_positioning.md`).
-- **IC decay of the two rankers** — neither decays inside a year, so no half-life is estimable; the swing ranker peaks
-  near 39 weeks and momentum near 26. Weekly re-ranking is not too slow, and "re-rank more often" is a direct negative
-  (`explore/2026-11-17_ic_decay_halflife.md`).
+- **IC decay of the two rankers** — the first version of this measurement used cumulative returns and was
+  **withdrawn** the same day. On the corrected **marginal** measure each ranker's per-week information is flat out
+  to about 13 weeks and dies between 26 and 52; half-life 21.6 weeks [9.0, 71.7] for momentum and 32.4 weeks
+  [11.4, 255.9] for the swing ranker, intervals overlapping, so neither is shown to decay faster
+  (`explore/2026-11-17_ic_marginal_decay.md`; the withdrawn version is `explore/2026-11-17_ic_decay_halflife.md`).
