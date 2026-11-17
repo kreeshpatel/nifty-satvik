@@ -1,0 +1,309 @@
+{
+  "tier": "EXPLORE",
+  "n_paths": 20,
+  "floor_pct": 0.08,
+  "seed": 20261102,
+  "report_from": "2019-03-01",
+  "cut": "2024-06-30",
+  "last_bar": "2024-06-28",
+  "sizing_fact": {
+    "note": "the 20% per-name notional cap binds on essentially every position, so a wider stop does not shrink it; there is no funding-through-sizing channel",
+    "median_weight_at_entry": 0.2,
+    "share_at_cap": 0.55
+  },
+  "floor_bite": {
+    "share_of_live_trades_with_stop_under_8pct": 0.377,
+    "median_stop_pct": 0.093
+  },
+  "occupancy_unperturbed": {
+    "live": {
+      "mean_names_held": 7.08,
+      "positions_opened": 77,
+      "median_weight_at_entry": 0.2
+    },
+    "widen": {
+      "mean_names_held": 7.32,
+      "positions_opened": 67,
+      "median_weight_at_entry": 0.2
+    },
+    "stop_only": {
+      "mean_names_held": 7.9,
+      "positions_opened": 77,
+      "median_weight_at_entry": 0.2
+    },
+    "risk_basis_only": {
+      "mean_names_held": 7.95,
+      "positions_opened": 75,
+      "median_weight_at_entry": 0.2
+    }
+  },
+  "bands": {
+    "live": {
+      "sharpe": {
+        "median": 1.253,
+        "p5": 1.031,
+        "p95": 1.412
+      },
+      "cagr": {
+        "median": 0.261,
+        "p5": 0.207,
+        "p95": 0.329
+      },
+      "maxdd": {
+        "median": -0.375,
+        "p5": -0.477,
+        "p95": -0.332
+      }
+    },
+    "widen": {
+      "sharpe": {
+        "median": 1.608,
+        "p5": 1.405,
+        "p95": 1.819
+      },
+      "cagr": {
+        "median": 0.366,
+        "p5": 0.294,
+        "p95": 0.401
+      },
+      "maxdd": {
+        "median": -0.328,
+        "p5": -0.437,
+        "p95": -0.314
+      }
+    },
+    "stop_only": {
+      "sharpe": {
+        "median": 1.408,
+        "p5": 1.081,
+        "p95": 1.592
+      },
+      "cagr": {
+        "median": 0.328,
+        "p5": 0.208,
+        "p95": 0.398
+      },
+      "maxdd": {
+        "median": -0.411,
+        "p5": -0.456,
+        "p95": -0.361
+      }
+    },
+    "risk_basis_only": {
+      "sharpe": {
+        "median": 1.21,
+        "p5": 1.181,
+        "p95": 1.268
+      },
+      "cagr": {
+        "median": 0.243,
+        "p5": 0.233,
+        "p95": 0.259
+      },
+      "maxdd": {
+        "median": -0.354,
+        "p5": -0.356,
+        "p95": -0.334
+      }
+    }
+  },
+  "per_trade": {
+    "live": {
+      "mean_R": {
+        "median": 1.028,
+        "p5": 0.877,
+        "p95": 1.612
+      },
+      "total_R": {
+        "median": 110.324,
+        "p5": 99.264,
+        "p95": 153.213
+      },
+      "big_winners": {
+        "median": 22.0,
+        "p5": 20.0,
+        "p95": 23.1
+      },
+      "n_closed": {
+        "median": 65.5,
+        "p5": 57.0,
+        "p95": 68.0
+      },
+      "full_stop_pct": {
+        "median": 44.262,
+        "p5": 41.553,
+        "p95": 46.418
+      }
+    },
+    "widen": {
+      "mean_R": {
+        "median": 1.608,
+        "p5": 1.189,
+        "p95": 1.89
+      },
+      "total_R": {
+        "median": 135.722,
+        "p5": 107.491,
+        "p95": 139.353
+      },
+      "big_winners": {
+        "median": 26.5,
+        "p5": 23.0,
+        "p95": 27.05
+      },
+      "n_closed": {
+        "median": 59.0,
+        "p5": 57.0,
+        "p95": 64.0
+      },
+      "full_stop_pct": {
+        "median": 35.593,
+        "p5": 28.07,
+        "p95": 36.667
+      }
+    },
+    "stop_only": {
+      "mean_R": {
+        "median": 1.743,
+        "p5": 0.715,
+        "p95": 2.308
+      },
+      "total_R": {
+        "median": 130.853,
+        "p5": 85.494,
+        "p95": 173.517
+      },
+      "big_winners": {
+        "median": 22.0,
+        "p5": 20.0,
+        "p95": 24.05
+      },
+      "n_closed": {
+        "median": 56.0,
+        "p5": 52.0,
+        "p95": 67.0
+      },
+      "full_stop_pct": {
+        "median": 36.926,
+        "p5": 31.981,
+        "p95": 42.987
+      }
+    },
+    "risk_basis_only": {
+      "mean_R": {
+        "median": 0.792,
+        "p5": 0.758,
+        "p95": 1.147
+      },
+      "total_R": {
+        "median": 92.482,
+        "p5": 90.257,
+        "p95": 107.669
+      },
+      "big_winners": {
+        "median": 23.0,
+        "p5": 20.0,
+        "p95": 23.0
+      },
+      "n_closed": {
+        "median": 67.0,
+        "p5": 66.0,
+        "p95": 70.0
+      },
+      "full_stop_pct": {
+        "median": 47.143,
+        "p5": 42.424,
+        "p95": 49.254
+      }
+    }
+  },
+  "paired": {
+    "widen": {
+      "dSharpe": {
+        "median": 0.373,
+        "p5": 0.117,
+        "p95": 0.697
+      },
+      "paths_better": 20,
+      "dMaxDD_pp": {
+        "median": 3.07,
+        "p5": -3.826,
+        "p95": 16.087
+      },
+      "dMeanR": {
+        "median": 0.227,
+        "p5": -0.025,
+        "p95": 0.978
+      },
+      "dBigWinners": {
+        "median": 4.0,
+        "p5": 1.8,
+        "p95": 7.05
+      },
+      "dCAGR_pp": {
+        "median": 8.598,
+        "p5": 3.073,
+        "p95": 16.674
+      },
+      "verdict_sharpe": "robustly better"
+    },
+    "stop_only": {
+      "dSharpe": {
+        "median": 0.196,
+        "p5": -0.198,
+        "p95": 0.323
+      },
+      "paths_better": 15,
+      "dMaxDD_pp": {
+        "median": -3.557,
+        "p5": -5.888,
+        "p95": 3.684
+      },
+      "dMeanR": {
+        "median": 0.692,
+        "p5": -0.624,
+        "p95": 0.927
+      },
+      "dBigWinners": {
+        "median": 0.0,
+        "p5": -3.0,
+        "p95": 4.05
+      },
+      "dCAGR_pp": {
+        "median": 7.258,
+        "p5": -5.979,
+        "p95": 10.801
+      },
+      "verdict_sharpe": "inside path noise"
+    },
+    "risk_basis_only": {
+      "dSharpe": {
+        "median": 0.006,
+        "p5": -0.17,
+        "p95": 0.235
+      },
+      "paths_better": 10,
+      "dMaxDD_pp": {
+        "median": 1.834,
+        "p5": -1.076,
+        "p95": 12.123
+      },
+      "dMeanR": {
+        "median": -0.228,
+        "p5": -0.821,
+        "p95": 0.27
+      },
+      "dBigWinners": {
+        "median": 1.0,
+        "p5": -3.0,
+        "p95": 3.0
+      },
+      "dCAGR_pp": {
+        "median": -1.124,
+        "p5": -8.61,
+        "p95": 5.138
+      },
+      "verdict_sharpe": "inside path noise"
+    }
+  }
+}
