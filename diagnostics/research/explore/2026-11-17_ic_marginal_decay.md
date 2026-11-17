@@ -148,17 +148,14 @@ any value beyond the fourth decimal.
 
 **Two things the replica found that this study had not, both carried into the record:**
 
-1. **The 650.2R anchor is convention-dependent, and the anchor table does not say which convention it uses.**
+1. **The 650.2R anchor is convention-dependent, and the anchor table did not say which convention it used.**
    Reproducing it through the loss-diagnosis path gives 650.2R over 525 trades exactly, as above. Reproducing an
-   uncapped book through `nq.lab.runs.replay` instead gives **526 trades and a ledger R sum of 260.44, with every
-   position force-closed at the last bar** — while the published A row is 525 trades of which **84 are still open**
-   at 2024-06-28. The two numbers are not a disagreement about the market; they are two trade-accounting
-   conventions, one of which marks open runners at the cut and one of which does not. [inferred] The replica's
-   arithmetic — 441 closed × 0.621 mean R ≈ 274R realised, leaving ≈376R across 84 open positions — is consistent
-   with 650.2 being realised R **plus** mark-to-market on open positions, but that reconstruction was not verified
-   and is not asserted here. **Consequence: the anchor is reproducible only against the path that produced it, and
-   `docs/references/plausibility_anchors.md` should state the convention.** This is the audit's "open trades at the
-   cutoff" artifact sitting inside the anchor itself.
+   uncapped book through `nq.lab.runs.replay` instead gives **260.44R over 526 trades**. **Reconciled the same day**
+   in [`../2026-11-17_total_r_convention_reconciliation.md`](../2026-11-17_total_r_convention_reconciliation.md):
+   the entire **389.751R** difference is **one trade** — `VMART` entered 2019-05-06 with a ₹0.05 initial risk — and
+   **not** the open-at-cut marking that both the replica and this study first assumed. Both ledgers mark the same 84
+   positions identically, and that is also what live does
+   (`scripts/run_bhanushali_cron.py:1213-1226`). The anchors page now states every anchor's convention.
 2. **Each horizon was measured on a different set of Fridays** (286 / 285 / 283 / 279 / 274 / 261 / 248 / 235), because
    a Friday is dropped when *t+h* passes the cut. The 52-week column therefore ends in mid-2023 while the one-week
    column runs to mid-2024, so the fall at 39 and 52 weeks could have been sample composition rather than decay.
