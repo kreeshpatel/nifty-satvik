@@ -135,6 +135,27 @@ Before week 26 the report still shows the status, labelled **provisional**.
   and saved as a new frozen file. The old bands stay.
 - A change that needs a trial still goes through `/pre-register` and `/verdict` first.
 
+### 6b. The data-integrity exemption (owner, 2026-11-17)
+
+**A change is exempt from quarterly change control only if it alters no decision on any historical or live signal
+except signals classified as data errors by a rule stated in advance. Each use is a dated amendment with the count
+of signals affected.**
+
+Read it strictly, because it is the only door out of §6:
+
+- **"stated in advance"** means the classifying rule is written, with its threshold, **before** the signals it
+  will judge are known — in the amendment itself, not in the code comment that implements it.
+- **"alters no decision ... except"** means measured, not argued: the amendment carries the count of affected
+  signals over the full history and over the live record, and both numbers are reproducible.
+- **"each use is a dated amendment"** means one amendment per use, signed and dated, in `forward/amendments/`.
+  The exemption is never a standing permission and never covers a second change by analogy.
+- A change that removes, adds or re-prices **any** signal the rule does **not** classify as a data error is a
+  strategy change and waits for the quarterly review, however small it looks.
+
+| use | date | rule stated in advance | signals affected |
+|---|---|---|---|
+| [degenerate-stop guard](../../forward/amendments/2026-11-17_degenerate_stop_guard.md) | 2026-11-17 | initial stop inside 0.5% of entry is a data error: not taken, flagged red, listed | **1 historical** (VMART 2019-05-06), **0 live** |
+
 ## 7. Benchmark rule
 
 Every strategy's weekly report shows the **Nifty Midcap150 Momentum 50 total-return index** over the same dates. A
