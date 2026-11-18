@@ -688,5 +688,35 @@
     "net_pct": -17.87,
     "net_pnl": -14329.44,
     "hold_days": 16
+  },
+  {
+    "ticker": "GLAND",
+    "entry_date": "2026-10-22",
+    "exit_date": "2026-11-18",
+    "entry": 2907.55,
+    "exit": 3228.88,
+    "qty": 28,
+    "days_held": 18,
+    "reason": "trailing",
+    "return_pct": 11.05,
+    "pnl": 8773.92,
+    "net_pct": 11.05,
+    "net_pnl": 8773.92,
+    "hold_days": 18
+  },
+  {
+    "ticker": "AEGISLOG",
+    "entry_date": "2026-11-02",
+    "exit_date": "2026-11-18",
+    "entry": 1104.45,
+    "exit": 1176.01,
+    "qty": 43,
+    "days_held": 11,
+    "reason": "trailing",
+    "return_pct": 6.48,
+    "pnl": 2949.59,
+    "net_pct": 6.48,
+    "net_pnl": 2949.59,
+    "hold_days": 11
   }
 ]

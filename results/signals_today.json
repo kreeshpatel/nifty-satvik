@@ -1,18 +1,53 @@
 {
-  "generated_at": "2026-11-17",
-  "signals": [],
+  "generated_at": "2026-11-18",
+  "signals": [
+    {
+      "ticker": "AEGISLOG",
+      "entry": 1177.19,
+      "stop": 912.87,
+      "target": 1442.29,
+      "target_pct": 22.52,
+      "current_price": 1176.6,
+      "close": 1176.6,
+      "signal_date": "2026-11-18",
+      "hold_days": 63,
+      "grade": "B",
+      "tier": "signal",
+      "status": "FRESH",
+      "buy_window": "T+1..T+3 at open",
+      "indicative_close": 1176.6,
+      "indicative_entry": 1177.19
+    },
+    {
+      "ticker": "SAILIFE",
+      "entry": 1788.99,
+      "stop": 1544.46,
+      "target": 2191.87,
+      "target_pct": 22.52,
+      "current_price": 1788.1,
+      "close": 1788.1,
+      "signal_date": "2026-11-18",
+      "hold_days": 63,
+      "grade": "B",
+      "tier": "signal",
+      "status": "FRESH",
+      "buy_window": "T+1..T+3 at open",
+      "indicative_close": 1788.1,
+      "indicative_entry": 1788.99
+    }
+  ],
   "regime": {
     "status": "UNKNOWN",
     "strength": 0,
     "vix": 0,
     "breadth": 0
   },
-  "n_positions": 15,
-  "cash": 5.68,
+  "n_positions": 13,
+  "cash": 134129.91,
   "kill_state": {
-    "wr_last20": 50.0,
+    "wr_last20": 45.0,
     "wr_breach": false,
-    "sharpe_30d": -1.365,
+    "sharpe_30d": -1.467,
     "sharpe_30d_breach": true,
     "mode": "observe"
   }
