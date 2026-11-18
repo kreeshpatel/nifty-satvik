@@ -849,7 +849,7 @@ def build_envelopes(P, out, ledger, out_paper, generated_at, mem=None):
     return envelope, sig_hist, analytics, portfolio, hist_df
 
 
-DEGENERATE_STOPS_FILE = "degenerate_stops.json"   # written only when the guard refuses a signal
+DEGENERATE_STOPS_FILE = "degenerate_stops.json"   # written every scan: proof the guard ran, plus any refusals
 MIN_CACHED_BARS = 300         # a name with fewer cached bars can't warm-up the 44w SMA -> full download
 ADJ_JUMP = 0.005              # >0.5% shift on an overlapping close = a corporate action re-adjusted history
 
@@ -1532,18 +1532,22 @@ def main(argv=None) -> int:
             _q = next((q for q in (qrec or {}).get("quarantined", []) if q["ticker"] == _c.get("ticker")), None)
             if _q:
                 _c["data_quarantine"]["reason"] = _q["reason"]
-    # Degenerate-stop guard: publish the refusal list ONLY when there is one, and clear a stale list when the
-    # condition has gone. A clean scan therefore writes nothing and leaves the published set byte-identical.
+    # Degenerate-stop guard: the record is written EVERY scan, refusals or none (owner request 2026-11-17), so
+    # the health report can say "ran, N refused" and the absence of the file means the guard did not run rather
+    # than that it found nothing. The published card payloads are untouched either way: an empty list only ever
+    # lands in this record, never in the envelope.
     _degen = sd / DEGENERATE_STOPS_FILE
-    if envelope.get("degenerate_stops"):
-        _degen.write_text(json.dumps({"as_of": generated_at, "threshold_pct": MIN_STOP_DISTANCE * 100,
-                                      "refused": envelope["degenerate_stops"]}, indent=2, default=str),
-                          encoding="utf-8")
+    _refused = envelope.get("degenerate_stops") or []
+    _degen.write_text(json.dumps({"as_of": generated_at, "threshold_pct": MIN_STOP_DISTANCE * 100,
+                                  "ran": True, "n_candidates": len(envelope["signals"]) + len(_refused),
+                                  "n_refused": len(_refused), "refused": _refused}, indent=2, default=str),
+                      encoding="utf-8")
+    print(f"degenerate-stop guard: ran, {len(_refused)} refused "
+          f"(threshold {MIN_STOP_DISTANCE * 100:g}% of entry)", flush=True)
+    if _refused:
         for _d in envelope["degenerate_stops"]:
             print(f"::error::DEGENERATE STOP (data error, signal refused): {_d['ticker']} {_d['signal_date']} "
                   f"entry {_d['entry']} stop {_d['stop']} ({_d['stop_distance_pct']}% apart)", flush=True)
-    elif _degen.exists():
-        _degen.unlink()
     (sd / "signals_today_weekly.json").write_text(json.dumps(envelope, indent=2, default=str), encoding="utf-8")
     (sd / "signals_history_weekly.json").write_text(json.dumps(sig_hist, indent=2, default=str), encoding="utf-8")
     (sd / "signal_analytics_weekly.json").write_text(json.dumps(analytics, indent=2, default=str), encoding="utf-8")

@@ -89,7 +89,7 @@ results/*
 !results/lifecycle_status.json
 # Market sentiment, forward-only and append-only (ADR-0020 backlog, owner-approved 2026-11-17).
 !results/sentiment_forward.jsonl
-# Signals refused by the degenerate-stop guard; written only when the guard fires (amendment 2026-11-17).
+# Degenerate-stop guard record: written every scan (refusals or none), so the health report can say it ran.
 !results/degenerate_stops.json
 # The append-only forward record (ADR-0018): frozen ledger, weekly audit, drift log, amendments.
 # Whitelisted up front, before the record is switched on, so the first seeded ledger cannot be a

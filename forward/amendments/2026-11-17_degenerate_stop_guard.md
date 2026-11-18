@@ -130,7 +130,18 @@ the two legs above rather than two full offline scans.
 |---|---|
 | the floor and its reasoning | `scripts/run_bhanushali_cron.py`, `MIN_STOP_DISTANCE = 0.005` |
 | the guard, above the card append | `scripts/run_bhanushali_cron.py`, in `build_envelopes` |
-| the refusal list, published only when non-empty | `results/degenerate_stops.json`, plus `degenerate_stops` on the envelope; a stale list is cleared when the condition goes |
-| the red flag | `scripts/scan_health.py`, check `degenerate-stop` |
+| the guard record, written every scan | `results/degenerate_stops.json` — `ran`, `n_candidates`, `n_refused`, `refused[]`; the `degenerate_stops` envelope key is still added only when non-empty, so every published card payload is unchanged by a clean scan |
+| the red flag, and the "ran, N refused" line | `scripts/scan_health.py`, check `degenerate-stop`: a line in every health report even at N = 0, and AMBER when the record is absent (no evidence the guard ran) |
 | the regression test | `tests/test_degenerate_stop_guard.py` |
 | the dry run | `pipelines/diagnostics/dryrun_degenerate_stop_guard.py` |
+
+## 10. Amendment to §9, 2026-11-17 (owner request, same day)
+
+The owner asked that Saturday's health report carry the line **"degenerate-stop guard: ran, N refused"** even when
+N = 0, so that the guard can be seen to have run rather than inferred to have been quiet. Two consequences:
+
+1. `results/degenerate_stops.json` is now written on **every** scan, with `ran`, `n_candidates`, `n_refused` and the
+   (possibly empty) `refused` list. It is a health record, not one of the five published card payloads, so the
+   wiring condition in §8 — that the published files are byte-identical — still holds and was re-verified.
+2. An **absent** record is now an AMBER finding (`degenerate-stop:not-run`) rather than green: silence from a check
+   that writes unconditionally means no evidence it ran, which is the opposite of a clean scan.

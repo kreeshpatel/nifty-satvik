@@ -58,6 +58,7 @@ class CheckResult:
     ok: bool                                     # False when the check itself crashed / timed out
     exit_code: int | None
     findings: list[Finding] = field(default_factory=list)
+    note: str = ""                               # one line always shown in the report, even when GREEN
     duration_s: float = 0.0
 
 
@@ -229,17 +230,27 @@ def check_degenerate_stops(runner: Callable = _run_script, path: Path | None = N
     RED, not amber: a sub-0.5% stop on a weekly-swing signal means the signal week's low is effectively the entry,
     which only happens when the price history is wrong - a bad tick, a mis-adjusted corporate action, a stale or
     duplicated bar. The signal was not taken, so no money is at risk this week; the red is there so the bad bar
-    gets FIXED rather than silently absorbed by the guard every week. The file exists only when the guard fired."""
+    gets FIXED rather than silently absorbed by the guard every week.
+
+    The record is written on EVERY scan (owner request 2026-11-17), so this check always reports one line saying the
+    guard ran and how many signals it refused, and its ABSENCE is an amber finding: no evidence the guard ran."""
     name = "degenerate-stop"
     desc = "no signal refused for a degenerate stop (stop inside 0.5% of entry)"
     p = path or ROOT / "results" / "degenerate_stops.json"
     if not p.exists():
-        return CheckResult(name, desc, GREEN, True, 0, [])
+        # The scan writes this record EVERY run, refusals or none. Its absence therefore does not mean a clean
+        # scan - it means no evidence the guard ran at all, which is exactly what the owner asked to be visible.
+        f = Finding(f"{name}:not-run", AMBER,
+                    "no record that the degenerate-stop guard ran: results/degenerate_stops.json is absent. "
+                    "The scan writes it on every run, so either the scan did not reach the publish step or it "
+                    "ran code from before the 2026-11-17 amendment.")
+        return CheckResult(name, desc, AMBER, True, 1, [f], note="degenerate-stop guard: NO RECORD THAT IT RAN")
     try:
         rec = json.loads(p.read_text(encoding="utf-8"))
     except Exception as exc:                          # noqa: BLE001 - an unreadable record proves nothing
         f = Finding(f"check-crashed:{name}", AMBER, f"could not read {p.name}: {exc}")
-        return CheckResult(name, desc, AMBER, False, None, [f])
+        return CheckResult(name, desc, AMBER, False, None, [f],
+                           note="degenerate-stop guard: record unreadable")
     fs: list[Finding] = []
     for d in rec.get("refused") or []:
         fs.append(Finding(f"{name}:{d.get('ticker')}|{d.get('signal_date')}", RED,
@@ -249,9 +260,12 @@ def check_degenerate_stops(runner: Callable = _run_script, path: Path | None = N
                           "measured on that basis is meaningless, so the signal was not taken. Check the price "
                           "history for a bad tick, a mis-adjusted corporate action or a duplicated bar, fix the "
                           "data, and the signal returns on the next scan."))
+    note = (f"degenerate-stop guard: ran, {len(fs)} refused "
+            f"(threshold {rec.get('threshold_pct')}% of entry, {rec.get('n_candidates')} candidate(s) checked)")
+    print(note)
     for f in fs:
         print(f"{f.severity}: {f.message}")
-    return CheckResult(name, desc, _worst(fs), True, 1 if fs else 0, fs)
+    return CheckResult(name, desc, _worst(fs), True, 1 if fs else 0, fs, note=note)
 
 CHECKS: list[tuple[str, Callable[[], CheckResult]]] = [
     ("signal-quality-axes", check_signal_quality),
@@ -307,7 +321,7 @@ def build_report(results: list[CheckResult], issue_actions: list[dict] | None = 
                    "checks_green": sum(r.status == GREEN for r in results),
                    "checks_total": len(results)},
         "checks": [{"name": r.name, "description": r.description, "status": r.status, "ok": r.ok,
-                    "exit_code": r.exit_code, "duration_s": r.duration_s,
+                    "exit_code": r.exit_code, "duration_s": r.duration_s, "note": r.note,
                     "findings": [{"key": f.key, "severity": f.severity, "message": f.message}
                                  for f in r.findings]} for r in results],
         "issues": {"enabled": issues_enabled, "actions": issue_actions or []},
@@ -321,6 +335,9 @@ def render_summary(report: dict) -> str:
              "| check | status | findings |", "|---|---|---|"]
     for c in report["checks"]:
         lines.append(f"| {c['name']} | {c['status']} | {len(c['findings'])} |")
+    notes = [c["note"] for c in report["checks"] if c.get("note")]
+    if notes:
+        lines += [""] + [f"- {n}" for n in notes]
     for c in report["checks"]:
         for f in c["findings"]:
             lines += ["", f"- **{f['severity']}** `{f['key']}`: {f['message']}"]

@@ -223,7 +223,7 @@ jobs:
           opt forward/lifecycle               # stage log and weekly status log (append-only)
           opt results/lifecycle_status.json   # weekly GREEN/AMBER/RED per strategy; reporting only
           opt results/sentiment_forward.jsonl   # weekly market-sentiment reading; research only
-          opt results/degenerate_stops.json      # written only when the guard refuses a signal (amendment 2026-11-17)
+          opt results/degenerate_stops.json      # degenerate-stop guard record, written every scan (amendment 2026-11-17)
           opt diagnostics/research/benchmarks/tri/nifty_midcap150_momentum_50_tri.csv   # benchmark TRI top-up
           if git commit -m "chore(weekly): Saturday weekly-swing paper state $(date -u +%F)"; then
             # --autostash: the OHLCV download leaves UNSTAGED cache changes that abort a plain

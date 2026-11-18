@@ -193,7 +193,7 @@ def test_report_schema():
     assert rep["schema_version"] == 1 and rep["status"] in ("RED", "AMBER", "GREEN")
     assert set(rep["counts"]) == {"red", "amber", "checks_green", "checks_total"}
     c = rep["checks"][0]
-    assert set(c) == {"name", "description", "status", "ok", "exit_code", "duration_s", "findings"}
+    assert set(c) == {"name", "description", "status", "ok", "exit_code", "duration_s", "findings", "note"}
     assert set(c["findings"][0]) == {"key", "severity", "message"}
     assert set(rep["issues"]) == {"enabled", "actions"}
     json.dumps(rep)
