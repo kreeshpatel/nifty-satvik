@@ -1,8 +1,8 @@
 {
-  "cash": 185434.03,
+  "cash": 98053.47,
   "peak_value": 1026655.76,
-  "total_value": 946742.57,
-  "n_positions": 13,
+  "total_value": 954911.02,
+  "n_positions": 14,
   "total_trades": 48,
   "positions": {
     "HONASA": {
@@ -12,11 +12,11 @@
       "position_size": 968.08,
       "atr_stop": 426.88,
       "target": 593.05,
-      "current_price": 524.5,
-      "current_value": 1049.0,
-      "unrealised_pnl": 80.92,
-      "unrealised_pnl_pct": 8.36,
-      "days_held": 54
+      "current_price": 529.65,
+      "current_value": 1059.3,
+      "unrealised_pnl": 91.22,
+      "unrealised_pnl_pct": 9.42,
+      "days_held": 55
     },
     "FEDERALBNK": {
       "entry_date": "2026-09-16",
@@ -25,11 +25,11 @@
       "position_size": 341.97,
       "atr_stop": 316.94,
       "target": 418.98,
-      "current_price": 360.35,
-      "current_value": 360.35,
-      "unrealised_pnl": 18.38,
-      "unrealised_pnl_pct": 5.37,
-      "days_held": 42
+      "current_price": 364.5,
+      "current_value": 364.5,
+      "unrealised_pnl": 22.53,
+      "unrealised_pnl_pct": 6.59,
+      "days_held": 43
     },
     "GRANULES": {
       "entry_date": "2026-09-29",
@@ -38,11 +38,11 @@
       "position_size": 103751.85,
       "atr_stop": 755.53,
       "target": 1041.94,
-      "current_price": 797.5,
-      "current_value": 97295.0,
-      "unrealised_pnl": -6456.85,
-      "unrealised_pnl_pct": -6.22,
-      "days_held": 33
+      "current_price": 801.2,
+      "current_value": 97746.4,
+      "unrealised_pnl": -6005.45,
+      "unrealised_pnl_pct": -5.79,
+      "days_held": 34
     },
     "SONACOMS": {
       "entry_date": "2026-10-06",
@@ -51,11 +51,11 @@
       "position_size": 103212.88,
       "atr_stop": 719.23,
       "target": 980.28,
-      "current_price": 889.0,
-      "current_value": 114681.0,
-      "unrealised_pnl": 11468.12,
-      "unrealised_pnl_pct": 11.11,
-      "days_held": 29
+      "current_price": 902.1,
+      "current_value": 116370.9,
+      "unrealised_pnl": 13158.01,
+      "unrealised_pnl_pct": 12.75,
+      "days_held": 30
     },
     "CHENNPETRO": {
       "entry_date": "2026-10-09",
@@ -64,11 +64,11 @@
       "position_size": 45952.96,
       "atr_stop": 1259.24,
       "target": 1876.72,
-      "current_price": 1419.7,
-      "current_value": 42591.0,
-      "unrealised_pnl": -3361.97,
-      "unrealised_pnl_pct": -7.32,
-      "days_held": 26
+      "current_price": 1424.7,
+      "current_value": 42741.0,
+      "unrealised_pnl": -3211.97,
+      "unrealised_pnl_pct": -6.99,
+      "days_held": 27
     },
     "BHEL": {
       "entry_date": "2026-10-16",
@@ -77,11 +77,11 @@
       "position_size": 872.34,
       "atr_stop": 384.86,
       "target": 534.39,
-      "current_price": 421.7,
-      "current_value": 843.4,
-      "unrealised_pnl": -28.94,
-      "unrealised_pnl_pct": -3.32,
-      "days_held": 21
+      "current_price": 435.0,
+      "current_value": 870.0,
+      "unrealised_pnl": -2.34,
+      "unrealised_pnl_pct": -0.27,
+      "days_held": 22
     },
     "APARINDS": {
       "entry_date": "2026-10-19",
@@ -90,11 +90,11 @@
       "position_size": 80240.1,
       "atr_stop": 13378.32,
       "target": 19662.03,
-      "current_price": 13993.0,
-      "current_value": 69965.0,
-      "unrealised_pnl": -10275.1,
-      "unrealised_pnl_pct": -12.81,
-      "days_held": 20
+      "current_price": 14438.0,
+      "current_value": 72190.0,
+      "unrealised_pnl": -8050.1,
+      "unrealised_pnl_pct": -10.03,
+      "days_held": 21
     },
     "JINDALSAW": {
       "entry_date": "2026-10-22",
@@ -103,11 +103,11 @@
       "position_size": 83566.64,
       "atr_stop": 218.9,
       "target": 327.11,
-      "current_price": 252.23,
-      "current_value": 78947.99,
-      "unrealised_pnl": -4618.65,
-      "unrealised_pnl_pct": -5.53,
-      "days_held": 18
+      "current_price": 249.93,
+      "current_value": 78228.09,
+      "unrealised_pnl": -5338.55,
+      "unrealised_pnl_pct": -6.39,
+      "days_held": 19
     },
     "KIRLOSENG": {
       "entry_date": "2026-10-23",
@@ -116,11 +116,11 @@
       "position_size": 48368.57,
       "atr_stop": 1489.05,
       "target": 2279.28,
-      "current_price": 1661.4,
-      "current_value": 43196.4,
-      "unrealised_pnl": -5172.17,
-      "unrealised_pnl_pct": -10.69,
-      "days_held": 17
+      "current_price": 1723.7,
+      "current_value": 44816.2,
+      "unrealised_pnl": -3552.37,
+      "unrealised_pnl_pct": -7.34,
+      "days_held": 18
     },
     "WELCORP": {
       "entry_date": "2026-11-09",
@@ -129,11 +129,11 @@
       "position_size": 69654.61,
       "atr_stop": 1761.16,
       "target": 2752.93,
-      "current_price": 2224.9,
-      "current_value": 68971.9,
-      "unrealised_pnl": -682.71,
-      "unrealised_pnl_pct": -0.98,
-      "days_held": 6
+      "current_price": 2224.5,
+      "current_value": 68959.5,
+      "unrealised_pnl": -695.11,
+      "unrealised_pnl_pct": -1.0,
+      "days_held": 7
     },
     "HFCL": {
       "entry_date": "2026-11-11",
@@ -142,11 +142,11 @@
       "position_size": 77159.56,
       "atr_stop": 164.79,
       "target": 256.19,
-      "current_price": 197.5,
-      "current_value": 72877.5,
-      "unrealised_pnl": -4282.06,
-      "unrealised_pnl_pct": -5.55,
-      "days_held": 5
+      "current_price": 194.44,
+      "current_value": 71748.36,
+      "unrealised_pnl": -5411.2,
+      "unrealised_pnl_pct": -7.01,
+      "days_held": 6
     },
     "SYRMA": {
       "entry_date": "2026-11-11",
@@ -155,11 +155,11 @@
       "position_size": 81495.73,
       "atr_stop": 1222.09,
       "target": 1815.43,
-      "current_price": 1475.0,
-      "current_value": 81125.0,
-      "unrealised_pnl": -370.73,
-      "unrealised_pnl_pct": -0.45,
-      "days_held": 5
+      "current_price": 1517.0,
+      "current_value": 83435.0,
+      "unrealised_pnl": 1939.27,
+      "unrealised_pnl_pct": 2.38,
+      "days_held": 6
     },
     "SAILIFE": {
       "entry_date": "2026-11-18",
@@ -168,8 +168,21 @@
       "position_size": 87618.79,
       "atr_stop": 1512.85,
       "target": 2147.01,
-      "current_price": 1752.38,
-      "current_value": 87618.79,
+      "current_price": 1788.4,
+      "current_value": 89420.0,
+      "unrealised_pnl": 1801.21,
+      "unrealised_pnl_pct": 2.06,
+      "days_held": 1
+    },
+    "GLAND": {
+      "entry_date": "2026-11-19",
+      "entry_price": 3232.12,
+      "shares": 27,
+      "position_size": 87267.11,
+      "atr_stop": 2878.04,
+      "target": 3959.99,
+      "current_price": 3232.12,
+      "current_value": 87267.11,
       "unrealised_pnl": 0.0,
       "unrealised_pnl_pct": 0.0,
       "days_held": 0
