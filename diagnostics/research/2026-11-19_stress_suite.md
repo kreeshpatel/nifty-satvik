@@ -102,3 +102,48 @@ reproduce the unpatched path exactly.
 - Dependence: the 20 paths, and the 100 seeds, all share one market history. They are a noise band around one path,
   not independent samples. The 2·SE test on the controls is therefore a test against this history's null, not the
   population's.
+
+---
+
+## Amendment 1 — 2026-11-19, lead quant — amended before first look
+
+Made before any N1/N2/N3 result existed. The control runs were stopped before writing any output (no N cache file
+had been produced), and they are re-run under this amendment. The original Step 0 text above stands as written. It is
+superseded only where stated here.
+
+**Withdrawn.** Both readings of the original N1/N2 rule ("mean within 2 SE of 0, p95 < 0.3") are withdrawn: the raw
+Sharpe reading and my appraisal-ratio interpretation. The reason given: the rule ignores market beta and cost drag on a
+long-only book.
+
+**New harness-bias test (N1, N2) — the only pass/fail for the controls.**
+- **Beta baseline, per seed.** The equal-weight eligible PIT universe, held at the same daily exposure as that seed's
+  placebo, with cash earning nothing as in the engines:
+  - baseline_t = x_{t−1} · EW_t − c_t
+  - x_{t−1} is the placebo's invested fraction at the prior close: Σ notional / equity for swing, and
+    (equity − cash) / equity for 0001.
+  - EW_t is the equal-weight close-to-close return of the universe the placebo samples from:
+    - swing: PIT Nifty-500 members with a bar (the engine applies no ADV filter of its own);
+    - 0001: rows with `eligible` and the size band. `eligible` carries the book's liquidity filter.
+  - c_t is the placebo's own daily cost drag, defined as (return with costs on) − (return with costs off) on the same
+    seed. "Same costs."
+  - Blend baseline: the 70/30 blend at 11%, applied to the two legs' baselines.
+- **Test.** For each seed k, d_k = Sharpe(placebo_k) − Sharpe(baseline_k). Pass if |mean d| ≤ 2 · sd(d)/√100.
+  Sharpe is the harness Sharpe vs cash: mean/std × √252, no risk-free rate.
+- **Cost drag, reported separately.** N1 and N2 are each run twice per seed, with costs on and with costs off. The
+  median Sharpe gap is reported for each.
+  - swing costs off = the engine's `cost_off=True` (path cost jitter not applied);
+  - 0001 costs off = `cost_mult = 0`.
+
+**New result (not pass/fail).** The permutation p-value of the strategy against each placebo: the share of the 100
+placebo seeds whose Sharpe is ≥ the strategy's. The strategy's Sharpe is the median of its 20 unshocked paths.
+
+**Unchanged.** N3 must be clearly below base, as defined in Step 0 (raw-Sharpe reading; the appraisal reading is
+dropped together with the withdrawn rule).
+
+**Overall verdict.** **The suite FAILS overall only if N1 or N2 breaks the beta-baseline test, for any book.** The
+consequences of an N3 failure, and of the appraisal metric, are withdrawn. An N3 failure is still reported, as a
+finding.
+
+**Step 0b (added by the same amendment).** The unshocked base for swing, 0001 and the blend is run under
+PYTHONHASHSEED 0 and 7, and the outputs must be byte-identical: a sha256 over every path's NAV bytes, and the blend
+built from them.
