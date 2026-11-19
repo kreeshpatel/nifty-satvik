@@ -1,0 +1,616 @@
+{
+ "note": "#212 outputs before vs after the 2026-11-19 hash-seed determinism fix; old = published (seed-dependent), new = fixed (seed-independent)",
+ "unchanged": [
+  "break_even_capital",
+  "break_even at max surcharge",
+  "sensitivity rankings",
+  "anchors",
+  "blend scenarios"
+ ],
+ "changed": [
+  {
+   "book": "s60",
+   "scenario": "S2",
+   "field": "final_value",
+   "old": 5736313.0,
+   "new": 5734417.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S2",
+   "field": "after_tax_cagr_pct",
+   "old": 21.92,
+   "new": 21.91
+  },
+  {
+   "book": "s60",
+   "scenario": "S2",
+   "field": "tax",
+   "old": 483065.0,
+   "new": 484988.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S2",
+   "field": "trading_costs",
+   "old": 403.0,
+   "new": 379.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S3_N2_slab0",
+   "field": "final_value",
+   "old": 5858134.0,
+   "new": 5857857.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S3_N2_slab0",
+   "field": "tax",
+   "old": 368147.0,
+   "new": 368625.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S3_N2_slab0",
+   "field": "trading_costs",
+   "old": 559.0,
+   "new": 406.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S3_N2_slab5",
+   "field": "final_value",
+   "old": 5803257.0,
+   "new": 5802509.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S3_N2_slab5",
+   "field": "tax",
+   "old": 422816.0,
+   "new": 423765.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S3_N2_slab5",
+   "field": "trading_costs",
+   "old": 559.0,
+   "new": 406.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S3_N2_slab5",
+   "field": "fund_expenses",
+   "old": 63763.0,
+   "new": 63764.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S3_N2_slab30",
+   "field": "final_value",
+   "old": 5803257.0,
+   "new": 5802509.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S3_N2_slab30",
+   "field": "tax",
+   "old": 422816.0,
+   "new": 423765.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S3_N2_slab30",
+   "field": "trading_costs",
+   "old": 559.0,
+   "new": 406.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S3_N2_slab30",
+   "field": "fund_expenses",
+   "old": 63763.0,
+   "new": 63764.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S3_N3_slab0",
+   "field": "final_value",
+   "old": 5975199.0,
+   "new": 5974965.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S3_N3_slab0",
+   "field": "tax",
+   "old": 251099.0,
+   "new": 251534.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S3_N3_slab0",
+   "field": "trading_costs",
+   "old": 594.0,
+   "new": 442.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S3_N3_slab5",
+   "field": "final_value",
+   "old": 5865676.0,
+   "new": 5864585.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S3_N3_slab5",
+   "field": "tax",
+   "old": 360344.0,
+   "new": 361636.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S3_N3_slab5",
+   "field": "trading_costs",
+   "old": 594.0,
+   "new": 442.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S3_N3_slab5",
+   "field": "fund_expenses",
+   "old": 63763.0,
+   "new": 63764.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S3_N3_slab30",
+   "field": "final_value",
+   "old": 5865676.0,
+   "new": 5864585.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S3_N3_slab30",
+   "field": "tax",
+   "old": 360344.0,
+   "new": 361636.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S3_N3_slab30",
+   "field": "trading_costs",
+   "old": 594.0,
+   "new": 442.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S3_N3_slab30",
+   "field": "fund_expenses",
+   "old": 63763.0,
+   "new": 63764.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S2_after_dividend_today_like_for_like",
+   "field": "final_value",
+   "old": 3704865.0,
+   "new": 3703038.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S2_after_dividend_today_like_for_like",
+   "field": "after_tax_cagr_pct",
+   "old": 22.08,
+   "new": 22.07
+  },
+  {
+   "book": "s60",
+   "scenario": "S2_after_dividend_today_like_for_like",
+   "field": "tax",
+   "old": 287386.0,
+   "new": 289263.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S2_after_dividend_today_like_for_like",
+   "field": "trading_costs",
+   "old": 292.0,
+   "new": 250.0
+  },
+  {
+   "book": "s60",
+   "scenario": "S2_after_dividend_today_like_for_like",
+   "field": "after_tax_cagr_pct_on_pre_dividend_capital",
+   "old": 12.29,
+   "new": 12.28
+  },
+  {
+   "book": "s60",
+   "scenario": "step",
+   "field": "S1->S2",
+   "old": 13460.0,
+   "new": 11564.0
+  },
+  {
+   "book": "s60",
+   "scenario": "step",
+   "field": "S2->S3_N2_slab0",
+   "old": 121821.0,
+   "new": 123440.0
+  },
+  {
+   "book": "s60",
+   "scenario": "step",
+   "field": "S2->S3_N2_slab5",
+   "old": 66944.0,
+   "new": 68092.0
+  },
+  {
+   "book": "s60",
+   "scenario": "step",
+   "field": "S2->S3_N2_slab30",
+   "old": 66944.0,
+   "new": 68092.0
+  },
+  {
+   "book": "s60",
+   "scenario": "step",
+   "field": "S2->S3_N3_slab0",
+   "old": 238886.0,
+   "new": 240548.0
+  },
+  {
+   "book": "s60",
+   "scenario": "step",
+   "field": "S2->S3_N3_slab5",
+   "old": 129363.0,
+   "new": 130168.0
+  },
+  {
+   "book": "s60",
+   "scenario": "step",
+   "field": "S2->S3_N3_slab30",
+   "old": 129363.0,
+   "new": 130168.0
+  },
+  {
+   "book": "s60",
+   "scenario": "step",
+   "field": "S2->S4",
+   "old": -847439.0,
+   "new": -845543.0
+  },
+  {
+   "book": "s60",
+   "scenario": "step",
+   "field": "S2->S4_with_final_dividend",
+   "old": -2601567.0,
+   "new": -2599671.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S2",
+   "field": "final_value",
+   "old": 6047386.0,
+   "new": 6045485.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S2",
+   "field": "tax",
+   "old": 530876.0,
+   "new": 532804.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S2",
+   "field": "trading_costs",
+   "old": 402.0,
+   "new": 378.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N2_slab0",
+   "field": "final_value",
+   "old": 6168456.0,
+   "new": 6168095.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N2_slab0",
+   "field": "tax",
+   "old": 415783.0,
+   "new": 416327.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N2_slab0",
+   "field": "trading_costs",
+   "old": 544.0,
+   "new": 407.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N2_slab0",
+   "field": "fund_expenses",
+   "old": 64199.0,
+   "new": 64200.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N2_slab5",
+   "field": "final_value",
+   "old": 6113649.0,
+   "new": 6112750.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N2_slab5",
+   "field": "after_tax_cagr_pct",
+   "old": 23.39,
+   "new": 23.38
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N2_slab5",
+   "field": "tax",
+   "old": 470374.0,
+   "new": 471456.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N2_slab5",
+   "field": "trading_costs",
+   "old": 544.0,
+   "new": 407.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N2_slab5",
+   "field": "fund_expenses",
+   "old": 64196.0,
+   "new": 64197.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N2_slab30",
+   "field": "final_value",
+   "old": 6113649.0,
+   "new": 6112750.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N2_slab30",
+   "field": "after_tax_cagr_pct",
+   "old": 23.39,
+   "new": 23.38
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N2_slab30",
+   "field": "tax",
+   "old": 470374.0,
+   "new": 471456.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N2_slab30",
+   "field": "trading_costs",
+   "old": 544.0,
+   "new": 407.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N2_slab30",
+   "field": "fund_expenses",
+   "old": 64196.0,
+   "new": 64197.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N3_slab0",
+   "field": "final_value",
+   "old": 6285397.0,
+   "new": 6285200.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N3_slab0",
+   "field": "tax",
+   "old": 298861.0,
+   "new": 299240.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N3_slab0",
+   "field": "trading_costs",
+   "old": 580.0,
+   "new": 443.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N3_slab5",
+   "field": "final_value",
+   "old": 6175767.0,
+   "new": 6174825.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N3_slab5",
+   "field": "tax",
+   "old": 408202.0,
+   "new": 409327.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N3_slab5",
+   "field": "trading_costs",
+   "old": 580.0,
+   "new": 443.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N3_slab5",
+   "field": "fund_expenses",
+   "old": 64196.0,
+   "new": 64197.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N3_slab30",
+   "field": "final_value",
+   "old": 6175767.0,
+   "new": 6174825.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N3_slab30",
+   "field": "tax",
+   "old": 408202.0,
+   "new": 409327.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N3_slab30",
+   "field": "trading_costs",
+   "old": 580.0,
+   "new": 443.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S3_N3_slab30",
+   "field": "fund_expenses",
+   "old": 64196.0,
+   "new": 64197.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S2_after_dividend_today_like_for_like",
+   "field": "final_value",
+   "old": 3903437.0,
+   "new": 3901965.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S2_after_dividend_today_like_for_like",
+   "field": "after_tax_cagr_pct",
+   "old": 23.29,
+   "new": 23.28
+  },
+  {
+   "book": "s65",
+   "scenario": "S2_after_dividend_today_like_for_like",
+   "field": "tax",
+   "old": 318294.0,
+   "new": 319842.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S2_after_dividend_today_like_for_like",
+   "field": "trading_costs",
+   "old": 313.0,
+   "new": 251.0
+  },
+  {
+   "book": "s65",
+   "scenario": "S2_after_dividend_today_like_for_like",
+   "field": "after_tax_cagr_pct_on_pre_dividend_capital",
+   "old": 13.4,
+   "new": 13.39
+  },
+  {
+   "book": "s65",
+   "scenario": "step",
+   "field": "S1->S2",
+   "old": 12348.0,
+   "new": 10447.0
+  },
+  {
+   "book": "s65",
+   "scenario": "step",
+   "field": "S2->S3_N2_slab0",
+   "old": 121070.0,
+   "new": 122610.0
+  },
+  {
+   "book": "s65",
+   "scenario": "step",
+   "field": "S2->S3_N2_slab5",
+   "old": 66263.0,
+   "new": 67265.0
+  },
+  {
+   "book": "s65",
+   "scenario": "step",
+   "field": "S2->S3_N2_slab30",
+   "old": 66263.0,
+   "new": 67265.0
+  },
+  {
+   "book": "s65",
+   "scenario": "step",
+   "field": "S2->S3_N3_slab0",
+   "old": 238011.0,
+   "new": 239715.0
+  },
+  {
+   "book": "s65",
+   "scenario": "step",
+   "field": "S2->S3_N3_slab5",
+   "old": 128381.0,
+   "new": 129340.0
+  },
+  {
+   "book": "s65",
+   "scenario": "step",
+   "field": "S2->S3_N3_slab30",
+   "old": 128381.0,
+   "new": 129340.0
+  },
+  {
+   "book": "s65",
+   "scenario": "step",
+   "field": "S2->S4",
+   "old": -878966.0,
+   "new": -877065.0
+  },
+  {
+   "book": "s65",
+   "scenario": "step",
+   "field": "S2->S4_with_final_dividend",
+   "old": -2733395.0,
+   "new": -2731494.0
+  },
+  {
+   "book": "s60",
+   "scenario": "first_look_tax_day_harvest",
+   "field": "all",
+   "old": {
+    "S1": 5722853.0,
+    "S2_tax_day_harvest": 5682325.0,
+    "step": -40528.0
+   },
+   "new": {
+    "S1": 5722853.0,
+    "S2_tax_day_harvest": 5681629.0,
+    "step": -41224.0
+   }
+  },
+  {
+   "book": "s65",
+   "scenario": "first_look_tax_day_harvest",
+   "field": "all",
+   "old": {
+    "S1": 6035038.0,
+    "S2_tax_day_harvest": 5993586.0,
+    "step": -41452.0
+   },
+   "new": {
+    "S1": 6035038.0,
+    "S2_tax_day_harvest": 5992885.0,
+    "step": -42153.0
+   }
+  }
+ ]
+}

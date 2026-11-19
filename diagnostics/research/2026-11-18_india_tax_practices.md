@@ -3,6 +3,37 @@
 **This is analysis, not tax advice.** Every rate comes from `config/tax_india_fy2627.yaml`, and every value there is
 marked **CONFIRM WITH CA**.
 
+> **Correction (2026-11-19): hash-seed nondeterminism fixed.** This report's numbers first came from a simulator
+> whose harvest order depended on `PYTHONHASHSEED`. `Taxpayer.retarget` iterated a set of fund names, and that order
+> set the order in which lots were inserted and later harvested (found in PR #214, Correction 3).
+>
+> The fix iterates in sorted order. Within a fund the harvest stays FIFO, oldest lot first, which follows Indian
+> mutual-fund redemption [assumed, CONFIRM WITH CA]. Across funds, the highest unrealised gain per rupee redeemed goes
+> first, ties broken by name. No tax rule or parameter changed.
+>
+> `tests/test_tax_simulator_determinism.py` asserts byte-identical output under PYTHONHASHSEED 0–3. The full pipeline
+> JSON is byte-identical under seeds 0 and 1 [measured].
+>
+> **The four headline steps, 60/40** [measured]:
+>
+> | step | published | fixed |
+> |---|---|---|
+> | S0→S1 | +₹48,122 | +₹48,122 (unchanged) |
+> | S1→S2 | +₹13,460 | **+₹11,564** |
+> | S2→S3 (3 PANs) | +₹2,38,886 | **+₹2,40,548** |
+> | S2→S4 | −₹8,47,439 | **−₹8,45,543** |
+>
+> Every other number that changed (S2 and S3 values and taxes for both books, the like-for-like row, the first-look
+> harvest step, and all S2-based steps) has been corrected in the tables below. The old and new values are listed in
+> `diagnostics/research/explore/2026-11-19_tax_fix_diff.json`.
+>
+> **Unchanged:**
+> - the best scenario, 22.86% (S3 N=3 at 0%);
+> - the anchors, 21.76 / 23.02 / 19.26;
+> - the break-evens: none at surcharge 0; ₹5.52 cr (60/40) and ₹5.28 cr (65/35) at maximum surcharge;
+> - all blend values;
+> - every ranking and every sensitivity row.
+
 **Class:** MEASUREMENT. Owner request 2026-11-18, branch `research/india-tax-practices`. Nothing live changes, no
 trial is spent, and nothing sealed is read.
 
@@ -85,7 +116,7 @@ blend **19.26%** [measured].
 
 1. **Buy-back position in FIFO order.** Buy-backs first went in at the front of the FIFO queue. That was a bug: a fresh
    lot is the newest, so it belongs last.
-2. **Harvest date.** Harvesting on the 31-March tax day itself made S2 *lose* ₹40.5k (60/40) against S1. A lot bought
+2. **Harvest date.** Harvesting on the 31-March tax day itself made S2 *lose* ₹41.2k (60/40; ₹40.5k before the 2026-11-19 determinism fix) against S1. A lot bought
    back on 31 March is sold by the next 31-March rebalance after exactly 365 days, which is short-term. Harvesting now
    happens on the first session on or after 15 March. The tax-day result is kept in the JSON
    (`first_look_same_day_harvest_S2`).
@@ -102,14 +133,14 @@ Artifact: `diagnostics/research/explore/2026-11-18_india_tax_practices.json` [me
 |---|---|---|---|---|---|---|---|
 | S0 liquid | 21.67% | ₹56,74,731 | ₹5,77,775 | ₹250 | ₹44,134 | — | 22.9 |
 | S1 arbitrage | 21.86% | ₹57,22,853 | ₹4,97,839 | ₹250 | ₹63,688 | — | 22.9 |
-| S2 + harvest | 21.92% | ₹57,36,313 | ₹4,83,065 | ₹403 | ₹63,673 | — | 23.0 |
-| S3 N=2, other at 0% | 22.40% | ₹58,58,134 | ₹3,68,147 | ₹559 | ₹63,766 | — | 22.9 |
-| S3 N=2, other at 5% or 30% | 22.18% | ₹58,03,257 | ₹4,22,816 | ₹559 | ₹63,763 | — | 22.9 |
-| **S3 N=3, others at 0%** | **22.86%** | **₹59,75,199** | ₹2,51,099 | ₹594 | ₹63,767 | — | 22.9 |
-| S3 N=3, others at 5% or 30% | 22.43% | ₹58,65,676 | ₹3,60,344 | ₹594 | ₹63,763 | — | 22.9 |
+| S2 + harvest | 21.91% | ₹57,34,417 | ₹4,84,988 | ₹403 | ₹63,673 | — | 23.0 |
+| S3 N=2, other at 0% | 22.40% | ₹58,57,857 | ₹3,68,625 | ₹559 | ₹63,766 | — | 22.9 |
+| S3 N=2, other at 5% or 30% | 22.18% | ₹58,02,509 | ₹4,23,765 | ₹559 | ₹63,763 | — | 22.9 |
+| **S3 N=3, others at 0%** | **22.86%** | **₹59,74,965** | ₹2,51,534 | ₹594 | ₹63,767 | — | 22.9 |
+| S3 N=3, others at 5% or 30% | 22.43% | ₹58,64,585 | ₹3,61,636 | ₹594 | ₹63,763 | — | 22.9 |
 | S4 company, money stays inside | 18.31% | ₹48,88,874 | ₹5,49,480 | ₹296 | ₹58,678 | ₹3,99,247 | 26.5 |
 | S4 + final dividend to Kreesh | 8.82% | ₹31,34,746 | ₹23,03,608 | ₹296 | ₹58,678 | ₹3,99,247 | 26.5 |
-| like-for-like: dividend today, then S2 | 22.08% on ₹12.82L | ₹37,04,865 | ₹2,87,386 | ₹292 | ₹40,885 | — | 22.9 |
+| like-for-like: dividend today, then S2 | 22.07% on ₹12.82L | ₹37,03,038 | ₹2,89,263 | ₹292 | ₹40,885 | — | 22.9 |
 
 **65/35**
 
@@ -117,8 +148,8 @@ Artifact: `diagnostics/research/explore/2026-11-18_india_tax_practices.json` [me
 |---|---|---|---|---|
 | S0 | 22.92% | ₹59,92,389 | ₹6,16,189 | 24.8 |
 | S1 | 23.09% | ₹60,35,038 | ₹5,44,577 | 24.9 |
-| S2 | 23.13% | ₹60,47,386 | ₹5,30,876 | 24.9 |
-| S3 N=3, others at 0% | 24.03% | ₹62,85,397 | ₹2,98,861 | 24.8 |
+| S2 | 23.13% | ₹60,45,485 | ₹5,32,804 | 24.9 |
+| S3 N=3, others at 0% | 24.03% | ₹62,85,200 | ₹2,99,240 | 24.8 |
 | S4 | 19.55% | ₹51,68,420 | ₹5,96,112 | 28.3 |
 | S4 + final dividend | 9.96% | ₹33,13,991 | ₹24,50,541 | 28.3 |
 
@@ -139,14 +170,14 @@ Harvesting costs the blend money. Every harvest trade pays stock costs, about 0.
 | step | 60/40 | 65/35 | blend |
 |---|---|---|---|
 | S0 → S1 (arbitrage cash leg) | **+₹48,122** | +₹42,649 | +₹42,630 |
-| S1 → S2 (harvesting, mid-March) | **+₹13,460** | +₹12,348 | −₹31,088 |
-| S1 → S2, first look (harvest on the tax day) | −₹40,528 | −₹41,452 | −₹23,629 |
-| S2 → S3, N=2, other at 0% | +₹1,21,821 | +₹1,21,070 | +₹3,50,324 |
-| S2 → S3, N=2, other at 5% or 30% | +₹66,944 | +₹66,263 | +₹23,803 |
-| S2 → S3, N=3, others at 0% | **+₹2,38,886** | +₹2,38,011 | +₹6,20,039 |
-| S2 → S3, N=3, others at 5% or 30% | +₹1,29,363 | +₹1,28,381 | +₹30,505 |
-| S2 → S4 (company, no payout) | **−₹8,47,439** | −₹8,78,966 | −₹8,08,579 |
-| S2 → S4 + final dividend | −₹26,01,567 | −₹27,33,395 | −₹23,37,991 |
+| S1 → S2 (harvesting, mid-March) | **+₹11,564** | +₹10,447 | −₹31,088 |
+| S1 → S2, first look (harvest on the tax day) | −₹41,224 | −₹42,153 | −₹23,629 |
+| S2 → S3, N=2, other at 0% | +₹1,23,440 | +₹1,22,610 | +₹3,50,324 |
+| S2 → S3, N=2, other at 5% or 30% | +₹68,092 | +₹67,265 | +₹23,803 |
+| S2 → S3, N=3, others at 0% | **+₹2,40,548** | +₹2,39,715 | +₹6,20,039 |
+| S2 → S3, N=3, others at 5% or 30% | +₹1,30,168 | +₹1,29,340 | +₹30,505 |
+| S2 → S4 (company, no payout) | **−₹8,45,543** | −₹8,77,065 | −₹8,08,579 |
+| S2 → S4 + final dividend | −₹25,99,671 | −₹27,31,494 | −₹23,37,991 |
 
 **Why S3 at slab 5% equals S3 at slab 30%.** With the arbitrage cash leg, every gain is equity. The other person's
 slab then matters only through a 0%-slab person's unused basic exemption. So 5% and 30% give the same result, and the
@@ -197,8 +228,8 @@ above S2, or reorders the books** [measured, `sensitivity.rows`].
 ## Artifact check (rule 2)
 
 1. **Harvest timing.**
-   - Shown: the same practice on the tax day lost ₹40.5k.
-   - The S1→S2 step (+₹13k) depends on scheduling rather than on harvesting itself.
+   - Shown: the same practice on the tax day lost ₹41.2k (fixed code).
+   - The S1→S2 step (+₹11.6k, fixed code) depends on scheduling rather than on harvesting itself.
    - Ruled in and disclosed.
 2. **Proxies.** Arbitrage is the liquid fund less 0.3%, and liquid is a flat 6.5%.
    - Real arbitrage returns track the futures basis and were well below liquid-fund yields in 2020–21.
@@ -260,9 +291,6 @@ A fresh `blind-replica` rebuilt the 60/40 book from the spec and the config only
 
 The S1→S2 *step* differs by more than 5% relative: +₹11,564 in the replica against +₹13,460 here.
 
-**Reconciled.** The step depends on which fund's same-date lots are harvested first, when the index fund and the
-arbitrage fund carry lots bought on the same day. The replica took index lots first. Its arbitrage-first variant gives
-S2 = ₹57,36,285, within ₹28 of this study.
+**Superseded (2026-11-19).** This gap was first reconciled here as a same-date lot-ordering convention. **That was wrong.** The cause was Python hash-seed nondeterminism in the simulator (`Taxpayer.retarget` iterated a set, so the harvest's fund order changed with `PYTHONHASHSEED`). The fixed, deterministic code gives S2 = ₹57,34,417 and S1→S2 = +₹11,564, which match a fresh spec-only replica to the rupee. See the Correction at the top.
 
-**Reading.** The harvesting step is about **₹12–13k** over the window, and its exact size depends on lot-ordering
-conventions. It is small next to the other steps.
+**Reading.** The harvesting step is about **₹11.6k** over the window (60/40). It is small next to the other steps.

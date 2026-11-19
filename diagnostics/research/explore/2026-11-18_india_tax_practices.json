@@ -19,13 +19,13 @@
  "first_look_same_day_harvest_S2": {
   "s60": {
    "S1": 5722853.0,
-   "S2_tax_day_harvest": 5682325.0,
-   "step": -40528.0
+   "S2_tax_day_harvest": 5681629.0,
+   "step": -41224.0
   },
   "s65": {
    "S1": 6035038.0,
-   "S2_tax_day_harvest": 5993586.0,
-   "step": -41452.0
+   "S2_tax_day_harvest": 5992885.0,
+   "step": -42153.0
   },
   "blend": {
    "S1": 5102244.0,
@@ -55,65 +55,65 @@
      "boot156_p95_b8": 22.94
     },
     "S2": {
-     "final_value": 5736313.0,
-     "after_tax_cagr_pct": 21.92,
-     "tax": 483065.0,
-     "trading_costs": 403.0,
+     "final_value": 5734417.0,
+     "after_tax_cagr_pct": 21.91,
+     "tax": 484988.0,
+     "trading_costs": 379.0,
      "fund_expenses": 63673.0,
      "compliance": 0.0,
      "boot156_p95_b8": 22.96
     },
     "S3_N2_slab0": {
-     "final_value": 5858134.0,
+     "final_value": 5857857.0,
      "after_tax_cagr_pct": 22.4,
-     "tax": 368147.0,
-     "trading_costs": 559.0,
+     "tax": 368625.0,
+     "trading_costs": 406.0,
      "fund_expenses": 63766.0,
      "compliance": 0.0,
      "boot156_p95_b8": 22.94
     },
     "S3_N2_slab5": {
-     "final_value": 5803257.0,
+     "final_value": 5802509.0,
      "after_tax_cagr_pct": 22.18,
-     "tax": 422816.0,
-     "trading_costs": 559.0,
-     "fund_expenses": 63763.0,
+     "tax": 423765.0,
+     "trading_costs": 406.0,
+     "fund_expenses": 63764.0,
      "compliance": 0.0,
      "boot156_p95_b8": 22.94
     },
     "S3_N2_slab30": {
-     "final_value": 5803257.0,
+     "final_value": 5802509.0,
      "after_tax_cagr_pct": 22.18,
-     "tax": 422816.0,
-     "trading_costs": 559.0,
-     "fund_expenses": 63763.0,
+     "tax": 423765.0,
+     "trading_costs": 406.0,
+     "fund_expenses": 63764.0,
      "compliance": 0.0,
      "boot156_p95_b8": 22.94
     },
     "S3_N3_slab0": {
-     "final_value": 5975199.0,
+     "final_value": 5974965.0,
      "after_tax_cagr_pct": 22.86,
-     "tax": 251099.0,
-     "trading_costs": 594.0,
+     "tax": 251534.0,
+     "trading_costs": 442.0,
      "fund_expenses": 63767.0,
      "compliance": 0.0,
      "boot156_p95_b8": 22.94
     },
     "S3_N3_slab5": {
-     "final_value": 5865676.0,
+     "final_value": 5864585.0,
      "after_tax_cagr_pct": 22.43,
-     "tax": 360344.0,
-     "trading_costs": 594.0,
-     "fund_expenses": 63763.0,
+     "tax": 361636.0,
+     "trading_costs": 442.0,
+     "fund_expenses": 63764.0,
      "compliance": 0.0,
      "boot156_p95_b8": 22.94
     },
     "S3_N3_slab30": {
-     "final_value": 5865676.0,
+     "final_value": 5864585.0,
      "after_tax_cagr_pct": 22.43,
-     "tax": 360344.0,
-     "trading_costs": 594.0,
-     "fund_expenses": 63763.0,
+     "tax": 361636.0,
+     "trading_costs": 442.0,
+     "fund_expenses": 63764.0,
      "compliance": 0.0,
      "boot156_p95_b8": 22.94
     },
@@ -136,27 +136,27 @@
      "boot156_p95_b8": 26.51
     },
     "S2_after_dividend_today_like_for_like": {
-     "final_value": 3704865.0,
-     "after_tax_cagr_pct": 22.08,
-     "tax": 287386.0,
-     "trading_costs": 292.0,
+     "final_value": 3703038.0,
+     "after_tax_cagr_pct": 22.07,
+     "tax": 289263.0,
+     "trading_costs": 250.0,
      "fund_expenses": 40885.0,
      "compliance": 0.0,
      "boot156_p95_b8": 22.94,
-     "after_tax_cagr_pct_on_pre_dividend_capital": 12.29
+     "after_tax_cagr_pct_on_pre_dividend_capital": 12.28
     }
    },
    "step_value_rupees": {
     "S0->S1": 48122.0,
-    "S1->S2": 13460.0,
-    "S2->S3_N2_slab0": 121821.0,
-    "S2->S3_N2_slab5": 66944.0,
-    "S2->S3_N2_slab30": 66944.0,
-    "S2->S3_N3_slab0": 238886.0,
-    "S2->S3_N3_slab5": 129363.0,
-    "S2->S3_N3_slab30": 129363.0,
-    "S2->S4": -847439.0,
-    "S2->S4_with_final_dividend": -2601567.0
+    "S1->S2": 11564.0,
+    "S2->S3_N2_slab0": 123440.0,
+    "S2->S3_N2_slab5": 68092.0,
+    "S2->S3_N2_slab30": 68092.0,
+    "S2->S3_N3_slab0": 240548.0,
+    "S2->S3_N3_slab5": 130168.0,
+    "S2->S3_N3_slab30": 130168.0,
+    "S2->S4": -845543.0,
+    "S2->S4_with_final_dividend": -2599671.0
    }
   },
   "s65": {
@@ -180,65 +180,65 @@
      "boot156_p95_b8": 24.86
     },
     "S2": {
-     "final_value": 6047386.0,
+     "final_value": 6045485.0,
      "after_tax_cagr_pct": 23.13,
-     "tax": 530876.0,
-     "trading_costs": 402.0,
+     "tax": 532804.0,
+     "trading_costs": 378.0,
      "fund_expenses": 64124.0,
      "compliance": 0.0,
      "boot156_p95_b8": 24.88
     },
     "S3_N2_slab0": {
-     "final_value": 6168456.0,
+     "final_value": 6168095.0,
      "after_tax_cagr_pct": 23.59,
-     "tax": 415783.0,
-     "trading_costs": 544.0,
-     "fund_expenses": 64199.0,
+     "tax": 416327.0,
+     "trading_costs": 407.0,
+     "fund_expenses": 64200.0,
      "compliance": 0.0,
      "boot156_p95_b8": 24.83
     },
     "S3_N2_slab5": {
-     "final_value": 6113649.0,
-     "after_tax_cagr_pct": 23.39,
-     "tax": 470374.0,
-     "trading_costs": 544.0,
-     "fund_expenses": 64196.0,
+     "final_value": 6112750.0,
+     "after_tax_cagr_pct": 23.38,
+     "tax": 471456.0,
+     "trading_costs": 407.0,
+     "fund_expenses": 64197.0,
      "compliance": 0.0,
      "boot156_p95_b8": 24.83
     },
     "S3_N2_slab30": {
-     "final_value": 6113649.0,
-     "after_tax_cagr_pct": 23.39,
-     "tax": 470374.0,
-     "trading_costs": 544.0,
-     "fund_expenses": 64196.0,
+     "final_value": 6112750.0,
+     "after_tax_cagr_pct": 23.38,
+     "tax": 471456.0,
+     "trading_costs": 407.0,
+     "fund_expenses": 64197.0,
      "compliance": 0.0,
      "boot156_p95_b8": 24.83
     },
     "S3_N3_slab0": {
-     "final_value": 6285397.0,
+     "final_value": 6285200.0,
      "after_tax_cagr_pct": 24.03,
-     "tax": 298861.0,
-     "trading_costs": 580.0,
+     "tax": 299240.0,
+     "trading_costs": 443.0,
      "fund_expenses": 64200.0,
      "compliance": 0.0,
      "boot156_p95_b8": 24.83
     },
     "S3_N3_slab5": {
-     "final_value": 6175767.0,
+     "final_value": 6174825.0,
      "after_tax_cagr_pct": 23.62,
-     "tax": 408202.0,
-     "trading_costs": 580.0,
-     "fund_expenses": 64196.0,
+     "tax": 409327.0,
+     "trading_costs": 443.0,
+     "fund_expenses": 64197.0,
      "compliance": 0.0,
      "boot156_p95_b8": 24.83
     },
     "S3_N3_slab30": {
-     "final_value": 6175767.0,
+     "final_value": 6174825.0,
      "after_tax_cagr_pct": 23.62,
-     "tax": 408202.0,
-     "trading_costs": 580.0,
-     "fund_expenses": 64196.0,
+     "tax": 409327.0,
+     "trading_costs": 443.0,
+     "fund_expenses": 64197.0,
      "compliance": 0.0,
      "boot156_p95_b8": 24.83
     },
@@ -261,27 +261,27 @@
      "boot156_p95_b8": 28.31
     },
     "S2_after_dividend_today_like_for_like": {
-     "final_value": 3903437.0,
-     "after_tax_cagr_pct": 23.29,
-     "tax": 318294.0,
-     "trading_costs": 313.0,
+     "final_value": 3901965.0,
+     "after_tax_cagr_pct": 23.28,
+     "tax": 319842.0,
+     "trading_costs": 251.0,
      "fund_expenses": 41163.0,
      "compliance": 0.0,
      "boot156_p95_b8": 24.83,
-     "after_tax_cagr_pct_on_pre_dividend_capital": 13.4
+     "after_tax_cagr_pct_on_pre_dividend_capital": 13.39
     }
    },
    "step_value_rupees": {
     "S0->S1": 42649.0,
-    "S1->S2": 12348.0,
-    "S2->S3_N2_slab0": 121070.0,
-    "S2->S3_N2_slab5": 66263.0,
-    "S2->S3_N2_slab30": 66263.0,
-    "S2->S3_N3_slab0": 238011.0,
-    "S2->S3_N3_slab5": 128381.0,
-    "S2->S3_N3_slab30": 128381.0,
-    "S2->S4": -878966.0,
-    "S2->S4_with_final_dividend": -2733395.0
+    "S1->S2": 10447.0,
+    "S2->S3_N2_slab0": 122610.0,
+    "S2->S3_N2_slab5": 67265.0,
+    "S2->S3_N2_slab30": 67265.0,
+    "S2->S3_N3_slab0": 239715.0,
+    "S2->S3_N3_slab5": 129340.0,
+    "S2->S3_N3_slab30": 129340.0,
+    "S2->S4": -877065.0,
+    "S2->S4_with_final_dividend": -2731494.0
    }
   },
   "blend": {
@@ -485,7 +485,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 21.91,
+    "s60_S2_cagr": 21.9,
     "s60_S4_cagr": 18.3
    },
    {
@@ -507,7 +507,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 22.68,
+    "s60_S2_cagr": 22.67,
     "s60_S4_cagr": 19.33
    },
    {
@@ -551,7 +551,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 21.92,
+    "s60_S2_cagr": 21.91,
     "s60_S4_cagr": 18.31
    },
    {
@@ -573,7 +573,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 21.92,
+    "s60_S2_cagr": 21.91,
     "s60_S4_cagr": 18.31
    },
    {
@@ -639,7 +639,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 21.92,
+    "s60_S2_cagr": 21.91,
     "s60_S4_cagr": 18.31
    },
    {
@@ -661,7 +661,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 21.82,
+    "s60_S2_cagr": 21.81,
     "s60_S4_cagr": 18.31
    },
    {
@@ -683,7 +683,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 21.92,
+    "s60_S2_cagr": 21.91,
     "s60_S4_cagr": 18.31
    },
    {
@@ -705,7 +705,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 21.92,
+    "s60_S2_cagr": 21.91,
     "s60_S4_cagr": 18.31
    },
    {
@@ -727,7 +727,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 21.92,
+    "s60_S2_cagr": 21.91,
     "s60_S4_cagr": 18.31
    },
    {
@@ -749,7 +749,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 21.92,
+    "s60_S2_cagr": 21.91,
     "s60_S4_cagr": 18.31
    },
    {
@@ -793,7 +793,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 23.82,
+    "s60_S2_cagr": 23.81,
     "s60_S4_cagr": 20.28
    },
    {
@@ -815,7 +815,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 22.03,
+    "s60_S2_cagr": 22.02,
     "s60_S4_cagr": 18.42
    },
    {
@@ -837,7 +837,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 21.81,
+    "s60_S2_cagr": 21.8,
     "s60_S4_cagr": 18.19
    },
    {
@@ -859,7 +859,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 21.95,
+    "s60_S2_cagr": 21.94,
     "s60_S4_cagr": 18.34
    },
    {
@@ -881,7 +881,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 21.89,
+    "s60_S2_cagr": 21.88,
     "s60_S4_cagr": 18.27
    },
    {
@@ -903,7 +903,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 21.98,
+    "s60_S2_cagr": 21.97,
     "s60_S4_cagr": 18.37
    },
    {
@@ -925,7 +925,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 21.86,
+    "s60_S2_cagr": 21.85,
     "s60_S4_cagr": 18.24
    },
    {
@@ -947,7 +947,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 21.92,
+    "s60_S2_cagr": 21.91,
     "s60_S4_cagr": 18.31
    },
    {
@@ -969,7 +969,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 21.92,
+    "s60_S2_cagr": 21.91,
     "s60_S4_cagr": 18.31
    },
    {
@@ -991,7 +991,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 21.92,
+    "s60_S2_cagr": 21.91,
     "s60_S4_cagr": 18.31
    },
    {
@@ -1013,7 +1013,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 21.92,
+    "s60_S2_cagr": 21.91,
     "s60_S4_cagr": 18.31
    },
    {
@@ -1035,7 +1035,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 21.92,
+    "s60_S2_cagr": 21.91,
     "s60_S4_cagr": 19.87
    },
    {
@@ -1057,7 +1057,7 @@
      "s60"
     ],
     "book_ranking_changed": false,
-    "s60_S2_cagr": 21.92,
+    "s60_S2_cagr": 21.91,
     "s60_S4_cagr": 16.64
    }
   ]

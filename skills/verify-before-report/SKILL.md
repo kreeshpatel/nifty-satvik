@@ -77,6 +77,10 @@ Every study **reproduces one known published number first**, in the same run, an
 An anchor that cannot be reproduced in-run (a cloud run, a sealed read) is **quoted and labelled as quoted**, with
 the reason, and a reproducible anchor is used in its place.
 
+**Hash-seed check.** For any code that iterates a set or a dict, reproduce the anchors under at least two
+`PYTHONHASHSEED` values. The #212 tax simulator's harvest step read +13,460 or +11,564 depending on the seed (PR #214,
+Correction 3).
+
 ## 4b. Swing total R is quoted BOTH ways, always (owner, 2026-11-17)
 
 Every report that quotes the swing book's historical R shows, side by side:

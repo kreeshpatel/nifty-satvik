@@ -168,10 +168,13 @@ class Taxpayer:
             lot[1] += g
 
     def value(self, prices) -> float:
-        return self.cash + sum(u * prices[i] for i, u in self.units.items() if u > 0)
+        # sorted: a float sum in dict-insertion order is not reproducible across hash seeds (2026-11-19 fix)
+        return self.cash + sum(self.units[i] * prices[i] for i in sorted(self.units) if self.units[i] > 0)
 
     def retarget(self, targets, prices, d):
-        cur = {i: self.units[i] * prices[i] for i in set(self.units) | set(targets)}
+        # sorted, not set order: set iteration of strings depends on PYTHONHASHSEED, and the trade order fed the
+        # lot-insertion order the harvest walked (#214 Correction 3; fixed 2026-11-19)
+        cur = {i: self.units[i] * prices[i] for i in sorted(set(self.units) | set(targets))}
         for i, v in cur.items():
             t = targets.get(i, 0.0)
             if v > t + 1e-6:
@@ -249,7 +252,7 @@ class Taxpayer:
 
     def harvest(self, prices, d):
         fy = fy_of(d)
-        for inst in [i for i in self.lots if i in EQUITY]:                  # losses: every equity lot below cost
+        for inst in sorted(i for i in self.lots if i in EQUITY):            # losses: every equity lot below cost
             px = prices[inst]
             keep, rebought = deque(), []
             for lot in self.lots[inst]:
@@ -267,7 +270,18 @@ class Taxpayer:
         room = self._exemption() - self.taxable_lt_before_exemption(fy)        # gains: up to the exemption
         if room <= 0:
             return
-        for inst in [i for i in self.lots if i in EQUITY]:
+        # ORDER (fixed 2026-11-19; previously dict-insertion order, i.e. hash-seed dependent):
+        #  * within a scheme: FIFO, oldest lot first - Indian mutual-fund redemptions are computed first-in-first-out,
+        #    so the lot is not a free choice [assumed, CONFIRM WITH CA];
+        #  * across schemes: highest unrealised gain per rupee redeemed on the scheme's oldest long-term lot first,
+        #    then instrument name - it uses the exemption with the least money churned and the fewest units restarted
+        #    on a new 12-month clock.
+        def _key(i):
+            px = prices[i]
+            lt = [lot for lot in self.lots[i] if lot[0] > 0 and (d - lot[2]).days > self.lt_days]
+            ratio = (px - lt[0][1]) / px if lt else float("-inf")
+            return (-ratio, i)
+        for inst in sorted((i for i in self.lots if i in EQUITY), key=_key):
             px = prices[inst]
             new, rebought = deque(), []
             for lot in self.lots[inst]:
@@ -345,7 +359,7 @@ def simulate(book: str, cfg: dict, ctx: dict, *, kind="individual", slab=0.30, c
         navs.append(tp.value(pr))
     pr = {IDX: float(px_idx.iloc[-1]), LIQ: float(px_liq.iloc[-1]), ARB: float(px_arb.iloc[-1]),
           MOM: float(ctx["px_m"].iloc[-1]), SW: float(ctx["px_s"].iloc[-1])}
-    for i in list(tp.units):
+    for i in sorted(tp.units):
         if tp.units[i] > 0:
             tp.sell(i, tp.units[i] * pr[i], pr[i], idx[-1])
     tp.settle(idx[-1], fy_days[fy_of(idx[-1])])
