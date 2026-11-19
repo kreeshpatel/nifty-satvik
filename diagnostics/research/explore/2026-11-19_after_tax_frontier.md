@@ -241,3 +241,67 @@ The blend's highest cap-passing vol is **10%** on both cash legs. There are 28 r
 | TRI held as the index fund, after tax | liquid | 0 of 28 | −0.476 | −0.796 (2020-12) |
 
 The best window for the blend still loses: by −0.143 against 65/35 and −0.089 against the TRI (arbitrage leg).
+
+### Step 6 — independent re-derivation [measured]
+
+A fresh `blind-replica` worked from a written spec and four exported inputs, with no code: the daily sleeve NAVs,
+returns and fund prices; the 0001 trades; the swing ledger; the open positions at the cut. Spec, code and result are
+in `2026-11-19_after_tax_frontier_replica/`.
+
+| point | quantity | replica | pipeline | gap |
+|---|---|---|---|---|
+| blend at 10%, arbitrage leg | after-tax CAGR | 18.364 | 18.36 | 0 |
+| | p95 156w DD | 24.297 | 24.30 | 0 |
+| | excess Sharpe | 0.9717 | 0.972 | 0 |
+| | tax | ₹6,64,495 | ₹6,64,495 | 0 |
+| static 65/35, arbitrage leg | after-tax CAGR | 23.252 | 23.25 | 0 |
+| | p95 156w DD | 24.733 | 24.73 | 0 |
+| | excess Sharpe | 1.3216 | 1.322 | 0 |
+| | tax | ₹5,27,113 | ₹5,27,113 | 0 |
+
+The replica read the cost treatment the same way as the pipeline (gross price gains, costs not in the basis), so this
+match confirms the arithmetic, not that treatment. Deducting costs is worth at most +0.26pp to the blend (#215), far
+short of the 4.89pp gap.
+
+## Artifact check
+
+1. **Single strong window.** The TRI made about 31% a year after tax held to the end. A static index mix is most
+   favoured exactly when the index runs. **Not ruled out**; the window is the one the data allows.
+2. **The rolling windows are one observation.** 28 windows overlap by 35 of 36 months, and only 1 non-overlapping
+   3-year window exists. "0 of 28" is close to a single comparison. **Not ruled out; disclosed.** The margin is
+   negative in every window, including the best one.
+3. **Untaxed deferred liability in the benchmarks' Sharpe.** Buy-and-hold (the TRI fund) and static 65/35 carry
+   unrealised gains whose tax appears only at liquidation, which is outside the Sharpe series. The blend pays its tax
+   along the way. This flatters both benchmarks' window Sharpe. **Not ruled out; direction against the blend.** The
+   CAGR ranking uses the liquidation value and is not affected: 65/35 leads the blend by 4.89pp after all tax is paid.
+4. **0001 open positions are over-counted.** Rows open at the cut, summed at qty-at-exit, give a market value of 1.148×
+   NAV, because top-ups after the cut inflate qty. The 0001 open gain (₹9.33L, all short-term) is therefore overstated
+   by up to ~15%. **Bounded:** the whole fix moves 0001 alone by −0.39pp and the blend by +0.11pp.
+5. **Pass-through approximations (#215 artifact 2) favour the sleeves.** Tax is understated for the blend, 0001 and
+   swing, so correcting it would widen static's lead. **Not ruled out; direction against the sleeves.**
+6. **Bootstrap boundary.** The blend's cap-passing vol sits at the boundary: 10% passes at p95 24.3 and 11% fails at
+   26.3. p95 is a property of one 278-week history resampled. **Disclosed.**
+7. **Cash-leg data.** The real NAVs are mfapi mirrors of AMFI and match AMFI on all 12 cross-checks. The arbitrage
+   fund's equity tax treatment is the current law [assumed to hold over the window]. **Ruled out for data; the tax
+   treatment is assumed.**
+
+**Added after first look:** none. The grid, cash legs, open-position fix and windows were all fixed in the method
+section (commit 23e6283) before any frontier number was computed.
+
+## Owner decisions
+
+1. **Fallback design.**
+   - Evidence: static index/arbitrage 65/35 is the best design at the −25% cap, at 23.25% after tax. Its lead is
+     +4.89pp over the blend and +3.05pp over the best sleeve design (0001 at 10%). It wins every one of the 28 rolling
+     windows against the blend.
+   - Options: (a) make 65/35 with an arbitrage cash leg the core-capital default; (b) keep the blend as a forward
+     paper challenger only (the 2026-11-18 decision already gives it capital only if it beats the index after tax);
+     (c) both.
+2. **Cash-leg instrument.** The arbitrage leg beats real liquid at every point, by +0.46pp at 65/35, on a 6.05% vs
+   5.36% pre-tax yield and equity rather than slab tax. #214 also found that an arbitrage fund taxed at slab would
+   reverse this.
+3. **Vol targeting via daily re-trading.** It makes realised gain 100% short-term and costs about 4.6pp of rebalance
+   tax for the index (Step 4). Any vol-targeted design needs a lower-turnover implementation before it can compete
+   after tax. Testing one is a rule change and needs a pre-registered trial (n_trials 3 → 4).
+4. **Swing after-tax figure.** Accept the corrected 18.57%, down from 18.82%, as the figure of record for the
+   standalone swing book (#215 artifact 3, now measured).
