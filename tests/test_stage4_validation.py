@@ -187,3 +187,37 @@ def test_deflation_is_strictly_harsher_at_the_lifetime_count():
     args = dict(n_observations=37, skewness=-0.3, kurtosis=5.0, sharpe_variance=0.04)
     assert deflated_sharpe_ratio(0.35, n_trials=140, **args) < \
            deflated_sharpe_ratio(0.35, n_trials=2, **args)
+
+
+def test_sharpe_excess_is_raw_sharpe_net_of_daily_compounded_rf():
+    """Excess Sharpe (owner 2026-11-18): rf 6.5%/yr compounded daily, reported NEXT TO the raw Sharpe.
+
+    A series earning exactly the risk-free rate plus noise has raw Sharpe > 0 but excess Sharpe ~0; and the
+    excess figure equals the raw one minus rf_p / std * sqrt(252) by construction."""
+    from nq.validation.metrics import RF_ANNUAL, rf_per_period, sharpe_excess
+
+    assert RF_ANNUAL == 0.065
+    rf_d = rf_per_period()
+    assert abs((1 + rf_d) ** 252 - 1.065) < 1e-12
+    r = _ar1(504, seed=7, mu=0.0008)
+    raw, ex = sharpe(r), sharpe_excess(r)
+    assert ex < raw
+    assert abs((raw - ex) - rf_d / np.asarray(r).std() * np.sqrt(252)) < 1e-9
+    rng = np.random.default_rng(3)
+    cashlike = rf_d + rng.normal(0, 1e-4, 200_000)
+    assert abs(sharpe_excess(cashlike)) < 0.1 < sharpe(cashlike)
+    assert "sharpe_excess" in summary(r)
+
+
+def test_slice_metrics_reports_both_sharpes():
+    """nq.lab.ensemble.slice_metrics carries sharpe_excess next to sharpe; the raw value is unchanged."""
+    import pandas as pd
+    from nq.lab.ensemble import slice_metrics
+    from nq.validation.metrics import rf_per_period
+
+    idx = pd.bdate_range("2019-03-01", periods=600)
+    nav = pd.Series(1e6 * np.cumprod(1 + _ar1(600, seed=11, mu=0.0007)), index=idx)
+    m = slice_metrics(nav, pd.DataFrame(), "2019-03-01", end="2030-01-01")
+    r = nav.pct_change().dropna()
+    assert abs(m["sharpe"] - r.mean() / r.std() * np.sqrt(252)) < 1e-12
+    assert abs(m["sharpe_excess"] - (r.mean() - rf_per_period()) / r.std() * np.sqrt(252)) < 1e-12

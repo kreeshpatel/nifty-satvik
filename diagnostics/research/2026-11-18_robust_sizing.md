@@ -110,19 +110,27 @@ clipping, not "wider of the two", and not the ensemble repeating one episode:
 
 **3. Vol target meeting −25% at 156 weeks** (most conservative block = 8, deepest p95 at 15%):
 
-| target | CAGR % | Sharpe | backtest worst | 156-wk p95 | meets −25% |
-|---|---|---|---|---|---|
-| 8% | 20.88 | 2.112 | −13.0% | 17.2 | yes |
-| 9% | 22.35 | 2.032 | −14.6% | 19.4 | yes |
-| 10% | 23.80 | 1.978 | −16.1% | 21.4 | yes |
-| **11%** | **25.14** | **1.932** | **−17.7%** | **23.4** | **yes — highest** |
-| 12% | 26.40 | 1.898 | −19.1% | 25.0 | no (by 0.03 pp) |
-| 13% | 27.44 | 1.861 | −20.5% | 26.7 | no |
-| 14% | 28.46 | 1.833 | −21.7% | 28.2 | no |
-| 15% | 29.20 | 1.801 | −22.85% | 29.3 | no |
+| target | CAGR % | Sharpe raw | Sharpe excess | mean exposure | backtest worst | 156-wk p95 | meets −25% |
+|---|---|---|---|---|---|---|---|
+| 8% | 20.88 | 2.112 | 1.440 | 0.55 | −13.0% | 17.2 | yes |
+| 9% | 22.35 | 2.032 | 1.427 | 0.61 | −14.6% | 19.4 | yes |
+| 10% | 23.80 | 1.978 | 1.423 | 0.66 | −16.1% | 21.4 | yes |
+| **11%** | **25.14** | **1.932** | **1.417** | **0.71** | **−17.7%** | **23.4** | **yes — highest** |
+| 12% | 26.40 | 1.898 | 1.416 | 0.75 | −19.1% | 25.0 | no (by 0.03 pp) |
+| 13% | 27.44 | 1.861 | 1.406 | 0.79 | −20.5% | 26.7 | no |
+| 14% | 28.46 | 1.833 | 1.399 | 0.82 | −21.7% | 28.2 | no |
+| 15% | 29.20 | 1.801 | 1.386 | 0.85 | −22.85% | 29.3 | no |
 
-Moving 15% → 11% costs **−4.06 pp CAGR** and *raises* Sharpe by +0.13 (cash at 6% is a large, low-variance share at
-low targets). Picked by the drawdown rule only.
+Sharpe raw = mean/std(ddof 1) of daily returns × √252, rf = 0 (the engine and band convention). Sharpe excess = the
+same with a 6.5%/yr risk-free rate compounded daily, (1.065)^(1/252) − 1 a session, subtracted from the mean
+(`nq/validation/metrics.py::sharpe_excess`; computed in `pipelines/diagnostics/explore_risk_matched_benchmark.py`,
+artifact `diagnostics/research/explore/2026-11-18_risk_matched_benchmark.json` → `q1_part2_both_sharpes`).
+
+> **Correction (2026-11-18, PR #211):** this section first said moving 15% → 11% "*raises* Sharpe by +0.13". That
+> is the raw, zero-risk-free Sharpe, and most of it is the cash leg's interest counted as risk-adjusted return. Net of a
+> 6.5% risk-free rate the change is **+0.031** (1.386 → 1.417): essentially flat. Replaced by: moving 15% → 11% costs
+> **−4.06 pp CAGR** and leaves the excess-return Sharpe **unchanged to within +0.03**. It buys drawdown, not
+> risk-adjusted return. Picked by the drawdown rule only.
 
 **4. Components alone (reference), 156-week p95:** momentum 38.6 / 37.5 / 35.1 %; swing 44.9 / 45.2 / 43.9 %
 (blocks 8 / 13 / 26). Full tables in the JSON.
@@ -194,5 +202,189 @@ family (fixed before PBO was computed; swing family excludes sma_len).
 | blend 15% | −0.15, −0.55, 4.85, 3.62, 3.24, −0.68, 2.03, 0.58, 4.15, 2.22 | 0.976 | 0.250 (71) | 44 of 71 |
 
 **Artifacts.** (1) *Degenerate CPCV*: shown. (2) *PBO family = own neighbourhood*: it measures selection within ±20%,
-not across strategies — disclosed. (3) *DSR at n_trials 3*: the programme's lifetime count is far larger; DSR at the
-certified 114 would be lower — not computed here. (4) *Fold length ~6 months*: wide per-fold noise.
+not across strategies — disclosed. (3) *DSR at n_trials 3*: the programme's lifetime count is far larger — now computed;
+see follow-up F2: every book falls to 0.21–0.44. (4) *Fold length ~6 months*: wide per-fold noise.
+
+
+---
+
+## Follow-up 2026-11-18 (b) — owner decisions and corrections
+
+Owner decisions, 2026-11-18:
+
+1. Blend vol target **11%, provisional** until the real-band re-run. The draft amendment
+   `forward/drafts/2026-11-18_amendment_blend_vt11_DRAFT.md` is **not applied**.
+2. The spike-gate comparator is the benchmark, **risk-matched**.
+3. Yes to NSE band data. The owner will supply broker fills.
+
+Standing counts unchanged: **screens 24 · sealed opens 4 · n_trials 3**. Nothing here is a trial.
+
+### F1. Excess-return Sharpe
+
+`nq/validation/metrics.py::sharpe_excess` subtracts a 6.5%/yr risk-free rate, compounded per period (`RF_ANNUAL`,
+`rf_per_period`). It is now reported next to the raw Sharpe in:
+
+- `metrics.summary`;
+- `nq/lab/ensemble.py::slice_metrics`, as the `sharpe_excess` key and in the ensemble summary.
+
+The raw value and every frozen band are untouched; tests `test_sharpe_excess_*` and
+`test_slice_metrics_reports_both_sharpes` cover this. The Part 2 table now carries both columns.
+
+**Correction** at the Part 2 table: 11% vs 15% is +0.131 raw Sharpe but only **+0.031 excess**.
+
+### F2. DSR at the lifetime count
+
+Same harness DSR path as Part 4 (`nq.runner.research._dsr_from_bootstrap`), at three trial counts:
+
+- **3**: the post-reset ledger (`cumulative_n_trials`).
+- **141**: the ledger's lifetime count (`lifetime_n_trials`): the pre-reset 138 plus 3.
+- **214**: an entry count.
+  - What it counts: 109 `diagnostics/research/preregistry/*.md` (excluding README) + 12 `research/preregistry_*.md`
+    + 1 `research/*/prereg.md` + 92 numbered `research/findings/*.md`.
+  - Files are counted, not IDs, because the two numbering schemes collide on 55 numbers that name different studies.
+  - That makes 214 an upper bound: a study can count twice, and measurements count as trials.
+
+| book | DSR @ 3 | @ 141 | @ 214 |
+|---|---|---|---|
+| live swing (2019-01..2024-06) | 0.890 | 0.249 | 0.205 |
+| 0001 (same slice) | 0.980 | 0.436 | 0.370 |
+| blend 15% (2019-03..2024-06) | 0.976 | 0.400 | 0.336 |
+| blend 11% | 0.984 | 0.445 | 0.376 |
+
+No book reaches 0.95 at either lifetime count. Artifact: `2026-11-18_risk_matched_benchmark.json → q2_dsr`.
+
+### F3. Risk-matched benchmark
+
+**Method**, fixed before results (`pipelines/diagnostics/explore_risk_matched_benchmark.py` docstring):
+
+- **Benchmark:** TRI daily returns run through the blend's own rule: 20-session lagged volatility, exposure capped
+  at 1.0, the rest in cash at 6.5% compounded daily.
+- **Blend cash:** the blend keeps its frozen 6% simple cash rate. A parity row with 6.5% cash is also reported.
+- **Windowing:** both series are windowed before the rule, so both start at exposure 1.0 for 20 sessions.
+- **Drawdown:** 156-week p95 from the stationary bootstrap, block 26 (owner spec) and block 8, 10,000 draws.
+- **Worst 3-year return:** the minimum over every calendar 3-year window. The windows overlap, so this is one number
+  from one path.
+- **"Beats":** blend excess Sharpe is above the benchmark's at the same target.
+
+**Swing window 2019-03..2024-06:**
+
+| target | book | CAGR | Sharpe excess | p95 DD b26 / b8 | worst 3y (ann.) |
+|---|---|---|---|---|---|
+| 11% | blend | 25.14 | 1.417 | 21.1 / 23.4 | 19.4% |
+| 11% | index | 25.15 | 1.411 | 20.8 / 22.7 | 17.2% |
+| 13% | blend | 27.44 | 1.406 | 24.3 / 26.7 | 21.6% |
+| 13% | index | 26.79 | 1.364 | 24.2 / 26.2 | 18.4% |
+| 15% | blend | 29.20 | 1.386 | 27.0 / 29.3 | 23.1% |
+| 15% | index | 28.69 | 1.363 | 26.8 / 29.0 | 20.0% |
+
+Paired excess-Sharpe difference, blend minus index, on common dates (block 63, 5,000 draws):
+
+| target | difference | 5–95% CI |
+|---|---|---|
+| 11% | −0.002 | −0.53 to +0.46 |
+| 13% | +0.033 | −0.48 to +0.48 |
+| 15% | +0.019 | −0.49 to +0.45 |
+
+With 6.5% cash (the parity row), the blend at 11% scores excess Sharpe 1.425.
+
+**0001 full window 2017-01..2026-06.** The blend can't be built on this window: swing has no NAV before 2019, and
+2024-07 onward is sealed. As the nearest substitute, 0001 alone was run through the same rule. It loses to the index
+at every target:
+
+| target | 0001 excess Sharpe | index excess Sharpe | 0001 CAGR | index CAGR |
+|---|---|---|---|---|
+| 11% | 0.627 | 0.805 | 13.6% | 16.3% |
+| 15% | 0.688 | 0.799 | — | — |
+
+**Index alone, at the static exposure that meets −25% (block 26):**
+
+| window | exposure | CAGR | excess Sharpe | exposure at block 8 |
+|---|---|---|---|---|
+| swing window | 0.70 | 25.9% | 1.299 | 0.60 |
+| full window | 0.65 | 17.2% | 0.854 | 0.60 |
+
+**Re-derivation (rule 3).** A fresh `blind-replica`, working from the spec only, got:
+
+- Part 2 sweep: identical. The 11% minus 15% excess Sharpe is +0.032.
+- Index at 11%: 24.90 CAGR / 1.395 excess Sharpe, against 25.15 / 1.411 here (1.1% relative). The replica dropped the
+  first return day and kept 5 weekend special sessions in the TRI.
+- Paired difference at 11%: +0.000, against −0.002 here.
+- Static exposures 0.70 / 0.65 and entry count 214: identical.
+
+**Artifacts:**
+
+- *Cash-rate asymmetry (6% vs 6.5%):* ruled out by the parity row, which moves excess Sharpe by +0.008.
+- *Date alignment and special sessions:* these move the 11% gap anywhere from +0.022 to −0.002. Not ruled out.
+  **The sign at 11% is inside method noise.**
+- *One path:* every difference lies inside a ±0.5 bootstrap CI. Not ruled out.
+- *Window choice:* the swing window is the TRI's best stretch (+34%/yr unlevered). Not ruled out.
+
+**Answer: does the blend beat the risk-matched index at 11%?**
+
+- **Swing window:** nominally yes, 1.417 vs 1.411, but it is a **tie**. The gap is +0.006 on each series' own dates
+  and −0.002 to +0.000 on common dates, with a CI of ±0.5.
+- **0001 window:** not answerable for the blend, which can't be built there. 0001 alone: **no**.
+
+### F4. Mission fallback wording
+
+Proposed, not applied: `forward/drafts/2026-11-18_mission_fallback_DRAFT.md`, with the diff and the exposure table.
+
+### F5. Circuit lock with NSE's own band data
+
+**Data.** `pipelines/build/fetch_nse_price_bands.py` fetched NSE's public archive into `data/nse_bands/`, with a
+manifest and sha256 hashes.
+
+- **Band-hitter lists** (`PRddmmyy.zip → bh*.csv`): all 1,362 sessions from 2019-01-01 to 2024-06-30.
+  - 188,312 lower-band rows, of which 14,519 match 471 universe tickers.
+  - F&O names have no band, so they never appear.
+- **Band files** (`sec_list_DDMMYYYY.csv`): from 2019-12-30 only. 2019 isn't archived (HTTP 404).
+
+**Definitions**, fixed before results:
+
+- *real_lock:* on the lower-band list, and the close is within 0.1% of the low.
+- *real_touch:* on the lower-band list at all. This is an upper bound.
+
+An exit on a locked session moves to the open of the next unlocked session. Accounting is as in Part 3.
+
+**Old approximate detector vs real_lock:** precision 0.95, recall **0.18**. The approximation caught about a fifth of
+the real locks.
+
+**Trades affected:**
+
+| book | real_lock | real_touch | approximate |
+|---|---|---|---|
+| dataset A | 4 / 441 | 8 / 441 | 1 / 441 |
+| capped swing | 0 / 67 | 2 / 67 | 0 / 67 |
+| momentum | 13 / 2,951 | 25 / 2,951 | 2 / 2,951 |
+
+The median move of the real_lock exits is −10.8%.
+
+**Effect** (Sharpe / CAGR / 156-week p95 drawdown at block 8):
+
+| book | base | real_lock | real_touch |
+|---|---|---|---|
+| momentum | 1.130 / 21.73 / 41.4 | 1.123 / 21.67 / 41.5 | 1.117 / 21.61 / 41.7 |
+| blend 15% | 1.790 / 28.97 / 29.33 | 1.782 / 28.86 / 29.52 | 1.779 / 28.84 / 29.56 |
+| **blend 11%** | 1.918 / 24.91 / 23.35 | **1.912 / 24.84 / 23.48** | 1.909 / 24.82 / 23.52 |
+
+- The swing book is unchanged under real_lock.
+- Equity-scaled accounting matches the fixed-rupee numbers to 0.01.
+- **The condition precedent for the 11% draft is met:** 23.48 and 23.52 are both at or under 25.
+- Artifact: `2026-11-18_circuit_lock_real_bands.json`.
+
+**Re-derivation (rule 3).** A fresh `blind-replica` working from the spec matched every count:
+
+- 471 tickers and 7,346 real_lock sessions.
+- Momentum exits moved: 13 under real_lock, 25 under real_touch. Swing closed trades on a locked session: 0 and 2.
+- Momentum after the real_lock adjustment: Sharpe 1.123, CAGR 21.67%.
+- Blend 11% p95, base → real_lock: 23.44 → **23.55**, against 23.35 → 23.48 here (0.3% relative).
+
+**Artifacts:**
+
+- *Coverage:* bands cover 2019-01 to 2024-06 only. 0001's exits in 2017–18 and from 2024-07 are not tested. Not
+  ruled out. The approximate detector's 2018 BOMDYEING lock falls outside the data.
+- *Symbol matching:* renames go through the alias map. An unmatched rename would hide a lock. Not checked name by name.
+- *Adjusted OHLCV:* the close-at-low test is invariant to split adjustment. Ruled out.
+- *Next-open fill:* a lock can persist into the open; AUBANK's exit moved 9 sessions. Modelled: the search runs to the
+  first unlocked session.
+- *Sizing feedback:* shown by the equity-scaled row.

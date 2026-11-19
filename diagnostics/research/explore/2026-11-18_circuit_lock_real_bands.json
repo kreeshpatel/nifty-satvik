@@ -1,0 +1,622 @@
+{
+ "data_manifest": {
+  "window": "2 dates",
+  "trading_days": 1362,
+  "pr_ok": 1362,
+  "pr_missing": "0 dates",
+  "sec_list_ok": 1114,
+  "sec_list_first": "2019-12-30",
+  "sec_list_missing_after_first": "5 dates",
+  "hitter_rows": 414953,
+  "lower_hits": 188312,
+  "band_rows": 2352470,
+  "sha256": {
+   "band_hitters.parquet": "17b8924dbc8634ddc9a4c901f36e0337c2942279e2c58916ff3104896d74cb7b",
+   "sec_list_bands.parquet": "fb9f7ed205c92f27e7bb2aa0a14c31593f9912f95285c0fae596391073b117bb"
+  }
+ },
+ "match": {
+  "lower_band_rows": 188312,
+  "matched_rows": 14519,
+  "distinct_symbols_lower": 2567,
+  "matched_universe_tickers": 471,
+  "real_touch_sessions": 14397,
+  "real_lock_sessions": 7346
+ },
+ "approx_vs_real_lock": {
+  "approx_pairs": 1361,
+  "real_pairs": 7346,
+  "both": 1287,
+  "precision_of_approx": 0.946,
+  "recall_of_approx": 0.175
+ },
+ "approx_vs_real_touch": {
+  "approx_pairs": 1361,
+  "real_pairs": 14397,
+  "both": 1287,
+  "precision_of_approx": 0.946,
+  "recall_of_approx": 0.089
+ },
+ "base": {
+  "swing": {
+   "sharpe": 1.0247630332429298,
+   "cagr_pct": 20.467342852524915,
+   "boot156_p95_dd_pct": 45.56493542085744,
+   "backtest_maxdd_pct": -40.1129518327873
+  },
+  "momentum": {
+   "sharpe": 1.1296054282519847,
+   "cagr_pct": 21.73064051052036,
+   "boot156_p95_dd_pct": 41.38861140632025,
+   "backtest_maxdd_pct": -37.16823597030922
+  },
+  "blend": {
+   "vt15": {
+    "sharpe": 1.7898866696165139,
+    "cagr_pct": 28.965160886300655,
+    "boot156_p95_dd_pct": 29.331154339076733,
+    "backtest_maxdd_pct": -22.853286247140435
+   },
+   "vt11": {
+    "sharpe": 1.9184037173139905,
+    "cagr_pct": 24.906381717345138,
+    "boot156_p95_dd_pct": 23.349236115912298,
+    "backtest_maxdd_pct": -17.648917121556895
+   }
+  }
+ },
+ "real_lock": {
+  "trades_affected": {
+   "dataset_A_uncapped": 4,
+   "dataset_A_closed": 441,
+   "swing_book": 0,
+   "swing_closed": 67,
+   "momentum": 13,
+   "momentum_trades": 2951
+  },
+  "moved_exits_swing": [],
+  "moved_exits_momentum": [
+   {
+    "tkr": "AUBANK",
+    "exit_date": "2020-05-04",
+    "moved_to": "2020-05-13",
+    "old_px": 256.34,
+    "new_px": 198.58,
+    "move_pct": -22.53
+   },
+   {
+    "tkr": "CREDITACC",
+    "exit_date": "2020-05-04",
+    "moved_to": "2020-05-05",
+    "old_px": 462.1,
+    "new_px": 466.4,
+    "move_pct": 0.93
+   },
+   {
+    "tkr": "WELCORP",
+    "exit_date": "2020-05-04",
+    "moved_to": "2020-05-05",
+    "old_px": 57.2,
+    "new_px": 55.23,
+    "move_pct": -3.44
+   },
+   {
+    "tkr": "ADANIGREEN",
+    "exit_date": "2020-07-08",
+    "moved_to": "2020-07-10",
+    "old_px": 409.26,
+    "new_px": 365.0,
+    "move_pct": -10.82
+   },
+   {
+    "tkr": "TANLA",
+    "exit_date": "2022-01-17",
+    "moved_to": "2022-01-18",
+    "old_px": 1931.24,
+    "new_px": 1825.63,
+    "move_pct": -5.47
+   },
+   {
+    "tkr": "TRIDENT",
+    "exit_date": "2022-01-18",
+    "moved_to": "2022-01-20",
+    "old_px": 65.42,
+    "new_px": 56.17,
+    "move_pct": -14.13
+   },
+   {
+    "tkr": "JSWENERGY",
+    "exit_date": "2022-02-14",
+    "moved_to": "2022-02-15",
+    "old_px": 328.29,
+    "new_px": 308.98,
+    "move_pct": -5.88
+   },
+   {
+    "tkr": "ATGL",
+    "exit_date": "2022-03-07",
+    "moved_to": "2022-03-09",
+    "old_px": 1760.33,
+    "new_px": 1647.59,
+    "move_pct": -6.4
+   },
+   {
+    "tkr": "BCG",
+    "exit_date": "2022-03-28",
+    "moved_to": "2022-03-29",
+    "old_px": 93.11,
+    "new_px": 81.38,
+    "move_pct": -12.59
+   },
+   {
+    "tkr": "BCG",
+    "exit_date": "2022-05-02",
+    "moved_to": "2022-05-05",
+    "old_px": 82.63,
+    "new_px": 72.61,
+    "move_pct": -12.13
+   },
+   {
+    "tkr": "TTML",
+    "exit_date": "2022-05-10",
+    "moved_to": "2022-05-13",
+    "old_px": 145.74,
+    "new_px": 126.1,
+    "move_pct": -13.47
+   },
+   {
+    "tkr": "MRPL",
+    "exit_date": "2022-07-01",
+    "moved_to": "2022-07-04",
+    "old_px": 84.75,
+    "new_px": 76.8,
+    "move_pct": -9.38
+   },
+   {
+    "tkr": "ADANIPOWER",
+    "exit_date": "2023-02-22",
+    "moved_to": "2023-02-28",
+    "old_px": 35.34,
+    "new_px": 27.02,
+    "move_pct": -23.53
+   }
+  ],
+  "fixed_rupee": {
+   "swing": {
+    "sharpe": 1.0247630332429298,
+    "cagr_pct": 20.467342852524915,
+    "boot156_p95_dd_pct": 45.56493542085744,
+    "backtest_maxdd_pct": -40.1129518327873
+   },
+   "momentum": {
+    "sharpe": 1.12340300775566,
+    "cagr_pct": 21.669112290849178,
+    "boot156_p95_dd_pct": 41.50604726986538,
+    "backtest_maxdd_pct": -37.16823597030922
+   },
+   "blend": {
+    "vt15": {
+     "sharpe": 1.781788621809262,
+     "cagr_pct": 28.863959280226958,
+     "boot156_p95_dd_pct": 29.515575420264604,
+     "backtest_maxdd_pct": -22.853286247140435
+    },
+    "vt11": {
+     "sharpe": 1.9115592629445337,
+     "cagr_pct": 24.835168455937207,
+     "boot156_p95_dd_pct": 23.480988092308667,
+     "backtest_maxdd_pct": -17.648917121556895
+    }
+   }
+  },
+  "equity_scaled": {
+   "swing": {
+    "sharpe": 1.0247630332429298,
+    "cagr_pct": 20.467342852524915,
+    "boot156_p95_dd_pct": 45.56493542085744,
+    "backtest_maxdd_pct": -40.1129518327873
+   },
+   "momentum": {
+    "sharpe": 1.1234291405771875,
+    "cagr_pct": 21.669408395025624,
+    "boot156_p95_dd_pct": 41.50587735425984,
+    "backtest_maxdd_pct": -37.16823597030922
+   },
+   "blend": {
+    "vt15": {
+     "sharpe": 1.7818190053475595,
+     "cagr_pct": 28.864341398336247,
+     "boot156_p95_dd_pct": 29.515090362615762,
+     "backtest_maxdd_pct": -22.853286247140435
+    },
+    "vt11": {
+     "sharpe": 1.9115839369213947,
+     "cagr_pct": 24.83540850813222,
+     "boot156_p95_dd_pct": 23.479472972504528,
+     "backtest_maxdd_pct": -17.648917121556895
+    }
+   }
+  }
+ },
+ "real_touch": {
+  "trades_affected": {
+   "dataset_A_uncapped": 8,
+   "dataset_A_closed": 441,
+   "swing_book": 2,
+   "swing_closed": 67,
+   "momentum": 25,
+   "momentum_trades": 2951
+  },
+  "moved_exits_swing": [
+   {
+    "tkr": "VBL",
+    "exit_date": "2020-03-23",
+    "moved_to": "2020-03-24",
+    "old_px": 42.1,
+    "new_px": 50.64,
+    "move_pct": 20.28
+   },
+   {
+    "tkr": "RELCAPITAL",
+    "exit_date": "2021-04-19",
+    "moved_to": "2021-04-20",
+    "old_px": 9.7,
+    "new_px": 9.55,
+    "move_pct": -1.55
+   }
+  ],
+  "moved_exits_momentum": [
+   {
+    "tkr": "ADANIGREEN",
+    "exit_date": "2020-03-19",
+    "moved_to": "2020-03-20",
+    "old_px": 124.56,
+    "new_px": 142.4,
+    "move_pct": 14.32
+   },
+   {
+    "tkr": "CREDITACC",
+    "exit_date": "2020-03-20",
+    "moved_to": "2020-04-08",
+    "old_px": 563.74,
+    "new_px": 311.73,
+    "move_pct": -44.7
+   },
+   {
+    "tkr": "NAM-INDIA",
+    "exit_date": "2020-03-24",
+    "moved_to": "2020-03-25",
+    "old_px": 199.2,
+    "new_px": 176.27,
+    "move_pct": -11.51
+   },
+   {
+    "tkr": "WHIRLPOOL",
+    "exit_date": "2020-03-24",
+    "moved_to": "2020-03-25",
+    "old_px": 1800.89,
+    "new_px": 1638.13,
+    "move_pct": -9.04
+   },
+   {
+    "tkr": "AAVAS",
+    "exit_date": "2020-05-04",
+    "moved_to": "2020-05-05",
+    "old_px": 1145.98,
+    "new_px": 1146.0,
+    "move_pct": 0.0
+   },
+   {
+    "tkr": "AUBANK",
+    "exit_date": "2020-05-04",
+    "moved_to": "2020-05-13",
+    "old_px": 256.34,
+    "new_px": 198.58,
+    "move_pct": -22.53
+   },
+   {
+    "tkr": "CREDITACC",
+    "exit_date": "2020-05-04",
+    "moved_to": "2020-05-05",
+    "old_px": 462.1,
+    "new_px": 466.4,
+    "move_pct": 0.93
+   },
+   {
+    "tkr": "WELCORP",
+    "exit_date": "2020-05-04",
+    "moved_to": "2020-05-05",
+    "old_px": 57.2,
+    "new_px": 55.23,
+    "move_pct": -3.44
+   },
+   {
+    "tkr": "ADANIGREEN",
+    "exit_date": "2020-07-08",
+    "moved_to": "2020-07-10",
+    "old_px": 409.26,
+    "new_px": 365.0,
+    "move_pct": -10.82
+   },
+   {
+    "tkr": "BAJAJELEC",
+    "exit_date": "2021-04-19",
+    "moved_to": "2021-04-20",
+    "old_px": 1040.5,
+    "new_px": 1085.13,
+    "move_pct": 4.29
+   },
+   {
+    "tkr": "ADANIGREEN",
+    "exit_date": "2021-07-07",
+    "moved_to": "2021-07-08",
+    "old_px": 1009.18,
+    "new_px": 1027.0,
+    "move_pct": 1.77
+   },
+   {
+    "tkr": "RENUKA",
+    "exit_date": "2021-09-01",
+    "moved_to": "2021-09-02",
+    "old_px": 25.16,
+    "new_px": 23.95,
+    "move_pct": -4.82
+   },
+   {
+    "tkr": "TRIDENT",
+    "exit_date": "2021-10-14",
+    "moved_to": "2021-10-18",
+    "old_px": 37.69,
+    "new_px": 37.38,
+    "move_pct": -0.8
+   },
+   {
+    "tkr": "POONAWALLA",
+    "exit_date": "2022-01-11",
+    "moved_to": "2022-01-12",
+    "old_px": 292.57,
+    "new_px": 275.3,
+    "move_pct": -5.9
+   },
+   {
+    "tkr": "TANLA",
+    "exit_date": "2022-01-17",
+    "moved_to": "2022-01-18",
+    "old_px": 1931.24,
+    "new_px": 1825.63,
+    "move_pct": -5.47
+   },
+   {
+    "tkr": "TRIDENT",
+    "exit_date": "2022-01-18",
+    "moved_to": "2022-01-20",
+    "old_px": 65.42,
+    "new_px": 56.17,
+    "move_pct": -14.13
+   },
+   {
+    "tkr": "JSWENERGY",
+    "exit_date": "2022-02-14",
+    "moved_to": "2022-02-16",
+    "old_px": 328.29,
+    "new_px": 316.78,
+    "move_pct": -3.51
+   },
+   {
+    "tkr": "TTML",
+    "exit_date": "2022-03-02",
+    "moved_to": "2022-03-09",
+    "old_px": 113.4,
+    "new_px": 90.5,
+    "move_pct": -20.2
+   },
+   {
+    "tkr": "ATGL",
+    "exit_date": "2022-03-07",
+    "moved_to": "2022-03-09",
+    "old_px": 1760.33,
+    "new_px": 1647.59,
+    "move_pct": -6.4
+   },
+   {
+    "tkr": "BCG",
+    "exit_date": "2022-03-28",
+    "moved_to": "2022-03-29",
+    "old_px": 93.11,
+    "new_px": 81.38,
+    "move_pct": -12.59
+   },
+   {
+    "tkr": "BCG",
+    "exit_date": "2022-05-02",
+    "moved_to": "2022-05-10",
+    "old_px": 82.63,
+    "new_px": 61.65,
+    "move_pct": -25.4
+   },
+   {
+    "tkr": "TTML",
+    "exit_date": "2022-05-10",
+    "moved_to": "2022-05-16",
+    "old_px": 145.74,
+    "new_px": 121.95,
+    "move_pct": -16.32
+   },
+   {
+    "tkr": "MRPL",
+    "exit_date": "2022-07-01",
+    "moved_to": "2022-07-04",
+    "old_px": 84.75,
+    "new_px": 76.8,
+    "move_pct": -9.38
+   },
+   {
+    "tkr": "ADANIPOWER",
+    "exit_date": "2023-02-22",
+    "moved_to": "2023-03-01",
+    "old_px": 35.34,
+    "new_px": 30.6,
+    "move_pct": -13.4
+   },
+   {
+    "tkr": "SUZLON",
+    "exit_date": "2024-05-24",
+    "moved_to": "2024-05-27",
+    "old_px": 48.91,
+    "new_px": 45.25,
+    "move_pct": -7.49
+   }
+  ],
+  "fixed_rupee": {
+   "swing": {
+    "sharpe": 1.026927088306388,
+    "cagr_pct": 20.495495632754857,
+    "boot156_p95_dd_pct": 44.879464181208206,
+    "backtest_maxdd_pct": -40.1129518327873
+   },
+   "momentum": {
+    "sharpe": 1.1168571386992554,
+    "cagr_pct": 21.60671530626943,
+    "boot156_p95_dd_pct": 41.67079760909002,
+    "backtest_maxdd_pct": -37.123310737098
+   },
+   "blend": {
+    "vt15": {
+     "sharpe": 1.778781507066287,
+     "cagr_pct": 28.83960936318941,
+     "boot156_p95_dd_pct": 29.558307821256587,
+     "backtest_maxdd_pct": -22.83544318114592
+    },
+    "vt11": {
+     "sharpe": 1.909125429434971,
+     "cagr_pct": 24.81759896247695,
+     "boot156_p95_dd_pct": 23.51876967379756,
+     "backtest_maxdd_pct": -17.634959697742612
+    }
+   }
+  },
+  "equity_scaled": {
+   "swing": {
+    "sharpe": 1.0269167957440712,
+    "cagr_pct": 20.495344826590056,
+    "boot156_p95_dd_pct": 44.87945654900262,
+    "backtest_maxdd_pct": -40.1129518327873
+   },
+   "momentum": {
+    "sharpe": 1.1169701049260403,
+    "cagr_pct": 21.607866532562838,
+    "boot156_p95_dd_pct": 41.66483061615653,
+    "backtest_maxdd_pct": -37.123310737098
+   },
+   "blend": {
+    "vt15": {
+     "sharpe": 1.778884535413942,
+     "cagr_pct": 28.840805333664687,
+     "boot156_p95_dd_pct": 29.552862606611285,
+     "backtest_maxdd_pct": -22.83544318114592
+    },
+    "vt11": {
+     "sharpe": 1.9092121351854752,
+     "cagr_pct": 24.81841545951187,
+     "boot156_p95_dd_pct": 23.5162584189582,
+     "backtest_maxdd_pct": -17.634959697742612
+    }
+   }
+  }
+ },
+ "approx_rerun": {
+  "trades_affected": {
+   "dataset_A_uncapped": 1,
+   "dataset_A_closed": 441,
+   "swing_book": 0,
+   "swing_closed": 67,
+   "momentum": 2,
+   "momentum_trades": 2951
+  },
+  "moved_exits_swing": [],
+  "moved_exits_momentum": [
+   {
+    "tkr": "BOMDYEING",
+    "exit_date": "2018-10-01",
+    "moved_to": "2018-10-12",
+    "old_px": 153.41,
+    "new_px": 102.51,
+    "move_pct": -33.18
+   },
+   {
+    "tkr": "AUBANK",
+    "exit_date": "2020-05-04",
+    "moved_to": "2020-05-05",
+    "old_px": 256.34,
+    "new_px": 244.38,
+    "move_pct": -4.67
+   }
+  ],
+  "fixed_rupee": {
+   "swing": {
+    "sharpe": 1.0247630332429298,
+    "cagr_pct": 20.467342852524915,
+    "boot156_p95_dd_pct": 45.56493542085744,
+    "backtest_maxdd_pct": -40.1129518327873
+   },
+   "momentum": {
+    "sharpe": 1.125476351156313,
+    "cagr_pct": 21.71208474909627,
+    "boot156_p95_dd_pct": 41.66699379420858,
+    "backtest_maxdd_pct": -37.44597388262437
+   },
+   "blend": {
+    "vt15": {
+     "sharpe": 1.7917753713908597,
+     "cagr_pct": 29.05053026495903,
+     "boot156_p95_dd_pct": 29.389996471295003,
+     "backtest_maxdd_pct": -22.876147770819856
+    },
+    "vt11": {
+     "sharpe": 1.919480785181082,
+     "cagr_pct": 24.944918994582466,
+     "boot156_p95_dd_pct": 23.3736173984397,
+     "backtest_maxdd_pct": -17.648515050596547
+    }
+   }
+  },
+  "equity_scaled": {
+   "swing": {
+    "sharpe": 1.0247630332429298,
+    "cagr_pct": 20.467342852524915,
+    "boot156_p95_dd_pct": 45.56493542085744,
+    "backtest_maxdd_pct": -40.1129518327873
+   },
+   "momentum": {
+    "sharpe": 1.125479713111418,
+    "cagr_pct": 21.71210529815266,
+    "boot156_p95_dd_pct": 41.66696660049975,
+    "backtest_maxdd_pct": -37.44597388262437
+   },
+   "blend": {
+    "vt15": {
+     "sharpe": 1.7917782313031996,
+     "cagr_pct": 29.05055109802257,
+     "boot156_p95_dd_pct": 29.389988438701046,
+     "backtest_maxdd_pct": -22.876147770819856
+    },
+    "vt11": {
+     "sharpe": 1.9194861128184584,
+     "cagr_pct": 24.944990417846704,
+     "boot156_p95_dd_pct": 23.373622633897575,
+     "backtest_maxdd_pct": -17.648515050596547
+    }
+   }
+  }
+ },
+ "condition_precedent_vt11": {
+  "real_lock": {
+   "boot156_p95_b8": 23.48,
+   "meets_25": true
+  },
+  "real_touch": {
+   "boot156_p95_b8": 23.52,
+   "meets_25": true
+  }
+ }
+}

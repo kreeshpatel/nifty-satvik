@@ -31,6 +31,27 @@ def sharpe(returns: np.ndarray, *, periods: int = TRADING_DAYS) -> float:
     return float(r.mean() / sd * np.sqrt(periods)) if sd > 0 else float("nan")
 
 
+RF_ANNUAL = 0.065
+"""Risk-free rate for the EXCESS-return Sharpe (owner 2026-11-18): 6.5% a year, compounded per period."""
+
+
+def rf_per_period(rf_annual: float = RF_ANNUAL, *, periods: int = TRADING_DAYS) -> float:
+    """Per-period risk-free return ``(1 + rf_annual) ** (1 / periods) - 1`` (daily compounding at 252)."""
+    return float((1.0 + rf_annual) ** (1.0 / periods) - 1.0)
+
+
+def sharpe_excess(returns: np.ndarray, *, rf_annual: float = RF_ANNUAL, periods: int = TRADING_DAYS) -> float:
+    """Annualized EXCESS-return Sharpe: ``mean(r - rf_p) / std(r - rf_p) × √periods`` with
+    ``rf_p = (1 + rf_annual) ** (1 / periods) - 1`` (6.5% a year compounded per period by default).
+
+    Reported NEXT TO :func:`sharpe` (raw, rf = 0), never instead of it: every frozen band, anchor and
+    golden master is on the raw convention. Same ddof=0 std as :func:`sharpe`; subtracting a constant
+    leaves the std unchanged, so ``sharpe_excess = sharpe - rf_p / std × √periods``."""
+    r = _returns(returns)
+    sd = r.std()
+    return float((r.mean() - rf_per_period(rf_annual, periods=periods)) / sd * np.sqrt(periods)) if sd > 0 else float("nan")
+
+
 def sortino(returns: np.ndarray, *, periods: int = TRADING_DAYS) -> float:
     """Annualized Sortino: ``mean / downside_std × √periods`` (downside = negative returns)."""
     r = _returns(returns)
@@ -103,7 +124,7 @@ def equity_from_returns(returns: np.ndarray, *, initial: float = 1.0) -> np.ndar
 
 
 def summary(returns: np.ndarray, *, periods: int = TRADING_DAYS) -> dict[str, float]:
-    """Headline metrics for a daily-return series (Sharpe, Sortino, CAGR, maxDD, Calmar).
+    """Headline metrics for a daily-return series (Sharpe raw and excess of 6.5% rf, Sortino, CAGR, maxDD, Calmar).
 
     Its ``cagr`` is on **bar-years**, stated explicitly (§6/ADR-0014). A return series carries no
     dates, so calendar annualisation is not available here; do not quote this ``cagr`` against an
@@ -112,6 +133,7 @@ def summary(returns: np.ndarray, *, periods: int = TRADING_DAYS) -> dict[str, fl
     eq = equity_from_returns(returns)
     return {
         "sharpe": sharpe(returns, periods=periods),
+        "sharpe_excess": sharpe_excess(returns, periods=periods),
         "sortino": sortino(returns, periods=periods),
         "cagr": cagr(eq, periods=periods, years=eq.size / periods),
         "max_drawdown": max_drawdown(eq),
