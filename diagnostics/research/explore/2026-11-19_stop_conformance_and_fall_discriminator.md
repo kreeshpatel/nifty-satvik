@@ -267,3 +267,48 @@ Spec, code and result are in `explore/2026-11-19_fall_discriminator_replica/`.
 
 The replica flagged one reading: on a ticker's missing sessions, its multi-day return is paired with a one-day index
 return. The pipeline makes the same choice, so the match confirms the arithmetic under that reading.
+
+---
+
+## Owner decisions, 2026-11-19
+
+1. **Part 2 counts as screen #25**, because it read the banked 0117 cohort labels. Ledger row 25 was appended *after* the
+   run, which is disclosed in the row. **Standing counts are now screens 25 · sealed opens 4 · n_trials 3.**
+   `diagnostics/research/n_trials.json` notes that n_trials is unchanged. Every reciting file and its `.claude` mirror
+   was updated, and `tests/test_standing_counts.py` passes (61).
+2. **Feature (e) gets a hindsight bound before any lane decision.** It is part of screen #25, not a new screen.
+3. **Stop-record fix, option 1, approved as engineering** (branch `eng/forward-stop-record`).
+
+**(e) confirms; it does not independently replicate.** Feature (e) is the **stop-side form of finding 0120 Q1** (+9.8pp
+false-touch enrichment near known events), measured on **overlapping trades** of the same banked substrate. It
+**confirms** 0120 Q1; it is not an independent replication.
+
+## (e) hindsight bound — definition and kill rule, stated before computing
+
+**Population.** The screen #25 cohorts: 367 noise stops and 299 false touches, train only, stop time ≤ 2024-06-30,
+firewall at the stop time. Of these, the **(e)-flagged stops** are those with a results meeting in the 5 sessions up to
+the stop. Counted by cohort and by stop year.
+
+**Counterfactual.** Each (e)-flagged stop is **not** taken, and the position is held to the trade's eventual exit.
+
+**Eventual exit — primary.** The book's remaining exit rule after the stop: the **runner's 44-week SMA break**, i.e.
+the first weekly close below the 44-week SMA at or after the stop week, filled at the next session's open
+(`run_bhanushali_weekly_rank.py:1125`, the scaled-exit branch). Close basis, weekly. The price path comes from the
+adjusted OHLCV, cut at 2024-06-30. A path with no exit by the cut is **marked to the 2024-06-28 close**.
+- If the stop week's own close is already below the 44-week SMA, the SMA break fires at the same moment as the stop
+  would have, and the recoverable R is 0. That is the rule-faithful result, not an artifact.
+- The +2R tranche and the pattern tranche are ignored, because a stopped position has not reached +2R by the stop.
+  Disclosed.
+
+**Eventual exit — secondary, descriptive.** The banked 21-session post-stop path, `post_ret21` × exit_px / risk, marked
+to the cut where the 21 sessions run past it.
+
+**R per trade.** (hold exit price − stop fill price) / (entry − stop), on the full position. Units are the banked
+substrate's R; it is an uncapped signal population, so this is not a capped-book R/yr. Disclosed.
+
+**Reported:** total R, R per year over the 5.5 train years, per-year signs, and the worst single trade, by cohort and
+net.
+
+**Kill rule (owner, fixed now).** If **R per year is under 10**, or the **per-year sign flips in 2 or more of the 6 years**
+(a year whose net sign is opposite to the total), the **stop domain closes for this book**, written into this report.
+**No book backtest.**
