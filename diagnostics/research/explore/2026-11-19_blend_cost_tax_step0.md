@@ -1,4 +1,9 @@
-# Blend gross-to-net decomposition — Step 0 anchor check (STOPPED on a miss)
+# Blend gross-to-net decomposition — Step 0 anchor check
+
+> **Owner decision (2026-11-19):** anchor the tax drag at the pipeline's **4.54pp**. The ~4.3pp is the blind
+> replica's figure, from its 19.52% after-tax CAGR against the pipeline's 19.26%. That is a 1.3% relative gap,
+> inside the 5% rule. Steps 1–5 proceed. From here on in this task, an anchor miss stops the run only if it is
+> unexplained or over 5% relative; any other miss is logged and the run continues.
 
 **Class:** MEASUREMENT. No trial, no live change, no sealed read. Standing counts: **screens 24 · sealed opens 4 ·
 n_trials 3** (read from `diagnostics/research/n_trials.json` / `label_screen_ledger.md`; unchanged).
@@ -42,11 +47,27 @@ committed pipeline's own sequential split has always been about 4.5pp. The publi
 to the replica, but the replica's 0.26pp gap on the blend line (1.3% relative, inside rule 3's 5%) never carried
 through to the split.
 
-The task rule was "stop and report on any miss", so Steps 1–5 were **not run**.
+The task rule was "stop and report on any miss", so the first pass stopped here. The owner then chose to
+re-anchor at 4.54pp (see the decision at the top), and Steps 1–5 ran. They are reported in `2026-11-19_blend_cost_tax.md`.
 
-## Owner decision needed
+## Anchors of record for this task (owner, 2026-11-19)
 
-To proceed, pick one of the following.
+All four come from the committed `2026-11-18_after_tax_comparison.json`:
 
-- **(a)** Re-anchor the tax drag at 4.54pp, the committed pipeline's number, and run Steps 1–5.
-- **(b)** First reconcile the replica's 0.26pp blend gap, then run Steps 1–5.
+- blend after-tax CAGR 19.26% / p95 drawdown 26.46
+- static 65/35 after-tax CAGR 23.02% / p95 drawdown 24.81
+- cost drag 1.58pp
+- tax drag 4.54pp
+
+The two figures for the blend's after-tax CAGR:
+
+| source | blend after-tax CAGR | implied tax drag |
+|---|---|---|
+| pipeline (`explore_after_tax_comparison.py`) | 19.26% | 4.54pp |
+| blind replica (2026-11-18) | 19.52% | ≈ 4.28pp |
+
+**Reconciliation item, explained in Step 5 of `2026-11-19_blend_cost_tax.md`:** the 0.26pp gap between the replica's
+19.52% and the pipeline's 19.26%. A fresh replica reproduces 19.26% exactly. It reaches 19.51% only when trading costs
+enter the tax basis (+0.258pp). Every other single change it tried (tax timing, lot order, FY boundary,
+pass-through date) moves the figure by at most 0.06pp, except LIFO at +0.42pp. The component is **costs in the tax
+basis**.
