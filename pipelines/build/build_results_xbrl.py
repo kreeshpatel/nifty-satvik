@@ -20,7 +20,15 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT / "pipelines" / "build")]
 
 from harvest_results_xbrl import _raw_path, load_listing_frame, read_manifest  # noqa: E402
-from nq.data.results_xbrl import RESULTS_XBRL_PATH, SCHEMA, assign_filing_seq, parse_xbrl  # noqa: E402
+from nq.data.results_xbrl import (  # noqa: E402
+    RESULTS_XBRL_PATH,
+    SCHEMA,
+    assign_filing_seq,
+    parse_xbrl,
+    period_sanity,
+)
+
+NEG_LAG_STOP_PCT = 0.5   # stop and report if more rows than this % are published before their period end
 
 LOG = ROOT / ".cache" / "data_audit_v2" / "results_xbrl_build_log.json"
 
@@ -66,7 +74,7 @@ def build(years: list[int] | None = None) -> dict:
     if len(df):
         for c in ("period_start", "period_end"):
             df[c] = pd.to_datetime(df[c])
-        df = assign_filing_seq(df)[SCHEMA]
+        df = period_sanity(assign_filing_seq(df))[SCHEMA]
         RESULTS_XBRL_PATH.parent.mkdir(parents=True, exist_ok=True)
         df.to_parquet(RESULTS_XBRL_PATH, index=False)
     out = {"files_ok_in_manifest": len(man), "rows": int(len(df)),
@@ -80,6 +88,11 @@ def build(years: list[int] | None = None) -> dict:
            if len(df) else 0,
            "current_rule_counts": df.drop_duplicates("xbrl_url")["current_rule"].value_counts().to_dict()
            if len(df) else {}, "failure_reasons": pd.Series(fails).value_counts().to_dict() if fails else {}}
+    if len(df):
+        fl = df["period_flag"].fillna("").str.split(";").explode()
+        out["period_flag_rows"] = fl[fl != ""].value_counts().to_dict()
+        out["neg_lag_pct"] = round(100 * float((df["lag_days"] < 0).mean()), 3)
+        out["neg_lag_stop"] = out["neg_lag_pct"] > NEG_LAG_STOP_PCT
     LOG.write_text(json.dumps({"summary": out, "failures": fails}, indent=1), encoding="utf-8")
     return out
 
@@ -87,4 +100,9 @@ def build(years: list[int] | None = None) -> dict:
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--years", type=int, nargs="*")
-    print(json.dumps(build(ap.parse_args().years), indent=1))
+    res = build(ap.parse_args().years)
+    print(json.dumps(res, indent=1))
+    if res.get("neg_lag_stop"):
+        print(f"STOP: {res['neg_lag_pct']}% of rows are published before their period end "
+              f"(limit {NEG_LAG_STOP_PCT}%). Report this before any quality numbers.", file=sys.stderr)
+        sys.exit(2)

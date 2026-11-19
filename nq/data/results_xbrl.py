@@ -64,7 +64,7 @@ DEFAULT_UNIT = {"INR"}
 
 META_COLS = ["symbol", "isin", "period_start", "period_end", "period_type", "context_role", "consolidated",
              "broadcast_ts", "filing_seq", "is_revision", "xbrl_url", "listing", "context_id", "period_source",
-             "period_reason", "n_current_candidates", "current_rule"]
+             "period_reason", "n_current_candidates", "current_rule", "lag_days", "period_flag"]
 SCHEMA = (META_COLS + VALUE_FIELDS + [f"{f}__tag" for f in VALUE_FIELDS] + [f"{f}__unit" for f in VALUE_FIELDS]
           + [f"{f}__reason" for f in VALUE_FIELDS])
 
@@ -287,6 +287,33 @@ def assign_filing_seq(df: pd.DataFrame) -> pd.DataFrame:
     out["filing_seq"] = out.groupby(key, dropna=False).cumcount()
     out["is_revision"] = out["filing_seq"] > 0
     return out.sort_values(["symbol", "period_end", "broadcast_ts"]).reset_index(drop=True)
+
+
+MAX_LAG_DAYS = 120
+
+
+def period_sanity(df: pd.DataFrame) -> pd.DataFrame:
+    """Flag (never drop) rows whose period looks mis-assigned.
+
+    lag_days = broadcast date (IST calendar day) - period_end, in days.
+    period_flag = ";"-joined reasons, None when clean:
+      "published_before_period_end"  lag_days < 0 (impossible for a genuine filing)
+      "lag_over_120d"                lag_days > MAX_LAG_DAYS
+      "not_quarter_end"              period_end is not a Mar/Jun/Sep/Dec month-end
+      "no_period_end"                period_end missing (label-only rows)"""
+    out = df.copy()
+    pe = pd.to_datetime(out["period_end"])
+    out["lag_days"] = (pd.to_datetime(out["broadcast_ts"]).dt.normalize() - pe).dt.days
+    qe = pe.dt.is_month_end & pe.dt.month.isin([3, 6, 9, 12])
+    parts = [
+        np.where(out["lag_days"] < 0, "published_before_period_end", ""),
+        np.where(out["lag_days"] > MAX_LAG_DAYS, "lag_over_120d", ""),
+        np.where(pe.notna() & ~qe, "not_quarter_end", ""),
+        np.where(pe.isna(), "no_period_end", ""),
+    ]
+    flag = pd.Series([";".join(x for x in t if x) for t in zip(*parts)], index=out.index)
+    out["period_flag"] = flag.where(flag != "", None)
+    return out
 
 
 def as_of(df: pd.DataFrame, asof) -> pd.DataFrame:

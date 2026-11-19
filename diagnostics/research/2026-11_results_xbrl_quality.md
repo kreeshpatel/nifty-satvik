@@ -196,6 +196,69 @@ Results:
 **Replica re-run on the same 30 files after the fix:** 0 mismatches across 270 values plus the period
 dates, context id and consolidated flag. One of the 30 files had two candidates [measured].
 
+## Period-sanity guard (owner request)
+
+**Method.** `nq/data/results_xbrl.py`, `period_sanity`. It runs in the build and flags rows; it never
+drops them.
+
+- `lag_days` = broadcast calendar date (IST) − `period_end`.
+- `period_flag` holds the reasons, `;`-joined:
+  - `published_before_period_end`: `lag_days < 0`
+  - `lag_over_120d`: `lag_days > 120`
+  - `not_quarter_end`: `period_end` is not a Mar/Jun/Sep/Dec month-end
+  - `no_period_end`
+- The build exits with code 2 and a STOP line when more than 0.5% of rows have `lag_days < 0`
+  (`pipelines/build/build_results_xbrl.py`).
+- The counts, lag distribution and worst rows below come from `period_flags` in
+  `pipelines/diagnostics/results_xbrl_quality.py`.
+
+**Results (2019–2020)** [measured] `diagnostics/research/explore/2026-11-19_results_xbrl_quality.json`
+
+- `lag_days < 0`: **0 rows (0.000%)**, so the stop did not trigger.
+- `not_quarter_end`: 0 rows. `no_period_end`: 0 rows.
+- `lag_over_120d`: 1802 of 35173 rows. By broadcast year: 2019: 618,
+  2020: 1184. That is 912 current rows (4.57% of current rows)
+  and 890 year-to-date rows. 31 of the flagged rows are revisions.
+- lag_days, current Q rows (n=19938): median 44, p95 116,
+  max 954, min 5.
+- lag_days, FY rows (n=4866): median 81, p95 160, max 954,
+  min 10.
+- The flagged current rows cluster in the Mar-2020 quarter (458) and the Mar-2019 quarter (224).
+- Reading of the flags [inferred]:
+  - Mar-2020 fits SEBI's COVID-19 extension of results deadlines.
+  - Mar-2019 fits the late XBRL broadcast dates in the legacy listing (artifact 5).
+  - The extreme tail is companies catching up on filings years late. The worst 20 below are all of this
+    kind: EASTSUGIND, UNITY, PRUDMOULI, JYOTISTRUC and JVLAGRO filing their 2018 quarters in late 2020.
+  - None of the worst 20 looks like a wrong-period assignment: each period matches the company's own
+    sequence of filings.
+- Use: an earnings-surprise caller should treat `lag_over_120d` rows as stale news. They are kept because
+  the dates are true.
+
+Worst 20 flagged rows by |lag_days|:
+
+| symbol | period | context | broadcast (IST) | lag_days | flag |
+|---|---|---|---|---|---|
+| EASTSUGIND | 2017-04-01..2018-03-31 (FY, ytd) | FourD | 2020-11-09 11:59 | 954 | lag_over_120d |
+| EASTSUGIND | 2018-01-01..2018-03-31 (Q, current) | OneD | 2020-11-09 11:59 | 954 | lag_over_120d |
+| UNITY | 2018-01-01..2018-03-31 (Q, current) | OneD | 2020-10-08 17:47 | 922 | lag_over_120d |
+| UNITY | 2017-04-01..2018-03-31 (FY, ytd) | FourD | 2020-10-08 17:47 | 922 | lag_over_120d |
+| PRUDMOULI | 2018-04-01..2018-06-30 (Q, current) | OneD | 2020-10-23 18:10 | 846 | lag_over_120d |
+| PRUDMOULI | 2018-04-01..2018-06-30 (Q, current) | OneD | 2020-10-23 18:04 | 846 | lag_over_120d |
+| JYOTISTRUC | 2018-04-01..2018-06-30 (Q, current) | OneD | 2020-10-15 12:02 | 838 | lag_over_120d |
+| JVLAGRO | 2018-04-01..2018-06-30 (Q, current) | OneD | 2020-08-28 13:23 | 790 | lag_over_120d |
+| EASTSUGIND | 2018-07-01..2018-09-30 (Q, current) | OneD | 2020-11-02 15:17 | 764 | lag_over_120d |
+| EASTSUGIND | 2018-04-01..2018-09-30 (H, ytd) | FourD | 2020-11-02 15:17 | 764 | lag_over_120d |
+| PRUDMOULI | 2018-07-01..2018-09-30 (Q, current) | OneD | 2020-10-23 18:28 | 754 | lag_over_120d |
+| PRUDMOULI | 2018-04-01..2018-09-30 (H, ytd) | FourD | 2020-10-23 18:28 | 754 | lag_over_120d |
+| PRUDMOULI | 2018-07-01..2018-09-30 (Q, current) | OneD | 2020-10-23 18:43 | 754 | lag_over_120d |
+| PRUDMOULI | 2018-04-01..2018-09-30 (H, ytd) | FourD | 2020-10-23 18:43 | 754 | lag_over_120d |
+| BILENERGY | 2016-10-01..2016-12-31 (Q, ytd) | FourD | 2019-01-18 11:12 | 748 | lag_over_120d |
+| JYOTISTRUC | 2018-04-01..2018-09-30 (H, ytd) | FourD | 2020-10-15 12:06 | 746 | lag_over_120d |
+| JYOTISTRUC | 2018-07-01..2018-09-30 (Q, current) | OneD | 2020-10-15 12:06 | 746 | lag_over_120d |
+| JVLAGRO | 2018-07-01..2018-09-30 (Q, current) | OneD | 2020-08-28 13:29 | 698 | lag_over_120d |
+| JVLAGRO | 2018-04-01..2018-09-30 (H, ytd) | FourD | 2020-08-28 13:29 | 698 | lag_over_120d |
+| SUNILHITEC | 2017-01-01..2017-03-31 (Q, ytd) | FourD | 2019-02-07 17:43 | 678 | lag_over_120d |
+
 ## Not yet done
 
 - Years 2021–2026 (the fetch is running).

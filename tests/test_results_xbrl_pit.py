@@ -14,6 +14,7 @@ from nq.data.results_xbrl import (
     assign_filing_seq,
     latest_per_period,
     parse_xbrl,
+    period_sanity,
 )
 
 
@@ -63,7 +64,7 @@ def _build(filings) -> pd.DataFrame:
     df = pd.DataFrame(rows)
     for c in ("period_start", "period_end"):
         df[c] = pd.to_datetime(df[c])
-    return assign_filing_seq(df)[SCHEMA]
+    return period_sanity(assign_filing_seq(df))[SCHEMA]
 
 
 def test_schema_and_contexts():
@@ -199,3 +200,17 @@ def test_label_only_cumulative_listing_period_still_gives_the_quarter():
     assert (str(rows["OneD"]["period_start"]), rows["OneD"]["period_type"], rows["OneD"]["context_role"]) == \
         ("2020-01-01", "Q", "current")
     assert rows["FourD"]["period_type"] == "FY"
+
+
+def test_period_sanity_flags_row_published_before_period_end():
+    from nq.data.results_xbrl import period_sanity
+    df = pd.DataFrame({"period_end": pd.to_datetime(["2024-09-30", "2024-09-30", "2024-08-15", None]),
+                       "broadcast_ts": pd.to_datetime(["2024-09-20 10:00", "2024-11-08 16:00",
+                                                       "2025-03-01 09:00", "2024-11-08 16:00"])})
+    out = period_sanity(df)
+    assert out["lag_days"].iloc[0] == -10
+    assert out["period_flag"].iloc[0] == "published_before_period_end"
+    assert pd.isna(out["period_flag"].iloc[1])                                # clean, kept
+    assert out["period_flag"].iloc[2] == "lag_over_120d;not_quarter_end"
+    assert out["period_flag"].iloc[3] == "no_period_end"
+    assert len(out) == len(df)                                                 # flag, never drop

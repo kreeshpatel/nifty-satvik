@@ -147,6 +147,31 @@ def timing(df) -> dict:
     return {int(y): r.to_dict() for y, r in t.iterrows()}
 
 
+def period_flags(df) -> dict:
+    """Period-sanity guard (nq.data.results_xbrl.period_sanity), all rows:
+    flagged-row counts by reason x broadcast year (a row with two reasons counts under each);
+    lag_days = broadcast date - period_end: median / p95 / max for current Q rows and FY rows;
+    the 20 worst rows by |lag_days| among flagged rows, with symbol, period, broadcast, chosen context."""
+    y = df.broadcast_ts.dt.year
+    fl = df["period_flag"].fillna("").str.split(";").explode()
+    fl = fl[fl != ""]
+    by = pd.crosstab(fl, y.loc[fl.index]) if len(fl) else pd.DataFrame()
+    lag = {}
+    for name, m in {"Q_current": (df.period_type == "Q") & (df.context_role == "current"),
+                    "FY": df.period_type == "FY"}.items():
+        x = df.loc[m, "lag_days"].dropna()
+        lag[name] = {"n": int(len(x)), "median": float(x.median()), "p95": float(x.quantile(0.95)),
+                     "max": float(x.max()), "min": float(x.min())} if len(x) else {"n": 0}
+    f = df[df.period_flag.notna()]
+    worst = f.assign(a=f.lag_days.abs()).sort_values("a", ascending=False).head(20)
+    cols = ["symbol", "period_start", "period_end", "period_type", "context_role", "context_id", "current_rule",
+            "broadcast_ts", "lag_days", "period_flag", "is_revision", "consolidated"]
+    return {"rows": int(len(df)), "flagged_rows": int(df.period_flag.notna().sum()),
+            "neg_lag_pct": round(100 * float((df.lag_days < 0).mean()), 3),
+            "by_reason_year": {r: {int(k): int(v) for k, v in row.items()} for r, row in by.iterrows()},
+            "lag_days": lag, "worst20": worst[cols].astype(str).to_dict("records")}
+
+
 def bridge_symbols(df):
     """Membership uses today's tickers; filings carry the ticker of their day. Map each row's ISIN to the
     latest symbol that ISIN files under in the full NSE listing (2019..2026) -> column symbol_latest.
@@ -174,7 +199,7 @@ def main():
            "quarter_completeness_raw_symbol": completeness(raw[raw.context_role == "current"], U),
            "quarter_completeness": completeness(br[br.context_role == "current"], U),
            "parse_failures": parse_failures(cur), "eps_sanity": eps_sanity(df), "cross_check_depth": cross_check(df),
-           "revisions": revisions(df), "broadcast_timing": timing(df)}
+           "revisions": revisions(df), "period_sanity": period_flags(df), "broadcast_timing": timing(df)}
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(res, indent=1, default=str), encoding="utf-8")
     print(json.dumps(res, indent=1, default=str))
