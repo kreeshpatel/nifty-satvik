@@ -329,6 +329,61 @@ def _exit_plan(entry, stop, sma44, exit_cfg=None):
     return {"entry_pattern": "44-week SMA pullback", "tranches": tranches}
 
 
+# FORWARD STOP RECORD (engineering, owner-approved 2026-11-19; diagnostics/research/explore/
+# 2026-11-19_stop_conformance_and_fall_discriminator.md, fix option 1). Every trade's ENGINE stop, and for a
+# closed trade how its exit was triggered and filled, is written by the scan that produced it to its own file,
+# results/stop_record_weekly.json, which archive_weekly_snapshot.py snapshots so the value is kept as of the
+# event. Before this, 39 of 58 history rows had no engine stop, so the attribution ledger inferred the R
+# denominator from return / R, and 15 trades disagreed with their cards.
+# It is a SEPARATE file on purpose: signals_history_weekly.json is pinned byte-for-byte by the golden master
+# (tests/test_r94_golden.py, sig_hist_hash), and this record must not move it. Observation only: no signal,
+# stop, exit or card value reads these fields.
+# How each exit reason is triggered in the engine (run_bhanushali_weekly_rank.py):
+#   weekly_close   - stop / stop_part / sma_break / pattern / time: decided on the week's last close (:1118 ff.),
+#                    filled at the next session's open (:868)
+#   intraday_limit - targets: resting +2R / runner-cap limits filled at the level during the session
+#   absent_bars    - stale: force-closed at the last traded price after N absent sessions
+#   none           - eos (marked at the end of the data, not an exit)
+STOP_RECORD_FILE = "stop_record_weekly.json"
+_TRIGGER_BASIS = {"targets": "intraday_limit", "stale": "absent_bars", "eos": None}
+
+
+def _stop_record(*, engine_stop, reason: str | None = None, exit_date=None, exit_px=None, dates=None) -> dict:
+    """The engine-side stop/exit fields for one trade (see the block comment above)."""
+    out = {"engine_stop": None if engine_stop is None or engine_stop != engine_stop else round(float(engine_stop), 2),
+           "engine_stop_source": "recorded", "exit_trigger_date": None, "exit_trigger_basis": None,
+           "exit_fill_date": None, "exit_fill_price": None}
+    if reason is None:                                     # an open position: no exit yet
+        return out
+    basis = _TRIGGER_BASIS.get(reason.replace("_half", ""), "weekly_close")
+    xd = pd.Timestamp(exit_date).normalize() if exit_date is not None else None
+    trig = None
+    if basis == "weekly_close" and xd is not None and dates is not None and len(dates):
+        prior = pd.DatetimeIndex(dates).normalize()
+        prior = prior[prior < xd]
+        trig = str(prior[-1].date()) if len(prior) else None
+    elif basis in ("intraday_limit", "absent_bars") and xd is not None:
+        trig = str(xd.date())
+    out.update(exit_trigger_date=trig, exit_trigger_basis=basis,
+               exit_fill_date=str(xd.date()) if (xd is not None and basis is not None) else None,
+               exit_fill_price=round(float(exit_px), 2) if (exit_px is not None and basis is not None) else None)
+    return out
+
+
+def stop_record_rows(P, out, ledger, generated_at: str) -> list[dict]:
+    """One row per trade of the uncapped tracker (the same population as signals_history_weekly.json)."""
+    rows = []
+    for r in ledger:
+        rows.append({"ticker": r["tkr"], "signal_date": str(r["entry_date"])[:10], "written_at": generated_at,
+                     **_stop_record(engine_stop=r.get("stop0"), reason=str(r.get("reason")), exit_date=r.get("exit_date"),
+                                    exit_px=r.get("exit_px"), dates=(P.get(r["tkr"]) or {}).get("dates"))})
+    for t, p in (out.get("open_positions") or {}).items():
+        ed = str(p["rec"]["entry_date"])[:10] if "rec" in p else None
+        rows.append({"ticker": t, "signal_date": ed, "written_at": generated_at,
+                     **_stop_record(engine_stop=_active_stop(p))})
+    return rows
+
+
 def _record_stop(entry: float, week_low: float) -> float:
     """The stop the RECORD will actually use for a fill at ``entry`` — constitution D5 parity.
 
@@ -1550,6 +1605,8 @@ def main(argv=None) -> int:
                   f"entry {_d['entry']} stop {_d['stop']} ({_d['stop_distance_pct']}% apart)", flush=True)
     (sd / "signals_today_weekly.json").write_text(json.dumps(envelope, indent=2, default=str), encoding="utf-8")
     (sd / "signals_history_weekly.json").write_text(json.dumps(sig_hist, indent=2, default=str), encoding="utf-8")
+    (sd / STOP_RECORD_FILE).write_text(json.dumps(stop_record_rows(P, out_all, led_all, generated_at), indent=2,
+                                                  default=str), encoding="utf-8")
     (sd / "signal_analytics_weekly.json").write_text(json.dumps(analytics, indent=2, default=str), encoding="utf-8")
     (sd / "paper_portfolio_weekly.json").write_text(json.dumps(portfolio, indent=2, default=str), encoding="utf-8")
     hist_df.to_csv(sd / "portfolio_history_weekly.csv", index=False)

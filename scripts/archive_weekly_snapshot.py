@@ -51,6 +51,7 @@ SNAPSHOT_FILES = (
     "paper_portfolio_weekly.json",
     "portfolio_history_weekly.csv",
     "weekly_review_scorecard.json",
+    "stop_record_weekly.json",      # the engine's stop / exit trigger / fill per trade (2026-11-19), kept as of the event
 )
 
 

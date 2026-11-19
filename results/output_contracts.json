@@ -34,6 +34,7 @@
       ],
       "must_update_if_produced": [
         "results/cards_archive.jsonl",
+        "results/stop_record_weekly.json",
         "results/base_swing_forward.json",
         "results/shadow_exit_forward.json",
         "results/data_quarantine.json",

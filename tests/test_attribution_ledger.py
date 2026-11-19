@@ -353,3 +353,52 @@ def test_an_erased_trade_is_declared_by_name_and_only_it_is_excused():
 
 def test_the_live_ledger_names_the_erased_trade(built):
     assert any("HEG:2026-07-24" in n and "ERASED" in n for n in C.notes(built))
+
+
+# --------------------------------------------------------------------------- forward stop record (2026-11-19)
+def _row(**kw):
+    base = {"trade_id": "X:2026-11-21", "ticker": "X", "signal_date": "2026-11-21", "as_of_snapshot": "2026-11-21",
+            "state": "open", "entry": 100.0, "stop": 92.0, "stop_width_pct": 8.0, "status": "ACTIVE",
+            "exit_reason": None, "r_multiple": None, "engine_stop": 92.0, "engine_stop_source": "recorded"}
+    base.update(kw)
+    return pd.DataFrame([base])
+
+
+def test_a_new_forward_row_without_the_engine_stop_fails_validation():
+    """Owner 2026-11-19: every forward row must carry the engine's own stop, written at the time of the event."""
+    holes = C.holes(_row(engine_stop=None, engine_stop_source=None))
+    assert any("without a RECORDED engine stop" in h for h in holes)
+
+
+def test_an_inferred_engine_stop_on_a_new_forward_row_also_fails():
+    holes = C.holes(_row(engine_stop=91.5, engine_stop_source="inferred"))
+    assert any("without a RECORDED engine stop" in h for h in holes)
+
+
+def test_a_recorded_engine_stop_passes_and_old_rows_may_stay_inferred():
+    assert not any("RECORDED engine stop" in h for h in C.holes(_row()))
+    old = _row(as_of_snapshot="2026-10-01", signal_date="2026-10-01", trade_id="X:2026-10-01",
+               engine_stop=91.5, engine_stop_source="inferred")
+    assert not any("RECORDED engine stop" in h for h in C.holes(old))
+
+
+def test_backfill_prefers_the_archive_and_never_overwrites_it_with_an_inference():
+    arch = {("X", "2026-10-01"): {"engine_stop": 90.0, "engine_stop_source": "archive_active_row"}}
+    got = C._engine_stop_fields(arch, {}, "X", "2026-10-01", entry=100.0, width_engine=5.0)
+    assert got["engine_stop"] == 90.0 and got["engine_stop_source"] == "archive_active_row"
+    inf = C._engine_stop_fields({}, {}, "X", "2026-10-01", entry=100.0, width_engine=5.0)
+    assert inf["engine_stop"] == 95.0 and inf["engine_stop_source"] == "inferred"
+    none = C._engine_stop_fields({}, {}, "X", "2026-10-01", entry=100.0, width_engine=None)
+    assert none["engine_stop"] is None and none["engine_stop_source"] is None
+
+
+def test_the_cron_writes_trigger_and_fill_for_a_weekly_close_stop():
+    import run_bhanushali_cron as CR
+    dates = pd.to_datetime(["2026-11-12", "2026-11-13", "2026-11-16"])
+    rec = CR._stop_record(engine_stop=92.004, reason="stop", exit_date="2026-11-16", exit_px=90.5, dates=dates)
+    assert rec == {"engine_stop": 92.0, "engine_stop_source": "recorded", "exit_trigger_date": "2026-11-13",
+                   "exit_trigger_basis": "weekly_close", "exit_fill_date": "2026-11-16", "exit_fill_price": 90.5}
+    opn = CR._stop_record(engine_stop=92.0)
+    assert opn["engine_stop"] == 92.0 and opn["exit_fill_date"] is None and opn["exit_trigger_basis"] is None
+    tgt = CR._stop_record(engine_stop=92.0, reason="targets", exit_date="2026-11-16", exit_px=116.0, dates=dates)
+    assert tgt["exit_trigger_basis"] == "intraday_limit" and tgt["exit_trigger_date"] == "2026-11-16"
