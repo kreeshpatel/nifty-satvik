@@ -520,3 +520,11 @@ stress by construction, and the failure on all three books is driven by that fre
 - S7 resamples whole calendar years i.i.d.; the higher swing and blend medians are sampling, not a property of the
   books.
 - S5 on swing halves the impact threshold. The engine has no participation cap.
+
+## Owner decisions, 2026-11-19 (third)
+
+1. **S6 stays as recorded; no re-run.** Note on its severity: hitting 1% of held-name days at −8.46% is roughly
+   **2.5 extra severe gaps per name per year** (1% × about 250 sessions), added on top of the real gaps already in the
+   price data. **S6 is severe by construction.**
+2. **0001 N2 (Amendment 2, z −3.39) stays a January note.** No N4-style check on 0001.
+3. **January dossier:** option (i) is recorded as the lead quant's recommendation. The owner decides in January.

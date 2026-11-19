@@ -92,6 +92,14 @@ Swing's worst shock is S6 (a gap shock), with Sharpe 0.29. Every other shock kee
 | **(ii) Retire swing; keep 0001 on paper** | The swing book stops; the blend can no longer be built as 70/30. 0001 continues as a forward challenger. | Loses the swing forward record. The evidence: alpha −3.08% (t −0.45) and permutation p 0.09/0.13; harness per §2a. 0001's own deflated test also fails (t 0.44 vs 3.57). |
 | **(iii) Status quo** | No change. | The mission's own test is unmet: 0 of 28 rolling windows; after tax, the blend trails static by 4.89pp at the cap. Owner time continues on two books with no deflated evidence of edge [measured, §1–3]. |
 
+**Lead quant's recommendation (recorded 2026-11-19): option (i).** The owner decides in January.
+
+**Notes carried to January:**
+- **0001 N2 harness check (Amendment 2).** The gap is −0.58pp a year at z −3.39. No N4 check was run on 0001, by
+  owner decision. Source: `diagnostics/research/explore/2026-11-19_stress_suite_controls_a2.json`.
+- **S6 gap shock.** Severe by construction: about 2.5 extra −8.46% gaps per name per year, on top of the real ones.
+  It is the worst shock for all three books. Source: `diagnostics/research/2026-11-19_stress_suite.md`.
+
 ## 6. Proposed gate for new candidates (draft for the owner's decision)
 
 1. **Before any trial:** gross alpha over a beta-matched static mix (index fund + cash at the candidate's own beta),
