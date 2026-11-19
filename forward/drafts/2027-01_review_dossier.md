@@ -54,7 +54,18 @@ statistic: the share of placebo seeds whose Sharpe is at least the strategy's. A
 not in the placebo Sharpe. [inferred]
 
 ### 2a. Harness result
-<!-- filled from the Step A / Step B result -->
+Stress-suite placebo checks, swing only. Harness validation, not a verdict on swing.
+[measured: `diagnostics/research/explore/2026-11-19_stress_suite_harness_step_a.json`,
+`diagnostics/research/explore/2026-11-19_stress_suite_harness_step_b_n4.json`]
+
+- **Step A, matched-fill baseline: fails.** Random entries run through swing's own exits earn +2.50pp a year (N1, z 4.27)
+  and +2.23pp a year (N2, z 3.65) more than an exposure-matched equal-weight universe.
+- **Step B (N4), random entries and random exits: passes.** Gap −1.47pp a year, z −1.74.
+- **Reading** (fixed before the run): swing's exits carry the excess, a property of the strategy, not a harness bias.
+  The harness is cleared for swing, and the shock table is released.
+
+Swing's worst shock is S6 (a gap shock), with Sharpe 0.29. Every other shock keeps at least 83% of the unshocked Sharpe.
+[measured: `diagnostics/research/explore/2026-11-19_stress_suite.json`]
 
 ## 3. Blend (70/30 0001/swing, vol-targeted)
 

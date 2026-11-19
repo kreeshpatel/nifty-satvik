@@ -1,0 +1,22 @@
+{
+ "spec": "post-hoc spec 3 (Harness Step A): matched-fill baseline; pass |z| < 3 on swing N1 and N2",
+ "N4off": {
+  "d_matched": {
+   "mean_ann_pct": -1.467,
+   "se_pct": 0.841,
+   "z": -1.74,
+   "pass_abs_z_lt_3": true
+  },
+  "d_a2": {
+   "mean_ann_pct": -1.468,
+   "se_pct": 0.84,
+   "z": -1.75,
+   "pass_abs_z_lt_3": true
+  },
+  "placebo_ann_pct": 22.0,
+  "baseline_matched_ann_pct": 23.46,
+  "baseline_a2_ann_pct": 23.46,
+  "n_seeds": 100
+ },
+ "passed": true
+}

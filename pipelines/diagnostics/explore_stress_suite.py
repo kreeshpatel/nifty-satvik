@@ -933,7 +933,10 @@ def report() -> None:
     tri = tri_series()
     G = gap_G()
     res = {"G_gap": json.loads((CACHE / "gap_G.json").read_text()), "target": TARGET, "n_paths": N_PATHS}
-    res["controls"] = controls()
+    res["controls"] = {"amendment_2": controls_a2()["verdict"], "harness_step_a": a3_report(("N1off", "N2off")),
+                       "harness_step_b_n4": a3_report(("N4off",)),
+                       "released_by": "Harness Step B (N4 passes, N2 fails -> swing exits carry the excess; owner rule)"}
+    res["s6_held_name_gap"] = held_gap_p1()
     bases = {b: _load(b, "base") for b in ("swing", "momentum")}
 
     def legs(scen):

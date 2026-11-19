@@ -442,3 +442,81 @@ by default.
 **Interpretation, fixed now:**
 - If N4 passes and N2 fails, swing's exits carry the excess, which is a property of the strategy.
 - If N4 also fails, the harness is biased and stays blocked for January.
+
+## Harness Step A (spec 3) — FAILS [measured, `explore/2026-11-19_stress_suite_harness_step_a.json`]
+
+All 200 regenerated cost-off runs (N1off, N2off × 100 seeds) reproduce the cached NAV **exactly**, so the fills logged
+here are the cached placebos' own fills.
+
+| swing control | gap, matched-fill baseline | z | gap, A2 convention (re-derived) | z |
+|---|---|---|---|---|
+| N1 | +2.50pp / yr (SE 0.58) | **4.27** | +2.62pp | 4.53 |
+| N2 | +2.23pp / yr (SE 0.61) | **3.65** | +2.35pp | 3.85 |
+
+Fill timing explains only about 0.12pp of the gap. **Step A fails**, so Step B was run.
+
+## Harness Step B (N4) — PASSES [measured, `explore/2026-11-19_stress_suite_harness_step_b_n4.json`]
+
+N4 is the swing placebo with random entries **and** random exits: holding periods drawn from the unperturbed ledger's
+67 closed-trade holding periods; costs off; 100 seeds.
+
+| control | placebo / yr | matched-fill baseline / yr | gap (SE) | z | \|z\| < 3 |
+|---|---|---|---|---|---|
+| N4 | 22.00% | 23.46% | −1.47pp (0.84) | −1.74 | **pass** |
+
+**Hook check, seed 0:**
+- All 62 closed trades exit as `n4_time`; 5 are still open at end-of-sample.
+- 67 trades, the same count as the real swing book.
+- The realised median hold is 77 days, against 98 in the pool. Long draws are cut off by the window end [inferred].
+  Disclosed.
+
+**Interpretation, as fixed before running:** N4 passes and N2 fails, so **swing's exits carry the excess**. A random
+entry run through swing's stop / SMA-break / tranche exits earns about +2.2 to +2.5pp a year over its exposure-matched
+universe; a random entry with random exits does not. That is a property of the strategy's exit rules, not a harness
+bias. **The harness is cleared for swing by Step B.**
+
+What stays open:
+- **0001 N2 under Amendment 2** (−0.58pp, z −3.39). Not part of the owner's swing-only harness step. Recorded; not
+  re-tested.
+- **Multiplicity.** Harness specifications on these placebos: Amendment 1, Amendment 2, spec 3 (Step A), and N4.
+  Pass/fail tests: 6 + 6 + 2 + 1 = **15**. n_trials is unchanged (harness checks).
+
+## Shock table — RELEASED, cleared by Harness Step B [measured, `explore/2026-11-19_stress_suite.json`]
+
+**What the cells show.** Median Sharpe vs cash over 20 paths; the change against the Nifty Midcap150 Momentum 50 TRI
+over the same window; the ratio to the unshocked median.
+
+**Pass rules (Step 0).**
+- A shock passes if the median Sharpe is ≥ 50% of the unshocked median.
+- For the blend, the median-path 156-week p95 drawdown must also be ≤ 25%.
+
+| shock | swing: Sharpe / vs TRI / ratio | 0001: Sharpe / vs TRI / ratio | blend 11%: Sharpe / vs TRI / ratio / p95 | pass (swing · 0001 · blend) |
+|---|---|---|---|---|
+| base | 1.253 / −0.355 / 1.00 | 1.129 / −0.020 / 1.00 | 1.981 / +0.373 / 1.00 / 22.2 | — |
+| S1 latency | 1.084 / −0.524 / 0.87 | 1.127 / −0.022 / 1.00 | 1.922 / +0.314 / 0.97 / 22.7 | ✓ ✓ ✓ |
+| S2 10% missed entries | 1.257 / −0.351 / 1.00 | 1.127 / −0.014 / 1.00 | 1.979 / +0.371 / 1.00 / 22.1 | ✓ ✓ ✓ |
+| S3 stops filled at the day's low | 1.041 / −0.567 / 0.83 | N/A, no stops (= base) | 1.941 / +0.333 / 0.98 / 23.1 | ✓ ✓ ✓ |
+| S4 costs ×3 | 1.130 / −0.478 / 0.90 | 0.947 / −0.207 / 0.84 | 1.774 / +0.166 / 0.90 / 23.4 | ✓ ✓ ✓ |
+| S5 ADV term ×0.5 | 1.197 / −0.412 / 0.96 | 1.129 / −0.020 / 1.00 | 1.963 / +0.355 / 0.99 / 22.2 | ✓ ✓ ✓ |
+| **S6 gap shock** | **0.288 / −1.320 / 0.23** | **0.168 / −0.971 / 0.15** | **0.801 / −0.807 / 0.40 / 31.8** | **✗ ✗ ✗** |
+| S7 calendar-year bootstrap | 1.368 / −0.533 / 1.09 | 1.121 / +0.029 / 0.99 | 2.161 / +0.314 / 1.09 / 21.7 | ✓ ✓ ✓ |
+
+**Worst shock per book: S6 for all three.**
+
+**S6 in numbers.**
+- The applied gap is G = 2 × the all-pairs 1st percentile = −8.46%.
+- Hits over the 20 paths: swing 2,082 (about 104 per path), 0001 14,731 (about 736 per path).
+- **Held-name 1st-percentile gap, beside the all-pairs −4.23%:**
+  - swing −3.13% (9,369 held pairs);
+  - 0001 −4.99% (approximate; trade spans, a few days double-counted).
+- So the shock is 2.7× swing's own held-name tail, and 1.7× 0001's.
+
+**S6 calibration artifact** [inferred]: S6 adds a −8.46% gap to 1% of held pairs **on top of** the real gaps already in
+the price data. At the 1% rate, that roughly doubles the frequency of tail gaps and doubles their size. It is a severe
+stress by construction, and the failure on all three books is driven by that frequency. **Not ruled out; disclosed.**
+
+**Other artifacts:**
+- S3 for swing averages 30.1 stop exits a path.
+- S7 resamples whole calendar years i.i.d.; the higher swing and blend medians are sampling, not a property of the
+  books.
+- S5 on swing halves the impact threshold. The engine has no participation cap.
