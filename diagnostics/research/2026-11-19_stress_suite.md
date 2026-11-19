@@ -387,3 +387,58 @@ A fresh `blind-replica` worked from the spec and the exported cost-off series on
 
 The replica notes that exposure is never zero (minimum 0.137), so the invested-day filter keeps every day. Both
 implementations start on 2019-03-05, the first return after the 2019-03-01 slice start.
+
+---
+
+## Owner decisions, 2026-11-19 (second)
+
+1. **Harness:** run Step A, then Step B, **swing only**, as HARNESS VALIDATION. This is not a verdict on swing.
+2. **0001 and swing both go to the January review.** No live change now.
+
+## Post-hoc spec 3 (Harness Step A) — stated before computing; under multiplicity; n_trials unchanged
+
+**What it does.** Recompute the swing N1/N2 baseline with the placebo's own fill convention, exposure-matched by day,
+from the cost-off twins. The gap and z are reported under both conventions.
+
+**Pass rule.** If |z| < 3 under matched fills on both N1 and N2, the harness passes for swing and the shock table is
+released.
+
+**Multiplicity.** This is the third harness specification on the same placebos: 2 controls on swing, so 14 tests in
+total across the specifications.
+
+**Inputs.** The cache holds each seed's NAV and exposure but not its fills. The identical cost-off runs are therefore
+regenerated with the engine's position log, event log and trade ledger kept. These are observation-only logs: the
+engine documents that they change nothing. **Each regenerated seed is accepted only if its daily NAV equals the cached
+NAV exactly;** any mismatch stops the step.
+
+**Matched-fill baseline for day t.** Weights are each position's value at the prior close over equity at the prior
+close. Three universe returns are used:
+- EW_cc: the equal-weight close-to-close return, as before;
+- EW_on: the overnight return, open_t / close_{t−1} − 1;
+- EW_id: the intraday return, close_t / open_t − 1.
+
+Each piece of the book is matched to the return it actually experienced:
+- **Held through the day:** w · EW_cc.
+- **Sold at the open** (full exits whose ledger reason is a queued exit: stop, stop_part, sma_break, time, stale; and
+  pattern-tranche sells): w_sold · EW_on.
+- **Sold intraday at a resting limit** (the +2R tranche; full exits with reason `targets`): w_sold · EW_cc. This is
+  approximate, because the fill is at the level, not the close. Disclosed.
+- **Entered at the open:** (shares × fill price / prior-close equity) · EW_id.
+
+b_t is the sum of these terms. d_k = (mean r − mean b) × 252 over the window, and z = mean(d) / (sd(d)/√100). The A2
+convention, b_t = x_{t−1} · EW_cc, is recomputed beside it on the same days.
+
+## Harness Step B (N4) — stated before running; only if Step A leaves |z| ≥ 3
+
+**The placebo.** Swing, 100 seeds. Random entries (the N2 generator) **and** random exits. Each trade's holding period is
+drawn, by a deterministic hash of (seed, ticker, entry date), from the unperturbed swing ledger's closed-trade holding
+periods in calendar days. The position is exited in full at the open of the first session on or after
+entry + holding period. Stops, tranches, pattern and SMA exits are all disabled. Same seats and engine; costs off, for
+comparability with the Amendment 2 and Step A tests. Implemented on the source-patched engine copy, with the hook off
+by default.
+
+**Test.** N4 against the matched-fill baseline (gap, z), with the same |z| < 3 bar.
+
+**Interpretation, fixed now:**
+- If N4 passes and N2 fails, swing's exits carry the excess, which is a property of the strategy.
+- If N4 also fails, the harness is biased and stays blocked for January.
