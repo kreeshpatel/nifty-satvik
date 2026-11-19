@@ -106,3 +106,147 @@ giveback unit. It is reported for each cohort, net, and per year.
   read. It is used as stored.
 
 **Blind replica.** Re-derives feature (a) for both cohorts from a written spec.
+
+---
+
+## Part 1 — results [measured, `explore/2026-11-19_live_stop_conformance.json`; `pipelines/diagnostics/explore_live_stop_conformance.py`]
+
+**Code path.** The live stop and the engine stop are **the same rule in code**:
+- live: `scripts/run_bhanushali_cron.py:596`, calling `_record_stop` at `:332`;
+- engine: `scripts/run_bhanushali_weekly_rank.py:1330` and `:1344-1345`.
+
+Both are max(signal-week low, entry × 0.90). The live config has touch origin only, so the engine's stop array is the
+signal-week low (`:394`), the same low the card uses. The only built-in difference is the reference price: the card uses
+the last close or the band midpoint (`run_bhanushali_cron.py:594`), the engine the actual fill. That matters only where
+the 10% cap binds.
+
+**Width gap per trade.** 60 trades have both widths.
+
+| | value |
+|---|---|
+| median live (card) width | 6.25% |
+| median engine width | 6.74% |
+| **median gap** | **0.00pp** |
+| trades with \|gap\| > 0.5pp | 15 of 60 (max 26.2pp, SIEMENS) |
+
+**What the 15 are.** Every one is a **two-source disagreement in the ledger**, not a rule divergence:
+- the engine width is inferred as return% / R from the engine history;
+- or the `stop_week_low` field disagrees with the card. GRAPHITE's card stop of 618.60 sits *below* its recorded week
+  low of 654.35, which `_record_stop` cannot produce. SIEMENS's implied engine width of 32% exceeds the 10% cap, which
+  the engine cannot produce.
+
+This is the defect class 0143 found (3 of 11 then). It persists because the forward record stores the engine's stop for
+only **19 of 58** rows in `results/signals_history_weekly.json`.
+
+**Root cause of 3.76% vs 8.85% (0143). Market geometry, not code** [measured]:
+
+| | n | median width | median signal-week range | median entry position in band | share at the 10% cap |
+|---|---|---|---|---|---|
+| historical 2019–24, all trades | 77 | 9.29% | 11.70% | 0.79 | 39% |
+| historical, stop losses | 32 | 8.01% | 10.31% | 0.78 | 28% |
+| live, with card band | 43 | 6.32% | **8.13%** | 0.80 | 16% |
+
+A swap on the medians (width ≈ range × position) gives:
+- historical range × historical position = 9.25;
+- **live range × historical position = 6.43**;
+- historical range × live position = 9.36.
+
+**The narrower live signal-week range accounts for the whole gap.** The entry position is unchanged, and the cap binds
+less often because the ranges are narrower. 0143's 3.76% figure was the first 11 live trades; the full live set's
+median is 6.32%.
+
+**Fills beyond the stop** (33 stop exits; per-trade list in the JSON):
+
+| | value |
+|---|---|
+| exits filled beyond the stop | **30 of 33** |
+| median slippage | **−2.39% / −0.20R** |
+| worst | −7.80% / −3.53R |
+| gap-through share | 76% |
+| **stop order type** | **none.** A modelled market exit at the next session's open (pending exit, `run_bhanushali_weekly_rank.py:868`). A grep for GTT / SL-M / place_order finds only a comment on the unused disaster floor (`:977`). |
+| **trigger basis** | **close basis, weekly.** `run_bhanushali_weekly_rank.py:1118` checks `if wc <= p["stop"]` on the week's last close; there is no intraday trigger. |
+
+The overshoot is structural: a close-basis weekly trigger fills at the next open, below the level.
+
+**Fix options. None is proposed; each is listed with what it changes.**
+1. **Store the engine's own stop0 and fill on every forward row**, and have the ledger read them instead of inferring
+   from return/R. *Changes:* ledger provenance only. Closes the 15 two-source mismatches. No trading change, no
+   re-anchor.
+2. **Print the card stop at the expected fill** (the next open) rather than the last close. *Changes:* card-to-record R
+   parity where the cap binds. Same rule; display only.
+3. **Rest a broker stop order (GTT/SL-M) at the stop level.** *Changes:* trigger basis from weekly close to intraday,
+   which is a **rule change** (0105 hard-stop KILL, `FINDING_hard_stop`). It would need a pre-registered trial and,
+   under the 2026-08-08 amendment, a re-test under the current harness.
+4. **Nothing for the width itself.** The gap is narrower signal weeks, not code. Changing it means changing the stop
+   rule, an axis with 0105/0106/0109 bounds on record.
+
+## Part 2 — results [measured, `explore/2026-11-19_fall_discriminator.json`; `pipelines/diagnostics/explore_fall_discriminator.py`]
+
+**Population.**
+- Labelled train cohorts: noise_stop 391, false_touch 314.
+- **39 rows dropped by the sealed-safety cut** (stop after 2024-06-30). Used: **noise_stop 367, false_touch 299**.
+- The latest stop time read is 2024-06-28.
+- 13.7% of trades use the M150 fallback for the sector index. The median drawdown leg is 17 sessions.
+
+Differences are false_touch − noise_stop, two-sample cluster bootstrap on ticker, 2,000 draws:
+
+| feature (at stop time) | noise_stop mean | false_touch mean | diff [95% CI] | excludes 0 | 99% CI (5-feature Bonferroni; added after first look) |
+|---|---|---|---|---|---|
+| a) leg return − β·M150 leg | −12.86% | −12.06% | +0.80pp [−0.87, +2.59] | no | [−1.34, +3.17] |
+| b) leg return − β·sector leg (**SECTOR_MAP not PIT**) | −12.73% | −11.51% | +1.22pp [−0.50, +3.14] | no | [−1.02, +3.73] |
+| c) market share of the leg's variance | 0.236 | 0.174 | −0.062 [−0.117, −0.005] | **yes (95%)** | **[−0.132, +0.011], straddles** |
+| d) delivery % on the stop day / 60-day median | 1.065 | 1.060 | −0.005 [−0.047, +0.037] | no | [−0.056, +0.050] |
+| e) results meeting within 5 sessions up to the stop | 6.8% | 16.4% | **+9.6pp [+4.7, +14.4]** | **yes** | **[+3.2, +15.8], survives** |
+
+**Kill rule as pre-stated.** Two CIs exclude zero, (c) and (e), so the domain is **not** closed.
+
+**Candidates for the January exploration lane:**
+- **(e)**: a false touch is 2.4× as likely as a noise stop to have had a results meeting in the 5 sessions before the
+  stop. It survives the 5-feature multiplicity check.
+- **(c)**: marginal. It does not survive the 99% check, so it is flagged as weak.
+
+No book backtest was run.
+
+**Registry confrontation (cite and narrow).** `program-laws` Law V (0117) says the two cohorts are indistinguishable at
+stop time **on price-path features**.
+- Features (a), (b) and (d) **agree with Law V**: market-adjusted, sector-adjusted and delivery readings are null.
+- (e) is an **event** feature, not a price-path one. It narrows Law V rather than overturning it.
+- (e) is adjacent to 0120 (earnings proximity costs −0.383R, screen pass). That cost proved decision-margin-negative as
+  a deferral rule (0121, −15.72 R/yr) and as sizing (0129). Per the 2026-08-08 amendment, those are evidence about their
+  rules and set priority; they do not close (e).
+
+**Hindsight bound for feature (a)**, per the pre-stated rule. Pooled SD of (a) = 11.6%. Keeping the stop only when
+|a| ≤ 1 SD skips 274 stops (noise 146, false 128).
+
+| | R |
+|---|---|
+| noise_stop, recovered | +145.4R |
+| false_touch, further loss | −105.2R |
+| **net, over 5.5 years** | **+40.2R (about +7.3R a year)** |
+
+By stop year: 2019 −1.8, 2020 −19.3, 2021 +15.6, 2022 +7.8, 2023 +13.2, 2024H1 +24.7. The sign flips across years.
+**This is hindsight twice over** (the labels and `post_ret21` both look past the stop), and it is an upper bound for
+this rule. Even so, it sits **under the ±10 R/yr floor** [inferred]. Feature (a) itself does not separate the cohorts.
+
+### Artifact check
+
+1. **Multiplicity:** 5 features. Handled by the 99% check, which was added after first look. Only (e) survives.
+2. **Sector map not PIT** (b). Present-day `config.SECTOR_MAP`, survivorship-coloured. **Not ruled out**; (b) is null
+   anyway.
+3. **Results date proxy** (e). The board-meeting `event_date` is used as the results day [assumed]. A meeting held
+   after the stop day by up to 0 sessions is excluded by construction; the window ends at the stop time. Results
+   released after market hours on the meeting day are counted on that day. **Not ruled out.**
+4. **Label leakage.** The cohorts are defined by post-exit paths, but every feature uses bars ≤ the stop time
+   (firewall). The 39 rows with a stop after the cut are dropped. **Ruled out for the features. Not ruled out for the
+   hindsight bound**, which is labelled as such.
+5. **Clustering.** The cluster bootstrap on ticker handles repeated names. Time clustering (several stops in one
+   market drawdown) is not handled. **Not ruled out**: (c) in particular could reflect a few market-wide selloffs.
+
+### Owner decisions (queued task)
+
+1. **Screen accounting.** Does Part 2 count as screen #25 under `verdict-machine`? It was run in the exploration tier on
+   your instruction, so the counts are unchanged.
+2. **January exploration lane.** Should (e), the results-proximity false-touch feature, go into the lane, given that
+   0121 and 0129 found the event cost decision-margin-negative as a deferral and as sizing? (c) is flagged as weak.
+3. **Stop-record fix, option 1** (store the engine's stop0 and fill on every forward row). It is engineering only and
+   needs your word. Options 2 to 4 are listed for information.
