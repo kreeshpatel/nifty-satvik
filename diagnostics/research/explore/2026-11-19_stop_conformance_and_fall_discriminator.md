@@ -360,3 +360,12 @@ a pre-registered run under the current harness.
    +2R / pattern tranches are ignored. Disclosed.
 3. **Mark-to-cut.** 7 holds have no exit by 2024-06-28 and are marked there. CUMMINSIND is one of them.
 4. **Units.** R is the uncapped substrate's, not the capped book's R per year.
+
+## Stop-record fix (option 1) — engineering PR
+
+[kreeshpatel/nifty-satvik#216](https://github.com/kreeshpatel/nifty-satvik/pull/216) (`eng/forward-stop-record`, not merged).
+- Every scan writes `results/stop_record_weekly.json`: the engine stop, exit trigger date and basis, and fill date and
+  price. The archive snapshots it.
+- The ledger back-fills from the archives only (26 `archive_active_row`, 21 `inferred`, marked).
+- `--validate` fails any new forward row without a recorded engine stop.
+- `signals_history_weekly.json` and the golden master are untouched.
