@@ -169,3 +169,54 @@ identity check).
   costs it is not significant: t 1.86 and 1.80.
 - **Swing:** negative alpha, not significant: t about −0.5.
 - **No book has a significant net-of-cost alpha** at |t| ≥ 2, before tax.
+
+### Step 3 — independent re-derivation [measured]
+
+A fresh `blind-replica` worked from the written spec and two exported price files only, with no code. Spec, code and
+result are in `2026-11-19_static_long_window_alpha_replica/`.
+
+| quantity | replica | pipeline | gap |
+|---|---|---|---|
+| 60/40, 2017–26: after-tax CAGR | 15.640 | 15.64 | 0 |
+| 60/40: p95 156w DD | 23.988 | 23.99 | 0 |
+| 60/40: total tax | ₹7,61,121 | ₹7,61,121 | 0 |
+| blend net, alpha / yr | 2.710% | 2.71% | 0 |
+| blend net, beta | 0.5358 | 0.536 | 0 |
+| blend net, NW t (lag 8) | 0.747 | 0.75 | 0 |
+| blend net, R² | 0.6545 | 0.654 | 0 |
+| beta-matched mix CAGR | 20.817 | 20.82 | 0 |
+
+The replica flagged its own readings of the spec: buy cost charged on top of the trade, a partial first week kept,
+and the first return week used for the years count. The pipeline makes the same choices, so the match confirms the
+arithmetic under those readings. Its alternative gain basis (costs counted in the basis) moves tax by about ₹38.
+
+## Artifact check
+
+1. **The cap is one bootstrap of one 9.5-year history.** 60/40 passes at 23.99 and 65/35 fails at 26.04. The cut sits
+   between two adjacent 5pp cells. **Disclosed;** the 0.05 grid is the stated resolution.
+2. **The sub-periods are short.** 2 years (about 100 weekly returns) resampled to 156-week paths. **Reported, not used
+   to rank.** Both readings, slice and fresh capital, are shown.
+3. **Alpha is pre-tax.** After tax, the blend's 2.7% net alpha does not survive: in #215 the blend loses 4.89pp to
+   65/35 after tax [measured there]. **Disclosed;** the request specified pre-tax.
+4. **Single path and window for Step 2.** 2019-03..2024-06 is a strong momentum window: 0001 makes 43% a year in it,
+   against 21.7% over its full run. 0001's gross t of 2.29 is one window's statistic. **Not ruled out.**
+5. **Alpha is measured against the investable benchmark.** The index fund carries its 0.30% TER. Against the raw TRI
+   every alpha is 0.2–0.3pp lower, and no sign or significance call changes.
+6. **The blend's beta-matched mix uses a 6.5% cash rate.** The real arbitrage leg earned 6.38%, which would shift the
+   mix CAGR by about −0.06pp at beta 0.54 [inferred]. Immaterial.
+
+**Added after first look:** none.
+
+## Owner decisions
+
+1. **The fallback mix.**
+   - Options: (a) 60/40 index/arbitrage, the highest mix that passes on 2017–26, which matches the 60% fallback draft;
+     (b) 65/35, the best at the cap on 2019–24 only; (c) a lower mix, which the 2024–26 sub-period would favour (only
+     ≤ 45/55 passes on its slice).
+   - Evidence: 60/40 gives 15.64% after tax at p95 23.99 on the long window.
+2. **0001's standing.** Its gross alpha is significant on this window (t 2.29) but does not survive costs (t 1.86), and
+   the full 2017–26 run is 21.73% against 43% in-window.
+   - Options: (a) keep it as a paper challenger; (b) measure its alpha on 2017–2026 (the 0001 run of record is
+     already unsealed there).
+3. **The blend.** Its net alpha is +2.7%/yr, not significant (t 0.75), and negative after tax relative to the static
+   mixes. The 2026-11-18 decision stands: forward challenger only.
