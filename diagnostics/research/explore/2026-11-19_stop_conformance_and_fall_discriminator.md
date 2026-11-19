@@ -312,3 +312,51 @@ net.
 **Kill rule (owner, fixed now).** If **R per year is under 10**, or the **per-year sign flips in 2 or more of the 6 years**
 (a year whose net sign is opposite to the total), the **stop domain closes for this book**, written into this report.
 **No book backtest.**
+
+## (e) hindsight bound — result [measured, `explore/2026-11-19_results_stop_bound.json`; `pipelines/diagnostics/explore_results_stop_bound.py`]
+
+**Stops with a results meeting in the 5 sessions up to the stop:**
+
+| cohort | flagged / total | 2019 | 2020 | 2021 | 2022 | 2023 | 2024H1 |
+|---|---|---|---|---|---|---|---|
+| false_touch | **49 / 299** | 8 | 4 | 7 | 24 | 3 | 3 |
+| noise_stop | **25 / 367** | 5 | 1 | 6 | 3 | 4 | 6 |
+
+**Each flagged stop held to the eventual exit** (74 trades). The primary hold uses the runner's 44-week SMA break,
+marked to the cut. How the 74 holds ended:
+- 39 **exit the same week**: the stop week already closes below the 44-week SMA, so 0R is recoverable;
+- 28 exit at a later SMA break;
+- 7 are marked to the cut.
+
+| | primary: eventual exit | secondary: banked 21-session path |
+|---|---|---|
+| total R | **+116.3** | −2.1 |
+| R per year (5.5 years) | **+21.1** | −0.4 |
+| noise_stop / false_touch | +143.6 / −27.3 | +54.9 / −56.9 |
+| by year 2019 · 20 · 21 · 22 · 23 · 24H1 | −4.8 · −3.0 · **+109.2** · −14.8 · +15.9 · +13.8 | +0.3 · −9.3 · +9.7 · −24.9 · +7.5 · +14.7 |
+| years with sign opposite to the total | **3 of 6** | 4 of 6 |
+| worst single trade | SUPRAJIT, false_touch, 2022-02-11: **−6.88R** | the same trade, −5.71R |
+
+**Concentration** (primary):
+- **One trade carries 74% of the total.** CUMMINSIND, a 2021 noise stop held to the cut, contributes +85.8R.
+- The top 3 trades carry 99%.
+- Without CUMMINSIND the primary bound is about +5.5R a year [inferred: (116.3 − 85.8) / 5.5].
+
+### Verdict under the owner's kill rule
+
+**KILL RULE MET: the stop domain closes for this book.**
+- Primary: R per year is +21.1, which clears the 10 floor, but the per-year sign flips in **3 of 6 years** (the rule
+  closes at 2 or more).
+- The secondary reading fails both legs: −0.4R a year and 4 flips.
+- The primary's floor clearance rests on a single trade.
+
+This is a closure by the owner's pre-stated rule, applied to a hindsight bound. Per the 2026-08-08 amendment, the
+closure is recorded as **"stop domain closed for this book by owner rule (screen #25 bound)"**. Re-opening it would take
+a pre-registered run under the current harness.
+
+**Artifacts:**
+1. **Hindsight.** The cohort labels and the hold path both look past the stop. This is an upper bound.
+2. **Eventual-exit approximation.** ISO-week closes and the 44-week SMA are recomputed from adjusted closes, and the
+   +2R / pattern tranches are ignored. Disclosed.
+3. **Mark-to-cut.** 7 holds have no exit by 2024-06-28 and are marked there. CUMMINSIND is one of them.
+4. **Units.** R is the uncapped substrate's, not the capped book's R per year.

@@ -1,0 +1,903 @@
+{
+ "counts_flagged_by_cohort_year": {
+  "false_touch": {
+   "flagged": 49,
+   "total": 299,
+   "by_year": {
+    "2019": 8,
+    "2020": 4,
+    "2021": 7,
+    "2022": 24,
+    "2023": 3,
+    "2024": 3
+   }
+  },
+  "noise_stop": {
+   "flagged": 25,
+   "total": 367,
+   "by_year": {
+    "2019": 5,
+    "2020": 1,
+    "2021": 6,
+    "2022": 3,
+    "2023": 4,
+    "2024": 6
+   }
+  }
+ },
+ "n_flagged": 74,
+ "exit_rule_mix_primary": {
+  "sma_break_same_week": 39,
+  "sma_break": 28,
+  "mark_to_cut": 7
+ },
+ "primary_eventual_exit": {
+  "total_R": 116.3,
+  "R_per_year": 21.14,
+  "by_cohort": {
+   "false_touch": -27.3,
+   "noise_stop": 143.6
+  },
+  "by_year": {
+   "2019": -4.8,
+   "2020": -3.0,
+   "2021": 109.2,
+   "2022": -14.8,
+   "2023": 15.9,
+   "2024": 13.8
+  },
+  "years_with_sign_opposite_to_total": 3,
+  "worst_trade": {
+   "ticker": "SUPRAJIT",
+   "cohort": "false_touch",
+   "stop_time": "2022-02-11",
+   "dR": -6.88
+  },
+  "kill": true
+ },
+ "secondary_banked_21s": {
+  "total_R": -2.1,
+  "R_per_year": -0.38,
+  "by_cohort": {
+   "false_touch": -56.9,
+   "noise_stop": 54.9
+  },
+  "by_year": {
+   "2019": 0.3,
+   "2020": -9.3,
+   "2021": 9.7,
+   "2022": -24.9,
+   "2023": 7.5,
+   "2024": 14.7
+  },
+  "years_with_sign_opposite_to_total": 4,
+  "worst_trade": {
+   "ticker": "SUPRAJIT",
+   "cohort": "false_touch",
+   "stop_time": "2022-02-11",
+   "dR": -5.71
+  },
+  "kill": true
+ },
+ "secondary_basis_mix": {
+  "banked_post_ret21": 72,
+  "marked_to_cut": 2
+ },
+ "verdict": "KILL RULE MET: the stop domain closes for this book",
+ "per_trade": [
+  {
+   "ticker": "PRAJIND",
+   "cohort": "false_touch",
+   "year": 2019,
+   "stop_time": "2019-07-26",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2019-07-29",
+   "dR_secondary_21s": -0.3932,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "ASIANPAINT",
+   "cohort": "noise_stop",
+   "year": 2019,
+   "stop_time": "2019-05-10",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2019-05-13",
+   "dR_secondary_21s": 1.5336,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "GRINDWELL",
+   "cohort": "false_touch",
+   "year": 2019,
+   "stop_time": "2019-07-26",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2019-07-29",
+   "dR_secondary_21s": -0.4394,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "ABB",
+   "cohort": "false_touch",
+   "year": 2019,
+   "stop_time": "2019-07-26",
+   "dR_primary": -0.53,
+   "exit_rule": "sma_break",
+   "hold_date": "2019-08-05",
+   "dR_secondary_21s": -0.8079,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "TCS",
+   "cohort": "noise_stop",
+   "year": 2019,
+   "stop_time": "2019-10-11",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2019-10-14",
+   "dR_secondary_21s": 1.396,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "DCMSHRIRAM",
+   "cohort": "false_touch",
+   "year": 2019,
+   "stop_time": "2019-07-26",
+   "dR_primary": -0.9885,
+   "exit_rule": "sma_break",
+   "hold_date": "2019-08-05",
+   "dR_secondary_21s": -0.9892,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "RBLBANK",
+   "cohort": "false_touch",
+   "year": 2019,
+   "stop_time": "2019-07-19",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2019-07-22",
+   "dR_secondary_21s": -4.1151,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "DRREDDY",
+   "cohort": "noise_stop",
+   "year": 2019,
+   "stop_time": "2019-08-02",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2019-08-05",
+   "dR_secondary_21s": 1.4589,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "AARTIIND",
+   "cohort": "false_touch",
+   "year": 2019,
+   "stop_time": "2019-08-16",
+   "dR_primary": -1.0196,
+   "exit_rule": "sma_break",
+   "hold_date": "2019-08-26",
+   "dR_secondary_21s": -0.3584,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "SOBHA",
+   "cohort": "noise_stop",
+   "year": 2019,
+   "stop_time": "2019-08-16",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2019-08-19",
+   "dR_secondary_21s": 1.0205,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "POWERGRID",
+   "cohort": "false_touch",
+   "year": 2019,
+   "stop_time": "2019-11-08",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2019-11-11",
+   "dR_secondary_21s": -1.2605,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "ZYDUSWELL",
+   "cohort": "false_touch",
+   "year": 2019,
+   "stop_time": "2019-11-15",
+   "dR_primary": 0.0177,
+   "exit_rule": "sma_break",
+   "hold_date": "2020-01-13",
+   "dR_secondary_21s": -0.5306,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "BAJAJFINSV",
+   "cohort": "noise_stop",
+   "year": 2019,
+   "stop_time": "2019-10-27",
+   "dR_primary": -2.295,
+   "exit_rule": "sma_break",
+   "hold_date": "2020-03-16",
+   "dR_secondary_21s": 3.7768,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "SIEMENS",
+   "cohort": "false_touch",
+   "year": 2020,
+   "stop_time": "2020-02-14",
+   "dR_primary": -1.4702,
+   "exit_rule": "sma_break",
+   "hold_date": "2020-03-02",
+   "dR_secondary_21s": -4.6578,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "COLPAL",
+   "cohort": "false_touch",
+   "year": 2020,
+   "stop_time": "2020-01-31",
+   "dR_primary": -0.493,
+   "exit_rule": "sma_break",
+   "hold_date": "2020-03-02",
+   "dR_secondary_21s": -1.2835,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "GESHIP",
+   "cohort": "false_touch",
+   "year": 2020,
+   "stop_time": "2020-02-14",
+   "dR_primary": -0.6289,
+   "exit_rule": "sma_break",
+   "hold_date": "2020-02-24",
+   "dR_secondary_21s": -2.7621,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "TORNTPHARM",
+   "cohort": "noise_stop",
+   "year": 2020,
+   "stop_time": "2020-10-30",
+   "dR_primary": 0.3247,
+   "exit_rule": "sma_break",
+   "hold_date": "2021-02-15",
+   "dR_secondary_21s": 0.8641,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "SANOFI",
+   "cohort": "false_touch",
+   "year": 2020,
+   "stop_time": "2020-10-30",
+   "dR_primary": -0.7324,
+   "exit_rule": "sma_break",
+   "hold_date": "2021-02-01",
+   "dR_secondary_21s": -1.4736,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "ARE&M",
+   "cohort": "noise_stop",
+   "year": 2021,
+   "stop_time": "2021-08-20",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2021-08-23",
+   "dR_secondary_21s": 0.244,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "VAIBHAVGBL",
+   "cohort": "false_touch",
+   "year": 2021,
+   "stop_time": "2021-05-14",
+   "dR_primary": -1.141,
+   "exit_rule": "sma_break",
+   "hold_date": "2021-10-04",
+   "dR_secondary_21s": -0.4391,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "LUPIN",
+   "cohort": "false_touch",
+   "year": 2021,
+   "stop_time": "2021-08-13",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2021-08-16",
+   "dR_secondary_21s": 0.0028,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "CUMMINSIND",
+   "cohort": "noise_stop",
+   "year": 2021,
+   "stop_time": "2021-05-28",
+   "dR_primary": 85.7867,
+   "exit_rule": "mark_to_cut",
+   "hold_date": "2024-06-28",
+   "dR_secondary_21s": 1.6371,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "LTF",
+   "cohort": "false_touch",
+   "year": 2021,
+   "stop_time": "2021-07-23",
+   "dR_primary": -0.643,
+   "exit_rule": "sma_break",
+   "hold_date": "2021-08-16",
+   "dR_secondary_21s": -1.195,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "BLUEDART",
+   "cohort": "noise_stop",
+   "year": 2021,
+   "stop_time": "2021-07-30",
+   "dR_primary": 1.8899,
+   "exit_rule": "sma_break",
+   "hold_date": "2022-02-28",
+   "dR_secondary_21s": 1.3433,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "DRREDDY",
+   "cohort": "false_touch",
+   "year": 2021,
+   "stop_time": "2021-07-30",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2021-08-02",
+   "dR_secondary_21s": 0.1201,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "WELCORP",
+   "cohort": "false_touch",
+   "year": 2021,
+   "stop_time": "2021-07-30",
+   "dR_primary": -0.8989,
+   "exit_rule": "sma_break",
+   "hold_date": "2021-08-16",
+   "dR_secondary_21s": -1.6558,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "ONGC",
+   "cohort": "noise_stop",
+   "year": 2021,
+   "stop_time": "2021-08-20",
+   "dR_primary": 13.7345,
+   "exit_rule": "sma_break",
+   "hold_date": "2022-05-30",
+   "dR_secondary_21s": 7.2865,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "NBCC",
+   "cohort": "false_touch",
+   "year": 2021,
+   "stop_time": "2021-08-13",
+   "dR_primary": -0.5931,
+   "exit_rule": "sma_break",
+   "hold_date": "2021-11-22",
+   "dR_secondary_21s": -0.0146,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "VENKEYS",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-02-04",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2022-02-07",
+   "dR_secondary_21s": -0.1904,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "WIPRO",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-04-29",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2022-05-02",
+   "dR_secondary_21s": -0.1903,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "AMBUJACEM",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-02-18",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2022-02-21",
+   "dR_secondary_21s": -0.4196,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "SONATSOFTW",
+   "cohort": "noise_stop",
+   "year": 2022,
+   "stop_time": "2022-05-06",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2022-05-09",
+   "dR_secondary_21s": 0.2026,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "ADANIENT",
+   "cohort": "noise_stop",
+   "year": 2021,
+   "stop_time": "2021-10-29",
+   "dR_primary": 15.2338,
+   "exit_rule": "sma_break",
+   "hold_date": "2023-01-30",
+   "dR_secondary_21s": 3.069,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "ASIANPAINT",
+   "cohort": "noise_stop",
+   "year": 2021,
+   "stop_time": "2021-10-22",
+   "dR_primary": -2.0012,
+   "exit_rule": "sma_break",
+   "hold_date": "2022-03-07",
+   "dR_secondary_21s": 1.5662,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "SAIL",
+   "cohort": "false_touch",
+   "year": 2021,
+   "stop_time": "2021-10-29",
+   "dR_primary": -2.1584,
+   "exit_rule": "sma_break",
+   "hold_date": "2021-11-29",
+   "dR_secondary_21s": -2.3026,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "IRCON",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-02-18",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2022-02-21",
+   "dR_secondary_21s": -0.1386,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "GRASIM",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-05-27",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2022-05-30",
+   "dR_secondary_21s": -0.3283,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "HAVELLS",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-01-21",
+   "dR_primary": -1.0755,
+   "exit_rule": "sma_break",
+   "hold_date": "2022-01-31",
+   "dR_secondary_21s": 0.243,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "ZEEL",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-02-04",
+   "dR_primary": -0.8199,
+   "exit_rule": "sma_break",
+   "hold_date": "2022-02-28",
+   "dR_secondary_21s": -0.4157,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "BRIGADE",
+   "cohort": "noise_stop",
+   "year": 2022,
+   "stop_time": "2022-05-13",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2022-05-16",
+   "dR_secondary_21s": 0.2908,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "SKFINDIA",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-02-11",
+   "dR_primary": -0.425,
+   "exit_rule": "sma_break",
+   "hold_date": "2022-05-02",
+   "dR_secondary_21s": -1.3224,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "FEDERALBNK",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-05-06",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2022-05-09",
+   "dR_secondary_21s": -0.3301,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "VOLTAS",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-05-06",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2022-05-09",
+   "dR_secondary_21s": -0.6187,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "SUPRAJIT",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-02-11",
+   "dR_primary": -6.8788,
+   "exit_rule": "sma_break",
+   "hold_date": "2022-02-21",
+   "dR_secondary_21s": -5.7117,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "PRIVISCL",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-05-06",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2022-05-09",
+   "dR_secondary_21s": -3.2219,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "OBEROIRLTY",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-05-27",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2022-05-30",
+   "dR_secondary_21s": -0.3701,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "LTTS",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-04-22",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2022-04-25",
+   "dR_secondary_21s": -0.9214,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "CANFINHOME",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-05-06",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2022-05-09",
+   "dR_secondary_21s": -0.8153,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "TATACONSUM",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-05-06",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2022-05-09",
+   "dR_secondary_21s": -0.0462,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "IEX",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-04-29",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2022-05-02",
+   "dR_secondary_21s": -1.6925,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "AMBER",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-05-13",
+   "dR_primary": -3.6939,
+   "exit_rule": "sma_break",
+   "hold_date": "2022-05-23",
+   "dR_secondary_21s": -4.6959,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "HAVELLS",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-05-06",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2022-05-09",
+   "dR_secondary_21s": -2.0841,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "DEEPAKNTR",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-05-06",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2022-05-09",
+   "dR_secondary_21s": -1.2951,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "JINDALSTEL",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-06-03",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2022-06-06",
+   "dR_secondary_21s": -0.2334,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "SFL",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-05-13",
+   "dR_primary": -1.9181,
+   "exit_rule": "sma_break",
+   "hold_date": "2022-05-30",
+   "dR_secondary_21s": -2.4046,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "SUNTECK",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-08-12",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2022-08-16",
+   "dR_secondary_21s": -0.7311,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "TRIVENI",
+   "cohort": "noise_stop",
+   "year": 2022,
+   "stop_time": "2022-08-05",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2022-08-08",
+   "dR_secondary_21s": 2.3615,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "CRISIL",
+   "cohort": "false_touch",
+   "year": 2022,
+   "stop_time": "2022-10-21",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2022-10-24",
+   "dR_secondary_21s": 0.1679,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "CONCOR",
+   "cohort": "false_touch",
+   "year": 2023,
+   "stop_time": "2023-01-27",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2023-01-30",
+   "dR_secondary_21s": -0.7802,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "GOCOLORS",
+   "cohort": "false_touch",
+   "year": 2023,
+   "stop_time": "2023-01-27",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2023-01-30",
+   "dR_secondary_21s": -1.8385,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "HINDUNILVR",
+   "cohort": "noise_stop",
+   "year": 2023,
+   "stop_time": "2023-04-28",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2023-05-02",
+   "dR_secondary_21s": 4.4863,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "PETRONET",
+   "cohort": "noise_stop",
+   "year": 2023,
+   "stop_time": "2023-11-03",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2023-11-06",
+   "dR_secondary_21s": 0.509,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "SWSOLAR",
+   "cohort": "false_touch",
+   "year": 2023,
+   "stop_time": "2023-10-13",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2023-10-16",
+   "dR_secondary_21s": 0.4203,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "DRREDDY",
+   "cohort": "noise_stop",
+   "year": 2023,
+   "stop_time": "2023-10-27",
+   "dR_primary": 2.3708,
+   "exit_rule": "sma_break",
+   "hold_date": "2024-05-21",
+   "dR_secondary_21s": 2.5404,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "INDHOTEL",
+   "cohort": "noise_stop",
+   "year": 2023,
+   "stop_time": "2023-10-27",
+   "dR_primary": 13.5395,
+   "exit_rule": "mark_to_cut",
+   "hold_date": "2024-06-28",
+   "dR_secondary_21s": 2.128,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "SBILIFE",
+   "cohort": "noise_stop",
+   "year": 2024,
+   "stop_time": "2024-01-25",
+   "dR_primary": 1.2741,
+   "exit_rule": "sma_break",
+   "hold_date": "2024-06-03",
+   "dR_secondary_21s": 3.107,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "DELHIVERY",
+   "cohort": "false_touch",
+   "year": 2024,
+   "stop_time": "2024-05-24",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2024-05-27",
+   "dR_secondary_21s": -0.2348,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "BORORENEW",
+   "cohort": "noise_stop",
+   "year": 2024,
+   "stop_time": "2024-05-31",
+   "dR_primary": 0.0,
+   "exit_rule": "sma_break_same_week",
+   "hold_date": "2024-06-03",
+   "dR_secondary_21s": 0.4246,
+   "secondary_basis": "marked_to_cut"
+  },
+  {
+   "ticker": "MASTEK",
+   "cohort": "false_touch",
+   "year": 2024,
+   "stop_time": "2024-05-03",
+   "dR_primary": -1.3467,
+   "exit_rule": "sma_break",
+   "hold_date": "2024-05-13",
+   "dR_secondary_21s": -0.7544,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "INTELLECT",
+   "cohort": "noise_stop",
+   "year": 2024,
+   "stop_time": "2024-05-10",
+   "dR_primary": 3.7576,
+   "exit_rule": "mark_to_cut",
+   "hold_date": "2024-06-28",
+   "dR_secondary_21s": 3.1669,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "CIPLA",
+   "cohort": "noise_stop",
+   "year": 2024,
+   "stop_time": "2024-05-10",
+   "dR_primary": 1.5562,
+   "exit_rule": "mark_to_cut",
+   "hold_date": "2024-06-28",
+   "dR_secondary_21s": 1.7348,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "LUPIN",
+   "cohort": "false_touch",
+   "year": 2024,
+   "stop_time": "2024-05-10",
+   "dR_primary": 0.1155,
+   "exit_rule": "mark_to_cut",
+   "hold_date": "2024-06-28",
+   "dR_secondary_21s": -1.4323,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "CUB",
+   "cohort": "noise_stop",
+   "year": 2024,
+   "stop_time": "2024-05-24",
+   "dR_primary": 4.1869,
+   "exit_rule": "mark_to_cut",
+   "hold_date": "2024-06-28",
+   "dR_secondary_21s": 4.4552,
+   "secondary_basis": "banked_post_ret21"
+  },
+  {
+   "ticker": "ELGIEQUIP",
+   "cohort": "noise_stop",
+   "year": 2024,
+   "stop_time": "2024-05-31",
+   "dR_primary": 4.2583,
+   "exit_rule": "mark_to_cut",
+   "hold_date": "2024-06-28",
+   "dR_secondary_21s": 4.2583,
+   "secondary_basis": "marked_to_cut"
+  }
+ ]
+}
