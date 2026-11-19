@@ -250,3 +250,20 @@ this rule. Even so, it sits **under the ±10 R/yr floor** [inferred]. Feature (a
    0121 and 0129 found the event cost decision-margin-negative as a deferral and as sizing? (c) is flagged as weak.
 3. **Stop-record fix, option 1** (store the engine's stop0 and fill on every forward row). It is engineering only and
    needs your word. Options 2 to 4 are listed for information.
+
+### Independent re-derivation of feature (a) [measured]
+
+A fresh `blind-replica` worked from the spec and the exported closes, the M150 TRI and the trade list, with no code.
+Spec, code and result are in `explore/2026-11-19_fall_discriminator_replica/`.
+
+| quantity | replica | pipeline | gap |
+|---|---|---|---|
+| n noise / false | 367 / 299 | 367 / 299 | 0 |
+| mean a, noise_stop | −0.12859 | −0.1286 | 0 |
+| mean a, false_touch | −0.12059 | −0.1206 | 0 |
+| diff | +0.00801 | +0.0080 | 0 |
+| cluster 95% CI | [−0.00870, +0.02587] | [−0.0087, +0.0259] | 0 |
+| pooled SD of a | 0.11625 | 0.1163 | 0 |
+
+The replica flagged one reading: on a ticker's missing sessions, its multi-day return is paired with a one-day index
+return. The pipeline makes the same choice, so the match confirms the arithmetic under that reading.
