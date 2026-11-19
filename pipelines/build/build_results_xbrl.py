@@ -25,6 +25,14 @@ from nq.data.results_xbrl import RESULTS_XBRL_PATH, SCHEMA, assign_filing_seq, p
 LOG = ROOT / ".cache" / "data_audit_v2" / "results_xbrl_build_log.json"
 
 
+def _d(x):
+    """Listing date text ('30-Sep-2019') -> date, else None."""
+    if not isinstance(x, str) or not x:
+        return None
+    t = pd.to_datetime(x, format="mixed", dayfirst=True, errors="coerce")
+    return None if pd.isna(t) else t.date()
+
+
 def build(years: list[int] | None = None) -> dict:
     lf = load_listing_frame().set_index("xbrl_url")
     man = {u: r for u, r in read_manifest().items() if r["http_status"] == "200"}
@@ -36,8 +44,11 @@ def build(years: list[int] | None = None) -> dict:
         L = lf.loc[url]
         if years and L.broadcast_ts.year not in years:
             continue
+        cl = L["consolidated_listing"]
+        hint = {"period_start": _d(L["from_date"]), "period_end": _d(L["to_date"]),
+                "consolidated": cl.lower().startswith("consol") if isinstance(cl, str) else None}
         try:
-            recs = parse_xbrl(gzip.decompress(_raw_path(url, L.broadcast_ts.year).read_bytes()))
+            recs = parse_xbrl(gzip.decompress(_raw_path(url, L.broadcast_ts.year).read_bytes()), hint=hint)
         except Exception as e:  # noqa: BLE001 - recorded, never silently dropped
             fails[url] = f"exception:{type(e).__name__}"
             continue
@@ -60,7 +71,15 @@ def build(years: list[int] | None = None) -> dict:
         df.to_parquet(RESULTS_XBRL_PATH, index=False)
     out = {"files_ok_in_manifest": len(man), "rows": int(len(df)),
            "filings_parsed": int(df["xbrl_url"].nunique()) if len(df) else 0,
-           "file_failures": len(fails), "failure_reasons": pd.Series(fails).value_counts().to_dict() if fails else {}}
+           "file_failures": len(fails),
+           "period_from_listing_files": int(df.loc[df["period_source"].isin(["listing", "listing_fy_start"]),
+                                                   "xbrl_url"].nunique()) if len(df) else 0,
+           "period_label_only_files": int(df.loc[df["period_reason"] == "period_label_only",
+                                                 "xbrl_url"].nunique()) if len(df) else 0,
+           "files_multi_current_candidates": int(df.drop_duplicates("xbrl_url")["n_current_candidates"].gt(1).sum())
+           if len(df) else 0,
+           "current_rule_counts": df.drop_duplicates("xbrl_url")["current_rule"].value_counts().to_dict()
+           if len(df) else {}, "failure_reasons": pd.Series(fails).value_counts().to_dict() if fails else {}}
     LOG.write_text(json.dumps({"summary": out, "failures": fails}, indent=1), encoding="utf-8")
     return out
 

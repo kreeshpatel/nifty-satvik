@@ -63,7 +63,8 @@ UNIT_OK = {"face_value": {"INRPerShare"}, "eps_basic": {"INRPerShare"}, "eps_dil
 DEFAULT_UNIT = {"INR"}
 
 META_COLS = ["symbol", "isin", "period_start", "period_end", "period_type", "context_role", "consolidated",
-             "broadcast_ts", "filing_seq", "is_revision", "xbrl_url", "listing", "context_id", "period_source"]
+             "broadcast_ts", "filing_seq", "is_revision", "xbrl_url", "listing", "context_id", "period_source",
+             "period_reason", "n_current_candidates", "current_rule"]
 SCHEMA = (META_COLS + VALUE_FIELDS + [f"{f}__tag" for f in VALUE_FIELDS] + [f"{f}__unit" for f in VALUE_FIELDS]
           + [f"{f}__reason" for f in VALUE_FIELDS])
 
@@ -94,14 +95,20 @@ def _num(text: str | None) -> float | None:
     return float(t)
 
 
-def parse_xbrl(content: bytes) -> list[dict]:
+def parse_xbrl(content: bytes, hint: dict | None = None) -> list[dict]:
     """Parse one XBRL instance -> one dict per duration context that carries a reporting period.
 
     Period dates come from DateOfStart/EndOfReportingPeriod facts in that context (present in every
     NSE results instance seen, including 2019 files whose <context> elements are missing), falling
-    back to the <context> period."""
+    back to the <context> period.
+
+    ``hint`` is the filing's NSE listing row: {"period_start", "period_end" (dates or None),
+    "consolidated" (bool or None)}. It is used only (1) for label-only instances, which carry a
+    ReportingQuarter text but no period dates, and (2) to choose the current context when several
+    tie (``_rank_current``). Without a hint the parser is a pure function of the file."""
     from lxml import etree
 
+    hint = hint or {}
     root = etree.fromstring(content, parser=etree.XMLParser(recover=True, huge_tree=True))
     ctx_period: dict[str, tuple] = {}
     for c in root.iter(f"{{{_XBRLI}}}context"):
@@ -147,42 +154,63 @@ def parse_xbrl(content: bytes) -> list[dict]:
             # banking instances omit start dates: the "One*" context is the quarter ending at e,
             # the other duration context runs from the financial-year start
             if s is None and e is not None and cref.startswith("One"):
-                s, src[cref] = (pd.Timestamp(e) - pd.offsets.MonthBegin(3)).date(), "quarter_from_end"
+                s, src[cref] = _quarter_start(e), "quarter_from_end"
             elif s is None and fy_start is not None:
                 s, src[cref] = fy_start, "fy_start"
             if e is not None:
                 dur[cref] = (s, e)
-    if not dur and fy_start is not None:
-        # older non-Ind-AS instances: no period dates at all -> derive from ReportingQuarter + FY start
-        qn = {"first": 1, "second": 2, "third": 3, "fourth": 4, "yearly": 4, "annual": 4}
-        for cref in ("OneD", "FourD"):
-            rq = (first("OneD", "ReportingQuarter") or "").split(" ")[0].lower()
-            if cref not in facts or rq not in qn:
-                continue
-            qe = (pd.Timestamp(fy_start) + pd.offsets.MonthEnd(3 * qn[rq])).date()
-            qs = (pd.Timestamp(qe) - pd.offsets.MonthBegin(3)).date()
-            dur[cref] = (qs if cref == "OneD" else fy_start, qe)
-            src[cref] = "derived_quarter"
+    reason = None
     if not dur:
-        return []
+        # label-only instances (ReportingQuarter text, no period dates). Order: the listing's period ->
+        # an unambiguous "<n> quarter" label + FY start -> keep the rows with NaN dates and
+        # reason "period_label_only" (never dropped).
+        qn = {"first": 1, "second": 2, "third": 3, "fourth": 4}
+        rq = (first("OneD", "ReportingQuarter") or "").strip().lower()
+        h_end = hint.get("period_end")
+        for cref in ("OneD", "FourD"):
+            if cref not in facts:
+                continue
+            if h_end is not None:
+                if cref == "OneD":
+                    # OneD is the quarter. The listing's start is used only when it spans a quarter:
+                    # "Yearly" filings list the cumulative FY (Apr..Mar), whose OneD is still Jan..Mar.
+                    h_start = hint.get("period_start")
+                    if h_start is None or _period_type(h_start, h_end) != "Q":
+                        h_start = _quarter_start(h_end)
+                    dur[cref], src[cref] = (h_start, h_end), "listing"
+                elif fy_start is not None:
+                    dur[cref], src[cref] = (fy_start, h_end), "listing_fy_start"
+            elif fy_start is not None and rq.endswith("quarter") and rq.split(" ")[0] in qn:
+                qe = (pd.Timestamp(fy_start) + pd.offsets.MonthEnd(3 * qn[rq.split(" ")[0]])).date()
+                dur[cref] = (_quarter_start(qe) if cref == "OneD" else fy_start, qe)
+                src[cref] = "derived_quarter"
+        if not dur:
+            valued = [c for c, f in facts.items() if any(t in f for tags in DURATION_FIELDS.values() for t in tags)]
+            if not valued:
+                return []
+            dur = {c: (None, None) for c in valued}
+            src = {c: "none" for c in valued}
+            reason = "period_label_only"
     # instant contexts: those whose context period is an instant
     instants = {c: to_date(p[1]) for c, p in ctx_period.items() if p[0] is None and p[1]}
 
     any_ctx = next(iter(dur))
     symbol = first(any_ctx, "Symbol")
     isin = first(any_ctx, "ISIN")
-    shortest = min(dur, key=lambda c: ((dur[c][1] - dur[c][0]).days if dur[c][0] else 10**6, not c.startswith("One"), c))
+    nature = {c: (first(c, "NatureOfReportStandaloneConsolidated") or "").lower() for c in dur}
+    cons = {c: True if n.startswith("consol") else (False if n.startswith("stand") else None) for c, n in nature.items()}
+    n_values = {c: sum(len(v) for v in facts.get(c, {}).values()) for c in dur}
+    shortest, n_cand, rule = _rank_current(dur, cons, n_values, hint)
 
     rows = []
     for cref, (s, e) in sorted(dur.items()):
-        nature = (first(cref, "NatureOfReportStandaloneConsolidated") or "").lower()
         row = {"symbol": symbol, "isin": isin, "period_start": s, "period_end": e,
                "period_type": _period_type(s, e), "context_id": cref, "period_source": src[cref],
-               "context_role": "current" if cref == shortest else "ytd",
-               "consolidated": True if nature.startswith("consol") else (False if nature.startswith("stand") else None)}
+               "period_reason": reason, "n_current_candidates": n_cand, "current_rule": rule,
+               "context_role": "current" if cref == shortest else "ytd", "consolidated": cons[cref]}
         _fill(row, facts.get(cref, {}), DURATION_FIELDS)
         # balance sheet: only from an instant context dated at this row's period end, current row only
-        inst = [c for c, d in instants.items() if d == e] if cref == shortest else []
+        inst = [c for c, d in instants.items() if e is not None and d == e] if cref == shortest else []
         merged: dict[str, list] = {}
         for c in sorted(inst):
             for k, v in facts.get(c, {}).items():
@@ -190,6 +218,42 @@ def parse_xbrl(content: bytes) -> list[dict]:
         _fill(row, merged, INSTANT_FIELDS)
         rows.append(row)
     return rows
+
+
+def _quarter_start(end: date) -> date:
+    return (pd.Timestamp(end) - pd.offsets.MonthBegin(3)).date()
+
+
+def _rank_current(dur: dict, cons: dict, n_values: dict, hint: dict) -> tuple[str, int, str]:
+    """Choose the current-period context.
+
+    Candidates = duration contexts in the same length class (Q/H/9M/FY) as the shortest one (every
+    context when no length is known). Rules, applied in order:
+      (a) end date equals the listing's period end;
+      (b) consolidated flag equals the listing's flag;
+      (c) most tagged values (fact count in the context);
+      then id starting "One", then id (deterministic tie-break only).
+    A rule whose listing field is missing does not separate candidates.
+    Returns (context id, number of candidates, deciding rule: single / a / b / c / tiebreak)."""
+    lens = {c: (e - s).days for c, (s, e) in dur.items() if s is not None and e is not None}
+    if lens:
+        # same length class as the shortest (Q/H/9M/FY), so a 90-day and a 91-day quarter both compete
+        kind = _period_type(*dur[min(lens, key=lens.get)])
+        cands = [c for c in lens if _period_type(*dur[c]) == kind]
+    else:
+        cands = list(dur)
+    if len(cands) == 1:
+        return cands[0], 1, "single"
+    h_end, h_cons = hint.get("period_end"), hint.get("consolidated")
+    keys = {c: (0 if h_end is None or dur[c][1] == h_end else 1,
+                0 if h_cons is None or cons[c] == h_cons else 1,
+                -n_values[c],
+                0 if c.startswith("One") else 1,
+                c) for c in cands}
+    order = sorted(cands, key=keys.get)
+    top, nxt = keys[order[0]], keys[order[1]]
+    rule = ["a", "b", "c", "tiebreak", "tiebreak"][next(i for i in range(5) if top[i] != nxt[i])]
+    return order[0], len(cands), rule
 
 
 def _fill(row: dict, f: dict, spec: dict[str, list[str]]) -> None:

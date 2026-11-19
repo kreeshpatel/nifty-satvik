@@ -1,10 +1,10 @@
 {
- "rows": 35147,
- "filings": 19926,
- "current_rows": 19926,
+ "rows": 35173,
+ "filings": 19939,
+ "current_rows": 19939,
  "broadcast_range": "2019-01-11 16:25:08..2020-12-31 12:17:16",
  "period_type_current": {
-  "Q": 19925,
+  "Q": 19938,
   "H": 1
  },
  "coverage_pit_n500_raw_symbol": {
@@ -66,7 +66,7 @@
   "2019": {
    "pairs": 1984,
    "quarters": 4,
-   "standalone_pct": 84.5,
+   "standalone_pct": 84.6,
    "consolidated_pct": 72.6,
    "either_pct": 85.9
   },
@@ -86,7 +86,7 @@
    },
    "2020": {
     "fail_pct": 0.0,
-    "absent_pct": 2.1
+    "absent_pct": 2.0
    }
   },
   "total_income": {
@@ -136,7 +136,7 @@
    },
    "2020": {
     "fail_pct": 0.0,
-    "absent_pct": 2.1
+    "absent_pct": 2.0
    }
   },
   "depreciation": {
@@ -232,14 +232,14 @@
  },
  "eps_sanity": {
   "source_of_fy_eps": "FY year-to-date context inside the March-quarter filing",
-  "pairs": 1767,
+  "pairs": 1783,
   "gap_median_pct": 0.04,
-  "gap_p90_pct": 25.48,
+  "gap_p90_pct": 25.52,
   "share_gap_over_5pct": 15.9,
-  "share_gap_over_5pct_and_abs_over_0.5": 10.2,
+  "share_gap_over_5pct_and_abs_over_0.5": 10.3,
   "by_fy": {
-   "2019": 12.5,
-   "2020": 15.9
+   "2019": 11.1,
+   "2020": 16.0
   }
  },
  "cross_check_depth": {
@@ -298,17 +298,17 @@
   ]
  },
  "revisions": {
-  "revision_rows": 123,
-  "share_of_current_rows_pct": 0.62,
-  "median_days_to_revision": 2.27,
-  "p90_days_to_revision": 74.7,
-  "same_day_pct": 47.2
+  "revision_rows": 120,
+  "share_of_current_rows_pct": 0.6,
+  "median_days_to_revision": 1.38,
+  "p90_days_to_revision": 63.7,
+  "same_day_pct": 48.3
  },
  "broadcast_timing": {
   "2019": {
    "pre_0915": 0.4,
    "0915_1530": 41.2,
-   "post_1530": 58.3
+   "post_1530": 58.4
   },
   "2020": {
    "pre_0915": 2.0,

@@ -4,7 +4,15 @@ Class: DATA ENGINEERING. No signal, IC, return, backtest, trial or screen. Stand
 Goal link: this is the point-in-time quarterly EPS and line-item input for the January multi-signal model
 (earnings surprise, quality), as named in the data-readiness audit (PR #213).
 
-Status: **partial**. These numbers cover filings broadcast 2019-01-01..2020-12-31 (19,926 filings). Each later
+> **Correction:** the first push of PR #217 (commit a9565e9) chose the wrong current-quarter context in 29
+> filings from 2019–2020. Those files carry two contexts of quarter length, and the parser broke the tie
+> by context id. It took `FourD`, which in these files is the *prior* quarter (for example, Jan–Mar 2019
+> inside a Jun-2019 filing). Rule (a) below now chooses the context whose end date equals the listing's
+> period end, so 28 of the 29 now take `OneD` and all 29 have the correct quarter-end. In the old build,
+> revenue, PAT and EPS for those 29 rows belonged to the previous quarter [measured, diff of the old and
+> new builds].
+
+Status: **partial**. These numbers cover filings broadcast 2019-01-01..2020-12-31 (19,939 filings). Each later
 year is added on the same PR as its fetch completes.
 
 ## Method
@@ -83,16 +91,16 @@ separate files, so they are both counted. No statistic here is used for inferenc
 | item | value | label |
 |---|---|---|
 | files fetched OK / 404 (whole fetch so far) | 19,852 / 148 at 20,000 | [measured] `.cache/data_audit_v2/xbrl_fetch.log` |
-| filings parsed / file-level failures | 19,926 / 13 (`no_reporting_period`, NONINDAS half-year) | [measured] `.cache/data_audit_v2/results_xbrl_build_log.json` |
-| rows (current + ytd) | 35,147 (current 19,926: 19,925 Q, 1 H) | [measured] `diagnostics/research/explore/2026-11-19_results_xbrl_quality.json` |
+| filings parsed / file-level failures | 19,939 / 0 (the 13 earlier label-only failures are recovered; see the edge-case fixes) | [measured] `.cache/data_audit_v2/results_xbrl_build_log.json` |
+| rows (current + ytd) | 35,173 (current 19,939: 19,938 Q, 1 H) | [measured] `diagnostics/research/explore/2026-11-19_results_xbrl_quality.json` |
 | PIT N500 coverage, raw symbol → ISIN-bridged | 2019 94.4 → 97.6% · 2020 94.4 → 97.4% | [measured] same json |
-| quarter completeness, either / standalone / consolidated (bridged) | 2019 85.9 / 84.5 / 72.6% · 2020 96.5 / 95.7 / 84.7% (3 quarters) | [measured] same json |
+| quarter completeness, either / standalone / consolidated (bridged) | 2019 85.9 / 84.6 / 72.6% · 2020 96.5 / 95.7 / 84.7% (3 quarters) | [measured] same json |
 | parse failures (parse/unit/conflict), every field | 0.00% | [measured] same json |
 | absent rate, current rows | revenue_ops 1.9–2.1% · pat 0.1–0.7% · eps 0.0% · depreciation 2.4–3.4% (mostly banks, which have no such tag) | [measured] same json |
 | balance-sheet fields | 100% absent | [measured] see artifact 4 |
-| EPS sanity: pairs · median gap · share > 5% · share > 5% and > ₹0.5 | 1,767 · 0.04% · 15.9% · 10.2% | [measured] same json |
+| EPS sanity: pairs · median gap · share > 5% · share > 5% and > ₹0.5 | 1,783 · 0.04% · 15.9% · 10.3% | [measured] same json |
 | cross-check vs depth pkl (n = 45 matched): revenue within 1% / PAT within 1% | 91.1% / 95.6% (one outlier, SHK FY19, −34% / −49%) | [measured] same json |
-| revisions: share of current rows · median days · same-day | 0.62% · 2.27 d · 47.2% | [measured] same json |
+| revisions: share of current rows · median days · same-day | 0.60% · 1.38 d · 48.3% | [measured] same json |
 | broadcast timing <09:15 / 09:15–15:30 / >15:30 | 2019: 0.4 / 41.2 / 58.3% · 2020: 2.0 / 40.8 / 57.2% | [measured] same json |
 
 ## Artifact check: could the method have made these numbers?
@@ -144,7 +152,49 @@ separate files, so they are both counted. No statistic here is used for inferenc
 - Spec ambiguities the replica raised that this sample did not exercise:
   - the meaning of the ReportingQuarter labels in files with no dates ("Half yearly" = Q2, "Yearly" = Q4);
   - tie-breaks among dimensional `One*` contexts.
-- The engine maps "Half yearly" to `no_reporting_period`; that is the 13 file failures above [inferred].
+- Both are now fixed; see the edge-case fixes below. After the fix the comparison was re-run: still 0 mismatches.
+
+## Edge-case fixes (owner request, after the blind replica)
+
+**1. Label-only periods.** These are files that carry a ReportingQuarter text ("Half yearly", "Yearly" …)
+and no period dates. The period now comes from the listing row's `fromDate`/`toDate`
+(`nq/data/results_xbrl.py`, label-only block in `parse_xbrl`).
+
+- The current (`OneD`) row uses the listing start only when it spans one quarter. Otherwise it is the
+  quarter ending at the listing end, because "Yearly" filings list the cumulative FY.
+- The year-to-date row (`FourD`) runs from DateOfStartOfFinancialYear to the listing end.
+- With no listing period, an unambiguous "<n> quarter" label plus the FY start is used.
+- Failing both, the rows are kept with NaN dates and `period_reason = "period_label_only"`. They are never
+  dropped.
+
+Results:
+
+- **All 13 of the 13 failed files are recovered** (all "Half yearly" NONINDAS, Jul–Sep quarters)
+  [measured, build log].
+- 173 files in total now take their period from the listing.
+- 0 files are left label-only.
+- The 160 files previously derived from the label keep their quarter-ends. Their current-row start dates
+  are unchanged; the year-to-date rows now take their start from the FY start.
+
+**2. Several current-period candidates in one file** (`_rank_current`).
+
+- Candidates are the duration contexts in the same length class (Q/H/9M/FY) as the shortest one.
+- They are ranked by: (a) end date equals the listing's period end; (b) consolidated flag equals the
+  listing's flag; (c) most tagged values. After that, an id starting "One", then the id, as a pure
+  tie-break.
+- Each row records `context_id`, `n_current_candidates` and `current_rule`.
+
+Results:
+
+- **102 of 19,939 files had more than one candidate.** All 102 were settled by rule (a); none needed
+  (b) or (c) [measured].
+- Of the 102, 29 changed their pick (see the Correction above). The other 73 already picked the right
+  context.
+- Unit tests: one per rule (a, b, c), single-candidate, label-only from the listing, label-only kept with
+  NaN dates, and the cumulative "Yearly" listing. All are in `tests/test_results_xbrl_pit.py`.
+
+**Replica re-run on the same 30 files after the fix:** 0 mismatches across 270 values plus the period
+dates, context id and consolidated flag. One of the 30 files had two candidates [measured].
 
 ## Not yet done
 
