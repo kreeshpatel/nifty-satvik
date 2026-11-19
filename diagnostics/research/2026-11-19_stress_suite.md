@@ -147,3 +147,124 @@ finding.
 **Step 0b (added by the same amendment).** The unshocked base for swing, 0001 and the blend is run under
 PYTHONHASHSEED 0 and 7, and the outputs must be byte-identical: a sha256 over every path's NAV bytes, and the blend
 built from them.
+
+---
+
+## Results — controls first (Step 0 / Amendment 1)
+
+### Step 0b — determinism: PASS [measured]
+
+The unshocked 20-path base was re-run under PYTHONHASHSEED 0 and 7. The sha256 over every path's NAV, and over the
+blend built from them, is **byte-identical** across both seeds and the original run:
+
+| book | sha256 prefix |
+|---|---|
+| swing | `912f4c0d68d2a4a1` |
+| 0001 | `d73ac2c7584d770c` |
+| blend at 11% | `baed734ac7a9a294` |
+
+### Anchors — PASS [measured]
+
+| anchor | result |
+|---|---|
+| swing | 1.025 / −40.1% |
+| 0001 | 21.73% / 1.130 |
+| blend at 15%, worst daily DD | −22.85% |
+| patched swing engine, hooks off, path 0 | 1.348913 (reproduced) |
+| patched rebalance copy, hooks off | reproduces 0001's NAV exactly |
+
+### Negative controls — **SUITE FAILED** under Amendment 1 [measured, `explore/2026-11-19_stress_suite_controls.json`]
+
+Columns:
+- **placebo Sharpe** — mean and p95 over 100 seeds;
+- **beta baseline** — mean Sharpe;
+- **paired d** — mean of placebo − baseline, with its SE and z;
+- **test** — the beta-baseline test (|mean d| ≤ 2 SE);
+- **cost drag** — median Sharpe with costs off minus with costs on;
+- **perm. p** — share of placebo seeds ≥ the strategy's median Sharpe.
+
+| control | book | placebo Sharpe (mean / p95) | beta baseline | paired d (SE, z) | test | cost drag | perm. p |
+|---|---|---|---|---|---|---|---|
+| N1 label shuffle | swing | 0.870 / 1.295 | 1.660 | −0.789 (0.042, z −19.0) | **FAIL** | 0.406 | 0.09 |
+| N1 | 0001 | 0.491 / 0.631 | 0.977 | −0.487 (0.012, z −40.3) | **FAIL** | 0.211 | 0.00 |
+| N1 | blend | 1.263 / 1.504 | 1.900 | −0.637 (0.019, z −33.1) | **FAIL** | 0.273 | 0.00 |
+| N2 random ranker | swing | 0.885 / 1.377 | 1.626 | −0.741 (0.043, z −17.1) | **FAIL** | 0.350 | 0.13 |
+| N2 | 0001 | 0.605 / 0.744 | 0.853 | −0.248 (0.009, z −27.1) | **FAIL** | 0.093 | 0.00 |
+| N2 | blend | 1.384 / 1.628 | 1.792 | −0.408 (0.018, z −22.2) | **FAIL** | 0.184 | 0.00 |
+
+| control | book | N3 median Sharpe | base p5 | clearly below base |
+|---|---|---|---|---|
+| N3 reversed sign | swing | 0.911 | 1.031 | yes |
+| N3 | 0001 | 0.232 | 1.110 | yes |
+| N3 | blend | 1.100 | 1.932 | yes |
+
+Strategy medians (20 paths): swing 1.253, 0001 1.129, blend 1.981.
+
+Turnover matching:
+- **0001 N2:** 7.98 exits per rebalance, against 7.94 for the base. Matched by the one calibration step (q = 0.263).
+- **0001 N1:** 20.8 exits per rebalance. Not turnover-matched, by design.
+- **Swing placebos:** 277 trades on average, against 67 for the base. Random names hit stops and SMA breaks far
+  sooner, and the engine re-fills the seats.
+
+**Verdict, as the amendment states it:** the suite FAILS overall because N1 and N2 break the beta-baseline test, on all
+three books. **Per Step 0, the shocks (S1–S7) are not interpreted.** All shock runs are complete and cached under
+`.cache/stress_suite/`; the shock table is withheld until the owner rules on the failure.
+
+**Direction.** Every placebo sits **below** its beta baseline, by 0.25 to 0.79 Sharpe. The failure is not the harness
+creating edge out of noise. The placebo earns less than the passive equal-weight universe held at the same exposure,
+net of its own explicit costs.
+
+### What could explain the gap — hypotheses, NOT tested [inferred]
+
+1. **The baseline has a daily-rebalancing premium.** EW_t is the mean of close-to-close returns of every member,
+   rebalanced daily. That collects a volatility/rebalancing bonus and bid-ask bounce that no held book earns. The
+   placebo holds names for weeks (swing) or a month (0001). Cheapest test: rebuild the baseline as a
+   monthly-rebalanced, or buy-and-hold, equal-weight universe and re-run the paired test. The placebo runs are already
+   cached, so this takes minutes.
+2. **The engine's exit rules on random names cost return beyond the explicit costs.** On random entries the swing's
+   10% stop and SMA-break exits whipsaw: 277 trades against the base's 67. The cost-off twin removes explicit costs
+   only, not the path loss from cutting and re-entering. That is the strategy's own exit behaviour, not a harness
+   bias, but the baseline as specified does not net it out.
+3. **Membership and coverage.** The baseline averages every PIT member with a bar. The placebo draws from members with
+   a bar on the entry date and a usable signal-week range. These differ at the margin. Expected to be small; not
+   checked.
+
+### Permutation p-values (a result, not pass/fail)
+
+| book | vs N1 | vs N2 |
+|---|---|---|
+| 0001 | 0.00 | 0.00 |
+| blend | 0.00 | 0.00 |
+| **swing** | **0.09** | **0.13** |
+
+0001's and the blend's Sharpe lie beyond every placebo seed. **The swing book's Sharpe of 1.253 is exceeded by 9% of
+label-shuffled and 13% of random-ranker placebos**, so on this window its edge over random entries with its own exits
+is not distinguishable at 5%.
+
+### Independent re-derivation (rule 3) [measured]
+
+A `blind-replica` worked from the spec alone. Spec, code and results are in `explore/2026-11-19_stress_suite_replica/`.
+
+| number | replica | pipeline | gap |
+|---|---|---|---|
+| S1 swing median Sharpe (20 paths) | 1.0838 | 1.0838 | 0, identical path by path |
+| S1 0001 median Sharpe | 1.1218 | 1.1266 | 0.43% |
+| N1 swing raw Sharpe mean (100 seeds) | 0.878 | 0.870 | 0.9% |
+| N1 0001 raw Sharpe mean | 0.482 | 0.491 | 1.8% |
+
+The 0001 S1 gap comes from one reading of the spec: the replica shifts ranks by panel date, the pipeline by the
+ticker's own previous row. The N1 gaps come from the replica's shuffle details: signals before 2019 left out, and a
+different draw order. All gaps are under 5%.
+
+The replica was specified before Amendment 1, so it reported the withdrawn raw and appraisal tests. It did not compute
+the beta baseline, and **the beta-baseline verdict has not been independently re-derived**.
+
+### Artifact check
+
+1. **Daily-rebalanced EW baseline.** Hypothesis 1 above. **Not ruled out**; the most likely source of the failure.
+2. **Overlapping seeds on one history.** The 100 seeds share one market path, so SE measures seed noise, not sampling
+   uncertainty. Any systematic baseline mismatch therefore produces an enormous z. **Disclosed.**
+3. **The cost drag is approximated.** c_t = r_on − r_off compares two different paths, because the fills differ.
+   **Not ruled out**, but it cannot explain a gap that persists after costs are stripped out.
+4. **N3 inverts the CRS ranker only, not the setup.** Long-only cannot short the setup. **Disclosed.**
+5. **Interpreting the S5 shock on swing.** Moot while the shocks are withheld.

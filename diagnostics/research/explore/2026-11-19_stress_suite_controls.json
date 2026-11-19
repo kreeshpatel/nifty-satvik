@@ -1,0 +1,196 @@
+{
+ "amendment": "Amendment 1, 2026-11-19, amended before first look",
+ "N1": {
+  "swing": {
+   "n": 100,
+   "placebo_sharpe_mean": 0.8702,
+   "placebo_sharpe_median": 0.8686,
+   "placebo_sharpe_p5": 0.3709,
+   "placebo_sharpe_p95": 1.2947,
+   "strategy_sharpe_base_median": 1.2529,
+   "base_p5": 1.0306,
+   "baseline_sharpe_mean": 1.6596,
+   "paired_diff_mean": -0.7894,
+   "paired_diff_se": 0.0416,
+   "z": -19.0,
+   "pass_beta_baseline": false,
+   "cost_off_sharpe_median": 1.275,
+   "cost_drag_median_sharpe": 0.4064,
+   "permutation_p_strategy": 0.09,
+   "realised_trades_mean": 277.42,
+   "n_signals_mean": 5862.0
+  },
+  "momentum": {
+   "n": 100,
+   "placebo_sharpe_mean": 0.4906,
+   "placebo_sharpe_median": 0.4973,
+   "placebo_sharpe_p5": 0.3159,
+   "placebo_sharpe_p95": 0.6311,
+   "strategy_sharpe_base_median": 1.1293,
+   "base_p5": 1.11,
+   "baseline_sharpe_mean": 0.9772,
+   "paired_diff_mean": -0.4866,
+   "paired_diff_se": 0.0121,
+   "z": -40.25,
+   "pass_beta_baseline": false,
+   "cost_off_sharpe_median": 0.7086,
+   "cost_drag_median_sharpe": 0.2114,
+   "permutation_p_strategy": 0.0,
+   "exits_per_rebalance_mean": 20.75526315789474
+  },
+  "blend": {
+   "n": 100,
+   "placebo_sharpe_mean": 1.2628,
+   "placebo_sharpe_median": 1.2724,
+   "placebo_sharpe_p5": 1.0258,
+   "placebo_sharpe_p95": 1.5042,
+   "strategy_sharpe_base_median": 1.9812,
+   "base_p5": 1.9323,
+   "baseline_sharpe_mean": 1.8998,
+   "paired_diff_mean": -0.6371,
+   "paired_diff_se": 0.0192,
+   "z": -33.1,
+   "pass_beta_baseline": false,
+   "cost_off_sharpe_median": 1.5449,
+   "cost_drag_median_sharpe": 0.2725,
+   "permutation_p_strategy": 0.0
+  }
+ },
+ "N2": {
+  "swing": {
+   "n": 100,
+   "placebo_sharpe_mean": 0.8848,
+   "placebo_sharpe_median": 0.8866,
+   "placebo_sharpe_p5": 0.3834,
+   "placebo_sharpe_p95": 1.377,
+   "strategy_sharpe_base_median": 1.2529,
+   "base_p5": 1.0306,
+   "baseline_sharpe_mean": 1.6261,
+   "paired_diff_mean": -0.7413,
+   "paired_diff_se": 0.0434,
+   "z": -17.09,
+   "pass_beta_baseline": false,
+   "cost_off_sharpe_median": 1.2364,
+   "cost_drag_median_sharpe": 0.3499,
+   "permutation_p_strategy": 0.13,
+   "realised_trades_mean": 276.76,
+   "n_signals_mean": 5861.42
+  },
+  "momentum": {
+   "n": 100,
+   "placebo_sharpe_mean": 0.6053,
+   "placebo_sharpe_median": 0.6098,
+   "placebo_sharpe_p5": 0.458,
+   "placebo_sharpe_p95": 0.7442,
+   "strategy_sharpe_base_median": 1.1293,
+   "base_p5": 1.11,
+   "baseline_sharpe_mean": 0.8534,
+   "paired_diff_mean": -0.2481,
+   "paired_diff_se": 0.0091,
+   "z": -27.14,
+   "pass_beta_baseline": false,
+   "cost_off_sharpe_median": 0.7027,
+   "cost_drag_median_sharpe": 0.0929,
+   "permutation_p_strategy": 0.0,
+   "exits_per_rebalance_mean": 7.981754385964913
+  },
+  "blend": {
+   "n": 100,
+   "placebo_sharpe_mean": 1.384,
+   "placebo_sharpe_median": 1.3973,
+   "placebo_sharpe_p5": 1.1451,
+   "placebo_sharpe_p95": 1.6277,
+   "strategy_sharpe_base_median": 1.9812,
+   "base_p5": 1.9323,
+   "baseline_sharpe_mean": 1.7919,
+   "paired_diff_mean": -0.4079,
+   "paired_diff_se": 0.0184,
+   "z": -22.19,
+   "pass_beta_baseline": false,
+   "cost_off_sharpe_median": 1.5817,
+   "cost_drag_median_sharpe": 0.1844,
+   "permutation_p_strategy": 0.0
+  }
+ },
+ "N3": {
+  "swing": {
+   "n": 100,
+   "placebo_sharpe_mean": 0.9268,
+   "placebo_sharpe_median": 0.9105,
+   "placebo_sharpe_p5": 0.7666,
+   "placebo_sharpe_p95": 1.1016,
+   "strategy_sharpe_base_median": 1.2529,
+   "base_p5": 1.0306,
+   "pass_clearly_below_base": true,
+   "realised_trades_mean": 136.98,
+   "n_signals_mean": 5862.0
+  },
+  "momentum": {
+   "n": 100,
+   "placebo_sharpe_mean": 0.2325,
+   "placebo_sharpe_median": 0.2317,
+   "placebo_sharpe_p5": 0.2073,
+   "placebo_sharpe_p95": 0.2583,
+   "strategy_sharpe_base_median": 1.1293,
+   "base_p5": 1.11,
+   "pass_clearly_below_base": true,
+   "exits_per_rebalance_mean": 7.8504385964912275
+  },
+  "blend": {
+   "n": 100,
+   "placebo_sharpe_mean": 1.0976,
+   "placebo_sharpe_median": 1.1003,
+   "placebo_sharpe_p5": 1.0373,
+   "placebo_sharpe_p95": 1.1563,
+   "strategy_sharpe_base_median": 1.9812,
+   "base_p5": 1.9323,
+   "pass_clearly_below_base": true
+  }
+ },
+ "base_reference": {
+  "swing_trades_mean": 67.35,
+  "swing_real_signals": 5862,
+  "momentum_exits_per_rebalance": 7.93859649122807,
+  "n2_calibration": {
+   "q0": 0.25404547458708376,
+   "exits_per_rebalance_at_q0": 7.675438596491228,
+   "q": 0.2627556051443552
+  },
+  "sharpe_base_median": {
+   "swing": 1.2529,
+   "momentum": 1.1293,
+   "blend": 1.9812
+  }
+ },
+ "verdict": {
+  "suite_failed": true,
+  "failing_beta_baseline": [
+   [
+    "N1",
+    "swing"
+   ],
+   [
+    "N1",
+    "momentum"
+   ],
+   [
+    "N1",
+    "blend"
+   ],
+   [
+    "N2",
+    "swing"
+   ],
+   [
+    "N2",
+    "momentum"
+   ],
+   [
+    "N2",
+    "blend"
+   ]
+  ],
+  "n3_not_clearly_below_base": [],
+  "rule": "suite FAILS only if N1 or N2 breaks the beta-baseline test (Amendment 1)"
+ }
+}
