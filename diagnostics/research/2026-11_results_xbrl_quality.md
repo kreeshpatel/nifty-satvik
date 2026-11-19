@@ -259,6 +259,37 @@ Worst 20 flagged rows by |lag_days|:
 | JVLAGRO | 2018-04-01..2018-09-30 (H, ytd) | FourD | 2020-08-28 13:29 | 698 | lag_over_120d |
 | SUNILHITEC | 2017-01-01..2017-03-31 (Q, ytd) | FourD | 2019-02-07 17:43 | 678 | lag_over_120d |
 
+## Late filers by universe membership, and not-found by year (owner request)
+
+**Method.** Both are in `pipelines/diagnostics/results_xbrl_quality.py`.
+
+- `late_by_membership`: `lag_over_120d` rows split by PIT Nifty 500 membership *on the broadcast date*.
+  A row counts as a member when either its filing-day symbol or its ISIN's latest symbol is in the index
+  that day.
+- `not_found_by_year`: HTTP 404 ÷ attempted URLs, by listing broadcast year, taken from
+  `data/xbrl_raw/manifest.csv`.
+  - The quality script exits with code 2 and a STOP line if any *complete* year exceeds 2%.
+  - **Restricting the stop to complete years was added after first look.** Run mid-fetch, the plain rule
+    stopped on 2022, which so far holds 16 sample fetches with 2 not-found (12.5%).
+  - Once the fetch ends every year is complete, so the final check is the owner's rule as written.
+
+**Results (2019–2020)** [measured] `diagnostics/research/explore/2026-11-19_results_xbrl_quality.json`
+
+| current-quarter rows, lag > 120 d | 2019 | 2020 | both |
+|---|---|---|---|
+| PIT N500 member at broadcast | 61 / 2,903 (2.10%) | 67 / 3,653 (1.83%) | 128 / 6,556 (**1.95%**) |
+| not a member | 224 / 5,764 (3.89%) | 560 / 7,619 (7.35%) | 784 / 13,383 (5.86%) |
+
+Across all rows (current and year-to-date), the late rate is 2.16% for members and 6.57% for non-members.
+The rate that matters for the model is therefore about a third of the headline 4.57%.
+
+| not-found (404) | 2019 | 2020 | 2021 (partial) |
+|---|---|---|---|
+| attempted / listed | 8,815 / 8,815 | 11,272 / 11,272 | 10,454 / 11,622 |
+| 404 | 148 (**1.68%**) | 0 (0.00%) | 42 (0.40%) |
+
+Every complete year is under 2%, so the stop did not trigger. 2019 is the closest to the line.
+
 ## Not yet done
 
 - Years 2021–2026 (the fetch is running).

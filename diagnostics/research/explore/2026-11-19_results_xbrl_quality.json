@@ -613,6 +613,147 @@
    }
   ]
  },
+ "late_by_membership": {
+  "all_rows": {
+   "2019_non_member": {
+    "late": 483,
+    "rows": 10275,
+    "late_pct": 4.7
+   },
+   "2019_member": {
+    "late": 135,
+    "rows": 5122,
+    "late_pct": 2.64
+   },
+   "2020_non_member": {
+    "late": 1070,
+    "rows": 13374,
+    "late_pct": 8.0
+   },
+   "2020_member": {
+    "late": 114,
+    "rows": 6402,
+    "late_pct": 1.78
+   },
+   "total": {
+    "non_member": {
+     "late": 1553,
+     "rows": 23649,
+     "late_pct": 6.57
+    },
+    "member": {
+     "late": 249,
+     "rows": 11524,
+     "late_pct": 2.16
+    }
+   }
+  },
+  "current_rows": {
+   "2019_non_member": {
+    "late": 224,
+    "rows": 5764,
+    "late_pct": 3.89
+   },
+   "2019_member": {
+    "late": 61,
+    "rows": 2903,
+    "late_pct": 2.1
+   },
+   "2020_non_member": {
+    "late": 560,
+    "rows": 7619,
+    "late_pct": 7.35
+   },
+   "2020_member": {
+    "late": 67,
+    "rows": 3653,
+    "late_pct": 1.83
+   },
+   "total": {
+    "non_member": {
+     "late": 784,
+     "rows": 13383,
+     "late_pct": 5.86
+    },
+    "member": {
+     "late": 128,
+     "rows": 6556,
+     "late_pct": 1.95
+    }
+   }
+  }
+ },
+ "not_found": {
+  "by_year": {
+   "2019": {
+    "attempted": 8815,
+    "listed": 8815,
+    "complete": true,
+    "not_found_404": 148,
+    "other_non200": 0,
+    "not_found_pct": 1.68
+   },
+   "2020": {
+    "attempted": 11272,
+    "listed": 11272,
+    "complete": true,
+    "not_found_404": 0,
+    "other_non200": 0,
+    "not_found_pct": 0.0
+   },
+   "2021": {
+    "attempted": 10454,
+    "listed": 11622,
+    "complete": false,
+    "not_found_404": 42,
+    "other_non200": 0,
+    "not_found_pct": 0.4
+   },
+   "2022": {
+    "attempted": 16,
+    "listed": 11714,
+    "complete": false,
+    "not_found_404": 2,
+    "other_non200": 0,
+    "not_found_pct": 12.5
+   },
+   "2023": {
+    "attempted": 18,
+    "listed": 13154,
+    "complete": false,
+    "not_found_404": 0,
+    "other_non200": 0,
+    "not_found_pct": 0.0
+   },
+   "2024": {
+    "attempted": 16,
+    "listed": 14334,
+    "complete": false,
+    "not_found_404": 0,
+    "other_non200": 0,
+    "not_found_pct": 0.0
+   },
+   "2025": {
+    "attempted": 40,
+    "listed": 16483,
+    "complete": false,
+    "not_found_404": 0,
+    "other_non200": 0,
+    "not_found_pct": 0.0
+   },
+   "2026": {
+    "attempted": 32,
+    "listed": 18889,
+    "complete": false,
+    "not_found_404": 0,
+    "other_non200": 0,
+    "not_found_pct": 0.0
+   }
+  },
+  "worst_complete_year": 2019,
+  "limit_pct": 2.0,
+  "stop": false
+ },
  "broadcast_timing": {
   "2019": {
    "pre_0915": 0.4,

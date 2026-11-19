@@ -172,6 +172,66 @@ def period_flags(df) -> dict:
             "lag_days": lag, "worst20": worst[cols].astype(str).to_dict("records")}
 
 
+NOT_FOUND_STOP_PCT = 2.0
+
+
+def late_by_membership(br) -> dict:
+    """lag_over_120d rows split by PIT Nifty 500 membership ON THE BROADCAST DATE
+    (nq.data.membership.load_membership intervals). A row counts as member if either its filing-day
+    symbol or its ISIN's latest symbol (bridge_symbols) is a member that day. Shares are of all rows
+    in that membership group, by broadcast year, and separately for current-quarter rows."""
+    from nq.data.membership import load_membership
+    mem = load_membership()
+
+    def is_mem(sym, d):
+        return any(a <= d <= b for a, b in mem.get(sym, ()))
+
+    b = br.assign(_d=br.broadcast_ts.dt.date)
+    b["_m"] = [is_mem(s, d) for s, d in zip(b.symbol, b._d)]
+    key = ["xbrl_url", "context_id"]
+    m = b.groupby(key)["_m"].any()                       # member under either symbol
+    raw = br.drop_duplicates(key).set_index(key)
+    raw = raw.assign(member=m.reindex(raw.index).fillna(False).to_numpy(),
+                     late=raw.period_flag.fillna("").str.contains("lag_over_120d"))
+    out = {}
+    for name, r in {"all_rows": raw, "current_rows": raw[raw.context_role == "current"]}.items():
+        g = r.groupby([r.broadcast_ts.dt.year, "member"])["late"].agg(["sum", "size"])
+        out[name] = {f"{int(y)}_{'member' if mm else 'non_member'}": {
+            "late": int(v["sum"]), "rows": int(v["size"]), "late_pct": round(100 * v["sum"] / v["size"], 2)}
+            for (y, mm), v in g.iterrows()}
+        tot = r.groupby("member")["late"].agg(["sum", "size"])
+        out[name]["total"] = {("member" if mm else "non_member"): {
+            "late": int(v["sum"]), "rows": int(v["size"]), "late_pct": round(100 * v["sum"] / v["size"], 2)}
+            for mm, v in tot.iterrows()}
+    return out
+
+
+def not_found_by_year() -> dict:
+    """From data/xbrl_raw/manifest.csv (every fetch attempt, latest status per URL), by listing broadcast
+    year: attempted URLs, listed URLs, HTTP 404 count, other non-200 count, not-found % = 404 / attempted.
+    A year is complete when every listed XBRL URL of that year has been attempted. While the fetch runs,
+    partial years hold only a handful of sample fetches, so the stop applies to complete years only:
+    stop = any complete year's not-found % > NOT_FOUND_STOP_PCT. Once the fetch ends all years are complete."""
+    from harvest_results_xbrl import load_listing_frame, read_manifest
+    m = pd.DataFrame(list(read_manifest().values()))
+    if not len(m):
+        return {"by_year": {}, "stop": False}
+    listed = load_listing_frame()
+    listed = listed.groupby(listed.broadcast_ts.dt.year)["xbrl_url"].nunique()
+    y = pd.to_datetime(m.broadcast_ts, errors="coerce").dt.year
+    out = {}
+    for yr, g in m.groupby(y):
+        n404 = int((g.http_status == "404").sum())
+        other = int((~g.http_status.isin(["200", "404"])).sum())
+        out[int(yr)] = {"attempted": int(len(g)), "listed": int(listed.get(yr, 0)),
+                        "complete": bool(len(g) >= listed.get(yr, 0)), "not_found_404": n404,
+                        "other_non200": other, "not_found_pct": round(100 * n404 / len(g), 2)}
+    done = {k: v for k, v in out.items() if v["complete"]}
+    worst = max(done, key=lambda k: done[k]["not_found_pct"]) if done else None
+    return {"by_year": out, "worst_complete_year": worst, "limit_pct": NOT_FOUND_STOP_PCT,
+            "stop": bool(worst is not None and done[worst]["not_found_pct"] > NOT_FOUND_STOP_PCT)}
+
+
 def bridge_symbols(df):
     """Membership uses today's tickers; filings carry the ticker of their day. Map each row's ISIN to the
     latest symbol that ISIN files under in the full NSE listing (2019..2026) -> column symbol_latest.
@@ -199,10 +259,16 @@ def main():
            "quarter_completeness_raw_symbol": completeness(raw[raw.context_role == "current"], U),
            "quarter_completeness": completeness(br[br.context_role == "current"], U),
            "parse_failures": parse_failures(cur), "eps_sanity": eps_sanity(df), "cross_check_depth": cross_check(df),
-           "revisions": revisions(df), "period_sanity": period_flags(df), "broadcast_timing": timing(df)}
+           "revisions": revisions(df), "period_sanity": period_flags(df),
+           "late_by_membership": late_by_membership(br), "not_found": not_found_by_year(), "broadcast_timing": timing(df)}
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(res, indent=1, default=str), encoding="utf-8")
     print(json.dumps(res, indent=1, default=str))
+    if res["not_found"]["stop"]:
+        nf = res["not_found"]
+        print(f"STOP: not-found rate {nf['by_year'][nf['worst_complete_year']]['not_found_pct']}% in {nf['worst_complete_year']} "
+              f"exceeds {nf['limit_pct']}%. Report before using these quality numbers.", file=sys.stderr)
+        sys.exit(2)
 
 
 if __name__ == "__main__":
