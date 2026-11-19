@@ -147,15 +147,32 @@ def timing(df) -> dict:
     return {int(y): r.to_dict() for y, r in t.iterrows()}
 
 
+def bridge_symbols(df):
+    """Membership uses today's tickers; filings carry the ticker of their day. Map each row's ISIN to the
+    latest symbol that ISIN files under in the full NSE listing (2019..2026) -> column symbol_latest.
+    Reported both raw and bridged (bridge added after first look: raw coverage missed renamed names)."""
+    from harvest_results_xbrl import load_listing_frame
+    L = load_listing_frame().dropna(subset=["isin", "symbol"]).sort_values("broadcast_ts")
+    latest = L.groupby("isin")["symbol"].last()
+    b = df.assign(symbol=df["isin"].map(latest).fillna(df["symbol"]))
+    # a member matches on either its filing-day ticker or the ISIN's latest ticker (membership mixes both)
+    return pd.concat([df, b[b["symbol"] != df["symbol"]]], ignore_index=True)
+
+
 def main():
-    df = pd.read_parquet(RESULTS_XBRL_PATH)
+    raw = pd.read_parquet(RESULTS_XBRL_PATH)
+    df = raw
+    br = bridge_symbols(raw)
     cur = df[(df.context_role == "current")]
     years = sorted(df.broadcast_ts.dt.year.unique())
     U = members_by_year([y for y in years if y >= 2019])
     res = {"rows": int(len(df)), "filings": int(df.xbrl_url.nunique()), "current_rows": int(len(cur)),
            "broadcast_range": f"{df.broadcast_ts.min()}..{df.broadcast_ts.max()}",
            "period_type_current": cur.period_type.value_counts().to_dict(),
-           "coverage_pit_n500": coverage(df, U), "quarter_completeness": completeness(cur, U),
+           "coverage_pit_n500_raw_symbol": coverage(raw, U), "coverage_pit_n500": coverage(br, U),
+           "uncovered_members": {int(y): sorted(U[y] - set(br[br.broadcast_ts.dt.year == y].symbol)) for y in U},
+           "quarter_completeness_raw_symbol": completeness(raw[raw.context_role == "current"], U),
+           "quarter_completeness": completeness(br[br.context_role == "current"], U),
            "parse_failures": parse_failures(cur), "eps_sanity": eps_sanity(df), "cross_check_depth": cross_check(df),
            "revisions": revisions(df), "broadcast_timing": timing(df)}
     OUT.parent.mkdir(parents=True, exist_ok=True)

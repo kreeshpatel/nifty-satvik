@@ -1,0 +1,319 @@
+{
+ "rows": 35147,
+ "filings": 19926,
+ "current_rows": 19926,
+ "broadcast_range": "2019-01-11 16:25:08..2020-12-31 12:17:16",
+ "period_type_current": {
+  "Q": 19925,
+  "H": 1
+ },
+ "coverage_pit_n500_raw_symbol": {
+  "2019": 94.4,
+  "2020": 94.4
+ },
+ "coverage_pit_n500": {
+  "2019": 97.6,
+  "2020": 97.4
+ },
+ "uncovered_members": {
+  "2019": [
+   "BAYERCROP",
+   "CANFINHOME",
+   "GICRE",
+   "HDFCLIFE",
+   "ICICIGI",
+   "ICICIPRULI",
+   "IL&FSTRANS",
+   "JUBLINGREA",
+   "NIACL",
+   "SBILIFE",
+   "SHRIRAMFIN",
+   "SUNDARMFIN"
+  ],
+  "2020": [
+   "ABBOTINDIA",
+   "BAYERCROP",
+   "GICRE",
+   "HDFCLIFE",
+   "ICICIGI",
+   "ICICIPRULI",
+   "JUBLINGREA",
+   "MCX",
+   "NESTLEIND",
+   "NIACL",
+   "SBILIFE",
+   "SPICEJET",
+   "WESTLIFE"
+  ]
+ },
+ "quarter_completeness_raw_symbol": {
+  "2019": {
+   "pairs": 1984,
+   "quarters": 4,
+   "standalone_pct": 81.8,
+   "consolidated_pct": 70.1,
+   "either_pct": 83.1
+  },
+  "2020": {
+   "pairs": 1500,
+   "quarters": 3,
+   "standalone_pct": 92.6,
+   "consolidated_pct": 81.8,
+   "either_pct": 93.5
+  }
+ },
+ "quarter_completeness": {
+  "2019": {
+   "pairs": 1984,
+   "quarters": 4,
+   "standalone_pct": 84.5,
+   "consolidated_pct": 72.6,
+   "either_pct": 85.9
+  },
+  "2020": {
+   "pairs": 1500,
+   "quarters": 3,
+   "standalone_pct": 95.7,
+   "consolidated_pct": 84.7,
+   "either_pct": 96.5
+  }
+ },
+ "parse_failures": {
+  "revenue_ops": {
+   "2019": {
+    "fail_pct": 0.0,
+    "absent_pct": 1.9
+   },
+   "2020": {
+    "fail_pct": 0.0,
+    "absent_pct": 2.1
+   }
+  },
+  "total_income": {
+   "2019": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.1
+   },
+   "2020": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   }
+  },
+  "pat": {
+   "2019": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.1
+   },
+   "2020": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.7
+   }
+  },
+  "eps_basic": {
+   "2019": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2020": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   }
+  },
+  "eps_diluted": {
+   "2019": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2020": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   }
+  },
+  "finance_costs": {
+   "2019": {
+    "fail_pct": 0.0,
+    "absent_pct": 1.9
+   },
+   "2020": {
+    "fail_pct": 0.0,
+    "absent_pct": 2.1
+   }
+  },
+  "depreciation": {
+   "2019": {
+    "fail_pct": 0.0,
+    "absent_pct": 3.4
+   },
+   "2020": {
+    "fail_pct": 0.0,
+    "absent_pct": 2.4
+   }
+  },
+  "exceptional_items": {
+   "2019": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.1
+   },
+   "2020": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.1
+   }
+  },
+  "paid_up_equity": {
+   "2019": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2020": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   }
+  },
+  "face_value": {
+   "2019": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2020": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   }
+  },
+  "bs_equity_share_capital": {
+   "2019": {
+    "fail_pct": 0.0,
+    "absent_pct": 100.0
+   },
+   "2020": {
+    "fail_pct": 0.0,
+    "absent_pct": 100.0
+   }
+  },
+  "bs_total_equity": {
+   "2019": {
+    "fail_pct": 0.0,
+    "absent_pct": 100.0
+   },
+   "2020": {
+    "fail_pct": 0.0,
+    "absent_pct": 100.0
+   }
+  },
+  "bs_total_assets": {
+   "2019": {
+    "fail_pct": 0.0,
+    "absent_pct": 100.0
+   },
+   "2020": {
+    "fail_pct": 0.0,
+    "absent_pct": 100.0
+   }
+  },
+  "bs_borrowings_current": {
+   "2019": {
+    "fail_pct": 0.0,
+    "absent_pct": 100.0
+   },
+   "2020": {
+    "fail_pct": 0.0,
+    "absent_pct": 100.0
+   }
+  },
+  "bs_borrowings_noncurrent": {
+   "2019": {
+    "fail_pct": 0.0,
+    "absent_pct": 100.0
+   },
+   "2020": {
+    "fail_pct": 0.0,
+    "absent_pct": 100.0
+   }
+  }
+ },
+ "eps_sanity": {
+  "source_of_fy_eps": "FY year-to-date context inside the March-quarter filing",
+  "pairs": 1767,
+  "gap_median_pct": 0.04,
+  "gap_p90_pct": 25.48,
+  "share_gap_over_5pct": 15.9,
+  "share_gap_over_5pct_and_abs_over_0.5": 10.2,
+  "by_fy": {
+   "2019": 12.5,
+   "2020": 15.9
+  }
+ },
+ "cross_check_depth": {
+  "sampled": 50,
+  "matched": 46,
+  "revenue": {
+   "n": 45,
+   "median_abs_pct": 0.01,
+   "within_1pct": 91.1,
+   "within_5pct": 93.3,
+   "over_20pct": 2.2
+  },
+  "pat": {
+   "n": 45,
+   "median_abs_pct": 0.07,
+   "within_1pct": 95.6,
+   "within_5pct": 97.8,
+   "over_20pct": 2.2
+  },
+  "worst": [
+   {
+    "symbol": "SHK",
+    "fy_end": "2019-03-31",
+    "consolidated": false,
+    "rev_diff": -0.338,
+    "pat_diff": -0.489
+   },
+   {
+    "symbol": "RKFORGE",
+    "fy_end": "2020-03-31",
+    "consolidated": true,
+    "rev_diff": 0.0,
+    "pat_diff": -0.03
+   },
+   {
+    "symbol": "HEG",
+    "fy_end": "2019-03-31",
+    "consolidated": false,
+    "rev_diff": 0.0,
+    "pat_diff": 0.008
+   },
+   {
+    "symbol": "BERGEPAINT",
+    "fy_end": "2019-03-31",
+    "consolidated": true,
+    "rev_diff": -0.0,
+    "pat_diff": 0.007
+   },
+   {
+    "symbol": "PRAJIND",
+    "fy_end": "2020-03-31",
+    "consolidated": true,
+    "rev_diff": 0.0,
+    "pat_diff": 0.006
+   }
+  ]
+ },
+ "revisions": {
+  "revision_rows": 123,
+  "share_of_current_rows_pct": 0.62,
+  "median_days_to_revision": 2.27,
+  "p90_days_to_revision": 74.7,
+  "same_day_pct": 47.2
+ },
+ "broadcast_timing": {
+  "2019": {
+   "pre_0915": 0.4,
+   "0915_1530": 41.2,
+   "post_1530": 58.3
+  },
+  "2020": {
+   "pre_0915": 2.0,
+   "0915_1530": 40.8,
+   "post_1530": 57.2
+  }
+ }
+}
