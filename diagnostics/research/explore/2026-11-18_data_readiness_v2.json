@@ -1,0 +1,537 @@
+{
+ "universe_sizes": {
+  "2019": 496,
+  "2020": 500,
+  "2021": 498,
+  "2022": 497,
+  "2023": 499,
+  "2024": 500
+ },
+ "1_sector": {
+  "source": "config.py SECTOR_MAP (one label per ticker, no dates)",
+  "labels": 18,
+  "tickers": 607,
+  "coverage": {
+   "2019": {
+    "universe": 496,
+    "covered": 359,
+    "pct": 72.4
+   },
+   "2020": {
+    "universe": 500,
+    "covered": 391,
+    "pct": 78.2
+   },
+   "2021": {
+    "universe": 498,
+    "covered": 422,
+    "pct": 84.7
+   },
+   "2022": {
+    "universe": 497,
+    "covered": 422,
+    "pct": 84.9
+   },
+   "2023": {
+    "universe": 499,
+    "covered": 438,
+    "pct": 87.8
+   },
+   "2024": {
+    "universe": 500,
+    "covered": 449,
+    "pct": 89.8
+   }
+  },
+  "delisted_or_dropped_members_covered": "47 of 194",
+  "point_in_time": "NO - a single current label applied to every date",
+  "problem_sector_map": "themes -> sectors knowledge base; no ticker classification",
+  "sector_intelligence": "sector-level monthly/daily return aggregates keyed by SECTOR_MAP labels; no ticker classification"
+ },
+ "2_results": {
+  "fundamentals_pit_screener.pkl": {
+   "tickers": 654,
+   "columns": [
+    "period_end",
+    "eps_ttm",
+    "book_value_ps",
+    "roe",
+    "debt_equity"
+   ],
+   "period_ends": "2002-03-31..2026-03-31",
+   "median_days_between_periods": 365.0,
+   "lag": {
+    "n": 6880,
+    "median_days": 90.0,
+    "p95_days": 90.0
+   },
+   "coverage": {
+    "2019": {
+     "universe": 496,
+     "covered": 377,
+     "pct": 76.0
+    },
+    "2020": {
+     "universe": 500,
+     "covered": 396,
+     "pct": 79.2
+    },
+    "2021": {
+     "universe": 498,
+     "covered": 413,
+     "pct": 82.9
+    },
+    "2022": {
+     "universe": 497,
+     "covered": 414,
+     "pct": 83.3
+    },
+    "2023": {
+     "universe": 499,
+     "covered": 431,
+     "pct": 86.4
+    },
+    "2024": {
+     "universe": 500,
+     "covered": 439,
+     "pct": 87.8
+    }
+   }
+  },
+  "fundamentals_pit_depth.pkl": {
+   "tickers": 653,
+   "columns": [
+    "period_end",
+    "eps_ttm",
+    "book_value_ps",
+    "roe",
+    "debt_equity",
+    "sales",
+    "operating_profit",
+    "opm_pct",
+    "net_profit",
+    "total_assets",
+    "interest",
+    "depreciation"
+   ],
+   "period_ends": "2002-03-31..2026-03-31",
+   "median_days_between_periods": 365.0,
+   "lag": {
+    "n": 6868,
+    "median_days": 90.0,
+    "p95_days": 90.0
+   },
+   "coverage": {
+    "2019": {
+     "universe": 496,
+     "covered": 376,
+     "pct": 75.8
+    },
+    "2020": {
+     "universe": 500,
+     "covered": 395,
+     "pct": 79.0
+    },
+    "2021": {
+     "universe": 498,
+     "covered": 412,
+     "pct": 82.7
+    },
+    "2022": {
+     "universe": 497,
+     "covered": 413,
+     "pct": 83.1
+    },
+    "2023": {
+     "universe": 499,
+     "covered": 430,
+     "pct": 86.2
+    },
+    "2024": {
+     "universe": 500,
+     "covered": 438,
+     "pct": 87.6
+    }
+   }
+  },
+  "fundamentals_pit_backfill_20260729.pkl": {
+   "tickers": 57,
+   "columns": [
+    "period_end",
+    "eps_ttm",
+    "book_value_ps",
+    "roe",
+    "debt_equity",
+    "sales",
+    "operating_profit",
+    "opm_pct",
+    "net_profit",
+    "total_assets",
+    "interest",
+    "depreciation"
+   ],
+   "period_ends": "2007-03-31..2026-03-31",
+   "median_days_between_periods": 365.0,
+   "lag": {
+    "n": 621,
+    "median_days": 90.0,
+    "p95_days": 90.0
+   },
+   "coverage": {
+    "2019": {
+     "universe": 496,
+     "covered": 37,
+     "pct": 7.5
+    },
+    "2020": {
+     "universe": 500,
+     "covered": 22,
+     "pct": 4.4
+    },
+    "2021": {
+     "universe": 498,
+     "covered": 20,
+     "pct": 4.0
+    },
+    "2022": {
+     "universe": 497,
+     "covered": 18,
+     "pct": 3.6
+    },
+    "2023": {
+     "universe": 499,
+     "covered": 10,
+     "pct": 2.0
+    },
+    "2024": {
+     "universe": 500,
+     "covered": 8,
+     "pct": 1.6
+    }
+   }
+  },
+  "_earnings_raw.parquet": {
+   "rows": 103868,
+   "results_rows": 73869,
+   "event_dates": "2019-01-01..2026-07-28",
+   "lag_meeting_minus_prior_quarter_end": {
+    "n": 73869,
+    "median_days": 41.0,
+    "p95_days": 62.0
+   },
+   "intimation_lead_days": {
+    "n": 73869,
+    "median_days": 7.0,
+    "p95_days": 23.0
+   },
+   "coverage": {
+    "2019": {
+     "universe": 496,
+     "covered": 468,
+     "pct": 94.4
+    },
+    "2020": {
+     "universe": 500,
+     "covered": 470,
+     "pct": 94.0
+    },
+    "2021": {
+     "universe": 498,
+     "covered": 469,
+     "pct": 94.2
+    },
+    "2022": {
+     "universe": 497,
+     "covered": 476,
+     "pct": 95.8
+    },
+    "2023": {
+     "universe": 499,
+     "covered": 482,
+     "pct": 96.6
+    },
+    "2024": {
+     "universe": 500,
+     "covered": 487,
+     "pct": 97.4
+    }
+   },
+   "line_items": "none - the calendar has dates and purposes only"
+  },
+  "nse_financial_results_api": {
+   "rows": 65133,
+   "quarterly_rows": 65122,
+   "broadcast": "2019-01-11 16:25:08..2024-06-30 14:21:49",
+   "lag_broadcast_minus_period_end": {
+    "n": 65122,
+    "median_days": 42.0,
+    "p95_days": 92.0
+   },
+   "with_xbrl_link": 65133,
+   "consolidated_share": 0.414,
+   "coverage": {
+    "2019": {
+     "universe": 496,
+     "covered": 461,
+     "pct": 92.9
+    },
+    "2020": {
+     "universe": 500,
+     "covered": 463,
+     "pct": 92.6
+    },
+    "2021": {
+     "universe": 498,
+     "covered": 462,
+     "pct": 92.8
+    },
+    "2022": {
+     "universe": 497,
+     "covered": 468,
+     "pct": 94.2
+    },
+    "2023": {
+     "universe": 499,
+     "covered": 473,
+     "pct": 94.8
+    },
+    "2024": {
+     "universe": 500,
+     "covered": 477,
+     "pct": 95.4
+    }
+   }
+  },
+  "broadcast_vs_board_meeting": {
+   "broadcasts_one_per_symbol_period": 38663,
+   "matched_to_meeting": 35876,
+   "match_rate_pct": 92.8,
+   "gap_days_broadcast_minus_meeting": {
+    "same_day_pct": 48.3,
+    "next_day_pct": 43.8,
+    "2plus_days_pct": 7.8,
+    "median": 1.0,
+    "p95": 3.0
+   },
+   "time_of_day_ist_pct": {
+    "pre_open_lt_0915": 1.0,
+    "market_0915_1530": 38.8,
+    "post_close_gt_1530": 60.3
+   },
+   "seconds_resolution": "broadCastDate carries HH:MM:SS (exchange dissemination time)"
+  }
+ },
+ "3_index": {
+  "repo_nifty500_transitions": {
+   "file": "data/nse_circulars/transitions_wayback.csv",
+   "rows": 764,
+   "effective": "2019-02-01..2026-05-02",
+   "announcement_date": "absent (effective date only)"
+  }
+ },
+ "4_surveillance": {
+  "ASM_circulars": {
+   "n": 2864,
+   "by_year": {
+    "2019": 437,
+    "2020": 491,
+    "2021": 482,
+    "2022": 540,
+    "2023": 607,
+    "2024": 307
+   },
+   "attachments": {
+    "zip": 2849,
+    "pdf": 15
+   }
+  },
+  "GSM_circulars": {
+   "n": 1049,
+   "by_year": {
+    "2019": 77,
+    "2020": 262,
+    "2021": 336,
+    "2022": 184,
+    "2023": 120,
+    "2024": 70
+   },
+   "attachments": {
+    "pdf": 931,
+    "zip": 118
+   }
+  },
+  "gsm_in_daily_band_files": {
+   "files": 1114,
+   "first": "20191230",
+   "last": "20240628",
+   "gsm_rows": 59557
+  }
+ },
+ "5_insider": {
+  "pit_reg7": {
+   "rows": 149642,
+   "promoter_rows": 47107,
+   "broadcast": "2019-01-01 10:43:00..2024-06-30 12:29:00",
+   "lag_broadcast_minus_trade": {
+    "n": 149317,
+    "median_days": 3.0,
+    "p95_days": 18.0
+   },
+   "modes": {
+    "Market Sale": 64397,
+    "ESOP": 28951,
+    "Market Purchase": 24228,
+    "Revokation of Pledge": 8185,
+    "Pledge Creation": 7299,
+    "Off Market": 3251
+   },
+   "coverage_any_disclosure": {
+    "2019": {
+     "universe": 496,
+     "covered": 335,
+     "pct": 67.5
+    },
+    "2020": {
+     "universe": 500,
+     "covered": 335,
+     "pct": 67.0
+    },
+    "2021": {
+     "universe": 498,
+     "covered": 326,
+     "pct": 65.5
+    },
+    "2022": {
+     "universe": 497,
+     "covered": 256,
+     "pct": 51.5
+    },
+    "2023": {
+     "universe": 499,
+     "covered": 212,
+     "pct": 42.5
+    },
+    "2024": {
+     "universe": 500,
+     "covered": 170,
+     "pct": 34.0
+    }
+   }
+  },
+  "sast_reg29": {
+   "rows": 25590,
+   "broadcast": "2019-01-01 08:52:00..2024-06-29 15:14:00",
+   "lag_broadcast_minus_acquisition": {
+    "n": 25590,
+    "median_days": 3.0,
+    "p95_days": 28.0
+   },
+   "coverage_any_disclosure": {
+    "2019": {
+     "universe": 496,
+     "covered": 272,
+     "pct": 54.8
+    },
+    "2020": {
+     "universe": 500,
+     "covered": 277,
+     "pct": 55.4
+    },
+    "2021": {
+     "universe": 498,
+     "covered": 240,
+     "pct": 48.2
+    },
+    "2022": {
+     "universe": 497,
+     "covered": 201,
+     "pct": 40.4
+    },
+    "2023": {
+     "universe": 499,
+     "covered": 257,
+     "pct": 51.5
+    },
+    "2024": {
+     "universe": 500,
+     "covered": 190,
+     "pct": 38.0
+    }
+   }
+  }
+ },
+ "6_prices": {
+  "price_tickers": 814,
+  "pit_members_2019_2024": 694,
+  "members_with_prices": 694,
+  "members_dropped_by_2024": 194,
+  "dropped_with_prices": 194,
+  "adjustment": "yfinance auto_adjust=True (splits, bonuses and dividends back-adjusted) plus carried corrections (corporate_actions_*.csv, delisted_alias_map.json)",
+  "coverage_2019": "496/496",
+  "coverage_2020": "500/500",
+  "coverage_2021": "498/498",
+  "coverage_2022": "497/497",
+  "coverage_2023": "499/499",
+  "coverage_2024": "500/500",
+  "match_test_excl_2024_01_23": {
+   "pairs": 769,
+   "match_rate_pct": 99.9,
+   "mismatches": [
+    {
+     "tkr": "LODHA",
+     "date": "2023-09-08",
+     "yahoo": 0.03665765083224226,
+     "bhav": 0.03526244952893687,
+     "diff_pp": 0.13952013033053934
+    }
+   ]
+  },
+  "match_test": {
+   "pairs": 1000,
+   "both_present": 816,
+   "missing_yahoo": 98,
+   "missing_bhav": 142,
+   "match_le_0p10pp": 770,
+   "match_rate_pct": 94.4,
+   "match_le_0p50pp": 780,
+   "worst": [
+    {
+     "tkr": "CEATLTD",
+     "date": "2024-01-23",
+     "yahoo": 0.06143172538961705,
+     "bhav": -0.05485586822237476,
+     "diff_pp": 11.628759361199181
+    },
+    {
+     "tkr": "SCI",
+     "date": "2024-01-23",
+     "yahoo": 0.08601526246292868,
+     "bhav": 0.01089324618736387,
+     "diff_pp": 7.512201627556481
+    },
+    {
+     "tkr": "INDOSTAR",
+     "date": "2024-01-23",
+     "yahoo": -0.009754879145885353,
+     "bhav": -0.0499885870805753,
+     "diff_pp": 4.023370793468994
+    },
+    {
+     "tkr": "ADANIPOWER",
+     "date": "2024-01-23",
+     "yahoo": 0.0015481728541044681,
+     "bhav": -0.03541142484391013,
+     "diff_pp": 3.69595976980146
+    },
+    {
+     "tkr": "KNRCON",
+     "date": "2024-01-23",
+     "yahoo": 0.000572919610480005,
+     "bhav": -0.03427939550313308,
+     "diff_pp": 3.4852315113613086
+    }
+   ],
+   "bhav_days_fetched": 19
+  }
+ }
+}
