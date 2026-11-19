@@ -43,7 +43,7 @@ LEG_COST_REF = 0.0035
 SW_WIN = ("2019-03-01", "2024-06-28")
 MOM_END = "2026-06-30"
 PATH0_ANCHOR = 1.348913                    # prompt 1: path 0 of the 20-path base, unpatched engine
-NEUTRAL = {"lat": False, "stop_low": False, "drop": None}
+NEUTRAL = {"lat": False, "stop_low": False, "drop": None, "n4": None}
 
 
 def _drop_fn(seed: int):
@@ -62,6 +62,12 @@ def install_swing_engine():
         ('orders[t] = {"days": set(days), "lo": lo,',
          'orders[t] = {"days": ({k + 1 for k in days} if _STRESS["lat"] else set(days)), "lo": lo,'),
         ('            if p["pending"] is not None:\n                act, rs = p["pending"]\n                px = s["o"][i]\n',
+         '            if _STRESS.get("n4") is not None:\n'
+         '                if "_n4_exit" not in p:\n'
+         '                    _ed = pd.Timestamp(p["rec"]["entry_date"]) if "rec" in p else pd.Timestamp(d)\n'
+         '                    p["_n4_exit"] = _ed + pd.Timedelta(days=int(_STRESS["n4"](t, str(_ed.date()))))\n'
+         '                if p["pending"] is None and pd.Timestamp(d) >= p["_n4_exit"]:\n'
+         '                    p["pending"] = ("full", "n4_time")\n'
          '            if p["pending"] is not None and _STRESS["lat"] and p.get("_lag_d") is None:\n'
          '                p["_lag_d"] = d\n'
          '            if p["pending"] is not None and not (_STRESS["lat"] and p.get("_lag_d") == d):\n'
@@ -70,6 +76,9 @@ def install_swing_engine():
          '                px = s["o"][i]\n'
          '                if _STRESS["stop_low"] and act == "full" and str(rs).startswith("stop"):\n'
          '                    px = s["l"][i]\n'),
+        ('            # forensic lever 2b: book the +2R half at a RESTING LIMIT',
+         '            if _STRESS.get("n4") is not None:\n                continue\n'
+         '            # forensic lever 2b: book the +2R half at a RESTING LIMIT'),
         ('        for rk, t, i, opn in sorted(cands, key=_key):\n            o_ = orders.get(t)\n'
          '            if o_ is None or t in op:\n                continue\n',
          '        for rk, t, i, opn in sorted(cands, key=_key):\n            o_ = orders.get(t)\n'
@@ -761,6 +770,164 @@ def held_gap_p1() -> dict:
     return out
 
 
+# ======================================================================================== Harness Step A (spec 3)
+OPEN_REASONS = {"stop", "stop_part", "sma_break", "time", "stale"}
+
+
+def ew_components(ctl) -> pd.DataFrame:
+    """Equal-weight member returns: close-to-close (cc), overnight (on: open/prev close), intraday (id: close/open)."""
+    cc, on, idr = {}, {}, {}
+    for t, s in ctl.P.items():
+        per = (ctl.mem or {}).get(t.upper()) if ctl.mem is not None else None
+        if ctl.mem is not None and not per:
+            continue
+        ix = pd.DatetimeIndex(s["dates"]).normalize()
+        o, c = np.asarray(s["o"], float), np.asarray(s["c"], float)
+        pc = np.concatenate([[np.nan], c[:-1]])
+        m = np.ones(len(ix), bool)
+        if ctl.mem is not None:
+            m[:] = False
+            dd = ix.date
+            for a, b in per:
+                m |= (dd >= a) & (dd <= b)
+        keep = m & ~ix.duplicated(keep="last")
+        cc[t] = pd.Series((c / pc - 1)[keep], index=ix[keep])
+        on[t] = pd.Series((o / pc - 1)[keep], index=ix[keep])
+        idr[t] = pd.Series((c / o - 1)[keep], index=ix[keep])
+    f = lambda dct: pd.DataFrame(dct).replace([np.inf, -np.inf], np.nan).mean(axis=1, skipna=True)
+    return pd.DataFrame({"cc": f(cc), "on": f(on), "id": f(idr)})
+
+
+def matched_baseline(nav: pd.Series, plog: pd.DataFrame, led: pd.DataFrame, ev: pd.DataFrame, ewc: pd.DataFrame,
+                     dates: pd.DatetimeIndex) -> pd.Series:
+    """Spec 3 baseline on `dates` (the placebo's return dates)."""
+    plog = plog.copy()
+    plog["date"] = pd.to_datetime(plog["date"]).dt.normalize()
+    hold = {d: g.set_index("tkr") for d, g in plog.groupby("date")}
+    navd = nav.copy()
+    exit_reason = {}
+    if len(led):
+        for r in led.itertuples():
+            exit_reason[(r.tkr, pd.Timestamp(r.exit_date).normalize())] = r.reason
+    part = {}
+    if len(ev):
+        for r in ev[ev["event_type"] == "partial_book"].itertuples():
+            part.setdefault((r.ticker, pd.Timestamp(r.event_date).normalize()), []).append(r.reason_code)
+    allx = navd.index
+    out = []
+    for d in dates:
+        k = allx.get_loc(d)
+        if k == 0:
+            out.append(0.0)
+            continue
+        dp = allx[k - 1]
+        eq0 = float(navd.iloc[k - 1])
+        hp, hc = hold.get(dp), hold.get(d)
+        e = ewc.loc[d] if d in ewc.index else pd.Series({"cc": 0.0, "on": 0.0, "id": 0.0})
+        e = e.fillna(0.0)
+        b = 0.0
+        if hp is not None:
+            for t, r in hp.iterrows():
+                w0 = float(r["shares"]) * float(r["mark_px"]) / eq0
+                sh_now = float(hc.loc[t, "shares"]) if (hc is not None and t in hc.index) else 0.0
+                sold = max(0.0, float(r["shares"]) - sh_now) / float(r["shares"]) if r["shares"] > 0 else 0.0
+                if sh_now == 0.0:
+                    rs = exit_reason.get((t, d), "stop")
+                    b += w0 * (e["cc"] if rs == "targets" else e["on"])
+                    continue
+                if sold > 1e-9:
+                    rc = part.get((t, d), [])
+                    leg = e["on"] if ("pattern_frac" in rc and "t1_done" not in rc) else e["cc"]
+                    b += w0 * sold * leg + w0 * (1 - sold) * e["cc"]
+                else:
+                    b += w0 * e["cc"]
+        if hc is not None:
+            for t, r in hc.iterrows():
+                if hp is None or t not in hp.index:
+                    b += float(r["shares"]) * float(r["entry"]) / eq0 * e["id"]
+        out.append(b)
+    return pd.Series(out, index=dates)
+
+
+def n4_hold_fn(seed: int):
+    """Holding period (calendar days) drawn by hash(seed, ticker, entry date) from the unperturbed swing ledger."""
+    import explore_blend_drawdown_sizing as B
+    led = B.navs()["swing_ledger"]
+    led = led[led["reason"] != "eos"]
+    hp = sorted(int(x) for x in (pd.to_datetime(led["exit_date"]) - pd.to_datetime(led["entry_date"])).dt.days)
+    def f(tkr, entry_date) -> int:
+        return hp[zlib.crc32(f"{seed}|{tkr}|{entry_date}".encode()) % len(hp)]
+    f.pool = hp
+    return f
+
+
+def run_a3(scen: str) -> None:
+    """Regenerate the cached cost-OFF swing twin `scen` with fill logs; verify NAV identity; both baselines per seed."""
+    R94 = install_swing_engine()
+    from nq.lab import ensemble as E
+    from nq.lab import runs as L
+    ctx = E.prepare_context()
+    ctl = SwingControls(ctx)
+    ewc = ew_components(ctl)
+    cached = [] if scen == "N4off" else _load("swing", scen)["rows"]
+    draws = E.draw_perturbations(N_SEEDS, E.DEFAULT_SEED)
+    res = []
+    t0 = time.time()
+    for _, d in draws.iterrows():
+        k = int(d["path"])
+        P2, _n = ctl.build("N2" if scen == "N4off" else scen[:2], k)
+        cfg = {**L.normalize_config({}), "start": str(pd.Timestamp(d["start"]).date())}
+        led, plog, ev = [], [], []
+        R94._STRESS.clear(); R94._STRESS.update({**NEUTRAL, "n4": n4_hold_fn(k) if scen == "N4off" else None})
+        with E.cost_jitter(0.0):
+            out = R94.backtest(P2, ctx.mem, ledger=led, a_grade=R94.grade_a_entries(P2), **L.engine_kwargs(cfg),
+                               demerger_events=ctx.events, position_log=plog, event_log=ev, cost_off=True)
+        nav = pd.Series(out["curve"], dtype=float)
+        nav.index = pd.DatetimeIndex(nav.index).normalize()
+        nav = nav[~nav.index.duplicated(keep="last")].sort_index()
+        R94._STRESS.clear(); R94._STRESS.update(NEUTRAL)
+        if scen == "N4off":
+            pl = pd.DataFrame(plog)
+            pl["w"] = pl["notional"] / pl["equity"]
+            expo_k = pl.groupby(pd.to_datetime(pl["date"]).dt.normalize())["w"].sum().reindex(nav.index).fillna(0.0)
+            cached.append({"nav": nav, "expo": expo_k})
+            hold = pd.DataFrame(led)
+            hold = hold[hold["reason"] != "eos"] if len(hold) else hold
+        c = cached[k]["nav"]
+        if not (len(c) == len(nav) and np.array_equal(c.to_numpy(), nav.to_numpy()) and c.index.equals(nav.index)):
+            raise SystemExit(f"{scen} seed {k}: regenerated NAV differs from the cache: stop")
+        r = book_returns("swing", nav)
+        bm = matched_baseline(nav, pd.DataFrame(plog), pd.DataFrame(led), pd.DataFrame(ev), ewc, r.index)
+        x = cached[k]["expo"].reindex(cached[k]["expo"].index.union(r.index)).ffill().shift(1).reindex(r.index).fillna(0.0)
+        ba2 = x * ewc["cc"].reindex(r.index).fillna(0.0)
+        res.append({"seed": k, "d_matched": float((r.mean() - bm.mean()) * 252), "d_a2": float((r.mean() - ba2.mean()) * 252),
+                    "placebo_ann": float(r.mean() * 252), "baseline_matched_ann": float(bm.mean() * 252),
+                    "baseline_a2_ann": float(ba2.mean() * 252)})
+        if k % 10 == 0:
+            print("a3", scen, k, round(time.time() - t0), flush=True)
+    pd.to_pickle(res, CACHE / f"a3_swing__{scen}.pkl")
+    print("done a3", scen, round(time.time() - t0), flush=True)
+
+
+def a3_report(names=("N1off", "N2off")) -> dict:
+    out = {"spec": "post-hoc spec 3 (Harness Step A): matched-fill baseline; pass |z| < 3 on swing N1 and N2"}
+    for scen in names:
+        rows = pd.DataFrame(pd.read_pickle(CACHE / f"a3_swing__{scen}.pkl"))
+        o = {}
+        for col in ("d_matched", "d_a2"):
+            v = rows[col].to_numpy()
+            se = v.std(ddof=1) / np.sqrt(len(v))
+            o[col] = {"mean_ann_pct": round(float(v.mean()) * 100, 3), "se_pct": round(float(se) * 100, 3),
+                      "z": round(float(v.mean() / se), 2), "pass_abs_z_lt_3": bool(abs(v.mean() / se) < 3)}
+        o["placebo_ann_pct"] = round(float(rows["placebo_ann"].mean()) * 100, 2)
+        o["baseline_matched_ann_pct"] = round(float(rows["baseline_matched_ann"].mean()) * 100, 2)
+        o["baseline_a2_ann_pct"] = round(float(rows["baseline_a2_ann"].mean()) * 100, 2)
+        o["n_seeds"] = int(len(rows))
+        out[scen] = o
+    out["passed"] = all(out[s]["d_matched"]["pass_abs_z_lt_3"] for s in names)
+    return out
+
+
 # ======================================================================================== report
 def report() -> None:
     tri = tri_series()
@@ -854,6 +1021,10 @@ if __name__ == "__main__":
         run_momentum(args)
     elif mode == "controls":
         print(json.dumps(controls(), indent=1, default=str))
+    elif mode == "a3":
+        run_a3(args[0])
+    elif mode == "a3_report":
+        print(json.dumps(a3_report(tuple(args) if args else ("N1off", "N2off")), indent=1, default=str))
     elif mode == "a2":
         print(json.dumps(controls_a2(ROOT / ".cache" / "stress_suite_a2_replica"), indent=1, default=str))
     elif mode == "held_gap":
