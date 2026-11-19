@@ -370,3 +370,20 @@ return shortfall. The return test is now the binding one, and it fails in two di
 3. **0001 N2 (−0.58pp).** The persistent random ranks hold names for months, against a universe re-weighted daily; the
    remaining rebalancing bonus in the baseline is the natural candidate. It is small in size, and the z is driven by
    a tight SE across 100 seeds on one history.
+
+### Amendment 2 — independent re-derivation, swing N2 [measured]
+
+A fresh `blind-replica` worked from the spec and the exported cost-off series only. Spec, code and result are in
+`explore/2026-11-19_stress_suite_a2_replica/`.
+
+| quantity | replica | pipeline | gap |
+|---|---|---|---|
+| diff, % a year | +2.348 | +2.348 | 0 |
+| SE | 0.610 | 0.61 | 0 |
+| z | 3.85 | 3.85 | 0 |
+| vol ratio | 1.180 | 1.18 | 0 |
+| Sharpe gap observed / predicted | −0.084 / −0.199 | −0.084 / −0.199 | 0 |
+| invested days | 1,313 | 1,313 | 0 |
+
+The replica notes that exposure is never zero (minimum 0.137), so the invested-day filter keeps every day. Both
+implementations start on 2019-03-05, the first return after the 2019-03-01 slice start.
