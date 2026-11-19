@@ -35,7 +35,13 @@ and no trials.
 > - In the Monte Carlo, this changes per-draw harvest gains by up to ₹25k. Over 400 draws × 2 seeds, it changes
 >   **no** P(gain > 0); the median of the pre-31-March group moved between ₹31.5k and ₹33.6k [measured].
 > - S0, S1 and S4 are unaffected.
-> - The fix (sorting the set) belongs in #212's script, which this PR may not edit (owner decision 5).
+> - **Fixed 2026-11-19** in #212 (commit 259546d):
+>   - Every set is now iterated in sorted order. The harvest walks lots FIFO within a fund, and funds in order of
+>     highest unrealised gain per rupee redeemed.
+>   - #212's deterministic S1→S2 is now **+₹11,564 under every seed**; a spec-only replica matches it to the rupee.
+>   - The harvest step below has been re-run on all 4,000 draws with the fixed code
+>     (`pipelines/diagnostics/explore_tax_mc_harvest_rerun.py` → `2026-11-19_tax_mc_harvest_rerun.json`), keyed by
+>     draw index.
 
 **Mission line.** This tests whether the after-tax vehicle ranking from #212 holds up against uncertain law,
 parameters and return paths before any of it is acted on.
@@ -258,28 +264,44 @@ S1→S2 gain, base law, 4,000 draws.
 
 | group | share of draws | 60/40 p5 / p50 / p95 | P(gain>0) | 65/35 P(gain>0) |
 |---|---|---|---|---|
-| **fixed pre-31-March date** (offset ≤ +15) | 75.8% | −53 / **+29.9k** / +86.3k | **0.832** | 0.824 |
-| on or after 31 March (offset > +15) | 24.2% | −4.4k / +18.2k / +72.3k | 0.772 | 0.766 |
+| **fixed pre-31-March date** (offset ≤ +15) | 75.8% | −55 / **+29.5k** / +86.9k | **0.832** | 0.823 |
+| on or after 31 March (offset > +15) | 24.2% | −4.5k / +18.2k / +73.1k | 0.773 | 0.766 |
+
+These are the fixed-code values. Before the fix:
+
+| group | 60/40 p50 | P(gain>0) |
+|---|---|---|
+| fixed pre-31-March date | +29.9k | 0.832 |
+| on or after 31 March | +18.2k | 0.772 |
+| all draws | +26.7k | 0.817 |
+
+After the fix, all draws read +26.5k and 0.817.
+
+- 1,056 of the 4,000 draws changed their harvest gain by more than ₹1, by up to ₹34k.
+- No probability moved by more than 0.001.
+- S1 was unchanged to ₹0.
+
+[measured]
 
 60/40 by 5-day offset bin:
 
 | offset (days) | p50 | P |
 |---|---|---|
 | −30..−26 | 24.1k | 0.75 |
-| −25..−21 | 26.3k | 0.81 |
-| −20..−16 | 29.7k | 0.84 |
-| −15..−11 | 32.1k | 0.82 |
-| −10..−6 | 32.7k | 0.89 |
-| −5..−1 | 28.4k | 0.83 |
-| 0..+4 | 33.5k | 0.86 |
-| +5..+9 | 31.8k | 0.82 |
-| +10..+14 | 30.5k | 0.84 |
-| +15..+19 | 26.6k | 0.80 |
+| −25..−21 | 26.2k | 0.81 |
+| −20..−16 | 30.8k | 0.84 |
+| −15..−11 | 33.1k | 0.82 |
+| −10..−6 | 31.7k | 0.89 |
+| −5..−1 | 27.9k | 0.83 |
+| 0..+4 | 33.1k | 0.86 |
+| +5..+9 | 32.1k | 0.82 |
+| +10..+14 | 30.1k | 0.84 |
+| +15..+19 | 25.0k | 0.80 |
 | +20..+24 | 17.6k | 0.77 |
 | +25..+30 | 16.8k | 0.76 |
 
-The gain falls once the harvest slips past 31 March. The fixed pre-31-March figure is the headline. Per Correction 3,
-the per-draw amounts carry about ±₹1–2k of median hash-seed noise; the probabilities do not.
+The gain falls once the harvest slips past 31 March. The fixed pre-31-March figure is the headline. With the fixed
+simulator, the per-draw amounts no longer depend on the hash seed, so the earlier ±₹1–2k caveat is withdrawn.
 
 ### 2. Owner surcharge as a dimension [measured]
 
@@ -381,12 +403,12 @@ relative.
 | step | rule | 60/40 p50 change | 65/35 p50 change | converged? |
 |---|---|---|---|---|
 | S0→S1 | absolute | ₹357 | ₹215 | **yes** |
-| S1→S2 | relative | 2.0% | 1.7% | **no** |
+| S1→S2 | relative | 1.3% (fixed code; 2.0% before) | 1.1% (1.7% before) | **no** |
 | S2→S3 | relative | 0.9% | 0.2% | yes |
 | S2→S4 | relative | 0.6% | 0.7% | yes |
 
-Every P(gain>0) moved by less than 0.006, so all probabilities converged. The S1→S2 p50 also carries the hash-seed
-noise from Correction 3.
+Every P(gain>0) moved by less than 0.006, so all probabilities converged. The S1→S2 p50 still misses the 1% rule
+on the fixed code.
 
 ### 5. Level comparability [measured]
 
@@ -441,12 +463,17 @@ keyed by `i`.
      - adopt arbitrage as the cash leg in the fallback design;
      - wait for Q6;
      - fetch the index TRI to confirm.
-3. **Harvest date.** Fix it before 31 March: P 0.83 and median +₹29.9k, against 0.77 and +₹18.2k when it slips into
+3. **Harvest date.** Fix it before 31 March: P 0.83 and median +₹29.5k, against 0.77 and +₹18.2k when it slips into
    April.
 4. **Company route (S4).**
    - At ₹20L it loses under every surcharge and every law.
    - It is worth revisiting only if CA Q9 puts the owner at 15% surcharge or more **and** capital reaches about
      ₹7–25 cr (median ₹13.6 cr), with no dividend ever paid.
    - With a dividend, never.
-5. **Simulator fix.** Sort `Taxpayer.retarget`'s set iteration in #212's script (Correction 3), then re-run #212's
-   deterministic numbers under a fixed order. This is a change to #212, so it needs the owner's word.
+5. **Simulator fix.** Done on 2026-11-19 (Correction 3).
+
+**Not re-run on the fixed code.**
+- The S2→S3 and S2→S4 distributions, the law A–C harvest rows, and the surcharge run still rest on simulations whose
+  harvest order was hash-seed dependent.
+- On the evidence of the harvest re-run (no probability moved by more than 0.001), their probabilities should hold
+  [inferred]. Their rupee medians may move by about 1%.
