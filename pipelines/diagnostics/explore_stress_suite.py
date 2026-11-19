@@ -1,0 +1,739 @@
+"""MEASUREMENT: stress suite (S1-S7) with negative controls (N1-N3) for the live swing book, 0001 momentum and the 70/30
+blend at an 11% vol target.
+
+Owner request 2026-11-19 ("prompt 2", research/stress-suite). Analysis only: no live rule, no trial counter, no sealed
+read. Pass criteria and the full method are fixed in diagnostics/research/2026-11-19_stress_suite.md (Step 0, committed
+before any run). This file implements that method; nothing here can be adopted.
+
+REUSED, NOT EDITED: nq/lab/ensemble.py (draw_perturbations, cost_jitter, prepare_context), explore_param_sensitivity
+(TRI Sharpe), explore_stops_are_requests (apply_cash_scaled idea - re-expressed in return space here), and
+explore_blend_drawdown_sizing (navs, window, blend, boot_dd). Shocks that must act inside an engine run on a SOURCE-
+PATCHED COPY of that engine (the sma_len technique of explore_param_sensitivity): each patched literal is asserted to
+occur exactly once, and with every hook off the copy reproduces prompt 1's path-0 Sharpe 1.348913.
+
+    python pipelines/diagnostics/explore_stress_suite.py swing    <scen> [<scen> ...]   # base S1 S2 S3 S4 S5 N1 N2 N3
+    python pipelines/diagnostics/explore_stress_suite.py momentum <scen> [<scen> ...]   # base S1 S2 S3 S4 S5 N1 N2 N3
+    python pipelines/diagnostics/explore_stress_suite.py controls      # N1-N3 verdict (run first)
+    python pipelines/diagnostics/explore_stress_suite.py report        # shocks table + everything
+"""
+from __future__ import annotations
+
+import json
+import sys
+import time
+import types
+import zlib
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path[:0] = [str(ROOT), str(ROOT / "scripts"), str(ROOT / "pipelines" / "research"),
+                str(ROOT / "pipelines" / "diagnostics"), str(ROOT / "pipelines" / "lifecycle")]
+
+CACHE = ROOT / ".cache" / "stress_suite"
+OUT_JSON = ROOT / "diagnostics" / "research" / "explore" / "2026-11-19_stress_suite.json"
+N_PATHS, N_SEEDS = 20, 100
+TARGET = 0.11
+P_DROP, P_GAP = 0.10, 0.01
+SEED_LABEL, SEED_S6, SEED_S7 = 20261119, 20261120, 20261121
+LEG_COST_REF = 0.0035
+SW_WIN = ("2019-03-01", "2024-06-28")
+MOM_END = "2026-06-30"
+PATH0_ANCHOR = 1.348913                    # prompt 1: path 0 of the 20-path base, unpatched engine
+NEUTRAL = {"lat": False, "stop_low": False, "drop": None}
+
+
+def _drop_fn(seed: int):
+    """Deterministic p=0.10 drop, independent of evaluation order: hash(seed, ticker, key) -> U[0,1)."""
+    def f(tkr, key) -> bool:
+        return zlib.crc32(f"{seed}|{tkr}|{key}".encode()) / 2 ** 32 < P_DROP
+    return f
+
+
+# ======================================================================================== swing: patched engine
+def install_swing_engine():
+    """Register a source-patched copy of the swing engine as `run_bhanushali_weekly_rank` (before nq.lab imports it)."""
+    src_path = ROOT / "scripts" / "run_bhanushali_weekly_rank.py"
+    src = src_path.read_text(encoding="utf-8")
+    reps = [
+        ('orders[t] = {"days": set(days), "lo": lo,',
+         'orders[t] = {"days": ({k + 1 for k in days} if _STRESS["lat"] else set(days)), "lo": lo,'),
+        ('            if p["pending"] is not None:\n                act, rs = p["pending"]\n                px = s["o"][i]\n',
+         '            if p["pending"] is not None and _STRESS["lat"] and p.get("_lag_d") is None:\n'
+         '                p["_lag_d"] = d\n'
+         '            if p["pending"] is not None and not (_STRESS["lat"] and p.get("_lag_d") == d):\n'
+         '                p.pop("_lag_d", None)\n'
+         '                act, rs = p["pending"]\n'
+         '                px = s["o"][i]\n'
+         '                if _STRESS["stop_low"] and act == "full" and str(rs).startswith("stop"):\n'
+         '                    px = s["l"][i]\n'),
+        ('        for rk, t, i, opn in sorted(cands, key=_key):\n            o_ = orders.get(t)\n'
+         '            if o_ is None or t in op:\n                continue\n',
+         '        for rk, t, i, opn in sorted(cands, key=_key):\n            o_ = orders.get(t)\n'
+         '            if o_ is None or t in op:\n                continue\n'
+         '            if _STRESS["drop"] is not None and _STRESS["drop"](t, str(pd.Timestamp(d).date())):\n'
+         '                del orders[t]\n                continue\n')]
+    for a, b in reps:
+        assert src.count(a) == 1, f"patch anchor moved: {a[:60]!r}"
+        src = src.replace(a, b)
+    mod = types.ModuleType("run_bhanushali_weekly_rank")
+    mod.__file__ = str(src_path)
+    mod._STRESS = dict(NEUTRAL)
+    sys.modules["run_bhanushali_weekly_rank"] = mod
+    exec(compile(src, str(src_path), "exec"), mod.__dict__)
+    return mod
+
+
+def _week_index(s: dict) -> tuple[np.ndarray, dict]:
+    dts = pd.DatetimeIndex(s["dates"])
+    iso = dts.isocalendar()
+    yw = (iso["year"].to_numpy() * 100 + iso["week"].to_numpy()).astype(int)
+    first = {}
+    for j, k in enumerate(yw):
+        first.setdefault(int(k), [j, j])[1] = j
+    return yw, first
+
+
+def _yw(ts) -> int:
+    c = pd.Timestamp(ts).isocalendar()
+    return int(c[0]) * 100 + int(c[1])
+
+
+class SwingControls:
+    """Builds relabelled / random / reversed entry windows on a copy of the prepared panel (P is never mutated)."""
+
+    def __init__(self, ctx):
+        self.P, self.mem = ctx.P, ctx.mem
+        self.didx = {t: {pd.Timestamp(d).normalize(): i for i, d in enumerate(s["dates"])} for t, s in ctx.P.items()}
+        self.wk = {t: _week_index(s) for t, s in ctx.P.items()}
+        self.sigs = []                                  # (t, e0, entry_date, entry_week_dates, lo, hi, rk, sma, org)
+        for t, s in ctx.P.items():
+            dts = pd.DatetimeIndex(s["dates"]).normalize()
+            for e0, (days, lo, hi, rk, sma, org) in s["entry_win"].items():
+                self.sigs.append((t, e0, dts[e0], [dts[k] for k in days], lo, hi, rk, sma, org))
+        self._pool = {}
+        cal = sorted(set().union(*[set(pd.DatetimeIndex(s["dates"]).normalize()) for s in ctx.P.values()]))
+        self.cal = pd.DatetimeIndex(cal)
+
+    def member(self, t, d) -> bool:
+        if self.mem is None:
+            return True
+        per = self.mem.get(t.upper())
+        dd = pd.Timestamp(d).date()
+        return bool(per) and any(a <= dd <= b for a, b in per)
+
+    def pool(self, d) -> list:
+        d = pd.Timestamp(d).normalize()
+        if d not in self._pool:
+            self._pool[d] = sorted(u for u in self.P if d in self.didx[u] and self.member(u, d))
+        return self._pool[d]
+
+    def geometry(self, u, entry_dates, rk, org):
+        """Entry window for ticker u: its own signal-week low/high/44w SMA, the given rank/origin."""
+        dix = self.didx[u]
+        eidx = [dix[d] for d in entry_dates if d in dix]
+        if not eidx:
+            return None
+        yw, first = self.wk[u]
+        sig = first.get(_yw(pd.Timestamp(entry_dates[0]) - pd.Timedelta(days=7)))
+        if sig is None:
+            return None
+        s = self.P[u]
+        lo = float(np.min(s["l"][sig[0]:sig[1] + 1]))
+        hi = float(np.max(s["h"][sig[0]:sig[1] + 1]))
+        sma = s["wsma_at"].get(sig[1], float("nan"))
+        sma = float(sma) if sma == sma else lo
+        return eidx[0], (eidx, lo, hi, float(rk), sma, int(org))
+
+    def build(self, mode: str, seed: int):
+        rng = np.random.default_rng(SEED_LABEL + seed)
+        new = {t: {} for t in self.P}
+        if mode == "N3":
+            for t, e0, _d, _ed, lo, hi, rk, sma, org in self.sigs:
+                new[t][e0] = (self.P[t]["entry_win"][e0][0], lo, hi, -rk, sma, org)
+        elif mode == "N1":
+            by_week = {}
+            for sg in self.sigs:
+                by_week.setdefault(_yw(sg[2]), []).append(sg)
+            for wk in sorted(by_week):
+                used = set()
+                for t, e0, d, ed, lo, hi, rk, sma, org in sorted(by_week[wk], key=lambda x: (x[0], x[1])):
+                    pool = [u for u in self.pool(d) if u != t and u not in used]
+                    for _try in range(8):
+                        if not pool:
+                            break
+                        u = pool[int(rng.integers(len(pool)))]
+                        g = self.geometry(u, ed, rk, org)
+                        if g is not None and g[0] not in new[u]:
+                            new[u][g[0]] = g[1]
+                            used.add(u)
+                            break
+                        pool.remove(u)
+        elif mode == "N2":
+            per_year = pd.Series([sg[2].year for sg in self.sigs]).value_counts().to_dict()
+            weeks = pd.Series(self.cal).groupby([self.cal.isocalendar()["year"].to_numpy(),
+                                                 self.cal.isocalendar()["week"].to_numpy()]).apply(list)
+            wk_by_year = {}
+            for (y, w), dates in weeks.items():
+                wk_by_year.setdefault(pd.Timestamp(dates[0]).year, []).append(list(dates))
+            for y in sorted(per_year):
+                wl = wk_by_year.get(y, [])
+                for _ in range(int(per_year[y])):
+                    if not wl:
+                        break
+                    ed = wl[int(rng.integers(len(wl)))]
+                    pool = self.pool(ed[0])
+                    for _try in range(8):
+                        if not pool:
+                            break
+                        u = pool[int(rng.integers(len(pool)))]
+                        g = self.geometry(u, ed, float(rng.random()), 0)
+                        if g is not None and g[0] not in new[u]:
+                            new[u][g[0]] = g[1]
+                            break
+        else:
+            raise ValueError(mode)
+        return {t: {**s, "entry_win": new[t], "atr_at": {}} for t, s in self.P.items()}, int(sum(map(len, new.values())))
+
+    def ew_universe(self) -> pd.Series:
+        """Equal-weight close-to-close daily return of PIT members with a bar (the swing controls' sampling universe)."""
+        cols = {}
+        for t, s in self.P.items():
+            c = pd.Series(np.asarray(s["c"], float), index=pd.DatetimeIndex(s["dates"]).normalize())
+            c = c[~c.index.duplicated(keep="last")]
+            r = c.pct_change()
+            per = (self.mem or {}).get(t.upper()) if self.mem is not None else None
+            if self.mem is not None:
+                if not per:
+                    continue
+                m = np.zeros(len(r), bool)
+                dd = r.index.date
+                for a, b in per:
+                    m |= (dd >= a) & (dd <= b)
+                r = r[m]
+            cols[t] = r
+        return pd.DataFrame(cols).mean(axis=1, skipna=True).dropna()
+
+
+def run_swing(scens: list[str]) -> None:
+    R94 = install_swing_engine()
+    from nq.lab import ensemble as E
+    from nq.lab import runs as L
+    import nq.engine.portfolio as PF
+    assert L._engine()[0] is R94, "the patched engine did not take"
+    CACHE.mkdir(parents=True, exist_ok=True)
+    ctx = E.prepare_context()
+    ctl = None
+
+    def one(d, stress, P=None, a_grade=None, keep_w=False):
+        R94._STRESS.clear(); R94._STRESS.update(stress)
+        cfg = {**L.normalize_config({}), "start": str(pd.Timestamp(d["start"]).date())}
+        kw = L.engine_kwargs(cfg)
+        led, plog = [], ([] if keep_w else None)
+        ag = a_grade if a_grade is not None else ctx.a_grade("default")
+        with E.cost_jitter(float(d["cost_delta"])):
+            out = R94.backtest(P if P is not None else ctx.P, ctx.mem, ledger=led, a_grade=ag, **kw,
+                               demerger_events=ctx.events, position_log=plog)
+        R94._STRESS.clear(); R94._STRESS.update(NEUTRAL)
+        nav = pd.Series(out["curve"], dtype=float)
+        nav.index = pd.DatetimeIndex(nav.index).normalize()
+        nav = nav[~nav.index.duplicated(keep="last")].sort_index()
+        led = pd.DataFrame(led)
+        n_tr = int(((pd.to_datetime(led["entry_date"]) >= pd.Timestamp(SW_WIN[0])).sum()) if len(led) else 0)
+        row = {"path": int(d["path"]), "nav": nav, "trades": n_tr,
+               "stop_exits": int(led["reason"].isin(["stop", "stop_part"]).sum()) if len(led) else 0}
+        if keep_w:
+            pl = pd.DataFrame(plog)
+            pl["w"] = pl["notional"] / pl["equity"]
+            row["weights"] = {pd.Timestamp(k).normalize(): g["w"].to_numpy(float) for k, g in pl.groupby("date")}
+        return row
+
+    for scen in scens:
+        f = CACHE / f"swing__{scen}.pkl"
+        if f.exists():
+            print("skip", f.name, flush=True)
+            continue
+        t0 = time.time()
+        n = N_SEEDS if scen.startswith("N") else N_PATHS
+        draws = E.draw_perturbations(n, E.DEFAULT_SEED)
+        rows, extra = [], {}
+        orig_cost, orig_slip = R94._cost_leg, PF._slip
+        for _, d in draws.iterrows():
+            k = int(d["path"])
+            try:
+                if scen == "base":
+                    rows.append(one(d, NEUTRAL, keep_w=True))
+                    if k == 0:
+                        s0 = rows[0]["nav"]
+                        s0 = s0[(s0.index >= pd.Timestamp(SW_WIN[0])) & (s0.index <= pd.Timestamp(SW_WIN[1]))]
+                        r0 = s0.pct_change().dropna()
+                        sh0 = round(float(r0.mean() / r0.std() * np.sqrt(252)), 6)
+                        print("path-0 anchor (patched engine, hooks off):", sh0, flush=True)
+                        if sh0 != PATH0_ANCHOR:
+                            raise SystemExit(f"path-0 anchor mismatch {sh0} != {PATH0_ANCHOR}: the patch moved the engine; stop")
+                elif scen == "S1":
+                    rows.append(one(d, {**NEUTRAL, "lat": True}))
+                elif scen == "S2":
+                    rows.append(one(d, {**NEUTRAL, "drop": _drop_fn(SEED_LABEL + k)}))
+                elif scen == "S3":
+                    rows.append(one(d, {**NEUTRAL, "stop_low": True}))
+                elif scen == "S4":
+                    def tripled(adv, notional, cost_off=False, _o=orig_cost):
+                        return 0.0 if cost_off else 3.0 * _o(adv, notional, cost_off)
+                    R94._cost_leg = tripled
+                    rows.append(one(d, NEUTRAL))
+                elif scen == "S5":
+                    def slip_half(adv_rupees, notional, _o=orig_slip):
+                        base = _o(adv_rupees, 0.0)
+                        return base + (0.001 if adv_rupees > 0 and notional > 0.0025 * adv_rupees else 0.0)
+                    PF._slip = slip_half
+                    rows.append(one(d, NEUTRAL))
+                elif scen in ("N1", "N2", "N3"):
+                    if ctl is None:
+                        ctl = SwingControls(ctx)
+                    P2, n_sig = ctl.build(scen, k)
+                    rows.append({**one(d, NEUTRAL, P=P2, a_grade=R94.grade_a_entries(P2)), "n_signals": n_sig})
+                else:
+                    raise ValueError(scen)
+            finally:
+                R94._cost_leg, PF._slip = orig_cost, orig_slip
+            if k % 10 == 0:
+                print("swing", scen, k, round(time.time() - t0), flush=True)
+        if scen.startswith("N") or scen == "base":
+            if ctl is None:
+                ctl = SwingControls(ctx)
+            extra["ew_universe"] = ctl.ew_universe()
+            extra["n_real_signals"] = len(ctl.sigs)
+        pd.to_pickle({"rows": rows, **extra, "seconds": round(time.time() - t0, 1)}, f)
+        print("done swing", scen, round(time.time() - t0), flush=True)
+
+
+# ======================================================================================== momentum
+def install_rebalance_copy():
+    import nq.engine.rebalance_book as RB0
+    src = Path(RB0.__file__).read_text(encoding="utf-8")
+    reps = [("                delta = tgt_qty - held_qty\n",
+             "                delta = tgt_qty - held_qty\n"
+             "                if _STRESS_DROP[0] is not None and held_qty == 0 and delta > 0 and _STRESS_DROP[0](tkr, _REB[0]):\n"
+             "                    continue\n"),
+            ("            armed = True\n", "            armed = True\n            _REB[0] += 1\n")]
+    for a, b in reps:
+        assert src.count(a) == 1, f"patch anchor moved: {a!r}"
+        src = src.replace(a, b)
+    name = "nq.engine._rebalance_book_stress"
+    mod = types.ModuleType(name)
+    mod.__file__, mod.__package__ = RB0.__file__, "nq.engine"
+    mod._STRESS_DROP, mod._REB = [None], [0]
+    sys.modules[name] = mod
+    exec(compile(src, RB0.__file__, "exec"), mod.__dict__)
+    return mod
+
+
+def momentum_panel():
+    import run_0001_xsec_momentum as M
+    from nq.data.membership import load_membership
+    from nq.universe import build_universe
+    from run_bhanushali_path1 import corrected_universe
+    p = M.add_signals(build_universe(corrected_universe(), load_membership(), start=M.START, end=M.END))
+    b = p[p["ticker"].isin(p.loc[p["size_band"] == M.BAND, "ticker"].unique())].copy()
+    b["rank"] = np.where(b["eligible"] & (b["size_band"] == M.BAND) & b["nms"].notna(), b["nms"], np.nan)
+    return M, b.sort_values(["ticker", "date"]).reset_index(drop=True)
+
+
+def momentum_ew(M, b) -> pd.Series:
+    b = b.copy()
+    b["r"] = b.groupby("ticker")["close"].pct_change()
+    m = b["eligible"] & (b["size_band"] == M.BAND)
+    return b.loc[m].groupby("date")["r"].mean().dropna().sort_index()
+
+
+def run_momentum(scens: list[str]) -> None:
+    import diag_system_inventory_2026_11 as INV
+    import nq.engine.rebalance_book as RB
+    from nq.lab import ensemble as E
+    M, b0 = momentum_panel()
+    RBX = install_rebalance_copy()
+    CACHE.mkdir(parents=True, exist_ok=True)
+
+    def one(b, start, mult, book, mod=RB):
+        bt = mod.simulate_rebalance_book(b, cfg=RB.RebalanceConfig(**{**book, "cost_mult": float(mult)}), start=str(start),
+                                         end=M.END, initial_capital=1_000_000.0)
+        return bt
+
+    bt0 = one(b0, M.START, 1.0, M.BOOK)
+    anchor = (round(float(bt0["metrics"]["cagr_pct"]), 2), round(float(bt0["metrics"]["sharpe"]), 3))
+    print("ANCHOR 0001:", anchor, flush=True)
+    if anchor != (21.73, 1.13):
+        raise SystemExit(f"anchor mismatch {anchor}: stop")
+    nav0 = INV.to_nav(bt0["equity_curve"])
+    RBX._STRESS_DROP[0], RBX._REB[0] = None, 0
+    chk = INV.to_nav(one(b0, M.START, 1.0, M.BOOK, RBX)["equity_curve"])
+    if not np.allclose(chk.to_numpy(), nav0.to_numpy(), rtol=0, atol=1e-9):
+        raise SystemExit("patched rebalance copy with hooks off does not reproduce the run of record: stop")
+    tr0 = pd.DataFrame(bt0["trades"])
+    n_reb = len(RB.rebalance_dates(sorted(b0["date"].unique()), M.BOOK["cadence"]))
+    ec0 = pd.DataFrame(bt0["equity_curve"])
+    base_turn = {"exits_per_rebalance": float((tr0["reason"] == "rebalance_exit").sum() / n_reb),
+                 "mean_positions": float(ec0["n_positions"].mean()), "trade_rows_per_year":
+                 float(len(tr0) / ((pd.Timestamp(M.END) - pd.Timestamp(M.START)).days / 365.25))}
+
+    def shifted_rebal(orig):
+        def f(dates, cadence="M"):
+            ds = sorted(pd.to_datetime(list(dates)))
+            pos = {d: i for i, d in enumerate(ds)}
+            return [ds[pos[pd.Timestamp(r)] + 1] for r in orig(dates, cadence) if pos[pd.Timestamp(r)] + 1 < len(ds)]
+        return f
+
+    def n2_panel(q, seed):
+        rng = np.random.default_rng(SEED_LABEL + seed)
+        b = b0.copy()
+        mon = b["date"].dt.to_period("M")
+        months = np.sort(mon.unique())
+        tick = np.sort(b["ticker"].unique())
+        S = rng.random((len(months), len(tick)))
+        red = rng.random((len(months), len(tick))) < q
+        for m in range(1, len(months)):
+            S[m] = np.where(red[m], S[m], S[m - 1])
+        mi = np.searchsorted(months, mon.to_numpy())
+        ti = np.searchsorted(tick, b["ticker"].to_numpy())
+        b["rank"] = np.where(b["rank"].notna(), S[mi, ti], np.nan)
+        return b
+
+    def n1_panel(seed):
+        rng = np.random.default_rng(SEED_LABEL + seed)
+        b = b0.copy()
+        m = b["rank"].notna().to_numpy()
+        sub_d = b.loc[m, "date"].to_numpy()
+        vals = b.loc[m, "rank"].to_numpy()
+        order = np.lexsort((rng.random(len(vals)), sub_d))
+        stable = np.argsort(sub_d, kind="stable")
+        new = np.empty(len(vals))
+        new[stable] = vals[order]
+        b.loc[m, "rank"] = new
+        return b
+
+    draws20 = E.draw_perturbations(N_PATHS, E.DEFAULT_SEED, start_base=str(nav0.index[0].date()))
+    draws100 = E.draw_perturbations(N_SEEDS, E.DEFAULT_SEED, start_base=str(nav0.index[0].date()))
+    q_cal = None
+    for scen in scens:
+        f = CACHE / f"momentum__{scen}.pkl"
+        if f.exists():
+            print("skip", f.name, flush=True)
+            continue
+        t0 = time.time()
+        draws = draws100 if scen.startswith("N") else draws20
+        extra = {"base_turnover": base_turn}
+        if scen == "N2":
+            # one mechanical calibration step, fixed before the 100 seeds (Step 0: turnover matched)
+            q0 = base_turn["exits_per_rebalance"] / base_turn["mean_positions"]
+            bt = one(n2_panel(q0, -1), M.START, 1.0, M.BOOK)
+            t_q0 = (pd.DataFrame(bt["trades"])["reason"] == "rebalance_exit").sum() / n_reb
+            q_cal = float(min(1.0, q0 * base_turn["exits_per_rebalance"] / max(t_q0, 1e-9)))
+            extra["n2_calibration"] = {"q0": q0, "exits_per_rebalance_at_q0": float(t_q0), "q": q_cal}
+            print("N2 calibration", extra["n2_calibration"], flush=True)
+        rows = []
+        orig_rd = RB.rebalance_dates
+        for _, d in draws.iterrows():
+            k = int(d["path"])
+            mult = 1.0 + float(d["cost_delta"]) / LEG_COST_REF
+            book, b, mod = dict(M.BOOK), b0, RB
+            try:
+                if scen == "S1":
+                    b = b0.copy()
+                    b["rank"] = b.groupby("ticker")["rank"].shift(1)
+                    RB.rebalance_dates = shifted_rebal(orig_rd)
+                elif scen == "S2":
+                    mod = RBX
+                    RBX._STRESS_DROP[0], RBX._REB[0] = _drop_fn(SEED_LABEL + k), 0
+                elif scen == "S4":
+                    mult *= 3.0
+                elif scen == "S5":
+                    book["max_adv_participation"] = RB.RebalanceConfig().max_adv_participation * 0.5
+                elif scen == "N1":
+                    b = n1_panel(k)
+                elif scen == "N2":
+                    b = n2_panel(q_cal, k)
+                elif scen == "N3":
+                    b = b0.copy()
+                    b["rank"] = -b["rank"]
+                elif scen not in ("base", "S3"):
+                    raise ValueError(scen)
+                bt = one(b, d["start"], mult, book, mod)
+            finally:
+                RB.rebalance_dates = orig_rd
+                RBX._STRESS_DROP[0], RBX._REB[0] = None, 0
+            ec = pd.DataFrame(bt["equity_curve"])
+            ec["date"] = pd.to_datetime(ec["date"])
+            trd = pd.DataFrame(bt["trades"])
+            row = {"path": k, "nav": INV.to_nav(bt["equity_curve"]),
+                   "exits_per_rebalance": float((trd["reason"] == "rebalance_exit").sum() / n_reb) if len(trd) else 0.0}
+            if scen == "base":
+                ec = ec.set_index("date")
+                inv = ((ec["equity"] - ec["cash"]) / ec["equity"]).clip(lower=0)
+                row["weights"] = {dd: np.full(int(n), inv[dd] / n) for dd, n in ec["n_positions"].items() if n > 0}
+            rows.append(row)
+            if k % 10 == 0:
+                print("momentum", scen, k, round(time.time() - t0), flush=True)
+        if scen.startswith("N") or scen == "base":
+            extra["ew_universe"] = momentum_ew(M, b0)
+        pd.to_pickle({"rows": rows, **extra, "seconds": round(time.time() - t0, 1)}, f)
+        print("done momentum", scen, round(time.time() - t0), flush=True)
+
+
+# ======================================================================================== metrics
+def _load(book, scen):
+    return pd.read_pickle(CACHE / f"{book}__{scen}.pkl")
+
+
+def win(nav: pd.Series, lo, hi) -> pd.Series:
+    return nav[(nav.index >= pd.Timestamp(lo)) & (nav.index <= pd.Timestamp(hi))]
+
+
+def sharpe_r(r: pd.Series) -> float:
+    r = pd.Series(r).dropna()
+    return float(r.mean() / r.std() * np.sqrt(252)) if len(r) > 2 and r.std() > 0 else float("nan")
+
+
+def appraisal(r: pd.Series, x: pd.Series) -> float:
+    """alpha / sd(residual) * sqrt(252) from OLS of daily r on the EW-universe return x (aligned dates)."""
+    j = pd.concat([pd.Series(r), pd.Series(x)], axis=1, join="inner").dropna()
+    if len(j) < 30:
+        return float("nan")
+    y, z = j.iloc[:, 0].to_numpy(), j.iloc[:, 1].to_numpy()
+    beta = np.cov(y, z, ddof=1)[0, 1] / np.var(z, ddof=1)
+    a = y.mean() - beta * z.mean()
+    e = y - a - beta * z
+    return float(a / e.std(ddof=2) * np.sqrt(252)) if e.std() > 0 else float("nan")
+
+
+def tri_series() -> pd.Series:
+    import explore_param_sensitivity as PS
+    d = pd.read_csv(PS.TRI, parse_dates=["date"]).set_index("date").iloc[:, 0].sort_index()
+    return d.pct_change().dropna()
+
+
+def book_returns(book: str, nav: pd.Series) -> pd.Series:
+    if book == "swing":
+        return win(nav, *SW_WIN).pct_change().dropna()
+    return nav[nav.index <= pd.Timestamp(MOM_END)].pct_change().dropna()
+
+
+def blend_returns(mom_nav, sw_nav) -> pd.Series:
+    import explore_blend_drawdown_sizing as B
+    return B.blend_daily(mom_nav, sw_nav, TARGET)
+
+
+def blend_p95(r: pd.Series) -> float:
+    import core as C
+    import explore_blend_drawdown_sizing as B
+    return float(np.percentile(B.boot_dd(C.weekly_returns(B.to_nav(r)).to_numpy(), 156, 8), 95))
+
+
+def gap_G() -> float:
+    f = CACHE / "gap_G.json"
+    if f.exists():
+        return json.loads(f.read_text())["G"]
+    from run_bhanushali_path1 import corrected_universe
+    gs = []
+    for _t, df in corrected_universe().items():
+        o = df["open"] if "open" in df else df["Open"]
+        c = df["close"] if "close" in df else df["Close"]
+        g = (o / c.shift(1) - 1)
+        idx = pd.DatetimeIndex(df.index)
+        g = g[(idx >= pd.Timestamp(SW_WIN[0])) & (idx <= pd.Timestamp(SW_WIN[1]))]
+        gs.append(g.replace([np.inf, -np.inf], np.nan).dropna().to_numpy(float))
+    allg = np.concatenate(gs)
+    p1 = float(np.percentile(allg, 1))
+    out = {"p1_gap": p1, "G": 2 * p1, "n_pairs": int(len(allg))}
+    f.write_text(json.dumps(out))
+    return out["G"]
+
+
+def s6_returns(r: pd.Series, weights: dict, seed: int, G: float) -> tuple[pd.Series, int]:
+    """Gap shock in return space: each prior-close holding is hit with p=0.01, subtracting w*|G| from that day's return."""
+    rng = np.random.default_rng(seed)
+    wd = sorted(weights)
+    wdi = pd.DatetimeIndex(wd)
+    out = r.copy()
+    hits = 0
+    for j, d in enumerate(r.index):
+        k = wdi.searchsorted(d) - 1                      # last session strictly before d
+        if k < 0:
+            continue
+        w = weights[wd[k]]
+        h = rng.random(len(w)) < P_GAP
+        if h.any():
+            out.iloc[j] += float(w[h].sum()) * G
+            hits += int(h.sum())
+    return out, hits
+
+
+def s7_years(index: pd.DatetimeIndex, seed: int) -> list[int]:
+    yrs = sorted(set(index.year))
+    rng = np.random.default_rng(seed)
+    return [yrs[int(i)] for i in rng.integers(0, len(yrs), len(yrs))]
+
+
+def s7_apply(r: pd.Series, years: list[int]) -> pd.Series:
+    parts = [r[r.index.year == y].to_numpy() for y in years]
+    v = np.concatenate(parts) if parts else np.array([])
+    return pd.Series(v, index=pd.RangeIndex(len(v)))
+
+
+# ======================================================================================== controls verdict
+def controls() -> dict:
+    tri = tri_series()
+    out = {}
+    base = {}
+    for book in ("swing", "momentum"):
+        bb = _load(book, "base")
+        rs = [book_returns(book, r["nav"]) for r in bb["rows"]]
+        base[book] = {"sharpe": np.array([sharpe_r(r) for r in rs]),
+                      "appraisal": np.array([appraisal(r, bb["ew_universe"]) for r in rs]), "r": rs, "ew": bb["ew_universe"]}
+    ew_blend = (0.7 * base["momentum"]["ew"] + 0.3 * base["swing"]["ew"]).dropna()
+    bnav = {b: [r["nav"] for r in _load(b, "base")["rows"]] for b in ("swing", "momentum")}
+    br = [blend_returns(m, s) for m, s in zip(bnav["momentum"], bnav["swing"])]
+    base["blend"] = {"sharpe": np.array([sharpe_r(r) for r in br]), "appraisal": np.array([appraisal(r, ew_blend) for r in br])}
+    for scen in ("N1", "N2", "N3"):
+        sw, mo = _load("swing", scen), _load("momentum", scen)
+        series = {"swing": [book_returns("swing", r["nav"]) for r in sw["rows"]],
+                  "momentum": [book_returns("momentum", r["nav"]) for r in mo["rows"]]}
+        series["blend"] = [blend_returns(m["nav"], s["nav"]) for m, s in zip(mo["rows"], sw["rows"])]
+        ew = {"swing": base["swing"]["ew"], "momentum": base["momentum"]["ew"], "blend": ew_blend}
+        for book in ("swing", "momentum", "blend"):
+            sh = np.array([sharpe_r(r) for r in series[book]])
+            ap = np.array([appraisal(r, ew[book]) for r in series[book]])
+            rec = {}
+            for name, v, bv in (("sharpe_raw", sh, base[book]["sharpe"]), ("appraisal", ap, base[book]["appraisal"])):
+                v = v[np.isfinite(v)]
+                mean, se = float(v.mean()), float(v.std(ddof=1) / np.sqrt(len(v)))
+                p95 = float(np.percentile(v, 95))
+                r_ = {"n": int(len(v)), "mean": round(mean, 4), "se": round(se, 4), "median": round(float(np.median(v)), 4),
+                      "p5": round(float(np.percentile(v, 5)), 4), "p95": round(p95, 4),
+                      "base_median": round(float(np.median(bv)), 4), "base_p5": round(float(np.percentile(bv, 5)), 4)}
+                if scen in ("N1", "N2"):
+                    r_["within_2se_of_0"] = bool(abs(mean) <= 2 * se)
+                    r_["p95_below_0.3"] = bool(p95 < 0.3)
+                    r_["pass"] = r_["within_2se_of_0"] and r_["p95_below_0.3"]
+                else:
+                    r_["pass"] = bool(np.median(v) < np.percentile(bv, 5))
+                rec[name] = r_
+            if book == "swing":
+                rec["realised_trades_mean"] = float(np.mean([r["trades"] for r in sw["rows"]]))
+                rec["n_signals_mean"] = float(np.mean([r.get("n_signals", np.nan) for r in sw["rows"]]))
+            if book == "momentum":
+                rec["exits_per_rebalance_mean"] = float(np.mean([r["exits_per_rebalance"] for r in mo["rows"]]))
+            out.setdefault(scen, {})[book] = rec
+    sw_b, mo_b = _load("swing", "base"), _load("momentum", "base")
+    out["base_reference"] = {"swing_trades_mean": float(np.mean([r["trades"] for r in sw_b["rows"]])),
+                             "swing_real_signals": sw_b.get("n_real_signals"),
+                             "momentum_exits_per_rebalance": mo_b["base_turnover"]["exits_per_rebalance"],
+                             "n2_calibration": _load("momentum", "N2").get("n2_calibration"),
+                             "appraisal_base_median": {b: round(float(np.median(base[b]["appraisal"])), 4) for b in base},
+                             "sharpe_base_median": {b: round(float(np.median(base[b]["sharpe"])), 4) for b in base}}
+    fails = [(s, b) for s in ("N1", "N2", "N3") for b in ("swing", "momentum", "blend") if not out[s][b]["appraisal"]["pass"]]
+    lit = [(s, b) for s in ("N1", "N2", "N3") for b in ("swing", "momentum", "blend") if not out[s][b]["sharpe_raw"]["pass"]]
+    out["verdict"] = {"suite_failed_on_primary_appraisal": bool(fails), "failing_primary": fails,
+                      "failing_literal_raw_sharpe": lit}
+    return out
+
+
+# ======================================================================================== report
+def report() -> None:
+    tri = tri_series()
+    G = gap_G()
+    res = {"G_gap": json.loads((CACHE / "gap_G.json").read_text()), "target": TARGET, "n_paths": N_PATHS}
+    res["controls"] = controls()
+    bases = {b: _load(b, "base") for b in ("swing", "momentum")}
+
+    def legs(scen):
+        if scen in ("S6", "S7", "S3m"):
+            return None
+        return {b: _load(b, scen) for b in ("swing", "momentum")}
+
+    table = {}
+    for scen in ("base", "S1", "S2", "S3", "S4", "S5", "S6", "S7"):
+        cells = {"swing": [], "momentum": [], "blend": []}
+        hits = {"swing": 0, "momentum": 0}
+        for k in range(N_PATHS):
+            navs = {}
+            rr = {}
+            for b in ("swing", "momentum"):
+                src = bases[b] if scen in ("base", "S6", "S7") or (scen == "S3" and b == "momentum") else _load(b, scen)
+                navs[b] = src["rows"][k]["nav"]
+                rr[b] = book_returns(b, navs[b])
+            if scen == "S6":
+                for j, b in enumerate(("swing", "momentum")):
+                    full = navs[b].pct_change().dropna()
+                    sh, h = s6_returns(full, bases[b]["rows"][k]["weights"], SEED_S6 + 1000 * j + k, G)
+                    hits[b] += h
+                    navs[b] = (1 + sh).cumprod() * navs[b].iloc[0]
+                    navs[b] = pd.concat([pd.Series([bases[b]["rows"][k]["nav"].iloc[0]], index=[bases[b]["rows"][k]["nav"].index[0]]), navs[b]])
+                    rr[b] = book_returns(b, navs[b])
+            rb = blend_returns(navs["momentum"], navs["swing"])
+            tri_b = {"swing": tri[(tri.index >= rr["swing"].index[0]) & (tri.index <= rr["swing"].index[-1])],
+                     "momentum": tri[(tri.index >= rr["momentum"].index[0]) & (tri.index <= rr["momentum"].index[-1])],
+                     "blend": tri[(tri.index >= rb.index[0]) & (tri.index <= rb.index[-1])]}
+            ser = {"swing": rr["swing"], "momentum": rr["momentum"], "blend": rb}
+            if scen == "S7":
+                for j, b in enumerate(("swing", "momentum", "blend")):
+                    yrs = s7_years(ser[b].index, SEED_S7 + 1000 * j + k)
+                    tri_b[b] = s7_apply(tri_b[b], yrs)
+                    ser[b] = s7_apply(ser[b], yrs)
+            for b in ("swing", "momentum", "blend"):
+                sh = sharpe_r(ser[b])
+                c = {"sharpe": sh, "vs_tri": sh - sharpe_r(tri_b[b])}
+                if b == "blend":
+                    s_ = ser[b]
+                    if scen == "S7":
+                        s_ = pd.Series(s_.to_numpy(), index=pd.bdate_range("2001-01-01", periods=len(s_)))
+                    c["p95_dd156"] = blend_p95(s_)
+                cells[b].append(c)
+        table[scen] = {b: pd.DataFrame(v) for b, v in cells.items()}
+        table[scen]["_hits"] = hits
+        print("scenario", scen, {b: round(float(table[scen][b]["sharpe"].median()), 3) for b in cells}, flush=True)
+
+    out = {}
+    for scen, t in table.items():
+        out[scen] = {}
+        for b in ("swing", "momentum", "blend"):
+            df = t[b]
+            base_med = float(table["base"][b]["sharpe"].median())
+            m = float(df["sharpe"].median())
+            o = {"median_sharpe": round(m, 3), "p5": round(float(df["sharpe"].quantile(0.05)), 3),
+                 "p95": round(float(df["sharpe"].quantile(0.95)), 3),
+                 "median_vs_tri": round(float(df["vs_tri"].median()), 3),
+                 "ratio_to_base": round(m / base_med, 3), "sharpe_pass": bool(m >= 0.5 * base_med)}
+            if b == "blend":
+                o["p95_dd156_median"] = round(float(df["p95_dd156"].median()), 2)
+                o["p95_dd156_max_path"] = round(float(df["p95_dd156"].max()), 2)
+                o["dd_pass"] = bool(df["p95_dd156"].median() <= 25.0)
+                o["pass"] = o["sharpe_pass"] and o["dd_pass"]
+            else:
+                o["pass"] = o["sharpe_pass"]
+            out[scen][b] = o
+        if scen == "S6":
+            out[scen]["gap_hits_total"] = t["_hits"]
+    worst = {b: min((s for s in out if s != "base"), key=lambda s: out[s][b]["ratio_to_base"]) for b in ("swing", "momentum", "blend")}
+    res["shocks"] = out
+    res["worst_shock"] = worst
+    sw = _load("swing", "S3")
+    res["s3_stop_exits_swing_mean"] = float(np.mean([r["stop_exits"] for r in sw["rows"]]))
+    OUT_JSON.write_text(json.dumps(res, indent=1, default=str) + "\n", encoding="utf-8")
+    print(json.dumps(res, indent=1, default=str))
+
+
+if __name__ == "__main__":
+    mode, *args = sys.argv[1:]
+    if mode == "swing":
+        run_swing(args)
+    elif mode == "momentum":
+        run_momentum(args)
+    elif mode == "controls":
+        print(json.dumps(controls(), indent=1, default=str))
+    elif mode == "gap":
+        print(gap_G())
+    else:
+        report()
