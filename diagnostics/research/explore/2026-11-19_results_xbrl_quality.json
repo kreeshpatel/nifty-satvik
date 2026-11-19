@@ -691,7 +691,11 @@
     "complete": true,
     "not_found_404": 148,
     "other_non200": 0,
-    "not_found_pct": 1.68
+    "not_found_pct": 1.68,
+    "member_attempted": 2798,
+    "member_404": 44,
+    "member_not_found_pct": 1.57,
+    "non_member_404": 104
    },
    "2020": {
     "attempted": 11272,
@@ -699,23 +703,35 @@
     "complete": true,
     "not_found_404": 0,
     "other_non200": 0,
-    "not_found_pct": 0.0
+    "not_found_pct": 0.0,
+    "member_attempted": 3475,
+    "member_404": 0,
+    "member_not_found_pct": 0.0,
+    "non_member_404": 0
    },
    "2021": {
-    "attempted": 10454,
+    "attempted": 11622,
     "listed": 11622,
-    "complete": false,
-    "not_found_404": 42,
+    "complete": true,
+    "not_found_404": 47,
     "other_non200": 0,
-    "not_found_pct": 0.4
+    "not_found_pct": 0.4,
+    "member_attempted": 3403,
+    "member_404": 29,
+    "member_not_found_pct": 0.85,
+    "non_member_404": 18
    },
    "2022": {
-    "attempted": 16,
+    "attempted": 5933,
     "listed": 11714,
     "complete": false,
-    "not_found_404": 2,
+    "not_found_404": 20,
     "other_non200": 0,
-    "not_found_pct": 12.5
+    "not_found_pct": 0.34,
+    "member_attempted": 1719,
+    "member_404": 11,
+    "member_not_found_pct": 0.64,
+    "non_member_404": 9
    },
    "2023": {
     "attempted": 18,
@@ -723,7 +739,11 @@
     "complete": false,
     "not_found_404": 0,
     "other_non200": 0,
-    "not_found_pct": 0.0
+    "not_found_pct": 0.0,
+    "member_attempted": 7,
+    "member_404": 0,
+    "member_not_found_pct": 0.0,
+    "non_member_404": 0
    },
    "2024": {
     "attempted": 16,
@@ -731,7 +751,11 @@
     "complete": false,
     "not_found_404": 0,
     "other_non200": 0,
-    "not_found_pct": 0.0
+    "not_found_pct": 0.0,
+    "member_attempted": 6,
+    "member_404": 0,
+    "member_not_found_pct": 0.0,
+    "non_member_404": 0
    },
    "2025": {
     "attempted": 40,
@@ -739,7 +763,11 @@
     "complete": false,
     "not_found_404": 0,
     "other_non200": 0,
-    "not_found_pct": 0.0
+    "not_found_pct": 0.0,
+    "member_attempted": 20,
+    "member_404": 0,
+    "member_not_found_pct": 0.0,
+    "non_member_404": 0
    },
    "2026": {
     "attempted": 32,
@@ -747,11 +775,16 @@
     "complete": false,
     "not_found_404": 0,
     "other_non200": 0,
-    "not_found_pct": 0.0
+    "not_found_pct": 0.0,
+    "member_attempted": 15,
+    "member_404": 0,
+    "member_not_found_pct": 0.0,
+    "non_member_404": 0
    }
   },
   "worst_complete_year": 2019,
   "limit_pct": 2.0,
+  "member_over_limit_years": [],
   "stop": false
  },
  "broadcast_timing": {

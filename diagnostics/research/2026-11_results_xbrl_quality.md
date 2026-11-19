@@ -290,6 +290,19 @@ The rate that matters for the model is therefore about a third of the headline 4
 
 Every complete year is under 2%, so the stop did not trigger. 2019 is the closest to the line.
 
+**404s split by PIT Nifty 500 membership at broadcast** (owner request; same symbol/ISIN bridge as above;
+`member_404_pairs` lists the (symbol, period) pairs for any complete year whose member rate is over 2%)
+[measured, re-run as the fetch reached 2021 and early 2022]:
+
+| year | complete | 404 total | member 404 / member attempted | member rate | non-member 404 |
+|---|---|---|---|---|---|
+| 2019 | yes | 148 | 44 / 2,798 | **1.57%** | 104 |
+| 2020 | yes | 0 | 0 / 3,475 | 0.00% | 0 |
+| 2021 | yes | 47 | 29 / 3,403 | 0.85% | 18 |
+| 2022 | partial | 20 | 11 / 1,719 | 0.64% | 9 |
+
+No complete year has a member rate over 2%, so no pairs are listed yet.
+
 ## Not yet done
 
 - Years 2021–2026 (the fetch is running).

@@ -208,7 +208,8 @@ def late_by_membership(br) -> dict:
 
 def not_found_by_year() -> dict:
     """From data/xbrl_raw/manifest.csv (every fetch attempt, latest status per URL), by listing broadcast
-    year: attempted URLs, listed URLs, HTTP 404 count, other non-200 count, not-found % = 404 / attempted.
+    year: attempted URLs, listed URLs, HTTP 404 count, the same split by PIT N500 membership at broadcast
+    (member 404 rate; the member (symbol, period) pairs are listed for any complete year over 2%), other non-200 count, not-found % = 404 / attempted.
     A year is complete when every listed XBRL URL of that year has been attempted. While the fetch runs,
     partial years hold only a handful of sample fetches, so the stop applies to complete years only:
     stop = any complete year's not-found % > NOT_FOUND_STOP_PCT. Once the fetch ends all years are complete."""
@@ -226,9 +227,33 @@ def not_found_by_year() -> dict:
         out[int(yr)] = {"attempted": int(len(g)), "listed": int(listed.get(yr, 0)),
                         "complete": bool(len(g) >= listed.get(yr, 0)), "not_found_404": n404,
                         "other_non200": other, "not_found_pct": round(100 * n404 / len(g), 2)}
+    # member split: PIT Nifty 500 membership on the broadcast date, under the filing-day symbol or the
+    # ISIN's latest symbol (same bridge as bridge_symbols). Member 404 rate = member 404 / member attempted.
+    from nq.data.membership import load_membership
+    mem = load_membership()
+    L = load_listing_frame()
+    latest = L.dropna(subset=["isin", "symbol"]).sort_values("broadcast_ts").groupby("isin")["symbol"].last()
+    Lu = L.set_index("xbrl_url")
+    m = m.assign(isin=m.url.map(Lu["isin"]), period_end=m.url.map(Lu["to_date"]),
+                 consolidated=m.url.map(Lu["consolidated_listing"]), _d=pd.to_datetime(m.broadcast_ts).dt.date)
+    m["sym2"] = m["isin"].map(latest).fillna(m["symbol"])
+    m["member"] = [any(a <= d <= b for sy in {s1, s2} for a, b in mem.get(sy, ()))
+                   for s1, s2, d in zip(m["symbol"], m["sym2"], m["_d"])]
+    for yr, g in m.groupby(y):
+        gm = g[g.member]
+        n404 = int((gm.http_status == "404").sum())
+        out[int(yr)].update(member_attempted=int(len(gm)), member_404=n404,
+                            member_not_found_pct=round(100 * n404 / len(gm), 2) if len(gm) else None,
+                            non_member_404=int(((g.http_status == "404") & ~g.member).sum()))
+        if out[int(yr)]["complete"] and len(gm) and 100 * n404 / len(gm) > NOT_FOUND_STOP_PCT:
+            out[int(yr)]["member_404_pairs"] = (gm[gm.http_status == "404"]
+                                                [["symbol", "period_end", "consolidated", "broadcast_ts"]]
+                                                .sort_values(["symbol", "period_end"]).to_dict("records"))
     done = {k: v for k, v in out.items() if v["complete"]}
     worst = max(done, key=lambda k: done[k]["not_found_pct"]) if done else None
     return {"by_year": out, "worst_complete_year": worst, "limit_pct": NOT_FOUND_STOP_PCT,
+            "member_over_limit_years": [k for k, v in done.items()
+                                        if (v.get("member_not_found_pct") or 0) > NOT_FOUND_STOP_PCT],
             "stop": bool(worst is not None and done[worst]["not_found_pct"] > NOT_FOUND_STOP_PCT)}
 
 
