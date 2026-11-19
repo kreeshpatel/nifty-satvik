@@ -1,0 +1,115 @@
+{
+ "explore_blend_drawdown_sizing": {
+  "seed0": {
+   "returncode": 0,
+   "seconds": 10
+  },
+  "seed1": {
+   "returncode": 0,
+   "seconds": 10
+  },
+  "byte_identical": true,
+  "files": [
+   "2026-11-18_blend_drawdown_sizing.json"
+  ]
+ },
+ "explore_risk_matched_benchmark": {
+  "seed0": {
+   "returncode": 0,
+   "seconds": 61
+  },
+  "seed1": {
+   "returncode": 0,
+   "seconds": 46
+  },
+  "byte_identical": true,
+  "files": [
+   "2026-11-18_risk_matched_benchmark.json"
+  ]
+ },
+ "explore_after_tax_comparison": {
+  "seed0": {
+   "returncode": 0,
+   "seconds": 5
+  },
+  "seed1": {
+   "returncode": 0,
+   "seconds": 7
+  },
+  "byte_identical": true,
+  "files": [
+   "2026-11-18_after_tax_comparison.json"
+  ]
+ },
+ "explore_walkforward_status": {
+  "seed0": {
+   "returncode": 0,
+   "seconds": 195
+  },
+  "seed1": {
+   "returncode": 0,
+   "seconds": 498
+  },
+  "byte_identical": true,
+  "files": [
+   "2026-11-18_walkforward_status.json"
+  ]
+ },
+ "explore_stops_are_requests": {
+  "seed0": {
+   "returncode": 0,
+   "seconds": 223
+  },
+  "seed1": {
+   "returncode": 0,
+   "seconds": 119
+  },
+  "byte_identical": true,
+  "files": [
+   "2026-11-18_stops_are_requests.json"
+  ]
+ },
+ "explore_circuit_lock_real_bands": {
+  "seed0": {
+   "returncode": 0,
+   "seconds": 33
+  },
+  "seed1": {
+   "returncode": 0,
+   "seconds": 32
+  },
+  "byte_identical": true,
+  "files": [
+   "2026-11-18_circuit_lock_real_bands.json"
+  ]
+ },
+ "explore_param_sensitivity (momentum buffer_mult)": {
+  "seed0": {
+   "returncode": 0,
+   "seconds": 1487
+  },
+  "seed1": {
+   "returncode": 0,
+   "seconds": 1307
+  },
+  "byte_identical": false,
+  "files": [
+   "momentum__buffer_mult__1.2.json",
+   "momentum__buffer_mult__1.35.json",
+   "momentum__buffer_mult__1.65.json",
+   "momentum__buffer_mult__1.8.json"
+  ],
+  "content_identical_excluding_runtime_vs_committed": {
+   "momentum__buffer_mult__1.2.json": true,
+   "momentum__buffer_mult__1.35.json": true,
+   "momentum__buffer_mult__1.65.json": true,
+   "momentum__buffer_mult__1.8.json": true
+  },
+  "note": "byte comparison fails only because each file records its own runtime ('seconds'); a seed-0 re-run matches the committed files (produced under an earlier, random seed) on every other field"
+ },
+ "explore_india_tax_practices": {
+  "before_fix": "NOT deterministic: S1->S2 +13,460 (seeds 0/2/3) vs +11,564 (seed 1)",
+  "after_fix": "full pipeline JSON byte-identical under PYTHONHASHSEED 0 and 1; tests/test_tax_simulator_determinism.py (seeds 0-3)"
+ },
+ "_scope": "cached inputs (.cache/robust_sizing navs, family pickles) not regenerated; engine determinism is the golden master's job"
+}
