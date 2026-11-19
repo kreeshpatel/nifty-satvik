@@ -130,8 +130,23 @@ separate files, so they are both counted. No statistic here is used for inferenc
 6. **Open or partial year counted as complete.** Ruled out. Completeness drops quarter-ends within 60 days of
    the last broadcast, so 2020 Q4 is excluded.
 
+## Blind replica (step 6)
+
+- A `blind-replica` sub-agent saw only the written spec, not this code. It wrote
+  `diagnostics/replica/results_xbrl/replica_parse.py` and parsed 30 random files (seed 20261119), producing
+  `replica.csv`.
+- Compared afterwards against the engine's current rows:
+  - 30/30 files matched.
+  - **0 mismatches** in 270 value cells (9 fields × 30), and 0 in period dates, context id, consolidated flag
+    and symbol. [measured] `diagnostics/replica/results_xbrl/replica.csv`
+- The replica found no `ISIN` fact in any of the 30 files. The build fills `isin` from the listing row
+  [measured].
+- Spec ambiguities the replica raised that this sample did not exercise:
+  - the meaning of the ReportingQuarter labels in files with no dates ("Half yearly" = Q2, "Yearly" = Q4);
+  - tie-breaks among dimensional `One*` contexts.
+- The engine maps "Half yearly" to `no_reporting_period`; that is the 13 file failures above [inferred].
+
 ## Not yet done
 
 - Years 2021–2026 (the fetch is running).
-- Blind-replica comparison on 30 files (step 6).
 - Final numbers. Every figure above will be recomputed on the full build.
