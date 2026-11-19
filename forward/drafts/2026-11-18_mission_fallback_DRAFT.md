@@ -2,6 +2,14 @@
 
 **Status: DRAFT. Not applied.** Owner request 2026-11-18: propose, don't apply. `CLAUDE.md` is unchanged.
 
+**Owner choices, 2026-11-18 (second round):**
+
+- The "meets" test uses **8-week blocks**, the same yardstick that picked the blend's 11%.
+- The window is **2017–2026**.
+- The exposure is checked **monthly**.
+
+At those settings the exposure is **0.60**: CAGR 16.3%, p95 23.7%.
+
 ## Proposed diff
 
 ```diff
@@ -14,7 +22,8 @@
  ₹20,00,000: PILOT ₹2,00,000, SCALE ₹5,00,000, FULL ₹20,00,000. Promotion between stages needs 26 weeks on paper. If
 -no strategy meets this goal, core capital goes into the index fund.
 +no strategy meets this goal, core capital goes into the index fund plus a liquid fund, at the exposure whose 156-week
-+p95 drawdown meets −25%.
++p95 drawdown meets −25% (stationary bootstrap, mean block 8 weeks, over 2017 to the latest month), re-checked
++monthly; today that exposure is 60%.
 ```
 
 (The "15% volatility target" in the same paragraph changes only if the separate vol-target amendment,
@@ -33,7 +42,7 @@ a fixed share e of the Nifty Midcap150 Momentum 50 TRI, the rest in cash at 6.5%
 
 An independent replica got the same exposures (0.70 / 0.65; p95 24.4% / 23.5%).
 
-## Points for the owner before signing
+## Points for the owner before signing (1–2 settled 2026-11-18: block 8, 2017–2026; monthly re-check)
 
 1. **Which block length defines "meets".** Block 26 gives 0.65–0.70, and block 8 (the block used to pick the blend's 11%)
    gives 0.60. The wording should name one, or the fallback and the blend are sized by different rules.

@@ -1,6 +1,6 @@
 # DRAFT — amendment: the 70/30 blend's volatility target from 15% to 11%
 
-**Status: DRAFT. Not in force.** The owner chose 11% on 2026-11-18, **provisional pending the real-price-band re-run of
+**Status: DRAFT, owner-approved for signing at the January 2027 review. Not in force until signed.** The owner chose 11% on 2026-11-18, **provisional pending the real-price-band re-run of
 the stop stress** (Part 3 of `diagnostics/research/2026-11-18_robust_sizing.md`). It becomes an amendment only when the
 owner signs and dates it into `forward/amendments/`, at a quarterly review (`skills/strategy-lifecycle` §6). Nothing
 in the repo has been changed by this draft: `pipelines/lifecycle/core.py::vol_target_blend` still defaults to 0.15, the
@@ -47,8 +47,12 @@ is re-derived at the highest target that clears, by the same rule, before signin
 3. New frozen bands `forward/bands/blend_70_30_vt11_bands_<date>.json` built by `pipelines/lifecycle/build_bands.py` for
    the changed version; the vt15 bands stay.
 4. `CLAUDE.md` mission line: "at a 15% volatility target" → "at an 11% volatility target".
-5. The 26-week promotion clock — **owner to choose at signing:** (a) continues from 2026-11-13 (the change is sizing
-   only; the signals are identical), or (b) restarts at the change date (the judged object changed). This draft does
-   not presume.
+5. The 26-week promotion clock **continues from 2026-11-13** (owner, 2026-11-18). From the change date, status is
+   read against the vt11 bands, rescaled so that week 0 is the change date.
+6. Capital rule (owner, 2026-11-18): the blend stays a **forward challenger**. It receives capital only if its forward
+   record beats the Nifty Midcap150 Momentum 50 TRI **after tax**.
+
+**Owner decision 2026-11-18:** to be signed at the January 2027 review. The condition precedent is met
+(real-band p95 23.48% ≤ 25%, `diagnostics/research/explore/2026-11-18_circuit_lock_real_bands.json`).
 
 **Signed:** ____________ **Date:** ____________

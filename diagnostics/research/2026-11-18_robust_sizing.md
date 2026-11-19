@@ -388,3 +388,126 @@ The median move of the real_lock exits is −10.8%.
 - *Next-open fill:* a lock can persist into the open; AUBANK's exit moved 9 sessions. Modelled: the search runs to the
   first unlocked session.
 - *Sizing feedback:* shown by the equity-scaled row.
+
+
+---
+
+## Follow-up 2026-11-18 (c) — after-tax comparison, 2019-03 to 2024-06
+
+### Owner decisions, 2026-11-18
+
+- **Blend vol target.** Sign the 11% amendment at the January review. The paper clock continues from 2026-11-13, and
+  bands are rescaled from the change date. The draft is updated.
+- **Fallback sizing.** The fallback uses 8-week blocks over 2017–2026, checked monthly, which today gives 60% exposure.
+  The fallback draft is updated.
+- **Capital rule.** The blend stays a forward challenger and gets capital only if its forward record beats the index
+  after tax.
+
+### Method
+
+The method is fixed in the `pipelines/diagnostics/explore_after_tax_comparison.py` docstring, written before any
+result. All four books run through one FIFO lot simulator.
+
+**Starting capital and dates.** ₹20,00,000 invested on 2019-03-05 and liquidated on 2024-06-28.
+
+**Tax.**
+- Short-term capital gains: 20%.
+- Long-term capital gains (held more than 365 days): 12.5% on the amount above ₹1.25L a year.
+- Liquid-fund gains: taxed at slab, **assumed 30%**.
+- Losses are set off and carried forward.
+- Tax is paid from the book on the last session on or before 31 March.
+
+**Costs.**
+- Index fund: expense ratio 0.30%; stamp duty 0.005% on purchase; STT 0.001% on redemption.
+- Liquid fund: 6.5% gross yield, expense ratio 0.15%.
+- Direct-equity trades: STT 0.1% each side, plus stamp duty and exchange fees, plus an assumed 0.10% slippage.
+
+**How the blend is held.** It holds two sleeve units, each priced at its own book's NAV. Each book's realised trades
+pass through as taxable gains, in proportion to the units held, classified long- or short-term by the trade's own
+holding period. Each pass-through raises the units' cost basis by the same amount.
+
+This replaced a stock-level first attempt, which failed reconciliation. The 0001 trade list records sells only, so the
+rebuilt holdings summed to 1.23× the book's NAV. That is listed as **added after first look**.
+
+**Headline numbers.**
+- After-tax CAGR: the liquidation value at the end of the window. The mark-to-market value after tax paid is also shown.
+- Excess Sharpe and the 156-week p95 drawdown (8-week blocks): computed on the after-tax mark-to-market NAV.
+- Winner rule, fixed before results: the highest after-tax CAGR among books whose p95 drawdown is at or under 25%.
+
+### Reconciliation
+
+With tax and the blend's own trading costs both off, the lot simulator's blend makes **25.38%** CAGR. The return
+series makes **25.19%** (0.8% relative).
+
+### Results
+
+| book | after-tax CAGR (liquidated) | mark-to-market | excess Sharpe | 156w p95 DD (b8) | tax paid | meets −25% |
+|---|---|---|---|---|---|---|
+| (a) blend at 11% | 19.26% | 19.59% | 0.974 | 26.5 | ₹7.83L | no |
+| (b) index, vol-targeted at 11% | 20.41% | 20.87% | 1.054 | 26.3 | ₹8.81L | no |
+| (c) 60/40 index / liquid fund, yearly | 21.76% | 23.85% | 1.319 | 22.9 | ₹5.56L | yes |
+| **(d) 65/35 index / liquid fund, yearly** | **23.02%** | **25.16%** | **1.314** | **24.8** | ₹5.93L | **yes — winner** |
+| (a) without blend-level trading costs *(added after first look; bound; not eligible)* | 20.82% | 21.14% | 1.072 | 25.6 | ₹8.18L | no |
+
+Pre-tax figures from the same simulator:
+
+| book | pre-tax CAGR | pre-tax excess Sharpe |
+|---|---|---|
+| (a) | 23.80% | 1.313 |
+| (b) | 25.45% | 1.417 |
+| (c) | 23.94% | 1.325 |
+| (d) | 25.24% | 1.319 |
+
+Daily re-targeting at stock costs costs the blend about 1.6pp a year (₹2.4L). The return-series blend never charged
+this. Inside the books, 97% of 0001's realised trades are short-term.
+
+### Answer
+
+**After tax, the static 65/35 index/liquid fund split wins.** The blend comes last of the four.
+
+Taxes at year-end are drawdowns. After them, both vol-targeted books breach −25% at p95; the two static books do not.
+
+### Artifact check
+
+1. **Deferred tax favours the static books.**
+   - Ruled out as the explanation. The static books still win on liquidation value, which counts every deferred
+     rupee of tax.
+2. **The 65/35 p95 of 24.8 sits within about 0.5pp seed noise of 25.**
+   - Not ruled out. If 65/35 failed the bar, 60/40 (21.76%) would win instead. The winner is a static split either
+     way.
+3. **Blend-level costs rest on an assumed 0.10% slippage.**
+   - Bounded. Even with no blend-level costs at all, the blend makes 20.82% against 65/35's 23.02%, and still breaches
+     −25%.
+4. **The 30% slab rate is an assumption.**
+   - Not ruled out. It hurts the books holding more liquid fund: (c) and (d) hold 35–40%, the blend about 29% on average.
+   - A lower slab would widen the static books' lead.
+5. **Pass-through approximations favour the blend.**
+   - A momentum top-up keeps its first entry date. That understates short-term gains.
+   - Gains accrued inside the books before 2019 are taxed now and offset at the final sale (a timing effect).
+   - Swing half-exits are booked at the trade's final exit date.
+   - Direct-equity dividends, taxable at slab, are not modelled.
+6. **Single path.**
+   - Not ruled out. One window, and it is the momentum index's strongest stretch.
+
+**Re-derivation (rule 3).** A fresh `blind-replica` rebuilt the after-tax comparison from the spec alone. All figures
+are its numbers vs this study's.
+
+After-tax CAGR (liquidated):
+
+| book | replica | this study |
+|---|---|---|
+| (a) blend | 19.52% | 19.26% |
+| (b) index, vol-targeted | 20.42% | 20.41% |
+| (c) 60/40 | 21.76% | 21.76% |
+| (d) 65/35 | 23.02% | 23.02% |
+
+Other checks:
+- **Excess Sharpe, (a):** 0.995 vs 0.974.
+- **p95 drawdown:** (a) 25.9 vs 26.5; (d) 24.96 vs 24.81.
+- **(a) with no tax and no costs:** 25.38% vs 25.38%.
+
+Largest gap: 2.2% relative. The replica picks the same winner.
+
+Its separate split of (a)'s shortfall: costs take about 1.6pp, tax about 4.3pp.
+
+Its (d) p95 of 24.96 confirms artifact 2: 65/35 sits on the −25% bar.

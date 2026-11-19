@@ -1,0 +1,259 @@
+{
+ "window": [
+  "2019-03-05",
+  "2024-06-28"
+ ],
+ "capital": 2000000.0,
+ "assumptions": {
+  "slab_liquid": 0.3,
+  "ter_index": 0.003,
+  "ter_liquid": 0.0015,
+  "stock_cost_buy": 0.00219,
+  "stock_cost_sell": 0.00204
+ },
+ "blend_realised_inside_books": {
+  "momentum_trades_in_window": 1952,
+  "momentum_lt_share_of_trades": 0.029,
+  "momentum_realised_pnl": 4141999.0,
+  "swing_trades_in_window": 66,
+  "swing_lt_trades": 8,
+  "swing_realised_pnl": 621374.0
+ },
+ "after_tax": {
+  "a_blend_vt11": {
+   "after_tax_cagr_liquidation_pct": 19.26,
+   "after_tax_cagr_mtm_taxes_to_date_pct": 19.59,
+   "sharpe_excess": 0.974,
+   "boot156_p95_b8": 26.46,
+   "worst_daily_dd_pct": -18.16,
+   "tax_total": 782900.0,
+   "tax_by_fy": [
+    [
+     "2019-03-29",
+     1795.7
+    ],
+    [
+     "2020-03-31",
+     4721.76
+    ],
+    [
+     "2021-03-31",
+     247844.4
+    ],
+    [
+     "2022-03-31",
+     84404.22
+    ],
+    [
+     "2023-03-31",
+     24526.0
+    ],
+    [
+     "2024-03-28",
+     346758.19
+    ],
+    [
+     "2024-06-28",
+     72849.8
+    ]
+   ],
+   "trading_costs": 221689.0,
+   "liquidation_value": 5101171.0
+  },
+  "b_index_vt11": {
+   "after_tax_cagr_liquidation_pct": 20.41,
+   "after_tax_cagr_mtm_taxes_to_date_pct": 20.87,
+   "sharpe_excess": 1.054,
+   "boot156_p95_b8": 26.34,
+   "worst_daily_dd_pct": -19.19,
+   "tax_total": 881305.0,
+   "tax_by_fy": [
+    [
+     "2019-03-29",
+     0.09
+    ],
+    [
+     "2020-03-31",
+     21934.67
+    ],
+    [
+     "2021-03-31",
+     169191.75
+    ],
+    [
+     "2022-03-31",
+     183346.28
+    ],
+    [
+     "2023-03-31",
+     19330.76
+    ],
+    [
+     "2024-03-28",
+     377735.13
+    ],
+    [
+     "2024-06-28",
+     109765.91
+    ]
+   ],
+   "trading_costs": 5785.0,
+   "liquidation_value": 5369435.0
+  },
+  "c_static_60_40": {
+   "after_tax_cagr_liquidation_pct": 21.76,
+   "after_tax_cagr_mtm_taxes_to_date_pct": 23.85,
+   "sharpe_excess": 1.319,
+   "boot156_p95_b8": 22.87,
+   "worst_daily_dd_pct": -22.29,
+   "tax_total": 555604.0,
+   "tax_by_fy": [
+    [
+     "2019-03-29",
+     0.0
+    ],
+    [
+     "2020-03-31",
+     151.63
+    ],
+    [
+     "2021-03-31",
+     2159.15
+    ],
+    [
+     "2022-03-31",
+     6642.68
+    ],
+    [
+     "2023-03-31",
+     2967.99
+    ],
+    [
+     "2024-03-28",
+     4905.42
+    ],
+    [
+     "2024-06-28",
+     538777.18
+    ]
+   ],
+   "trading_costs": 250.0,
+   "liquidation_value": 5697267.0
+  },
+  "d_static_65_35": {
+   "after_tax_cagr_liquidation_pct": 23.02,
+   "after_tax_cagr_mtm_taxes_to_date_pct": 25.16,
+   "sharpe_excess": 1.314,
+   "boot156_p95_b8": 24.81,
+   "worst_daily_dd_pct": -24.06,
+   "tax_total": 592535.0,
+   "tax_by_fy": [
+    [
+     "2019-03-29",
+     0.0
+    ],
+    [
+     "2020-03-31",
+     143.8
+    ],
+    [
+     "2021-03-31",
+     2050.39
+    ],
+    [
+     "2022-03-31",
+     5259.19
+    ],
+    [
+     "2023-03-31",
+     2278.74
+    ],
+    [
+     "2024-03-28",
+     4773.31
+    ],
+    [
+     "2024-06-28",
+     578029.26
+    ]
+   ],
+   "trading_costs": 250.0,
+   "liquidation_value": 6016374.0
+  }
+ },
+ "pre_tax_sim": {
+  "a_blend_vt11": {
+   "after_tax_cagr_liquidation_pct": 23.8,
+   "sharpe_excess": 1.313,
+   "boot156_p95_b8": 24.14,
+   "trading_costs": 240115.0
+  },
+  "b_index_vt11": {
+   "after_tax_cagr_liquidation_pct": 25.45,
+   "sharpe_excess": 1.417,
+   "boot156_p95_b8": 22.96,
+   "trading_costs": 6323.0
+  },
+  "c_static_60_40": {
+   "after_tax_cagr_liquidation_pct": 23.94,
+   "sharpe_excess": 1.325,
+   "boot156_p95_b8": 22.85,
+   "trading_costs": 251.0
+  },
+  "d_static_65_35": {
+   "after_tax_cagr_liquidation_pct": 25.24,
+   "sharpe_excess": 1.319,
+   "boot156_p95_b8": 24.77,
+   "trading_costs": 251.0
+  }
+ },
+ "reconciliation": {
+  "lot_sim_pre_tax_no_blend_costs_cagr_pct": 25.38,
+  "return_series_blend_vt11_cagr_pct": 25.19,
+  "lot_sim_pre_tax_cagr_pct": 23.8
+ },
+ "added_after_first_look": {
+  "a_blend_vt11_no_blend_level_costs": {
+   "after_tax_cagr_liquidation_pct": 20.82,
+   "after_tax_cagr_mtm_taxes_to_date_pct": 21.14,
+   "sharpe_excess": 1.072,
+   "boot156_p95_b8": 25.58,
+   "worst_daily_dd_pct": -18.03,
+   "tax_total": 817953.0,
+   "tax_by_fy": [
+    [
+     "2019-03-29",
+     1794.98
+    ],
+    [
+     "2020-03-31",
+     4753.87
+    ],
+    [
+     "2021-03-31",
+     252804.72
+    ],
+    [
+     "2022-03-31",
+     87309.26
+    ],
+    [
+     "2023-03-31",
+     25681.97
+    ],
+    [
+     "2024-03-28",
+     367690.67
+    ],
+    [
+     "2024-06-28",
+     77917.84
+    ]
+   ],
+   "trading_costs": 0.0,
+   "liquidation_value": 5467165.0
+  }
+ },
+ "winner_rule": "highest after-tax liquidation CAGR among books with after-tax 156w p95 (block 8) <= 25%",
+ "winner": "d_static_65_35"
+}
