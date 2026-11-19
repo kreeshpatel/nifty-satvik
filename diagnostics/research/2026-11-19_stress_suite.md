@@ -268,3 +268,47 @@ the beta baseline, and **the beta-baseline verdict has not been independently re
    **Not ruled out**, but it cannot explain a gap that persists after costs are stripped out.
 4. **N3 inverts the CRS ranker only, not the setup.** Long-only cannot short the setup. **Disclosed.**
 5. **Interpreting the S5 shock on swing.** Moot while the shocks are withheld.
+
+---
+
+## Owner decisions recorded, 2026-11-19
+
+- **Fallback 60/40 recorded.**
+- **Swing goes to the January review as an item.** No live change.
+
+## Amendment 2 — 2026-11-19, lead quant — **post-hoc spec correction** (made after the Amendment 1 result)
+
+Recorded verbatim:
+
+> Amendment 1 compared Sharpe ratios. That was a spec error: random selection preserves EXPECTED RETURN, not Sharpe; a
+> 5-seat or 0001-sized random book carries idiosyncratic volatility the 500-name universe does not, and the
+> daily-rebalanced baseline adds a rebalancing bonus. Withdraw the Sharpe comparison.
+> New harness-bias test, from the cached cost-OFF twins only (no new engine runs):
+>  - For N1 and N2 on each book: mean daily arithmetic return of the placebo vs the mean daily arithmetic return of the
+>    equal-weight eligible universe over the SAME invested days, scaled by the placebo's exposure fraction on each day.
+>    Report the difference (annualised), its z across the 100 seeds, and the placebo-to-baseline volatility ratio.
+>  - Pass if |z| < 3 on every book (two controls x three books = 6 tests; state the multiplicity).
+>  - Also report the Sharpe gap that the volatility ratio alone predicts, beside the observed Sharpe gap, so the
+>    Amendment 1 failure is explained or not.
+> If Amendment 2 PASSES: release the shock table in the same message (Sharpe vs cash, vs the Midcap150 Momentum 50 TRI,
+> blend p95 156-week drawdown; pass/fail per the Step 0 shock criteria; worst shock per book). Report S6's held-name
+> 1st-percentile gap beside the all-pairs -4.23%.
+> If it FAILS: stop and report; do not release shocks.
+
+**Multiplicity.** This is the second harness-check specification on the same cached placebo runs, written after the
+first one failed. It is a harness check, not a trial: **n_trials is unchanged at 3**. The controls family now counts
+**2 specifications × 6 tests = 12 tests**, of which **Amendment 2's 6 are binding**. Their |z| < 3 bar is the
+pre-stated bar, and it is not adjusted further here.
+
+**Implementation, fixed before computing** (`explore_stress_suite.py controls_a2`):
+- **Inputs.** Each seed's cost-OFF twin (N1off, N2off). Daily returns over the book's window: swing 2019-03-01..2024-06-28;
+  0001 path start..2026-06-30.
+- **Exposure** x_{t−1}: the twin's invested fraction at the prior close.
+- **Baseline** b_t = x_{t−1} · EW_t, with EW_t as in Amendment 1.
+- **Invested days:** t with x_{t−1} > 0.
+- **Difference** d_k = (mean of r_t − mean of b_t over invested days) × 252. z = mean(d) / (sd(d)/√100).
+- **Volatility ratio:** sd(r)/sd(b) over invested days, averaged over seeds.
+- **Sharpe gap the volatility ratio alone predicts:** Sharpe(b) · (1/vr − 1), per seed, averaged. It is reported beside
+  the observed gap, Sharpe(r) − Sharpe(b).
+- **Blend:** placebo = the blend rule applied to the two legs' cost-off twins. Baseline = the blend rule applied to the
+  two legs' baselines. Invested days = every day.
