@@ -126,3 +126,118 @@ on #215's proxy price set with the old open-position convention:
 
 The script runs under PYTHONHASHSEED 0 and 7, and its output must be byte-identical. It stops only on an unexplained
 miss or a miss over 5% relative.
+
+---
+
+## Results
+
+**Reproduce:** `python pipelines/diagnostics/explore_after_tax_frontier.py` →
+`2026-11-19_after_tax_frontier.json`. It is byte-identical under PYTHONHASHSEED 0 and 7 (sha256 `d0567d45…`)
+[measured].
+
+### Anchors — all exact [measured]
+
+| anchor | committed JSON | reproduced |
+|---|---|---|
+| blend at 11%, after-tax / p95 | 19.26 / 26.46 | 19.26 / 26.46 |
+| static 65/35 | 23.02 / 24.81 | 23.02 / 24.81 |
+| index at 11% | 20.41 / 26.34 | 20.41 / 26.34 |
+| swing alone | 18.82 | 18.82 |
+| 0001 alone | 35.92 | 35.92 |
+| 0001 full run | 21.73 / 1.130 | 21.73 / 1.130 |
+
+### Step 2 — the swing after-tax fix [measured, `step2_swing_fix`]
+
+At the cut there are 10 open swing positions, carrying a gain of ₹11.52L at book scale. **6 of them, holding ₹3.90L
+of that gain, have been held 365 days or less**, and are now taxed short-term. The other 4 are long-term, by their own
+age.
+
+| | old (unit-lot age) | fixed (position age) | change |
+|---|---|---|---|
+| **swing alone, after-tax CAGR** | 18.82% | **18.57%** | **−0.25pp** |
+| swing alone, tax | ₹3,91,253 | ₹4,46,847 | +₹55,594, matching #215's estimate of ≈ ₹55k |
+| 0001 alone, same fix | 35.92% | 35.53% | −0.39pp |
+| blend at 11%, same fix | 19.26% | 19.37% | +0.11pp |
+
+The blend's figure rises. Its terminal unit lots were all short-term, and the 4 old swing positions are now long-term.
+
+### Step 3 — the frontier [measured, `frontier.points`]
+
+The cash legs over the window: real liquid 5.36%/yr, real arbitrage 6.05%/yr. The arbitrage leg beats the liquid leg
+at every point: it earns more pre-tax and is taxed as equity, not at the 30% slab.
+
+**Best passing point (p95 ≤ 25%) of each design, arbitrage cash leg:**
+
+| design | vol / mix | after-tax CAGR | p95 156w DD | excess Sharpe | dominated? |
+|---|---|---|---|---|---|
+| **static index/arbitrage 65/35** | 65/35 | **23.25** | 24.73 | 1.322 | no |
+| 0001 vol-targeted | 10% | 20.20 | 23.27 | 1.087 | yes |
+| index vol-targeted | 10% | 19.58 | 24.38 | 1.071 | yes |
+| blend 70/30 vol-targeted | 10% | 18.36 | 24.30 | 0.972 | yes |
+| swing vol-targeted | 8% | 10.17 | 22.68 | 0.423 | yes |
+
+With the liquid leg the order is the same: 65/35 at 22.79, 0001 at 19.71, index at 19.16, blend at 17.89, swing at 9.53.
+
+**Best at the cap: static 65/35 with the arbitrage leg, at 23.25% after tax.** Its margin over each other design's
+best passing point:
+- blend: **+4.89pp**
+- 0001 alone: +3.05pp
+- index vol-targeted: +3.67pp
+- swing alone: +13.08pp
+
+**Dominated points.** Every vol-targeted point that passes the cap is dominated by a static index/arbitrage mix, and
+so is every liquid-leg point. The only exception is 0001 at 6% (14.20 / 14.1), which no other point dominates.
+
+The undominated set is:
+- static/arbitrage 40/60 to 80/20;
+- 0001 at 6% and at 16–20%;
+- the 100% index fund held to the end, at 31.07 / 37.4.
+
+Every undominated point above 14.1 except the static mixes breaches the cap.
+
+Full grid (after-tax CAGR / p95; * = passes the cap):
+
+| design (arbitrage leg) | 6% | 8% | 10% | 11% | 12% | 15% | 20% |
+|---|---|---|---|---|---|---|---|
+| blend | 13.33/14.8* | 15.90/20.0* | 18.36/24.3* | 19.53/26.3 | 20.66/28.0 | 23.84/31.6 | 27.03/36.0 |
+| 0001 | 14.20/14.1* | 17.33/18.9* | 20.20/23.3* | 21.58/25.1 | 22.95/26.6 | 26.63/30.5 | 31.00/35.6 |
+| swing | 9.20/16.4* | 10.17/22.7* | 11.32/28.4 | 11.87/30.8 | 12.32/33.2 | 14.53/37.3 | 16.14/41.4 |
+| index | 14.20/15.1* | 17.05/20.1* | 19.58/24.4* | 20.51/26.2 | 21.22/27.9 | 24.09/31.4 | 27.15/35.5 |
+
+| static index/arbitrage | 40/60 | 50/50 | 60/40 | 65/35 | 70/30 | 80/20 |
+|---|---|---|---|---|---|---|
+| after-tax / p95 | 16.96/14.9* | 19.54/18.9* | 22.03/22.8* | 23.25/24.7* | 24.45/26.6 | 26.77/30.3 |
+
+### Step 4 — the vol-target tax layer [measured, `step4_tax_layer`, #215's proxy price set]
+
+Index at 11% loses 5.036pp to tax; static 65/35 loses 2.221pp. **The difference is 2.815pp**, split as follows:
+
+| component | index at 11% | static 65/35 | difference |
+|---|---|---|---|
+| **tax on rebalance sales**, index fund | 4.391 | 0.223 | **+4.168** |
+| tax on rebalance sales, liquid fund (slab) | 0.472 | 0.026 | +0.446 |
+| **tax at exit** (terminal liquidation), index fund | 0.131 | 1.592 | **−1.461** |
+| tax at exit, liquid fund | 0.042 | 0.381 | −0.339 |
+| total | 5.036 | 2.221 | **+2.815** |
+
+Entry carries no tax in either book. Rebalance sales total **+4.61pp** and the exit **−1.80pp**. The vol target pays
+more than all of its gap in rebalance tax, and gets some of it back at exit, because little gain is left in its lots.
+
+**Short- vs long-term realised equity gain:**
+- index at 11%: **100% short-term** (₹39.6L short-term, ₹0 long-term). Daily re-trading never lets a lot reach 366
+  days.
+- static 65/35: **≈ 100% long-term** (₹719 short-term, ₹42.5L long-term).
+
+### Step 5 — the mission test [measured, `step5_mission_test`]
+
+The blend's highest cap-passing vol is **10%** on both cash legs. There are 28 rolling 3-year windows, starting
+2019-03 to 2021-06 in monthly steps. **Only 1 non-overlapping 3-year window fits in the 5.3-year sample.**
+
+| blend at 10% vs | cash leg | blend wins | median margin (excess Sharpe) | worst margin (window start) |
+|---|---|---|---|---|
+| static 65/35 | arbitrage | **0 of 28** | −0.426 | −0.767 (2020-12) |
+| static 65/35 | liquid | 0 of 28 | −0.446 | −0.779 (2020-12) |
+| TRI held as the index fund, after tax | arbitrage | **0 of 28** | −0.429 | −0.753 (2020-12) |
+| TRI held as the index fund, after tax | liquid | 0 of 28 | −0.476 | −0.796 (2020-12) |
+
+The best window for the blend still loses: by −0.143 against 65/35 and −0.089 against the TRI (arbitrage leg).

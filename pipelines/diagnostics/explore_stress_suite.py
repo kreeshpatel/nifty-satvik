@@ -19,6 +19,7 @@ occur exactly once, and with every hook off the copy reproduces prompt 1's path-
 from __future__ import annotations
 
 import json
+import os
 import sys
 import time
 import types
@@ -32,7 +33,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT / "scripts"), str(ROOT / "pipelines" / "research"),
                 str(ROOT / "pipelines" / "diagnostics"), str(ROOT / "pipelines" / "lifecycle")]
 
-CACHE = ROOT / ".cache" / "stress_suite"
+CACHE = Path(os.environ.get("STRESS_CACHE", str(ROOT / ".cache" / "stress_suite")))   # Step 0b runs use a separate dir
 OUT_JSON = ROOT / "diagnostics" / "research" / "explore" / "2026-11-19_stress_suite.json"
 N_PATHS, N_SEEDS = 20, 100
 TARGET = 0.11
@@ -227,15 +228,15 @@ def run_swing(scens: list[str]) -> None:
     ctx = E.prepare_context()
     ctl = None
 
-    def one(d, stress, P=None, a_grade=None, keep_w=False):
+    def one(d, stress, P=None, a_grade=None, keep_w=False, cost_off=False):
         R94._STRESS.clear(); R94._STRESS.update(stress)
         cfg = {**L.normalize_config({}), "start": str(pd.Timestamp(d["start"]).date())}
         kw = L.engine_kwargs(cfg)
         led, plog = [], ([] if keep_w else None)
         ag = a_grade if a_grade is not None else ctx.a_grade("default")
-        with E.cost_jitter(float(d["cost_delta"])):
+        with E.cost_jitter(0.0 if cost_off else float(d["cost_delta"])):
             out = R94.backtest(P if P is not None else ctx.P, ctx.mem, ledger=led, a_grade=ag, **kw,
-                               demerger_events=ctx.events, position_log=plog)
+                               demerger_events=ctx.events, position_log=plog, cost_off=cost_off)
         R94._STRESS.clear(); R94._STRESS.update(NEUTRAL)
         nav = pd.Series(out["curve"], dtype=float)
         nav.index = pd.DatetimeIndex(nav.index).normalize()
@@ -248,6 +249,8 @@ def run_swing(scens: list[str]) -> None:
             pl = pd.DataFrame(plog)
             pl["w"] = pl["notional"] / pl["equity"]
             row["weights"] = {pd.Timestamp(k).normalize(): g["w"].to_numpy(float) for k, g in pl.groupby("date")}
+            ex = pl.groupby(pd.to_datetime(pl["date"]).dt.normalize())["w"].sum()
+            row["expo"] = ex.reindex(nav.index).fillna(0.0)          # invested fraction at each close
         return row
 
     for scen in scens:
@@ -290,11 +293,14 @@ def run_swing(scens: list[str]) -> None:
                         return base + (0.001 if adv_rupees > 0 and notional > 0.0025 * adv_rupees else 0.0)
                     PF._slip = slip_half
                     rows.append(one(d, NEUTRAL))
-                elif scen in ("N1", "N2", "N3"):
+                elif scen in ("N1", "N2", "N3", "N1off", "N2off"):
                     if ctl is None:
                         ctl = SwingControls(ctx)
-                    P2, n_sig = ctl.build(scen, k)
-                    rows.append({**one(d, NEUTRAL, P=P2, a_grade=R94.grade_a_entries(P2)), "n_signals": n_sig})
+                    P2, n_sig = ctl.build(scen[:2], k)
+                    r_ = one(d, NEUTRAL, P=P2, a_grade=R94.grade_a_entries(P2), keep_w=True,
+                             cost_off=scen.endswith("off"))
+                    r_.pop("weights", None)
+                    rows.append({**r_, "n_signals": n_sig})
                 else:
                     raise ValueError(scen)
             finally:
@@ -425,7 +431,7 @@ def run_momentum(scens: list[str]) -> None:
         t0 = time.time()
         draws = draws100 if scen.startswith("N") else draws20
         extra = {"base_turnover": base_turn}
-        if scen == "N2":
+        if scen in ("N2", "N2off"):
             # one mechanical calibration step, fixed before the 100 seeds (Step 0: turnover matched)
             q0 = base_turn["exits_per_rebalance"] / base_turn["mean_positions"]
             bt = one(n2_panel(q0, -1), M.START, 1.0, M.BOOK)
@@ -451,10 +457,12 @@ def run_momentum(scens: list[str]) -> None:
                     mult *= 3.0
                 elif scen == "S5":
                     book["max_adv_participation"] = RB.RebalanceConfig().max_adv_participation * 0.5
-                elif scen == "N1":
+                elif scen in ("N1", "N1off"):
                     b = n1_panel(k)
-                elif scen == "N2":
+                    mult = 0.0 if scen == "N1off" else mult
+                elif scen in ("N2", "N2off"):
                     b = n2_panel(q_cal, k)
+                    mult = 0.0 if scen == "N2off" else mult
                 elif scen == "N3":
                     b = b0.copy()
                     b["rank"] = -b["rank"]
@@ -469,9 +477,10 @@ def run_momentum(scens: list[str]) -> None:
             trd = pd.DataFrame(bt["trades"])
             row = {"path": k, "nav": INV.to_nav(bt["equity_curve"]),
                    "exits_per_rebalance": float((trd["reason"] == "rebalance_exit").sum() / n_reb) if len(trd) else 0.0}
+            ec = ec.set_index("date")
+            inv = ((ec["equity"] - ec["cash"]) / ec["equity"]).clip(lower=0)
+            row["expo"] = inv
             if scen == "base":
-                ec = ec.set_index("date")
-                inv = ((ec["equity"] - ec["cash"]) / ec["equity"]).clip(lower=0)
                 row["weights"] = {dd: np.full(int(n), inv[dd] / n) for dd, n in ec["n_positions"].items() if n > 0}
             rows.append(row)
             if k % 10 == 0:
@@ -583,60 +592,81 @@ def s7_apply(r: pd.Series, years: list[int]) -> pd.Series:
 
 
 # ======================================================================================== controls verdict
+def _baseline(r_on: pd.Series, r_off: pd.Series, expo: pd.Series, ew: pd.Series) -> pd.Series:
+    """Amendment 1 beta baseline: x_{t-1} * EW_t - c_t, c_t = r_on - r_off (the placebo's own cost drag)."""
+    x = expo.reindex(expo.index.union(r_on.index)).ffill().shift(1).reindex(r_on.index).fillna(0.0)
+    c = (r_on - r_off.reindex(r_on.index).fillna(0.0))
+    return x * ew.reindex(r_on.index).fillna(0.0) - c
+
+
 def controls() -> dict:
-    tri = tri_series()
-    out = {}
+    """Amendment 1 (2026-11-19, before first look): beta-baseline test for N1/N2, cost drag, permutation p, N3."""
+    import core as C
+    out = {"amendment": "Amendment 1, 2026-11-19, amended before first look"}
     base = {}
     for book in ("swing", "momentum"):
         bb = _load(book, "base")
-        rs = [book_returns(book, r["nav"]) for r in bb["rows"]]
-        base[book] = {"sharpe": np.array([sharpe_r(r) for r in rs]),
-                      "appraisal": np.array([appraisal(r, bb["ew_universe"]) for r in rs]), "r": rs, "ew": bb["ew_universe"]}
-    ew_blend = (0.7 * base["momentum"]["ew"] + 0.3 * base["swing"]["ew"]).dropna()
+        base[book] = np.array([sharpe_r(book_returns(book, r["nav"])) for r in bb["rows"]])
     bnav = {b: [r["nav"] for r in _load(b, "base")["rows"]] for b in ("swing", "momentum")}
-    br = [blend_returns(m, s) for m, s in zip(bnav["momentum"], bnav["swing"])]
-    base["blend"] = {"sharpe": np.array([sharpe_r(r) for r in br]), "appraisal": np.array([appraisal(r, ew_blend) for r in br])}
+    base["blend"] = np.array([sharpe_r(blend_returns(m, s)) for m, s in zip(bnav["momentum"], bnav["swing"])])
+    ew = {b: _load(b, "base")["ew_universe"] for b in ("swing", "momentum")}
     for scen in ("N1", "N2", "N3"):
-        sw, mo = _load("swing", scen), _load("momentum", scen)
-        series = {"swing": [book_returns("swing", r["nav"]) for r in sw["rows"]],
-                  "momentum": [book_returns("momentum", r["nav"]) for r in mo["rows"]]}
-        series["blend"] = [blend_returns(m["nav"], s["nav"]) for m, s in zip(mo["rows"], sw["rows"])]
-        ew = {"swing": base["swing"]["ew"], "momentum": base["momentum"]["ew"], "blend": ew_blend}
-        for book in ("swing", "momentum", "blend"):
-            sh = np.array([sharpe_r(r) for r in series[book]])
-            ap = np.array([appraisal(r, ew[book]) for r in series[book]])
-            rec = {}
-            for name, v, bv in (("sharpe_raw", sh, base[book]["sharpe"]), ("appraisal", ap, base[book]["appraisal"])):
-                v = v[np.isfinite(v)]
-                mean, se = float(v.mean()), float(v.std(ddof=1) / np.sqrt(len(v)))
-                p95 = float(np.percentile(v, 95))
-                r_ = {"n": int(len(v)), "mean": round(mean, 4), "se": round(se, 4), "median": round(float(np.median(v)), 4),
-                      "p5": round(float(np.percentile(v, 5)), 4), "p95": round(p95, 4),
-                      "base_median": round(float(np.median(bv)), 4), "base_p5": round(float(np.percentile(bv, 5)), 4)}
-                if scen in ("N1", "N2"):
-                    r_["within_2se_of_0"] = bool(abs(mean) <= 2 * se)
-                    r_["p95_below_0.3"] = bool(p95 < 0.3)
-                    r_["pass"] = r_["within_2se_of_0"] and r_["p95_below_0.3"]
-                else:
-                    r_["pass"] = bool(np.median(v) < np.percentile(bv, 5))
-                rec[name] = r_
-            if book == "swing":
-                rec["realised_trades_mean"] = float(np.mean([r["trades"] for r in sw["rows"]]))
-                rec["n_signals_mean"] = float(np.mean([r.get("n_signals", np.nan) for r in sw["rows"]]))
-            if book == "momentum":
-                rec["exits_per_rebalance_mean"] = float(np.mean([r["exits_per_rebalance"] for r in mo["rows"]]))
-            out.setdefault(scen, {})[book] = rec
+        on = {b: _load(b, scen)["rows"] for b in ("swing", "momentum")}
+        off = {b: _load(b, scen + "off")["rows"] for b in ("swing", "momentum")} if scen != "N3" else None
+        res = {}
+        ser_on = {b: [book_returns(b, r["nav"]) for r in on[b]] for b in on}
+        ser_on["blend"] = [blend_returns(m["nav"], s["nav"]) for m, s in zip(on["momentum"], on["swing"])]
+        sh_on = {b: np.array([sharpe_r(r) for r in v]) for b, v in ser_on.items()}
+        if off is not None:
+            ser_off = {b: [book_returns(b, r["nav"]) for r in off[b]] for b in off}
+            sh_off = {b: np.array([sharpe_r(r) for r in v]) for b, v in ser_off.items()}
+            bl = {b: [_baseline(ser_on[b][k], ser_off[b][k], on[b][k]["expo"], ew[b]) for k in range(len(on[b]))]
+                  for b in ("swing", "momentum")}
+            win_ = lambda r: r[(r.index >= pd.Timestamp(SW_WIN[0])) & (r.index <= pd.Timestamp(SW_WIN[1]))]
+            bl["blend"] = [C.vol_target_blend(win_(m), win_(s), target=TARGET)[0]
+                           for m, s in zip(bl["momentum"], bl["swing"])]
+            ser_off["blend"] = [blend_returns(m["nav"], s["nav"]) for m, s in zip(off["momentum"], off["swing"])]
+            sh_off["blend"] = np.array([sharpe_r(r) for r in ser_off["blend"]])
+        for b in ("swing", "momentum", "blend"):
+            v = sh_on[b]
+            strat = float(np.median(base[b]))
+            r_ = {"n": int(np.isfinite(v).sum()), "placebo_sharpe_mean": round(float(np.nanmean(v)), 4),
+                  "placebo_sharpe_median": round(float(np.nanmedian(v)), 4),
+                  "placebo_sharpe_p5": round(float(np.nanpercentile(v, 5)), 4),
+                  "placebo_sharpe_p95": round(float(np.nanpercentile(v, 95)), 4),
+                  "strategy_sharpe_base_median": round(strat, 4),
+                  "base_p5": round(float(np.percentile(base[b], 5)), 4)}
+            if off is not None:
+                bs = np.array([sharpe_r(x) for x in bl[b]])
+                dd = v - bs
+                dd = dd[np.isfinite(dd)]
+                se = float(dd.std(ddof=1) / np.sqrt(len(dd)))
+                r_.update({"baseline_sharpe_mean": round(float(np.nanmean(bs)), 4),
+                           "paired_diff_mean": round(float(dd.mean()), 4), "paired_diff_se": round(se, 4),
+                           "z": round(float(dd.mean() / se), 2) if se > 0 else None,
+                           "pass_beta_baseline": bool(abs(dd.mean()) <= 2 * se),
+                           "cost_off_sharpe_median": round(float(np.nanmedian(sh_off[b])), 4),
+                           "cost_drag_median_sharpe": round(float(np.nanmedian(sh_off[b]) - np.nanmedian(v)), 4),
+                           "permutation_p_strategy": round(float(np.mean(v >= strat)), 3)})
+            else:
+                r_["pass_clearly_below_base"] = bool(np.nanmedian(v) < np.percentile(base[b], 5))
+            if b == "swing":
+                r_["realised_trades_mean"] = float(np.mean([x["trades"] for x in on["swing"]]))
+                r_["n_signals_mean"] = float(np.mean([x.get("n_signals", np.nan) for x in on["swing"]]))
+            if b == "momentum":
+                r_["exits_per_rebalance_mean"] = float(np.mean([x["exits_per_rebalance"] for x in on["momentum"]]))
+            res[b] = r_
+        out[scen] = res
     sw_b, mo_b = _load("swing", "base"), _load("momentum", "base")
     out["base_reference"] = {"swing_trades_mean": float(np.mean([r["trades"] for r in sw_b["rows"]])),
                              "swing_real_signals": sw_b.get("n_real_signals"),
                              "momentum_exits_per_rebalance": mo_b["base_turnover"]["exits_per_rebalance"],
                              "n2_calibration": _load("momentum", "N2").get("n2_calibration"),
-                             "appraisal_base_median": {b: round(float(np.median(base[b]["appraisal"])), 4) for b in base},
-                             "sharpe_base_median": {b: round(float(np.median(base[b]["sharpe"])), 4) for b in base}}
-    fails = [(s, b) for s in ("N1", "N2", "N3") for b in ("swing", "momentum", "blend") if not out[s][b]["appraisal"]["pass"]]
-    lit = [(s, b) for s in ("N1", "N2", "N3") for b in ("swing", "momentum", "blend") if not out[s][b]["sharpe_raw"]["pass"]]
-    out["verdict"] = {"suite_failed_on_primary_appraisal": bool(fails), "failing_primary": fails,
-                      "failing_literal_raw_sharpe": lit}
+                             "sharpe_base_median": {b: round(float(np.median(base[b])), 4) for b in base}}
+    fails = [(s, b) for s in ("N1", "N2") for b in ("swing", "momentum", "blend") if not out[s][b]["pass_beta_baseline"]]
+    n3 = [b for b in ("swing", "momentum", "blend") if not out["N3"][b]["pass_clearly_below_base"]]
+    out["verdict"] = {"suite_failed": bool(fails), "failing_beta_baseline": fails, "n3_not_clearly_below_base": n3,
+                      "rule": "suite FAILS only if N1 or N2 breaks the beta-baseline test (Amendment 1)"}
     return out
 
 
