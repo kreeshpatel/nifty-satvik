@@ -1,0 +1,51 @@
+# Joint sensitivity + Monte Carlo distributions for the India after-tax study
+# (pipelines/diagnostics/explore_tax_montecarlo.py). MEASUREMENT ONLY; analysis, not tax advice.
+# Base rates stay in config/tax_india_fy2627.yaml (CONFIRM WITH CA). This file only says how each one is drawn.
+status: "CONFIRM WITH CA"
+
+sampling:
+  method: latin_hypercube      # scipy.stats.qmc.LatinHypercube, seeded
+  seed: 20261119
+  n_draws: 2000
+  n_double_seed: 20261120      # a second, independent LHS of n_draws if the convergence check fails
+  workers: 8
+  checkpoint_every: 200
+
+paths:
+  bootstrap: stationary        # Politis-Romano: each day continues the block with prob 1 - 1/mean_block
+  mean_block_days: 20
+  path_seed: 7000              # path for draw i uses default_rng(path_seed + i)
+  # Re-centre the index's daily returns on a drawn annual growth rate g, keeping their standard deviation:
+  # r' = r - mean(r) + m, m = ln(1 + g) / 252 + var(r) / 2  (so exp(252 * (m - var/2)) - 1 = g)
+  index_drift_annual: {dist: uniform, low: 0.06, high: 0.16}
+
+params:                        # path into tax_india_fy2627.yaml -> distribution
+  stcg:            {cfg: [equity, stcg], dist: uniform, low: 0.15, high: 0.25}
+  ltcg:            {cfg: [equity, ltcg], dist: uniform, low: 0.10, high: 0.175}
+  ltcg_exemption:  {cfg: [equity, ltcg_exemption], dist: choice, values: [0, 125000, 175000]}
+  owner_slab:      {cfg: [individual, owner_marginal_slab], dist: choice, values: [0.20, 0.25, 0.30]}
+  cess:            {cfg: [individual, cess], dist: uniform, low: 0.0, high: 0.06, also: [[company, cess]]}
+  liquid_yield:    {cfg: [instruments, liquid, gross_return], dist: uniform, low: 0.035, high: 0.08}
+  # arbitrage return MINUS liquid return, a year; stored in the tax config as liquid_minus = -spread
+  arb_spread:      {cfg: [instruments, arbitrage, liquid_minus], dist: uniform, low: -0.015, high: 0.003, transform: negate}
+  cost_index_ter:  {cfg: [instruments, index_fund, ter], dist: multiplier, low: 0.5, high: 1.5}
+  cost_liquid_ter: {cfg: [instruments, liquid, ter], dist: multiplier, low: 0.5, high: 1.5}
+  cost_mf_buy:     {cfg: [instruments, mf_costs, buy], dist: multiplier, low: 0.5, high: 1.5}
+  cost_mf_sell:    {cfg: [instruments, mf_costs, sell], dist: multiplier, low: 0.5, high: 1.5}
+  cost_compliance: {cfg: [company, annual_compliance], dist: multiplier, low: 0.5, high: 1.5}
+  harvest_offset_days: {dist: uniform, low: -30, high: 30}   # around 15 March; rounded to whole days
+  company_debt_rate: {cfg: [company, rate_on_debt_income], dist: uniform, low: 0.20, high: 0.3017}
+
+law_scenarios:
+  E: {name: "base law"}
+  A: {name: "LTCG exemption removed", set: {equity.ltcg_exemption: 0}}
+  B: {name: "STCG 30%", set: {equity.stcg: 0.30}}
+  C: {name: "arbitrage fund taxed at slab like debt"}
+  D: {name: "family split fails: no basic-exemption set-off, gifts clubbed to the owner (S3 taxed as S2)"}
+
+decomposition:
+  n_each: 500                  # params at base + paths varying; then historical path + params varying
+
+convergence:
+  p50_rel_tol: 0.01            # |p50(first half) / p50(all) - 1|
+  prob_abs_tol: 0.01           # |P(gain>0)(first half) - P(gain>0)(all)|
