@@ -202,5 +202,51 @@ def main() -> int:
     return 0
 
 
+
+def zero_one_full() -> dict:
+    """Follow-up: 0001 alpha on its full run 2017-01..2026-06, gross and net, vs index fund and raw TRI, by sub-period."""
+    from scipy.stats import norm
+    d = B.navs()
+    mo = d["momentum_metrics"]
+    if (round(mo["cagr_pct"], 2), round(mo["sharpe"], 3)) != (21.73, 1.13):
+        raise SystemExit("0001 anchor mismatch: stop")
+    gb = BCT.gross_books(d)
+    tri = pd.read_csv(AT.TRI, parse_dates=["date"]).set_index("date")["tri"].astype(float)
+    tri = tri[(tri.index >= pd.Timestamp(FULL[0])) & (tri.index <= pd.Timestamp(FULL[1]))]
+    r = tri.pct_change().fillna(0.0)
+    ixf = (1 + r - AT.TER_INDEX / 252).cumprod() * 100
+    def norm_nav(s):
+        s = s.copy(); s.index = pd.DatetimeIndex(s.index).normalize()
+        s = s[~s.index.duplicated(keep="last")]
+        return s[s.index <= pd.Timestamp(FULL[1])]
+    books = {"net": norm_nav(d["momentum"]), "gross": norm_nav(gb["momentum_gross"])}
+    periods = {"full_2017-01..2026-06": FULL, "2017-01..2019-02": SUBS["2017-01..2019-02"],
+               "2019-03..2024-06": B.COMMON, "2024-07..2026-06": SUBS["2024-07..2026-06"]}
+    res = {}
+    for cv, nav in books.items():
+        for pn, (lo, hi) in periods.items():
+            sl = lambda s: s[(s.index >= pd.Timestamp(lo)) & (s.index <= pd.Timestamp(hi))]
+            for rg, ix in (("index_fund", ixf), ("tri_raw", tri)):
+                res[f"{cv}|{pn}|{rg}"] = regress(sl(nav), sl(ix))
+    hurdle = float(norm.ppf(1 - 0.025 / 141))
+    out = {"window": list(FULL), "deflation": {"method": "Bonferroni-equivalent: two-sided family alpha 0.05 over 141 "
+                                               "lifetime trials, normal approximation to the NW t",
+                                               "n_trials_lifetime": 141, "t_hurdle": round(hurdle, 3)},
+           "results": res}
+    for rg in ("index_fund", "tri_raw"):
+        t = res[f"net|full_2017-01..2026-06|{rg}"]["t_nw_lag8"]
+        out["deflation"][f"net_full_{rg}"] = {"t": t, "passes_hurdle": bool(abs(t) >= hurdle),
+                                              "two_sided_p_raw": round(float(2 * (1 - norm.cdf(abs(t)))), 4),
+                                              "bonferroni_p": round(min(1.0, float(2 * (1 - norm.cdf(abs(t)))) * 141), 4)}
+    return out
+
+
 if __name__ == "__main__":
-    raise SystemExit(main())
+    if sys.argv[1:] == ["zero_one_full"]:
+        o = zero_one_full()
+        txt = json.dumps(o, indent=1, default=str) + "\n"
+        (EXP / "2026-11-19_0001_full_run_alpha.json").write_text(txt, encoding="utf-8")
+        print(txt)
+        print("SHA256", hashlib.sha256(txt.encode()).hexdigest())
+    else:
+        raise SystemExit(main())

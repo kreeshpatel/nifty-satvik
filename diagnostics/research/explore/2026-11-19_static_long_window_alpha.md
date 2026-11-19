@@ -220,3 +220,56 @@ arithmetic under those readings. Its alternative gain basis (costs counted in th
      already unsealed there).
 3. **The blend.** Its net alpha is +2.7%/yr, not significant (t 0.75), and negative after tax relative to the static
    mixes. The 2026-11-18 decision stands: forward challenger only.
+
+---
+
+## Follow-up (owner, 2026-11-19): 0001 alpha on its full run, 2017-01..2026-06 — method stated before the run
+
+**Sealed check.** Re-confirmed against CLAUDE.md: the only sealed item it names is the judge log. The sealed set is the
+swing strategy's own data (the Step 0 receipts above). The 0001 run of record covers 2017-01..2026-06 and has never
+been cut at 2024-06-30. This study uses 0001's outputs and index data only, and no swing data. **Not a sealed read.**
+[inferred]
+
+**Regression.** As in Step 2: weekly W-FRI returns, excess over rf 6.5% compounded weekly, OLS, Newey-West lag 8.
+- Regressors: the index fund (TRI less 0.30% TER) and, separately, the raw TRI.
+- Net = the 0001 run of record NAV. Gross = the same engine with `cost_mult = 0` (#215 `gross_books`).
+
+**Windows:** the full run, plus three sub-periods, each a continuous slice of the full NAV:
+- 2017-01..2019-02
+- 2019-03..2024-06
+- 2024-07..2026-06
+
+**Deflation, Bonferroni-equivalent hurdle.** 141 lifetime trials (the ledger count prompt 1 used). The two-sided
+family α of 0.05 becomes a per-test α of 0.05/141. The hurdle is |t| ≥ Φ⁻¹(1 − 0.025/141), using the normal
+approximation to the Newey-West t at n ≈ 490 weeks. It is applied to the **full-run net** t only; the sub-period ts are
+descriptive.
+
+### Results — 0001 full-run alpha [measured, `explore/2026-11-19_0001_full_run_alpha.json`; byte-identical under PYTHONHASHSEED 0 and 7]
+
+Regressor: the index fund. The raw TRI gives alphas 0.2–0.3pp lower and the same signs and significance calls.
+
+| period | costs | alpha / yr | beta | NW t | R² | weeks | 0001 CAGR | beta-matched mix CAGR |
+|---|---|---|---|---|---|---|---|---|
+| **full 2017-01..2026-06** | **net** | **+1.49%** | 0.906 | **0.44** | 0.745 | 495 | 21.73 | 20.54 |
+| full 2017-01..2026-06 | gross | +3.21% | 0.907 | 0.93 | 0.743 | 495 | 23.85 | 20.56 |
+| 2017-01..2019-02 | net | **−17.80%** | 0.621 | **−2.56** | 0.480 | 112 | −6.66 | 12.20 |
+| 2017-01..2019-02 | gross | −16.48% | 0.614 | −2.32 | 0.472 | 112 | −5.46 | 12.14 |
+| 2019-03..2024-06 | net | +8.01% | 0.958 | 1.87 | 0.786 | 278 | 43.07 | 32.72 |
+| 2019-03..2024-06 | gross | +9.90% | 0.961 | 2.31 | 0.786 | 278 | 45.90 | 32.82 |
+| 2024-07..2026-06 | net | +3.97% | 0.956 | 1.03 | 0.837 | 104 | 2.89 | −0.75 |
+| 2024-07..2026-06 | gross | +5.46% | 0.957 | 1.40 | 0.834 | 104 | 4.43 | −0.76 |
+
+The 2019–24 row differs from Step 2 by 0.03pp: 278 weeks against 277, because here the index fund series starts in
+2017 instead of on 2019-03-05.
+
+**Deflation (Bonferroni-equivalent, 141 lifetime trials).**
+- The hurdle is |t| ≥ **3.57**.
+- The full-run net t is **0.44** against the index fund and 0.36 against the TRI; raw p = 0.66.
+- **It fails the hurdle by a wide margin.** It also fails the undeflated |t| ≥ 2 bar.
+
+**Sign and significance, plainly:**
+- Over its full run, 0001 has a small positive alpha that is **not significant**, net or gross.
+- **2017–19:** a significantly **negative** alpha (t −2.56).
+- **2019–24:** a positive alpha, significant gross only.
+- **2024–26:** positive but not significant.
+- The 2019–24 alpha does not persist outside that window.

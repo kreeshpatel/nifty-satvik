@@ -1,0 +1,116 @@
+{
+ "amendment": "Amendment 2, 2026-11-19, post-hoc spec correction; cost-OFF twins only; pass |z| < 3 on all 6",
+ "multiplicity": "2 harness specifications x 6 tests = 12 on the same cached placebos; Amendment 2's 6 binding",
+ "N1": {
+  "swing": {
+   "n": 100,
+   "diff_ann_pct_mean": 2.623,
+   "diff_ann_pct_se": 0.579,
+   "z": 4.53,
+   "pass_abs_z_lt_3": false,
+   "placebo_mean_ann_pct": 24.6,
+   "baseline_mean_ann_pct": 21.98,
+   "vol_ratio_mean": 1.186,
+   "sharpe_placebo_mean": 1.242,
+   "sharpe_baseline_mean": 1.318,
+   "sharpe_gap_observed": -0.076,
+   "sharpe_gap_predicted_by_vol_ratio": -0.204,
+   "invested_days_mean": 1313
+  },
+  "momentum": {
+   "n": 100,
+   "diff_ann_pct_mean": -0.432,
+   "diff_ann_pct_se": 0.185,
+   "z": -2.33,
+   "pass_abs_z_lt_3": true,
+   "placebo_mean_ann_pct": 15.15,
+   "baseline_mean_ann_pct": 15.59,
+   "vol_ratio_mean": 1.037,
+   "sharpe_placebo_mean": 0.754,
+   "sharpe_baseline_mean": 0.804,
+   "sharpe_gap_observed": -0.05,
+   "sharpe_gap_predicted_by_vol_ratio": -0.029,
+   "invested_days_mean": 2077
+  },
+  "blend": {
+   "n": 100,
+   "diff_ann_pct_mean": -0.203,
+   "diff_ann_pct_se": 0.162,
+   "z": -1.25,
+   "pass_abs_z_lt_3": true,
+   "placebo_mean_ann_pct": 19.43,
+   "baseline_mean_ann_pct": 19.64,
+   "vol_ratio_mean": 1.008,
+   "sharpe_placebo_mean": 1.57,
+   "sharpe_baseline_mean": 1.599,
+   "sharpe_gap_observed": -0.029,
+   "sharpe_gap_predicted_by_vol_ratio": -0.013,
+   "invested_days_mean": 1313
+  }
+ },
+ "N2": {
+  "swing": {
+   "n": 100,
+   "diff_ann_pct_mean": 2.348,
+   "diff_ann_pct_se": 0.61,
+   "z": 3.85,
+   "pass_abs_z_lt_3": false,
+   "placebo_mean_ann_pct": 24.82,
+   "baseline_mean_ann_pct": 22.47,
+   "vol_ratio_mean": 1.18,
+   "sharpe_placebo_mean": 1.236,
+   "sharpe_baseline_mean": 1.32,
+   "sharpe_gap_observed": -0.084,
+   "sharpe_gap_predicted_by_vol_ratio": -0.199,
+   "invested_days_mean": 1313
+  },
+  "momentum": {
+   "n": 100,
+   "diff_ann_pct_mean": -0.58,
+   "diff_ann_pct_se": 0.171,
+   "z": -3.39,
+   "pass_abs_z_lt_3": false,
+   "placebo_mean_ann_pct": 14.96,
+   "baseline_mean_ann_pct": 15.54,
+   "vol_ratio_mean": 1.034,
+   "sharpe_placebo_mean": 0.747,
+   "sharpe_baseline_mean": 0.802,
+   "sharpe_gap_observed": -0.055,
+   "sharpe_gap_predicted_by_vol_ratio": -0.026,
+   "invested_days_mean": 2077
+  },
+  "blend": {
+   "n": 100,
+   "diff_ann_pct_mean": -0.026,
+   "diff_ann_pct_se": 0.177,
+   "z": -0.15,
+   "pass_abs_z_lt_3": true,
+   "placebo_mean_ann_pct": 19.58,
+   "baseline_mean_ann_pct": 19.61,
+   "vol_ratio_mean": 1.006,
+   "sharpe_placebo_mean": 1.586,
+   "sharpe_baseline_mean": 1.597,
+   "sharpe_gap_observed": -0.011,
+   "sharpe_gap_predicted_by_vol_ratio": -0.009,
+   "invested_days_mean": 1313
+  }
+ },
+ "verdict": {
+  "passed": false,
+  "failing": [
+   [
+    "N1",
+    "swing"
+   ],
+   [
+    "N2",
+    "swing"
+   ],
+   [
+    "N2",
+    "momentum"
+   ]
+  ],
+  "tests": 6
+ }
+}

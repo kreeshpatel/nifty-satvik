@@ -312,3 +312,61 @@ pre-stated bar, and it is not adjusted further here.
   the observed gap, Sharpe(r) − Sharpe(b).
 - **Blend:** placebo = the blend rule applied to the two legs' cost-off twins. Baseline = the blend rule applied to the
   two legs' baselines. Invested days = every day.
+
+## Correction — Amendment 1 baseline sign (found while computing Amendment 2)
+
+**Correction:** the Amendment 1 beta baseline was implemented as x·EW − c_t with c_t = r_on − r_off, which is the text
+of the amendment. The text is sign-inconsistent: costs make r_on < r_off, so c_t is negative, and subtracting it
+**added** the placebo's cost drag to the baseline instead of charging it.
+
+Every Amendment 1 baseline Sharpe in the controls table above (`explore/2026-11-19_stress_suite_controls.json`,
+commit 5be24a9) is therefore inflated by roughly the cost drag. For example, the swing N1 baseline reads 1.660, against
+1.318 with costs excluded under Amendment 2.
+
+The Amendment 1 FAIL is overstated, but it is moot: Amendment 1's Sharpe comparison is withdrawn by Amendment 2 in any
+case. Amendment 2 uses cost-off twins only and has no c_t term, so this error does not reach it.
+
+## Amendment 2 result — **FAILS on 3 of 6 tests**
+
+Source: [measured, `explore/2026-11-19_stress_suite_controls_a2.json`; cost-off twins, 100 seeds]. Column key:
+- **diff** — placebo − baseline mean return, annualised, with its SE;
+- **vol ratio** — placebo-to-baseline volatility;
+- **Sharpe gap** — observed and predicted by the vol ratio alone.
+
+| control | book | placebo mean / yr | baseline mean / yr | diff (SE) | z | \|z\| < 3 | vol ratio | Sharpe gap: observed / predicted |
+|---|---|---|---|---|---|---|---|---|
+| N1 | swing | 24.60% | 21.98% | **+2.62pp** (0.58) | **+4.53** | **FAIL** | 1.186 | −0.076 / −0.204 |
+| N1 | 0001 | 15.15% | 15.59% | −0.43pp (0.19) | −2.33 | pass | 1.037 | −0.050 / −0.029 |
+| N1 | blend | 19.43% | 19.64% | −0.20pp (0.16) | −1.25 | pass | 1.008 | −0.029 / −0.013 |
+| N2 | swing | 24.82% | 22.47% | **+2.35pp** (0.61) | **+3.85** | **FAIL** | 1.180 | −0.084 / −0.199 |
+| N2 | 0001 | 14.96% | 15.54% | **−0.58pp** (0.17) | **−3.39** | **FAIL** | 1.034 | −0.055 / −0.026 |
+| N2 | blend | 19.58% | 19.61% | −0.03pp (0.18) | −0.15 | pass | 1.006 | −0.011 / −0.009 |
+
+Multiplicity: 6 binding tests, out of 12 run across the two specifications.
+
+**Verdict: Amendment 2 FAILS** on swing N1, swing N2 and 0001 N2. **Per the amendment, stop: the shock table is not
+released**, and neither is the S6 held-name gap, which belongs to that release.
+
+**Is the Amendment 1 failure explained?** Mostly. With costs off and no sign error, the observed Sharpe gaps are small
+(−0.01 to −0.08). The volatility ratio alone predicts gaps of a similar size, and larger for swing (−0.20). So the
+Amendment 1 gaps of −0.25 to −0.79 came from the cost-sign error plus idiosyncratic volatility, and **not** from a
+return shortfall. The return test is now the binding one, and it fails in two different directions:
+- **Swing placebos earn more than their baseline**, by +2.3 to +2.6pp a year. This is the direction in which a harness
+  would create edge.
+- **0001's N2 placebo earns less**, by −0.58pp a year (z −3.39). N1 0001 is −0.43pp (z −2.33, within the bar).
+
+**Hypotheses, NOT tested** [inferred]:
+1. **Swing timing mismatch between fills and the baseline.** The placebo fills at the open and exits at the open. The
+   baseline uses exposure at the prior close times the close-to-close return. So on an entry day the placebo earns
+   open→close on the new position while the baseline credits nothing, and on an exit day the reverse happens. With 277
+   trades a year against the base's 67, any systematic overnight-versus-intraday difference in Indian midcaps lands
+   in d.
+   - Cheapest test: rebuild the baseline at the placebo's own fill timing, or measure the open→close vs close→open
+     split in the universe. Both work from the cached runs.
+2. **Swing exit rules on random entries are a trend filter.** Stops and SMA breaks drop falling names and keep rising
+   ones, so a random-entry book still holds a momentum tilt. That would be a property of the strategy's exits, not a
+   harness bias. The two cannot be separated with these controls.
+   - Cheapest test: a placebo that also randomises the exit date while matching holding-period lengths.
+3. **0001 N2 (−0.58pp).** The persistent random ranks hold names for months, against a universe re-weighted daily; the
+   remaining rebalancing bonus in the baseline is the natural candidate. It is small in size, and the z is driven by
+   a tight SE across 100 seeds on one history.

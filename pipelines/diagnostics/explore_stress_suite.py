@@ -670,6 +670,97 @@ def controls() -> dict:
     return out
 
 
+# ======================================================================================== Amendment 2
+def controls_a2(export_dir: Path | None = None) -> dict:
+    """Amendment 2 (post-hoc spec correction): mean daily return of the cost-OFF placebo vs the exposure-scaled EW
+    universe over the same invested days; z across seeds; vol ratio; Sharpe gap predicted by the vol ratio alone."""
+    import core as C
+    ew = {b: _load(b, "base")["ew_universe"] for b in ("swing", "momentum")}
+    out = {"amendment": "Amendment 2, 2026-11-19, post-hoc spec correction; cost-OFF twins only; pass |z| < 3 on all 6",
+           "multiplicity": "2 harness specifications x 6 tests = 12 on the same cached placebos; Amendment 2's 6 binding"}
+    win_ = lambda r: r[(r.index >= pd.Timestamp(SW_WIN[0])) & (r.index <= pd.Timestamp(SW_WIN[1]))]
+    for scen in ("N1off", "N2off"):
+        rows = {b: _load(b, scen)["rows"] for b in ("swing", "momentum")}
+        per = {b: [] for b in ("swing", "momentum", "blend")}
+        legs = {"swing": [], "momentum": []}
+        for b in ("swing", "momentum"):
+            for k, row in enumerate(rows[b]):
+                r = book_returns(b, row["nav"])
+                x = row["expo"].reindex(row["expo"].index.union(r.index)).ffill().shift(1).reindex(r.index).fillna(0.0)
+                base = x * ew[b].reindex(r.index).fillna(0.0)
+                legs[b].append((r, base))
+                m = x > 0
+                per[b].append((r[m], base[m]))
+                if export_dir is not None and b == "swing" and scen == "N2off":
+                    export_dir.mkdir(parents=True, exist_ok=True)
+                    pd.DataFrame({"placebo_ret": r, "expo_prior_close": x}).to_csv(export_dir / f"seed_{k:03d}.csv",
+                                                                                 index_label="date", float_format="%.12g")
+        if export_dir is not None and scen == "N2off":
+            ew["swing"].rename("ew_universe_ret").to_csv(export_dir / "ew_universe.csv", index_label="date", float_format="%.12g")
+        for (rm_, bm_), (rs_, bs_) in zip(legs["momentum"], legs["swing"]):
+            pr = C.vol_target_blend(win_(rm_), win_(rs_), target=TARGET)[0]
+            br = C.vol_target_blend(win_(bm_), win_(bs_), target=TARGET)[0]
+            per["blend"].append((pr, br))
+        res = {}
+        for b, pairs in per.items():
+            d = np.array([(r.mean() - bb.mean()) * 252 for r, bb in pairs])
+            vr = np.array([r.std() / bb.std() for r, bb in pairs])
+            sh_r = np.array([sharpe_r(r) for r, _ in pairs])
+            sh_b = np.array([sharpe_r(bb) for _, bb in pairs])
+            se = d.std(ddof=1) / np.sqrt(len(d))
+            res[b] = {"n": int(len(d)), "diff_ann_pct_mean": round(float(d.mean()) * 100, 3),
+                      "diff_ann_pct_se": round(float(se) * 100, 3), "z": round(float(d.mean() / se), 2),
+                      "pass_abs_z_lt_3": bool(abs(d.mean() / se) < 3),
+                      "placebo_mean_ann_pct": round(float(np.mean([r.mean() for r, _ in pairs])) * 252 * 100, 2),
+                      "baseline_mean_ann_pct": round(float(np.mean([bb.mean() for _, bb in pairs])) * 252 * 100, 2),
+                      "vol_ratio_mean": round(float(vr.mean()), 3),
+                      "sharpe_placebo_mean": round(float(sh_r.mean()), 3), "sharpe_baseline_mean": round(float(sh_b.mean()), 3),
+                      "sharpe_gap_observed": round(float((sh_r - sh_b).mean()), 3),
+                      "sharpe_gap_predicted_by_vol_ratio": round(float((sh_b * (1 / vr - 1)).mean()), 3),
+                      "invested_days_mean": int(np.mean([len(r) for r, _ in pairs]))}
+        out[scen[:2]] = res
+    tests = [(s, b, out[s][b]["pass_abs_z_lt_3"]) for s in ("N1", "N2") for b in ("swing", "momentum", "blend")]
+    out["verdict"] = {"passed": all(t[2] for t in tests), "failing": [(s, b) for s, b, ok in tests if not ok],
+                      "tests": 6}
+    return out
+
+
+def held_gap_p1() -> dict:
+    """S6 add-on: 1st-percentile open/prev-close gap over (held name, day) pairs of the unperturbed books."""
+    import explore_blend_drawdown_sizing as B
+    from run_bhanushali_path1 import corrected_universe
+    d = B.navs()
+    u = corrected_universe()
+    gaps = {}
+    for t, df in u.items():
+        o = df["open"] if "open" in df else df["Open"]
+        c = df["close"] if "close" in df else df["Close"]
+        g = (o / c.shift(1) - 1).replace([np.inf, -np.inf], np.nan)
+        g.index = pd.DatetimeIndex(df.index).normalize()
+        gaps[t] = g[~g.index.duplicated(keep="last")]
+    out = {}
+    pl = d["swing_position_log"]
+    pairs = pd.DataFrame({"t": pl["tkr"], "d": pd.to_datetime(pl["date"]).dt.normalize()})
+    pairs = pairs[(pairs.d >= pd.Timestamp(SW_WIN[0])) & (pairs.d <= pd.Timestamp(SW_WIN[1]))]
+    v = np.array([gaps[t].get(dd, np.nan) for t, dd in zip(pairs.t, pairs.d)], float)
+    v = v[np.isfinite(v)]
+    out["swing_held_pairs"] = {"n": int(len(v)), "p1_gap_pct": round(float(np.percentile(v, 1)) * 100, 2)}
+    mt = d["momentum_trades"]
+    vals = []
+    for r in mt.itertuples():
+        g = gaps.get(r.ticker)
+        if g is None:
+            continue
+        lo, hi = pd.Timestamp(r.entry_date), pd.Timestamp(r.exit_date)
+        vals.append(g[(g.index > lo) & (g.index <= hi) & (g.index <= pd.Timestamp(MOM_END))].to_numpy(float))
+    v = np.concatenate(vals) if vals else np.array([])
+    v = v[np.isfinite(v)]
+    out["momentum_held_pairs_approx"] = {"n": int(len(v)), "p1_gap_pct": round(float(np.percentile(v, 1)) * 100, 2),
+                                         "note": "entry..exit spans of every trade row; overlapping rows double-count a few days"}
+    out["all_pairs_p1_gap_pct"] = round(json.loads((CACHE / "gap_G.json").read_text())["p1_gap"] * 100, 2)
+    return out
+
+
 # ======================================================================================== report
 def report() -> None:
     tri = tri_series()
@@ -763,6 +854,10 @@ if __name__ == "__main__":
         run_momentum(args)
     elif mode == "controls":
         print(json.dumps(controls(), indent=1, default=str))
+    elif mode == "a2":
+        print(json.dumps(controls_a2(ROOT / ".cache" / "stress_suite_a2_replica"), indent=1, default=str))
+    elif mode == "held_gap":
+        print(json.dumps(held_gap_p1(), indent=1, default=str))
     elif mode == "gap":
         print(gap_G())
     else:
