@@ -1,4 +1,4 @@
-# NSE XBRL quarterly results: data quality (PARTIAL, broadcast years 2019–2020)
+# NSE XBRL quarterly results: data quality (broadcast years 2019–2026)
 
 Class: DATA ENGINEERING. No signal, IC, return, backtest, trial or screen. Standing counts are not touched.
 Goal link: this is the point-in-time quarterly EPS and line-item input for the January multi-signal model
@@ -12,8 +12,13 @@ Goal link: this is the point-in-time quarterly EPS and line-item input for the J
 > revenue, PAT and EPS for those 29 rows belonged to the previous quarter [measured, diff of the old and
 > new builds].
 
-Status: **partial**. These numbers cover filings broadcast 2019-01-01..2020-12-31 (19,939 filings). Each later
-year is added on the same PR as its fetch completes.
+> **Correction:** the partial report said the balance-sheet fields are "100% absent ... a balance sheet
+> needs a different source" (artifact 4, commit a9565e9). That holds for 2019–2021 only. From the second
+> half of 2022, half-year and integrated filings carry an instant balance-sheet context. Total equity is
+> present in about 26% of 2022 current rows and about 50% from 2023 on (Sep and Mar quarters) [measured].
+
+Status: **final**. Filings broadcast 2019-01-11..2026-11-19 (105,951 filings). The 2019–2020 sections below
+keep their partial numbers as a record; the full-build numbers are in "Results (all years)".
 
 ## Method
 
@@ -56,8 +61,8 @@ year is added on the same PR as its fetch completes.
 - **Coverage** (line 32): share of members with at least one parsed filing broadcast in that calendar year.
 - **Completeness** (line 38): (member × quarter-end in year Y) pairs that have a current-quarter row, split
   into standalone, consolidated and either.
-  - Only quarter-ends at least 60 days before the last broadcast in the data are counted. That leaves 3
-    quarters for 2020 in this partial build.
+  - Only quarter-ends at least 60 days before the last broadcast in the data are counted. That leaves 2
+    quarters for 2026.
 - **Parse failures** (line 59): per field and broadcast year, over current rows.
   - `fail_pct`: reason is parse, unit or conflict.
   - `absent_pct`: the tag is missing.
@@ -103,6 +108,98 @@ separate files, so they are both counted. No statistic here is used for inferenc
 | revisions: share of current rows · median days · same-day | 0.60% · 1.38 d · 48.3% | [measured] same json |
 | broadcast timing <09:15 / 09:15–15:30 / >15:30 | 2019: 0.4 / 41.2 / 58.3% · 2020: 2.0 / 40.8 / 57.2% | [measured] same json |
 
+## Results (all years)
+
+[measured] `diagnostics/research/explore/2026-11-19_results_xbrl_quality.json` and
+`.cache/data_audit_v2/results_xbrl_build_log.json` (EPS by fiscal year ending March of that year).
+
+**Fetch.**
+- Listing XBRL URLs: 106,283.
+- Fetched OK: 105,953.
+- HTTP 404: 330, i.e. 0.31%. Other non-200: 0.
+- Runtime: 104,286 files fetched in this run in 54,545 s (15.2 h), 0.523 s per file. 0 persistent-403 stops.
+
+**Build.**
+- 105,951 filings parsed into 189,592 rows; 105,951 of them are current rows (104,987 Q, 961 H, 3 FY).
+- File failures: 2 of 105,953, i.e. 0.002%. One is malformed XML (INDAS 2022). One integrated 2025 file has
+  no reporting period.
+- Period dates taken from the listing: 206 files. Left label-only: 0.
+- Current-context rule:
+  - 3,212 files had more than one candidate. The deciding rule was (a) 102, (b) 3,107, (c) 3.
+  - The (b) cases are 2025–26 integrated filings. Their empty `StatementStatic*` header contexts carry
+    quarter dates but no values and no consolidated flag, and `OneD` wins on the flag.
+  - Each of those files carries one consolidation flag only, so nothing is lost [measured].
+  - Those header contexts leave **3,988 non-current rows with every value NaN**. They are kept, per the
+    never-drop rule; callers using `role="current"` never see them.
+- Parse failures (parse/unit/conflict), current rows: 0.00% for every income-statement field. The maximum
+  for any field is 1.06% (`bs_total_assets` conflicts in 2023–26, where several instant contexts at
+  the same date disagree, so it is NaN by rule).
+
+| | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 | 2026 |
+|---|---|---|---|---|---|---|---|---|
+| filings in listing / 404 | 8,815 / 148 | 11,272 / 0 | 11,622 / 47 | 11,714 / 33 | 13,154 / 64 | 14,334 / 0 | 16,483 / 19 | 18,889 / 18 |
+| 404 rate, all | 1.68% | 0.0% | 0.4% | 0.28% | 0.49% | 0.0% | 0.12% | 0.1% |
+| 404 rate, N500 members | 1.57% | 0.0% | 0.85% | 0.46% | 0.73% | 0.0% | 0.15% | 0.34% |
+| N500 coverage raw → bridged | 94.4 → 97.6% | 94.4 → 97.4% | 92.8 → 95.8% | 95.4 → 97.2% | 96.2 → 97.4% | 97.6 → 97.8% | 99.4 → 99.4% | 99.4 → 99.4% |
+| completeness either / standalone / consolidated | 86.0 / 84.8 / 72.6% | 96.5 / 95.6 / 84.7% | 91.9 / 91.2 / 82.4% | 91.2 / 87.8 / 80.3% | 95.8 / 95.6 / 88.1% | 97.2 / 97.2 / 88.8% | 99.0 / 98.8 / 89.8% | 99.0 / 98.6 / 89.9% |
+| quarters counted | 4 | 4 | 4 | 4 | 4 | 4 | 4 | 2 |
+| revenue_ops / pat / eps absent | 1.9 / 0.1 / 0.0% | 2.0 / 0.7 / 0.0% | 1.5 / 0.3 / 0.0% | 1.4 / 0.1 / 0.0% | 1.5 / 0.0 / 0.0% | 1.8 / 0.0 / 0.0% | 2.0 / 0.0 / 0.3% | 1.9 / 0.0 / 0.3% |
+| total equity present (BS) | 0.0% | 0.0% | 0.0% | 26.0% | 49.7% | 49.4% | 50.7% | 51.4% |
+| EPS 4Q vs FY gap > 5% | 20.0% | 16.1% | 15.4% | 16.0% | 16.6% | 15.7% | 17.5% | 17.1% |
+| lag > 120 d rows (all) | 618 | 1,184 | 329 | 167 | 298 | 381 | 284 | 1,332 |
+| lag > 120 d, current, member | 61 / 2,903 | 67 / 3,653 | 4 / 3,500 | 7 / 3,336 | 0 / 3,655 | 5 / 3,740 | 11 / 3,998 | 63 / 4,159 |
+| lag > 120 d, current, non-member | 224 / 5,764 | 560 / 7,619 | 182 / 8,075 | 89 / 8,344 | 174 / 9,435 | 208 / 10,594 | 153 / 12,465 | 617 / 14,711 |
+
+- **EPS sanity, all years.** 19,243 pairs; median gap 0.03%; p90 23.82%. Share over 5%:
+  16.4%. Share over 5% and more than ₹0.5: 10.5%.
+- **Cross-check against the depth pkl** (sample of 50, seed 20261119):
+  - Revenue (n=48): within 1% 89.6%, within 5% 93.8%.
+  - PAT (n=50): within 1% 90.0%, within 5% 90.0%, over 20% 0.0%.
+  - Worst: CCL FY19 standalone, revenue −25% / PAT −19%.
+- **Revisions.** 3,399 rows, 3.21% of current rows. Median 7.97 d,
+  p90 113.2 d, same day 41.0%.
+  - The jump from 0.6% in 2019–20 comes from the integrated feed, which lists Revision filings explicitly.
+- **Broadcast timing.** The after-15:30 share rose from 58% (2019) to 80% (2025) and higher in 2026; the
+  in-session share fell from 41% to 12%.
+- **Period sanity.**
+  - lag < 0: **0 rows**, so the stop did not trigger. not_quarter_end: 0. no_period_end: 0.
+  - lag > 120 d: 4,593 of 189,592 rows.
+  - lag days, current Q rows: median 42, p95 88, max 2786.
+  - lag days, FY rows: median 56, p95 120, max 2786.
+  - Late current rows, pooled over all years: **N500 members 0.75%** (218 / 28,944),
+    non-members 2.87%.
+  - In 2026, 72% of flagged current rows are revisions, which are late by nature.
+- **Not-found stop rule.** All years are complete; the highest rate is 2019 at 1.68%. The member rate never
+  exceeds 2% (highest 2019, 1.57%), so no (symbol, period) list is triggered.
+- **Members never covered.** 3 in 2025–26: ABBOTINDIA, BAYERCROP, MCX. 11–21 a year before that, mainly
+  insurers and filers whose XBRL link is "-".
+
+Worst 20 flagged rows, all years, by |lag_days|. All are companies catching up on years-old filings, which
+are real late filings and not mis-assigned periods [inferred from each company's own filing sequence]:
+
+| symbol | period | context | broadcast (IST) | lag_days | revision |
+|---|---|---|---|---|---|
+| BHARATIDIL | 2018-01-01..2018-03-31 (Q, current) | OneD | 2025-11-15 11:56 | 2786 | False |
+| BHARATIDIL | 2017-04-01..2018-03-31 (FY, ytd) | FourD | 2025-11-15 11:56 | 2786 | False |
+| IL&FSTRANS | 2018-04-01..2019-03-31 (FY, ytd) | FourD | 2026-07-01 11:00 | 2649 | False |
+| IL&FSTRANS | 2019-01-01..2019-03-31 (Q, current) | OneD | 2026-07-01 11:00 | 2649 | False |
+| BHARATIDIL | 2019-01-01..2019-03-31 (Q, current) | OneD | 2025-11-15 12:17 | 2421 | False |
+| BHARATIDIL | 2018-04-01..2019-03-31 (FY, ytd) | FourD | 2025-11-15 12:17 | 2421 | False |
+| AIFL | 2018-04-01..2019-03-31 (FY, ytd) | FourD | 2025-10-29 19:38 | 2404 | False |
+| AIFL | 2019-01-01..2019-03-31 (Q, current) | OneD | 2025-10-29 19:38 | 2404 | False |
+| EDUCOMP | 2017-04-01..2017-06-30 (Q, current) | OneD | 2023-04-24 16:18 | 2124 | False |
+| BHARATIDIL | 2019-04-01..2020-03-31 (FY, ytd) | FourD | 2025-11-15 12:31 | 2055 | False |
+| BHARATIDIL | 2020-01-01..2020-03-31 (Q, current) | OneD | 2025-11-15 12:31 | 2055 | False |
+| AIFL | 2019-04-01..2020-03-31 (FY, ytd) | FourD | 2025-10-29 17:54 | 2038 | False |
+| AIFL | 2020-01-01..2020-03-31 (Q, current) | OneD | 2025-10-29 17:54 | 2038 | False |
+| AHLWEST | 2021-01-01..2021-03-31 (Q, current) | OneD | 2026-08-24 13:25 | 1972 | True |
+| AHLWEST | 2020-04-01..2021-03-31 (FY, ytd) | FourD | 2026-08-24 13:25 | 1972 | True |
+| AHLWEST | 2020-04-01..2021-03-31 (FY, ytd) | FourD | 2026-08-24 17:39 | 1972 | True |
+| AHLWEST | 2021-01-01..2021-03-31 (Q, current) | OneD | 2026-08-24 17:39 | 1972 | True |
+| EDUCOMP | 2017-10-01..2017-12-31 (Q, current) | OneD | 2023-04-25 15:56 | 1941 | False |
+| EDUCOMP | 2017-04-01..2017-12-31 (9M, ytd) | FourD | 2023-04-25 15:56 | 1941 | False |
+| EDUCOMP | 2018-04-01..2018-06-30 (Q, current) | OneD | 2023-04-27 17:23 | 1762 | False |
+
 ## Artifact check: could the method have made these numbers?
 
 1. **Ticker renames make coverage look low.** Ruled out by the ISIN bridge, which raised coverage from 94.4% to
@@ -124,7 +221,7 @@ separate files, so they are both counted. No statistic here is used for inferenc
    - These are filer-entered XBRL errors. EPS also does not sum exactly across quarters when share count
      changes.
    - **Users should not trust raw quarterly EPS without a PAT ÷ shares cross-check** [inferred].
-4. **Balance sheet 100% absent is a parser bug.** Ruled out. NSE results XBRL instances carry only duration
+4. **Balance sheet 100% absent is a parser bug** (2019–2021; see the Correction at the top for 2022+). Ruled out. NSE results XBRL instances carry only duration
    contexts (OneD/FourD plus the operating-expense sub-contexts) and no instant contexts or `Assets` facts
    [measured, 5 Sep-2019 instances inspected]. The balance-sheet columns stay NaN with reason "absent". A
    balance sheet needs a different source.
@@ -303,7 +400,20 @@ Every complete year is under 2%, so the stop did not trigger. 2019 is the closes
 
 No complete year has a member rate over 2%, so no pairs are listed yet.
 
-## Not yet done
+## Independent re-derivation (rule 3)
 
-- Years 2021–2026 (the fetch is running).
-- Final numbers. Every figure above will be recomputed on the full build.
+A fresh `blind-replica` sub-agent recomputed the decision numbers from a written spec only, without the quality
+script. It wrote `diagnostics/replica/results_xbrl/rederive_quality.py` and `rederive_quality.json`.
+
+| number | original | re-derived | relative diff |
+|---|---|---|---|
+| rows / filings | 189,592 / 105,951 | 189,592 / 105,951 | 0 |
+| completeness, either, 2019 to 2026 | 86.0, 96.5, 91.9, 91.2, 95.8, 97.2, 99.0, 99.0 | 86.0, 96.5, 91.9, 91.2, 95.8, 97.2, **99.1**, 99.0 | at most 0.1% |
+| standalone / consolidated, 2025 | 98.8 / 89.8 | 98.9 / 89.8 | 0.1% |
+| EPS pairs / median gap / share > 5% | 19,243 / 0.03% / 16.4% | 19,243 / 0.03% / 16.4% | 0 |
+| late rate: members / non-members | 0.75% (218 / 28,944) / 2.87% | 0.75% (218 / 28,948) / 2.87% | 0 at 2 decimals |
+
+Every difference is well under the 5% relative limit [measured].
+- The 2025 completeness gap of 0.1 point and the 4-row member-count gap come from how each side applies the
+  symbol bridge. Here the bridge comes from the full listing; the replica built it from the parquet rows
+  [inferred].

@@ -1,19 +1,32 @@
 {
- "rows": 35173,
- "filings": 19939,
- "current_rows": 19939,
- "broadcast_range": "2019-01-11 16:25:08..2020-12-31 12:17:16",
+ "rows": 189592,
+ "filings": 105951,
+ "current_rows": 105951,
+ "broadcast_range": "2019-01-11 16:25:08..2026-11-19 20:33:48",
  "period_type_current": {
-  "Q": 19938,
-  "H": 1
+  "Q": 104987,
+  "H": 961,
+  "FY": 3
  },
  "coverage_pit_n500_raw_symbol": {
   "2019": 94.4,
-  "2020": 94.4
+  "2020": 94.4,
+  "2021": 92.8,
+  "2022": 95.4,
+  "2023": 96.2,
+  "2024": 97.6,
+  "2025": 99.4,
+  "2026": 99.4
  },
  "coverage_pit_n500": {
   "2019": 97.6,
-  "2020": 97.4
+  "2020": 97.4,
+  "2021": 95.8,
+  "2022": 97.2,
+  "2023": 97.4,
+  "2024": 97.8,
+  "2025": 99.4,
+  "2026": 99.4
  },
  "uncovered_members": {
   "2019": [
@@ -44,38 +57,199 @@
    "SBILIFE",
    "SPICEJET",
    "WESTLIFE"
+  ],
+  "2021": [
+   "ABBOTINDIA",
+   "BAYERCROP",
+   "GICRE",
+   "GOCOLORS",
+   "HDFCLIFE",
+   "HLEGLAS",
+   "ICICIGI",
+   "ICICIPRULI",
+   "LATENTVIEW",
+   "MAPMYINDIA",
+   "MCX",
+   "MEDPLUS",
+   "METROBRAND",
+   "NESTLEIND",
+   "NIACL",
+   "POLICYBZR",
+   "SAPPHIRE",
+   "SBILIFE",
+   "SPICEJET",
+   "STARHEALTH",
+   "WESTLIFE"
+  ],
+  "2022": [
+   "ABBOTINDIA",
+   "BAYERCROP",
+   "GICRE",
+   "HDFCLIFE",
+   "HLEGLAS",
+   "ICICIGI",
+   "ICICIPRULI",
+   "MCX",
+   "NESTLEIND",
+   "NIACL",
+   "SBILIFE",
+   "SPICEJET",
+   "STARHEALTH",
+   "WESTLIFE"
+  ],
+  "2023": [
+   "ABBOTINDIA",
+   "BAYERCROP",
+   "GICRE",
+   "HDFCLIFE",
+   "ICICIGI",
+   "ICICIPRULI",
+   "KARURVYSYA",
+   "KENNAMET",
+   "LICI",
+   "MCX",
+   "NIACL",
+   "SBILIFE",
+   "STARHEALTH"
+  ],
+  "2024": [
+   "ABBOTINDIA",
+   "BAYERCROP",
+   "GICRE",
+   "HDFCLIFE",
+   "ICICIGI",
+   "ICICIPRULI",
+   "LICI",
+   "MCX",
+   "NIACL",
+   "SBILIFE",
+   "STARHEALTH"
+  ],
+  "2025": [
+   "ABBOTINDIA",
+   "BAYERCROP",
+   "MCX"
+  ],
+  "2026": [
+   "ABBOTINDIA",
+   "BAYERCROP",
+   "MCX"
   ]
  },
  "quarter_completeness_raw_symbol": {
   "2019": {
    "pairs": 1984,
    "quarters": 4,
-   "standalone_pct": 81.8,
+   "standalone_pct": 82.0,
    "consolidated_pct": 70.1,
-   "either_pct": 83.1
+   "either_pct": 83.2
   },
   "2020": {
-   "pairs": 1500,
-   "quarters": 3,
-   "standalone_pct": 92.6,
-   "consolidated_pct": 81.8,
+   "pairs": 2000,
+   "quarters": 4,
+   "standalone_pct": 92.5,
+   "consolidated_pct": 81.9,
    "either_pct": 93.5
+  },
+  "2021": {
+   "pairs": 1992,
+   "quarters": 4,
+   "standalone_pct": 88.2,
+   "consolidated_pct": 79.9,
+   "either_pct": 88.9
+  },
+  "2022": {
+   "pairs": 1988,
+   "quarters": 4,
+   "standalone_pct": 86.2,
+   "consolidated_pct": 78.7,
+   "either_pct": 89.5
+  },
+  "2023": {
+   "pairs": 1996,
+   "quarters": 4,
+   "standalone_pct": 94.2,
+   "consolidated_pct": 86.7,
+   "either_pct": 94.4
+  },
+  "2024": {
+   "pairs": 2000,
+   "quarters": 4,
+   "standalone_pct": 96.8,
+   "consolidated_pct": 88.5,
+   "either_pct": 96.8
+  },
+  "2025": {
+   "pairs": 2000,
+   "quarters": 4,
+   "standalone_pct": 98.8,
+   "consolidated_pct": 89.8,
+   "either_pct": 99.0
+  },
+  "2026": {
+   "pairs": 1000,
+   "quarters": 2,
+   "standalone_pct": 98.5,
+   "consolidated_pct": 89.8,
+   "either_pct": 98.9
   }
  },
  "quarter_completeness": {
   "2019": {
    "pairs": 1984,
    "quarters": 4,
-   "standalone_pct": 84.6,
+   "standalone_pct": 84.8,
    "consolidated_pct": 72.6,
-   "either_pct": 85.9
+   "either_pct": 86.0
   },
   "2020": {
-   "pairs": 1500,
-   "quarters": 3,
-   "standalone_pct": 95.7,
+   "pairs": 2000,
+   "quarters": 4,
+   "standalone_pct": 95.6,
    "consolidated_pct": 84.7,
    "either_pct": 96.5
+  },
+  "2021": {
+   "pairs": 1992,
+   "quarters": 4,
+   "standalone_pct": 91.2,
+   "consolidated_pct": 82.4,
+   "either_pct": 91.9
+  },
+  "2022": {
+   "pairs": 1988,
+   "quarters": 4,
+   "standalone_pct": 87.8,
+   "consolidated_pct": 80.3,
+   "either_pct": 91.2
+  },
+  "2023": {
+   "pairs": 1996,
+   "quarters": 4,
+   "standalone_pct": 95.6,
+   "consolidated_pct": 88.1,
+   "either_pct": 95.8
+  },
+  "2024": {
+   "pairs": 2000,
+   "quarters": 4,
+   "standalone_pct": 97.2,
+   "consolidated_pct": 88.8,
+   "either_pct": 97.2
+  },
+  "2025": {
+   "pairs": 2000,
+   "quarters": 4,
+   "standalone_pct": 98.8,
+   "consolidated_pct": 89.8,
+   "either_pct": 99.0
+  },
+  "2026": {
+   "pairs": 1000,
+   "quarters": 2,
+   "standalone_pct": 98.6,
+   "consolidated_pct": 89.9,
+   "either_pct": 99.0
   }
  },
  "parse_failures": {
@@ -87,6 +261,30 @@
    "2020": {
     "fail_pct": 0.0,
     "absent_pct": 2.0
+   },
+   "2021": {
+    "fail_pct": 0.0,
+    "absent_pct": 1.5
+   },
+   "2022": {
+    "fail_pct": 0.0,
+    "absent_pct": 1.4
+   },
+   "2023": {
+    "fail_pct": 0.0,
+    "absent_pct": 1.5
+   },
+   "2024": {
+    "fail_pct": 0.0,
+    "absent_pct": 1.8
+   },
+   "2025": {
+    "fail_pct": 0.0,
+    "absent_pct": 2.0
+   },
+   "2026": {
+    "fail_pct": 0.0,
+    "absent_pct": 1.9
    }
   },
   "total_income": {
@@ -97,6 +295,30 @@
    "2020": {
     "fail_pct": 0.0,
     "absent_pct": 0.0
+   },
+   "2021": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2022": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2023": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2024": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2025": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.2
+   },
+   "2026": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.2
    }
   },
   "pat": {
@@ -107,6 +329,30 @@
    "2020": {
     "fail_pct": 0.0,
     "absent_pct": 0.7
+   },
+   "2021": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.3
+   },
+   "2022": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.1
+   },
+   "2023": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2024": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2025": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2026": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
    }
   },
   "eps_basic": {
@@ -117,6 +363,30 @@
    "2020": {
     "fail_pct": 0.0,
     "absent_pct": 0.0
+   },
+   "2021": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2022": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2023": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2024": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2025": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.3
+   },
+   "2026": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.3
    }
   },
   "eps_diluted": {
@@ -127,6 +397,30 @@
    "2020": {
     "fail_pct": 0.0,
     "absent_pct": 0.0
+   },
+   "2021": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2022": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2023": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2024": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2025": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.3
+   },
+   "2026": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.3
    }
   },
   "finance_costs": {
@@ -137,6 +431,30 @@
    "2020": {
     "fail_pct": 0.0,
     "absent_pct": 2.0
+   },
+   "2021": {
+    "fail_pct": 0.0,
+    "absent_pct": 1.5
+   },
+   "2022": {
+    "fail_pct": 0.0,
+    "absent_pct": 1.4
+   },
+   "2023": {
+    "fail_pct": 0.0,
+    "absent_pct": 1.5
+   },
+   "2024": {
+    "fail_pct": 0.0,
+    "absent_pct": 1.8
+   },
+   "2025": {
+    "fail_pct": 0.0,
+    "absent_pct": 2.0
+   },
+   "2026": {
+    "fail_pct": 0.0,
+    "absent_pct": 1.9
    }
   },
   "depreciation": {
@@ -147,6 +465,30 @@
    "2020": {
     "fail_pct": 0.0,
     "absent_pct": 2.4
+   },
+   "2021": {
+    "fail_pct": 0.0,
+    "absent_pct": 1.7
+   },
+   "2022": {
+    "fail_pct": 0.0,
+    "absent_pct": 1.6
+   },
+   "2023": {
+    "fail_pct": 0.0,
+    "absent_pct": 1.6
+   },
+   "2024": {
+    "fail_pct": 0.0,
+    "absent_pct": 2.0
+   },
+   "2025": {
+    "fail_pct": 0.0,
+    "absent_pct": 2.7
+   },
+   "2026": {
+    "fail_pct": 0.0,
+    "absent_pct": 2.2
    }
   },
   "exceptional_items": {
@@ -157,6 +499,30 @@
    "2020": {
     "fail_pct": 0.0,
     "absent_pct": 0.1
+   },
+   "2021": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2022": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2023": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2024": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2025": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.3
+   },
+   "2026": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.3
    }
   },
   "paid_up_equity": {
@@ -167,6 +533,30 @@
    "2020": {
     "fail_pct": 0.0,
     "absent_pct": 0.0
+   },
+   "2021": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2022": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2023": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2024": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2025": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.3
+   },
+   "2026": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.4
    }
   },
   "face_value": {
@@ -177,6 +567,30 @@
    "2020": {
     "fail_pct": 0.0,
     "absent_pct": 0.0
+   },
+   "2021": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2022": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2023": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2024": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.0
+   },
+   "2025": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.3
+   },
+   "2026": {
+    "fail_pct": 0.0,
+    "absent_pct": 0.4
    }
   },
   "bs_equity_share_capital": {
@@ -187,6 +601,30 @@
    "2020": {
     "fail_pct": 0.0,
     "absent_pct": 100.0
+   },
+   "2021": {
+    "fail_pct": 0.0,
+    "absent_pct": 100.0
+   },
+   "2022": {
+    "fail_pct": 0.0,
+    "absent_pct": 74.0
+   },
+   "2023": {
+    "fail_pct": 0.0,
+    "absent_pct": 50.3
+   },
+   "2024": {
+    "fail_pct": 0.0,
+    "absent_pct": 50.6
+   },
+   "2025": {
+    "fail_pct": 0.0,
+    "absent_pct": 49.3
+   },
+   "2026": {
+    "fail_pct": 0.0,
+    "absent_pct": 48.6
    }
   },
   "bs_total_equity": {
@@ -197,6 +635,30 @@
    "2020": {
     "fail_pct": 0.0,
     "absent_pct": 100.0
+   },
+   "2021": {
+    "fail_pct": 0.0,
+    "absent_pct": 100.0
+   },
+   "2022": {
+    "fail_pct": 0.0,
+    "absent_pct": 74.0
+   },
+   "2023": {
+    "fail_pct": 0.0,
+    "absent_pct": 50.3
+   },
+   "2024": {
+    "fail_pct": 0.0,
+    "absent_pct": 50.6
+   },
+   "2025": {
+    "fail_pct": 0.0,
+    "absent_pct": 49.3
+   },
+   "2026": {
+    "fail_pct": 0.0,
+    "absent_pct": 48.6
    }
   },
   "bs_total_assets": {
@@ -207,6 +669,30 @@
    "2020": {
     "fail_pct": 0.0,
     "absent_pct": 100.0
+   },
+   "2021": {
+    "fail_pct": 0.0,
+    "absent_pct": 100.0
+   },
+   "2022": {
+    "fail_pct": 0.0,
+    "absent_pct": 73.6
+   },
+   "2023": {
+    "fail_pct": 0.4,
+    "absent_pct": 49.8
+   },
+   "2024": {
+    "fail_pct": 0.91,
+    "absent_pct": 49.6
+   },
+   "2025": {
+    "fail_pct": 0.98,
+    "absent_pct": 47.4
+   },
+   "2026": {
+    "fail_pct": 1.06,
+    "absent_pct": 47.0
    }
   },
   "bs_borrowings_current": {
@@ -217,6 +703,30 @@
    "2020": {
     "fail_pct": 0.0,
     "absent_pct": 100.0
+   },
+   "2021": {
+    "fail_pct": 0.0,
+    "absent_pct": 100.0
+   },
+   "2022": {
+    "fail_pct": 0.0,
+    "absent_pct": 75.7
+   },
+   "2023": {
+    "fail_pct": 0.0,
+    "absent_pct": 53.7
+   },
+   "2024": {
+    "fail_pct": 0.0,
+    "absent_pct": 54.1
+   },
+   "2025": {
+    "fail_pct": 0.0,
+    "absent_pct": 52.7
+   },
+   "2026": {
+    "fail_pct": 0.0,
+    "absent_pct": 52.0
    }
   },
   "bs_borrowings_noncurrent": {
@@ -227,386 +737,422 @@
    "2020": {
     "fail_pct": 0.0,
     "absent_pct": 100.0
+   },
+   "2021": {
+    "fail_pct": 0.0,
+    "absent_pct": 100.0
+   },
+   "2022": {
+    "fail_pct": 0.0,
+    "absent_pct": 75.7
+   },
+   "2023": {
+    "fail_pct": 0.0,
+    "absent_pct": 53.7
+   },
+   "2024": {
+    "fail_pct": 0.0,
+    "absent_pct": 54.1
+   },
+   "2025": {
+    "fail_pct": 0.0,
+    "absent_pct": 52.7
+   },
+   "2026": {
+    "fail_pct": 0.0,
+    "absent_pct": 52.0
    }
   }
  },
  "eps_sanity": {
   "source_of_fy_eps": "FY year-to-date context inside the March-quarter filing",
-  "pairs": 1783,
-  "gap_median_pct": 0.04,
-  "gap_p90_pct": 25.52,
-  "share_gap_over_5pct": 15.9,
-  "share_gap_over_5pct_and_abs_over_0.5": 10.3,
+  "pairs": 19243,
+  "gap_median_pct": 0.03,
+  "gap_p90_pct": 23.82,
+  "share_gap_over_5pct": 16.4,
+  "share_gap_over_5pct_and_abs_over_0.5": 10.5,
   "by_fy": {
-   "2019": 11.1,
-   "2020": 16.0
+   "2019": 20.0,
+   "2020": 16.1,
+   "2021": 15.4,
+   "2022": 16.0,
+   "2023": 16.6,
+   "2024": 15.7,
+   "2025": 17.5,
+   "2026": 17.1
   }
  },
  "cross_check_depth": {
   "sampled": 50,
-  "matched": 46,
+  "matched": 50,
   "revenue": {
-   "n": 45,
+   "n": 48,
    "median_abs_pct": 0.01,
-   "within_1pct": 91.1,
-   "within_5pct": 93.3,
-   "over_20pct": 2.2
+   "within_1pct": 89.6,
+   "within_5pct": 93.8,
+   "over_20pct": 2.1
   },
   "pat": {
-   "n": 45,
-   "median_abs_pct": 0.07,
-   "within_1pct": 95.6,
-   "within_5pct": 97.8,
-   "over_20pct": 2.2
+   "n": 50,
+   "median_abs_pct": 0.05,
+   "within_1pct": 90.0,
+   "within_5pct": 90.0,
+   "over_20pct": 0.0
   },
   "worst": [
    {
-    "symbol": "SHK",
+    "symbol": "CCL",
     "fy_end": "2019-03-31",
     "consolidated": false,
-    "rev_diff": -0.338,
-    "pat_diff": -0.489
+    "rev_diff": -0.251,
+    "pat_diff": -0.191
    },
    {
-    "symbol": "RKFORGE",
+    "symbol": "CENTRALBK",
     "fy_end": "2020-03-31",
     "consolidated": true,
-    "rev_diff": 0.0,
-    "pat_diff": -0.03
+    "rev_diff": NaN,
+    "pat_diff": -0.1
    },
    {
-    "symbol": "HEG",
-    "fy_end": "2019-03-31",
-    "consolidated": false,
-    "rev_diff": 0.0,
-    "pat_diff": 0.008
+    "symbol": "ITDC",
+    "fy_end": "2024-03-31",
+    "consolidated": true,
+    "rev_diff": 0.045,
+    "pat_diff": 0.099
    },
    {
-    "symbol": "BERGEPAINT",
-    "fy_end": "2019-03-31",
+    "symbol": "ZENTEC",
+    "fy_end": "2021-03-31",
+    "consolidated": true,
+    "rev_diff": -0.007,
+    "pat_diff": -0.075
+   },
+   {
+    "symbol": "RVNL",
+    "fy_end": "2023-03-31",
     "consolidated": true,
     "rev_diff": -0.0,
-    "pat_diff": 0.007
-   },
-   {
-    "symbol": "PRAJIND",
-    "fy_end": "2020-03-31",
-    "consolidated": true,
-    "rev_diff": 0.0,
-    "pat_diff": 0.006
+    "pat_diff": 0.059
    }
   ]
  },
  "revisions": {
-  "revision_rows": 120,
-  "share_of_current_rows_pct": 0.6,
-  "median_days_to_revision": 1.38,
-  "p90_days_to_revision": 63.7,
-  "same_day_pct": 48.3
+  "revision_rows": 3399,
+  "share_of_current_rows_pct": 3.21,
+  "median_days_to_revision": 7.97,
+  "p90_days_to_revision": 113.2,
+  "same_day_pct": 41.0
  },
  "period_sanity": {
-  "rows": 35173,
-  "flagged_rows": 1802,
+  "rows": 189592,
+  "flagged_rows": 4593,
   "neg_lag_pct": 0.0,
   "by_reason_year": {
    "lag_over_120d": {
     "2019": 618,
-    "2020": 1184
+    "2020": 1184,
+    "2021": 329,
+    "2022": 167,
+    "2023": 298,
+    "2024": 381,
+    "2025": 284,
+    "2026": 1332
    }
   },
   "lag_days": {
    "Q_current": {
-    "n": 19938,
-    "median": 44.0,
-    "p95": 116.0,
-    "max": 954.0,
-    "min": 5.0
+    "n": 104987,
+    "median": 42.0,
+    "p95": 88.0,
+    "max": 2786.0,
+    "min": 4.0
    },
    "FY": {
-    "n": 4866,
-    "median": 81.0,
-    "p95": 160.0,
-    "max": 954.0,
-    "min": 10.0
+    "n": 27074,
+    "median": 56.0,
+    "p95": 120.0,
+    "max": 2786.0,
+    "min": 4.0
    }
   },
   "worst20": [
    {
-    "symbol": "EASTSUGIND",
-    "period_start": "2017-04-01",
-    "period_end": "2018-03-31",
-    "period_type": "FY",
-    "context_role": "ytd",
-    "context_id": "FourD",
-    "current_rule": "single",
-    "broadcast_ts": "2020-11-09 11:59:43",
-    "lag_days": "954",
-    "period_flag": "lag_over_120d",
-    "is_revision": "False",
-    "consolidated": "False"
-   },
-   {
-    "symbol": "EASTSUGIND",
+    "symbol": "BHARATIDIL",
     "period_start": "2018-01-01",
     "period_end": "2018-03-31",
     "period_type": "Q",
     "context_role": "current",
     "context_id": "OneD",
     "current_rule": "single",
-    "broadcast_ts": "2020-11-09 11:59:43",
-    "lag_days": "954",
+    "broadcast_ts": "2025-11-15 11:56:22",
+    "lag_days": "2786",
     "period_flag": "lag_over_120d",
     "is_revision": "False",
     "consolidated": "False"
    },
    {
-    "symbol": "UNITY",
-    "period_start": "2018-01-01",
-    "period_end": "2018-03-31",
-    "period_type": "Q",
-    "context_role": "current",
-    "context_id": "OneD",
-    "current_rule": "single",
-    "broadcast_ts": "2020-10-08 17:47:57",
-    "lag_days": "922",
-    "period_flag": "lag_over_120d",
-    "is_revision": "False",
-    "consolidated": "False"
-   },
-   {
-    "symbol": "UNITY",
+    "symbol": "BHARATIDIL",
     "period_start": "2017-04-01",
     "period_end": "2018-03-31",
     "period_type": "FY",
     "context_role": "ytd",
     "context_id": "FourD",
     "current_rule": "single",
-    "broadcast_ts": "2020-10-08 17:47:57",
-    "lag_days": "922",
+    "broadcast_ts": "2025-11-15 11:56:22",
+    "lag_days": "2786",
     "period_flag": "lag_over_120d",
     "is_revision": "False",
     "consolidated": "False"
    },
    {
-    "symbol": "PRUDMOULI",
+    "symbol": "IL&FSTRANS",
     "period_start": "2018-04-01",
-    "period_end": "2018-06-30",
+    "period_end": "2019-03-31",
+    "period_type": "FY",
+    "context_role": "ytd",
+    "context_id": "FourD",
+    "current_rule": "single",
+    "broadcast_ts": "2026-07-01 11:00:51",
+    "lag_days": "2649",
+    "period_flag": "lag_over_120d",
+    "is_revision": "False",
+    "consolidated": "False"
+   },
+   {
+    "symbol": "IL&FSTRANS",
+    "period_start": "2019-01-01",
+    "period_end": "2019-03-31",
     "period_type": "Q",
     "context_role": "current",
     "context_id": "OneD",
     "current_rule": "single",
-    "broadcast_ts": "2020-10-23 18:10:39",
-    "lag_days": "846",
+    "broadcast_ts": "2026-07-01 11:00:51",
+    "lag_days": "2649",
     "period_flag": "lag_over_120d",
     "is_revision": "False",
+    "consolidated": "False"
+   },
+   {
+    "symbol": "BHARATIDIL",
+    "period_start": "2019-01-01",
+    "period_end": "2019-03-31",
+    "period_type": "Q",
+    "context_role": "current",
+    "context_id": "OneD",
+    "current_rule": "single",
+    "broadcast_ts": "2025-11-15 12:17:52",
+    "lag_days": "2421",
+    "period_flag": "lag_over_120d",
+    "is_revision": "False",
+    "consolidated": "False"
+   },
+   {
+    "symbol": "BHARATIDIL",
+    "period_start": "2018-04-01",
+    "period_end": "2019-03-31",
+    "period_type": "FY",
+    "context_role": "ytd",
+    "context_id": "FourD",
+    "current_rule": "single",
+    "broadcast_ts": "2025-11-15 12:17:52",
+    "lag_days": "2421",
+    "period_flag": "lag_over_120d",
+    "is_revision": "False",
+    "consolidated": "False"
+   },
+   {
+    "symbol": "AIFL",
+    "period_start": "2018-04-01",
+    "period_end": "2019-03-31",
+    "period_type": "FY",
+    "context_role": "ytd",
+    "context_id": "FourD",
+    "current_rule": "single",
+    "broadcast_ts": "2025-10-29 19:38:51",
+    "lag_days": "2404",
+    "period_flag": "lag_over_120d",
+    "is_revision": "False",
+    "consolidated": "False"
+   },
+   {
+    "symbol": "AIFL",
+    "period_start": "2019-01-01",
+    "period_end": "2019-03-31",
+    "period_type": "Q",
+    "context_role": "current",
+    "context_id": "OneD",
+    "current_rule": "single",
+    "broadcast_ts": "2025-10-29 19:38:51",
+    "lag_days": "2404",
+    "period_flag": "lag_over_120d",
+    "is_revision": "False",
+    "consolidated": "False"
+   },
+   {
+    "symbol": "EDUCOMP",
+    "period_start": "2017-04-01",
+    "period_end": "2017-06-30",
+    "period_type": "Q",
+    "context_role": "current",
+    "context_id": "OneD",
+    "current_rule": "single",
+    "broadcast_ts": "2023-04-24 16:18:43",
+    "lag_days": "2124",
+    "period_flag": "lag_over_120d",
+    "is_revision": "False",
+    "consolidated": "False"
+   },
+   {
+    "symbol": "BHARATIDIL",
+    "period_start": "2019-04-01",
+    "period_end": "2020-03-31",
+    "period_type": "FY",
+    "context_role": "ytd",
+    "context_id": "FourD",
+    "current_rule": "single",
+    "broadcast_ts": "2025-11-15 12:31:27",
+    "lag_days": "2055",
+    "period_flag": "lag_over_120d",
+    "is_revision": "False",
+    "consolidated": "False"
+   },
+   {
+    "symbol": "BHARATIDIL",
+    "period_start": "2020-01-01",
+    "period_end": "2020-03-31",
+    "period_type": "Q",
+    "context_role": "current",
+    "context_id": "OneD",
+    "current_rule": "single",
+    "broadcast_ts": "2025-11-15 12:31:27",
+    "lag_days": "2055",
+    "period_flag": "lag_over_120d",
+    "is_revision": "False",
+    "consolidated": "False"
+   },
+   {
+    "symbol": "AIFL",
+    "period_start": "2019-04-01",
+    "period_end": "2020-03-31",
+    "period_type": "FY",
+    "context_role": "ytd",
+    "context_id": "FourD",
+    "current_rule": "single",
+    "broadcast_ts": "2025-10-29 17:54:25",
+    "lag_days": "2038",
+    "period_flag": "lag_over_120d",
+    "is_revision": "False",
+    "consolidated": "False"
+   },
+   {
+    "symbol": "AIFL",
+    "period_start": "2020-01-01",
+    "period_end": "2020-03-31",
+    "period_type": "Q",
+    "context_role": "current",
+    "context_id": "OneD",
+    "current_rule": "single",
+    "broadcast_ts": "2025-10-29 17:54:25",
+    "lag_days": "2038",
+    "period_flag": "lag_over_120d",
+    "is_revision": "False",
+    "consolidated": "False"
+   },
+   {
+    "symbol": "AHLWEST",
+    "period_start": "2021-01-01",
+    "period_end": "2021-03-31",
+    "period_type": "Q",
+    "context_role": "current",
+    "context_id": "OneD",
+    "current_rule": "single",
+    "broadcast_ts": "2026-08-24 13:25:31",
+    "lag_days": "1972",
+    "period_flag": "lag_over_120d",
+    "is_revision": "True",
+    "consolidated": "False"
+   },
+   {
+    "symbol": "AHLWEST",
+    "period_start": "2020-04-01",
+    "period_end": "2021-03-31",
+    "period_type": "FY",
+    "context_role": "ytd",
+    "context_id": "FourD",
+    "current_rule": "single",
+    "broadcast_ts": "2026-08-24 13:25:31",
+    "lag_days": "1972",
+    "period_flag": "lag_over_120d",
+    "is_revision": "True",
+    "consolidated": "False"
+   },
+   {
+    "symbol": "AHLWEST",
+    "period_start": "2020-04-01",
+    "period_end": "2021-03-31",
+    "period_type": "FY",
+    "context_role": "ytd",
+    "context_id": "FourD",
+    "current_rule": "single",
+    "broadcast_ts": "2026-08-24 17:39:15",
+    "lag_days": "1972",
+    "period_flag": "lag_over_120d",
+    "is_revision": "True",
     "consolidated": "True"
    },
    {
-    "symbol": "PRUDMOULI",
-    "period_start": "2018-04-01",
-    "period_end": "2018-06-30",
+    "symbol": "AHLWEST",
+    "period_start": "2021-01-01",
+    "period_end": "2021-03-31",
     "period_type": "Q",
     "context_role": "current",
     "context_id": "OneD",
     "current_rule": "single",
-    "broadcast_ts": "2020-10-23 18:04:15",
-    "lag_days": "846",
+    "broadcast_ts": "2026-08-24 17:39:15",
+    "lag_days": "1972",
     "period_flag": "lag_over_120d",
-    "is_revision": "False",
-    "consolidated": "False"
-   },
-   {
-    "symbol": "JYOTISTRUC",
-    "period_start": "2018-04-01",
-    "period_end": "2018-06-30",
-    "period_type": "Q",
-    "context_role": "current",
-    "context_id": "OneD",
-    "current_rule": "single",
-    "broadcast_ts": "2020-10-15 12:02:03",
-    "lag_days": "838",
-    "period_flag": "lag_over_120d",
-    "is_revision": "False",
-    "consolidated": "False"
-   },
-   {
-    "symbol": "JVLAGRO",
-    "period_start": "2018-04-01",
-    "period_end": "2018-06-30",
-    "period_type": "Q",
-    "context_role": "current",
-    "context_id": "OneD",
-    "current_rule": "single",
-    "broadcast_ts": "2020-08-28 13:23:50",
-    "lag_days": "790",
-    "period_flag": "lag_over_120d",
-    "is_revision": "False",
-    "consolidated": "False"
-   },
-   {
-    "symbol": "EASTSUGIND",
-    "period_start": "2018-07-01",
-    "period_end": "2018-09-30",
-    "period_type": "Q",
-    "context_role": "current",
-    "context_id": "OneD",
-    "current_rule": "single",
-    "broadcast_ts": "2020-11-02 15:17:48",
-    "lag_days": "764",
-    "period_flag": "lag_over_120d",
-    "is_revision": "False",
-    "consolidated": "False"
-   },
-   {
-    "symbol": "EASTSUGIND",
-    "period_start": "2018-04-01",
-    "period_end": "2018-09-30",
-    "period_type": "H",
-    "context_role": "ytd",
-    "context_id": "FourD",
-    "current_rule": "single",
-    "broadcast_ts": "2020-11-02 15:17:48",
-    "lag_days": "764",
-    "period_flag": "lag_over_120d",
-    "is_revision": "False",
-    "consolidated": "False"
-   },
-   {
-    "symbol": "PRUDMOULI",
-    "period_start": "2018-07-01",
-    "period_end": "2018-09-30",
-    "period_type": "Q",
-    "context_role": "current",
-    "context_id": "OneD",
-    "current_rule": "single",
-    "broadcast_ts": "2020-10-23 18:28:25",
-    "lag_days": "754",
-    "period_flag": "lag_over_120d",
-    "is_revision": "False",
-    "consolidated": "False"
-   },
-   {
-    "symbol": "PRUDMOULI",
-    "period_start": "2018-04-01",
-    "period_end": "2018-09-30",
-    "period_type": "H",
-    "context_role": "ytd",
-    "context_id": "FourD",
-    "current_rule": "single",
-    "broadcast_ts": "2020-10-23 18:28:25",
-    "lag_days": "754",
-    "period_flag": "lag_over_120d",
-    "is_revision": "False",
-    "consolidated": "False"
-   },
-   {
-    "symbol": "PRUDMOULI",
-    "period_start": "2018-07-01",
-    "period_end": "2018-09-30",
-    "period_type": "Q",
-    "context_role": "current",
-    "context_id": "OneD",
-    "current_rule": "single",
-    "broadcast_ts": "2020-10-23 18:43:45",
-    "lag_days": "754",
-    "period_flag": "lag_over_120d",
-    "is_revision": "False",
+    "is_revision": "True",
     "consolidated": "True"
    },
    {
-    "symbol": "PRUDMOULI",
-    "period_start": "2018-04-01",
-    "period_end": "2018-09-30",
-    "period_type": "H",
-    "context_role": "ytd",
-    "context_id": "FourD",
-    "current_rule": "single",
-    "broadcast_ts": "2020-10-23 18:43:45",
-    "lag_days": "754",
-    "period_flag": "lag_over_120d",
-    "is_revision": "False",
-    "consolidated": "True"
-   },
-   {
-    "symbol": "BILENERGY",
-    "period_start": "2016-10-01",
-    "period_end": "2016-12-31",
-    "period_type": "Q",
-    "context_role": "ytd",
-    "context_id": "FourD",
-    "current_rule": "a",
-    "broadcast_ts": "2019-01-18 11:12:31",
-    "lag_days": "748",
-    "period_flag": "lag_over_120d",
-    "is_revision": "False",
-    "consolidated": "False"
-   },
-   {
-    "symbol": "JYOTISTRUC",
-    "period_start": "2018-04-01",
-    "period_end": "2018-09-30",
-    "period_type": "H",
-    "context_role": "ytd",
-    "context_id": "FourD",
-    "current_rule": "single",
-    "broadcast_ts": "2020-10-15 12:06:09",
-    "lag_days": "746",
-    "period_flag": "lag_over_120d",
-    "is_revision": "False",
-    "consolidated": "False"
-   },
-   {
-    "symbol": "JYOTISTRUC",
-    "period_start": "2018-07-01",
-    "period_end": "2018-09-30",
+    "symbol": "EDUCOMP",
+    "period_start": "2017-10-01",
+    "period_end": "2017-12-31",
     "period_type": "Q",
     "context_role": "current",
     "context_id": "OneD",
     "current_rule": "single",
-    "broadcast_ts": "2020-10-15 12:06:09",
-    "lag_days": "746",
+    "broadcast_ts": "2023-04-25 15:56:52",
+    "lag_days": "1941",
     "period_flag": "lag_over_120d",
     "is_revision": "False",
     "consolidated": "False"
    },
    {
-    "symbol": "JVLAGRO",
-    "period_start": "2018-07-01",
-    "period_end": "2018-09-30",
+    "symbol": "EDUCOMP",
+    "period_start": "2017-04-01",
+    "period_end": "2017-12-31",
+    "period_type": "9M",
+    "context_role": "ytd",
+    "context_id": "FourD",
+    "current_rule": "single",
+    "broadcast_ts": "2023-04-25 15:56:52",
+    "lag_days": "1941",
+    "period_flag": "lag_over_120d",
+    "is_revision": "False",
+    "consolidated": "False"
+   },
+   {
+    "symbol": "EDUCOMP",
+    "period_start": "2018-04-01",
+    "period_end": "2018-06-30",
     "period_type": "Q",
     "context_role": "current",
     "context_id": "OneD",
     "current_rule": "single",
-    "broadcast_ts": "2020-08-28 13:29:13",
-    "lag_days": "698",
-    "period_flag": "lag_over_120d",
-    "is_revision": "False",
-    "consolidated": "False"
-   },
-   {
-    "symbol": "JVLAGRO",
-    "period_start": "2018-04-01",
-    "period_end": "2018-09-30",
-    "period_type": "H",
-    "context_role": "ytd",
-    "context_id": "FourD",
-    "current_rule": "single",
-    "broadcast_ts": "2020-08-28 13:29:13",
-    "lag_days": "698",
-    "period_flag": "lag_over_120d",
-    "is_revision": "False",
-    "consolidated": "False"
-   },
-   {
-    "symbol": "SUNILHITEC",
-    "period_start": "2017-01-01",
-    "period_end": "2017-03-31",
-    "period_type": "Q",
-    "context_role": "ytd",
-    "context_id": "FourD",
-    "current_rule": "a",
-    "broadcast_ts": "2019-02-07 17:43:07",
-    "lag_days": "678",
+    "broadcast_ts": "2023-04-27 17:23:53",
+    "lag_days": "1762",
     "period_flag": "lag_over_120d",
     "is_revision": "False",
     "consolidated": "False"
@@ -635,16 +1181,76 @@
     "rows": 6402,
     "late_pct": 1.78
    },
+   "2021_non_member": {
+    "late": 321,
+    "rows": 14106,
+    "late_pct": 2.28
+   },
+   "2021_member": {
+    "late": 8,
+    "rows": 6127,
+    "late_pct": 0.13
+   },
+   "2022_non_member": {
+    "late": 155,
+    "rows": 14806,
+    "late_pct": 1.05
+   },
+   "2022_member": {
+    "late": 12,
+    "rows": 5988,
+    "late_pct": 0.2
+   },
+   "2023_non_member": {
+    "late": 298,
+    "rows": 16470,
+    "late_pct": 1.81
+   },
+   "2023_member": {
+    "late": 0,
+    "rows": 6392,
+    "late_pct": 0.0
+   },
+   "2024_non_member": {
+    "late": 372,
+    "rows": 18494,
+    "late_pct": 2.01
+   },
+   "2024_member": {
+    "late": 9,
+    "rows": 6544,
+    "late_pct": 0.14
+   },
+   "2025_non_member": {
+    "late": 264,
+    "rows": 22689,
+    "late_pct": 1.16
+   },
+   "2025_member": {
+    "late": 20,
+    "rows": 7345,
+    "late_pct": 0.27
+   },
+   "2026_non_member": {
+    "late": 1202,
+    "rows": 27685,
+    "late_pct": 4.34
+   },
+   "2026_member": {
+    "late": 130,
+    "rows": 7773,
+    "late_pct": 1.67
+   },
    "total": {
     "non_member": {
-     "late": 1553,
-     "rows": 23649,
-     "late_pct": 6.57
+     "late": 4165,
+     "rows": 137899,
+     "late_pct": 3.02
     },
     "member": {
-     "late": 249,
-     "rows": 11524,
-     "late_pct": 2.16
+     "late": 428,
+     "rows": 51693,
+     "late_pct": 0.83
     }
    }
   },
@@ -669,16 +1275,76 @@
     "rows": 3653,
     "late_pct": 1.83
    },
+   "2021_non_member": {
+    "late": 182,
+    "rows": 8075,
+    "late_pct": 2.25
+   },
+   "2021_member": {
+    "late": 4,
+    "rows": 3500,
+    "late_pct": 0.11
+   },
+   "2022_non_member": {
+    "late": 89,
+    "rows": 8344,
+    "late_pct": 1.07
+   },
+   "2022_member": {
+    "late": 7,
+    "rows": 3336,
+    "late_pct": 0.21
+   },
+   "2023_non_member": {
+    "late": 174,
+    "rows": 9435,
+    "late_pct": 1.84
+   },
+   "2023_member": {
+    "late": 0,
+    "rows": 3655,
+    "late_pct": 0.0
+   },
+   "2024_non_member": {
+    "late": 208,
+    "rows": 10594,
+    "late_pct": 1.96
+   },
+   "2024_member": {
+    "late": 5,
+    "rows": 3740,
+    "late_pct": 0.13
+   },
+   "2025_non_member": {
+    "late": 153,
+    "rows": 12465,
+    "late_pct": 1.23
+   },
+   "2025_member": {
+    "late": 11,
+    "rows": 3998,
+    "late_pct": 0.28
+   },
+   "2026_non_member": {
+    "late": 617,
+    "rows": 14711,
+    "late_pct": 4.19
+   },
+   "2026_member": {
+    "late": 63,
+    "rows": 4159,
+    "late_pct": 1.51
+   },
    "total": {
     "non_member": {
-     "late": 784,
-     "rows": 13383,
-     "late_pct": 5.86
+     "late": 2207,
+     "rows": 77007,
+     "late_pct": 2.87
     },
     "member": {
-     "late": 128,
-     "rows": 6556,
-     "late_pct": 1.95
+     "late": 218,
+     "rows": 28944,
+     "late_pct": 0.75
     }
    }
   }
@@ -722,64 +1388,64 @@
     "non_member_404": 18
    },
    "2022": {
-    "attempted": 5933,
+    "attempted": 11714,
     "listed": 11714,
-    "complete": false,
-    "not_found_404": 20,
+    "complete": true,
+    "not_found_404": 33,
     "other_non200": 0,
-    "not_found_pct": 0.34,
-    "member_attempted": 1719,
-    "member_404": 11,
-    "member_not_found_pct": 0.64,
-    "non_member_404": 9
+    "not_found_pct": 0.28,
+    "member_attempted": 3247,
+    "member_404": 15,
+    "member_not_found_pct": 0.46,
+    "non_member_404": 18
    },
    "2023": {
-    "attempted": 18,
+    "attempted": 13154,
     "listed": 13154,
-    "complete": false,
-    "not_found_404": 0,
+    "complete": true,
+    "not_found_404": 64,
     "other_non200": 0,
-    "not_found_pct": 0.0,
-    "member_attempted": 7,
-    "member_404": 0,
-    "member_not_found_pct": 0.0,
-    "non_member_404": 0
+    "not_found_pct": 0.49,
+    "member_attempted": 3582,
+    "member_404": 26,
+    "member_not_found_pct": 0.73,
+    "non_member_404": 38
    },
    "2024": {
-    "attempted": 16,
+    "attempted": 14334,
     "listed": 14334,
-    "complete": false,
+    "complete": true,
     "not_found_404": 0,
     "other_non200": 0,
     "not_found_pct": 0.0,
-    "member_attempted": 6,
+    "member_attempted": 3669,
     "member_404": 0,
     "member_not_found_pct": 0.0,
     "non_member_404": 0
    },
    "2025": {
-    "attempted": 40,
+    "attempted": 16483,
     "listed": 16483,
-    "complete": false,
-    "not_found_404": 0,
+    "complete": true,
+    "not_found_404": 19,
     "other_non200": 0,
-    "not_found_pct": 0.0,
-    "member_attempted": 20,
-    "member_404": 0,
-    "member_not_found_pct": 0.0,
-    "non_member_404": 0
+    "not_found_pct": 0.12,
+    "member_attempted": 3959,
+    "member_404": 6,
+    "member_not_found_pct": 0.15,
+    "non_member_404": 13
    },
    "2026": {
-    "attempted": 32,
+    "attempted": 18889,
     "listed": 18889,
-    "complete": false,
-    "not_found_404": 0,
-    "other_non200": 0,
-    "not_found_pct": 0.0,
-    "member_attempted": 15,
-    "member_404": 0,
-    "member_not_found_pct": 0.0,
-    "non_member_404": 0
+    "complete": true,
+    "not_found_404": 18,
+    "other_non200": 1,
+    "not_found_pct": 0.1,
+    "member_attempted": 4155,
+    "member_404": 14,
+    "member_not_found_pct": 0.34,
+    "non_member_404": 4
    }
   },
   "worst_complete_year": 2019,
@@ -797,6 +1463,36 @@
    "pre_0915": 2.0,
    "0915_1530": 40.8,
    "post_1530": 57.2
+  },
+  "2021": {
+   "pre_0915": 1.1,
+   "0915_1530": 39.1,
+   "post_1530": 59.8
+  },
+  "2022": {
+   "pre_0915": 1.0,
+   "0915_1530": 39.3,
+   "post_1530": 59.7
+  },
+  "2023": {
+   "pre_0915": 0.8,
+   "0915_1530": 34.4,
+   "post_1530": 64.7
+  },
+  "2024": {
+   "pre_0915": 0.9,
+   "0915_1530": 31.3,
+   "post_1530": 67.8
+  },
+  "2025": {
+   "pre_0915": 1.5,
+   "0915_1530": 18.5,
+   "post_1530": 80.0
+  },
+  "2026": {
+   "pre_0915": 1.4,
+   "0915_1530": 11.8,
+   "post_1530": 86.8
   }
  }
 }
