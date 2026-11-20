@@ -1,0 +1,1187 @@
+{
+ "label": "EXPLORE / MEASURE -- descriptive, zero-trial; adopts nothing",
+ "standing_counts": {
+  "screens": 23,
+  "sealed_opens": 3,
+  "n_trials": 2,
+  "source": "diagnostics/research/n_trials.json + diagnostics/research/label_screen_ledger.md"
+ },
+ "window": [
+  "2019-01-01",
+  "2024-06-30"
+ ],
+ "data_vintage": "2024-06-28",
+ "n_configs_in_study": 13,
+ "deflation": "nq.lab.runs.deflated_sharpe(sharpe, n_returns, n_trials=n_configs_in_study); per-window basis",
+ "r_sanity_rule": {
+  "source": "inline mirror of nq.lab.stats (commit e3eae32; not yet on main)",
+  "degenerate_stop": "initial risk (entry-stop0)/entry < 0.5%",
+  "extreme_R": "|R| > 20 review flag only (not excluded)",
+  "scope": "applied to per-trade mean R only; NAV / Sharpe / CAGR unchanged (engine untouched)"
+ },
+ "noise_caveats": {
+  "delta_sharpe_halfwidth_n_eff37": 0.59,
+  "single_replay_path_noise_sharpe": 0.2
+ },
+ "manifest_code_sha": "4934d660af051ef30aaf0de21b307b065b921e50",
+ "runs": {
+  "a_live": {
+   "name": "a_live",
+   "desc": "live control (DEFAULT_CONFIG)",
+   "manifest_label": "LIVE BOOK (replay exceptions: ca_hold_drop)",
+   "differs_on": [],
+   "config": {
+    "ext_cap": 0.2,
+    "grade_gate": true,
+    "uncapped": false,
+    "max_notional_pct": 0.2,
+    "max_risk_pct": 0.1,
+    "exit": "live",
+    "start": "2019-01-01",
+    "pit_membership": true
+   },
+   "config_hash": "4009e76e4bc48dd7ce04c012e765a29ebf074ac075c1017e6ea3088393ce8e8a",
+   "engine_reported": {
+    "sharpe": 1.0247630332429298,
+    "cagr": 0.20467342852524917,
+    "maxdd": -0.401129518327873,
+    "n_trades": 77
+   },
+   "full": {
+    "sharpe": 1.0247630332429298,
+    "sortino": 1.31429760159597,
+    "cagr": 0.20467342852524917,
+    "maxdd": -0.401129518327873,
+    "calmar": 0.5102427499687379,
+    "trades_entered": 77,
+    "n_returns": 1356
+   },
+   "deflated_sharpe": {
+    "dsr": 0.7229169796253705,
+    "sr0_annual": 0.7433957060543865,
+    "deflated_sharpe": 0.2813673271885433,
+    "n_trials": 13,
+    "n_obs": 21
+   },
+   "avg_seats_held": 7.055268975681651,
+   "2019-21": {
+    "sharpe": 1.0293909755869641,
+    "sortino": 1.3827344192219668,
+    "cagr": 0.22146741206613285,
+    "maxdd": -0.401129518327873,
+    "calmar": 0.552109485707584,
+    "trades_entered": 51,
+    "n_returns": 743
+   },
+   "2022-24H1": {
+    "sharpe": 1.0263489331859041,
+    "sortino": 1.2314479178232502,
+    "cagr": 0.18477108198597314,
+    "maxdd": -0.2517809459732281,
+    "calmar": 0.7338564928802034,
+    "trades_entered": 26,
+    "n_returns": 613
+   },
+   "year_returns": {
+    "2019": 0.03832458221337576,
+    "2020": 0.2543709482862069,
+    "2021": 0.39864703519836575,
+    "2022": -0.039248626203314596,
+    "2023": 0.3068258544131477,
+    "2024H1": 0.21514297584449427
+   },
+   "worst_year": {
+    "year": "2022",
+    "return": -0.039248626203314596
+   },
+   "mean_R_raw": 1.2891428571428571,
+   "n_degenerate_stops": 0,
+   "degenerate_trades": [],
+   "mean_R_excl_degenerate": 1.2891428571428571,
+   "n_trades_excl_degenerate": 77,
+   "win_rate": 0.4805194805194805
+  },
+  "b_revert_ext_cap": {
+   "name": "b_revert_ext_cap",
+   "desc": "live, ONLY no ext_cap",
+   "manifest_label": "NOT LIVE BOOK: ext_cap",
+   "differs_on": [
+    "ext_cap"
+   ],
+   "config": {
+    "ext_cap": null,
+    "grade_gate": true,
+    "uncapped": false,
+    "max_notional_pct": 0.2,
+    "max_risk_pct": 0.1,
+    "exit": "live",
+    "start": "2019-01-01",
+    "pit_membership": true
+   },
+   "config_hash": "2b0358f26abc2ef9516f4dd7835b7621182b7a1b17f968aaf78addda451b0272",
+   "engine_reported": {
+    "sharpe": 1.2474507093957012,
+    "cagr": 0.2595719833194787,
+    "maxdd": -0.3798317506115698,
+    "n_trades": 78
+   },
+   "full": {
+    "sharpe": 1.2474507093957012,
+    "sortino": 1.644185752327503,
+    "cagr": 0.2595719833194787,
+    "maxdd": -0.3798317506115698,
+    "calmar": 0.6833867440032068,
+    "trades_entered": 78,
+    "n_returns": 1356
+   },
+   "deflated_sharpe": {
+    "dsr": 0.8487897953427558,
+    "sr0_annual": 0.7433957060543865,
+    "deflated_sharpe": 0.5040550033413147,
+    "n_trials": 13,
+    "n_obs": 21
+   },
+   "avg_seats_held": 8.162859248341931,
+   "2019-21": {
+    "sharpe": 1.3912869869824205,
+    "sortino": 1.8907122619962728,
+    "cagr": 0.32586519169991757,
+    "maxdd": -0.3798317506115698,
+    "calmar": 0.8579198320710149,
+    "trades_entered": 45,
+    "n_returns": 743
+   },
+   "2022-24H1": {
+    "sharpe": 1.048067745456302,
+    "sortino": 1.3157958155217162,
+    "cagr": 0.18418048838042167,
+    "maxdd": -0.32707021680346515,
+    "calmar": 0.5631221643488706,
+    "trades_entered": 33,
+    "n_returns": 613
+   },
+   "year_returns": {
+    "2019": 0.08265245374304331,
+    "2020": 0.31505574185633867,
+    "2021": 0.6361131762843899,
+    "2022": -0.09072516380534701,
+    "2023": 0.4978337227833325,
+    "2024H1": 0.11881383522328348
+   },
+   "worst_year": {
+    "year": "2022",
+    "return": -0.09072516380534701
+   },
+   "mean_R_raw": 1.5947564102564102,
+   "n_degenerate_stops": 0,
+   "degenerate_trades": [],
+   "mean_R_excl_degenerate": 1.5947564102564102,
+   "n_trades_excl_degenerate": 78,
+   "win_rate": 0.5384615384615384
+  },
+  "b_revert_grade_gate": {
+   "name": "b_revert_grade_gate",
+   "desc": "live, ONLY grade gate off (all grades)",
+   "manifest_label": "NOT LIVE BOOK: grade_gate",
+   "differs_on": [
+    "grade_gate"
+   ],
+   "config": {
+    "ext_cap": 0.2,
+    "grade_gate": false,
+    "uncapped": false,
+    "max_notional_pct": 0.2,
+    "max_risk_pct": 0.1,
+    "exit": "live",
+    "start": "2019-01-01",
+    "pit_membership": true
+   },
+   "config_hash": "f49914fb1dabd467758d2fd17333d046fcfbfefdaa567f13545a6feaaa773576",
+   "engine_reported": {
+    "sharpe": 1.2658677109560659,
+    "cagr": 0.25725355240681225,
+    "maxdd": -0.401129518327873,
+    "n_trades": 84
+   },
+   "full": {
+    "sharpe": 1.2658677109560659,
+    "sortino": 1.6338340585556967,
+    "cagr": 0.25725355240681225,
+    "maxdd": -0.401129518327873,
+    "calmar": 0.6413229160476287,
+    "trades_entered": 84,
+    "n_returns": 1356
+   },
+   "deflated_sharpe": {
+    "dsr": 0.8568688672079043,
+    "sr0_annual": 0.7433957060543865,
+    "deflated_sharpe": 0.5224720049016793,
+    "n_trials": 13,
+    "n_obs": 21
+   },
+   "avg_seats_held": 8.243183492999263,
+   "2019-21": {
+    "sharpe": 1.0375346802891492,
+    "sortino": 1.3779123430640066,
+    "cagr": 0.2087586131599819,
+    "maxdd": -0.401129518327873,
+    "calmar": 0.5204269534443684,
+    "trades_entered": 53,
+    "n_returns": 743
+   },
+   "2022-24H1": {
+    "sharpe": 1.5624469923290383,
+    "sortino": 1.944689348532365,
+    "cagr": 0.3181934142802363,
+    "maxdd": -0.18355847368077105,
+    "calmar": 1.7334716719948904,
+    "trades_entered": 31,
+    "n_returns": 613
+   },
+   "year_returns": {
+    "2019": 0.03832458221337576,
+    "2020": 0.3529565963989061,
+    "2021": 0.25670305150606665,
+    "2022": 0.03934413201862741,
+    "2023": 0.6708104598789202,
+    "2024H1": 0.14613235967455562
+   },
+   "worst_year": {
+    "year": "2019",
+    "return": 0.03832458221337576
+   },
+   "mean_R_raw": 1.2727976190476193,
+   "n_degenerate_stops": 0,
+   "degenerate_trades": [],
+   "mean_R_excl_degenerate": 1.2727976190476193,
+   "n_trades_excl_degenerate": 84,
+   "win_rate": 0.4880952380952381
+  },
+  "b_revert_max_notional_pct": {
+   "name": "b_revert_max_notional_pct",
+   "desc": "live, ONLY max_notional_pct to frozen default (None)",
+   "manifest_label": "NOT LIVE BOOK: max_notional_pct",
+   "differs_on": [
+    "max_notional_pct"
+   ],
+   "config": {
+    "ext_cap": 0.2,
+    "grade_gate": true,
+    "uncapped": false,
+    "max_notional_pct": null,
+    "max_risk_pct": 0.1,
+    "exit": "live",
+    "start": "2019-01-01",
+    "pit_membership": true
+   },
+   "config_hash": "8a6935579388d22c3015ac80710f8c43e39a85d8332c0a3cb25590d65f49ef23",
+   "engine_reported": {
+    "sharpe": 1.2423760270262625,
+    "cagr": 0.28450640815660333,
+    "maxdd": -0.395458927344003,
+    "n_trades": 65
+   },
+   "full": {
+    "sharpe": 1.2423760270262625,
+    "sortino": 1.6265963214074723,
+    "cagr": 0.28450640815660333,
+    "maxdd": -0.395458927344003,
+    "calmar": 0.7194335201064156,
+    "trades_entered": 65,
+    "n_returns": 1356
+   },
+   "deflated_sharpe": {
+    "dsr": 0.8465030268029796,
+    "sr0_annual": 0.7433957060543865,
+    "deflated_sharpe": 0.49898032097187595,
+    "n_trials": 13,
+    "n_obs": 21
+   },
+   "avg_seats_held": 6.588061901252764,
+   "2019-21": {
+    "sharpe": 1.4166907081075786,
+    "sortino": 1.8832101199471818,
+    "cagr": 0.36360210171498153,
+    "maxdd": -0.395458927344003,
+    "calmar": 0.9194434025222807,
+    "trades_entered": 39,
+    "n_returns": 743
+   },
+   "2022-24H1": {
+    "sharpe": 1.0007728970095855,
+    "sortino": 1.2855201866648165,
+    "cagr": 0.19538845504559843,
+    "maxdd": -0.29234549901381657,
+    "calmar": 0.6683477450643568,
+    "trades_entered": 26,
+    "n_returns": 613
+   },
+   "year_returns": {
+    "2019": 0.25448446349759024,
+    "2020": 0.25905430105699945,
+    "2021": 0.6042670800210728,
+    "2022": 0.02014092702370407,
+    "2023": 0.30221648918972965,
+    "2024H1": 0.17426503771740642
+   },
+   "worst_year": {
+    "year": "2022",
+    "return": 0.02014092702370407
+   },
+   "mean_R_raw": 1.5806307692307693,
+   "n_degenerate_stops": 0,
+   "degenerate_trades": [],
+   "mean_R_excl_degenerate": 1.5806307692307693,
+   "n_trades_excl_degenerate": 65,
+   "win_rate": 0.5692307692307692
+  },
+  "b_revert_max_risk_pct": {
+   "name": "b_revert_max_risk_pct",
+   "desc": "live, ONLY max_risk_pct to frozen default (None)",
+   "manifest_label": "NOT LIVE BOOK: max_risk_pct",
+   "differs_on": [
+    "max_risk_pct"
+   ],
+   "config": {
+    "ext_cap": 0.2,
+    "grade_gate": true,
+    "uncapped": false,
+    "max_notional_pct": 0.2,
+    "max_risk_pct": null,
+    "exit": "live",
+    "start": "2019-01-01",
+    "pit_membership": true
+   },
+   "config_hash": "39ec84fdf4a0847a99f4bee7cbe4a85826ab519509655a4038244e01fce80978",
+   "engine_reported": {
+    "sharpe": 1.2212013189151878,
+    "cagr": 0.24593232350605243,
+    "maxdd": -0.3639543313280327,
+    "n_trades": 87
+   },
+   "full": {
+    "sharpe": 1.2212013189151878,
+    "sortino": 1.5135792273302808,
+    "cagr": 0.24593232350605243,
+    "maxdd": -0.3639543313280327,
+    "calmar": 0.6757230298885857,
+    "trades_entered": 87,
+    "n_returns": 1356
+   },
+   "deflated_sharpe": {
+    "dsr": 0.836675022835773,
+    "sr0_annual": 0.7433957060543865,
+    "deflated_sharpe": 0.47780561286080125,
+    "n_trials": 13,
+    "n_obs": 21
+   },
+   "avg_seats_held": 8.709653647752395,
+   "2019-21": {
+    "sharpe": 1.2927623603664156,
+    "sortino": 1.6679815644898766,
+    "cagr": 0.2781411610308149,
+    "maxdd": -0.3639543313280327,
+    "calmar": 0.7642199503874726,
+    "trades_entered": 51,
+    "n_returns": 743
+   },
+   "2022-24H1": {
+    "sharpe": 1.1276469973823562,
+    "sortino": 1.3241861025707071,
+    "cagr": 0.20824962621753595,
+    "maxdd": -0.21617217642982833,
+    "calmar": 0.963350740399914,
+    "trades_entered": 36,
+    "n_returns": 613
+   },
+   "year_returns": {
+    "2019": 0.08200914192364328,
+    "2020": 0.4284286797947017,
+    "2021": 0.35029333467386214,
+    "2022": 0.037501854767748366,
+    "2023": 0.2552633543789713,
+    "2024H1": 0.23016970267191716
+   },
+   "worst_year": {
+    "year": "2022",
+    "return": 0.037501854767748366
+   },
+   "mean_R_raw": 1.2840689655172413,
+   "n_degenerate_stops": 0,
+   "degenerate_trades": [],
+   "mean_R_excl_degenerate": 1.2840689655172413,
+   "n_trades_excl_degenerate": 87,
+   "win_rate": 0.47126436781609193
+  },
+  "b_revert_exit": {
+   "name": "b_revert_exit",
+   "desc": "live, ONLY engine-default exit instead of config P",
+   "manifest_label": "NOT LIVE BOOK: scaled_exit",
+   "differs_on": [
+    "scaled_exit"
+   ],
+   "config": {
+    "ext_cap": 0.2,
+    "grade_gate": true,
+    "uncapped": false,
+    "max_notional_pct": 0.2,
+    "max_risk_pct": 0.1,
+    "exit": "base",
+    "start": "2019-01-01",
+    "pit_membership": true
+   },
+   "config_hash": "500f3cd7b6d5404e677e020090478329df0e680f86e0fffbd48b436eb791bfe7",
+   "engine_reported": {
+    "sharpe": 1.0858589865901418,
+    "cagr": 0.21681914333583308,
+    "maxdd": -0.36302460078969156,
+    "n_trades": 142
+   },
+   "full": {
+    "sharpe": 1.0858589865901418,
+    "sortino": 1.4330183345969316,
+    "cagr": 0.21681914333583308,
+    "maxdd": -0.36302460078969156,
+    "calmar": 0.5972574389288878,
+    "trades_entered": 142,
+    "n_returns": 1356
+   },
+   "deflated_sharpe": {
+    "dsr": 0.7626640236918556,
+    "sr0_annual": 0.7433957060543865,
+    "deflated_sharpe": 0.34246328053575525,
+    "n_trials": 13,
+    "n_obs": 21
+   },
+   "avg_seats_held": 4.495210022107591,
+   "2019-21": {
+    "sharpe": 0.8865677449185463,
+    "sortino": 1.1762083306723083,
+    "cagr": 0.1723763844598618,
+    "maxdd": -0.36302460078969156,
+    "calmar": 0.4748338930333908,
+    "trades_entered": 80,
+    "n_returns": 743
+   },
+   "2022-24H1": {
+    "sharpe": 1.3348903094633577,
+    "sortino": 1.7526497616507735,
+    "cagr": 0.27253598151913305,
+    "maxdd": -0.1614706296035865,
+    "calmar": 1.6878362472990547,
+    "trades_entered": 62,
+    "n_returns": 613
+   },
+   "year_returns": {
+    "2019": 0.2703256642551686,
+    "2020": 0.11802319972056585,
+    "2021": 0.13421001033615054,
+    "2022": 0.23380989068271663,
+    "2023": 0.42209884086877003,
+    "2024H1": 0.03896666444889951
+   },
+   "worst_year": {
+    "year": "2024H1",
+    "return": 0.03896666444889951
+   },
+   "mean_R_raw": 0.44958450704225356,
+   "n_degenerate_stops": 0,
+   "degenerate_trades": [],
+   "mean_R_excl_degenerate": 0.44958450704225356,
+   "n_trades_excl_degenerate": 142,
+   "win_rate": 0.5140845070422535
+  },
+  "g_all_reverted": {
+   "name": "g_all_reverted",
+   "desc": "all five switches reverted (the bridge)",
+   "manifest_label": "NOT LIVE BOOK: ext_cap",
+   "differs_on": [
+    "ext_cap",
+    "grade_gate",
+    "max_notional_pct",
+    "max_risk_pct",
+    "scaled_exit"
+   ],
+   "config": {
+    "ext_cap": null,
+    "grade_gate": false,
+    "uncapped": false,
+    "max_notional_pct": null,
+    "max_risk_pct": null,
+    "exit": "base",
+    "start": "2019-01-01",
+    "pit_membership": true
+   },
+   "config_hash": "ca486cdc07fde04e8db65144eb4544c1cef689fc20e31c8b6a81c7a45808a22a",
+   "engine_reported": {
+    "sharpe": 1.5034945287226444,
+    "cagr": 0.3590093752234842,
+    "maxdd": -0.42349968831429274,
+    "n_trades": 157
+   },
+   "full": {
+    "sharpe": 1.5034945287226444,
+    "sortino": 1.8556176129048632,
+    "cagr": 0.3590093752234842,
+    "maxdd": -0.42349968831429274,
+    "calmar": 0.8477205181720271,
+    "trades_entered": 157,
+    "n_returns": 1356
+   },
+   "deflated_sharpe": {
+    "dsr": 0.9332932486372343,
+    "sr0_annual": 0.7433957060543865,
+    "deflated_sharpe": 0.7600988226682579,
+    "n_trials": 13,
+    "n_obs": 21
+   },
+   "avg_seats_held": 5.976418570375829,
+   "2019-21": {
+    "sharpe": 1.0630401816804234,
+    "sortino": 1.3271825727651405,
+    "cagr": 0.2472633298410012,
+    "maxdd": -0.42349968831429274,
+    "calmar": 0.5838571707696255,
+    "trades_entered": 86,
+    "n_returns": 743
+   },
+   "2022-24H1": {
+    "sharpe": 2.1228169127380303,
+    "sortino": 2.6282691284306425,
+    "cagr": 0.5068237630143266,
+    "maxdd": -0.17751002041555586,
+    "calmar": 2.8551839599130133,
+    "trades_entered": 71,
+    "n_returns": 613
+   },
+   "year_returns": {
+    "2019": 0.29258931129690025,
+    "2020": 0.11527001770642276,
+    "2021": 0.34535480907245497,
+    "2022": 0.3491824171425586,
+    "2023": 0.665412458729628,
+    "2024H1": 0.2360618583999392
+   },
+   "worst_year": {
+    "year": "2020",
+    "return": 0.11527001770642276
+   },
+   "mean_R_raw": 0.5987707006369426,
+   "n_degenerate_stops": 0,
+   "degenerate_trades": [],
+   "mean_R_excl_degenerate": 0.5987707006369426,
+   "n_trades_excl_degenerate": 157,
+   "win_rate": 0.6242038216560509
+  },
+  "h_only_ext_cap_live": {
+   "name": "h_only_ext_cap_live",
+   "desc": "all reverted EXCEPT ext_cap kept live",
+   "manifest_label": "NOT LIVE BOOK: grade_gate",
+   "differs_on": [
+    "grade_gate",
+    "max_notional_pct",
+    "max_risk_pct",
+    "scaled_exit"
+   ],
+   "config": {
+    "ext_cap": 0.2,
+    "grade_gate": false,
+    "uncapped": false,
+    "max_notional_pct": null,
+    "max_risk_pct": null,
+    "exit": "base",
+    "start": "2019-01-01",
+    "pit_membership": true
+   },
+   "config_hash": "5004055cecb0149a5a40521d190c7e5d53d5a4849626fc9ac40c49ba10705d56",
+   "engine_reported": {
+    "sharpe": 1.3824469159259836,
+    "cagr": 0.2999179119652151,
+    "maxdd": -0.309594896530064,
+    "n_trades": 128
+   },
+   "full": {
+    "sharpe": 1.3824469159259836,
+    "sortino": 1.879528835240477,
+    "cagr": 0.2999179119652151,
+    "maxdd": -0.309594896530064,
+    "calmar": 0.9687430746652854,
+    "trades_entered": 128,
+    "n_returns": 1356
+   },
+   "deflated_sharpe": {
+    "dsr": 0.9003971596564712,
+    "sr0_annual": 0.7433957060543865,
+    "deflated_sharpe": 0.639051209871597,
+    "n_trials": 13,
+    "n_obs": 21
+   },
+   "avg_seats_held": 4.793662490788504,
+   "2019-21": {
+    "sharpe": 1.1110346880095432,
+    "sortino": 1.5321753362707984,
+    "cagr": 0.23543417048482862,
+    "maxdd": -0.309594896530064,
+    "calmar": 0.7604588225567412,
+    "trades_entered": 72,
+    "n_returns": 743
+   },
+   "2022-24H1": {
+    "sharpe": 1.728316929998956,
+    "sortino": 2.3094010782877685,
+    "cagr": 0.3819882664486305,
+    "maxdd": -0.21970851377159462,
+    "calmar": 1.7386138565651545,
+    "trades_entered": 56,
+    "n_returns": 613
+   },
+   "year_returns": {
+    "2019": 0.27808097179731894,
+    "2020": 0.41692303552129584,
+    "2021": 0.0407961002852526,
+    "2022": 0.1731969535321778,
+    "2023": 0.6134022431732087,
+    "2024H1": 0.18289223659119025
+   },
+   "worst_year": {
+    "year": "2021",
+    "return": 0.0407961002852526
+   },
+   "mean_R_raw": 0.6113828125,
+   "n_degenerate_stops": 0,
+   "degenerate_trades": [],
+   "mean_R_excl_degenerate": 0.6113828125,
+   "n_trades_excl_degenerate": 128,
+   "win_rate": 0.6015625
+  },
+  "h_only_grade_gate_live": {
+   "name": "h_only_grade_gate_live",
+   "desc": "all reverted EXCEPT grade_gate kept live",
+   "manifest_label": "NOT LIVE BOOK: ext_cap",
+   "differs_on": [
+    "ext_cap",
+    "max_notional_pct",
+    "max_risk_pct",
+    "scaled_exit"
+   ],
+   "config": {
+    "ext_cap": null,
+    "grade_gate": true,
+    "uncapped": false,
+    "max_notional_pct": null,
+    "max_risk_pct": null,
+    "exit": "base",
+    "start": "2019-01-01",
+    "pit_membership": true
+   },
+   "config_hash": "6650c8e1382644f097dff2103d76a5ce8212af3ab9209b2841497efd553f4462",
+   "engine_reported": {
+    "sharpe": 1.47418770913978,
+    "cagr": 0.35540774057500824,
+    "maxdd": -0.42349968825087814,
+    "n_trades": 149
+   },
+   "full": {
+    "sharpe": 1.47418770913978,
+    "sortino": 1.8669086748746866,
+    "cagr": 0.35540774057500824,
+    "maxdd": -0.42349968825087814,
+    "calmar": 0.8392160618651207,
+    "trades_entered": 149,
+    "n_returns": 1356
+   },
+   "deflated_sharpe": {
+    "dsr": 0.9263433106982135,
+    "sr0_annual": 0.7433957060543865,
+    "deflated_sharpe": 0.7307920030853934,
+    "n_trials": 13,
+    "n_obs": 21
+   },
+   "avg_seats_held": 5.651436993367723,
+   "2019-21": {
+    "sharpe": 1.222020112580245,
+    "sortino": 1.52488595912179,
+    "cagr": 0.29475869613083483,
+    "maxdd": -0.42349968825087814,
+    "calmar": 0.6960068786549423,
+    "trades_entered": 83,
+    "n_returns": 743
+   },
+   "2022-24H1": {
+    "sharpe": 1.8158974780084456,
+    "sortino": 2.394953005317074,
+    "cagr": 0.4321643324904436,
+    "maxdd": -0.19041211551460502,
+    "calmar": 2.2696262331967825,
+    "trades_entered": 66,
+    "n_returns": 613
+   },
+   "year_returns": {
+    "2019": 0.2879502612608349,
+    "2020": 0.2776556071101681,
+    "2021": 0.3183273007146894,
+    "2022": 0.30147159774038235,
+    "2023": 0.5652603296716223,
+    "2024H1": 0.2012301370891847
+   },
+   "worst_year": {
+    "year": "2024H1",
+    "return": 0.2012301370891847
+   },
+   "mean_R_raw": 0.6167651006711409,
+   "n_degenerate_stops": 0,
+   "degenerate_trades": [],
+   "mean_R_excl_degenerate": 0.6167651006711409,
+   "n_trades_excl_degenerate": 149,
+   "win_rate": 0.6174496644295302
+  },
+  "h_only_max_notional_pct_live": {
+   "name": "h_only_max_notional_pct_live",
+   "desc": "all reverted EXCEPT max_notional_pct kept live",
+   "manifest_label": "NOT LIVE BOOK: ext_cap",
+   "differs_on": [
+    "ext_cap",
+    "grade_gate",
+    "max_risk_pct",
+    "scaled_exit"
+   ],
+   "config": {
+    "ext_cap": null,
+    "grade_gate": false,
+    "uncapped": false,
+    "max_notional_pct": 0.2,
+    "max_risk_pct": null,
+    "exit": "base",
+    "start": "2019-01-01",
+    "pit_membership": true
+   },
+   "config_hash": "4ac2e138dca2912c002e363f52a68ace76b3c3753c8946977e3d9bbcb4b7c343",
+   "engine_reported": {
+    "sharpe": 1.1900223234169052,
+    "cagr": 0.2640141223968804,
+    "maxdd": -0.3537579914100688,
+    "n_trades": 169
+   },
+   "full": {
+    "sharpe": 1.1900223234169052,
+    "sortino": 1.5390591300215333,
+    "cagr": 0.2640141223968804,
+    "maxdd": -0.3537579914100688,
+    "calmar": 0.7463128149968513,
+    "trades_entered": 169,
+    "n_returns": 1356
+   },
+   "deflated_sharpe": {
+    "dsr": 0.8213520100090879,
+    "sr0_annual": 0.7433957060543865,
+    "deflated_sharpe": 0.44662661736251863,
+    "n_trials": 13,
+    "n_obs": 21
+   },
+   "avg_seats_held": 6.292557111274871,
+   "2019-21": {
+    "sharpe": 0.7472941844472331,
+    "sortino": 0.9731584747183012,
+    "cagr": 0.15192035289810324,
+    "maxdd": -0.3537579914100688,
+    "calmar": 0.42944712653007,
+    "trades_entered": 93,
+    "n_returns": 743
+   },
+   "2022-24H1": {
+    "sharpe": 1.7588843249080852,
+    "sortino": 2.258826406818147,
+    "cagr": 0.413449348011913,
+    "maxdd": -0.17511495310525382,
+    "calmar": 2.3610168102743745,
+    "trades_entered": 76,
+    "n_returns": 613
+   },
+   "year_returns": {
+    "2019": 0.1118420418471,
+    "2020": 0.0768895631236921,
+    "2021": 0.2762241875044247,
+    "2022": 0.17366462425903584,
+    "2023": 0.6561306716669995,
+    "2024H1": 0.21836171706902086
+   },
+   "worst_year": {
+    "year": "2020",
+    "return": 0.0768895631236921
+   },
+   "mean_R_raw": 0.49731360946745556,
+   "n_degenerate_stops": 0,
+   "degenerate_trades": [],
+   "mean_R_excl_degenerate": 0.49731360946745556,
+   "n_trades_excl_degenerate": 169,
+   "win_rate": 0.6094674556213018
+  },
+  "h_only_max_risk_pct_live": {
+   "name": "h_only_max_risk_pct_live",
+   "desc": "all reverted EXCEPT max_risk_pct kept live",
+   "manifest_label": "NOT LIVE BOOK: ext_cap",
+   "differs_on": [
+    "ext_cap",
+    "grade_gate",
+    "max_notional_pct",
+    "scaled_exit"
+   ],
+   "config": {
+    "ext_cap": null,
+    "grade_gate": false,
+    "uncapped": false,
+    "max_notional_pct": null,
+    "max_risk_pct": 0.1,
+    "exit": "base",
+    "start": "2019-01-01",
+    "pit_membership": true
+   },
+   "config_hash": "ebffefb711195405fa2498f21ec2fa57f0c41df179d99d20d490dbba24b8b3e3",
+   "engine_reported": {
+    "sharpe": 1.0641974808431218,
+    "cagr": 0.25079724540843906,
+    "maxdd": -0.4533882737736261,
+    "n_trades": 126
+   },
+   "full": {
+    "sharpe": 1.0641974808431218,
+    "sortino": 1.3972384779076044,
+    "cagr": 0.25079724540843906,
+    "maxdd": -0.4533882737736261,
+    "calmar": 0.5531621789002433,
+    "trades_entered": 126,
+    "n_returns": 1356
+   },
+   "deflated_sharpe": {
+    "dsr": 0.7490122999359993,
+    "sr0_annual": 0.7433957060543865,
+    "deflated_sharpe": 0.3208017747887353,
+    "n_trials": 13,
+    "n_obs": 21
+   },
+   "avg_seats_held": 4.209285187914517,
+   "2019-21": {
+    "sharpe": 0.8469587612804595,
+    "sortino": 1.0948652287490857,
+    "cagr": 0.198744255967509,
+    "maxdd": -0.4533882737736261,
+    "calmar": 0.43835332200660476,
+    "trades_entered": 70,
+    "n_returns": 743
+   },
+   "2022-24H1": {
+    "sharpe": 1.3718978339959818,
+    "sortino": 1.863017938544472,
+    "cagr": 0.31643744479258284,
+    "maxdd": -0.3174780580904104,
+    "calmar": 0.9967222512822249,
+    "trades_entered": 56,
+    "n_returns": 613
+   },
+   "year_returns": {
+    "2019": 0.2222859138678963,
+    "2020": -0.04471673581441049,
+    "2021": 0.47473159665185305,
+    "2022": 0.27069157702235214,
+    "2023": 0.36898831641712526,
+    "2024H1": 0.14035248128239797
+   },
+   "worst_year": {
+    "year": "2020",
+    "return": -0.04471673581441049
+   },
+   "mean_R_raw": 0.5568650793650795,
+   "n_degenerate_stops": 0,
+   "degenerate_trades": [],
+   "mean_R_excl_degenerate": 0.5568650793650795,
+   "n_trades_excl_degenerate": 126,
+   "win_rate": 0.5873015873015873
+  },
+  "h_only_exit_live": {
+   "name": "h_only_exit_live",
+   "desc": "all reverted EXCEPT exit kept live",
+   "manifest_label": "NOT LIVE BOOK: ext_cap",
+   "differs_on": [
+    "ext_cap",
+    "grade_gate",
+    "max_notional_pct",
+    "max_risk_pct"
+   ],
+   "config": {
+    "ext_cap": null,
+    "grade_gate": false,
+    "uncapped": false,
+    "max_notional_pct": null,
+    "max_risk_pct": null,
+    "exit": "live",
+    "start": "2019-01-01",
+    "pit_membership": true
+   },
+   "config_hash": "d5640ed83d3ca393146f3e7660242f1fc62a171d8b54611a68ce943691426a36",
+   "engine_reported": {
+    "sharpe": 1.6793189966449316,
+    "cagr": 0.41998683863853126,
+    "maxdd": -0.345404995953162,
+    "n_trades": 87
+   },
+   "full": {
+    "sharpe": 1.6793189966449316,
+    "sortino": 2.1465612695158627,
+    "cagr": 0.41998683863853126,
+    "maxdd": -0.345404995953162,
+    "calmar": 1.2159257786053645,
+    "trades_entered": 87,
+    "n_returns": 1356
+   },
+   "deflated_sharpe": {
+    "dsr": 0.9640310117013207,
+    "sr0_annual": 0.7433957060543865,
+    "deflated_sharpe": 0.935923290590545,
+    "n_trials": 13,
+    "n_obs": 21
+   },
+   "avg_seats_held": 10.28150331613854,
+   "2019-21": {
+    "sharpe": 1.6830009383291444,
+    "sortino": 2.3026391295067254,
+    "cagr": 0.4178334666190091,
+    "maxdd": -0.345404995953162,
+    "calmar": 1.2096914390771252,
+    "trades_entered": 48,
+    "n_returns": 743
+   },
+   "2022-24H1": {
+    "sharpe": 1.6738849083955207,
+    "sortino": 1.9866960078284157,
+    "cagr": 0.422582319931176,
+    "maxdd": -0.20613480814249796,
+    "calmar": 2.050028928831132,
+    "trades_entered": 39,
+    "n_returns": 613
+   },
+   "year_returns": {
+    "2019": 0.3044150625347295,
+    "2020": 0.5167162525746203,
+    "2021": 0.43960775894721826,
+    "2022": 0.2655717268136586,
+    "2023": 0.5700183347523875,
+    "2024H1": 0.21113437857637662
+   },
+   "worst_year": {
+    "year": "2024H1",
+    "return": 0.21113437857637662
+   },
+   "mean_R_raw": 1.4885747126436781,
+   "n_degenerate_stops": 0,
+   "degenerate_trades": [],
+   "mean_R_excl_degenerate": 1.4885747126436781,
+   "n_trades_excl_degenerate": 87,
+   "win_rate": 0.5977011494252874
+  },
+  "i_d6_filter_before_rank": {
+   "name": "i_d6_filter_before_rank",
+   "desc": "live + R94.grade_a_entries(P, mem=mem, filter_before_rank=True)",
+   "manifest_label": "NOT LIVE BOOK (a_grade=filter_before_rank; replay has no such key)",
+   "differs_on": [
+    "a_grade=filter_before_rank"
+   ],
+   "config": {
+    "ext_cap": 0.2,
+    "grade_gate": true,
+    "uncapped": false,
+    "max_notional_pct": 0.2,
+    "max_risk_pct": 0.1,
+    "exit": "live",
+    "start": "2019-01-01",
+    "pit_membership": true
+   },
+   "config_hash": "custom-a_grade",
+   "engine_reported": {
+    "sharpe": 1.2754941374648463,
+    "cagr": 0.27293108231865304,
+    "maxdd": -0.401129518327873,
+    "n_trades": 85
+   },
+   "full": {
+    "sharpe": 1.2754941374648463,
+    "sortino": 1.645914416592435,
+    "cagr": 0.27293108231865304,
+    "maxdd": -0.401129518327873,
+    "calmar": 0.6804063771132548,
+    "trades_entered": 85,
+    "n_returns": 1356
+   },
+   "deflated_sharpe": {
+    "dsr": 0.860955815245249,
+    "sr0_annual": 0.7433957060543865,
+    "deflated_sharpe": 0.5320984314104598,
+    "n_trials": 13,
+    "n_obs": 21
+   },
+   "avg_seats_held": 7.97789240972734,
+   "2019-21": {
+    "sharpe": 1.0130618757758212,
+    "sortino": 1.3587792601115867,
+    "cagr": 0.21750644166668143,
+    "maxdd": -0.401129518327873,
+    "calmar": 0.5422349434002441,
+    "trades_entered": 52,
+    "n_returns": 743
+   },
+   "2022-24H1": {
+    "sharpe": 1.6405928882033673,
+    "sortino": 2.009092521891827,
+    "cagr": 0.34297824200800586,
+    "maxdd": -0.286973280080427,
+    "calmar": 1.1951574094699093,
+    "trades_entered": 33,
+    "n_returns": 613
+   },
+   "year_returns": {
+    "2019": 0.03832458221337576,
+    "2020": 0.2543709482862069,
+    "2021": 0.3850937651454369,
+    "2022": -0.01325569045818753,
+    "2023": 0.6135514981846844,
+    "2024H1": 0.3094509936594272
+   },
+   "worst_year": {
+    "year": "2022",
+    "return": -0.01325569045818753
+   },
+   "mean_R_raw": 1.4846823529411763,
+   "n_degenerate_stops": 0,
+   "degenerate_trades": [],
+   "mean_R_excl_degenerate": 1.4846823529411763,
+   "n_trades_excl_degenerate": 85,
+   "win_rate": 0.47058823529411764
+  }
+ },
+ "order": [
+  "a_live",
+  "b_revert_ext_cap",
+  "b_revert_grade_gate",
+  "b_revert_max_notional_pct",
+  "b_revert_max_risk_pct",
+  "b_revert_exit",
+  "g_all_reverted",
+  "h_only_ext_cap_live",
+  "h_only_grade_gate_live",
+  "h_only_max_notional_pct_live",
+  "h_only_max_risk_pct_live",
+  "h_only_exit_live",
+  "i_d6_filter_before_rank"
+ ],
+ "attribution": {
+  "gap_all_reverted_minus_live": {
+   "sharpe": 0.4787314954797146,
+   "cagr": 0.15433594669823503,
+   "maxdd": -0.02237016998641972,
+   "calmar": 0.33747776820328923,
+   "sortino": 0.5413200113088932
+  },
+  "one_off_revert_minus_live": {
+   "ext_cap": {
+    "sharpe": 0.2226876761527714,
+    "cagr": 0.05489855479422956,
+    "maxdd": 0.021297767716303206,
+    "calmar": 0.1731439940344689,
+    "sortino": 0.329888150731533
+   },
+   "grade_gate": {
+    "sharpe": 0.24110467771313604,
+    "cagr": 0.05258012388156308,
+    "maxdd": 0.0,
+    "calmar": 0.13108016607889084,
+    "sortino": 0.31953645695972677
+   },
+   "max_notional_pct": {
+    "sharpe": 0.21761299378333265,
+    "cagr": 0.07983297963135416,
+    "maxdd": 0.005670590983870016,
+    "calmar": 0.20919077013767773,
+    "sortino": 0.31229871981150237
+   },
+   "max_risk_pct": {
+    "sharpe": 0.19643828567225796,
+    "cagr": 0.04125889498080326,
+    "maxdd": 0.03717518699984035,
+    "calmar": 0.16548027991984782,
+    "sortino": 0.19928162573431085
+   },
+   "exit": {
+    "sharpe": 0.06109595334721196,
+    "cagr": 0.012145714810583907,
+    "maxdd": 0.03810491753818146,
+    "calmar": 0.08701468896014997,
+    "sortino": 0.11872073300096164
+   }
+  },
+  "leave_one_in_minus_all_reverted": {
+   "ext_cap": {
+    "sharpe": -0.12104761279666088,
+    "cagr": -0.059091463258269084,
+    "maxdd": 0.11390479178422874,
+    "calmar": 0.12102255649325833,
+    "sortino": 0.023911222335613935
+   },
+   "grade_gate": {
+    "sharpe": -0.02930681958286452,
+    "cagr": -0.00360163464847596,
+    "maxdd": 6.341460689895939e-11,
+    "calmar": -0.008504456306906438,
+    "sortino": 0.011291061969823435
+   },
+   "max_notional_pct": {
+    "sharpe": -0.31347220530573927,
+    "cagr": -0.09499525282660382,
+    "maxdd": 0.06974169690422394,
+    "calmar": -0.10140770317517578,
+    "sortino": -0.3165584828833299
+   },
+   "max_risk_pct": {
+    "sharpe": -0.4392970478795226,
+    "cagr": -0.10821212981504513,
+    "maxdd": -0.029888585459333372,
+    "calmar": -0.29455833927178376,
+    "sortino": -0.4583791349972588
+   },
+   "exit": {
+    "sharpe": 0.17582446792228712,
+    "cagr": 0.06097746341504706,
+    "maxdd": 0.07809469236113076,
+    "calmar": 0.36820526043333746,
+    "sortino": 0.2909436566109995
+   }
+  },
+  "sum_of_one_offs": {
+   "sharpe": 0.93893958666871,
+   "cagr": 0.24071626809853397,
+   "maxdd": 0.10224846323819503,
+   "calmar": 0.7659098991310352,
+   "sortino": 1.2797256862380346
+  },
+  "sum_of_leave_one_in": {
+   "sharpe": -0.7272992176425002,
+   "cagr": -0.20492301713334693,
+   "maxdd": 0.23185259565366467,
+   "calmar": 0.0847573181727298,
+   "sortino": -0.4487916769641518
+  },
+  "interaction_all_minus_sum_one_offs": {
+   "sharpe": -0.4602080911889954,
+   "cagr": -0.08638032140029894,
+   "maxdd": -0.12461863322461475,
+   "calmar": -0.428432130927746,
+   "sortino": -0.7384056749291414
+  },
+  "d6_minus_live": {
+   "sharpe": 0.25073110422191647,
+   "cagr": 0.06825765379340387,
+   "maxdd": 0.0,
+   "calmar": 0.17016362714451694,
+   "sortino": 0.3316168149964651
+  }
+ },
+ "seconds": 348.8
+}
