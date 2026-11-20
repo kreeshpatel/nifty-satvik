@@ -344,3 +344,6 @@ lab_runs.jsonl
 !data/xbrl_raw/
 /data/xbrl_raw/*
 !data/xbrl_raw/manifest.csv
+
+# Local study caches (pickled NAVs); rebuilt by the scripts that write them.
+.cache/

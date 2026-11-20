@@ -1,0 +1,157 @@
+{
+ "live_overshoot_R": {
+  "n": 33,
+  "mean": -0.733,
+  "median": -0.594,
+  "p5": -1.914,
+  "min": -3.529,
+  "max": 0.426,
+  "max_signal_date_gap_days": 1,
+  "window": "2026-07-27..2026-11-09"
+ },
+ "backtest_overshoot_R_swing_book": {
+  "n": 32,
+  "mean": -0.813,
+  "median": -0.442,
+  "min": -4.368
+ },
+ "momentum_stop_exits": 0,
+ "momentum_exit_reasons": {
+  "rebalance_trim": 2045,
+  "rebalance_exit": 905,
+  "stale": 1
+ },
+ "circuit": {
+  "method": "APPROXIMATE: close within 0.15pp of -5/-10/-20%, close within 0.1% of low, range <= 2% of prior close",
+  "locked_sessions_detected": 1877,
+  "tickers_with_any": 181,
+  "trades_affected_dataset_A_uncapped": 1,
+  "dataset_A_closed_trades": 441,
+  "trades_affected_swing_book": 0,
+  "trades_affected_momentum": 2,
+  "momentum_trades": 2951
+ },
+ "scenarios_equity_scaled_added_after_first_look": {
+  "live_ov": {
+   "swing": {
+    "sharpe": 1.013,
+    "cagr_pct": 20.088,
+    "boot156_p95_dd_pct": 42.31,
+    "backtest_maxdd_pct": -36.173
+   },
+   "blend": {
+    "sharpe": 1.78,
+    "cagr_pct": 28.742,
+    "boot156_p95_dd_pct": 28.523,
+    "backtest_maxdd_pct": -21.782
+   }
+  },
+  "circuit": {
+   "swing": {
+    "sharpe": 1.0247630332429298,
+    "cagr_pct": 20.467342852524915,
+    "boot156_p95_dd_pct": 45.56493542085744,
+    "backtest_maxdd_pct": -40.1129518327873
+   },
+   "momentum": {
+    "sharpe": 1.125479713111418,
+    "cagr_pct": 21.71210529815266,
+    "boot156_p95_dd_pct": 41.66696660049975,
+    "backtest_maxdd_pct": -37.44597388262437
+   },
+   "blend": {
+    "sharpe": 1.7917782313031996,
+    "cagr_pct": 29.05055109802257,
+    "boot156_p95_dd_pct": 29.389988438701046,
+    "backtest_maxdd_pct": -22.876147770819856
+   }
+  },
+  "gap2x": {
+   "swing": {
+    "sharpe": 0.6137764542875019,
+    "cagr_pct": 14.535851620214624,
+    "boot156_p95_dd_pct": 71.08607116892023,
+    "backtest_maxdd_pct": -63.9255517769628
+   },
+   "blend": {
+    "sharpe": 1.6253958930623393,
+    "cagr_pct": 26.843794045944236,
+    "boot156_p95_dd_pct": 33.633800978889674,
+    "backtest_maxdd_pct": -24.73673939965587
+   }
+  }
+ },
+ "scenarios": {
+  "base": {
+   "swing": {
+    "sharpe": 1.0247630332429298,
+    "cagr_pct": 20.467342852524915,
+    "boot156_p95_dd_pct": 45.56493542085744,
+    "backtest_maxdd_pct": -40.1129518327873
+   },
+   "momentum": {
+    "sharpe": 1.1296054282519847,
+    "cagr_pct": 21.73064051052036,
+    "boot156_p95_dd_pct": 41.38861140632025,
+    "backtest_maxdd_pct": -37.16823597030922
+   },
+   "blend": {
+    "sharpe": 1.7898866696165139,
+    "cagr_pct": 28.965160886300655,
+    "boot156_p95_dd_pct": 29.331154339076733,
+    "backtest_maxdd_pct": -22.853286247140435
+   }
+  },
+  "live_ov": {
+   "swing": {
+    "sharpe": 1.016,
+    "cagr_pct": 20.125,
+    "boot156_p95_dd_pct": 42.163,
+    "backtest_maxdd_pct": -35.941
+   },
+   "momentum": "unchanged - 0001 has no stop exits",
+   "blend": {
+    "sharpe": 1.781,
+    "cagr_pct": 28.757,
+    "boot156_p95_dd_pct": 28.511,
+    "backtest_maxdd_pct": -21.748
+   }
+  },
+  "circuit": {
+   "swing": {
+    "sharpe": 1.0247630332429298,
+    "cagr_pct": 20.467342852524915,
+    "boot156_p95_dd_pct": 45.56493542085744,
+    "backtest_maxdd_pct": -40.1129518327873
+   },
+   "momentum": {
+    "sharpe": 1.125476351156313,
+    "cagr_pct": 21.71208474909627,
+    "boot156_p95_dd_pct": 41.66699379420858,
+    "backtest_maxdd_pct": -37.44597388262437
+   },
+   "blend": {
+    "sharpe": 1.7917753713908597,
+    "cagr_pct": 29.05053026495903,
+    "boot156_p95_dd_pct": 29.389996471295003,
+    "backtest_maxdd_pct": -22.876147770819856
+   }
+  },
+  "gap2x": {
+   "swing": {
+    "sharpe": 0.5229769228857672,
+    "cagr_pct": 12.360897705744645,
+    "boot156_p95_dd_pct": 77.4697769672702,
+    "backtest_maxdd_pct": -68.02485330135343
+   },
+   "momentum": "unchanged - 0001 has no stop exits",
+   "blend": {
+    "sharpe": 1.576424063726159,
+    "cagr_pct": 26.258697020491304,
+    "boot156_p95_dd_pct": 35.254895313797064,
+    "backtest_maxdd_pct": -25.18731828859898
+   }
+  }
+ },
+ "n_rep_live_ov": 200
+}

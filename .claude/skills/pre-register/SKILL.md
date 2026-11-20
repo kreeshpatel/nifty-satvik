@@ -44,6 +44,36 @@ If the idea or a near-identical one is REJECT/KILL, you may not relitigate it wi
 of {new data, new feature, new sub-period, new formulation} you bring. That sentence goes in the
 pre-reg, not in the chat.
 
+## Step 1b — the parameter-sensitivity ("spike") gate (owner, 2026-11-18)
+
+**Required before any pre-registration.** A candidate whose edge lives on one exact parameter value is a fitted
+point, and a forward record cannot rescue it. The run that clears this gate is EXPLORE tier: it adopts nothing and
+does not move `n_trials`.
+
+1. **Every numeric parameter** of the candidate rule is nudged by **−20%, −10%, +10% and +20%**, **one at a time,
+   the others fixed**. Integers are rounded to the nearest integer; a nudge that rounds back to the base value, or
+   two nudges that round to the same value, are reported as such (that parameter has a coarser neighbourhood than
+   ±10%, which is itself a finding). A parameter that is zero, inert or categorical is listed with the reason it
+   cannot be nudged — it is not silently skipped.
+2. Each nudge runs over the **20-path ensemble** (`nq.lab.ensemble.draw_perturbations(20, DEFAULT_SEED)`: cost
+   jitter ±10 bp per side and start date in the first ~20 sessions), paired with the unnudged candidate on the
+   same draws.
+3. **"Sharpe change"** is the candidate's improvement over its comparator, median over the 20 paths:
+   - **a rule or overlay on an existing book:** paired median of (candidate Sharpe − base-book Sharpe) on the same
+     path;
+   - **a standalone strategy:** the comparator must be named in the pre-registration. Until the owner fixes it,
+     report both: **vs the mission benchmark** (Nifty Midcap150 Momentum 50 TRI, same window) and **vs cash**
+     (the Sharpe itself, no risk-free rate).
+4. **Pass** = the median Sharpe change is **positive at every ±10% nudge** and is **at least half its unnudged size
+   at every ±20% nudge**. A candidate whose unnudged Sharpe change is not positive fails at the base.
+5. Report **one row per parameter**: base value, the four nudged values, the median Sharpe change at each, the paired
+   change against the unnudged candidate, and PASS / SPIKE.
+6. **A candidate that fails is a "spike" and cannot be pre-registered.** Do not retune the parameter toward a
+   plateau and re-run the gate: a retuned value is a new candidate, and its gate run counts toward multiplicity.
+
+Reference implementation: `pipelines/diagnostics/explore_param_sensitivity.py` (the 2026-11-18 re-run on the live
+swing and 0001 parameters).
+
 ## Step 2 — pick the id and the location
 
 Next free `NNNN`. Two layouts are in use; match the one the study belongs to:

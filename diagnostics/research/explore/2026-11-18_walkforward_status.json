@@ -1,0 +1,325 @@
+{
+ "existing": {
+  "live_swing": {
+   "walk_forward_or_cpcv": null,
+   "nearest": "diagnostics/research/certify_live_config_A1.md|.json - sub-period slices (2017-18, 2019-21, 2022-on) + DSR + bootstrap CI; no folds, no CPCV",
+   "a1_exists": true
+  },
+  "xsec_momentum_0001": {
+   "walk_forward_or_cpcv": null,
+   "nearest": "research/0001-xsec-momentum/results.json - CSCV PBO over a 9-config (top_n x buffer) family: pbo 0.452, n_configs 9; no folds, no CPCV"
+  },
+  "blend_70_30_vt15": {
+   "walk_forward_or_cpcv": null,
+   "nearest": "none - only the frozen lifecycle bands"
+  }
+ },
+ "window": [
+  "2019-01-01",
+  "2024-06-28"
+ ],
+ "live_swing": {
+  "cpcv": {
+   "n_splits": 45,
+   "n_paths": 9,
+   "path_sharpes": [
+    1.0251,
+    1.0251,
+    1.0251,
+    1.0251,
+    1.0251,
+    1.0251,
+    1.0251,
+    1.0251,
+    1.0251
+   ],
+   "path_sharpe_spread": 0.0,
+   "folds": [
+    {
+     "fold": 1,
+     "from": "2019-01-02",
+     "to": "2019-07-19",
+     "oos_sharpe": 0.22
+    },
+    {
+     "fold": 2,
+     "from": "2019-07-22",
+     "to": "2020-02-07",
+     "oos_sharpe": 0.75
+    },
+    {
+     "fold": 3,
+     "from": "2020-02-10",
+     "to": "2020-08-27",
+     "oos_sharpe": 0.965
+    },
+    {
+     "fold": 4,
+     "from": "2020-08-28",
+     "to": "2021-03-12",
+     "oos_sharpe": 1.334
+    },
+    {
+     "fold": 5,
+     "from": "2021-03-15",
+     "to": "2021-09-30",
+     "oos_sharpe": 2.012
+    },
+    {
+     "fold": 6,
+     "from": "2021-10-01",
+     "to": "2022-04-20",
+     "oos_sharpe": 0.149
+    },
+    {
+     "fold": 7,
+     "from": "2022-04-21",
+     "to": "2022-11-03",
+     "oos_sharpe": 0.569
+    },
+    {
+     "fold": 8,
+     "from": "2022-11-04",
+     "to": "2023-05-23",
+     "oos_sharpe": 0.141
+    },
+    {
+     "fold": 9,
+     "from": "2023-05-24",
+     "to": "2023-12-07",
+     "oos_sharpe": 2.76
+    },
+    {
+     "fold": 10,
+     "from": "2023-12-08",
+     "to": "2024-06-28",
+     "oos_sharpe": 2.611
+    }
+   ]
+  },
+  "dsr": {
+   "n_trials": 3,
+   "sharpe_full": 1.025,
+   "sharpe_ci_5_95": [
+    0.088,
+    1.99
+   ],
+   "n_eff_63d_windows": 21,
+   "dsr": 0.8899
+  },
+  "pbo": {
+   "pbo": 0.3099,
+   "n_configs": 55,
+   "n_periods": 1356,
+   "n_splits": 12870,
+   "median_logit": 1.006,
+   "full_sample_best": "max_notional_pct=0.16",
+   "full_sample_best_sharpe": 1.662,
+   "base_rank_full_sample": 44,
+   "most_frequent_is_winner": "ext_cap=0.16"
+  }
+ },
+ "xsec_momentum_0001": {
+  "cpcv": {
+   "n_splits": 45,
+   "n_paths": 9,
+   "path_sharpes": [
+    1.779,
+    1.779,
+    1.779,
+    1.779,
+    1.779,
+    1.779,
+    1.779,
+    1.779,
+    1.779
+   ],
+   "path_sharpe_spread": 0.0,
+   "folds": [
+    {
+     "fold": 1,
+     "from": "2019-01-02",
+     "to": "2019-07-19",
+     "oos_sharpe": -0.069
+    },
+    {
+     "fold": 2,
+     "from": "2019-07-22",
+     "to": "2020-02-07",
+     "oos_sharpe": 2.363
+    },
+    {
+     "fold": 3,
+     "from": "2020-02-10",
+     "to": "2020-08-27",
+     "oos_sharpe": 0.673
+    },
+    {
+     "fold": 4,
+     "from": "2020-08-28",
+     "to": "2021-03-12",
+     "oos_sharpe": 4.28
+    },
+    {
+     "fold": 5,
+     "from": "2021-03-15",
+     "to": "2021-09-30",
+     "oos_sharpe": 3.361
+    },
+    {
+     "fold": 6,
+     "from": "2021-10-01",
+     "to": "2022-04-20",
+     "oos_sharpe": 1.132
+    },
+    {
+     "fold": 7,
+     "from": "2022-04-21",
+     "to": "2022-11-03",
+     "oos_sharpe": 0.421
+    },
+    {
+     "fold": 8,
+     "from": "2022-11-04",
+     "to": "2023-05-23",
+     "oos_sharpe": 0.255
+    },
+    {
+     "fold": 9,
+     "from": "2023-05-24",
+     "to": "2023-12-07",
+     "oos_sharpe": 4.753
+    },
+    {
+     "fold": 10,
+     "from": "2023-12-08",
+     "to": "2024-06-28",
+     "oos_sharpe": 2.572
+    }
+   ]
+  },
+  "dsr": {
+   "n_trials": 3,
+   "sharpe_full": 1.779,
+   "sharpe_ci_5_95": [
+    0.721,
+    2.979
+   ],
+   "n_eff_63d_windows": 21,
+   "dsr": 0.9801
+  },
+  "pbo": {
+   "pbo": 0.4112,
+   "n_configs": 17,
+   "n_periods": 1356,
+   "n_splits": 12870,
+   "median_logit": 0.452,
+   "full_sample_best": "mr6_lookback=84",
+   "full_sample_best_sharpe": 1.841,
+   "base_rank_full_sample": 5,
+   "most_frequent_is_winner": "mr6_lookback=84"
+  }
+ },
+ "blend_70_30_vt15": {
+  "cpcv": {
+   "n_splits": 45,
+   "n_paths": 9,
+   "path_sharpes": [
+    1.8018,
+    1.8018,
+    1.8018,
+    1.8018,
+    1.8018,
+    1.8018,
+    1.8018,
+    1.8018,
+    1.8018
+   ],
+   "path_sharpe_spread": 0.0,
+   "folds": [
+    {
+     "fold": 1,
+     "from": "2019-03-05",
+     "to": "2019-09-18",
+     "oos_sharpe": -0.148
+    },
+    {
+     "fold": 2,
+     "from": "2019-09-19",
+     "to": "2020-03-31",
+     "oos_sharpe": -0.547
+    },
+    {
+     "fold": 3,
+     "from": "2020-04-01",
+     "to": "2020-10-12",
+     "oos_sharpe": 4.848
+    },
+    {
+     "fold": 4,
+     "from": "2020-10-13",
+     "to": "2021-04-23",
+     "oos_sharpe": 3.624
+    },
+    {
+     "fold": 5,
+     "from": "2021-04-26",
+     "to": "2021-11-01",
+     "oos_sharpe": 3.235
+    },
+    {
+     "fold": 6,
+     "from": "2021-11-02",
+     "to": "2022-05-13",
+     "oos_sharpe": -0.676
+    },
+    {
+     "fold": 7,
+     "from": "2022-05-16",
+     "to": "2022-11-22",
+     "oos_sharpe": 2.03
+    },
+    {
+     "fold": 8,
+     "from": "2022-11-23",
+     "to": "2023-06-02",
+     "oos_sharpe": 0.583
+    },
+    {
+     "fold": 9,
+     "from": "2023-06-05",
+     "to": "2023-12-13",
+     "oos_sharpe": 4.151
+    },
+    {
+     "fold": 10,
+     "from": "2023-12-14",
+     "to": "2024-06-28",
+     "oos_sharpe": 2.216
+    }
+   ]
+  },
+  "dsr": {
+   "n_trials": 3,
+   "sharpe_full": 1.802,
+   "sharpe_ci_5_95": [
+    0.623,
+    2.971
+   ],
+   "n_eff_63d_windows": 20,
+   "dsr": 0.9763
+  },
+  "pbo": {
+   "pbo": 0.2496,
+   "n_configs": 71,
+   "n_periods": 1312,
+   "n_splits": 12870,
+   "median_logit": 1.174,
+   "full_sample_best": "swing:ext_cap=0.16",
+   "full_sample_best_sharpe": 2.02,
+   "base_rank_full_sample": 44,
+   "most_frequent_is_winner": "swing:ext_cap=0.16"
+  }
+ },
+ "pbo_family_note": "swing family excludes sma_len (its nudges need the engine-copy worker); momentum cadence is categorical and not in the family"
+}

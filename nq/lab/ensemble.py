@@ -45,6 +45,7 @@ import pandas as pd
 
 from nq.lab import runs as L
 from nq.lab.stats import r_sanity_flags
+from nq.validation.metrics import RF_ANNUAL, rf_per_period
 
 TIE_JITTER_SKIPPED = ("fill-order tie jitter skipped: the engine's candidate key is (-rank, ticker), a total "
                       "order, so ties are already broken deterministically and jittering them would change "
@@ -152,15 +153,21 @@ def cost_jitter(delta: float) -> Iterator[None]:
 
 # --------------------------------------------------------------------------- one path
 def slice_metrics(nav: pd.Series, ledger: pd.DataFrame, report_from: str, end: str = L.CUT) -> dict[str, float]:
-    """Sharpe / CAGR / MaxDD / trades of a CONTINUOUS SLICE ``report_from..end`` of one run's NAV."""
+    """Sharpe / CAGR / MaxDD / trades of a CONTINUOUS SLICE ``report_from..end`` of one run's NAV.
+
+    ``sharpe`` is the raw convention (rf = 0, every band and anchor uses it); ``sharpe_excess`` sits next to it,
+    net of a 6.5%/yr risk-free rate compounded daily (nq.validation.metrics.sharpe_excess)."""
     nav = nav[(nav.index >= pd.Timestamp(report_from)) & (nav.index <= pd.Timestamp(end))].astype(float)
     nan = float("nan")
-    out = {"sharpe": nan, "cagr": nan, "maxdd": nan, "trades": 0, "mean_R": nan, "mean_R_ex_degen": nan,
-           "n_degenerate": 0}
+    out = {"sharpe": nan, "sharpe_excess": nan, "cagr": nan, "maxdd": nan, "trades": 0, "mean_R": nan,
+           "mean_R_ex_degen": nan, "n_degenerate": 0}
     if len(nav) > 2:
         r = nav.pct_change().dropna()
         if r.std() > 0:
             out["sharpe"] = float(r.mean() / r.std() * np.sqrt(TRADING_DAYS))
+            # excess-return Sharpe next to the raw one (owner 2026-11-18): rf 6.5%/yr compounded daily
+            out["sharpe_excess"] = float((r.mean() - rf_per_period(RF_ANNUAL, periods=TRADING_DAYS))
+                                         / r.std() * np.sqrt(TRADING_DAYS))
         years = (nav.index[-1] - nav.index[0]).days / 365.25
         if years > 0 and nav.iloc[0] > 0 and nav.iloc[-1] > 0:
             out["cagr"] = float((nav.iloc[-1] / nav.iloc[0]) ** (1 / years) - 1)
@@ -247,7 +254,7 @@ def replay_ensemble(config: Mapping[str, Any] | None = None, *, n: int = 30, see
     res = {"config": cfg, "config_hash": L.config_hash(cfg), "grade_mode": grade_mode, "manifest": manifest,
            "n": int(n), "seed": int(seed), "perturb": list(perturb), "skipped": [TIE_JITTER_SKIPPED],
            "draws": draws, "paths": paths, "report_from": report_from,
-           "summary": {m: _summ(paths[m]) for m in (*METRICS, "mean_R", "mean_R_ex_degen")},
+           "summary": {m: _summ(paths[m]) for m in (*METRICS, "sharpe_excess", "mean_R", "mean_R_ex_degen")},
            "seconds": round(time.time() - t0, 1)}
     if keep_ledger:
         res["ledgers"] = ledgers

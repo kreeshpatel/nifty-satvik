@@ -102,6 +102,14 @@ Why this is a rule and not a preference: one trade with a ₹0.05 risk basis mov
 the money by ₹8,041, and 58% of the published anchor is positions that were never closed. A bare "total R" hides
 both. A total-R comparison between two studies that do not state these is not a comparison.
 
+## 4c. Parameter sensitivity is reported, not assumed (owner, 2026-11-18)
+
+Any report that recommends a candidate rule — for pre-registration, promotion or a live change — carries the
+**spike table** from `skills/pre-register` Step 1b: every numeric parameter nudged −20%, −10%, +10%, +20%, one at a
+time, over the 20-path ensemble, one row per parameter, PASS or SPIKE, with the comparator for "Sharpe change"
+named. Pass = median Sharpe change positive at every ±10% nudge and at least half its unnudged size at every ±20%
+nudge. **A spike cannot be pre-registered.** A report without the table does not recommend anything.
+
 ## 5. No silent scope changes
 
 Horizons, settings, windows, buckets or arms added **after seeing results** are listed as **"added after first look"**
@@ -138,6 +146,7 @@ that item.** A general "go ahead" earlier in a session is not that word.
 3. Anchor reproduced in-run and printed.
 4. Three or more artifacts listed, each ruled out with its method or marked not checked.
 5. Decision-driving numbers re-derived by a fresh sub-agent; both numbers reported; within 5%.
+   Any candidate recommended carries its spike table (§4c).
 6. Anything added after the first look labelled as such and counted.
 7. Every claim in the final message labelled.
 8. Corrections first; owner decisions last, with options and evidence.

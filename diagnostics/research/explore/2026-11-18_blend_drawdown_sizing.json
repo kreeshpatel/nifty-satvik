@@ -1,0 +1,310 @@
+{
+ "window": [
+  "2019-03-01",
+  "2024-06-28"
+ ],
+ "n_draws": 10000,
+ "seed": 20261118,
+ "blocks": [
+  8,
+  13,
+  26
+ ],
+ "horizons": [
+  52,
+  104,
+  156
+ ],
+ "anchors": {
+  "swing_unperturbed_2019_01_01": {
+   "sharpe": 1.0248,
+   "cagr": 0.2047,
+   "maxdd": -0.4011
+  },
+  "momentum_0001": {
+   "cagr_pct": 21.73,
+   "sharpe": 1.13
+  }
+ },
+ "blend_worst_dd_pct": {
+  "daily": -22.85,
+  "weekly": 21.09
+ },
+ "n_weeks": 277,
+ "q1_blend_vt15": {
+  "block8": {
+   "h52": {
+    "p50": 11.02,
+    "p95": 23.17,
+    "p99": 30.09
+   },
+   "h104": {
+    "p50": 13.82,
+    "p95": 27.23,
+    "p99": 34.41
+   },
+   "h156": {
+    "p50": 16.7,
+    "p95": 29.33,
+    "p99": 36.16
+   }
+  },
+  "block13": {
+   "h52": {
+    "p50": 11.3,
+    "p95": 22.18,
+    "p99": 28.66
+   },
+   "h104": {
+    "p50": 14.59,
+    "p95": 27.11,
+    "p99": 34.01
+   },
+   "h156": {
+    "p50": 17.43,
+    "p95": 28.71,
+    "p99": 35.18
+   }
+  },
+  "block26": {
+   "h52": {
+    "p50": 11.5,
+    "p95": 21.09,
+    "p99": 27.12
+   },
+   "h104": {
+    "p50": 15.6,
+    "p95": 24.69,
+    "p99": 31.36
+   },
+   "h156": {
+    "p50": 17.84,
+    "p95": 27.03,
+    "p99": 32.9
+   }
+  }
+ },
+ "q2_why_52w_p95_equals_worst": {
+  "worst_backtest_dd_pct": 21.092,
+  "episode": {
+   "peak_week": "2020-02-21",
+   "trough_week": "2020-04-03",
+   "length_weeks": 6
+  },
+  "band_bootstrap_p95_reproduced": 22.854,
+  "draws": 5000,
+  "draws_equal_to_worst": 222,
+  "share_equal_to_worst": 0.0444,
+  "draws_deeper_than_worst": 395,
+  "p95_rank_position": "the 95th percentile sits at draw rank 4750; draws ranked 4385..4606 all equal the worst",
+  "draws_containing_the_whole_episode_contiguously": 411,
+  "exact_draws_that_contain_the_episode": 221,
+  "clip_in_code": "none - core.stationary_bootstrap and core._path_stats have no clip/cap",
+  "wider_of_two": "not the cause - the BOOTSTRAP column itself reads 22.85 before core.wider is applied; the ensemble column reads 21.33 and the band takes the deeper of the two",
+  "band_worst_is_daily_nav_dd_pct": -22.85,
+  "weekly_series_worst_dd_pct": 21.092
+ },
+ "q3_vol_target": {
+  "block_used": 8,
+  "why": "deepest 156-week p95 at 15%: {8: 29.33, 13: 28.71, 26: 27.03}",
+  "rule": "highest target whose 156-week bootstrap p95 drawdown depth <= 25%",
+  "sweep": [
+   {
+    "target_pct": 8,
+    "cagr_pct": 20.88,
+    "sharpe": 2.112,
+    "backtest_worst_dd_pct": -13.01,
+    "boot156_p50": 9.98,
+    "boot156_p95": 17.2,
+    "boot156_p99": 21.73,
+    "meets_bar": true
+   },
+   {
+    "target_pct": 9,
+    "cagr_pct": 22.35,
+    "sharpe": 2.032,
+    "backtest_worst_dd_pct": -14.58,
+    "boot156_p50": 11.3,
+    "boot156_p95": 19.43,
+    "boot156_p99": 24.32,
+    "meets_bar": true
+   },
+   {
+    "target_pct": 10,
+    "cagr_pct": 23.8,
+    "sharpe": 1.978,
+    "backtest_worst_dd_pct": -16.13,
+    "boot156_p50": 12.48,
+    "boot156_p95": 21.43,
+    "boot156_p99": 26.81,
+    "meets_bar": true
+   },
+   {
+    "target_pct": 11,
+    "cagr_pct": 25.14,
+    "sharpe": 1.932,
+    "backtest_worst_dd_pct": -17.65,
+    "boot156_p50": 13.51,
+    "boot156_p95": 23.35,
+    "boot156_p99": 29.12,
+    "meets_bar": true
+   },
+   {
+    "target_pct": 12,
+    "cagr_pct": 26.4,
+    "sharpe": 1.898,
+    "backtest_worst_dd_pct": -19.12,
+    "boot156_p50": 14.33,
+    "boot156_p95": 25.03,
+    "boot156_p99": 31.14,
+    "meets_bar": false
+   },
+   {
+    "target_pct": 13,
+    "cagr_pct": 27.44,
+    "sharpe": 1.861,
+    "backtest_worst_dd_pct": -20.48,
+    "boot156_p50": 15.17,
+    "boot156_p95": 26.67,
+    "boot156_p99": 32.98,
+    "meets_bar": false
+   },
+   {
+    "target_pct": 14,
+    "cagr_pct": 28.46,
+    "sharpe": 1.833,
+    "backtest_worst_dd_pct": -21.73,
+    "boot156_p50": 15.86,
+    "boot156_p95": 28.15,
+    "boot156_p99": 34.69,
+    "meets_bar": false
+   },
+   {
+    "target_pct": 15,
+    "cagr_pct": 29.2,
+    "sharpe": 1.801,
+    "backtest_worst_dd_pct": -22.85,
+    "boot156_p50": 16.7,
+    "boot156_p95": 29.33,
+    "boot156_p99": 36.16,
+    "meets_bar": false
+   }
+  ],
+  "highest_meeting_bar": {
+   "target_pct": 11,
+   "cagr_pct": 25.14,
+   "sharpe": 1.932,
+   "backtest_worst_dd_pct": -17.65,
+   "boot156_p50": 13.51,
+   "boot156_p95": 23.35,
+   "boot156_p99": 29.12,
+   "meets_bar": true
+  }
+ },
+ "q4_momentum_alone": {
+  "block8": {
+   "h52": {
+    "p50": 12.12,
+    "p95": 31.9,
+    "p99": 39.76
+   },
+   "h104": {
+    "p50": 17.97,
+    "p95": 36.06,
+    "p99": 44.8
+   },
+   "h156": {
+    "p50": 20.55,
+    "p95": 38.64,
+    "p99": 48.25
+   }
+  },
+  "block13": {
+   "h52": {
+    "p50": 12.53,
+    "p95": 31.9,
+    "p99": 37.99
+   },
+   "h104": {
+    "p50": 18.34,
+    "p95": 35.93,
+    "p99": 44.44
+   },
+   "h156": {
+    "p50": 21.17,
+    "p95": 37.48,
+    "p99": 45.47
+   }
+  },
+  "block26": {
+   "h52": {
+    "p50": 13.18,
+    "p95": 31.9,
+    "p99": 36.25
+   },
+   "h104": {
+    "p50": 18.41,
+    "p95": 32.67,
+    "p99": 40.49
+   },
+   "h156": {
+    "p50": 20.85,
+    "p95": 35.08,
+    "p99": 43.08
+   }
+  }
+ },
+ "q4_swing_alone": {
+  "block8": {
+   "h52": {
+    "p50": 12.65,
+    "p95": 35.93,
+    "p99": 44.51
+   },
+   "h104": {
+    "p50": 18.22,
+    "p95": 41.67,
+    "p99": 51.71
+   },
+   "h156": {
+    "p50": 23.41,
+    "p95": 44.91,
+    "p99": 54.79
+   }
+  },
+  "block13": {
+   "h52": {
+    "p50": 13.06,
+    "p95": 35.41,
+    "p99": 42.95
+   },
+   "h104": {
+    "p50": 19.23,
+    "p95": 41.98,
+    "p99": 51.8
+   },
+   "h156": {
+    "p50": 24.19,
+    "p95": 45.24,
+    "p99": 55.07
+   }
+  },
+  "block26": {
+   "h52": {
+    "p50": 13.62,
+    "p95": 35.27,
+    "p99": 42.28
+   },
+   "h104": {
+    "p50": 21.29,
+    "p95": 40.49,
+    "p99": 48.99
+   },
+   "h156": {
+    "p50": 24.9,
+    "p95": 43.87,
+    "p99": 52.2
+   }
+  }
+ }
+}
