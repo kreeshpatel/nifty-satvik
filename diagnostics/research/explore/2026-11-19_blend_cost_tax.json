@@ -1,0 +1,459 @@
+{
+ "window": [
+  "2019-03-05",
+  "2024-06-28"
+ ],
+ "capital": 2000000.0,
+ "counts": "screens 24 / sealed opens 4 / n_trials 3 (unchanged; measurement)",
+ "anchors": {
+  "expected": {
+   "blend_cagr": 19.26,
+   "blend_p95": 26.46,
+   "s6535_cagr": 23.02,
+   "s6535_p95": 24.81,
+   "cost_pp": 1.58,
+   "tax_pp": 4.54
+  },
+  "got": {
+   "blend_cagr": 19.26,
+   "blend_p95": 26.46,
+   "s6535_cagr": 23.02,
+   "s6535_p95": 24.81,
+   "cost_pp": 1.59,
+   "tax_pp": 4.54
+  },
+  "misses_over_0.1pp": {}
+ },
+ "inline_swing_replay_vs_cached_terminal_nav_rel": 0.0,
+ "step1_tax_by_source": {
+  "blend_after": {
+   "rows": {
+    "book_trade|0-30|st": {
+     "count": 389,
+     "gain": 48163.0,
+     "tax": 24451.0
+    },
+    "book_trade|31-90|st": {
+     "count": 677,
+     "gain": 343538.0,
+     "tax": 57413.0
+    },
+    "book_trade|91-180|st": {
+     "count": 550,
+     "gain": 850795.0,
+     "tax": 143959.0
+    },
+    "book_trade|181-330|st": {
+     "count": 302,
+     "gain": 984666.0,
+     "tax": 148552.0
+    },
+    "book_trade|331-364|st": {
+     "count": 30,
+     "gain": 154795.0,
+     "tax": 18778.0
+    },
+    "book_trade|365+|st": {
+     "count": 5,
+     "gain": 76831.0,
+     "tax": 11512.0
+    },
+    "book_trade|365+|lt": {
+     "count": 65,
+     "gain": 621046.0,
+     "tax": 20137.0
+    },
+    "unit_sale|0-30|st": {
+     "count": 91,
+     "gain": -80114.0,
+     "tax": 216.0
+    },
+    "unit_sale|31-90|st": {
+     "count": 1537,
+     "gain": 166154.0,
+     "tax": 138186.0
+    },
+    "unit_sale|91-180|st": {
+     "count": 756,
+     "gain": 95966.0,
+     "tax": 33535.0
+    },
+    "unit_sale|181-330|st": {
+     "count": 208,
+     "gain": 436680.0,
+     "tax": 81801.0
+    },
+    "unit_sale_terminal|0-30|st": {
+     "count": 13,
+     "gain": 3023.0,
+     "tax": 609.0
+    },
+    "unit_sale_terminal|31-90|st": {
+     "count": 21,
+     "gain": 97141.0,
+     "tax": 11628.0
+    },
+    "liquid_fund|slab": {
+     "count": 1024,
+     "gain": 307078.0,
+     "tax": 92123.0
+    }
+   },
+   "totals_by_class": {
+    "st": {
+     "count": 4579,
+     "gain": 3177637.0,
+     "tax": 670639.0
+    },
+    "lt": {
+     "count": 65,
+     "gain": 621046.0,
+     "tax": 20137.0
+    },
+    "slab": {
+     "count": 1024,
+     "gain": 307078.0,
+     "tax": 92123.0
+    }
+   },
+   "tax_total_recomputed": 782900.0,
+   "tax_total_simulator": 782900.0,
+   "max_period_gap_rupees": 0.0,
+   "exits_at_exactly_365_days_short_term": 5,
+   "ceiling_331_364_as_ltcg": {
+    "exits": 30,
+    "gain": 154795.0,
+    "tax_saved_rupees": 15229.0,
+    "note": "arithmetic ceiling on existing P&L; not achievable - holding longer changes the P&L and stops are requests"
+   }
+  },
+  "mom_after": {
+   "rows": {
+    "book_trade|0-30|st": {
+     "count": 373,
+     "gain": 745591.0,
+     "tax": 141182.0
+    },
+    "book_trade|31-90|st": {
+     "count": 663,
+     "gain": 1163284.0,
+     "tax": 226711.0
+    },
+    "book_trade|91-180|st": {
+     "count": 535,
+     "gain": 2414423.0,
+     "tax": 525050.0
+    },
+    "book_trade|181-330|st": {
+     "count": 291,
+     "gain": 2704066.0,
+     "tax": 522645.0
+    },
+    "book_trade|331-364|st": {
+     "count": 28,
+     "gain": 253824.0,
+     "tax": 42129.0
+    },
+    "book_trade|365+|st": {
+     "count": 5,
+     "gain": 214536.0,
+     "tax": 41452.0
+    },
+    "book_trade|365+|lt": {
+     "count": 57,
+     "gain": 844987.0,
+     "tax": 44466.0
+    },
+    "unit_sale|0-30|st": {
+     "count": 1,
+     "gain": 120.0,
+     "tax": 0.0
+    },
+    "unit_sale|365+|lt": {
+     "count": 5,
+     "gain": 96997.0,
+     "tax": 7989.0
+    },
+    "unit_sale_terminal|365+|lt": {
+     "count": 1,
+     "gain": 1539672.0,
+     "tax": 177268.0
+    }
+   },
+   "totals_by_class": {
+    "st": {
+     "count": 1896,
+     "gain": 7495843.0,
+     "tax": 1499169.0
+    },
+    "lt": {
+     "count": 63,
+     "gain": 2481656.0,
+     "tax": 229723.0
+    },
+    "slab": {
+     "count": 0,
+     "gain": 0.0,
+     "tax": 0.0
+    }
+   },
+   "tax_total_recomputed": 1728891.0,
+   "tax_total_simulator": 1728891.0,
+   "max_period_gap_rupees": 0.0,
+   "exits_at_exactly_365_days_short_term": 5,
+   "ceiling_331_364_as_ltcg": {
+    "exits": 28,
+    "gain": 253824.0,
+    "tax_saved_rupees": 31861.0,
+    "note": "arithmetic ceiling on existing P&L; not achievable - holding longer changes the P&L and stops are requests"
+   }
+  },
+  "sw_after": {
+   "rows": {
+    "book_trade|0-30|st": {
+     "count": 16,
+     "gain": -1152348.0,
+     "tax": 0.0
+    },
+    "book_trade|31-90|st": {
+     "count": 14,
+     "gain": -799640.0,
+     "tax": 0.0
+    },
+    "book_trade|91-180|st": {
+     "count": 15,
+     "gain": -157086.0,
+     "tax": 0.0
+    },
+    "book_trade|181-330|st": {
+     "count": 11,
+     "gain": 857217.0,
+     "tax": 75172.0
+    },
+    "book_trade|331-364|st": {
+     "count": 2,
+     "gain": 207685.0,
+     "tax": 0.0
+    },
+    "book_trade|365+|lt": {
+     "count": 8,
+     "gain": 2249141.0,
+     "tax": 58069.0
+    },
+    "unit_sale|365+|lt": {
+     "count": 3,
+     "gain": 37594.0,
+     "tax": 3224.0
+    },
+    "unit_sale_terminal|365+|lt": {
+     "count": 1,
+     "gain": 2161943.0,
+     "tax": 254787.0
+    }
+   },
+   "totals_by_class": {
+    "st": {
+     "count": 58,
+     "gain": -1044173.0,
+     "tax": 75172.0
+    },
+    "lt": {
+     "count": 12,
+     "gain": 4448678.0,
+     "tax": 316081.0
+    },
+    "slab": {
+     "count": 0,
+     "gain": 0.0,
+     "tax": 0.0
+    }
+   },
+   "tax_total_recomputed": 391253.0,
+   "tax_total_simulator": 391253.0,
+   "max_period_gap_rupees": 0.0,
+   "exits_at_exactly_365_days_short_term": 0,
+   "ceiling_331_364_as_ltcg": {
+    "exits": 2,
+    "gain": 207685.0,
+    "tax_saved_rupees": 0.0,
+    "note": "arithmetic ceiling on existing P&L; not achievable - holding longer changes the P&L and stops are requests"
+   }
+  }
+ },
+ "step2_rebalance_cost_by_size": {
+  "run": "blend pre-tax with blend-level costs (the 1.58pp run)",
+  "n_trades": 3660,
+  "total_cost": 231580.0,
+  "total_turnover": 212908971.0,
+  "size_pct_of_nav": {
+   "p10": 0.0481,
+   "p50": 0.4311,
+   "p90": 4.1491,
+   "p99": 17.8531
+  },
+  "by_size": {
+   "<0.5%": {
+    "n": 1937,
+    "cost_share": 0.0851,
+    "turnover_share": 0.0563,
+    "cost": 19697.0
+   },
+   "0.5-1%": {
+    "n": 505,
+    "cost_share": 0.0812,
+    "turnover_share": 0.0594,
+    "cost": 18796.0
+   },
+   "1-2%": {
+    "n": 482,
+    "cost_share": 0.1302,
+    "turnover_share": 0.1104,
+    "cost": 30142.0
+   },
+   ">2%": {
+    "n": 736,
+    "cost_share": 0.7036,
+    "turnover_share": 0.7739,
+    "cost": 162945.0
+   }
+  },
+  "by_instrument_cost": {
+   "_LIQUID": 3221.0,
+   "_MOM": 158644.0,
+   "_SW": 69714.0
+  },
+  "bands": {
+   "0.5%": {
+    "trades_below_band": 1937,
+    "cost_of_those_trades": 19697.0,
+    "share_of_total_cost": 0.0851,
+    "gap_left_pct_nav": {
+     "p50": 0.1382,
+     "p90": 0.3737,
+     "p99": 0.4813
+    },
+    "gap_left_max_pct_nav": 0.4982,
+    "caveat": "static: each skipped trade's gap taken alone; accumulation under a real band not simulated"
+   },
+   "1.0%": {
+    "trades_below_band": 2442,
+    "cost_of_those_trades": 38493.0,
+    "share_of_total_cost": 0.1662,
+    "gap_left_pct_nav": {
+     "p50": 0.1977,
+     "p90": 0.7042,
+     "p99": 0.9625
+    },
+    "gap_left_max_pct_nav": 0.9983,
+    "caveat": "static: each skipped trade's gap taken alone; accumulation under a real band not simulated"
+   },
+   "2.0%": {
+    "trades_below_band": 2924,
+    "cost_of_those_trades": 68635.0,
+    "share_of_total_cost": 0.2964,
+    "gap_left_pct_nav": {
+     "p50": 0.2694,
+     "p90": 1.2808,
+     "p99": 1.9166
+    },
+    "gap_left_max_pct_nav": 1.9933,
+    "caveat": "static: each skipped trade's gap taken alone; accumulation under a real band not simulated"
+   }
+  },
+  "after_tax_run_total_cost": 221689.0
+ },
+ "step3_waterfall": {
+  "order": "gross -> engine costs -> expense ratios -> wrapper trading costs -> tax",
+  "pass_through_note": "every step passes through the NET books' realised trades; tax is off in every step but the last, so they only matter there",
+  "blend_vt11": {
+   "gross_cagr": 26.89,
+   "engine_costs_pp": 1.45,
+   "expense_ratios_pp": 0.05,
+   "wrapper_trading_costs_pp": 1.59,
+   "tax_pp": 4.54,
+   "after_tax_cagr": 19.26,
+   "pre_tax_cagr": 23.8,
+   "rupees": {
+    "wrapper_costs": 240115.0,
+    "tax": 782900.0
+   }
+  },
+  "0001_alone": {
+   "gross_cagr": 45.59,
+   "engine_costs_pp": 2.83,
+   "expense_ratios_pp": 0.0,
+   "wrapper_trading_costs_pp": 0.05,
+   "tax_pp": 6.78,
+   "after_tax_cagr": 35.92,
+   "pre_tax_cagr": 42.7,
+   "rupees": {
+    "wrapper_costs": 27076.0,
+    "tax": 1728891.0
+   }
+  },
+  "swing_alone": {
+   "gross_cagr": 21.79,
+   "engine_costs_pp": 1.07,
+   "expense_ratios_pp": 0.0,
+   "wrapper_trading_costs_pp": 0.05,
+   "tax_pp": 1.86,
+   "after_tax_cagr": 18.82,
+   "pre_tax_cagr": 20.68,
+   "rupees": {
+    "wrapper_costs": 11105.0,
+    "tax": 391253.0
+   }
+  },
+  "static_65_35": {
+   "gross_cagr": 25.55,
+   "engine_costs_pp": 0.0,
+   "expense_ratios_pp": 0.31,
+   "wrapper_trading_costs_pp": 0.0,
+   "tax_pp": 2.22,
+   "after_tax_cagr": 23.02,
+   "pre_tax_cagr": 25.24,
+   "rupees": {
+    "wrapper_costs": 251.0,
+    "tax": 592535.0
+   }
+  },
+  "index_vt11": {
+   "gross_cagr": 25.8,
+   "engine_costs_pp": 0.0,
+   "expense_ratios_pp": 0.32,
+   "wrapper_trading_costs_pp": 0.04,
+   "tax_pp": 5.04,
+   "after_tax_cagr": 20.41,
+   "pre_tax_cagr": 25.45,
+   "rupees": {
+    "wrapper_costs": 6323.0,
+    "tax": 881305.0
+   }
+  },
+  "gross_book_check": {
+   "momentum_gross_full_run_cagr_pct": 23.85,
+   "momentum_net_full_run_cagr_pct": 21.73
+  }
+ },
+ "step4_by_sleeve": {
+  "0001": {
+   "trades": 1952,
+   "avg_holding_days": 112.1,
+   "median_holding_days": 83.0,
+   "annual_one_way_turnover_x": 3.89,
+   "pre_tax_cagr": 42.7,
+   "after_tax_cagr": 35.92,
+   "after_to_pre_tax_ratio": 0.841
+  },
+  "swing": {
+   "trades": 66,
+   "avg_holding_days": 164.6,
+   "median_holding_days": 98.5,
+   "annual_one_way_turnover_x": 2.43,
+   "turnover_method": "daily share decreases in the position log x mark price",
+   "pre_tax_cagr": 20.68,
+   "after_tax_cagr": 18.82,
+   "after_to_pre_tax_ratio": 0.91
+  }
+ }
+}
