@@ -339,3 +339,8 @@ __ohlcv_contract_probe_*.py
 # Strategy Lab — per-config run cache and the multiplicity ledger (local, regenerable)
 lab_cache/
 lab_runs.jsonl
+# NSE results XBRL harvest (pipelines/build/harvest_results_xbrl.py). Raw NSE XML NEVER enters git
+# (NSE terms restrict redistribution; the repo is public). Only the fetch manifest is tracked.
+!data/xbrl_raw/
+/data/xbrl_raw/*
+!data/xbrl_raw/manifest.csv

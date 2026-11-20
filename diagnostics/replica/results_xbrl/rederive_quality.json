@@ -1,0 +1,89 @@
+{
+  "rows_parsed": {
+    "rows": 189592,
+    "distinct_xbrl_url": 105951
+  },
+  "completeness_by_year": {
+    "2019": {
+      "n_tickers": 496,
+      "n_quarters": 4,
+      "pairs": 1984,
+      "overall": 86.0,
+      "standalone": 84.8,
+      "consolidated": 72.6
+    },
+    "2020": {
+      "n_tickers": 500,
+      "n_quarters": 4,
+      "pairs": 2000,
+      "overall": 96.5,
+      "standalone": 95.6,
+      "consolidated": 84.7
+    },
+    "2021": {
+      "n_tickers": 498,
+      "n_quarters": 4,
+      "pairs": 1992,
+      "overall": 91.9,
+      "standalone": 91.2,
+      "consolidated": 82.4
+    },
+    "2022": {
+      "n_tickers": 497,
+      "n_quarters": 4,
+      "pairs": 1988,
+      "overall": 91.2,
+      "standalone": 87.8,
+      "consolidated": 80.3
+    },
+    "2023": {
+      "n_tickers": 499,
+      "n_quarters": 4,
+      "pairs": 1996,
+      "overall": 95.8,
+      "standalone": 95.6,
+      "consolidated": 88.1
+    },
+    "2024": {
+      "n_tickers": 500,
+      "n_quarters": 4,
+      "pairs": 2000,
+      "overall": 97.2,
+      "standalone": 97.2,
+      "consolidated": 88.8
+    },
+    "2025": {
+      "n_tickers": 500,
+      "n_quarters": 4,
+      "pairs": 2000,
+      "overall": 99.1,
+      "standalone": 98.9,
+      "consolidated": 89.8
+    },
+    "2026": {
+      "n_tickers": 500,
+      "n_quarters": 2,
+      "pairs": 1000,
+      "overall": 99.0,
+      "standalone": 98.6,
+      "consolidated": 89.9
+    }
+  },
+  "eps_sanity": {
+    "pairs": 19243,
+    "median_gap_pct": 0.03,
+    "share_gap_gt_5pct": 16.4
+  },
+  "late_member_rate": {
+    "members": {
+      "n": 28948,
+      "n_late": 218,
+      "late_pct": 0.75
+    },
+    "non_members": {
+      "n": 77003,
+      "n_late": 2207,
+      "late_pct": 2.87
+    }
+  }
+}
