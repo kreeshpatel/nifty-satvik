@@ -1,0 +1,74 @@
+# Indian tax and cost parameters for the after-tax simulator (pipelines/diagnostics/explore_india_tax_practices.py).
+#
+#   *** CONFIRM WITH CA *** — every value below is an analysis default, not tax advice. Owner request 2026-11-18.
+#
+# The rates are FY 2026-27 rules, applied to the whole 2019-03..2024-06 backtest window (as if today's rules had
+# applied throughout). Nothing live reads this file.
+
+status: "CONFIRM WITH CA"
+fy: "2026-27"
+
+individual:
+  # New regime slabs (upper bound of each band in rupees -> marginal rate); cess on top.
+  slabs: [[400000, 0.00], [800000, 0.05], [1200000, 0.10], [1600000, 0.15], [2000000, 0.20], [2400000, 0.25], [null, 0.30]]
+  cess: 0.04
+  owner_marginal_slab: 0.30          # Kreesh
+  # Surcharge rate that applies on capital gains at the person's total income (0 = total income <= Rs 50L).
+  # The statutory cap on surcharge for 111A/112A gains is 15%.
+  surcharge_on_cg: 0.0
+  surcharge_cap_on_cg: 0.15
+  # A resident individual whose other income is below the basic exemption may set the unused exemption against
+  # 111A/112A gains. Applied only to a person whose marginal slab is 0% (their whole Rs 4L headroom).
+  use_unexhausted_basic_exemption: true   # CONFIRM WITH CA
+
+equity:                              # listed equity, equity mutual funds, arbitrage funds
+  stcg: 0.20                         # held <= 12 months
+  ltcg: 0.125                        # held > 12 months
+  ltcg_exemption: 125000             # per person per FY
+  long_term_days: 365
+
+debt:                                # liquid fund: gains taxed at the holder's slab, any holding period
+  at_slab: true
+
+losses:
+  stcl_offsets: [stcg, ltcg]
+  ltcl_offsets: [ltcg]
+  carry_forward_years: 8
+  wash_sale_rule: false
+
+company:                             # private company, section 115BAA
+  rate_on_debt_income: 0.2517        # 22% + 10% surcharge + 4% cess
+  surcharge: 0.10                    # applied to the company's capital-gains tax too (CONFIRM WITH CA)
+  cess: 0.04
+  ltcg_exemption_applies: false      # CONFIRM WITH CA: does the Rs 1.25L 112A exemption apply to a company?
+  annual_compliance: 75000           # rupees per FY, paid each March from the company's cash; treated as not deductible
+  dividend_rate_to_owner: 0.3588     # 30% x (1 + 15% surcharge) x (1 + 4% cess)
+
+instruments:
+  liquid:
+    gross_return: 0.065              # proxy: no liquid-fund index in the repo
+    ter: 0.0015
+  arbitrage:
+    # Nifty 50 Arbitrage Index TRI was not retrievable on 2026-11-18 (niftyindices endpoint returned HTML); proxy:
+    liquid_minus: 0.003              # liquid fund net return minus 0.3% a year
+    stt_drag_from: "2026-04-01"      # extra drag for the STT increase (inert inside a window ending 2024-06)
+    stt_drag: 0.003
+  index_fund:
+    ter: 0.0030                      # Midcap150 Momentum 50 index fund, direct plan
+  mf_costs:
+    buy: 0.00005                     # stamp duty
+    sell: 0.00001                    # STT on equity-fund redemption
+  stock_costs:                       # the blend's sleeve trades
+    buy: 0.00219                     # STT 0.1% + stamp 0.015% + exchange 0.004% + slippage 0.10%
+    sell: 0.00204
+
+harvest:
+  ltcg_up_to_exemption: true
+  losses: true
+  month: 3                           # March, on the last session before the 31-March tax payment
+
+family:
+  # Gifts to adult family members are treated as irrevocable. Gifts to a SPOUSE (or a son's wife) are clubbed back to
+  # the donor under section 64, so the split assumes adult children or parents only. CONFIRM WITH CA.
+  n_values: [1, 2, 3]
+  extra_person_slabs: [0.0, 0.05, 0.30]
