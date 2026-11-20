@@ -18,6 +18,7 @@ flowchart LR
     nq_paper["nq/paper"]
     nq_research["nq/research"]
     nq_runner["nq/runner"]
+    nq_signals["nq/signals"]
     nq_strategy["nq/strategy"]
     nq_validation["nq/validation"]
     nq_brain --> nq_paper
@@ -32,6 +33,8 @@ flowchart LR
     nq_paper --> nq_engine
     nq_paper --> nq_research
     nq_research --> config
+    nq_research --> nq_data
+    nq_research --> nq_signals
     nq_runner --> config
     nq_runner --> nq_data
     nq_runner --> nq_engine

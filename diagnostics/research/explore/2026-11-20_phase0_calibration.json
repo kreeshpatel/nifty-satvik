@@ -1,0 +1,119 @@
+{
+ "window": {
+  "first_signal": "2016-01-01",
+  "last_signal": "2024-06-21",
+  "train_end": "2024-06-30"
+ },
+ "anchor_0001_nms": {
+  "decile_21": {
+   "h": 21,
+   "spread_mean": 0.03138,
+   "t_nw": 2.64936,
+   "n_dates": 381
+  },
+  "decile_63": {
+   "h": 63,
+   "spread_mean": 0.08977,
+   "t_nw": 3.05804,
+   "n_dates": 372
+  },
+  "ic_21": {
+   "h": 21,
+   "ic_mean": 0.06813,
+   "t_nw": 4.51689
+  },
+  "ic_63": {
+   "h": 63,
+   "ic_mean": 0.10978,
+   "t_nw": 4.71004
+  },
+  "alpha": {
+   "alpha_ann": 0.25212,
+   "t_nw": 3.51266,
+   "beta": 0.89431,
+   "n_weeks": 385
+  },
+  "tradable": {
+   "alpha_ann": 0.20116,
+   "t_nw": 2.70529,
+   "beta": 0.84628,
+   "n_weeks": 385
+  },
+  "delay_sweep": {
+   "0": {
+    "alpha_ann": 0.25212,
+    "t_nw": 3.51266,
+    "beta": 0.89431,
+    "n_weeks": 385
+   },
+   "1": {
+    "alpha_ann": 0.24274,
+    "t_nw": 3.56911,
+    "beta": 0.9057,
+    "n_weeks": 384
+   },
+   "2": {
+    "alpha_ann": 0.23968,
+    "t_nw": 3.55879,
+    "beta": 0.91494,
+    "n_weeks": 384
+   },
+   "3": {
+    "alpha_ann": 0.24838,
+    "t_nw": 3.87915,
+    "beta": 0.91442,
+    "n_weeks": 384
+   },
+   "4": {
+    "alpha_ann": 0.26099,
+    "t_nw": 3.92995,
+    "beta": 0.92685,
+    "n_weeks": 384
+   },
+   "5": {
+    "alpha_ann": 0.24927,
+    "t_nw": 3.44655,
+    "beta": 0.92683,
+    "n_weeks": 383
+   }
+  },
+  "by_year": {
+   "2017": 0.8081,
+   "2018": 0.232,
+   "2019": 0.1807,
+   "2020": 0.1761,
+   "2021": 0.2977,
+   "2022": 0.0408,
+   "2023": 0.0981,
+   "2024": 0.2187
+  },
+  "decline_slope_t": -1.97547,
+  "turnover_ann": 8.52286,
+  "friction_ann": 0.17176,
+  "friction_pass": true,
+  "corr_0001": 1.0,
+  "low_mom_tercile": {
+   "alpha_ann": -0.07144,
+   "t_nw": -1.6556,
+   "beta": 1.05677,
+   "n_weeks": 385,
+   "straddles_zero": true
+  },
+  "pass_t": true
+ },
+ "null": {
+  "seeds": 200,
+  "seed0": 0,
+  "false_pass_two_sided_pct": 0.0,
+  "false_pass_one_sided_pct": 0.0,
+  "t_mean": -0.1568552117084258,
+  "t_sd": 0.967579289337105,
+  "t_p99_abs": 2.32198157096559
+ },
+ "placebo": {
+  "seeds": 100,
+  "pass_pct": 0.0,
+  "t_mean": -0.04693838585141745,
+  "t_max_abs": 2.3335836367768676
+ }
+}

@@ -50,7 +50,7 @@ LEGACY_URL = ("https://www.nseindia.com/api/corporates-financial-results?index=e
 INTEGRATED_DIR = "fin_results_integrated"
 INTEGRATED_URL = ("https://www.nseindia.com/api/integrated-filing-results?index=equities"
                   "&from_date={f}&to_date={t}&type=Integrated%20Filing-%20Financials&size={n}")
-MONTHS = pd.period_range("2019-01", "2026-11", freq="M")
+MONTHS = pd.period_range("2013-01", "2026-11", freq="M")  # 2013-2018 added for Phase 0 (company engine)
 INTEGRATED_MONTHS = pd.period_range("2024-10", "2026-11", freq="M")
 
 UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36",
