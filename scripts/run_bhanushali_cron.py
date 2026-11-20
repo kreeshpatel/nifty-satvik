@@ -917,6 +917,18 @@ def _replace_readjusted(ohlcv: dict, full: dict) -> dict:
     return out
 
 
+def _quarantine_record_for(qrec: dict | None, do_download: bool) -> dict | None:
+    """The quarantine record this scan may act on and publish.
+
+    Online, the data guards in ``_refresh_ohlcv`` fill ``qrec`` and it is returned UNCHANGED - the same object.
+    Offline (``--no-download``) the guards never run, so ``qrec`` is still the empty dict it started as: it holds
+    no evidence about any name. Treating it as a record crashed the restatement step (``KeyError: 'quarantined'``)
+    and, had it not crashed, would have overwritten the published ``data_quarantine.json`` with an empty one.
+    Offline therefore carries NO record: nothing is masked, restated or written on the guards' behalf.
+    """
+    return qrec if do_download else None
+
+
 def _refresh_ohlcv(start: str, history_days: int, do_download: bool, quarantine_out: dict | None = None) -> dict:
     """Return the LIVE OHLCV cache, refreshed with recent bars unless --no-download.
 
@@ -1410,6 +1422,7 @@ def main(argv=None) -> int:
     # the cron), and a forward book only ever trades currently-listed names. Empty -> valid empty book.
     qrec: dict | None = {} if QUARANTINE_NOT_HALT else None
     ohlcv = _refresh_ohlcv(args.start, args.history_days, not args.no_download, quarantine_out=qrec)
+    qrec = _quarantine_record_for(qrec, not args.no_download)   # offline: the guards did not run
     _refresh_nifty50(not args.no_download)               # CRS denominator (finding 0037)
     if QUARANTINE_NOT_HALT and not args.no_download:
         # The index is the denominator of EVERY name's CRS rank: a bad index series is systemic, never a
