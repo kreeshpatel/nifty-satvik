@@ -1,0 +1,87 @@
+{
+ "population_rows_fy2019plus": 60129,
+ "fallback_rows": 21161,
+ "causes": {
+  "fewer_than_4_quarters": 10776,
+  "pbt_nonpositive": 10351,
+  "both_tags_missing": 23,
+  "financial_tag_set": 10,
+  "pbt_tag_missing": 1
+ },
+ "causes_by_fiscal_year": {
+  "2019": {
+   "both_tags_missing": 1,
+   "fewer_than_4_quarters": 2871,
+   "financial_tag_set": 0,
+   "pbt_nonpositive": 356,
+   "pbt_tag_missing": 1
+  },
+  "2020": {
+   "both_tags_missing": 0,
+   "fewer_than_4_quarters": 2440,
+   "financial_tag_set": 0,
+   "pbt_nonpositive": 982,
+   "pbt_tag_missing": 0
+  },
+  "2021": {
+   "both_tags_missing": 0,
+   "fewer_than_4_quarters": 564,
+   "financial_tag_set": 0,
+   "pbt_nonpositive": 2072,
+   "pbt_tag_missing": 0
+  },
+  "2022": {
+   "both_tags_missing": 0,
+   "fewer_than_4_quarters": 858,
+   "financial_tag_set": 0,
+   "pbt_nonpositive": 1378,
+   "pbt_tag_missing": 0
+  },
+  "2023": {
+   "both_tags_missing": 0,
+   "fewer_than_4_quarters": 1686,
+   "financial_tag_set": 0,
+   "pbt_nonpositive": 1125,
+   "pbt_tag_missing": 0
+  },
+  "2024": {
+   "both_tags_missing": 0,
+   "fewer_than_4_quarters": 809,
+   "financial_tag_set": 0,
+   "pbt_nonpositive": 1288,
+   "pbt_tag_missing": 0
+  },
+  "2025": {
+   "both_tags_missing": 0,
+   "fewer_than_4_quarters": 548,
+   "financial_tag_set": 0,
+   "pbt_nonpositive": 1220,
+   "pbt_tag_missing": 0
+  },
+  "2026": {
+   "both_tags_missing": 12,
+   "fewer_than_4_quarters": 689,
+   "financial_tag_set": 4,
+   "pbt_nonpositive": 1309,
+   "pbt_tag_missing": 0
+  },
+  "2027": {
+   "both_tags_missing": 10,
+   "fewer_than_4_quarters": 311,
+   "financial_tag_set": 6,
+   "pbt_nonpositive": 621,
+   "pbt_tag_missing": 0
+  }
+ },
+ "fallback_share_pct_by_fiscal_year": {
+  "2019": 79.0,
+  "2020": 57.9,
+  "2021": 40.4,
+  "2022": 32.8,
+  "2023": 40.6,
+  "2024": 26.8,
+  "2025": 21.2,
+  "2026": 22.3,
+  "2027": 20.2
+ }
+}

@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT / "pipelines" / "build")]
 
 from harvest_results_xbrl import CACHE, LEGACY, load_listing_frame  # noqa: E402
-from nq.data.fundamentals_q import FEATURES, build_panel, feature_view, first_tradable_session  # noqa: E402
+from nq.data.fundamentals_q import FEATURES, build_panel, company_key, feature_view, first_tradable_session  # noqa: E402
 from nq.data.results_xbrl import RESULTS_XBRL_PATH  # noqa: E402
 
 OUT = ROOT / "diagnostics/research/explore/2026-11-20_phase0_panels.json"
@@ -131,7 +131,7 @@ def eps_diagnosis(d: pd.DataFrame, p: pd.DataFrame) -> dict:
     q4 = v0[v0.fiscal_quarter_end.dt.month == 3].set_index(["company", "fiscal_year"])[["adj_shares", "basis"]]
     a4 = a4[a4.n == 4].join(q4, how="inner")
     fyp = o[(o.period_type == "FY") & (o.period_end.dt.month == 3)].copy()
-    fyp["company"] = fyp["isin"].where(fyp["isin"].notna() & (fyp["isin"].astype(str) != ""), fyp["symbol"])
+    fyp["company"] = company_key(fyp["isin"], fyp["symbol"])
     fyp["fiscal_year"] = fyp.period_end.dt.year
     fyp["basis"] = np.where(fyp.consolidated.astype(bool), "consolidated", "standalone")
     fyp = fyp.drop_duplicates(["company", "fiscal_year", "basis"]).set_index(["company", "fiscal_year", "basis"])["pat"]
@@ -158,7 +158,7 @@ def eps_diagnosis(d: pd.DataFrame, p: pd.DataFrame) -> dict:
 def _recovered(d: pd.DataFrame, v: pd.DataFrame) -> dict:
     """Share of company-quarters with a current filing (either basis) that have a feature-view row, by year."""
     c = d[(d.context_role == "current") & d.period_end.notna()].copy()
-    c["company"] = c["isin"].where(c["isin"].notna() & (c["isin"].astype(str) != ""), c["symbol"])
+    c["company"] = company_key(c["isin"], c["symbol"])
     c["qe"] = c.period_end + pd.offsets.QuarterEnd(0)
     allq = c.drop_duplicates(["company", "qe"])
     have = v.drop_duplicates(["company", "fiscal_quarter_end"]).set_index(["company", "fiscal_quarter_end"]).index

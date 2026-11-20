@@ -57,9 +57,10 @@ TAX_RATE = 0.2517
 SPLIT_RATIOS = (1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 10.0, 20.0)
 SPLIT_TOL = 0.03
 FIN_NAME_RE = re.compile(r"\bBANK\b|FINANC|FINSERV|INSURANCE|ASSURANCE|\bCREDIT\b|LEASING|HOUSING FIN", re.I)
-FLOWS = ["revenue_ops", "total_income", "pat", "exceptional_items", "tax_expense", "pbt", "pbeit"]
+FLOWS = ["revenue_ops", "total_income", "pat", "exceptional_items", "tax_expense", "pbt", "pbeit", "finance_costs"]
 TAX_CLIP = (0.0, 0.40)
-FEATURES = ["ttm_pat", "ttm_revenue_ops", "ttm_margin", "yoy_core_pat"]  # tax_rate stays inside its basis (it feeds core_pat)
+FEATURES = ["ttm_pat", "ttm_revenue_ops", "ttm_margin", "yoy_core_pat", "ttm_core_pat", "ttm_core_pat_chg4",
+            "ttm_pbt", "ttm_finance_costs"]  # tax_rate stays inside its basis (it feeds core_pat)
 STOCKS = ["paid_up_equity", "face_value"]
 KEYS = ["company", "qn"]
 
@@ -73,12 +74,26 @@ def qn_to_end(qn: pd.Series) -> pd.Series:
     return pd.to_datetime(pd.DataFrame({"year": y, "month": q * 3 + 3, "day": 1})) + pd.offsets.MonthEnd(0)
 
 
+def company_key(isin: pd.Series, symbol: pd.Series) -> pd.Series:
+    """Issuer + security-type part of the ISIN (first 9 characters, e.g. INE686F01). The last two characters,
+    serial and check digit, change when a split or face-value change re-issues the ISIN; keying on the full ISIN
+    split one company's history in two. Added 2026-11-21 (Phase 0 close-out, after first look). Falls back to the
+    symbol when the ISIN is missing."""
+    ok = isin.notna() & (isin.astype(str).str.len() >= 9)
+    i9 = isin.astype(str).str[:9].where(ok)
+    # a few filings carry a mistyped ISIN (e.g. IN3686F... for INE686F...): use each symbol's most frequent
+    # issuer code, so one bad filing cannot split a company
+    mode = i9.groupby(symbol).agg(lambda s: s.value_counts().index[0] if s.notna().any() else None)
+    key = symbol.map(mode)
+    return key.where(key.notna(), i9).where(lambda k: k.notna(), symbol)
+
+
 def _observations(df: pd.DataFrame) -> pd.DataFrame:
     o = df[df["period_end"].notna() & df["period_start"].notna() & df["consolidated"].notna()].copy()
     for c in FLOWS + STOCKS + ["eps_basic"]:
         if c not in o:
             o[c] = np.nan
-    o["company"] = o["isin"].where(o["isin"].notna() & (o["isin"].astype(str) != ""), o["symbol"])
+    o["company"] = company_key(o["isin"], o["symbol"])
     o["span"] = ((o["period_end"] - o["period_start"]).dt.days / 91.31).round().astype(int)
     o = o[o["span"].between(1, 4)]
     o["qn"] = _qn(o["period_end"])
@@ -220,6 +235,8 @@ def _one_basis(o: pd.DataFrame, cons: bool) -> pd.DataFrame:
     p.loc[p["exceptional_items"].isna(), "core_pat"] = np.nan
     base = _lagged(p, ["core_pat"], 4)["core_pat"]
     p["yoy_core_pat"] = (p["core_pat"] / base - 1).where(base > 0)
+    p = _ttm(p, cols=("core_pat", "finance_costs"))
+    p["ttm_core_pat_chg4"] = p["ttm_core_pat"] - _lagged(p, ["ttm_core_pat"], 4)["ttm_core_pat"]
     p = _shares(p)
     p["adj_core_eps"] = (p["core_pat"] / p["adj_shares"]).where(p["adj_shares"] > 0)
     p["adj_eps"] = (p["pat"] / p["adj_shares"]).where(p["adj_shares"] > 0)
@@ -247,7 +264,7 @@ def build_panel(df: pd.DataFrame, names: pd.Series | None = None) -> pd.DataFram
             "tax_expense", "pbeit", "exceptional_items", "tax_rate", "tax_rate_fallback", "core_pat", "yoy_core_pat",
             "eps_basic", "paid_up_equity", "face_value", "shares", "shares_source", "share_factor", "split_event",
             "adj_shares", "adj_core_eps", "adj_eps", "ttm_pat", "ttm_revenue_ops", "ttm_tax_expense", "ttm_pbt",
-            "ttm_margin", "nan_reason"]
+            "ttm_margin", "finance_costs", "ttm_core_pat", "ttm_core_pat_chg4", "ttm_finance_costs", "nan_reason"]
     return p[cols].sort_values(["company", "basis", "qn", "version"]).reset_index(drop=True)
 
 

@@ -113,3 +113,13 @@ def test_effective_tax_rate_and_fallback():
     assert p["tax_rate_fallback"].iloc[:3].all()  # fewer than 4 quarters of history
     assert np.isclose(p["tax_rate"].iat[3], 0.25) and np.isclose(p["core_pat"].iat[3], 100 - 40 * 0.75)
     assert p["tax_rate_fallback"].iat[5] == False  # noqa: E712  trailing PBT still > 0
+
+
+def test_isin_reissue_at_split_keeps_one_company():
+    rows = _co("RRR", n=8)
+    for r in rows[4:]:
+        r["isin"] = "INE0RRR01025"  # serial/check digits change when the ISIN is re-issued at a split
+    for r in rows[:4]:
+        r["isin"] = "INE0RRR01017"
+    p = build_panel(pd.DataFrame(rows))
+    assert p["company"].nunique() == 1 and p["ttm_pat"].notna().sum() == 5
