@@ -1,0 +1,40 @@
+{
+ "spec": "post-hoc spec 3 (Harness Step A): matched-fill baseline; pass |z| < 3 on swing N1 and N2",
+ "N1off": {
+  "d_matched": {
+   "mean_ann_pct": 2.495,
+   "se_pct": 0.584,
+   "z": 4.27,
+   "pass_abs_z_lt_3": false
+  },
+  "d_a2": {
+   "mean_ann_pct": 2.623,
+   "se_pct": 0.579,
+   "z": 4.53,
+   "pass_abs_z_lt_3": false
+  },
+  "placebo_ann_pct": 24.6,
+  "baseline_matched_ann_pct": 22.11,
+  "baseline_a2_ann_pct": 21.98,
+  "n_seeds": 100
+ },
+ "N2off": {
+  "d_matched": {
+   "mean_ann_pct": 2.227,
+   "se_pct": 0.611,
+   "z": 3.65,
+   "pass_abs_z_lt_3": false
+  },
+  "d_a2": {
+   "mean_ann_pct": 2.348,
+   "se_pct": 0.61,
+   "z": 3.85,
+   "pass_abs_z_lt_3": false
+  },
+  "placebo_ann_pct": 24.82,
+  "baseline_matched_ann_pct": 22.59,
+  "baseline_a2_ann_pct": 22.47,
+  "n_seeds": 100
+ },
+ "passed": false
+}

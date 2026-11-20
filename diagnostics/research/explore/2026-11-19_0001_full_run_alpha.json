@@ -1,0 +1,201 @@
+{
+ "window": [
+  "2017-01-01",
+  "2026-06-30"
+ ],
+ "deflation": {
+  "method": "Bonferroni-equivalent: two-sided family alpha 0.05 over 141 lifetime trials, normal approximation to the NW t",
+  "n_trials_lifetime": 141,
+  "t_hurdle": 3.572,
+  "net_full_index_fund": {
+   "t": 0.44,
+   "passes_hurdle": false,
+   "two_sided_p_raw": 0.6599,
+   "bonferroni_p": 1.0
+  },
+  "net_full_tri_raw": {
+   "t": 0.36,
+   "passes_hurdle": false,
+   "two_sided_p_raw": 0.7188,
+   "bonferroni_p": 1.0
+  }
+ },
+ "results": {
+  "net|full_2017-01..2026-06|index_fund": {
+   "alpha_ann_pct": 1.49,
+   "beta": 0.906,
+   "t_nw_lag8": 0.44,
+   "r2": 0.745,
+   "n_weeks": 495,
+   "significant_|t|>=2": false,
+   "alpha_vs_beta_matched_mix_ann_pct": 1.49,
+   "book_cagr_weekly_pct": 21.73,
+   "beta_matched_mix_cagr_pct": 20.54
+  },
+  "net|full_2017-01..2026-06|tri_raw": {
+   "alpha_ann_pct": 1.22,
+   "beta": 0.906,
+   "t_nw_lag8": 0.36,
+   "r2": 0.745,
+   "n_weeks": 495,
+   "significant_|t|>=2": false,
+   "alpha_vs_beta_matched_mix_ann_pct": 1.22,
+   "book_cagr_weekly_pct": 21.73,
+   "beta_matched_mix_cagr_pct": 20.86
+  },
+  "net|2017-01..2019-02|index_fund": {
+   "alpha_ann_pct": -17.8,
+   "beta": 0.621,
+   "t_nw_lag8": -2.56,
+   "r2": 0.48,
+   "n_weeks": 112,
+   "significant_|t|>=2": true,
+   "alpha_vs_beta_matched_mix_ann_pct": -17.8,
+   "book_cagr_weekly_pct": -6.66,
+   "beta_matched_mix_cagr_pct": 12.2
+  },
+  "net|2017-01..2019-02|tri_raw": {
+   "alpha_ann_pct": -17.99,
+   "beta": 0.621,
+   "t_nw_lag8": -2.59,
+   "r2": 0.48,
+   "n_weeks": 112,
+   "significant_|t|>=2": true,
+   "alpha_vs_beta_matched_mix_ann_pct": -17.99,
+   "book_cagr_weekly_pct": -6.66,
+   "beta_matched_mix_cagr_pct": 12.41
+  },
+  "net|2019-03..2024-06|index_fund": {
+   "alpha_ann_pct": 8.01,
+   "beta": 0.958,
+   "t_nw_lag8": 1.87,
+   "r2": 0.786,
+   "n_weeks": 278,
+   "significant_|t|>=2": false,
+   "alpha_vs_beta_matched_mix_ann_pct": 8.01,
+   "book_cagr_weekly_pct": 43.07,
+   "beta_matched_mix_cagr_pct": 32.72
+  },
+  "net|2019-03..2024-06|tri_raw": {
+   "alpha_ann_pct": 7.73,
+   "beta": 0.958,
+   "t_nw_lag8": 1.8,
+   "r2": 0.786,
+   "n_weeks": 278,
+   "significant_|t|>=2": false,
+   "alpha_vs_beta_matched_mix_ann_pct": 7.73,
+   "book_cagr_weekly_pct": 43.07,
+   "beta_matched_mix_cagr_pct": 33.09
+  },
+  "net|2024-07..2026-06|index_fund": {
+   "alpha_ann_pct": 3.97,
+   "beta": 0.956,
+   "t_nw_lag8": 1.03,
+   "r2": 0.837,
+   "n_weeks": 104,
+   "significant_|t|>=2": false,
+   "alpha_vs_beta_matched_mix_ann_pct": 3.97,
+   "book_cagr_weekly_pct": 2.89,
+   "beta_matched_mix_cagr_pct": -0.75
+  },
+  "net|2024-07..2026-06|tri_raw": {
+   "alpha_ann_pct": 3.69,
+   "beta": 0.956,
+   "t_nw_lag8": 0.96,
+   "r2": 0.837,
+   "n_weeks": 104,
+   "significant_|t|>=2": false,
+   "alpha_vs_beta_matched_mix_ann_pct": 3.69,
+   "book_cagr_weekly_pct": 2.89,
+   "beta_matched_mix_cagr_pct": -0.47
+  },
+  "gross|full_2017-01..2026-06|index_fund": {
+   "alpha_ann_pct": 3.21,
+   "beta": 0.907,
+   "t_nw_lag8": 0.93,
+   "r2": 0.743,
+   "n_weeks": 495,
+   "significant_|t|>=2": false,
+   "alpha_vs_beta_matched_mix_ann_pct": 3.21,
+   "book_cagr_weekly_pct": 23.85,
+   "beta_matched_mix_cagr_pct": 20.56
+  },
+  "gross|full_2017-01..2026-06|tri_raw": {
+   "alpha_ann_pct": 2.94,
+   "beta": 0.907,
+   "t_nw_lag8": 0.85,
+   "r2": 0.743,
+   "n_weeks": 495,
+   "significant_|t|>=2": false,
+   "alpha_vs_beta_matched_mix_ann_pct": 2.94,
+   "book_cagr_weekly_pct": 23.85,
+   "beta_matched_mix_cagr_pct": 20.88
+  },
+  "gross|2017-01..2019-02|index_fund": {
+   "alpha_ann_pct": -16.48,
+   "beta": 0.614,
+   "t_nw_lag8": -2.32,
+   "r2": 0.472,
+   "n_weeks": 112,
+   "significant_|t|>=2": true,
+   "alpha_vs_beta_matched_mix_ann_pct": -16.48,
+   "book_cagr_weekly_pct": -5.46,
+   "beta_matched_mix_cagr_pct": 12.14
+  },
+  "gross|2017-01..2019-02|tri_raw": {
+   "alpha_ann_pct": -16.66,
+   "beta": 0.614,
+   "t_nw_lag8": -2.35,
+   "r2": 0.472,
+   "n_weeks": 112,
+   "significant_|t|>=2": true,
+   "alpha_vs_beta_matched_mix_ann_pct": -16.66,
+   "book_cagr_weekly_pct": -5.46,
+   "beta_matched_mix_cagr_pct": 12.34
+  },
+  "gross|2019-03..2024-06|index_fund": {
+   "alpha_ann_pct": 9.9,
+   "beta": 0.961,
+   "t_nw_lag8": 2.31,
+   "r2": 0.786,
+   "n_weeks": 278,
+   "significant_|t|>=2": true,
+   "alpha_vs_beta_matched_mix_ann_pct": 9.9,
+   "book_cagr_weekly_pct": 45.9,
+   "beta_matched_mix_cagr_pct": 32.82
+  },
+  "gross|2019-03..2024-06|tri_raw": {
+   "alpha_ann_pct": 9.62,
+   "beta": 0.961,
+   "t_nw_lag8": 2.24,
+   "r2": 0.786,
+   "n_weeks": 278,
+   "significant_|t|>=2": true,
+   "alpha_vs_beta_matched_mix_ann_pct": 9.62,
+   "book_cagr_weekly_pct": 45.9,
+   "beta_matched_mix_cagr_pct": 33.19
+  },
+  "gross|2024-07..2026-06|index_fund": {
+   "alpha_ann_pct": 5.46,
+   "beta": 0.957,
+   "t_nw_lag8": 1.4,
+   "r2": 0.834,
+   "n_weeks": 104,
+   "significant_|t|>=2": false,
+   "alpha_vs_beta_matched_mix_ann_pct": 5.46,
+   "book_cagr_weekly_pct": 4.43,
+   "beta_matched_mix_cagr_pct": -0.76
+  },
+  "gross|2024-07..2026-06|tri_raw": {
+   "alpha_ann_pct": 5.18,
+   "beta": 0.957,
+   "t_nw_lag8": 1.33,
+   "r2": 0.834,
+   "n_weeks": 104,
+   "significant_|t|>=2": false,
+   "alpha_vs_beta_matched_mix_ann_pct": 5.18,
+   "book_cagr_weekly_pct": 4.43,
+   "beta_matched_mix_cagr_pct": -0.48
+  }
+ }
+}

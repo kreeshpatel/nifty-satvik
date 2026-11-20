@@ -1,0 +1,106 @@
+{
+ "cohorts_train_labelled": {
+  "noise_stop": 391,
+  "false_touch": 314
+ },
+ "dropped": {
+  "no_prices": 0,
+  "stop_after_cut": 39,
+  "short_history": 0
+ },
+ "n_used": {
+  "noise_stop": 367,
+  "false_touch": 299
+ },
+ "sector_note": "config.SECTOR_MAP is a present-day map, NOT point-in-time; sector EW from corrected_universe names excluding the ticker; Others / <6 names -> M150",
+ "earnings_note": "results day = board-meeting event_date (ann_ts timestamps the intimation, not the release) [assumed]",
+ "features": {
+  "a_mkt_adj": {
+   "label": "a) leg return - beta x M150 leg return",
+   "noise_stop_mean": -0.1286,
+   "false_touch_mean": -0.1206,
+   "n_noise": 367,
+   "n_false": 299,
+   "diff_false_minus_noise": 0.008,
+   "ci95": [
+    -0.0087,
+    0.0259
+   ],
+   "excludes_zero": false
+  },
+  "b_sec_adj": {
+   "label": "b) leg return - beta_sec x sector leg return",
+   "noise_stop_mean": -0.1273,
+   "false_touch_mean": -0.1151,
+   "n_noise": 367,
+   "n_false": 299,
+   "diff_false_minus_noise": 0.0122,
+   "ci95": [
+    -0.005,
+    0.0314
+   ],
+   "excludes_zero": false
+  },
+  "c_mkt_share": {
+   "label": "c) 1 - idiosyncratic variance share over the leg",
+   "noise_stop_mean": 0.2356,
+   "false_touch_mean": 0.1737,
+   "n_noise": 329,
+   "n_false": 249,
+   "diff_false_minus_noise": -0.0619,
+   "ci95": [
+    -0.1173,
+    -0.0054
+   ],
+   "excludes_zero": true
+  },
+  "d_deliv_ratio": {
+   "label": "d) delivery % on stop day / 60d median",
+   "noise_stop_mean": 1.0649,
+   "false_touch_mean": 1.0599,
+   "n_noise": 350,
+   "n_false": 292,
+   "diff_false_minus_noise": -0.005,
+   "ci95": [
+    -0.0473,
+    0.0371
+   ],
+   "excludes_zero": false
+  },
+  "e_results_5s": {
+   "label": "e) results board meeting within 5 sessions up to the stop",
+   "noise_stop_mean": 0.0681,
+   "false_touch_mean": 0.1639,
+   "n_noise": 367,
+   "n_false": 299,
+   "diff_false_minus_noise": 0.0958,
+   "ci95": [
+    0.0469,
+    0.144
+   ],
+   "excludes_zero": true
+  }
+ },
+ "kill_rule": "candidates for the January exploration lane: c_mkt_share, e_results_5s",
+ "hindsight_bound": {
+  "rule": "keep the stop only when |a| <= 1 SD (pooled); otherwise hold; R = post_ret21 x exit_px / risk",
+  "sd_a": 0.1163,
+  "n_skipped": 274,
+  "skipped_by_cohort": {
+   "noise_stop": 146,
+   "false_touch": 128
+  },
+  "R_noise_stop": 145.4,
+  "R_false_touch": -105.2,
+  "R_net": 40.2,
+  "R_net_by_stop_year": {
+   "2019": -1.8,
+   "2020": -19.3,
+   "2021": 15.6,
+   "2022": 7.8,
+   "2023": 13.2,
+   "2024": 24.7
+  },
+  "caveat": "hindsight twice over (labels and post_ret21 look past the stop); upper bound for this rule, not a backtest"
+ }
+}
