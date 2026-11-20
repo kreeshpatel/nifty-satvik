@@ -174,6 +174,18 @@ def table(rows: list[dict]) -> str:
     return "\n".join(t) + "\n"
 
 
+def benchmark_60_40_line() -> str:
+    """One line from the 60/40 forward paper record (forward/benchmark_60_40/record.py)."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("bm_record", ROOT / "forward" / "benchmark_60_40" / "record.py")
+    try:
+        m = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(m)
+        return m.health_line()
+    except Exception as e:  # noqa: BLE001 - the report must still render
+        return f"60/40 forward record: unavailable ({type(e).__name__})"
+
+
 def main() -> int:
     rows = [one(s) for s in STRATEGIES]
     asof = max((r.get("record_to") or "" for r in rows), default="")
@@ -195,6 +207,7 @@ def main() -> int:
     text = table(rows) + "\n**Execution tracking error (real fills vs model):** " + (
         f"{ex['n_fills_matched']} fills matched, mean slippage {ex['mean_slippage_bps']} bps / {ex['mean_slippage_R']}R"
         if ex.get("n_fills_matched") else ex.get("note", "not measurable")) + "\n"
+    text += "\n" + benchmark_60_40_line() + "\n"
     sys.stdout.buffer.write(text.encode("utf-8"))
     if os.environ.get("GITHUB_STEP_SUMMARY"):
         with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as fh:

@@ -113,3 +113,14 @@ No threshold changes.
 - The rule that a layer's correlation to the 0001 ranker must be below 0.3 guards against momentum-like signals
   passing for this reason.
 - The sealed holdout (2024-07-01..2026-06-30) and the 26-week paper test decide the rest.
+
+## Amendment note, 2026-11-20 (owner decision on PR #219): debt/equity cannot be a core L5 input
+
+No threshold changes.
+
+- In the results XBRL, balance-sheet tags (borrowings and total equity) first appear in the Sep-2022 half-year
+  filings. Total equity is present on about 97% of half-year filings from then on, and on about 0% before
+  (`diagnostics/research/2026-11_phase0_closeout.md`, section C).
+- `de_ratio` therefore exists for under 2 years of the training window, which ends 2024-06-30.
+- It cannot be a core input to the L5 crash-risk layer. It may be tested only as an add-on to a core L5 built
+  without it.

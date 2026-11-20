@@ -157,6 +157,7 @@ jobs:
           LIFECYCLE_FILLS_DB_URL: ${{ secrets.LIFECYCLE_FILLS_DB_URL }}
         run: |
           python pipelines/lifecycle/update_records.py
+          python forward/benchmark_60_40/record.py || echo "::warning::60/40 forward record not appended"
           python pipelines/lifecycle/weekly_status.py || echo "::warning::lifecycle status not written"
       # ── SCAN HEALTH (replaces four separate red-on-failure steps, 2026-11-09) ─────────────────────────
       # Signal-quality axes, watched-book loggers, history drift and calendar coverage used to be four
@@ -221,6 +222,7 @@ jobs:
           opt results/scan_health.json   # weekly health report (scripts/scan_health.py); reporting only
           opt forward/records                 # ADR-0020 weekly forward records (append-only)
           opt forward/lifecycle               # stage log and weekly status log (append-only)
+          opt forward/benchmark_60_40/ledger.jsonl  # 60/40 forward paper record (append-only, from 2026-11-27)
           opt results/lifecycle_status.json   # weekly GREEN/AMBER/RED per strategy; reporting only
           opt results/sentiment_forward.jsonl   # weekly market-sentiment reading; research only
           opt results/degenerate_stops.json      # degenerate-stop guard record, written every scan (amendment 2026-11-17)

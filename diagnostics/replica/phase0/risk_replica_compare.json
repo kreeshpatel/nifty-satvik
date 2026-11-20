@@ -1,0 +1,87 @@
+{
+ "keys": 20,
+ "pairs": 540,
+ "flagged": 0,
+ "by_family": {
+  "price": {
+   "pairs": 180,
+   "flagged": 0,
+   "both_non_nan": 171
+  },
+  "bands": {
+   "pairs": 120,
+   "flagged": 0,
+   "both_non_nan": 113
+  },
+  "asm": {
+   "pairs": 40,
+   "flagged": 0,
+   "both_non_nan": 24
+  },
+  "pledge": {
+   "pairs": 60,
+   "flagged": 0,
+   "both_non_nan": 54
+  },
+  "fundamentals": {
+   "pairs": 120,
+   "flagged": 0,
+   "both_non_nan": 108
+  },
+  "label": {
+   "pairs": 20,
+   "flagged": 0,
+   "both_non_nan": 19
+  }
+ },
+ "flagged_rows": [],
+ "benchmark_week": {
+  "nav_index": {
+   "original": 18.4758,
+   "replica": 18.4758,
+   "flag": null
+  },
+  "nav_index_date": {
+   "original": "2026-11-20",
+   "replica": "2026-11-20",
+   "flag": null
+  },
+  "nav_arbitrage": {
+   "original": 43.7929,
+   "replica": 43.7929,
+   "flag": null
+  },
+  "nav_arbitrage_date": {
+   "original": "2026-11-20",
+   "replica": "2026-11-20",
+   "flag": null
+  },
+  "pre_tax_nav": {
+   "original": 1999900.0,
+   "replica": 1999900.0,
+   "flag": null
+  },
+  "after_tax_nav": {
+   "original": 1999880.0,
+   "replica": 1999880.0,
+   "flag": null
+  },
+  "index_weight": {
+   "original": 0.60003,
+   "replica": 0.6000300015000751,
+   "flag": null
+  },
+  "status": {
+   "original": "OK",
+   "replica": "OK",
+   "flag": null
+  }
+ },
+ "declared_none_rerun_2026_11_20": {
+  "keys_file": "risk_sample_keys_declared_none.csv",
+  "rows": 10,
+  "pairs": 30,
+  "flagged": 0,
+  "note": "pledge_pct / pledge_chg_1q / pledge_declared_none after the owner's declared-none = 0 rule; the 20 original keys were re-compared too (0 flagged)"
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "week": 1,
+ "friday": "2026-11-20",
+ "nav_index": 18.4758,
+ "nav_index_date": "2026-11-20",
+ "nav_arbitrage": 43.7929,
+ "nav_arbitrage_date": "2026-11-20",
+ "scheme_codes": {
+  "index": 150738,
+  "arbitrage": 119771
+ },
+ "pre_tax_nav": 1999900.0,
+ "after_tax_nav": 1999880.0,
+ "index_weight": 0.60003,
+ "rebalanced": true,
+ "status": "OK",
+ "recorded_at": "2026-11-20T22:42:53Z",
+ "nav_source": "diagnostics/replica/phase0/nav_20261120 (pinned mfapi responses, fetched ~17:15 ET 2026-11-20)"
+}

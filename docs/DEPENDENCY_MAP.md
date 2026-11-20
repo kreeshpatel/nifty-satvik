@@ -23,6 +23,7 @@ flowchart LR
     nq_validation["nq/validation"]
     nq_brain --> nq_paper
     nq_data --> config
+    nq_data --> nq_research
     nq_engine --> config
     nq_engine --> nq_data
     nq_lab --> nq_brain

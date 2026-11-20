@@ -30,7 +30,6 @@ import io
 import json
 import time
 import zipfile
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pandas as pd
@@ -40,7 +39,8 @@ ROOT = Path(__file__).resolve().parents[2]
 RAW = ROOT / ".cache" / "nse_bands" / "raw"
 OUT = ROOT / "data" / "nse_bands"
 TRI = ROOT / "diagnostics" / "research" / "benchmarks" / "tri" / "nifty_midcap150_momentum_50_tri.csv"
-WINDOW = ("2019-01-01", "2024-06-30")
+WINDOW = ("2019-01-01", pd.Timestamp.today().strftime("%Y-%m-%d"))  # extended to the present (Phase 0 close-out)
+MIN_INTERVAL_S = 0.5   # <= 2 requests/second to the archive host
 HDR = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", "Referer": "https://www.nseindia.com/"}
 
 
@@ -54,6 +54,7 @@ def get(url: str, dest: Path) -> int:
         return 200
     for attempt in range(4):
         try:
+            time.sleep(MIN_INTERVAL_S)
             r = requests.get(url, headers=HDR, timeout=40)
             if r.status_code == 404:
                 return 404
@@ -64,7 +65,7 @@ def get(url: str, dest: Path) -> int:
                 return 404
         except requests.RequestException:
             pass
-        time.sleep(2 * (attempt + 1))
+        time.sleep(2 ** (attempt + 1))  # exponential backoff on errors / 403 / 429 / 5xx
     return -1
 
 
@@ -97,7 +98,8 @@ def parse_bands(d: pd.Timestamp) -> pd.DataFrame:
     df = pd.read_csv(f, dtype=str, encoding="latin-1")
     df.columns = [c.strip() for c in df.columns]
     return pd.DataFrame({"date": d, "symbol": df["Symbol"].str.strip(), "series": df["Series"].str.strip(),
-                         "band_pct": pd.to_numeric(df["Band"], errors="coerce")})
+                         "band_pct": pd.to_numeric(df["Band"], errors="coerce"),
+                         "remarks": df["Remarks"].str.strip() if "Remarks" in df else None})  # GSM stage (L5 panel)
 
 
 def sha(p: Path) -> str:
@@ -106,14 +108,23 @@ def sha(p: Path) -> str:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--workers", type=int, default=1)  # 1 worker x 0.5 s spacing keeps the archive at <= 2 req/s
     a = ap.parse_args()
     RAW.mkdir(parents=True, exist_ok=True)
     OUT.mkdir(parents=True, exist_ok=True)
-    idx = pd.DatetimeIndex(pd.read_csv(TRI, parse_dates=["date"])["date"])
+    idx = (pd.DatetimeIndex(pd.read_csv(TRI, parse_dates=["date"])["date"]) if TRI.exists() else pd.DatetimeIndex([]))
+    # after the TRI calendar ends (or without it): every weekday; exchange holidays come back 404 and are recorded
+    tail_start = (idx.max() + pd.Timedelta(days=1)) if len(idx) else pd.Timestamp(WINDOW[0])
+    idx = idx.union(pd.bdate_range(tail_start, WINDOW[1]))
     days = idx[(idx >= WINDOW[0]) & (idx <= WINDOW[1])]
-    with ThreadPoolExecutor(a.workers) as ex:
-        status = list(ex.map(fetch_day, days))
+    status, last_ok = [], time.monotonic()
+    for d in days:  # sequential: <= 2 req/s; stop if failures persist for 10 minutes
+        st = fetch_day(d)
+        status.append(st)
+        if 200 in (st["sec_list"], st["pr"]) or 404 in (st["sec_list"], st["pr"]):
+            last_ok = time.monotonic()
+        elif time.monotonic() - last_ok > 600:
+            raise SystemExit(f"STOP: no successful response for 10 minutes (last day tried {d.date()})")
     hit = pd.concat([parse_hitters(d) for d in days], ignore_index=True)
     band = pd.concat([parse_bands(d) for d in days], ignore_index=True)
     hit.to_parquet(OUT / "band_hitters.parquet", index=False)
