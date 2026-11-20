@@ -1,0 +1,546 @@
+{
+ "n_draws": 4000,
+ "item1_harvest": {
+  "s60": {
+   "pre_31_march_le_15": {
+    "p5": -53.0,
+    "p50": 29893.0,
+    "p95": 86286.0,
+    "P(gain>0)": 0.8318,
+    "n": 3033,
+    "share": 0.7582
+   },
+   "on_or_after_31_march_gt_15": {
+    "p5": -4429.0,
+    "p50": 18213.0,
+    "p95": 72329.0,
+    "P(gain>0)": 0.7715,
+    "n": 967,
+    "share": 0.2417
+   },
+   "bins": [
+    {
+     "offset": "-30..-26",
+     "p5": -139.0,
+     "p50": 24108.0,
+     "p95": 75737.0,
+     "P(gain>0)": 0.7467,
+     "n": 300
+    },
+    {
+     "offset": "-25..-21",
+     "p5": -58.0,
+     "p50": 26326.0,
+     "p95": 83135.0,
+     "P(gain>0)": 0.8133,
+     "n": 332
+    },
+    {
+     "offset": "-20..-16",
+     "p5": -0.0,
+     "p50": 29674.0,
+     "p95": 78930.0,
+     "P(gain>0)": 0.8448,
+     "n": 335
+    },
+    {
+     "offset": "-15..-11",
+     "p5": 0.0,
+     "p50": 32140.0,
+     "p95": 85942.0,
+     "P(gain>0)": 0.8228,
+     "n": 333
+    },
+    {
+     "offset": "-10..-6",
+     "p5": -1.0,
+     "p50": 32664.0,
+     "p95": 94797.0,
+     "P(gain>0)": 0.8862,
+     "n": 334
+    },
+    {
+     "offset": "-5..-1",
+     "p5": -167.0,
+     "p50": 28387.0,
+     "p95": 85341.0,
+     "P(gain>0)": 0.8348,
+     "n": 333
+    },
+    {
+     "offset": "+0..+4",
+     "p5": -55.0,
+     "p50": 33535.0,
+     "p95": 89085.0,
+     "P(gain>0)": 0.8649,
+     "n": 333
+    },
+    {
+     "offset": "+5..+9",
+     "p5": -31.0,
+     "p50": 31799.0,
+     "p95": 90230.0,
+     "P(gain>0)": 0.8193,
+     "n": 332
+    },
+    {
+     "offset": "+10..+14",
+     "p5": -71.0,
+     "p50": 30549.0,
+     "p95": 90254.0,
+     "P(gain>0)": 0.8388,
+     "n": 335
+    },
+    {
+     "offset": "+15..+19",
+     "p5": -5259.0,
+     "p50": 26610.0,
+     "p95": 73401.0,
+     "P(gain>0)": 0.8018,
+     "n": 333
+    },
+    {
+     "offset": "+20..+24",
+     "p5": -4220.0,
+     "p50": 17618.0,
+     "p95": 75047.0,
+     "P(gain>0)": 0.7695,
+     "n": 334
+    },
+    {
+     "offset": "+25..+30",
+     "p5": -3221.0,
+     "p50": 16758.0,
+     "p95": 62294.0,
+     "P(gain>0)": 0.7623,
+     "n": 366
+    }
+   ]
+  },
+  "s65": {
+   "pre_31_march_le_15": {
+    "p5": -115.0,
+    "p50": 28530.0,
+    "p95": 87483.0,
+    "P(gain>0)": 0.8236,
+    "n": 3033,
+    "share": 0.7582
+   },
+   "on_or_after_31_march_gt_15": {
+    "p5": -4817.0,
+    "p50": 17546.0,
+    "p95": 74514.0,
+    "P(gain>0)": 0.7663,
+    "n": 967,
+    "share": 0.2417
+   },
+   "bins": [
+    {
+     "offset": "-30..-26",
+     "p5": -183.0,
+     "p50": 23094.0,
+     "p95": 76084.0,
+     "P(gain>0)": 0.7367,
+     "n": 300
+    },
+    {
+     "offset": "-25..-21",
+     "p5": -302.0,
+     "p50": 24154.0,
+     "p95": 84682.0,
+     "P(gain>0)": 0.7982,
+     "n": 332
+    },
+    {
+     "offset": "-20..-16",
+     "p5": -4.0,
+     "p50": 28664.0,
+     "p95": 79994.0,
+     "P(gain>0)": 0.8418,
+     "n": 335
+    },
+    {
+     "offset": "-15..-11",
+     "p5": -20.0,
+     "p50": 31018.0,
+     "p95": 87800.0,
+     "P(gain>0)": 0.8138,
+     "n": 333
+    },
+    {
+     "offset": "-10..-6",
+     "p5": -110.0,
+     "p50": 31439.0,
+     "p95": 97006.0,
+     "P(gain>0)": 0.8743,
+     "n": 334
+    },
+    {
+     "offset": "-5..-1",
+     "p5": -183.0,
+     "p50": 27454.0,
+     "p95": 86457.0,
+     "P(gain>0)": 0.8318,
+     "n": 333
+    },
+    {
+     "offset": "+0..+4",
+     "p5": -86.0,
+     "p50": 32951.0,
+     "p95": 90117.0,
+     "P(gain>0)": 0.8589,
+     "n": 333
+    },
+    {
+     "offset": "+5..+9",
+     "p5": -54.0,
+     "p50": 31201.0,
+     "p95": 91657.0,
+     "P(gain>0)": 0.8163,
+     "n": 332
+    },
+    {
+     "offset": "+10..+14",
+     "p5": -295.0,
+     "p50": 29008.0,
+     "p95": 93278.0,
+     "P(gain>0)": 0.8299,
+     "n": 335
+    },
+    {
+     "offset": "+15..+19",
+     "p5": -5840.0,
+     "p50": 26651.0,
+     "p95": 75132.0,
+     "P(gain>0)": 0.7838,
+     "n": 333
+    },
+    {
+     "offset": "+20..+24",
+     "p5": -4680.0,
+     "p50": 16197.0,
+     "p95": 76739.0,
+     "P(gain>0)": 0.7635,
+     "n": 334
+    },
+    {
+     "offset": "+25..+30",
+     "p5": -3848.0,
+     "p50": 15781.0,
+     "p95": 64180.0,
+     "P(gain>0)": 0.765,
+     "n": 366
+    }
+   ]
+  }
+ },
+ "item3_arbitrage": {
+  "amfi_crosscheck": {
+   "kotak_arb|01-Mar-2019": {
+    "amfi": 27.051,
+    "mfapi": 27.051,
+    "match": 1.0
+   },
+   "icici_arb|01-Mar-2019": {
+    "amfi": 25.12,
+    "mfapi": 25.12,
+    "match": 1.0
+   },
+   "sbi_liquid|01-Mar-2019": {
+    "amfi": 2909.6073,
+    "mfapi": 2909.6073,
+    "match": 1.0
+   },
+   "hdfc_liquid|01-Mar-2019": {
+    "amfi": 3655.1586,
+    "mfapi": 3655.1586,
+    "match": 1.0
+   },
+   "kotak_arb|31-Dec-2021": {
+    "amfi": 31.3259,
+    "mfapi": 31.3259,
+    "match": 1.0
+   },
+   "icici_arb|31-Dec-2021": {
+    "amfi": 29.0138,
+    "mfapi": 29.0138,
+    "match": 1.0
+   },
+   "sbi_liquid|31-Dec-2021": {
+    "amfi": 3304.0139,
+    "mfapi": 3304.0139,
+    "match": 1.0
+   },
+   "hdfc_liquid|31-Dec-2021": {
+    "amfi": 4147.8334,
+    "mfapi": 4147.8334,
+    "match": 1.0
+   },
+   "kotak_arb|28-Jun-2024": {
+    "amfi": 37.1667,
+    "mfapi": 37.1667,
+    "match": 1.0
+   },
+   "icici_arb|28-Jun-2024": {
+    "amfi": 34.157,
+    "mfapi": 34.157,
+    "match": 1.0
+   },
+   "sbi_liquid|28-Jun-2024": {
+    "amfi": 3845.6692,
+    "mfapi": 3845.6692,
+    "match": 1.0
+   },
+   "hdfc_liquid|28-Jun-2024": {
+    "amfi": 4827.414,
+    "mfapi": 4827.414,
+    "match": 1.0
+   }
+  },
+  "niftyindices": "getTotalReturnIndexString returned an HTML page for 'NIFTY 50 ARBITRAGE' (4 spellings), 2026-11-19",
+  "schemes": {
+   "kotak_arb": "Kotak Arbitrage Fund - Direct Plan - Growth",
+   "icici_arb": "ICICI Prudential Arbitrage Fund - Direct Plan - Growth",
+   "sbi_liquid": "SBI LIQUID FUND - Direct Plan - Growth",
+   "hdfc_liquid": "HDFC Liquid Fund - Direct Plan - Growth Option"
+  },
+  "annual_returns_and_spreads": [
+   {
+    "period": "2019",
+    "kotak_arb": 6.77,
+    "icici_arb": 6.71,
+    "sbi_liquid": 6.45,
+    "hdfc_liquid": 6.49,
+    "arb_avg": 6.74,
+    "real_liquid_avg": 6.47,
+    "proxy_liquid": 6.34,
+    "spread_vs_proxy_liquid_pp": 0.4,
+    "spread_vs_real_liquid_pp": 0.27
+   },
+   {
+    "period": "2020",
+    "kotak_arb": 4.9,
+    "icici_arb": 4.84,
+    "sbi_liquid": 4.26,
+    "hdfc_liquid": 4.2,
+    "arb_avg": 4.87,
+    "real_liquid_avg": 4.23,
+    "proxy_liquid": 6.34,
+    "spread_vs_proxy_liquid_pp": -1.47,
+    "spread_vs_real_liquid_pp": 0.64
+   },
+   {
+    "period": "2021",
+    "kotak_arb": 4.56,
+    "icici_arb": 4.41,
+    "sbi_liquid": 3.37,
+    "hdfc_liquid": 3.32,
+    "arb_avg": 4.49,
+    "real_liquid_avg": 3.34,
+    "proxy_liquid": 6.34,
+    "spread_vs_proxy_liquid_pp": -1.85,
+    "spread_vs_real_liquid_pp": 1.14
+   },
+   {
+    "period": "2022",
+    "kotak_arb": 5.16,
+    "icici_arb": 4.8,
+    "sbi_liquid": 4.87,
+    "hdfc_liquid": 4.87,
+    "arb_avg": 4.98,
+    "real_liquid_avg": 4.87,
+    "proxy_liquid": 6.34,
+    "spread_vs_proxy_liquid_pp": -1.36,
+    "spread_vs_real_liquid_pp": 0.11
+   },
+   {
+    "period": "2023",
+    "kotak_arb": 8.05,
+    "icici_arb": 7.81,
+    "sbi_liquid": 7.08,
+    "hdfc_liquid": 7.07,
+    "arb_avg": 7.93,
+    "real_liquid_avg": 7.07,
+    "proxy_liquid": 6.34,
+    "spread_vs_proxy_liquid_pp": 1.59,
+    "spread_vs_real_liquid_pp": 0.85
+   },
+   {
+    "period": "2024H1",
+    "kotak_arb": 9.15,
+    "icici_arb": 8.69,
+    "sbi_liquid": 7.56,
+    "hdfc_liquid": 7.56,
+    "arb_avg": 8.92,
+    "real_liquid_avg": 7.56,
+    "proxy_liquid": 6.34,
+    "spread_vs_proxy_liquid_pp": 2.58,
+    "spread_vs_real_liquid_pp": 1.36
+   },
+   {
+    "period": "overall",
+    "kotak_arb": 6.15,
+    "icici_arb": 5.95,
+    "sbi_liquid": 5.37,
+    "hdfc_liquid": 5.36,
+    "arb_avg": 6.05,
+    "real_liquid_avg": 5.36,
+    "proxy_liquid": 6.34,
+    "spread_vs_proxy_liquid_pp": -0.29,
+    "spread_vs_real_liquid_pp": 0.69
+   }
+  ],
+  "position_in_drawn_range": {
+   "spread_vs_proxy_liquid_pp": {
+    "spread_pp": -0.29,
+    "inside_drawn_range": true,
+    "percentile_in_uniform_range": 67.2
+   },
+   "spread_vs_real_liquid_pp": {
+    "spread_pp": 0.69,
+    "inside_drawn_range": false,
+    "percentile_in_uniform_range": 121.7
+   }
+  },
+  "deterministic_S0_to_S1": {
+   "s60": {
+    "proxy_both (=#212)": 48122.0,
+    "real_arb_vs_proxy_liquid": 71389.0,
+    "real_arb_vs_real_liquid": 134129.0,
+    "values": {
+     "S0_proxy": 5674731.0,
+     "S1_proxy": 5722853.0,
+     "S1_real_arb": 5746120.0,
+     "S0_real_liquid": 5611991.0
+    }
+   },
+   "s65": {
+    "proxy_both (=#212)": 42649.0,
+    "real_arb_vs_proxy_liquid": 64546.0,
+    "real_arb_vs_real_liquid": 122037.0,
+    "values": {
+     "S0_proxy": 5992389.0,
+     "S1_proxy": 6035038.0,
+     "S1_real_arb": 6056935.0,
+     "S0_real_liquid": 5934898.0
+    }
+   }
+  }
+ },
+ "item4_convergence": {
+  "s60|S0->S1": {
+   "p50_first_half": 2581.0,
+   "p50_all": 2224.0,
+   "rule": "absolute Rs 1,000",
+   "p50_change": 357.0,
+   "p50_ok": true,
+   "P_change": 0.0008,
+   "P_ok": true
+  },
+  "s60|S1->S2": {
+   "p50_first_half": 27206.0,
+   "p50_all": 26663.0,
+   "rule": "relative 1%",
+   "p50_change": 0.0204,
+   "p50_ok": false,
+   "P_change": 0.0052,
+   "P_ok": true
+  },
+  "s60|S2->S3": {
+   "p50_first_half": 80408.0,
+   "p50_all": 81143.0,
+   "rule": "relative 1%",
+   "p50_change": 0.0091,
+   "p50_ok": true,
+   "P_change": 0.0022,
+   "P_ok": true
+  },
+  "s60|S2->S4": {
+   "p50_first_half": -537322.0,
+   "p50_all": -540372.0,
+   "rule": "relative 1%",
+   "p50_change": 0.0056,
+   "p50_ok": true,
+   "P_change": 0.0,
+   "P_ok": true
+  },
+  "s65|S0->S1": {
+   "p50_first_half": 2283.0,
+   "p50_all": 2068.0,
+   "rule": "absolute Rs 1,000",
+   "p50_change": 215.0,
+   "p50_ok": true,
+   "P_change": 0.001,
+   "P_ok": true
+  },
+  "s65|S1->S2": {
+   "p50_first_half": 25682.0,
+   "p50_all": 25255.0,
+   "rule": "relative 1%",
+   "p50_change": 0.0169,
+   "p50_ok": false,
+   "P_change": 0.0048,
+   "P_ok": true
+  },
+  "s65|S2->S3": {
+   "p50_first_half": 85199.0,
+   "p50_all": 85363.0,
+   "rule": "relative 1%",
+   "p50_change": 0.0019,
+   "p50_ok": true,
+   "P_change": 0.0032,
+   "P_ok": true
+  },
+  "s65|S2->S4": {
+   "p50_first_half": -539108.0,
+   "p50_all": -543007.0,
+   "rule": "relative 1%",
+   "p50_change": 0.0072,
+   "p50_ok": true,
+   "P_change": 0.0,
+   "P_ok": true
+  }
+ },
+ "item5_levels": {
+  "s60|S0->S1": {
+   "mc_median_drift_6_16": 2224.0,
+   "paths_only_median_hist_growth": 53010.0,
+   "deterministic_212": 48122.0
+  },
+  "s60|S1->S2": {
+   "mc_median_drift_6_16": 26663.0,
+   "paths_only_median_hist_growth": 32733.0,
+   "deterministic_212": 13460.0
+  },
+  "s60|S2->S3": {
+   "mc_median_drift_6_16": 81143.0,
+   "paths_only_median_hist_growth": 270429.0,
+   "deterministic_212": 238886.0
+  },
+  "s60|S2->S4": {
+   "mc_median_drift_6_16": -540372.0,
+   "paths_only_median_hist_growth": -793746.0,
+   "deterministic_212": -847439.0
+  },
+  "s65|S0->S1": {
+   "mc_median_drift_6_16": 2068.0,
+   "paths_only_median_hist_growth": 47443.0,
+   "deterministic_212": null
+  },
+  "s65|S1->S2": {
+   "mc_median_drift_6_16": 25255.0,
+   "paths_only_median_hist_growth": 32939.0,
+   "deterministic_212": null
+  },
+  "s65|S2->S3": {
+   "mc_median_drift_6_16": 85363.0,
+   "paths_only_median_hist_growth": 280653.0,
+   "deterministic_212": null
+  },
+  "s65|S2->S4": {
+   "mc_median_drift_6_16": -543007.0,
+   "paths_only_median_hist_growth": -819258.0,
+   "deterministic_212": null
+  }
+ }
+}
