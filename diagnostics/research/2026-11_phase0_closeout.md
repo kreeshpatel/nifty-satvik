@@ -1,9 +1,9 @@
 # Phase 0 close-out: merges, tax-fallback diagnosis, L5 risk panel, 60/40 forward record
 
 Date: 2026-11-20 · Class: ENGINEERING + MEASUREMENT only.
-No candidate signal, model, AUC, feature-label statistic, trial or screen was computed. Standing counts on `main` are
-unchanged at **screens 24 · sealed opens 4 · n_trials 3**, read from `diagnostics/research/n_trials.json` and
-`label_screen_ledger.md`; the reason is in section A.
+No candidate signal, model, AUC, feature-label statistic, trial or screen was computed here. **Standing counts on
+`main`: screens 25 · sealed opens 4 · n_trials 3**, read from `diagnostics/research/n_trials.json` and
+`label_screen_ledger.md`. Screen #25 arrived with the research-record merge (#220, section A); this work added none.
 
 **Mission link.** This close-out finishes the data layer that the company engine (pre-registration 0153) and its
 crash-risk layer L5 will be judged on, and starts the forward after-tax record of the 60/40 benchmark that any
@@ -13,13 +13,28 @@ strategy must beat.
 
 | Step | Result | Merge commit |
 |---|---|---|
-| 1. PR #217 (XBRL results dataset) into main | merged after green CI | `d6624162404318b1bb587a7dfa6ea0e3e8111aec` |
-| 2. PR #218 (Phase 0), rebased onto main | merged after green CI (Tests, Backend) | `a140e75a4ecefa65e60a12ff9e40795168db00fc` |
-| 3. `claude/stoic-pascal-oys10b` into main | **held, not merged** | – |
+| PR #217 (XBRL results dataset) | merged after green CI | `d6624162404318b1bb587a7dfa6ea0e3e8111aec` |
+| PR #218 (Phase 0), rebased onto main | merged after green CI | `a140e75a4ecefa65e60a12ff9e40795168db00fc` |
+| PR #211 (robust sizing), rebased onto main | merged after green CI | `530db98aaa8c6152210221666c3c8ebc5c1123dd` |
+| PR #212 (India tax practices), rebased and retargeted to main | merged after green CI | `b3f9cc1a0308cc65834b1e0dc3648e19b56c922c` |
+| PR #214 (tax Monte Carlo), rebased and retargeted | merged after green CI | `1191105da31c7e01682673a41de2a246096d69fc` |
+| PR #215 (blend cost and tax), rebased and retargeted | merged after green CI | `6e4288227edc46ef56676e8191a6a75ae36cbe24` |
+| PR #220 (`claude/stoic-pascal-oys10b`: research record and screen #25), rebased | merged after green CI; counts 25 · 4 · 3 | `c61095b6038b78fac021bca1e10bd7a52dc03aae` |
+| PR #219 (this close-out), rebased onto `c61095b` | merges last, after green CI | see the PR |
 
-Step 3 was held because the branch is not just the counts commit. It carries the full heads of #211, #214 and #215:
-35 commits and 180 files. Merging it would merge PRs the owner excluded. That is why the counts on main still read
-24 · 4 · 3, not 25 · 4 · 3. The owner decision is listed at the end.
+**First pass: merge 3 held.** On the first pass the stoic-pascal merge was held, because the branch carried #211,
+#214 and #215. The owner then authorised the stack on 2026-11-20: #211 → #212 → #214 → #215, then the branch.
+
+**Rebase notes**
+- #211 conflicted with main only in `.gitignore`; both blocks were kept.
+- Each later PR was rebased onto main with only its own commits.
+- On the stoic-pascal rebase, the 9 commits already merged dropped out, and the #211 spike-gate commit, already on
+  main, was skipped.
+- No ledger or count file conflicted. `tests/test_standing_counts.py` passed (61).
+- Every file difference from the old branch tip is explained by main's own changes since it branched.
+- When #219 was rebased, `pipelines/build/fetch_nse_price_bands.py` conflicted (add/add). This branch's version was
+  kept: it is the #211 file now on main, extended to the present.
+- #210 and #216 are not merged.
 
 ## B. Effective-tax-rate fallback: causes (no re-fetch)
 
