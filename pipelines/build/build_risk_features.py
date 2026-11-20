@@ -212,9 +212,10 @@ def parse_pledge(xml: str) -> tuple[float, str]:
       15.53%, filed 0.1553). The new format omits the numbers entirely when its yes/no flags are all "false".
     pct = 100 x encumbered / promoter NumberOfShares; else the filed percentage tag (fraction x 100 for the new tag).
 
-    Codes: "filed_number", "filed_pct" are filed values (a filed 0 is a real 0). Otherwise NaN, never 0:
-    "flag_false_no_field" (every promoter pledge/encumbrance flag says false, no number filed), "flag_true_no_field",
-    "blank_field", "no_promoter_context", "missing_field"."""
+    Codes. Filed values: "filed_number" and "filed_pct" (a filed 0 is a real 0), and "declared_none" (0.0: every
+    promoter pledge/encumbrance yes/no flag says false and no number was filed - an explicit declaration, set to 0 by
+    owner decision 2026-11-20). Genuinely missing, NaN never 0: "flag_true_no_field", "blank_field",
+    "no_promoter_context", "missing_field"."""
     prom = set()
     for cid, body in re.findall(r'<xbrli:context id="([^"]+)">(.*?)</xbrli:context>', xml, re.S):
         mem = re.findall(r"<xbrldi:explicitMember[^>]*>([^<]+)<", body)
@@ -255,7 +256,7 @@ def parse_pledge(xml: str) -> tuple[float, str]:
     prom_flags = [v for name, v in flags if name in ("", "ForPromoterAndPromoterGroup")
                   or name.endswith("ForPromoterAndPromoterGroup")]
     if prom_flags and all(v == "false" for v in prom_flags):
-        return np.nan, "flag_false_no_field"
+        return 0.0, "declared_none"      # explicit filed declaration: 0 (owner decision 2026-11-20)
     if any(v == "true" for v in prom_flags):
         return np.nan, "flag_true_no_field"
     return np.nan, "missing_field"

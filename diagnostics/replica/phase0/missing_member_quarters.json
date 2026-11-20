@@ -1,0 +1,90 @@
+{
+ "by_year": {
+  "2018": {
+   "company_quarter_absent": 324,
+   "present": 1636,
+   "symbol_never_mapped": 4,
+   "member_quarters": 1964,
+   "missing": 328,
+   "missing_pct": 16.7
+  },
+  "2019": {
+   "company_quarter_absent": 268,
+   "present": 1718,
+   "symbol_never_mapped": 7,
+   "member_quarters": 1993,
+   "missing": 275,
+   "missing_pct": 13.8
+  },
+  "2020": {
+   "company_quarter_absent": 60,
+   "present": 1928,
+   "symbol_never_mapped": 16,
+   "member_quarters": 2004,
+   "missing": 76,
+   "missing_pct": 3.79
+  },
+  "2021": {
+   "company_quarter_absent": 130,
+   "present": 1846,
+   "symbol_never_mapped": 16,
+   "member_quarters": 1992,
+   "missing": 146,
+   "missing_pct": 7.33
+  },
+  "2022": {
+   "company_quarter_absent": 159,
+   "present": 1817,
+   "symbol_never_mapped": 14,
+   "member_quarters": 1990,
+   "missing": 173,
+   "missing_pct": 8.69
+  },
+  "2023": {
+   "company_quarter_absent": 59,
+   "present": 1925,
+   "symbol_never_mapped": 14,
+   "member_quarters": 1998,
+   "missing": 73,
+   "missing_pct": 3.65
+  },
+  "2024": {
+   "company_quarter_absent": 37,
+   "present": 1951,
+   "symbol_never_mapped": 12,
+   "member_quarters": 2000,
+   "missing": 49,
+   "missing_pct": 2.45
+  },
+  "2025": {
+   "company_quarter_absent": 3,
+   "present": 1985,
+   "symbol_never_mapped": 12,
+   "member_quarters": 2000,
+   "missing": 15,
+   "missing_pct": 0.75
+  },
+  "2026": {
+   "company_quarter_absent": 4,
+   "present": 990,
+   "symbol_never_mapped": 6,
+   "member_quarters": 1000,
+   "missing": 10,
+   "missing_pct": 1.0
+  }
+ },
+ "total": {
+  "company_quarter_absent": 1044,
+  "present": 15796,
+  "symbol_never_mapped": 101,
+  "member_quarters": 16941,
+  "missing": 1145
+ },
+ "never_mapped_symbols": [
+  "ABBOTINDIA",
+  "BAYERCROP",
+  "KENNAMET",
+  "MCX",
+  "SPICEJET"
+ ]
+}

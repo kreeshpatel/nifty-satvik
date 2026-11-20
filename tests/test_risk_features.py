@@ -109,17 +109,22 @@ def test_pledge_missing_field_is_nan_with_reason():
     assert B.parse_pledge(new_pct)[0] == pytest.approx(15.53)
     new_flag = ctx + ('<a:WhetherAnySharesHeldByPromotersAreEncumberedUnderPledgedForPromoterAndPromoterGroup contextRef="X">'
                       'false</a:WhetherAnySharesHeldByPromotersAreEncumberedUnderPledgedForPromoterAndPromoterGroup>')
-    assert B.parse_pledge(new_flag)[1] == "flag_false_no_field" and np.isnan(B.parse_pledge(new_flag)[0])
-    for xml, why in ((blank, "blank_field"), (flag, "flag_false_no_field"), (ctx, "missing_field")):
+    assert B.parse_pledge(new_flag) == (0.0, "declared_none")   # explicit declaration -> 0
+    assert B.parse_pledge(flag) == (0.0, "declared_none")
+    for xml, why in ((blank, "blank_field"), (ctx, "missing_field")):
         v, r = B.parse_pledge(xml)
         assert np.isnan(v) and r == why
     c, _, _ = _mkt()
     d = RF.fridays(c.index)
-    pl = pd.DataFrame({"symbol": "S1", "broadcast_ts": [c.index[100]], "pledge_pct": [np.nan],
-                       "reason": ["flag_false_no_field"]})
+    pl = pd.DataFrame({"symbol": "S1", "broadcast_ts": [c.index[100], c.index[200]], "pledge_pct": [0.0, np.nan],
+                       "reason": ["declared_none", "blank_field"]})
     p = RF.pledge_features(pl, d, ["S1"], source_start="2021-01-01").xs("S1", level="symbol")
-    after = p[p.index > c.index[100]]
-    assert after["pledge_pct"].isna().all() and (after["pledge_reason"] == "flag_false_no_field").all()
+    mid = p[(p.index > c.index[100]) & (p.index < c.index[200])]
+    assert (mid["pledge_pct"] == 0).all() and (mid["pledge_declared_none"] == 1).all() and mid["pledge_reason"].isna().all()
+    late = p[p.index > c.index[200]]   # a genuinely blank filing stays NaN with its reason
+    assert late["pledge_pct"].isna().all() and (late["pledge_reason"] == "blank_field").all()
+    assert (late["pledge_declared_none"] == 0).all()
+    assert p.loc[p.index < c.index[100], "pledge_declared_none"].isna().all()
 
 
 def test_asm_known_from_publication_strictly_before_friday():

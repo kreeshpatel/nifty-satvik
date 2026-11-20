@@ -60,6 +60,25 @@ Step 3 was held because the branch is not just the counts commit. It carries the
   - PBT ≤ 0 is economics: the rate is undefined, and the default is the honest choice.
   - Part of "fewer than 4 quarters" is NSE's own listings missing consolidated quarters (e.g. RELIANCE Mar-2022, HAL
     Dec-2021). That cannot be fixed without a re-fetch, which is out of scope.
+- **PIT Nifty 500 member-quarters still missing after the basis fallback** (no re-fetch, owner decision 2026-11-20)
+  [measured: `diagnostics/replica/phase0/missing_member_quarters.py` → `missing_member_quarters.json`].
+  - A member-quarter is a symbol that was a member on the quarter-end date, from 2018-03-31 to 2026-06-30.
+  - "Missing" means no row for that company-quarter on either basis with PAT filed or derived.
+
+  | Year | Member-quarters | Missing | of which: company files, quarter absent | of which: symbol never files | Missing % |
+  |---|---|---|---|---|---|
+  | 2018 | 1,964 | 328 | 324 | 4 | 16.70 |
+  | 2019 | 1,993 | 275 | 268 | 7 | 13.80 |
+  | 2020 | 2,004 | 76 | 60 | 16 | 3.79 |
+  | 2021 | 1,992 | 146 | 130 | 16 | 7.33 |
+  | 2022 | 1,990 | 173 | 159 | 14 | 8.69 |
+  | 2023 | 1,998 | 73 | 59 | 14 | 3.65 |
+  | 2024 | 2,000 | 49 | 37 | 12 | 2.45 |
+  | 2025 | 2,000 | 15 | 3 | 12 | 0.75 |
+  | 2026 H1 | 1,000 | 10 | 4 | 6 | 1.00 |
+
+  - Five members never appear in the results XBRL at all: ABBOTINDIA, BAYERCROP, KENNAMET, MCX and SPICEJET.
+  - The 2018–19 gap reflects the XBRL regime starting in May 2018 [inferred].
 - The 30-row adjusted-core-EPS replica was re-run after the change. It matches on 30 of 30 rows: max relative
   difference 1.3e-14; the one NaN row is NaN on both sides [measured: `diagnostics/replica/phase0/eps_replica_v3.csv`].
 
@@ -97,8 +116,9 @@ Step 3 was held because the branch is not just the counts commit. It carries the
 **Pledge**
 - Promoter pledged-or-encumbered % of promoter holding, from shareholding XBRL. Both filing formats are parsed.
 - Known time: submission date + 1 day for an unrevised filing; the revision broadcast for a revised one.
-- A missing number is NaN with a reason code, never 0.
-- `pledge_declared_none` = 1 when the filing has no number and its promoter yes/no flags all say false.
+- A filing with no number whose promoter yes/no flags all say "no pledge" is **0**, an explicit declaration (owner
+  decision 2026-11-20), and `pledge_declared_none` = 1 marks it.
+- Any other missing number is NaN with a reason code, never 0.
 
 **Fundamentals**, from the Phase 0 feature view, as of Friday 15:30
 - `de_ratio`: valid until the next scheduled balance-sheet filing + 60 days.
@@ -118,18 +138,18 @@ Step 3 was held because the branch is not just the counts commit. It carries the
 
 [measured: `diagnostics/research/explore/2026-11-21_risk_features.json`]
 
-| Year | price | bands | band hits | GSM | ASM | pledge | pledge or declared none | D/E | int cover | TTM core PAT | lateness | ADV |
+| Year | price | bands | band hits | GSM | ASM | pledge | of which declared none | D/E | int cover | TTM core PAT | lateness | ADV |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | 2017 | 80.4 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 95.5 |
 | 2018 | 99.6 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 48.4 | 99.8 |
 | 2019 | 99.4 | 0 | 0 | 0 | 100 | 0 | 0 | 0 | 52.9 | 54.2 | 97.6 | 99.4 |
 | 2020 | 99.6 | 70.7 | 98.1 | 100 | 100 | 0 | 0 | 0 | 71.4 | 75.3 | 97.2 | 99.7 |
-| 2021 | 97.7 | 62.9 | 100 | 100 | 100 | 17.4 | 17.5 | 0 | 84.7 | 90.5 | 95.6 | 98.2 |
-| 2022 | 99.7 | 59.8 | 100 | 100 | 100 | 94.8 | 95.0 | 13.7 | 81.4 | 85.2 | 96.9 | 100 |
-| 2023 | 99.8 | 61.7 | 100 | 100 | 100 | 96.2 | 96.4 | 81.4 | 77.7 | 80.7 | 97.1 | 100 |
-| 2024 | 99.4 | 63.1 | 100 | 100 | 100 | 97.1 | 97.3 | 81.6 | 89.3 | 94.0 | 97.4 | 99.6 |
-| 2025 | 99.8 | 56.3 | 100 | 100 | 100 | 63.9 | 96.1 | 80.6 | 89.0 | 94.8 | 98.6 | 99.9 |
-| 2026 | 99.9 | 57.9 | 100 | 100 | 100 | 19.6 | 93.7 | 81.2 | 88.9 | 94.4 | 99.4 | 99.9 |
+| 2021 | 97.7 | 62.9 | 100 | 100 | 100 | 17.5 | 0.0 | 0 | 84.7 | 90.5 | 95.6 | 98.2 |
+| 2022 | 99.7 | 59.8 | 100 | 100 | 100 | 95.0 | 0.2 | 13.7 | 81.4 | 85.2 | 96.9 | 100 |
+| 2023 | 99.8 | 61.7 | 100 | 100 | 100 | 96.4 | 0.2 | 81.4 | 77.7 | 80.7 | 97.1 | 100 |
+| 2024 | 99.4 | 63.1 | 100 | 100 | 100 | 97.3 | 0.2 | 81.6 | 89.3 | 94.0 | 97.4 | 99.6 |
+| 2025 | 99.8 | 56.3 | 100 | 100 | 100 | 96.1 | 32.2 | 80.6 | 89.0 | 94.8 | 98.6 | 99.9 |
+| 2026 | 99.9 | 57.9 | 100 | 100 | 100 | 93.7 | 74.1 | 81.2 | 88.9 | 94.4 | 99.4 | 99.9 |
 
 Why the gaps exist:
 - **Bands: about 60%.** F&O stocks have no price band [assumed: NSE rule; consistent with about 40% of the Nifty 500
@@ -138,8 +158,9 @@ Why the gaps exist:
   present on 97% of half-year filings from 2022Q3, and about 0% before [measured].
 - **Pledge in 2021.** NSE lists only 2,102 filings submitted in 2021, against 7,900–9,900 a year afterwards. Its
   listings re-broadcast most 2021 filings in 2022, and the rest are not listed [measured].
-- **Pledge in 2025–26.** The new filing format leaves the number out when promoters declare no pledge. Those rows are
-  NaN with `pledge_declared_none = 1` (owner decision below).
+- **Pledge in 2025–26.** The new filing format leaves the number out when promoters declare no pledge. By owner
+  decision (2026-11-20) those rows are 0, with `pledge_declared_none = 1`: 18,145 member-Fridays, almost all in
+  2025–26.
 - **GSM.** It is never above 0 for a member on a Friday: no member Friday matches a raw GSM remark [measured]. GSM
   covers small, illiquid names.
 - **ASM.** Member-Fridays on ASM by year: 499, 1,277, 1,963, 596, 399, 1,053, 495, 151 for 2019–2026.
@@ -150,15 +171,15 @@ Why the gaps exist:
 |---|---|
 | filed number | 11,079 |
 | filed percentage | 406 |
-| flag-only "no pledge" | 3,442 |
+| declared none (flags only, set to 0) | 3,442 |
 | no promoter context | 203 |
 
 8,415 filings carry a filed 0.
 
 In the frozen 400-filing sample (`pledge_sample_400.txt`, seed 1), the current parser gives 304 zeros (291 filed
-numbers, 13 filed percentages), 94 positives and 2 NaN `flag_false_no_field`. The earlier figures (315, then 306,
-then 310 zeros) came from different random draws while the fetch was still adding files. On a fixed sample, the
-parser change moves only the flag-only filings from 0 to NaN.
+numbers, 13 filed percentages), 94 positives and 2 flag-only filings. Those 2 were NaN until the owner's decision of
+2026-11-20, and are now 0 coded `declared_none`. The earlier figures (315, then 306, then 310 zeros) came from
+different random draws while the fetch was still adding files.
 
 **ASM timing** [measured]
 - 3,723 circular attachments; 3,497 take effect at publication + 1 session.
@@ -202,7 +223,17 @@ parser change moves only the flag-only filings from 0 to NaN.
 **Funds**
 - 60%: Tata Nifty Midcap 150 Momentum 50 Index Fund, Direct Growth, AMFI **150738**.
 - 40%: Kotak Arbitrage Fund, Direct Growth, AMFI **119771**.
-- NAVs from api.mfapi.in, a mirror of AMFI's daily NAVs.
+- NAVs from api.mfapi.in, a mirror of AMFI's daily NAVs. The owner accepted 150738 (2026-11-20).
+
+**Not the same series as the long-window 60/40 study.** That study (`pipelines/diagnostics/explore_after_tax_comparison.py`,
+2019-03-01 to 2024-06-28) differs from this record in four ways [measured: its docstring]:
+- **Index leg:** the Nifty Midcap150 Momentum 50 TRI less a 0.30%/yr expense ratio, not fund 150738's NAV. Fund
+  150738's first NAV is 2022-10-31, after that window opens, so the study could not have used it.
+- **Other leg:** a modelled liquid fund (6.5%/yr gross less 0.15%/yr, gains taxed at slab), not the Kotak Arbitrage
+  Fund (real NAVs, equity-taxed).
+- **Rebalancing:** yearly each March, not on 5pp drift.
+- **What carries over:** the forward record uses real fund NAVs, which include the fund's actual tracking error. The
+  study's return numbers do not transfer to this record one for one [inferred].
 
 **Rules**
 - Notional ₹20,00,000.
@@ -274,6 +305,10 @@ parser change moves only the flag-only filings from 0 to NaN.
     11-20.
   - Both sides were therefore run on the replica's saved responses (`nav_20261120/`).
   - The live record should log the NAV dates it used. It already does: `nav_*_date`.
+- **Re-run after the declared-none = 0 decision** (2026-11-20): the replica updated its pledge rule from the spec
+  alone.
+  - 10 newly affected rows (seed 11, `risk_sample_keys_declared_none.csv`): **30 of 30** pairs agree.
+  - The 20 original rows: **540 of 540** still agree; BSE and JSWHL pledge moved from NaN to 0 on both sides.
 - **Limits of this check.** The replica listed 47 readings in `replica_notes.md`. Matching does not test readings
   that both sides made the same way, so these remain open:
   - The D/E validity month: both use the month of period_end + 6 month-ends, which matches the statutory 45-day
@@ -288,5 +323,9 @@ parser change moves only the flag-only filings from 0 to NaN.
 - New-format pledge tags, and the `pledge_declared_none` column.
 - Panel restricted to member rows, and the partial last week dropped. The first build kept every symbol.
 - `pledge_declared_none` set to NaN (not 0) while no filing is known, after the blind replica read the spec that way.
+- Declared-none pledge filings set to 0 (owner decision 2026-11-20); the saved panel's pledge columns were recomputed
+  with the same build functions. 18,145 member-Fridays changed from NaN to 0, and no other value moved.
+- Pre-registration 0153 gained a dated note: D/E exists only from Sep-2022, so it may be tested only as an add-on to
+  L5, never as a core input.
 
 None of these is a threshold or a model choice; no multiplicity is spent.

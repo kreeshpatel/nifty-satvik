@@ -34,7 +34,9 @@ truncated data.
 - `pledge_chg_1q`: change since the previous filing.
 - Known from the filing's broadcast timestamp (counts if it is at or before 15:30 on the Friday).
 - NaN is never 0. `pledge_reason` says why a value is NaN: "pre_2021_source"; "no_filing_known"; or the filing's
-  own code ("flag_false_no_field", "blank_field", "missing_field", "no_promoter_context").
+  own code ("flag_true_no_field", "blank_field", "missing_field", "no_promoter_context").
+- A filing whose promoter yes/no flags all say "no pledge" and that files no number counts as 0 (an explicit
+  declaration, owner decision 2026-11-20); `pledge_declared_none` = 1 marks it.
 
 **Fundamentals**, from the Phase 0 feature view; the latest filing broadcast by the Friday's 15:30 close:
 - `de_ratio`: (current + non-current borrowings) ÷ total equity, from half-year and year-end balance sheets.
@@ -190,20 +192,21 @@ def pledge_features(pl: pd.DataFrame, dates: pd.DatetimeIndex, symbols, source_s
         rs = (g["reason"] if "reason" in g else pd.Series(None, index=g.index)).to_numpy(dtype=object)
         cur = np.where(pos >= 0, v[np.clip(pos, 0, None)], np.nan)
         why = np.where(pos >= 0, rs[np.clip(pos, 0, None)], None)
+        decl = np.where(pos >= 0, (rs[np.clip(pos, 0, None)] == "declared_none").astype(float), np.nan)
         prv = np.where(pos >= 1, v[np.clip(pos - 1, 0, None)], np.nan)
         rows.append(pd.DataFrame({"date": dates, "symbol": s, "pledge_pct": cur, "pledge_chg_1q": cur - prv,
-                                  "_why": why}))
-    df = pd.concat(rows) if rows else pd.DataFrame(columns=["date", "symbol", "pledge_pct", "pledge_chg_1q", "_why"])
+                                  "_why": why, "_decl": decl}))
+    df = pd.concat(rows) if rows else pd.DataFrame(columns=["date", "symbol", "pledge_pct", "pledge_chg_1q", "_why", "_decl"])
     df = df.set_index(["date", "symbol"])
     full = pd.MultiIndex.from_product([dates, list(symbols)], names=["date", "symbol"])
     df = df.reindex(full)
     df["pledge_reason"] = np.where(df.index.get_level_values("date") < pd.Timestamp(source_start), "pre_2021_source",
                                    np.where(df["pledge_pct"].isna(),
                                             df["_why"].where(df["_why"].notna(), "no_filing_known"), None))
-    df["pledge_declared_none"] = (df["pledge_reason"] == "flag_false_no_field").astype(float).where(
-        (df.index.get_level_values("date") >= pd.Timestamp(source_start))
-        & (df["pledge_reason"] != "no_filing_known"))                   # no filing known yet: unknown, not 0
-    return df.drop(columns="_why")
+    df["pledge_reason"] = df["pledge_reason"].where(df["pledge_reason"] != "declared_none")
+    df["pledge_declared_none"] = df["_decl"].astype(float).where(
+        df.index.get_level_values("date") >= pd.Timestamp(source_start))   # NaN while no filing is known
+    return df.drop(columns=["_why", "_decl"])
 
 
 # ------------------------------------------------------------------------------------------------ fundamentals

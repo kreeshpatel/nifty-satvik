@@ -6,7 +6,8 @@ not the directory, so the counts do not move as more files are fetched.
 
 It reports two classifications of the same 400 filings:
 - v1: the first parser, which mapped a filing with no pledge field but a "pledged = false" flag to 0.
-- v3: the current parser (build_risk_features.parse_pledge), which keeps such a filing NaN with a reason code.
+- v3: the current parser (build_risk_features.parse_pledge). Since the owner decision of 2026-11-20 it also maps
+  such a filing to 0, coded "declared_none"; only genuinely missing fields are NaN.
 
     python diagnostics/replica/phase0/pledge_zero_split.py [--freeze]
 """
@@ -36,5 +37,5 @@ for rid in ids:
     x = gzip.open(XML / f"{rid}.xml.gz").read().decode("utf-8", "replace")
     val, why = B.parse_pledge(x)
     v3[why if val != val else (f"{why}:zero" if val == 0 else f"{why}:positive")] += 1
-    v1["zero" if (val == 0 or why == "flag_false_no_field") else ("nan" if val != val else "positive")] += 1
+    v1["zero" if val == 0 else ("nan" if val != val else "positive")] += 1
 print(json.dumps({"n": len(ids), "v1_parser": dict(v1), "v3_parser": dict(v3)}, indent=1, sort_keys=True))

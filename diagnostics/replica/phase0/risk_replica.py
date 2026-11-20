@@ -355,7 +355,7 @@ FLAG_EXCL = ("ForNonPromoterNonPublic", "ForPublicShareHolder", "ForPublicShareh
 def parse_shp(rid):
     p = ROOT / "data" / "shp_raw" / "xml" / f"{rid}.xml.gz"
     if not p.exists():
-        return np.nan, None
+        return np.nan, False
     root = ET.fromstring(gzip.open(p).read())
     pctx = set()
     for c in root.iter():
@@ -385,7 +385,11 @@ def parse_shp(rid):
             val = 100 * en / held
         else:
             val = 100 * _num(facts.get("EncumberedSharesHeldAsPercentageOfTotalNumberOfShares"))
-    return val, flags
+    # owner decision 2026-11-20: no number filed + every promoter pledge/encumbrance flag false -> 0 (declared)
+    declared = bool((not np.isfinite(val)) and flags and all(f == "false" for f in flags))
+    if declared:
+        val = 0.0
+    return val, declared
 
 
 def pledge_features(sym, fri):
@@ -405,13 +409,13 @@ def pledge_features(sym, fri):
     o = {"pledge_pct": np.nan, "pledge_chg_1q": np.nan, "pledge_declared_none": np.nan}
     if not known:
         return o
-    v, flags = parse_shp(known[-1][2])
+    v, declared = parse_shp(known[-1][2])
     o["pledge_pct"] = v
     if len(known) >= 2:
         v0, _ = parse_shp(known[-2][2])
         o["pledge_chg_1q"] = v - v0
     if fri >= pd.Timestamp("2021-01-01"):
-        o["pledge_declared_none"] = 1.0 if (not np.isfinite(v) and flags and all(f == "false" for f in flags)) else 0.0
+        o["pledge_declared_none"] = 1.0 if declared else 0.0
     return o
 
 
@@ -463,10 +467,40 @@ def fund_features(sym, fri, view, x):
 
 
 # ----------------------------------------------------------------------------------------------- main
+PLEDGE_COLS = ["pledge_pct", "pledge_chg_1q", "pledge_declared_none"]
+
+
+def pledge_only(keys_path, out_path, update_in_place):
+    """Pledge family only (spec change 2026-11-20). Writes symbol,date + 3 pledge columns to out_path, or, when
+    update_in_place, overwrites those 3 columns of an existing replica CSV keyed on (symbol, date)."""
+    keys = pd.read_csv(keys_path, parse_dates=["date"])
+    rows = []
+    for _, k in keys.iterrows():
+        r = {"symbol": k["symbol"], "date": k["date"].date().isoformat()}
+        r.update(pledge_features(k["symbol"], pd.Timestamp(k["date"])))
+        rows.append(r)
+    new = pd.DataFrame(rows)
+    if update_in_place:
+        old = pd.read_csv(out_path, dtype={"symbol": str, "date": str}, keep_default_na=False, na_values=[""])
+        m = old.merge(new, on=["symbol", "date"], how="left", suffixes=("_old", ""))
+        assert m[PLEDGE_COLS].notna().any(axis=1).sum() + 0 >= 0 and len(m) == len(old)
+        for c in PLEDGE_COLS:
+            old[c] = m[c].values
+        old.to_csv(out_path, index=False, na_rep="")
+    else:
+        new.reindex(columns=["symbol", "date"] + PLEDGE_COLS).to_csv(out_path, index=False, na_rep="")
+    print(new.to_string())
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--asm-cache", default=None)
+    ap.add_argument("--pledge-only", nargs=2, metavar=("KEYS", "OUT"), default=None)
+    ap.add_argument("--update-in-place", action="store_true")
     a = ap.parse_args()
+    if a.pledge_only:
+        pledge_only(a.pledge_only[0], a.pledge_only[1], a.update_in_place)
+        return
     t0 = time.time()
     keys = pd.read_csv(KEYS, parse_dates=["date"])
     close, vol = load_panels()

@@ -118,7 +118,9 @@ This is the written specification for an independent re-derivation. The replica 
     `PledgedOrEncumberedSharesHeldAsPercentageOfTotalNumberOfShares`, already in percent.
   - **New format:** 100 × `NumberOfSharesEncumbered` ÷ held. If that is missing, 100 ×
     `EncumberedSharesHeldAsPercentageOfTotalNumberOfShares`, which is filed as a fraction.
-- A missing or blank field is NaN, **never 0**.
+- If no number is filed and every promoter pledge or encumbrance yes/no flag (see `pledge_declared_none` below) is
+  false, the value is **0**, an explicit declaration (owner decision 2026-11-20).
+- Any other missing or blank field is NaN, **never 0**.
 
 **Known time**
 - Unrevised filing (`revisedStatus` is not "Revised"): min(submissionDate + 1 day at 00:00, broadcastDate).

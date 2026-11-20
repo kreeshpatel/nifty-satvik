@@ -112,3 +112,27 @@ would change any of the 20 sample values, where that was checked.
 50. AWL 2023-01-20 mdd252 NaN (listed 2022, fewer than 200 closes). JSWHL label NaN (after the 2024-06-30 cut).
 51. Runtime: 1,491 s total, of which ~1,480 s is a cold parse of the ASM workbooks (cirDate <= 2025-09-05);
     the parse is cached to the session scratchpad on `--asm-cache`.
+
+## Spec change 2026-11-20 (owner decision): declared-none pledge = 0
+
+Change applied: a filing with no pledge number whose promoter pledge/encumbrance yes/no flags are all false now
+has value 0 (and `pledge_declared_none` = 1 when it is the latest filing). The previous filing uses the same rule,
+so `pledge_chg_1q` can be 0 − 0. Re-run with
+`python risk_replica.py --pledge-only <keys> <out> [--update-in-place]` (no price/ASM load, ~3 s).
+Outputs: `risk_replica_declared_none.csv` (10 new keys); the 3 pledge columns of `risk_replica.csv` overwritten
+in place. On the 20 original keys only BSE 2024-01-19 and JSWHL 2025-09-05 changed (pledge_pct NaN -> 0,
+pledge_chg_1q NaN -> 0); declared_none unchanged. The in-place rewrite also re-serialised MAXHEALTH adv60_cr
+with a 3e-14 float round-trip difference (no real change).
+
+New or sharpened ambiguities:
+
+52. **"Has no number"** in the declared-none test now means *no number filed* (all four numeric routes NaN),
+    evaluated before the 0 is substituted; otherwise the rule would be circular. Choice: test on the raw value.
+53. **Declared 0 before 2021.** The spec makes the value 0 regardless of date but keeps `pledge_declared_none`
+    NaN before 2021-01-01. Choice: value 0 is applied at any date (moot here, since the list files contain no
+    filing known before Oct 2021; see 55).
+54. **No flags at all** is still NOT a declaration (item 34 unchanged): value stays NaN, declared_none 0.
+    Flags with a mix of true/false, or any value other than "false", also leave NaN.
+55. **Coverage observation**: the lists start at 2021-01.json but the earliest filings for TORNTPHARM and M&MFIN
+    are for the Sep-2021 quarter (known Oct-2021), so their 2021-01-29 and 2021-06-04 keys have no known filing
+    and all three pledge columns are NaN, under the spec's "NaN while no filing is known" rule.
