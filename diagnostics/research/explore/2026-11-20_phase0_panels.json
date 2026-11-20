@@ -1,0 +1,208 @@
+{
+ "pre2019_probe": {
+  "by_year": {
+   "2013": {
+    "fin_results": {
+     "rows": 7886,
+     "xbrl_links": 0
+    },
+    "fin_results_half": {
+     "rows": 64,
+     "xbrl_links": 0
+    },
+    "fin_results_annual": {
+     "rows": 2499,
+     "xbrl_links": 0
+    }
+   },
+   "2014": {
+    "fin_results": {
+     "rows": 7800,
+     "xbrl_links": 0
+    },
+    "fin_results_half": {
+     "rows": 56,
+     "xbrl_links": 0
+    },
+    "fin_results_annual": {
+     "rows": 2347,
+     "xbrl_links": 0
+    }
+   },
+   "2015": {
+    "fin_results": {
+     "rows": 7637,
+     "xbrl_links": 0
+    },
+    "fin_results_half": {
+     "rows": 0,
+     "xbrl_links": 0
+    },
+    "fin_results_annual": {
+     "rows": 2309,
+     "xbrl_links": 0
+    }
+   },
+   "2016": {
+    "fin_results": {
+     "rows": 9815,
+     "xbrl_links": 0
+    },
+    "fin_results_half": {
+     "rows": 0,
+     "xbrl_links": 0
+    },
+    "fin_results_annual": {
+     "rows": 2605,
+     "xbrl_links": 0
+    }
+   },
+   "2017": {
+    "fin_results": {
+     "rows": 11717,
+     "xbrl_links": 0
+    },
+    "fin_results_half": {
+     "rows": 0,
+     "xbrl_links": 0
+    },
+    "fin_results_annual": {
+     "rows": 2908,
+     "xbrl_links": 0
+    }
+   },
+   "2018": {
+    "fin_results": {
+     "rows": 10921,
+     "xbrl_links": 5955
+    },
+    "fin_results_half": {
+     "rows": 0,
+     "xbrl_links": 0
+    },
+    "fin_results_annual": {
+     "rows": 4347,
+     "xbrl_links": 3119
+    }
+   }
+  },
+  "first_month_with_links": [
+   "2018-05",
+   "fin_results"
+  ],
+  "integrated": "not probed before 2024-10: the integrated-filing regime began with SEBI's 2024 circular"
+ },
+ "clusters": {
+  "months": 105,
+  "first": "2017-10-31",
+  "last": "2026-06-29",
+  "members_median": 481,
+  "k_median": 32,
+  "ari_by_year_median": {
+   "2017": 0.259,
+   "2018": 0.285,
+   "2019": 0.354,
+   "2020": 0.42,
+   "2021": 0.365,
+   "2022": 0.407,
+   "2023": 0.335,
+   "2024": 0.426,
+   "2025": 0.493,
+   "2026": 0.512
+  },
+  "ari_all_median": 0.386,
+  "ari_all_p10": 0.294,
+  "cluster_size": {
+   "median": 11.0,
+   "p90": 31.0,
+   "max": 105,
+   "singletons_pct": 0.0,
+   "largest_share_median_pct": 13.0
+  }
+ },
+ "fundamentals": {
+  "rows": 63987,
+  "companies": 3298,
+  "quarters_v0": 61809,
+  "revision_rows": 2178,
+  "derived_rows": 450,
+  "basis_companies": {
+   "consolidated": 2166,
+   "standalone": 1132
+  },
+  "financial_companies": 142,
+  "split_bonus_events": 1011,
+  "shares_source": {
+   "paid_up/face_value": 62876,
+   "nan": 568,
+   "pat/eps": 543
+  },
+  "nan_reasons": {
+   "ttm_revenue_incomplete": 16361,
+   "ttm_pat_incomplete": 15723,
+   "revenue_nonpositive": 818,
+   "shares_missing": 568,
+   "pat_missing": 110,
+   "exceptional_missing": 92
+  },
+  "by_fiscal_year_v0": {
+   "2017": 275,
+   "2018": 1325,
+   "2019": 4112,
+   "2020": 5913,
+   "2021": 6530,
+   "2022": 6820,
+   "2023": 6934,
+   "2024": 7817,
+   "2025": 8326,
+   "2026": 9046,
+   "2027": 4711
+  },
+  "adj_core_eps_present_pct": 98.96,
+  "ttm_pat_present_pct": 75.31,
+  "eps_diagnosis": {
+   "pr217_pairs": 20380,
+   "pr217_gap_over_5pct": 3354,
+   "pr217_gap_over_5pct_pct": 16.46,
+   "causes_n": {
+    "share_count_change": 1780,
+    "unexplained": 1130,
+    "derived_quarter_artefact": 217,
+    "restatement": 117,
+    "basis_mix": 110
+   },
+   "causes_pct_of_flagged": {
+    "share_count_change": 53.1,
+    "unexplained": 33.7,
+    "derived_quarter_artefact": 6.5,
+    "restatement": 3.5,
+    "basis_mix": 3.3
+   },
+   "unexplained_that_look_like_scale_typos": 52,
+   "unexplained_pct_of_all_pairs": 5.54,
+   "after_fix_pairs": 11147,
+   "after_fix_gap_over_5pct_pct": 4.99,
+   "after_fix_gap_median_pct": 0.0,
+   "after_fix_own_quarter_shares_gap_over_5pct_pct": 11.97
+  }
+ },
+ "events": {
+  "events": 63987,
+  "originals": 61809,
+  "by_broadcast_year": {
+   "2018": 3326,
+   "2019": 4983,
+   "2020": 6532,
+   "2021": 6685,
+   "2022": 6733,
+   "2023": 7546,
+   "2024": 8221,
+   "2025": 9278,
+   "2026": 10683
+  },
+  "same_day_pct": 25.9,
+  "after_close_pct": 67.8,
+  "no_session_nat": 0,
+  "weekday_approx_rows": 0
+ }
+}

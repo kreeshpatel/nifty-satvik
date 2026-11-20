@@ -275,7 +275,7 @@ def main():
     br = bridge_symbols(raw)
     cur = df[(df.context_role == "current")]
     years = sorted(df.broadcast_ts.dt.year.unique())
-    U = members_by_year([y for y in years if y >= 2019])
+    U = members_by_year([y for y in years if y >= 2018])  # 2018 added (Phase 0 extension)
     res = {"rows": int(len(df)), "filings": int(df.xbrl_url.nunique()), "current_rows": int(len(cur)),
            "broadcast_range": f"{df.broadcast_ts.min()}..{df.broadcast_ts.max()}",
            "period_type_current": cur.period_type.value_counts().to_dict(),
