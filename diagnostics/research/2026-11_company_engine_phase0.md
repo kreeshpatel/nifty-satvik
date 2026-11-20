@@ -284,7 +284,17 @@ The momentum spread is positive, so the anchor reproduces.
   values are not comparable. With 50 seeds the sd itself has a standard error of about 10%.
 - The decision-driving numbers, the false-pass rate and the anchor, agree exactly.
 - Both implementations put the null's t sd below 1, so the 2.6 bar is conservative, not loose.
-- **Reconciliation:** not completed. Flagged as an open item.
+- **Reconciliation, done 2026-11-20** [measured] `diagnostics/replica/phase0/null_reconcile.json`:
+  - Fed the replica's exact random draws, the harness reproduces the replica's t **seed by seed**, with a maximum
+    difference of 5e-5 over seeds 0–49. That includes sd 0.719.
+  - **Cause:** the random arrays differ, because of the draw shape. On top of that, 50 seeds is a small sample for an
+    sd.
+  - On the replica's draw shape, seeds 0–199 give sd **0.884**, a mean of −0.01, and a false-pass rate of 0.5%.
+  - **Not the Newey-West lag:** on the same seeds, lag 0 gives an sd of 0.735 against 0.719 at lag 8.
+  - **Overlap:** 24.6% of weekly holds overlap the next week by 1–2 sessions, all in holiday weeks with 3–4
+    sessions. That is minor, and it would push the t spread *up*, not down. An sd a little under 1 means the 2.6 bar
+    is slightly conservative.
+  - The bar is unchanged.
 
 **Adjusted core EPS (30 random company-quarters).** A fresh `blind-replica` agent rebuilt them from
 `data/results_xbrl.parquet` and the written spec only ([measured] `diagnostics/replica/phase0/eps_replica.csv`;
@@ -313,7 +323,113 @@ keys drawn with seed 20261120 in `eps_sample_keys.csv`).
    happens to land on 1.5×. 1,011 events were detected and not individually audited; this is **not ruled out**.
 6. **Holdout leakage.** Every harness return passes the guard on its exit date, and the tests enforce it. Ruled out.
 
-## Owner decisions
+## Owner decisions applied (2026-11-20, PR #218 review)
+
+Each of these is a scope change made after the first look, at the owner's instruction.
+
+### 1. Basis: both series are kept
+
+[`nq/data/fundamentals_q.py`](../../nq/data/fundamentals_q.py)
+
+- `data/fundamentals_q.parquet` now holds both the standalone and the consolidated series: 111,959 rows.
+- The primary basis is unchanged: consolidated if it covers at least 80% of the company's quarters.
+- Every derived quantity is computed inside one basis: TTM, YoY core-PAT growth, the tax rate, core PAT and the share
+  factor.
+- `feature_view` (`data/fundamentals_q_features.parquet`, 66,339 rows) takes each feature whole from the primary
+  basis. Where that is NaN, it takes the whole feature from the other basis and flags it (`<feature>_basis`,
+  `<feature>_basis_fallback`). Quarters the primary basis never reported come back as `row_recovered` rows (2,352).
+- Test `test_basis_switch_in_2019_no_growth_spike`: a synthetic company that reports consolidated at 3× standalone
+  only from 2019 shows YoY = 0 throughout, with 2019 on the standalone fallback, and 7 recovered quarters.
+- **2017–18 coverage** [measured] `…/2026-11-20_phase0_panels.json` (`fundamentals.coverage`):
+
+  | | 2017 | 2018 | 2019 |
+  |---|---|---|---|
+  | primary basis only | 83.3% | 72.3% | 95.5% |
+  | with recovered rows | 100% | 100% | 100% |
+
+  The 2017–18 rows recovered are 16.7% and 27.7% of company-quarters. Every later year is at least 99.5%.
+- **Feature rows on the other basis, by fiscal year** (`feature_fallback_rows_by_fiscal_year`, recovered rows
+  included):
+
+  | | FY2018 | FY2019 | FY2020 | FY2021 | FY2022 | FY2023 | FY2024 | FY2025 | FY2026 | FY2027 |
+  |---|---|---|---|---|---|---|---|---|---|---|
+  | `ttm_pat` | 0 | 786 | 684 | 87 | 128 | 319 | 50 | 30 | 68 | 46 |
+  | `yoy_core_pat` | 29 | 300 | 1,283 | 241 | 203 | 243 | 235 | 214 | 217 | 116 |
+
+  The `ttm_revenue_ops` and `ttm_margin` counts are close to `ttm_pat`'s; the full table is in the JSON.
+
+### 2. Effective tax rate
+
+**New XBRL fields.** These were re-parsed from the stored raw files, with no re-fetch:
+
+| field | tags |
+|---|---|
+| `tax_expense` | `TaxExpense` |
+| `pbt` | `ProfitBeforeTax`; for banks, `ProfitLossFromOrdinaryActivitiesBeforeTax` |
+| `pbeit` | `ProfitBeforeExceptionalItemsAndTax` |
+
+- **The re-parse changed nothing else** [measured]: all 199,612 rows and contexts matched, with 0 changed values in
+  `pat`, `eps_basic`, `revenue_ops` and `exceptional_items`.
+- **Field coverage in current rows:** PBT 99.9%, tax 99.9%, PBEIT 97.7%.
+
+**The rule.**
+- rate = trailing-4-quarter tax ÷ PBT, same basis, latest-known versions, clipped to [0, 0.40].
+- Fallback: 25.17% when an input is missing or trailing PBT ≤ 0, flagged as `tax_rate_fallback`.
+
+**Results** [measured] (`fundamentals.tax_rate`, primary basis, original filings):
+
+- **Effective-rate quantiles:**
+
+  | p10 | p25 | p50 | p75 | p90 |
+  |---|---|---|---|---|
+  | 3.7% | 19.8% | 25.2% | 28.0% | 35.6% |
+
+  7.6% of effective rates sit at the 0 clip and 6.8% at the 40% clip.
+- **Fallback share:** 40.8% of all rows, by fiscal year:
+
+  | FY2017–18 | FY2019 | FY2020 | FY2021 | FY2022 | FY2023 | FY2024 | FY2025 | FY2026 | FY2027 |
+  |---|---|---|---|---|---|---|---|---|---|
+  | 100% | 78.9% | 57.8% | 40.5% | 33.0% | 51.7% | 30.4% | 25.6% | 32.4% | 21.9% |
+
+  The early years have no four-quarter history. The rest are mainly loss-makers, whose trailing PBT is ≤ 0.
+
+**The exceptional-items sign is now measured, not assumed.**
+- On 9,027 rows with a non-zero exceptional item, PBT = PBEIT + exceptional holds in **100.0%** (within 1%). The
+  opposite sign fits only 10.1%.
+- So an exceptional item is tagged as signed into profit, and core PAT = PAT − exceptional × (1 − rate) is the right
+  direction.
+
+**Knock-on results.**
+- EPS after the fix: 5.01% of company-years still gap by more than 5% (it was 4.99%).
+- The cause breakdown is unchanged, since it does not use core PAT.
+- Events: 66,339, up from 63,987 now that recovered quarters are included.
+
+### 1–2 re-check: blind replica re-run
+
+A fresh agent rebuilt the 30 keys from the updated spec (primary basis, effective tax rate) [measured]
+`diagnostics/replica/phase0/eps_replica_v2.csv`.
+
+- **Agreement:** 30 of 30 match exactly. Basis, tax-rate fallback flag (13 of 30 on the fallback), tax rate and
+  adjusted core EPS all agree, with a maximum relative difference of 2e-16.
+- **A point the replica raised:** adjusted EPS is expressed in each company's **earliest** share units, by design,
+  because that keeps the factor dependent on the past only. WIPRO 2025Q2, for example, reads 6.37 against about 3.2
+  on today's share count. Ratios and growth rates are unaffected. Any level comparison with a quoted EPS must multiply
+  by `share_factor`.
+
+### 3. Pre-registration 0153
+
+A dated **known limits** note was appended. No threshold changed.
+
+### 4. Null spread
+
+Reconciled; see the independent re-derivation section.
+
+### 5. Counts
+
+The screen #25 ledger row and its count updates are on the unmerged branch `claude/stoic-pascal-oys10b`. They were
+not copied here. The ledgers on this branch still read screens 24 · sealed opens 4 · n_trials 3.
+
+## Owner decisions (original list, now resolved)
 
 1. **Basis rule for 2017–2018.** The single-basis rule drops 28% of 2018 company-quarters and 17% of 2017's.
    - Option A: keep the rule (no mixing; the January L1 window effectively starts FY2019-20).

@@ -99,3 +99,17 @@ The engine succeeds only if, after tax, at a p95 drawdown of at most 25%, it bea
 ## Owner signature
 
 _Unsigned — January 2027 review._
+
+## Amendment note, 2026-11-20 (owner decision on PR #218): known limits
+
+No threshold changes.
+
+**Known limits.**
+
+- On the training window, the layer-gate harness passes the 0001 momentum ranker: gross alpha t 3.51
+  (`diagnostics/research/explore/2026-11-20_phase0_calibration.json`).
+- 0001 has no full-run alpha. The training window favours momentum, so a gate pass on this window is not, by itself,
+  evidence of an edge.
+- The rule that a layer's correlation to the 0001 ranker must be below 0.3 guards against momentum-like signals
+  passing for this reason.
+- The sealed holdout (2024-07-01..2026-06-30) and the 26-week paper test decide the rest.

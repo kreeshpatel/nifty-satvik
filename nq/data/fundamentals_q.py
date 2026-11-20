@@ -57,7 +57,9 @@ TAX_RATE = 0.2517
 SPLIT_RATIOS = (1.5, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 10.0, 20.0)
 SPLIT_TOL = 0.03
 FIN_NAME_RE = re.compile(r"\bBANK\b|FINANC|FINSERV|INSURANCE|ASSURANCE|\bCREDIT\b|LEASING|HOUSING FIN", re.I)
-FLOWS = ["revenue_ops", "total_income", "pat", "exceptional_items"]
+FLOWS = ["revenue_ops", "total_income", "pat", "exceptional_items", "tax_expense", "pbt", "pbeit"]
+TAX_CLIP = (0.0, 0.40)
+FEATURES = ["ttm_pat", "ttm_revenue_ops", "ttm_margin", "yoy_core_pat"]  # tax_rate stays inside its basis (it feeds core_pat)
 STOCKS = ["paid_up_equity", "face_value"]
 KEYS = ["company", "qn"]
 
@@ -73,6 +75,9 @@ def qn_to_end(qn: pd.Series) -> pd.Series:
 
 def _observations(df: pd.DataFrame) -> pd.DataFrame:
     o = df[df["period_end"].notna() & df["period_start"].notna() & df["consolidated"].notna()].copy()
+    for c in FLOWS + STOCKS + ["eps_basic"]:
+        if c not in o:
+            o[c] = np.nan
     o["company"] = o["isin"].where(o["isin"].notna() & (o["isin"].astype(str) != ""), o["symbol"])
     o["span"] = ((o["period_end"] - o["period_start"]).dt.days / 91.31).round().astype(int)
     o = o[o["span"].between(1, 4)]
@@ -95,6 +100,10 @@ def _discrete(o: pd.DataFrame) -> pd.DataFrame:
     direct = o[o["span"] == 1].drop_duplicates(["company", "qn", "xbrl_url"])
     direct = direct[meta + FLOWS + STOCKS + ["eps_basic"]].assign(derived=False)
     cum = o[o["span"] >= 2].drop_duplicates(["company", "qn", "span", "xbrl_url"])
+    if cum.empty:
+        out = direct.sort_values(["company", "qn", "broadcast_ts"]).drop_duplicates(["company", "qn", "broadcast_ts"])
+        out["version"] = out.groupby(KEYS).cumcount()
+        return out.reset_index(drop=True)
     prev = o.drop_duplicates(["company", "qn", "span", "xbrl_url"])[
         ["company", "period_start", "qn", "span", "broadcast_ts"] + FLOWS].copy()
     prev["key"] = prev["company"] + "|" + prev["period_start"].astype(str) + "|" + (prev["qn"] + 1).astype(str) \
@@ -147,19 +156,21 @@ def _shares(p: pd.DataFrame) -> pd.DataFrame:
     return p.drop(columns="step")
 
 
-def _ttm(p: pd.DataFrame) -> pd.DataFrame:
-    base = p[["company", "qn", "broadcast_ts", "pat", "revenue_ops"]].sort_values("broadcast_ts")
-    p = p.sort_values("broadcast_ts")
-    parts = {"pat": [p["pat"]], "revenue_ops": [p["revenue_ops"]]}
-    for k in (1, 2, 3):
-        left = p[["company", "qn", "broadcast_ts"]].assign(qk=p["qn"] - k).reset_index()
-        right = base.rename(columns={"qn": "qk", "broadcast_ts": "bk"}).sort_values("bk")
-        m = pd.merge_asof(left.sort_values("broadcast_ts"), right, left_on="broadcast_ts", right_on="bk",
-                          by=["company", "qk"], direction="backward").set_index("index").reindex(p.index)
-        for c in parts:
-            parts[c].append(m[c])
-    for c, cols in parts.items():
-        mat = pd.concat(cols, axis=1)
+def _lagged(p: pd.DataFrame, cols: list[str], k: int) -> pd.DataFrame:
+    """Latest-known value (broadcast <= this row's broadcast) of ``cols`` for quarter qn-k of the same company.
+    ``p`` holds ONE basis only, so a lagged value never comes from another basis."""
+    left = p[["company", "qn", "broadcast_ts"]].assign(qk=p["qn"] - k).reset_index()
+    right = p[["company", "qn", "broadcast_ts"] + cols].rename(columns={"qn": "qk", "broadcast_ts": "bk"})
+    m = pd.merge_asof(left.sort_values("broadcast_ts"), right.sort_values("bk"), left_on="broadcast_ts",
+                      right_on="bk", by=["company", "qk"], direction="backward")
+    return m.set_index("index").reindex(p.index)[cols]
+
+
+def _ttm(p: pd.DataFrame, cols=("pat", "revenue_ops", "tax_expense", "pbt")) -> pd.DataFrame:
+    cols = list(cols)
+    lags = [_lagged(p, cols, k) for k in (1, 2, 3)]
+    for c in cols:
+        mat = pd.concat([p[c]] + [lg[c] for lg in lags], axis=1)
         p[f"ttm_{c}"] = mat.sum(axis=1, min_count=4).where(mat.notna().all(axis=1))
         p[f"_miss_{c}"] = mat.isna().any(axis=1)
     p["ttm_margin"] = (p["ttm_pat"] / p["ttm_revenue_ops"]).where(p["ttm_revenue_ops"] > 0)
@@ -173,6 +184,8 @@ def _reasons(p: pd.DataFrame) -> pd.Series:
         "exceptional_missing": p["exceptional_items"].isna() & p["pat"].notna(),
         "ttm_pat_incomplete": p["_miss_pat"],
         "ttm_revenue_incomplete": p["_miss_revenue_ops"],
+        "tax_rate_fallback": p["tax_rate_fallback"],
+        "yoy_base_missing_or_nonpositive": p["yoy_core_pat"].isna(),
         "revenue_nonpositive": p["ttm_revenue_ops"].notna() & (p["ttm_revenue_ops"] <= 0),
     })
     return r.apply(lambda row: ";".join(c for c, v in row.items() if v) or None, axis=1)
@@ -189,38 +202,92 @@ def flag_financials(o: pd.DataFrame, names: pd.Series | None = None) -> pd.Serie
     return tax
 
 
-def build_panel(df: pd.DataFrame, names: pd.Series | None = None) -> pd.DataFrame:
-    """results_xbrl rows -> quarterly fundamentals panel. ``names``: company key -> company name (optional)."""
-    o = _observations(df)
-    basis = choose_basis(o)
-    fin = flag_financials(o, names)
-    o = o[o["consolidated"] == (o["company"].map(basis) == "consolidated")]
-    p = _discrete(o)
-    p["basis"] = p["company"].map(basis)
-    p["is_financial"] = p["company"].map(fin).fillna(False).astype(bool)
-    p["core_pat"] = p["pat"] - p["exceptional_items"] * (1 - TAX_RATE)
+def _one_basis(o: pd.DataFrame, cons: bool) -> pd.DataFrame:
+    """Every derived quantity for ONE basis. Nothing in here can see the other basis."""
+    ob = o[o["consolidated"] == cons]
+    if ob.empty:
+        return ob
+    p = _discrete(ob)
+    if p.empty:
+        return p
+    p["basis"] = "consolidated" if cons else "standalone"
+    p = _ttm(p)
+    # effective tax rate: trailing-4-quarter tax / PBT, same basis, clipped; else the statutory fallback, flagged
+    rate = (p["ttm_tax_expense"] / p["ttm_pbt"]).where(p["ttm_pbt"] > 0)
+    p["tax_rate_fallback"] = rate.isna()
+    p["tax_rate"] = rate.clip(*TAX_CLIP).fillna(TAX_RATE)
+    p["core_pat"] = p["pat"] - p["exceptional_items"] * (1 - p["tax_rate"])
     p.loc[p["exceptional_items"].isna(), "core_pat"] = np.nan
+    base = _lagged(p, ["core_pat"], 4)["core_pat"]
+    p["yoy_core_pat"] = (p["core_pat"] / base - 1).where(base > 0)
     p = _shares(p)
     p["adj_core_eps"] = (p["core_pat"] / p["adj_shares"]).where(p["adj_shares"] > 0)
     p["adj_eps"] = (p["pat"] / p["adj_shares"]).where(p["adj_shares"] > 0)
-    p = _ttm(p)
+    return p
+
+
+def build_panel(df: pd.DataFrame, names: pd.Series | None = None) -> pd.DataFrame:
+    """results_xbrl rows -> long quarterly panel holding BOTH bases (``basis``); ``is_primary`` marks the
+    company's primary basis (consolidated if it covers >= 80% of the company's quarters, else standalone)."""
+    o = _observations(df)
+    primary = choose_basis(o)
+    fin = flag_financials(o, names)
+    p = pd.concat([x for x in (_one_basis(o, True), _one_basis(o, False)) if len(x)], ignore_index=True)
+    p["primary_basis"] = p["company"].map(primary)
+    p["is_primary"] = p["basis"] == p["primary_basis"]
+    p["is_financial"] = p["company"].map(fin).fillna(False).astype(bool)
     p["nan_reason"] = _reasons(p)
     p["is_revision"] = p["version"] > 0
     p["fiscal_quarter_end"] = qn_to_end(p["qn"])
     p["fiscal_year"] = np.where(p["fiscal_quarter_end"].dt.month <= 3, p["fiscal_quarter_end"].dt.year,
                                 p["fiscal_quarter_end"].dt.year + 1)
-    cols = ["company", "symbol", "isin", "basis", "is_financial", "fiscal_year", "fiscal_quarter_end", "qn",
-            "period_start", "period_end", "broadcast_ts", "version", "is_revision", "derived", "xbrl_url",
-            "lag_days", "period_flag", "revenue_ops", "total_income", "pat", "exceptional_items", "core_pat",
+    cols = ["company", "symbol", "isin", "basis", "primary_basis", "is_primary", "is_financial", "fiscal_year",
+            "fiscal_quarter_end", "qn", "period_start", "period_end", "broadcast_ts", "version", "is_revision",
+            "derived", "xbrl_url", "lag_days", "period_flag", "revenue_ops", "total_income", "pat", "pbt",
+            "tax_expense", "pbeit", "exceptional_items", "tax_rate", "tax_rate_fallback", "core_pat", "yoy_core_pat",
             "eps_basic", "paid_up_equity", "face_value", "shares", "shares_source", "share_factor", "split_event",
-            "adj_shares", "adj_core_eps", "adj_eps", "ttm_pat", "ttm_revenue_ops", "ttm_margin", "nan_reason"]
-    return p[cols].sort_values(["company", "qn", "version"]).reset_index(drop=True)
+            "adj_shares", "adj_core_eps", "adj_eps", "ttm_pat", "ttm_revenue_ops", "ttm_tax_expense", "ttm_pbt",
+            "ttm_margin", "nan_reason"]
+    return p[cols].sort_values(["company", "basis", "qn", "version"]).reset_index(drop=True)
+
+
+def feature_view(panel: pd.DataFrame) -> pd.DataFrame:
+    """One row per primary-basis filing, plus other-basis filings for quarters the primary basis never reported.
+
+    Each feature in FEATURES is taken whole from the primary basis. If that is NaN, the feature is taken whole
+    from the other basis: its latest version known at this row's broadcast, for the same quarter. The choice
+    is recorded in ``<feature>_basis`` and ``<feature>_basis_fallback``. Values from two bases are never combined in
+    one calculation, because every feature was computed inside a single basis by ``build_panel``.
+    """
+    prim = panel[panel["is_primary"]].reset_index(drop=True)
+    oth = panel[~panel["is_primary"]]
+    seen = prim[["company", "qn"]].drop_duplicates()
+    rec = oth.merge(seen, on=["company", "qn"], how="left", indicator=True)
+    rec = rec[rec["_merge"] == "left_only"].drop(columns="_merge").copy()
+    look = pd.merge_asof(prim[["company", "qn", "broadcast_ts"]].reset_index().sort_values("broadcast_ts"),
+                         oth[["company", "qn", "broadcast_ts", "basis"] + FEATURES].rename(
+                             columns={"broadcast_ts": "b_o", "basis": "basis_o"}).sort_values("b_o"),
+                         left_on="broadcast_ts", right_on="b_o", by=["company", "qn"],
+                         direction="backward").set_index("index").reindex(prim.index)
+    v = prim.copy()
+    for f in FEATURES:
+        use = v[f].isna() & look[f].notna()
+        v[f"{f}_basis"] = np.where(use, look["basis_o"], v["basis"])
+        v[f"{f}_basis_fallback"] = use.to_numpy()
+        v[f] = v[f].where(~use, look[f])
+    for f in FEATURES:
+        rec[f"{f}_basis"] = rec["basis"]
+        rec[f"{f}_basis_fallback"] = rec[f].notna()
+    v["row_recovered"] = False
+    rec["row_recovered"] = True
+    return pd.concat([v, rec], ignore_index=True).sort_values(["company", "qn", "broadcast_ts"]).reset_index(drop=True)
 
 
 def as_of(panel: pd.DataFrame, ts) -> pd.DataFrame:
     """Latest-known version of every (company, quarter) whose broadcast is <= ts (PIT view)."""
     v = panel[panel["broadcast_ts"] <= pd.Timestamp(ts)]
-    return v.sort_values("broadcast_ts").drop_duplicates(KEYS, keep="last").sort_values(KEYS)
+    k = KEYS + (["basis"] if "basis" in v else [])
+    return v.sort_values("broadcast_ts").drop_duplicates(k, keep="last").sort_values(k)
 
 
 def first_tradable_session(ts: pd.Series, sessions: pd.DatetimeIndex) -> pd.Series:

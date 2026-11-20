@@ -22,11 +22,12 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT / "pipelines" / "build")]
 
 from harvest_results_xbrl import CACHE, LEGACY, load_listing_frame  # noqa: E402
-from nq.data.fundamentals_q import build_panel, first_tradable_session  # noqa: E402
+from nq.data.fundamentals_q import FEATURES, build_panel, feature_view, first_tradable_session  # noqa: E402
 from nq.data.results_xbrl import RESULTS_XBRL_PATH  # noqa: E402
 
 OUT = ROOT / "diagnostics/research/explore/2026-11-20_phase0_panels.json"
-FQ = ROOT / "data/fundamentals_q.parquet"
+FQ = ROOT / "data/fundamentals_q.parquet"            # long: both bases
+FV = ROOT / "data/fundamentals_q_features.parquet"   # primary basis + per-feature fallback
 EV = ROOT / "data/events_results.parquet"
 PC = ROOT / "data/peer_clusters.parquet"
 
@@ -124,7 +125,7 @@ def eps_diagnosis(d: pd.DataFrame, p: pd.DataFrame) -> dict:
                                                     np.log10(ratio.clip(lower=1e-9)), atol=0.02) & \
         (np.log10(ratio.clip(lower=1e-9)).round() != 0)
     # after the fix: panel PAT / adjusted shares on the chosen basis, originals, 4 quarters vs FY PAT / Q4 adj shares
-    v0 = p[(p.version == 0) & p.adj_eps.notna()]
+    v0 = p[(p.version == 0) & p.adj_eps.notna() & p.is_primary]
     a4 = v0.groupby(["company", "fiscal_year"]).agg(n=("qn", "nunique"), s4=("adj_eps", "sum"), p4=("pat", "sum"),
                                                      sym=("symbol", "last"))
     q4 = v0[v0.fiscal_quarter_end.dt.month == 3].set_index(["company", "fiscal_year"])[["adj_shares", "basis"]]
@@ -154,21 +155,57 @@ def eps_diagnosis(d: pd.DataFrame, p: pd.DataFrame) -> dict:
             "after_fix_own_quarter_shares_gap_over_5pct_pct": round(100 * float((a4.gap_own > 0.05).mean()), 2)}
 
 
+def _recovered(d: pd.DataFrame, v: pd.DataFrame) -> dict:
+    """Share of company-quarters with a current filing (either basis) that have a feature-view row, by year."""
+    c = d[(d.context_role == "current") & d.period_end.notna()].copy()
+    c["company"] = c["isin"].where(c["isin"].notna() & (c["isin"].astype(str) != ""), c["symbol"])
+    c["qe"] = c.period_end + pd.offsets.QuarterEnd(0)
+    allq = c.drop_duplicates(["company", "qe"])
+    have = v.drop_duplicates(["company", "fiscal_quarter_end"]).set_index(["company", "fiscal_quarter_end"]).index
+    prim = v[~v.row_recovered].drop_duplicates(["company", "fiscal_quarter_end"]).set_index(
+        ["company", "fiscal_quarter_end"]).index
+    k = allq.set_index(["company", "qe"]).index
+    yr = allq.qe.dt.year.values
+    return {"present_pct_by_year": (100 * pd.Series(k.isin(have), index=yr).groupby(level=0).mean()).round(1).to_dict(),
+            "primary_only_present_pct_by_year": (100 * pd.Series(k.isin(prim), index=yr).groupby(level=0).mean()).round(1).to_dict()}
+
+
 def fundamentals() -> dict:
     d = pd.read_parquet(RESULTS_XBRL_PATH)
     p = build_panel(d, _names())
     p.to_parquet(FQ, index=False)
-    v0 = p[p.version == 0]
-    res = {"rows": int(len(p)), "companies": int(p.company.nunique()), "quarters_v0": int(len(v0)),
-           "revision_rows": int(p.is_revision.sum()), "derived_rows": int(p.derived.sum()),
-           "basis_companies": p.drop_duplicates("company").basis.value_counts().to_dict(),
+    v = feature_view(p)
+    v.to_parquet(FV, index=False)
+    pv0 = p[(p.version == 0) & p.is_primary]
+    vv0 = v[v.version == 0]
+    fb = {f: (vv0.groupby("fiscal_year")[f + "_basis_fallback"].sum()).astype(int).to_dict() for f in FEATURES}
+    pr = pv0[~pv0.tax_rate_fallback]
+    q = pr.tax_rate.quantile([0.1, 0.25, 0.5, 0.75, 0.9]).round(4)
+    # exceptional-items sign: PBT = PBEIT + exceptional (sign as tagged) where all three are present
+    e = pv0.dropna(subset=["pbt", "pbeit", "exceptional_items"])
+    e = e[e.exceptional_items.abs() > 0]
+    plus = ((e.pbeit + e.exceptional_items - e.pbt).abs() <= 0.01 * e.pbt.abs().clip(lower=1)).mean()
+    minus = ((e.pbeit - e.exceptional_items - e.pbt).abs() <= 0.01 * e.pbt.abs().clip(lower=1)).mean()
+    res = {"rows_long_both_bases": int(len(p)), "rows_feature_view": int(len(v)),
+           "feature_view_recovered_rows": int(v.row_recovered.sum()), "companies": int(p.company.nunique()),
+           "quarters_v0_primary": int(len(pv0)), "revision_rows_primary": int((p.is_revision & p.is_primary).sum()),
+           "derived_rows_primary": int((p.derived & p.is_primary).sum()),
+           "primary_basis_companies": p.drop_duplicates("company").primary_basis.value_counts().to_dict(),
            "financial_companies": int(p.drop_duplicates("company").is_financial.sum()),
-           "split_bonus_events": int(p.drop_duplicates(["company", "qn"]).split_event.sum()),
-           "shares_source": p.shares_source.value_counts(dropna=False).rename(str).to_dict(),
-           "nan_reasons": p.nan_reason.str.split(";").explode().value_counts().to_dict(),
-           "by_fiscal_year_v0": v0.groupby("fiscal_year").size().to_dict(),
-           "adj_core_eps_present_pct": round(100 * float(v0.adj_core_eps.notna().mean()), 2),
-           "ttm_pat_present_pct": round(100 * float(v0.ttm_pat.notna().mean()), 2),
+           "split_bonus_events_primary": int(pv0.drop_duplicates(["company", "qn"]).split_event.sum()),
+           "coverage": _recovered(d, v),
+           "feature_fallback_rows_by_fiscal_year": fb,
+           "tax_rate": {"fallback_pct_primary_v0": round(100 * float(pv0.tax_rate_fallback.mean()), 2),
+                        "fallback_pct_by_fiscal_year": (100 * pv0.groupby("fiscal_year").tax_rate_fallback.mean()).round(1).to_dict(),
+                        "effective_quantiles": q.to_dict(), "at_clip_0_pct": round(100 * float((pr.tax_rate == 0).mean()), 2),
+                        "at_clip_40_pct": round(100 * float((pr.tax_rate == 0.40).mean()), 2),
+                        "pbt_present_pct": round(100 * float(pv0.pbt.notna().mean()), 2),
+                        "tax_present_pct": round(100 * float(pv0.tax_expense.notna().mean()), 2)},
+           "exceptional_sign_check": {"rows_nonzero": int(len(e)), "pbt_eq_pbeit_plus_exc_pct": round(100 * float(plus), 1),
+                                      "pbt_eq_pbeit_minus_exc_pct": round(100 * float(minus), 1)},
+           "adj_core_eps_present_pct": round(100 * float(pv0.adj_core_eps.notna().mean()), 2),
+           "ttm_pat_present_pct_primary": round(100 * float(pv0.ttm_pat.notna().mean()), 2),
+           "ttm_pat_present_pct_view": round(100 * float(vv0.ttm_pat.notna().mean()), 2),
            "eps_diagnosis": eps_diagnosis(d, p)}
     _save("fundamentals", res)
     return res
@@ -186,17 +223,18 @@ def _sessions() -> tuple[pd.DatetimeIndex, str]:
 
 
 def events() -> dict:
-    p = pd.read_parquet(FQ)
+    p = pd.read_parquet(FV)
     sess, ohlcv_start = _sessions()
     ev = p.copy()
     ev["first_tradable_session"] = first_tradable_session(ev["broadcast_ts"], sess)
     ev["calendar_source"] = np.where(ev["broadcast_ts"] < pd.Timestamp(ohlcv_start), "weekday_approx",
                                      "ohlcv_sessions+nse_holidays")
-    cols = ["company", "symbol", "isin", "basis", "is_financial", "fiscal_year", "fiscal_quarter_end",
+    cols = ["company", "symbol", "isin", "basis", "primary_basis", "row_recovered", "is_financial", "fiscal_year", "fiscal_quarter_end",
             "period_start", "period_end", "version", "is_revision", "derived", "broadcast_ts",
             "first_tradable_session", "calendar_source", "lag_days", "period_flag", "xbrl_url", "revenue_ops",
             "pat", "core_pat", "exceptional_items", "shares", "share_factor", "adj_shares", "adj_core_eps",
-            "adj_eps", "ttm_pat", "ttm_revenue_ops", "ttm_margin", "nan_reason"]
+            "adj_eps", "ttm_pat", "ttm_revenue_ops", "ttm_margin", "yoy_core_pat", "tax_rate", "tax_rate_fallback",
+            "nan_reason"] + [f"{f}_{x}" for f in FEATURES for x in ("basis", "basis_fallback")]
     ev = ev[cols].sort_values(["broadcast_ts", "company"]).reset_index(drop=True)
     ev.to_parquet(EV, index=False)
     t = ev.broadcast_ts

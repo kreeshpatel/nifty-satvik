@@ -34,9 +34,11 @@ def test_basis_never_mixed():
     rows = _co(n=10, cons=False) + _co(n=10, cons=True)[:9]  # consolidated in 9/10 quarters -> consolidated
     rows += _co("SSS", n=10, cons=False) + _co("SSS", n=10, cons=True)[:5]  # 5/10 -> standalone
     p = build_panel(pd.DataFrame(rows))
-    assert p.groupby("company")["basis"].nunique().max() == 1
-    assert p.loc[p.symbol == "AAA", "basis"].iat[0] == "consolidated"
-    assert p.loc[p.symbol == "SSS", "basis"].iat[0] == "standalone"
+    assert p.groupby("company")["primary_basis"].nunique().max() == 1
+    assert p.loc[p.symbol == "AAA", "primary_basis"].iat[0] == "consolidated"
+    assert p.loc[p.symbol == "SSS", "primary_basis"].iat[0] == "standalone"
+    # both series are kept, and every derived value is computed inside one basis
+    assert set(p.loc[p.symbol == "AAA", "basis"]) == {"consolidated", "standalone"}
 
 
 def test_bonus_adjustment_synthetic():
@@ -84,3 +86,30 @@ def test_first_tradable_session_rule():
                                    "2024-01-06 10:00", "2024-01-09 16:00"]))
     got = first_tradable_session(ts, sess).dt.strftime("%Y-%m-%d").fillna("NaT").tolist()
     assert got == ["2024-01-05", "2024-01-05", "2024-01-08", "2024-01-08", "NaT"]
+
+
+def test_basis_switch_in_2019_no_growth_spike():
+    from nq.data.fundamentals_q import feature_view
+    q = pd.date_range("2017-06-30", periods=40, freq="QE")
+    rows = [_row("SW", e.date(), (e + pd.Timedelta(days=45)).date(), cons=False, pat=100.0) for e in q]
+    rows += [_row("SW", e.date(), (e + pd.Timedelta(days=45)).date(), cons=True, pat=300.0, pue=1000.0)
+             for e in q if e.year >= 2019]  # consolidated (3x standalone) only from 2019: 33/40 -> primary
+    p = build_panel(pd.DataFrame(rows))
+    assert p["primary_basis"].iat[0] == "consolidated"
+    v = feature_view(p)
+    y = v["yoy_core_pat"].dropna()
+    assert len(y) and np.allclose(y, 0.0)  # a mixed calculation would show +200% in 2019
+    fb = v[v["fiscal_quarter_end"].dt.year == 2019]
+    assert fb["yoy_core_pat_basis_fallback"].all() and (fb["yoy_core_pat_basis"] == "standalone").all()
+    assert v["row_recovered"].sum() == 7  # 2017Q2-2018Q4 standalone-only quarters come back
+
+
+def test_effective_tax_rate_and_fallback():
+    rows = _co(n=6, exc=40.0)
+    for r in rows:
+        r["pbt"], r["tax_expense"] = 200.0, 50.0  # 25%
+    rows[5]["pbt"] = -10.0
+    p = build_panel(pd.DataFrame(rows))
+    assert p["tax_rate_fallback"].iloc[:3].all()  # fewer than 4 quarters of history
+    assert np.isclose(p["tax_rate"].iat[3], 0.25) and np.isclose(p["core_pat"].iat[3], 100 - 40 * 0.75)
+    assert p["tax_rate_fallback"].iat[5] == False  # noqa: E712  trailing PBT still > 0
