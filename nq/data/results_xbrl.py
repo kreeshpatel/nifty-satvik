@@ -48,6 +48,10 @@ DURATION_FIELDS: dict[str, list[str]] = {
     "finance_costs": ["FinanceCosts"],
     "depreciation": ["DepreciationDepletionAndAmortisationExpense"],
     "exceptional_items": ["ExceptionalItemsBeforeTax", "ExceptionalItems"],
+    # added 2026-11-20 (Phase 0 decision 2): effective tax rate and the exceptional-items sign check
+    "tax_expense": ["TaxExpense"],
+    "pbt": ["ProfitBeforeTax", "ProfitLossFromOrdinaryActivitiesBeforeTax"],            # second: banks
+    "pbeit": ["ProfitBeforeExceptionalItemsAndTax"],
     "paid_up_equity": ["PaidUpValueOfEquityShareCapital", "PaidUpEquityShareCapital"],
     "face_value": ["FaceValueOfEquityShareCapital"],
 }
