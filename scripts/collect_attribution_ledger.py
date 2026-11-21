@@ -48,6 +48,7 @@ from nq.brain import ledger as L  # noqa: E402
 OUT = RESULTS_DIR / "attribution_ledger.csv"
 ARCHIVE = RESULTS_DIR / "archive"
 HISTORY = RESULTS_DIR / "signals_history_weekly.json"
+STOP_RECORD = RESULTS_DIR / "stop_record_weekly.json"   # written by the scan (run_bhanushali_cron.STOP_RECORD_FILE)
 
 # The live book's inception. Everything on or after it is in scope; there is nothing before it.
 INCEPTION = "2026-07-04"
@@ -64,6 +65,18 @@ CONTEXT_FIELDS = ("entry", "stop", "target", "grade", "tier", "crs_rank", "ext_p
 
 OUTCOME_FIELDS = ("status", "r_multiple", "return_pct", "exit_reason", "hold_days", "close_date",
                   "close_price")
+
+# FORWARD STOP RECORD (engineering, owner-approved 2026-11-19). The engine's own stop and its exit trigger/fill,
+# as written by the scan into results/stop_record_weekly.json (run_bhanushali_cron.stop_record_rows). Rows first seen on
+# or after STOP_RECORD_FROM MUST carry a recorded engine stop: --validate fails otherwise. Older rows are
+# back-filled ONLY from what the archives hold, labelled by source, and never overwritten:
+#   recorded           the scan wrote it to stop_record_weekly.json (first archived value wins)
+#   archive_active_row an archived ACTIVE history row's `stop`, which the cron writes from the engine's own
+#                      position (`_active_stop`) - the engine value at that scan, not a card value
+#   inferred           neither exists: entry x (1 - engine-implied width), from return% / R. Marked, never
+#                      presented as recorded.
+ENGINE_FIELDS = ("engine_stop", "exit_trigger_date", "exit_trigger_basis", "exit_fill_date", "exit_fill_price")
+STOP_RECORD_FROM = "2026-11-20"
 
 # Fields this ledger CANNOT fill, each with the reason. Declaring a hole is an admission that
 # something is permanently unmeasurable here, so it costs a sentence. It is not a way to be quiet.
@@ -152,6 +165,62 @@ def _outcomes() -> dict[str, list[tuple[str, dict]]]:
     return out
 
 
+def _archived_engine_stops() -> dict[tuple[str, str], dict]:
+    """(ticker, signal_date) -> the engine stop fields as FIRST archived, with their source. Never overwritten.
+
+    Pass 1 reads every archived stop_record_weekly.json (written by the scan at the event); pass 2 back-fills
+    trades it does not cover from archived ACTIVE history rows, whose `stop` the cron writes from the engine's own
+    position (`_active_stop`)."""
+    out: dict[tuple[str, str], dict] = {}
+    for p in sorted(glob.glob(str(ARCHIVE / "*" / STOP_RECORD.name))):
+        try:
+            recs = json.loads(Path(p).read_text(encoding="utf-8"))
+        except Exception:  # noqa: BLE001
+            continue
+        for h in recs if isinstance(recs, list) else []:
+            key = (h.get("ticker"), str(h.get("signal_date") or "")[:10])
+            if not key[0] or not key[1] or h.get("engine_stop") is None:
+                continue
+            rec = out.get(key)
+            if rec is None:
+                out[key] = {"engine_stop": h["engine_stop"], "engine_stop_source": "recorded",
+                            **{f: h.get(f) for f in ENGINE_FIELDS if f != "engine_stop"}}
+            elif rec.get("exit_fill_date") is None and h.get("exit_fill_date") is not None:
+                rec.update({f: h.get(f) for f in ENGINE_FIELDS if f != "engine_stop"})   # exit fields only fill gaps
+    for p in sorted(glob.glob(str(ARCHIVE / "*" / "signals_history_weekly.json"))):
+        try:
+            hist = json.loads(Path(p).read_text(encoding="utf-8"))
+        except Exception:  # noqa: BLE001
+            continue
+        for h in hist if isinstance(hist, list) else []:
+            key = (h.get("ticker"), str(h.get("signal_date") or "")[:10])
+            if key[0] and key[1] and key not in out and h.get("status") == "ACTIVE" and h.get("stop") is not None:
+                out[key] = {"engine_stop": h["stop"], "engine_stop_source": "archive_active_row"}
+    return out
+
+
+def _engine_stop_fields(arch: dict, now: dict, tkr: str, sig: str, entry, width_engine) -> dict:
+    """First archived value wins; then the current scan's record; else inferred from return / R (marked)."""
+    blank = {f: None for f in ENGINE_FIELDS}
+    a = arch.get((tkr, sig))
+    if a is not None:
+        return {**blank, **a}
+    h = now.get((tkr, sig))
+    if h is not None and h.get("engine_stop") is not None:
+        return {**blank, **{f: h.get(f) for f in ENGINE_FIELDS}, "engine_stop_source": "recorded"}
+    if entry and width_engine:
+        return {**blank, "engine_stop": round(float(entry) * (1 - float(width_engine) / 100.0), 2),
+                "engine_stop_source": "inferred"}
+    return {**blank, "engine_stop_source": None}
+
+
+def _stop_record_now() -> dict[tuple[str, str], dict]:
+    if not STOP_RECORD.exists():
+        return {}
+    return {(h.get("ticker"), str(h.get("signal_date") or "")[:10]): h
+            for h in json.loads(STOP_RECORD.read_text(encoding="utf-8")) if h.get("ticker")}
+
+
 def _match_outcome(outs: dict[str, list[tuple[str, dict]]], ticker: str, sig_date: str) -> dict:
     """The outcome whose signal_date is nearest the episode anchor, within one episode window."""
     best, best_d = {}, L.EPISODE_DAYS + 1
@@ -237,6 +306,7 @@ def build() -> pd.DataFrame:
     outs, pos, px, idx = _outcomes(), _positions(), _prices(), _index()
     evs = _events()
     marks = _snapshot_marks()
+    arch_stops, hist_now = _archived_engine_stops(), _stop_record_now()
 
     rows = []
     for (tkr, sig), ctx in sorted(episodes.items()):
@@ -265,6 +335,7 @@ def build() -> pd.DataFrame:
         row["width_gap_pct"] = L.width_gap_pct(row["stop_width_pct_card"], row["stop_width_pct_engine"])
         row["stop_width_pct"] = row["stop_width_pct_engine"] or row["stop_width_pct_card"]
         row["stop_width_basis"] = "engine" if row["stop_width_pct_engine"] else "card"
+        row.update(_engine_stop_fields(arch_stops, hist_now, tkr, sig, entry, row["stop_width_pct_engine"]))
         # A card that was never bought is not a trade. Three states, so "no outcome" cannot read as a
         # defect for a signal that simply never filled (5 of the 46 rows).
         row["state"] = ("closed" if o.get("exit_reason") else ("open" if bought else "not_entered"))
@@ -340,6 +411,15 @@ def holes(df: pd.DataFrame) -> list[str]:
         n = int(entered["status"].isna().sum())
         if n:
             out.append(f"{n} entered trade(s) with no outcome in the history")
+    # FORWARD STOP RECORD: a trade first seen on or after STOP_RECORD_FROM must carry the engine stop the scan
+    # wrote. An inferred or missing one is a defect there, not a fallback.
+    if "as_of_snapshot" in df and "engine_stop_source" in df:
+        new = df[(df["as_of_snapshot"].astype(str) >= STOP_RECORD_FROM)
+                 & (df.get("state", pd.Series("open", index=df.index)) != "not_entered")]
+        bad = new[(new["engine_stop_source"] != "recorded") | new["engine_stop"].isna()]
+        if len(bad):
+            out.append(f"{len(bad)} forward row(s) first seen on/after {STOP_RECORD_FROM} without a RECORDED engine "
+                       f"stop ({', '.join(sorted(bad['trade_id'].astype(str)))}) - the scan must write it")
     if len(closed):
         n = int(closed["r_multiple"].isna().sum())
         if n:
