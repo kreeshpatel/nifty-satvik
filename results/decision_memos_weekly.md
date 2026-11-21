@@ -1,18 +1,25 @@
-# Weekly Decision Memos — 2026-11-13 | regime CHOPPY | 21 signals
+# Weekly Decision Memos — 2026-11-20 | regime CHOPPY | 24 signals
 
-### DECISION MEMO — UNIONBANK  (UNIONBANK__2026-11-13)
+### DECISION MEMO — APOLLOHOSP  (APOLLOHOSP__2026-11-20)
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
-2. **Signal strength** — ****.  (grade A, CRS rank 0.102)
-3. **Risk** — MODERATE-HIGH · stop width 8.7% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 203.0 (band [186.8, 205.25]) · SL 186.8 · TP 235.4
-5. **Status** — [OK] **APPROVED** — Execute — buy in the band [186.8, 205.25]; fund strongest CRS rank first.
+2. **Signal strength** — ****.  (grade A, CRS rank 0.0276)
+3. **Risk** — MODERATE · stop width 7.8% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 9200.0 (band [8534.5, 9282.5]) · SL 8534.5 · TP 10531.0
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [8534.5, 9282.5]; fund strongest CRS rank first.
 
-### DECISION MEMO — RBLBANK  (RBLBANK__2026-11-13)
+### DECISION MEMO — ADANIENSOL  (ADANIENSOL__2026-11-20)
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
-2. **Signal strength** — ****.  (grade A, CRS rank 0.0252)
-3. **Risk** — MODERATE · stop width 3.1% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 385.75 (band [374.05, 394.55]) · SL 374.05 · TP 409.15
-5. **Status** — [OK] **APPROVED** — Execute — buy in the band [374.05, 394.55]; fund strongest CRS rank first.
+2. **Signal strength** — ****.  (grade A, CRS rank 0.0077)
+3. **Risk** — MODERATE · stop width 5.3% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 1491.8 (band [1417.0, 1515.0]) · SL 1417.0 · TP 1641.4
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [1417.0, 1515.0]; fund strongest CRS rank first.
+
+### DECISION MEMO — GLAXO  (GLAXO__2026-11-20)
+1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
+2. **Signal strength** — ****.  (grade A, CRS rank 0.0075)
+3. **Risk** — MODERATE · stop width 5.1% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 2727.6 (band [2595.9, 2748.0]) · SL 2595.9 · TP 2991.0
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [2595.9, 2748.0]; fund strongest CRS rank first.
 
 ### DECISION MEMO — CUB  (CUB__2026-07-06)
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
@@ -54,7 +61,7 @@
 2. **Signal strength** — ****.  (grade A, CRS rank None)
 3. **Risk** — MODERATE-HIGH · stop width 11.1% · R:R 1:2.0 · max-loss-in-plan YES
 4. **Trade plan** — entry 2905.98 (band [None, None]) · SL 2615.38 · TP 3487.18
-5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
+5. **Status** — [WATCH] **WATCHLIST** — Monitor — below the A-grade / actionable bar; do not fund yet.
 
 ### DECISION MEMO — APLAPOLLO  (APLAPOLLO__2026-08-17)
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
@@ -68,7 +75,7 @@
 2. **Signal strength** — ****.  (grade A, CRS rank None)
 3. **Risk** — MODERATE · stop width 3.6% · R:R 1:2.0 · max-loss-in-plan YES
 4. **Trade plan** — entry 1700.0 (band [None, None]) · SL 1640.4 · TP 1819.2
-5. **Status** — [WATCH] **WATCHLIST** — Monitor — below the A-grade / actionable bar; do not fund yet.
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
 
 ### DECISION MEMO — GESHIP  (GESHIP__2026-09-15)
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
@@ -145,4 +152,18 @@
 2. **Signal strength** — ****.  (grade A, CRS rank None)
 3. **Risk** — MODERATE-HIGH · stop width 11.1% · R:R 1:2.0 · max-loss-in-plan YES
 4. **Trade plan** — entry 659.0 (band [None, None]) · SL 593.1 · TP 790.8
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
+
+### DECISION MEMO — UNIONBANK  (UNIONBANK__2026-11-16)
+1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
+2. **Signal strength** — ****.  (grade A, CRS rank None)
+3. **Risk** — MODERATE-HIGH · stop width 8.8% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 203.19 (band [None, None]) · SL 186.8 · TP 235.97
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
+
+### DECISION MEMO — RBLBANK  (RBLBANK__2026-11-16)
+1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
+2. **Signal strength** — ****.  (grade A, CRS rank None)
+3. **Risk** — MODERATE · stop width 3.2% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 386.2 (band [None, None]) · SL 374.05 · TP 410.5
 5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.

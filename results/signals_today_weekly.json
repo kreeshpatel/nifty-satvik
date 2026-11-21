@@ -1,32 +1,32 @@
 {
-  "generated_at": "2026-11-13",
+  "generated_at": "2026-11-20",
   "model": "weekly-swing-0094-rank-P",
   "signals": [
     {
-      "ticker": "UNIONBANK",
-      "entry": 203.0,
-      "stop": 186.8,
-      "stop_week_low": 186.8,
-      "target": 235.4,
-      "ext_pct_over_sma44": 16.27,
+      "ticker": "APOLLOHOSP",
+      "entry": 9200.0,
+      "stop": 8534.5,
+      "stop_week_low": 8534.5,
+      "target": 10531.0,
+      "ext_pct_over_sma44": 12.53,
       "ext_cap_pct": 20.0,
       "record_would_skip_as_extended": false,
-      "entry_low": 186.8,
-      "entry_high": 205.25,
-      "buy_zone_low": 203.0,
-      "buy_zone_high": 205.25,
-      "no_chase_above": 209.09,
-      "band_width_pct": 9.1,
+      "entry_low": 8534.5,
+      "entry_high": 9282.5,
+      "buy_zone_low": 9200.0,
+      "buy_zone_high": 9282.5,
+      "no_chase_above": 9476.0,
+      "band_width_pct": 8.1,
       "band_is_wide": false,
-      "body_ratio": 0.867,
+      "body_ratio": 0.849,
       "signal_conviction": "normal",
       "entry_week_open": null,
-      "current_price": 203.0,
-      "close": 203.0,
-      "signal_date": "2026-11-13",
-      "buy_window_until": "2026-11-20",
+      "current_price": 9200.0,
+      "close": 9200.0,
+      "signal_date": "2026-11-20",
+      "buy_window_until": "2026-11-27",
       "hold_days": 65,
-      "crs_rank": 0.102,
+      "crs_rank": 0.0276,
       "grade": "A",
       "tier": "signal",
       "status": "FRESH",
@@ -38,49 +38,49 @@
           {
             "pct": 40,
             "type": "target",
-            "level": 235.4,
-            "do": "Sell 40% at Rs 235.40 (the +2R target) \u2014 a resting limit order."
+            "level": 10531.0,
+            "do": "Sell 40% at Rs 10,531.00 (the +2R target) \u2014 a resting limit order."
           },
           {
             "pct": 40,
             "type": "pattern",
-            "arm": 243.5,
-            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 243.50 (+2.5R). The Saturday scan flags it."
+            "arm": 10863.75,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 10,863.75 (+2.5R). The Saturday scan flags it."
           },
           {
             "pct": 20,
             "type": "runner",
-            "level": 174.59,
-            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 174.59)."
+            "level": 8175.37,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 8,175.37)."
           }
         ]
       }
     },
     {
-      "ticker": "RBLBANK",
-      "entry": 385.75,
-      "stop": 374.05,
-      "stop_week_low": 374.05,
-      "target": 409.15,
-      "ext_pct_over_sma44": 9.64,
+      "ticker": "ADANIENSOL",
+      "entry": 1491.8,
+      "stop": 1417.0,
+      "stop_week_low": 1417.0,
+      "target": 1641.4,
+      "ext_pct_over_sma44": 12.13,
       "ext_cap_pct": 20.0,
       "record_would_skip_as_extended": false,
-      "entry_low": 374.05,
-      "entry_high": 394.55,
-      "buy_zone_low": 385.75,
-      "buy_zone_high": 394.55,
-      "no_chase_above": 397.32,
-      "band_width_pct": 5.3,
+      "entry_low": 1417.0,
+      "entry_high": 1515.0,
+      "buy_zone_low": 1491.8,
+      "buy_zone_high": 1515.0,
+      "no_chase_above": 1536.55,
+      "band_width_pct": 6.6,
       "band_is_wide": false,
-      "body_ratio": 0.388,
+      "body_ratio": 0.544,
       "signal_conviction": "normal",
       "entry_week_open": null,
-      "current_price": 385.75,
-      "close": 385.75,
-      "signal_date": "2026-11-13",
-      "buy_window_until": "2026-11-20",
+      "current_price": 1491.8,
+      "close": 1491.8,
+      "signal_date": "2026-11-20",
+      "buy_window_until": "2026-11-27",
       "hold_days": 65,
-      "crs_rank": 0.0252,
+      "crs_rank": 0.0077,
       "grade": "A",
       "tier": "signal",
       "status": "FRESH",
@@ -92,20 +92,74 @@
           {
             "pct": 40,
             "type": "target",
-            "level": 409.15,
-            "do": "Sell 40% at Rs 409.15 (the +2R target) \u2014 a resting limit order."
+            "level": 1641.4,
+            "do": "Sell 40% at Rs 1,641.40 (the +2R target) \u2014 a resting limit order."
           },
           {
             "pct": 40,
             "type": "pattern",
-            "arm": 415.0,
-            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 415.00 (+2.5R). The Saturday scan flags it."
+            "arm": 1678.8,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 1,678.80 (+2.5R). The Saturday scan flags it."
           },
           {
             "pct": 20,
             "type": "runner",
-            "level": 351.85,
-            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 351.85)."
+            "level": 1330.46,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 1,330.46)."
+          }
+        ]
+      }
+    },
+    {
+      "ticker": "GLAXO",
+      "entry": 2727.6,
+      "stop": 2595.9,
+      "stop_week_low": 2595.9,
+      "target": 2991.0,
+      "ext_pct_over_sma44": 9.37,
+      "ext_cap_pct": 20.0,
+      "record_would_skip_as_extended": false,
+      "entry_low": 2595.9,
+      "entry_high": 2748.0,
+      "buy_zone_low": 2727.6,
+      "buy_zone_high": 2748.0,
+      "no_chase_above": 2809.43,
+      "band_width_pct": 5.6,
+      "band_is_wide": false,
+      "body_ratio": 0.359,
+      "signal_conviction": "normal",
+      "entry_week_open": null,
+      "current_price": 2727.6,
+      "close": 2727.6,
+      "signal_date": "2026-11-20",
+      "buy_window_until": "2026-11-27",
+      "hold_days": 65,
+      "crs_rank": 0.0075,
+      "grade": "A",
+      "tier": "signal",
+      "status": "FRESH",
+      "buy_window": "buy Mon\u2013Fri this week, at the open inside the band [low, high] \u2014 fund strongest CRS rank first",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 2991.0,
+            "do": "Sell 40% at Rs 2,991.00 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 3056.85,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 3,056.85 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 2493.93,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 2,493.93)."
           }
         ]
       }
@@ -115,8 +169,8 @@
       "entry": 210.03,
       "stop": 197.35,
       "target": 235.39,
-      "current_price": 232.4,
-      "close": 232.4,
+      "current_price": 248.8,
+      "close": 248.8,
       "signal_date": "2026-07-06",
       "bought_date": "2026-07-06",
       "qty": 190.45,
@@ -145,8 +199,8 @@
           {
             "pct": 20,
             "type": "runner",
-            "level": 207.91,
-            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 207.91)."
+            "level": 208.95,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 208.95)."
           }
         ]
       },
@@ -164,8 +218,8 @@
       "entry": 3905.0,
       "stop": 3550.1,
       "target": 4614.8,
-      "current_price": 4495.0,
-      "close": 4495.0,
+      "current_price": 4590.0,
+      "close": 4590.0,
       "signal_date": "2026-07-27",
       "bought_date": "2026-07-27",
       "qty": 30.73,
@@ -194,8 +248,8 @@
           {
             "pct": 20,
             "type": "runner",
-            "level": 3815.87,
-            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 3,815.87)."
+            "level": 3837.12,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 3,837.12)."
           }
         ]
       },
@@ -213,8 +267,8 @@
       "entry": 675.8,
       "stop": 618.6,
       "target": 790.2,
-      "current_price": 799.95,
-      "close": 799.95,
+      "current_price": 765.55,
+      "close": 765.55,
       "signal_date": "2026-07-27",
       "bought_date": "2026-07-27",
       "qty": 177.57,
@@ -243,8 +297,8 @@
           {
             "pct": 20,
             "type": "runner",
-            "level": 691.45,
-            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 691.45)."
+            "level": 694.48,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 694.48)."
           }
         ]
       },
@@ -262,8 +316,8 @@
       "entry": 238.64,
       "stop": 220.56,
       "target": 274.78,
-      "current_price": 312.45,
-      "close": 312.45,
+      "current_price": 296.55,
+      "close": 296.55,
       "signal_date": "2026-08-10",
       "bought_date": "2026-08-10",
       "qty": 502.86,
@@ -292,8 +346,8 @@
           {
             "pct": 20,
             "type": "runner",
-            "level": 235.33,
-            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 235.33)."
+            "level": 237.88,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 237.88)."
           }
         ]
       },
@@ -311,8 +365,8 @@
       "entry": 19299.0,
       "stop": 17776.0,
       "target": 22345.0,
-      "current_price": 24365.0,
-      "close": 24365.0,
+      "current_price": 24120.0,
+      "close": 24120.0,
       "signal_date": "2026-08-10",
       "bought_date": "2026-08-10",
       "qty": 2.07,
@@ -341,8 +395,8 @@
           {
             "pct": 20,
             "type": "runner",
-            "level": 19056.3,
-            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 19,056.30)."
+            "level": 19196.11,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 19,196.11)."
           }
         ]
       },
@@ -360,8 +414,8 @@
       "entry": 2905.98,
       "stop": 2615.38,
       "target": 3487.18,
-      "current_price": 3720.0,
-      "close": 3720.0,
+      "current_price": 3535.0,
+      "close": 3535.0,
       "signal_date": "2026-08-17",
       "bought_date": "2026-08-17",
       "qty": 41.29,
@@ -370,7 +424,7 @@
       "grade": "A",
       "hold_days": 65,
       "tier": "signal",
-      "status": "ACTIVE",
+      "status": "HIT_TARGET",
       "pattern": "44-week SMA pullback",
       "exit_plan": {
         "entry_pattern": "44-week SMA pullback",
@@ -390,8 +444,8 @@
           {
             "pct": 20,
             "type": "runner",
-            "level": 2869.21,
-            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 2,869.21)."
+            "level": 2894.1,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 2,894.10)."
           }
         ]
       },
@@ -401,16 +455,23 @@
         "runner_open": true,
         "fraction_remaining": 0.6,
         "fraction_sold": 0.4,
-        "pending_exit": null
-      }
+        "pending_exit": {
+          "kind": "part",
+          "reason": "pattern",
+          "fraction": 0.4,
+          "fills": "next session's open"
+        }
+      },
+      "actionability": "EXIT_REQUIRED",
+      "why": "Blow-off/exhaustion week detected \u2014 SELL the 40% pattern tranche at Monday's open. Keep the 20% runner until a weekly close below the 44-week SMA."
     },
     {
       "ticker": "APLAPOLLO",
       "entry": 2084.97,
       "stop": 1944.21,
       "target": 2366.48,
-      "current_price": 2251.6,
-      "close": 2251.6,
+      "current_price": 2121.6,
+      "close": 2121.6,
       "signal_date": "2026-08-17",
       "bought_date": "2026-08-17",
       "qty": 95.92,
@@ -439,8 +500,8 @@
           {
             "pct": 20,
             "type": "runner",
-            "level": 2020.44,
-            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 2,020.44)."
+            "level": 2024.72,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 2,024.72)."
           }
         ]
       },
@@ -458,17 +519,17 @@
       "entry": 1700.0,
       "stop": 1640.4,
       "target": 1819.2,
-      "current_price": 1903.3,
-      "close": 1903.3,
+      "current_price": 1917.0,
+      "close": 1917.0,
       "signal_date": "2026-08-17",
       "bought_date": "2026-08-17",
-      "qty": 70.59,
+      "qty": 23.53,
       "fill_price": 1700.0,
       "nq_position_id": "ADANIPORTS__2026-08-17",
       "grade": "A",
       "hold_days": 65,
       "tier": "signal",
-      "status": "HIT_TARGET",
+      "status": "ACTIVE",
       "pattern": "44-week SMA pullback",
       "exit_plan": {
         "entry_pattern": "44-week SMA pullback",
@@ -488,34 +549,27 @@
           {
             "pct": 20,
             "type": "runner",
-            "level": 1665.36,
-            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 1,665.36)."
+            "level": 1676.75,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 1,676.75)."
           }
         ]
       },
       "exit_stage": {
         "target_booked": true,
-        "pattern_booked": false,
+        "pattern_booked": true,
         "runner_open": true,
-        "fraction_remaining": 0.6,
-        "fraction_sold": 0.4,
-        "pending_exit": {
-          "kind": "part",
-          "reason": "pattern",
-          "fraction": 0.4,
-          "fills": "next session's open"
-        }
-      },
-      "actionability": "EXIT_REQUIRED",
-      "why": "Blow-off/exhaustion week detected \u2014 SELL the 40% pattern tranche at Monday's open. Keep the 20% runner until a weekly close below the 44-week SMA."
+        "fraction_remaining": 0.2,
+        "fraction_sold": 0.8,
+        "pending_exit": null
+      }
     },
     {
       "ticker": "GESHIP",
       "entry": 1400.94,
       "stop": 1338.57,
       "target": 1525.69,
-      "current_price": 1518.0,
-      "close": 1518.0,
+      "current_price": 1531.6,
+      "close": 1531.6,
       "signal_date": "2026-09-15",
       "bought_date": "2026-09-15",
       "qty": 85.66,
@@ -544,8 +598,8 @@
           {
             "pct": 20,
             "type": "runner",
-            "level": 1385.02,
-            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 1,385.02)."
+            "level": 1395.21,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 1,395.21)."
           }
         ]
       },
@@ -563,8 +617,8 @@
       "entry": 550.8,
       "stop": 513.0,
       "target": 626.4,
-      "current_price": 572.9,
-      "close": 572.9,
+      "current_price": 556.05,
+      "close": 556.05,
       "signal_date": "2026-09-28",
       "bought_date": "2026-09-28",
       "qty": 363.11,
@@ -593,8 +647,8 @@
           {
             "pct": 20,
             "type": "runner",
-            "level": 524.71,
-            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 524.71)."
+            "level": 527.32,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 527.32)."
           }
         ]
       },
@@ -612,8 +666,8 @@
       "entry": 1709.4,
       "stop": 1605.1,
       "target": 1918.0,
-      "current_price": 1847.8,
-      "close": 1847.8,
+      "current_price": 1820.8,
+      "close": 1820.8,
       "signal_date": "2026-10-05",
       "bought_date": "2026-10-05",
       "qty": 70.2,
@@ -642,8 +696,8 @@
           {
             "pct": 20,
             "type": "runner",
-            "level": 1562.33,
-            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 1,562.33)."
+            "level": 1570.52,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 1,570.52)."
           }
         ]
       },
@@ -661,8 +715,8 @@
       "entry": 330.0,
       "stop": 317.05,
       "target": 355.9,
-      "current_price": 360.95,
-      "close": 360.95,
+      "current_price": 373.5,
+      "close": 373.5,
       "signal_date": "2026-10-12",
       "bought_date": "2026-10-12",
       "qty": 363.64,
@@ -691,8 +745,8 @@
           {
             "pct": 20,
             "type": "runner",
-            "level": 312.62,
-            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 312.62)."
+            "level": 314.98,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 314.98)."
           }
         ]
       },
@@ -710,8 +764,8 @@
       "entry": 1745.57,
       "stop": 1571.01,
       "target": 2094.68,
-      "current_price": 1764.0,
-      "close": 1764.0,
+      "current_price": 1746.2,
+      "close": 1746.2,
       "signal_date": "2026-10-19",
       "bought_date": "2026-10-19",
       "qty": 114.58,
@@ -740,8 +794,8 @@
           {
             "pct": 20,
             "type": "runner",
-            "level": 1505.56,
-            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 1,505.56)."
+            "level": 1508.55,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 1,508.55)."
           }
         ]
       },
@@ -759,11 +813,11 @@
       "entry": 8592.17,
       "stop": 7732.95,
       "target": 10310.6,
-      "current_price": 10002.0,
-      "close": 10002.0,
+      "current_price": 10077.0,
+      "close": 10077.0,
       "signal_date": "2026-11-02",
       "bought_date": "2026-11-02",
-      "qty": 23.28,
+      "qty": 13.97,
       "fill_price": 8592.17,
       "nq_position_id": "NAVINFLUOR__2026-11-02",
       "grade": "A",
@@ -789,17 +843,17 @@
           {
             "pct": 20,
             "type": "runner",
-            "level": 7346.37,
-            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 7,346.37)."
+            "level": 7435.64,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 7,435.64)."
           }
         ]
       },
       "exit_stage": {
-        "target_booked": false,
+        "target_booked": true,
         "pattern_booked": false,
         "runner_open": true,
-        "fraction_remaining": 1.0,
-        "fraction_sold": 0.0,
+        "fraction_remaining": 0.6,
+        "fraction_sold": 0.4,
         "pending_exit": null
       }
     },
@@ -808,8 +862,8 @@
       "entry": 353.0,
       "stop": 326.1,
       "target": 406.8,
-      "current_price": 381.55,
-      "close": 381.55,
+      "current_price": 377.0,
+      "close": 377.0,
       "signal_date": "2026-11-02",
       "bought_date": "2026-11-02",
       "qty": 566.57,
@@ -838,8 +892,8 @@
           {
             "pct": 20,
             "type": "runner",
-            "level": 311.53,
-            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 311.53)."
+            "level": 314.06,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 314.06)."
           }
         ]
       },
@@ -857,8 +911,8 @@
       "entry": 1200.0,
       "stop": 1093.5,
       "target": 1413.0,
-      "current_price": 1189.9,
-      "close": 1189.9,
+      "current_price": 1200.0,
+      "close": 1200.0,
       "signal_date": "2026-11-05",
       "bought_date": "2026-11-05",
       "qty": 166.67,
@@ -887,8 +941,8 @@
           {
             "pct": 20,
             "type": "runner",
-            "level": 1040.76,
-            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 1,040.76)."
+            "level": 1048.32,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 1,048.32)."
           }
         ]
       },
@@ -906,8 +960,8 @@
       "entry": 2132.2,
       "stop": 1918.98,
       "target": 2558.64,
-      "current_price": 2255.0,
-      "close": 2255.0,
+      "current_price": 2285.3,
+      "close": 2285.3,
       "signal_date": "2026-11-09",
       "bought_date": "2026-11-09",
       "qty": 93.8,
@@ -936,8 +990,8 @@
           {
             "pct": 20,
             "type": "runner",
-            "level": 1833.27,
-            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 1,833.27)."
+            "level": 1843.01,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 1,843.01)."
           }
         ]
       },
@@ -955,8 +1009,8 @@
       "entry": 1160.6,
       "stop": 1044.54,
       "target": 1392.72,
-      "current_price": 1180.0,
-      "close": 1180.0,
+      "current_price": 1170.35,
+      "close": 1170.35,
       "signal_date": "2026-11-09",
       "bought_date": "2026-11-09",
       "qty": 172.32,
@@ -985,8 +1039,8 @@
           {
             "pct": 20,
             "type": "runner",
-            "level": 984.56,
-            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 984.56)."
+            "level": 991.91,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 991.91)."
           }
         ]
       },
@@ -1004,8 +1058,8 @@
       "entry": 659.0,
       "stop": 593.1,
       "target": 790.8,
-      "current_price": 654.8,
-      "close": 654.8,
+      "current_price": 618.6,
+      "close": 618.6,
       "signal_date": "2026-11-11",
       "bought_date": "2026-11-11",
       "qty": 303.49,
@@ -1034,8 +1088,106 @@
           {
             "pct": 20,
             "type": "runner",
-            "level": 557.91,
-            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 557.91)."
+            "level": 562.46,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 562.46)."
+          }
+        ]
+      },
+      "exit_stage": {
+        "target_booked": false,
+        "pattern_booked": false,
+        "runner_open": true,
+        "fraction_remaining": 1.0,
+        "fraction_sold": 0.0,
+        "pending_exit": null
+      }
+    },
+    {
+      "ticker": "UNIONBANK",
+      "entry": 203.19,
+      "stop": 186.8,
+      "target": 235.97,
+      "current_price": 218.85,
+      "close": 218.85,
+      "signal_date": "2026-11-16",
+      "bought_date": "2026-11-16",
+      "qty": 984.3,
+      "fill_price": 203.19,
+      "nq_position_id": "UNIONBANK__2026-11-16",
+      "grade": "A",
+      "hold_days": 65,
+      "tier": "signal",
+      "status": "ACTIVE",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 235.97,
+            "do": "Sell 40% at Rs 235.97 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 244.17,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 244.17 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 175.67,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 175.67)."
+          }
+        ]
+      },
+      "exit_stage": {
+        "target_booked": false,
+        "pattern_booked": false,
+        "runner_open": true,
+        "fraction_remaining": 1.0,
+        "fraction_sold": 0.0,
+        "pending_exit": null
+      }
+    },
+    {
+      "ticker": "RBLBANK",
+      "entry": 386.2,
+      "stop": 374.05,
+      "target": 410.5,
+      "current_price": 398.3,
+      "close": 398.3,
+      "signal_date": "2026-11-16",
+      "bought_date": "2026-11-16",
+      "qty": 517.87,
+      "fill_price": 386.2,
+      "nq_position_id": "RBLBANK__2026-11-16",
+      "grade": "A",
+      "hold_days": 65,
+      "tier": "signal",
+      "status": "ACTIVE",
+      "pattern": "44-week SMA pullback",
+      "exit_plan": {
+        "entry_pattern": "44-week SMA pullback",
+        "tranches": [
+          {
+            "pct": 40,
+            "type": "target",
+            "level": 410.5,
+            "do": "Sell 40% at Rs 410.50 (the +2R target) \u2014 a resting limit order."
+          },
+          {
+            "pct": 40,
+            "type": "pattern",
+            "arm": 416.58,
+            "do": "Sell 40% on a blow-off/exhaustion week (a new high that CLOSES in the lower third of its range) once price has reached Rs 416.58 (+2.5R). The Saturday scan flags it."
+          },
+          {
+            "pct": 20,
+            "type": "runner",
+            "level": 353.54,
+            "do": "Hold the last 20% as a runner. Exit only on a weekly CLOSE below the 44-week SMA (now ~Rs 353.54)."
           }
         ]
       },
@@ -1051,11 +1203,11 @@
   ],
   "regime": {
     "status": "CHOPPY",
-    "strength": 82,
+    "strength": 50,
     "vix": 0,
-    "breadth": -174
+    "breadth": 11
   },
-  "n_positions": 19,
+  "n_positions": 21,
   "cash": 180902.33,
   "note": "forward-watch, modeled fills \u2014 0094 weekly swing (0093-N50 signals, CRS-ranked fills; UNDERPOWERED DSR 0.89, not certified)"
 }
