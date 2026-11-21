@@ -124,3 +124,14 @@ No threshold changes.
 - `de_ratio` therefore exists for under 2 years of the training window, which ends 2024-06-30.
 - It cannot be a core input to the L5 crash-risk layer. It may be tested only as an add-on to a core L5 built
   without it.
+
+## Amendment note, 2026-11-20 (owner decision on PR #221): results gaps and financials
+
+- **Financials** are excluded from L1 entirely. They are excluded from L5's fundamental inputs only; L5's price
+  features keep them.
+- The **425 member-quarters before a company's first filed quarter are not gaps**: there is no history to fill.
+- The **remaining interior gaps stay NaN and are never interpolated.** The L1 study must report the number of forecast
+  points lost to them.
+- If more history is needed later, a **browser-based BSE fetch** is the fallback. Scripted calls to api.bseindia.com
+  returned 403 on 2026-11-20 (`diagnostics/research/explore/2026-11-20_bse_gap_fill_attempt.json`).
+- Gap profile: `diagnostics/replica/phase0/missing_gap_clusters.json`.

@@ -240,7 +240,15 @@ different random draws while the fetch was still adding files.
 - 40%: Kotak Arbitrage Fund, Direct Growth, AMFI **119771**.
 - NAVs from api.mfapi.in, a mirror of AMFI's daily NAVs. The owner accepted 150738 (2026-11-20).
 
-**Not the same series as the long-window 60/40 study.** That study (`pipelines/diagnostics/explore_after_tax_comparison.py`,
+> **Correction (2026-11-20):** the paragraph below compared the record with the wrong study. It describes the
+> 2019–24 study (`explore_after_tax_comparison.py`), whose cash leg is a modelled liquid fund. The **long-window**
+> 60/40 study (`explore_static_long_window_alpha.py:135-150`, 2017-01..2026-06, 15.64% / p95 23.99) used the **real
+> arbitrage-fund average** (Kotak 119771 + ICICI 120364), not a liquid model. With 119771 alone it gives 15.67% /
+> 23.97. Its index leg is the TRI less 0.30%, which fund 150738 trailed by 1.05pp a year over 2022-10..2026-11.
+> Source: `diagnostics/research/explore/2026-11-20_cash_leg_reconciliation.json`;
+> `forward/drafts/2027-01/review_dossier.md` §4.
+
+**Not the same series as the 2019–24 60/40 study.** That study (`pipelines/diagnostics/explore_after_tax_comparison.py`,
 2019-03-01 to 2024-06-28) differs from this record in four ways [measured: its docstring]:
 - **Index leg:** the Nifty Midcap150 Momentum 50 TRI less a 0.30%/yr expense ratio, not fund 150738's NAV. Fund
   150738's first NAV is 2022-10-31, after that window opens, so the study could not have used it.
