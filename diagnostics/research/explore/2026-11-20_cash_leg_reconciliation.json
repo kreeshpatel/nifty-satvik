@@ -1,0 +1,174 @@
+{
+ "class": "MEASUREMENT",
+ "counts": "screens 25 / sealed opens 4 / n_trials 3 (unchanged)",
+ "window": [
+  "2017-01-02",
+  "2026-06-30"
+ ],
+ "sessions": 2351,
+ "anchor": {
+  "expected_60_40": [
+   15.64,
+   23.99
+  ],
+  "reproduced": [
+   15.64,
+   23.99
+  ],
+  "match": true
+ },
+ "static_mixes": {
+  "two_fund_average (study of record)": {
+   "cash_leg_cagr_pct": 6.38,
+   "rows": {
+    "55/45": {
+     "after_tax_cagr": 14.93,
+     "p95_dd156": 21.84,
+     "passes": true,
+     "worst_daily_dd": -20.25,
+     "slice_2024_07_2026_06_cagr_mtm": 2.86,
+     "slice_2024_07_2026_06_p95": 28.5
+    },
+    "60/40": {
+     "after_tax_cagr": 15.64,
+     "p95_dd156": 23.99,
+     "passes": true,
+     "worst_daily_dd": -22.06,
+     "slice_2024_07_2026_06_cagr_mtm": 2.54,
+     "slice_2024_07_2026_06_p95": 31.33
+    },
+    "65/35": {
+     "after_tax_cagr": 16.33,
+     "p95_dd156": 26.04,
+     "passes": false,
+     "worst_daily_dd": -23.85,
+     "slice_2024_07_2026_06_cagr_mtm": 2.23,
+     "slice_2024_07_2026_06_p95": 34.0
+    }
+   }
+  },
+  "kotak_119771_only (forward record)": {
+   "cash_leg_cagr_pct": 6.45,
+   "rows": {
+    "55/45": {
+     "after_tax_cagr": 14.96,
+     "p95_dd156": 21.82,
+     "passes": true,
+     "worst_daily_dd": -20.21,
+     "slice_2024_07_2026_06_cagr_mtm": 2.88,
+     "slice_2024_07_2026_06_p95": 28.47
+    },
+    "60/40": {
+     "after_tax_cagr": 15.67,
+     "p95_dd156": 23.97,
+     "passes": true,
+     "worst_daily_dd": -22.02,
+     "slice_2024_07_2026_06_cagr_mtm": 2.56,
+     "slice_2024_07_2026_06_p95": 31.3
+    },
+    "65/35": {
+     "after_tax_cagr": 16.36,
+     "p95_dd156": 26.04,
+     "passes": false,
+     "worst_daily_dd": -23.81,
+     "slice_2024_07_2026_06_cagr_mtm": 2.25,
+     "slice_2024_07_2026_06_p95": 33.97
+    }
+   }
+  }
+ },
+ "index_leg": {
+  "fund": "150738 Tata Nifty Midcap 150 Momentum 50 Index Fund Direct-Growth",
+  "span": [
+   "2022-10-31",
+   "2026-11-13"
+  ],
+  "common_dates": 992,
+  "by_year": [
+   {
+    "year": 2022,
+    "from": "2022-10-31",
+    "to": "2022-12-30",
+    "partial": true,
+    "fund_pct": -5.200700470567532,
+    "tri_pct": -4.617734506057136,
+    "tri_less_ter_pct": -4.6666048748016165,
+    "td_fund_minus_tri_pp": -0.5829659645103957,
+    "td_fund_minus_model_pp": -0.5340955957659155
+   },
+   {
+    "year": 2023,
+    "from": "2022-12-30",
+    "to": "2023-12-29",
+    "partial": false,
+    "fund_pct": 49.84159090205469,
+    "tri_pct": 52.48018527574527,
+    "tri_less_ter_pct": 52.035036962653415,
+    "td_fund_minus_tri_pp": -2.6385943736905837,
+    "td_fund_minus_model_pp": -2.193446060598725
+   },
+   {
+    "year": 2024,
+    "from": "2023-12-29",
+    "to": "2024-12-31",
+    "partial": false,
+    "fund_pct": 30.89436493615616,
+    "tri_pct": 32.298477417428884,
+    "tri_less_ter_pct": 31.907289360545764,
+    "td_fund_minus_tri_pp": -1.4041124812727235,
+    "td_fund_minus_model_pp": -1.0129244243896052
+   },
+   {
+    "year": 2025,
+    "from": "2024-12-31",
+    "to": "2025-12-31",
+    "partial": false,
+    "fund_pct": -4.202445594982529,
+    "tri_pct": -3.462136880036537,
+    "tri_less_ter_pct": -3.7479429800503117,
+    "td_fund_minus_tri_pp": -0.7403087149459919,
+    "td_fund_minus_model_pp": -0.45450261493221733
+   },
+   {
+    "year": 2026,
+    "from": "2025-12-31",
+    "to": "2026-11-13",
+    "partial": true,
+    "fund_pct": 3.147707737176564,
+    "tri_pct": 3.78838548349949,
+    "tri_less_ter_pct": 3.523099980939448,
+    "td_fund_minus_tri_pp": -0.6406777463229263,
+    "td_fund_minus_model_pp": -0.37539224376288427
+   }
+  ],
+  "annualised": {
+   "fund_pct": 16.26811848864529,
+   "tri_pct": 17.663566561136545,
+   "tri_less_ter_pct": 17.316486835295986,
+   "td_fund_minus_tri_pp": -1.3954480724912557,
+   "td_fund_minus_model_pp": -1.0483683466506974
+  },
+  "tracking_error_ann_pct": 0.5002400180766725
+ },
+ "added_after_first_look_index_drag_sensitivity": {
+  "extra_drag_pp_per_year": 1.0483683466506974,
+  "cash_leg": "119771 only",
+  "rows": {
+   "55/45": {
+    "after_tax_cagr": 14.32,
+    "p95_dd156": 22.11,
+    "passes": true
+   },
+   "60/40": {
+    "after_tax_cagr": 14.97,
+    "p95_dd156": 24.22,
+    "passes": true
+   },
+   "65/35": {
+    "after_tax_cagr": 15.59,
+    "p95_dd156": 26.35,
+    "passes": false
+   }
+  }
+ }
+}

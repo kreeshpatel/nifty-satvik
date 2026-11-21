@@ -1,0 +1,19 @@
+{
+ "class": "DATA ENGINEERING (attempt)",
+ "date": "2026-11-20",
+ "machine": "owner laptop (this machine)",
+ "rule": "<= 1 request/second, backoff, stop on persistent 403",
+ "requests": [
+  {"url": "https://api.bseindia.com/BseIndiaAPI/api/ListofScripData/w?segment=Equity&status=Active", "status": 403, "body": "Akamai 'Access Denied' (edgesuite reference)"},
+  {"url": "https://api.bseindia.com/BseIndiaAPI/api/AnnSubCategoryGetData/w?strCat=Result&strScrip=500325&...", "status": 403, "body": "Akamai 'Access Denied'"},
+  {"url": "https://www.bseindia.com/", "status": 200, "note": "plain session start (homepage), no other action"},
+  {"url": "AnnSubCategoryGetData (same) after homepage, wait 0 s", "status": 403},
+  {"url": "AnnSubCategoryGetData (same), backoff 10 s", "status": 403},
+  {"url": "AnnSubCategoryGetData (same), backoff 30 s", "status": 403}
+ ],
+ "api_requests": 5,
+ "api_successes": 0,
+ "outcome": "STOPPED: persistent 403 from api.bseindia.com (Akamai edge) on 5 of 5 API calls across about 1 minute, with backoff. No BSE data fetched, nothing merged, fundamentals panel unchanged.",
+ "not_attempted": "Any workaround of the edge block (proxies, header spoofing beyond a standard browser User-Agent, headless browser). Bot-detection bypass is out of bounds.",
+ "next_cheapest_route": "owner decision: (a) retry from a different network on another day; (b) the owner downloads BSE result XBRLs by hand for the 607 interior-gap quarters; (c) accept the gaps (they cluster in insurers and pre-history, not in size)."
+}
