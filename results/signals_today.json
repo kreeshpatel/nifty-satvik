@@ -1,18 +1,36 @@
 {
-  "generated_at": "2026-11-20",
-  "signals": [],
+  "generated_at": "2026-11-23",
+  "signals": [
+    {
+      "ticker": "WELSPUNLIV",
+      "entry": 270.9,
+      "stop": 228.6,
+      "target": 331.91,
+      "target_pct": 22.52,
+      "current_price": 270.76,
+      "close": 270.76,
+      "signal_date": "2026-11-23",
+      "hold_days": 63,
+      "grade": "B",
+      "tier": "signal",
+      "status": "FRESH",
+      "buy_window": "T+1..T+3 at open",
+      "indicative_close": 270.76,
+      "indicative_entry": 270.9
+    }
+  ],
   "regime": {
     "status": "UNKNOWN",
     "strength": 0,
     "vix": 0,
     "breadth": 0
   },
-  "n_positions": 15,
-  "cash": 1396.03,
+  "n_positions": 14,
+  "cash": 105755.91,
   "kill_state": {
-    "wr_last20": 45.0,
+    "wr_last20": 50.0,
     "wr_breach": false,
-    "sharpe_30d": -2.209,
+    "sharpe_30d": -1.385,
     "sharpe_30d_breach": true,
     "mode": "observe"
   }

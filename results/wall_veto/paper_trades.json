@@ -718,5 +718,20 @@
     "net_pct": 6.48,
     "net_pnl": 2949.59,
     "hold_days": 11
+  },
+  {
+    "ticker": "SONACOMS",
+    "entry_date": "2026-10-06",
+    "exit_date": "2026-11-23",
+    "entry": 800.1,
+    "exit": 885.56,
+    "qty": 129,
+    "days_held": 32,
+    "reason": "trailing",
+    "return_pct": 10.68,
+    "pnl": 10741.29,
+    "net_pct": 10.68,
+    "net_pnl": 10741.29,
+    "hold_days": 32
   }
 ]

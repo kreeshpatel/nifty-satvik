@@ -1,7 +1,9 @@
 {
-  "cash": 5907.849721857434,
+  "cash": 119996.19481295743,
   "peak": 1026655.7556091606,
-  "pending": [],
+  "pending": [
+    "AEGISLOG"
+  ],
   "positions": {
     "HONASA": {
       "ticker": "HONASA",
@@ -10,11 +12,11 @@
       "qty": 2,
       "stop": 426.8792254205831,
       "target": 593.0481209164673,
-      "peak": 529.6500244140625,
+      "peak": 539.75,
       "atr_pct": 3.217832529272994,
       "adv": 992445757.9546967,
-      "days_held": 56,
-      "last_mark": 525.4000244140625,
+      "days_held": 57,
+      "last_mark": 539.75,
       "absent_run": 0
     },
     "FEDERALBNK": {
@@ -27,8 +29,8 @@
       "peak": 373.5,
       "atr_pct": 1.9940904524157377,
       "adv": 1716930689.9016054,
-      "days_held": 44,
-      "last_mark": 373.5,
+      "days_held": 45,
+      "last_mark": 359.79998779296875,
       "absent_run": 0
     },
     "GRANULES": {
@@ -41,22 +43,8 @@
       "peak": 850.425,
       "atr_pct": 3.040402578645517,
       "adv": 1306881966.3125,
-      "days_held": 35,
-      "last_mark": 822.6500244140625,
-      "absent_run": 0
-    },
-    "SONACOMS": {
-      "ticker": "SONACOMS",
-      "entry_date": "2026-10-06 00:00:00",
-      "entry": 800.0998622131348,
-      "qty": 129,
-      "stop": 719.2333419754384,
-      "target": 980.2823511835328,
-      "peak": 926.0,
-      "atr_pct": 2.7539655010388153,
-      "adv": 1932486455.9999998,
-      "days_held": 31,
-      "last_mark": 892.5,
+      "days_held": 36,
+      "last_mark": 837.75,
       "absent_run": 0
     },
     "CHENNPETRO": {
@@ -69,8 +57,8 @@
       "peak": 1573.800048828125,
       "atr_pct": 4.847775862912046,
       "adv": 4341995424.23042,
-      "days_held": 28,
-      "last_mark": 1426.0999755859375,
+      "days_held": 29,
+      "last_mark": 1443.800048828125,
       "absent_run": 0
     },
     "BHEL": {
@@ -83,8 +71,8 @@
       "peak": 436.29998779296875,
       "atr_pct": 3.204999406252899,
       "adv": 5156073568.151816,
-      "days_held": 23,
-      "last_mark": 433.6499938964844,
+      "days_held": 24,
+      "last_mark": 415.70001220703125,
       "absent_run": 0
     },
     "APARINDS": {
@@ -97,8 +85,8 @@
       "peak": 16048.019999999999,
       "atr_pct": 4.5328872850792905,
       "adv": 1928474141.1499999,
-      "days_held": 22,
-      "last_mark": 14339.0,
+      "days_held": 23,
+      "last_mark": 14184.0,
       "absent_run": 0
     },
     "JINDALSAW": {
@@ -111,8 +99,8 @@
       "peak": 266.98607388305663,
       "atr_pct": 4.907817861516225,
       "adv": 446021582.74664915,
-      "days_held": 20,
-      "last_mark": 246.4199981689453,
+      "days_held": 21,
+      "last_mark": 240.52000427246094,
       "absent_run": 0
     },
     "KIRLOSENG": {
@@ -125,8 +113,8 @@
       "peak": 1911.300048828125,
       "atr_pct": 5.438070617750554,
       "adv": 1220773940.7654905,
-      "days_held": 19,
-      "last_mark": 1706.199951171875,
+      "days_held": 20,
+      "last_mark": 1718.9000244140625,
       "absent_run": 0
     },
     "WELCORP": {
@@ -139,8 +127,8 @@
       "peak": 2260.199951171875,
       "atr_pct": 5.89070866137926,
       "adv": 2864489604.9311523,
-      "days_held": 8,
-      "last_mark": 2185.0,
+      "days_held": 9,
+      "last_mark": 2152.800048828125,
       "absent_run": 0
     },
     "HFCL": {
@@ -153,8 +141,8 @@
       "peak": 210.02000427246094,
       "atr_pct": 5.774062711469967,
       "adv": 1667519596.923816,
-      "days_held": 7,
-      "last_mark": 188.0,
+      "days_held": 8,
+      "last_mark": 178.60000610351562,
       "absent_run": 0
     },
     "SYRMA": {
@@ -167,8 +155,8 @@
       "peak": 1517.0,
       "atr_pct": 4.7746779696643635,
       "adv": 2489264674.5,
-      "days_held": 7,
-      "last_mark": 1515.5999755859375,
+      "days_held": 8,
+      "last_mark": 1491.0999755859375,
       "absent_run": 0
     },
     "SAILIFE": {
@@ -178,11 +166,11 @@
       "qty": 50,
       "stop": 1512.8493901652826,
       "target": 2147.0107689,
-      "peak": 1800.699951171875,
+      "peak": 1809.0999755859375,
       "atr_pct": 3.7244317094722876,
       "adv": 3510304443.846588,
-      "days_held": 2,
-      "last_mark": 1800.699951171875,
+      "days_held": 3,
+      "last_mark": 1809.0999755859375,
       "absent_run": 0
     },
     "GLAND": {
@@ -195,8 +183,8 @@
       "peak": 3331.89990234375,
       "atr_pct": 2.9849863608570804,
       "adv": 1498433771.2715333,
-      "days_held": 1,
-      "last_mark": 3331.89990234375,
+      "days_held": 2,
+      "last_mark": 3297.39990234375,
       "absent_run": 0
     },
     "WELSPUNLIV": {
@@ -206,11 +194,11 @@
       "qty": 365,
       "stop": 213.0709236436421,
       "target": 308.90477519999996,
-      "peak": 252.12599999999998,
+      "peak": 270.760009765625,
       "atr_pct": 4.220790469385986,
       "adv": 3210594193.2656236,
-      "days_held": 0,
-      "last_mark": 252.12599999999998,
+      "days_held": 1,
+      "last_mark": 270.760009765625,
       "absent_run": 0
     }
   },
@@ -790,6 +778,18 @@
       "reason": "trailing",
       "return_pct": 6.48,
       "pnl": 2949.59
+    },
+    {
+      "ticker": "SONACOMS",
+      "entry_date": "2026-10-06",
+      "exit_date": "2026-11-23",
+      "entry": 800.1,
+      "exit": 885.56,
+      "qty": 129,
+      "days_held": 32,
+      "reason": "trailing",
+      "return_pct": 10.68,
+      "pnl": 10741.29
     }
   ],
   "equity_curve": [
@@ -1392,6 +1392,12 @@
       "equity": 958229.9,
       "cash": 5907.85,
       "n_positions": 15
+    },
+    {
+      "date": "2026-11-23",
+      "equity": 951643.46,
+      "cash": 119996.19,
+      "n_positions": 14
     }
   ],
   "config": {
