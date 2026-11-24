@@ -1,12 +1,12 @@
 {
-  "generated_utc": "2026-11-23T10:47:04.876716+00:00",
-  "generated_ist": "2026-11-23 16:17",
+  "generated_utc": "2026-11-24T10:47:07.035772+00:00",
+  "generated_ist": "2026-11-24 16:17",
   "as_of": "2026-11-23",
   "model": "weekly-swing-0094-rank-P",
   "source": "signals_today_weekly.json",
   "note": "OBSERVATIONAL re-pricing of the frozen Saturday weekly signals \u2014 live current_price + intra-week event flags mapped to the frozen exit tranches. Does NOT recompute signals or move any frozen level; the paper record is untouched and the weekly decision cadence is unchanged. ONLY the +2R target tranche (a resting broker limit) is actionable intra-week; the blow-off pattern and the 44w-SMA runner are decided ONLY at the Saturday weekly recompute and are flagged here as WATCH-only, never actionable.",
   "n_monitored": 24,
-  "n_flags": 53,
+  "n_flags": 54,
   "n_actionable": 13,
   "monitors": [
     {
@@ -21,9 +21,9 @@
       "buy_window_until": "2026-11-27",
       "buy_window_open": true,
       "window_basis": {
-        "compared_against": "2026-11-23",
+        "compared_against": "2026-11-24",
         "data_as_of": "2026-11-23",
-        "feed_behind": false
+        "feed_behind": true
       },
       "filled_today": true,
       "expired": false,
@@ -44,9 +44,9 @@
       "buy_window_until": "2026-11-27",
       "buy_window_open": true,
       "window_basis": {
-        "compared_against": "2026-11-23",
+        "compared_against": "2026-11-24",
         "data_as_of": "2026-11-23",
-        "feed_behind": false
+        "feed_behind": true
       },
       "filled_today": true,
       "expired": false,
@@ -67,9 +67,9 @@
       "buy_window_until": "2026-11-27",
       "buy_window_open": true,
       "window_basis": {
-        "compared_against": "2026-11-23",
+        "compared_against": "2026-11-24",
         "data_as_of": "2026-11-23",
-        "feed_behind": false
+        "feed_behind": true
       },
       "filled_today": true,
       "expired": false,
@@ -1458,6 +1458,12 @@
       "message": "The model sold IDFCFIRSTB on 2026-10-05 at Rs 80.76 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 85.40 (+5.7% vs the model's exit)."
     },
     {
+      "ticker": "ASTERDM",
+      "event": "MISSED_EXIT",
+      "severity": "high",
+      "message": "The model sold ASTERDM on 2026-10-05 at Rs 708.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 790.35 (+11.6% vs the model's exit)."
+    },
+    {
       "ticker": "ABCAPITAL",
       "event": "MISSED_EXIT",
       "severity": "high",
@@ -1554,7 +1560,7 @@
       "message": "The model sold MCX on 2026-11-20 at Rs 3,599.00 \u2014 the model's profit target was reached. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is still at Rs 3,581.60 (-0.5% vs the model's exit)."
     }
   ],
-  "n_missed_exits": 39,
+  "n_missed_exits": 40,
   "missed_exits": [
     {
       "ticker": "GLENMARK",
@@ -1971,6 +1977,24 @@
       "source": "booked"
     },
     {
+      "ticker": "ASTERDM",
+      "signal_id": "ASTERDM__2026-09-07",
+      "signal_date": "2026-09-07",
+      "reason": "stop",
+      "severity": "high",
+      "cause": "the weekly close broke its stop",
+      "due_date": "2026-10-05",
+      "due_price": 708.0,
+      "last_close": 790.35,
+      "as_of": "2026-11-23",
+      "drift_pct": 11.63,
+      "entry": 786.0,
+      "stop": null,
+      "r_at_exit": -1.91,
+      "do": "The model sold ASTERDM on 2026-10-05 at Rs 708.00 \u2014 the weekly close broke its stop. If you did not sell, you are holding a position the record is flat on: sell the remainder at market at the next open. It is now at Rs 790.35 (+11.6% vs the model's exit).",
+      "source": "booked"
+    },
+    {
       "ticker": "ABCAPITAL",
       "signal_id": "ABCAPITAL__2026-09-21",
       "signal_date": "2026-09-21",
@@ -2260,17 +2284,10 @@
       "source": "issued"
     }
   ],
-  "n_missed_unpriceable": 1,
-  "missed_unpriceable": [
-    {
-      "ticker": "ASTERDM",
-      "due_date": "2026-10-05",
-      "source": "booked",
-      "why": "no daily bars cached for this ticker"
-    }
-  ],
+  "n_missed_unpriceable": 0,
+  "missed_unpriceable": [],
   "scheduler_health": {
-    "checked_utc": "2026-11-23T10:47:04.878620+00:00",
+    "checked_utc": "2026-11-24T10:47:07.037447+00:00",
     "overall": "CONTRACT_BREACH",
     "source_of_truth": "actions-run-log",
     "jobs": [
@@ -2284,7 +2301,7 @@
         "last_fired_utc": "2026-11-21T12:32:58+00:00",
         "artifact_last_utc": "2026-11-20T00:00:00+00:00",
         "artifact_corroborates": true,
-        "age_days": 1.93,
+        "age_days": 2.93,
         "overdue_after_days": 9,
         "status": "OK"
       },
@@ -2294,11 +2311,11 @@
         "cadence": "weekday",
         "proof": "forward_accum_health.json",
         "source": "run-log",
-        "run_id": 44722051340,
-        "last_fired_utc": "2026-11-20T10:46:29+00:00",
-        "artifact_last_utc": "2026-11-20T10:47:13+00:00",
+        "run_id": 45159135081,
+        "last_fired_utc": "2026-11-23T10:46:25+00:00",
+        "artifact_last_utc": "2026-11-23T10:47:07+00:00",
         "artifact_corroborates": true,
-        "age_days": 3.0,
+        "age_days": 1.0,
         "overdue_after_days": 5,
         "status": "OK"
       },
@@ -2310,9 +2327,9 @@
         "source": "run-log",
         "run_id": 44904462429,
         "last_fired_utc": "2026-11-21T12:32:58+00:00",
-        "artifact_last_utc": "2026-11-23T10:46:33.153613+00:00",
+        "artifact_last_utc": "2026-11-24T10:46:33.861031+00:00",
         "artifact_corroborates": false,
-        "age_days": 1.93,
+        "age_days": 2.93,
         "overdue_after_days": 9,
         "status": "OK"
       },
@@ -2324,9 +2341,9 @@
         "source": "run-log",
         "run_id": 44904462429,
         "last_fired_utc": "2026-11-21T12:32:58+00:00",
-        "artifact_last_utc": "2026-11-23T10:46:33.140116+00:00",
+        "artifact_last_utc": "2026-11-24T10:46:33.849197+00:00",
         "artifact_corroborates": false,
-        "age_days": 1.93,
+        "age_days": 2.93,
         "overdue_after_days": 9,
         "status": "OK"
       },
@@ -2336,11 +2353,11 @@
         "cadence": "weekday",
         "proof": "intraday_scan",
         "source": "run-log",
-        "run_id": 44725310117,
-        "last_fired_utc": "2026-11-20T11:09:53+00:00",
-        "artifact_last_utc": "2026-11-23T10:46:33.146554+00:00",
+        "run_id": 45162610070,
+        "last_fired_utc": "2026-11-23T11:09:39+00:00",
+        "artifact_last_utc": "2026-11-24T10:46:33.854997+00:00",
         "artifact_corroborates": false,
-        "age_days": 2.98,
+        "age_days": 0.98,
         "overdue_after_days": 5,
         "status": "OK"
       },
@@ -2350,11 +2367,11 @@
         "cadence": "weekday",
         "proof": "paper_portfolio.json",
         "source": "run-log",
-        "run_id": 44740749070,
-        "last_fired_utc": "2026-11-20T13:02:00+00:00",
-        "artifact_last_utc": "2026-11-23T10:46:33.150554+00:00",
+        "run_id": 45180025681,
+        "last_fired_utc": "2026-11-23T13:02:46+00:00",
+        "artifact_last_utc": "2026-11-24T10:46:33.857997+00:00",
         "artifact_corroborates": false,
-        "age_days": 2.91,
+        "age_days": 0.91,
         "overdue_after_days": 5,
         "status": "OK"
       }
@@ -2363,11 +2380,11 @@
     "note": "Dead-man reconstruction produced by the daily monitor (the proven weekday heartbeat). Firing truth is the Actions run log; committed artifacts corroborate only. If THIS block's checked_utc is itself stale, the monitor has stopped and every downstream freshness claim is suspect.",
     "output_contracts": {
       "overall": "RED",
-      "checked_at": "2026-11-23T10:47:06.912096+00:00",
+      "checked_at": "2026-11-24T10:47:09.053083+00:00",
       "history": {
         "adequate": true,
         "shallow": false,
-        "n_commits": 1316,
+        "n_commits": 1319,
         "oldest_commit": "2026-06-29T03:34:14+05:30",
         "reaches_back_past_cadence": true
       },
@@ -2377,7 +2394,7 @@
           "status": "OK",
           "last_commit": "d898ccd6",
           "committed_at": "2026-11-21T12:37:45Z",
-          "age_days": 1.92,
+          "age_days": 2.92,
           "missing_required": [],
           "missing_conditional": [],
           "n_paths_in_commit": 1
@@ -2387,7 +2404,7 @@
           "status": "OK_WITH_WARN",
           "last_commit": "f139f476",
           "committed_at": "2026-11-21T12:36:00Z",
-          "age_days": 1.92,
+          "age_days": 2.92,
           "missing_required": [],
           "missing_conditional": [
             "results/sentiment_forward.jsonl"
@@ -2397,9 +2414,9 @@
         {
           "job": "forward-accumulators",
           "status": "OK",
-          "last_commit": "48850ebf",
-          "committed_at": "2026-11-20T10:47:16Z",
-          "age_days": 3.0,
+          "last_commit": "78383b82",
+          "committed_at": "2026-11-23T10:47:10Z",
+          "age_days": 1.0,
           "missing_required": [],
           "missing_conditional": [],
           "n_paths_in_commit": 4
@@ -2407,9 +2424,9 @@
         {
           "job": "intraday-scan",
           "status": "OK",
-          "last_commit": "d5fc85da",
-          "committed_at": "2026-11-20T11:10:49Z",
-          "age_days": 2.98,
+          "last_commit": "c74474de",
+          "committed_at": "2026-11-23T11:10:35Z",
+          "age_days": 0.98,
           "missing_required": [],
           "missing_conditional": [],
           "n_paths_in_commit": 1
@@ -2417,18 +2434,18 @@
         {
           "job": "forward-wall-log",
           "status": "CONTRACT_BREACH",
-          "last_commit": "a5878e2d",
-          "committed_at": "2026-11-20T13:03:50Z",
-          "age_days": 2.91,
+          "last_commit": "b5082052",
+          "committed_at": "2026-11-23T13:05:01Z",
+          "age_days": 0.9,
           "missing_required": [],
           "missing_conditional": [
             "results/scheduler_health.json"
           ],
-          "n_paths_in_commit": 10
+          "n_paths_in_commit": 11
         }
       ],
       "breaches": [
-        "forward-wall-log: has stopped updating results/forward_wall_start.json (last written 102d ago, bound 20d)"
+        "forward-wall-log: has stopped updating results/forward_wall_start.json (last written 103d ago, bound 20d)"
       ],
       "warnings": [
         "weekly-scanner: conditional artifact(s) not persisted: results/sentiment_forward.jsonl",
