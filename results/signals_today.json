@@ -1,22 +1,22 @@
 {
-  "generated_at": "2026-11-24",
+  "generated_at": "2026-11-25",
   "signals": [
     {
-      "ticker": "WELSPUNLIV",
-      "entry": 270.9,
-      "stop": 228.6,
-      "target": 331.91,
+      "ticker": "HFCL",
+      "entry": 170.03,
+      "stop": 127.15,
+      "target": 208.32,
       "target_pct": 22.52,
-      "current_price": 270.76,
-      "close": 270.76,
-      "signal_date": "2026-11-23",
+      "current_price": 169.95,
+      "close": 169.95,
+      "signal_date": "2026-11-25",
       "hold_days": 63,
       "grade": "B",
       "tier": "signal",
-      "status": "ACTIVE",
+      "status": "FRESH",
       "buy_window": "T+1..T+3 at open",
-      "indicative_close": 270.76,
-      "indicative_entry": 270.9
+      "indicative_close": 169.95,
+      "indicative_entry": 170.03
     }
   ],
   "regime": {
@@ -26,11 +26,11 @@
     "breadth": 0
   },
   "n_positions": 14,
-  "cash": 105755.91,
+  "cash": 76065.37,
   "kill_state": {
-    "wr_last20": 50.0,
+    "wr_last20": 45.0,
     "wr_breach": false,
-    "sharpe_30d": -1.385,
+    "sharpe_30d": -2.015,
     "sharpe_30d_breach": true,
     "mode": "observe"
   }

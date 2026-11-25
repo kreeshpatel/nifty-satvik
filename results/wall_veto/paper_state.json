@@ -1,8 +1,8 @@
 {
-  "cash": 119996.19481295743,
+  "cash": 29708.831084672507,
   "peak": 1026655.7556091606,
   "pending": [
-    "AEGISLOG"
+    "SONACOMS"
   ],
   "positions": {
     "HONASA": {
@@ -15,22 +15,8 @@
       "peak": 539.75,
       "atr_pct": 3.217832529272994,
       "adv": 992445757.9546967,
-      "days_held": 57,
-      "last_mark": 539.75,
-      "absent_run": 0
-    },
-    "FEDERALBNK": {
-      "ticker": "FEDERALBNK",
-      "entry_date": "2026-09-16 00:00:00",
-      "entry": 341.9708877868652,
-      "qty": 1,
-      "stop": 316.9443914049901,
-      "target": 418.9827317164673,
-      "peak": 373.5,
-      "atr_pct": 1.9940904524157377,
-      "adv": 1716930689.9016054,
-      "days_held": 45,
-      "last_mark": 359.79998779296875,
+      "days_held": 58,
+      "last_mark": 536.4500122070312,
       "absent_run": 0
     },
     "GRANULES": {
@@ -43,8 +29,8 @@
       "peak": 850.425,
       "atr_pct": 3.040402578645517,
       "adv": 1306881966.3125,
-      "days_held": 36,
-      "last_mark": 837.75,
+      "days_held": 37,
+      "last_mark": 840.7999877929688,
       "absent_run": 0
     },
     "CHENNPETRO": {
@@ -57,8 +43,8 @@
       "peak": 1573.800048828125,
       "atr_pct": 4.847775862912046,
       "adv": 4341995424.23042,
-      "days_held": 29,
-      "last_mark": 1443.800048828125,
+      "days_held": 30,
+      "last_mark": 1366.5999755859375,
       "absent_run": 0
     },
     "BHEL": {
@@ -71,8 +57,8 @@
       "peak": 436.29998779296875,
       "atr_pct": 3.204999406252899,
       "adv": 5156073568.151816,
-      "days_held": 24,
-      "last_mark": 415.70001220703125,
+      "days_held": 25,
+      "last_mark": 413.5,
       "absent_run": 0
     },
     "APARINDS": {
@@ -85,8 +71,8 @@
       "peak": 16048.019999999999,
       "atr_pct": 4.5328872850792905,
       "adv": 1928474141.1499999,
-      "days_held": 23,
-      "last_mark": 14184.0,
+      "days_held": 24,
+      "last_mark": 14250.0,
       "absent_run": 0
     },
     "JINDALSAW": {
@@ -99,8 +85,8 @@
       "peak": 266.98607388305663,
       "atr_pct": 4.907817861516225,
       "adv": 446021582.74664915,
-      "days_held": 21,
-      "last_mark": 240.52000427246094,
+      "days_held": 22,
+      "last_mark": 243.57000732421875,
       "absent_run": 0
     },
     "KIRLOSENG": {
@@ -113,8 +99,8 @@
       "peak": 1911.300048828125,
       "atr_pct": 5.438070617750554,
       "adv": 1220773940.7654905,
-      "days_held": 20,
-      "last_mark": 1718.9000244140625,
+      "days_held": 21,
+      "last_mark": 1710.5999755859375,
       "absent_run": 0
     },
     "WELCORP": {
@@ -127,8 +113,8 @@
       "peak": 2260.199951171875,
       "atr_pct": 5.89070866137926,
       "adv": 2864489604.9311523,
-      "days_held": 9,
-      "last_mark": 2152.800048828125,
+      "days_held": 10,
+      "last_mark": 2117.5,
       "absent_run": 0
     },
     "HFCL": {
@@ -141,8 +127,8 @@
       "peak": 210.02000427246094,
       "atr_pct": 5.774062711469967,
       "adv": 1667519596.923816,
-      "days_held": 8,
-      "last_mark": 178.60000610351562,
+      "days_held": 9,
+      "last_mark": 169.9499969482422,
       "absent_run": 0
     },
     "SYRMA": {
@@ -155,8 +141,8 @@
       "peak": 1517.0,
       "atr_pct": 4.7746779696643635,
       "adv": 2489264674.5,
-      "days_held": 8,
-      "last_mark": 1491.0999755859375,
+      "days_held": 9,
+      "last_mark": 1434.0,
       "absent_run": 0
     },
     "SAILIFE": {
@@ -169,8 +155,8 @@
       "peak": 1809.0999755859375,
       "atr_pct": 3.7244317094722876,
       "adv": 3510304443.846588,
-      "days_held": 3,
-      "last_mark": 1809.0999755859375,
+      "days_held": 4,
+      "last_mark": 1799.300048828125,
       "absent_run": 0
     },
     "GLAND": {
@@ -180,11 +166,11 @@
       "qty": 27,
       "stop": 2878.040258276568,
       "target": 3959.9876043,
-      "peak": 3331.89990234375,
+      "peak": 3348.39990234375,
       "atr_pct": 2.9849863608570804,
       "adv": 1498433771.2715333,
-      "days_held": 2,
-      "last_mark": 3297.39990234375,
+      "days_held": 3,
+      "last_mark": 3348.39990234375,
       "absent_run": 0
     },
     "WELSPUNLIV": {
@@ -194,11 +180,25 @@
       "qty": 365,
       "stop": 213.0709236436421,
       "target": 308.90477519999996,
-      "peak": 270.760009765625,
+      "peak": 276.57000732421875,
       "atr_pct": 4.220790469385986,
       "adv": 3210594193.2656236,
-      "days_held": 1,
-      "last_mark": 270.760009765625,
+      "days_held": 2,
+      "last_mark": 276.57000732421875,
+      "absent_run": 0
+    },
+    "AEGISLOG": {
+      "ticker": "AEGISLOG",
+      "entry_date": "2026-11-25 00:00:00",
+      "entry": 1160.58,
+      "qty": 78,
+      "stop": 914.4385618350888,
+      "target": 1421.942616,
+      "peak": 1160.58,
+      "atr_pct": 5.778878815898618,
+      "adv": 1952293577.547217,
+      "days_held": 0,
+      "last_mark": 1160.58,
       "absent_run": 0
     }
   },
@@ -790,6 +790,18 @@
       "reason": "trailing",
       "return_pct": 10.68,
       "pnl": 10741.29
+    },
+    {
+      "ticker": "FEDERALBNK",
+      "entry_date": "2026-09-16",
+      "exit_date": "2026-11-25",
+      "entry": 341.97,
+      "exit": 356.02,
+      "qty": 1,
+      "days_held": 46,
+      "reason": "trailing",
+      "return_pct": 4.11,
+      "pnl": 13.14
     }
   ],
   "equity_curve": [
@@ -1397,6 +1409,12 @@
       "date": "2026-11-23",
       "equity": 951643.46,
       "cash": 119996.19,
+      "n_positions": 14
+    },
+    {
+      "date": "2026-11-25",
+      "equity": 948386.44,
+      "cash": 29708.83,
       "n_positions": 14
     }
   ],

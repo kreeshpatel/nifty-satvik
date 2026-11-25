@@ -733,5 +733,20 @@
     "net_pct": 10.68,
     "net_pnl": 10741.29,
     "hold_days": 32
+  },
+  {
+    "ticker": "FEDERALBNK",
+    "entry_date": "2026-09-16",
+    "exit_date": "2026-11-25",
+    "entry": 341.97,
+    "exit": 356.02,
+    "qty": 1,
+    "days_held": 46,
+    "reason": "trailing",
+    "return_pct": 4.11,
+    "pnl": 13.14,
+    "net_pct": 4.11,
+    "net_pnl": 13.14,
+    "hold_days": 46
   }
 ]
