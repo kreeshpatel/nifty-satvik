@@ -1,36 +1,18 @@
 {
-  "generated_at": "2026-11-25",
-  "signals": [
-    {
-      "ticker": "HFCL",
-      "entry": 170.03,
-      "stop": 127.15,
-      "target": 208.32,
-      "target_pct": 22.52,
-      "current_price": 169.95,
-      "close": 169.95,
-      "signal_date": "2026-11-25",
-      "hold_days": 63,
-      "grade": "B",
-      "tier": "signal",
-      "status": "FRESH",
-      "buy_window": "T+1..T+3 at open",
-      "indicative_close": 169.95,
-      "indicative_entry": 170.03
-    }
-  ],
+  "generated_at": "2026-11-26",
+  "signals": [],
   "regime": {
     "status": "UNKNOWN",
     "strength": 0,
     "vix": 0,
     "breadth": 0
   },
-  "n_positions": 14,
-  "cash": 76065.37,
+  "n_positions": 15,
+  "cash": 6760.81,
   "kill_state": {
     "wr_last20": 45.0,
     "wr_breach": false,
-    "sharpe_30d": -2.015,
+    "sharpe_30d": -2.301,
     "sharpe_30d_breach": true,
     "mode": "observe"
   }
