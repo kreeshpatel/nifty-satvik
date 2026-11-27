@@ -763,5 +763,20 @@
     "net_pct": -21.48,
     "net_pnl": -16753.31,
     "hold_days": 10
+  },
+  {
+    "ticker": "HONASA",
+    "entry_date": "2026-08-28",
+    "exit_date": "2026-11-27",
+    "entry": 484.04,
+    "exit": 512.29,
+    "qty": 2,
+    "days_held": 60,
+    "reason": "trailing",
+    "return_pct": 5.84,
+    "pnl": 53.91,
+    "net_pct": 5.84,
+    "net_pnl": 53.91,
+    "hold_days": 60
   }
 ]
