@@ -1,0 +1,31 @@
+{
+  "prev_snapshot": "2026-11-20",
+  "cur_snapshot": "2026-11-27",
+  "closed_prev": 39,
+  "closed_cur": 39,
+  "closed_delta": 0,
+  "nav_prev": 969286.8,
+  "nav_cur": 814257.48,
+  "nav_delta": -155029.32,
+  "n_restated": 0,
+  "restated": [],
+  "n_vanished": 0,
+  "vanished": [],
+  "n_appeared": 0,
+  "appeared": [],
+  "n_vanished_open": 0,
+  "vanished_open": [],
+  "inputs_changed": [
+    "nifty50_csv_sha256",
+    "ohlcv_cache_sha256",
+    "ohlcv_last_bar",
+    "ohlcv_n_rows"
+  ],
+  "clean": true,
+  "as_of": "2026-11-27",
+  "prev_as_of": "2026-11-20",
+  "gap_days": 7,
+  "backfilled": false,
+  "logged_utc": "2026-11-28T12:36:00.563249+00:00",
+  "is_baseline": false
+}

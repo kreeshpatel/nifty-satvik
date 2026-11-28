@@ -1,25 +1,32 @@
-# Weekly Decision Memos — 2026-11-20 | regime CHOPPY | 24 signals
+# Weekly Decision Memos — 2026-11-27 | regime CHOPPY | 28 signals
 
-### DECISION MEMO — APOLLOHOSP  (APOLLOHOSP__2026-11-20)
+### DECISION MEMO — J&KBANK  (J&KBANK__2026-11-27)
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
-2. **Signal strength** — ****.  (grade A, CRS rank 0.0276)
+2. **Signal strength** — ****.  (grade A, CRS rank 0.092)
+3. **Risk** — MODERATE-HIGH · stop width 11.1% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 166.39 (band [145.25, 168.0]) · SL 149.75 · TP 199.67
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [145.25, 168.0]; fund strongest CRS rank first.
+
+### DECISION MEMO — SOLARINDS  (SOLARINDS__2026-11-27)
+1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
+2. **Signal strength** — ****.  (grade A, CRS rank 0.025)
 3. **Risk** — MODERATE · stop width 7.8% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 9200.0 (band [8534.5, 9282.5]) · SL 8534.5 · TP 10531.0
-5. **Status** — [OK] **APPROVED** — Execute — buy in the band [8534.5, 9282.5]; fund strongest CRS rank first.
+4. **Trade plan** — entry 19450.0 (band [18050.0, 19520.0]) · SL 18050.0 · TP 22250.0
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [18050.0, 19520.0]; fund strongest CRS rank first.
 
-### DECISION MEMO — ADANIENSOL  (ADANIENSOL__2026-11-20)
+### DECISION MEMO — TORNTPHARM  (TORNTPHARM__2026-11-27)
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
-2. **Signal strength** — ****.  (grade A, CRS rank 0.0077)
-3. **Risk** — MODERATE · stop width 5.3% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 1491.8 (band [1417.0, 1515.0]) · SL 1417.0 · TP 1641.4
-5. **Status** — [OK] **APPROVED** — Execute — buy in the band [1417.0, 1515.0]; fund strongest CRS rank first.
+2. **Signal strength** — ****.  (grade A, CRS rank 0.0208)
+3. **Risk** — MODERATE · stop width 7.1% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 5034.0 (band [4698.8, 5055.0]) · SL 4698.8 · TP 5704.4
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [4698.8, 5055.0]; fund strongest CRS rank first.
 
-### DECISION MEMO — GLAXO  (GLAXO__2026-11-20)
+### DECISION MEMO — ZENTEC  (ZENTEC__2026-11-27)
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
-2. **Signal strength** — ****.  (grade A, CRS rank 0.0075)
-3. **Risk** — MODERATE · stop width 5.1% · R:R 1:2.0 · max-loss-in-plan YES
-4. **Trade plan** — entry 2727.6 (band [2595.9, 2748.0]) · SL 2595.9 · TP 2991.0
-5. **Status** — [OK] **APPROVED** — Execute — buy in the band [2595.9, 2748.0]; fund strongest CRS rank first.
+2. **Signal strength** — ****.  (grade A, CRS rank 0.008)
+3. **Risk** — MODERATE · stop width 7.4% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 1793.2 (band [1670.0, 1812.0]) · SL 1670.0 · TP 2039.6
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [1670.0, 1812.0]; fund strongest CRS rank first.
 
 ### DECISION MEMO — CUB  (CUB__2026-07-06)
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
@@ -61,7 +68,7 @@
 2. **Signal strength** — ****.  (grade A, CRS rank None)
 3. **Risk** — MODERATE-HIGH · stop width 11.1% · R:R 1:2.0 · max-loss-in-plan YES
 4. **Trade plan** — entry 2905.98 (band [None, None]) · SL 2615.38 · TP 3487.18
-5. **Status** — [WATCH] **WATCHLIST** — Monitor — below the A-grade / actionable bar; do not fund yet.
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
 
 ### DECISION MEMO — APLAPOLLO  (APLAPOLLO__2026-08-17)
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
@@ -103,7 +110,7 @@
 2. **Signal strength** — ****.  (grade A, CRS rank None)
 3. **Risk** — MODERATE · stop width 4.1% · R:R 1:2.0 · max-loss-in-plan YES
 4. **Trade plan** — entry 330.0 (band [None, None]) · SL 317.05 · TP 355.9
-5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
+5. **Status** — [WATCH] **WATCHLIST** — Monitor — below the A-grade / actionable bar; do not fund yet.
 
 ### DECISION MEMO — TECHM  (TECHM__2026-10-19)
 1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
@@ -166,4 +173,25 @@
 2. **Signal strength** — ****.  (grade A, CRS rank None)
 3. **Risk** — MODERATE · stop width 3.2% · R:R 1:2.0 · max-loss-in-plan YES
 4. **Trade plan** — entry 386.2 (band [None, None]) · SL 374.05 · TP 410.5
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
+
+### DECISION MEMO — APOLLOHOSP  (APOLLOHOSP__2026-11-23)
+1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
+2. **Signal strength** — ****.  (grade A, CRS rank None)
+3. **Risk** — MODERATE-HIGH · stop width 8.7% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 9280.0 (band [None, None]) · SL 8534.5 · TP 10771.0
+5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.
+
+### DECISION MEMO — ADANIENSOL  (ADANIENSOL__2026-11-23)
+1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
+2. **Signal strength** — ****.  (grade A, CRS rank None)
+3. **Risk** — MODERATE · stop width 6.7% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 1512.6 (band [None, None]) · SL 1417.0 · TP 1703.8
+5. **Status** — [WATCH] **WATCHLIST** — Monitor — below the A-grade / actionable bar; do not fund yet.
+
+### DECISION MEMO — GLAXO  (GLAXO__2026-11-23)
+1. **Setup** — LONG · 44-week SMA pullback · trend CHOPPY · weekly (44w SMA)
+2. **Signal strength** — ****.  (grade A, CRS rank None)
+3. **Risk** — MODERATE · stop width 5.6% · R:R 1:2.0 · max-loss-in-plan YES
+4. **Trade plan** — entry 2740.0 (band [None, None]) · SL 2595.9 · TP 3028.2
 5. **Status** — [OK] **APPROVED** — Execute — buy in the band [None, None]; fund strongest CRS rank first.

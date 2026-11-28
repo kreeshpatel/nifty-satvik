@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-21T12:36:00Z",
-  "scan_as_of": "2026-11-20",
+  "generated_at": "2026-11-28T12:36:54Z",
+  "scan_as_of": "2026-11-27",
   "status": "GREEN",
   "counts": {
     "red": 0,
@@ -16,7 +16,7 @@
       "status": "GREEN",
       "ok": true,
       "exit_code": 0,
-      "duration_s": 0.97,
+      "duration_s": 0.75,
       "note": "",
       "findings": []
     },
@@ -26,7 +26,7 @@
       "status": "GREEN",
       "ok": true,
       "exit_code": 0,
-      "duration_s": 0.3,
+      "duration_s": 0.23,
       "note": "",
       "findings": []
     },
@@ -36,7 +36,7 @@
       "status": "GREEN",
       "ok": true,
       "exit_code": 0,
-      "duration_s": 0.04,
+      "duration_s": 0.03,
       "note": "",
       "findings": []
     },
@@ -57,7 +57,7 @@
       "ok": true,
       "exit_code": 0,
       "duration_s": 0.0,
-      "note": "degenerate-stop guard: ran, 0 refused (threshold 0.5% of entry, 24 candidate(s) checked)",
+      "note": "degenerate-stop guard: ran, 0 refused (threshold 0.5% of entry, 28 candidate(s) checked)",
       "findings": []
     },
     {
@@ -66,20 +66,13 @@
       "status": "GREEN",
       "ok": true,
       "exit_code": 0,
-      "duration_s": 0.38,
+      "duration_s": 0.31,
       "note": "",
       "findings": []
     }
   ],
   "issues": {
     "enabled": true,
-    "actions": [
-      {
-        "action": "close",
-        "key": "signal-quality-axes:PHOENIXLTD|2026-11-09",
-        "ok": true,
-        "number": 200
-      }
-    ]
+    "actions": []
   }
 }

@@ -3,26 +3,26 @@
   "status": "SHADOW \u2014 computed beside the live book, never traded, never shown on a card",
   "authority": "diagnostics/research/explore/2026-11-03_giveback_solution_map.md; decided at a review, not here",
   "effective": "2026-11-09",
-  "as_of": "2026-11-20",
+  "as_of": "2026-11-27",
   "forward": {
-    "n_trades": 5,
-    "live_sum_R": 2.14,
-    "shadow_sum_R": 2.14,
+    "n_trades": 8,
+    "live_sum_R": 1.1,
+    "shadow_sum_R": 1.1,
     "shadow_minus_live_R": 0.0
   },
   "reconstructed_before_effective": {
     "n_trades": 55,
-    "live_sum_R": -21.57,
-    "shadow_sum_R": -19.9,
-    "shadow_minus_live_R": 1.67
+    "live_sum_R": -30.7,
+    "shadow_sum_R": -24.32,
+    "shadow_minus_live_R": 6.37
   },
   "paper_book": {
     "live": {
-      "equity": 969286.8,
-      "maxdd_pct": -13.895
+      "equity": 814257.48,
+      "maxdd_pct": -23.706
     },
     "shadow": {
-      "equity": 1052461.13,
+      "equity": 958324.12,
       "maxdd_pct": -10.263
     }
   },
@@ -32,7 +32,7 @@
       "entry_date": "2026-07-06",
       "forward": false,
       "live": {
-        "R": 1.957,
+        "R": 1.709,
         "status": "open"
       },
       "shadow": {
@@ -271,11 +271,11 @@
       "entry_date": "2026-07-27",
       "forward": false,
       "live": {
-        "R": 1.741,
+        "R": 2.019,
         "status": "open"
       },
       "shadow": {
-        "R": 1.741,
+        "R": 2.019,
         "status": "open"
       }
     },
@@ -299,7 +299,7 @@
       "entry_date": "2026-07-27",
       "forward": false,
       "live": {
-        "R": 1.958,
+        "R": 1.851,
         "status": "open"
       },
       "shadow": {
@@ -328,11 +328,11 @@
       "entry_date": "2026-08-10",
       "forward": false,
       "live": {
-        "R": 2.723,
+        "R": 2.862,
         "status": "open"
       },
       "shadow": {
-        "R": 2.723,
+        "R": 2.862,
         "status": "open"
       }
     },
@@ -341,11 +341,11 @@
       "entry_date": "2026-08-10",
       "forward": false,
       "live": {
-        "R": 2.846,
+        "R": 3.022,
         "status": "open"
       },
       "shadow": {
-        "R": 2.846,
+        "R": 3.022,
         "status": "open"
       }
     },
@@ -384,11 +384,11 @@
       "entry_date": "2026-08-17",
       "forward": false,
       "live": {
-        "R": 2.905,
+        "R": 2.781,
         "status": "open"
       },
       "shadow": {
-        "R": 2.905,
+        "R": 2.781,
         "status": "open"
       }
     },
@@ -397,7 +397,7 @@
       "entry_date": "2026-08-17",
       "forward": false,
       "live": {
-        "R": 0.26,
+        "R": -4.088,
         "status": "open"
       },
       "shadow": {
@@ -426,11 +426,11 @@
       "entry_date": "2026-08-17",
       "forward": false,
       "live": {
-        "R": 2.099,
+        "R": 2.35,
         "status": "open"
       },
       "shadow": {
-        "R": 2.099,
+        "R": 2.35,
         "status": "open"
       }
     },
@@ -615,11 +615,11 @@
       "entry_date": "2026-09-15",
       "forward": false,
       "live": {
-        "R": 2.057,
+        "R": 2.24,
         "status": "open"
       },
       "shadow": {
-        "R": 2.057,
+        "R": 2.24,
         "status": "open"
       }
     },
@@ -699,11 +699,11 @@
       "entry_date": "2026-09-28",
       "forward": false,
       "live": {
-        "R": 0.139,
+        "R": 0.52,
         "status": "open"
       },
       "shadow": {
-        "R": 0.139,
+        "R": 0.52,
         "status": "open"
       }
     },
@@ -712,11 +712,11 @@
       "entry_date": "2026-10-05",
       "forward": false,
       "live": {
-        "R": 1.441,
+        "R": 1.523,
         "status": "open"
       },
       "shadow": {
-        "R": 1.441,
+        "R": 1.523,
         "status": "open"
       }
     },
@@ -725,11 +725,11 @@
       "entry_date": "2026-10-12",
       "forward": false,
       "live": {
-        "R": 2.815,
+        "R": 2.19,
         "status": "open"
       },
       "shadow": {
-        "R": 2.815,
+        "R": 2.19,
         "status": "open"
       }
     },
@@ -783,11 +783,11 @@
       "entry_date": "2026-10-19",
       "forward": false,
       "live": {
-        "R": 0.004,
+        "R": -4.804,
         "status": "open"
       },
       "shadow": {
-        "R": 0.004,
+        "R": -4.804,
         "status": "open"
       }
     },
@@ -797,7 +797,7 @@
       "forward": false,
       "live": null,
       "shadow": {
-        "R": 1.817,
+        "R": 1.584,
         "status": "open"
       }
     },
@@ -821,11 +821,11 @@
       "entry_date": "2026-11-02",
       "forward": false,
       "live": {
-        "R": 0.892,
+        "R": 0.673,
         "status": "open"
       },
       "shadow": {
-        "R": 0.892,
+        "R": 0.673,
         "status": "open"
       }
     },
@@ -834,11 +834,11 @@
       "entry_date": "2026-11-02",
       "forward": false,
       "live": {
-        "R": 1.837,
+        "R": 2.102,
         "status": "open"
       },
       "shadow": {
-        "R": 1.837,
+        "R": 2.102,
         "status": "open"
       }
     },
@@ -847,11 +847,11 @@
       "entry_date": "2026-11-05",
       "forward": false,
       "live": {
-        "R": 0.0,
+        "R": -0.405,
         "status": "open"
       },
       "shadow": {
-        "R": 0.0,
+        "R": -0.405,
         "status": "open"
       }
     },
@@ -860,11 +860,11 @@
       "entry_date": "2026-11-09",
       "forward": true,
       "live": {
-        "R": 0.084,
+        "R": 1.423,
         "status": "open"
       },
       "shadow": {
-        "R": 0.084,
+        "R": 1.423,
         "status": "open"
       }
     },
@@ -873,11 +873,11 @@
       "entry_date": "2026-11-09",
       "forward": true,
       "live": {
-        "R": 0.718,
+        "R": 0.457,
         "status": "open"
       },
       "shadow": {
-        "R": 0.718,
+        "R": 0.457,
         "status": "open"
       }
     },
@@ -886,11 +886,11 @@
       "entry_date": "2026-11-11",
       "forward": true,
       "live": {
-        "R": -0.613,
+        "R": 0.25,
         "status": "open"
       },
       "shadow": {
-        "R": -0.613,
+        "R": 0.25,
         "status": "open"
       }
     },
@@ -900,7 +900,7 @@
       "forward": true,
       "live": null,
       "shadow": {
-        "R": 1.068,
+        "R": 0.046,
         "status": "open"
       }
     },
@@ -909,11 +909,11 @@
       "entry_date": "2026-11-16",
       "forward": true,
       "live": {
-        "R": 0.996,
+        "R": 0.313,
         "status": "open"
       },
       "shadow": {
-        "R": 0.996,
+        "R": 0.313,
         "status": "open"
       }
     },
@@ -922,11 +922,50 @@
       "entry_date": "2026-11-16",
       "forward": true,
       "live": {
-        "R": 0.955,
+        "R": 0.483,
         "status": "open"
       },
       "shadow": {
-        "R": 0.955,
+        "R": 0.483,
+        "status": "open"
+      }
+    },
+    {
+      "ticker": "ADANIENSOL",
+      "entry_date": "2026-11-23",
+      "forward": true,
+      "live": {
+        "R": -1.837,
+        "status": "open"
+      },
+      "shadow": {
+        "R": -1.837,
+        "status": "open"
+      }
+    },
+    {
+      "ticker": "APOLLOHOSP",
+      "entry_date": "2026-11-23",
+      "forward": true,
+      "live": {
+        "R": -0.204,
+        "status": "open"
+      },
+      "shadow": {
+        "R": -0.204,
+        "status": "open"
+      }
+    },
+    {
+      "ticker": "GLAXO",
+      "entry_date": "2026-11-23",
+      "forward": true,
+      "live": {
+        "R": 0.211,
+        "status": "open"
+      },
+      "shadow": {
+        "R": 0.211,
         "status": "open"
       }
     }
